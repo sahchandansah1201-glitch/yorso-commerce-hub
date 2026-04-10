@@ -201,27 +201,27 @@ export const testimonials = [
 
 export const faqItems = [
   {
-    question: "Is registration free?",
-    answer: "Yes. Creating a buyer account on YORSO is completely free. You can browse offers, compare suppliers, and contact verified sellers at no cost.",
+    question: "What's the catch? Will you charge commission later or sell my data?",
+    answer: "No catch. YORSO charges 0% commission on your deals — today and always. We monetize through optional premium tools (analytics, priority placement for suppliers), never from your margin. Your data is yours: we're GDPR-compliant and will never sell or share it with third parties.",
   },
   {
-    question: "How are suppliers verified?",
-    answer: "Our verification team reviews business documents, export licenses, facility certifications, and trade references. Verified suppliers display a badge and have passed our due diligence process.",
+    question: "I already have trusted suppliers. Why would I need a platform?",
+    answer: "Your current suppliers aren't going anywhere. YORSO gives you leverage: compare prices across 48 countries, discover backup suppliers before your single-source fails you at 2 AM, and negotiate from a position of knowledge — not dependency. Most buyers start using YORSO alongside existing relationships, not instead of them.",
   },
   {
-    question: "What products are available?",
-    answer: "YORSO covers all major seafood categories: salmon, shrimp, whitefish, tuna, crab, squid, shellfish, surimi, and more. Products span fresh, frozen, and processed formats from 48+ countries.",
+    question: "How do I know suppliers are real and not just another Alibaba scam?",
+    answer: "Every verified supplier passes a multi-step review: business licenses, export documentation, facility certifications (HACCP, BRC, MSC), and trade references. We've rejected thousands of applications. Unlike Alibaba's \"Gold Supplier\" pay-to-play badges, our verification is earned, not bought.",
   },
   {
-    question: "Can I negotiate prices directly?",
-    answer: "Yes. YORSO connects you directly with suppliers. Once registered, you can request quotes, negotiate terms, and arrange shipments on your own commercial terms.",
+    question: "We're in peak season — we don't have time to learn a new system.",
+    answer: "Registration takes 5 minutes. No training, no IT department, no integrations required. Average time from signup to first supplier contact is under 1 hour. If you can use email, you can use YORSO.",
   },
   {
-    question: "How do I know offers are current?",
-    answer: "Every offer displays a freshness timestamp showing when it was last updated. Offers that haven't been refreshed within 14 days are automatically flagged or removed.",
+    question: "Software can't smell fish. I need physical quality control.",
+    answer: "Agreed — and we'd never tell you otherwise. YORSO doesn't replace your QC process. It replaces the weeks of emails, Excel spreadsheets, and trade show trips you spend finding and comparing suppliers. You still inspect, negotiate, and decide. We just get you to the right shortlist 10x faster.",
   },
   {
-    question: "Is my business information protected?",
-    answer: "Absolutely. Your company details are only shared with suppliers you choose to contact. We comply with GDPR and international data protection standards.",
+    question: "Will my competitors see what I'm buying or who I'm talking to?",
+    answer: "Never. Your activity, inquiries, and supplier conversations are 100% private. Suppliers see your company profile only when you choose to contact them. No public purchase history, no competitor intelligence leaks.",
   },
 ];
