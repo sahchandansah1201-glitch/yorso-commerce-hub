@@ -1,24 +1,27 @@
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, FileSearch, BadgeCheck, ArrowRight } from "lucide-react";
+import { ShieldCheck, FileSearch, BadgeCheck, ArrowRight, XCircle, AlertTriangle } from "lucide-react";
 
 const steps = [
   {
     icon: FileSearch,
     step: "01",
     title: "Application Review",
-    desc: "Suppliers submit business documents, export licenses, and facility certifications for review.",
+    desc: "Suppliers submit business registration, export licenses, and facility certifications (HACCP, BRC, MSC). Self-certification is not accepted.",
+    unlike: "Unlike Alibaba's \"Gold Supplier\" that anyone can buy for $5K/year.",
   },
   {
     icon: ShieldCheck,
     step: "02",
     title: "Due Diligence",
-    desc: "Our team verifies company registration, trade references, and production capabilities.",
+    desc: "Our team verifies company registration, checks trade references with real buyers, and confirms production capabilities and export history.",
+    unlike: "Unlike directories where suppliers list themselves without any checks.",
   },
   {
     icon: BadgeCheck,
     step: "03",
     title: "Verification Badge",
-    desc: "Approved suppliers receive a verified badge, visible on all their offers and profile.",
+    desc: "Approved suppliers earn a verified badge visible on all offers. The badge is re-validated annually — it can be revoked if standards slip.",
+    unlike: "Unlike pay-to-play badges that never expire regardless of performance.",
   },
 ];
 
@@ -31,8 +34,8 @@ const SupplierVerification = () => {
             How Suppliers Are Verified
           </h2>
           <p className="mt-2 text-sm text-accent-foreground/70">
-            Every verified supplier on YORSO passes a structured review process.
-            Trade with confidence — here's how it works.
+            Our verification is earned, not bought. Here's exactly what we check —
+            and how it differs from what you've seen before.
           </p>
         </div>
 
@@ -47,8 +50,28 @@ const SupplierVerification = () => {
               </div>
               <h3 className="mt-4 font-heading text-lg font-bold">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-accent-foreground/70">{s.desc}</p>
+              <p className="mt-3 flex items-start gap-1.5 text-xs font-medium text-primary/80">
+                <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+                {s.unlike}
+              </p>
             </div>
           ))}
+        </div>
+
+        {/* What happens when suppliers fail */}
+        <div className="mx-auto mt-10 max-w-xl rounded-xl border border-destructive/20 bg-destructive/5 p-5">
+          <div className="flex items-start gap-3">
+            <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive/70" />
+            <div>
+              <p className="text-sm font-bold text-accent-foreground">What happens if a supplier fails?</p>
+              <p className="mt-1 text-sm leading-relaxed text-accent-foreground/70">
+                Verified badges can be suspended or revoked. If a supplier receives quality complaints,
+                fails annual re-verification, or breaches platform rules, their badge is removed and
+                buyers are notified. We've rejected thousands of applications and suspended dozens of
+                previously-verified suppliers.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Mid-page CTA */}
