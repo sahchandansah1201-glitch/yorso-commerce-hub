@@ -13,6 +13,9 @@ export interface SeafoodOffer {
   freshness: string;
   image: string;
   category: string;
+  format: "Frozen" | "Fresh" | "Chilled";
+  packaging: string;
+  certifications: string[];
 }
 
 export const mockOffers: SeafoodOffer[] = [
@@ -31,6 +34,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 2h ago",
     image: "/images/salmon-fillet.jpg",
     category: "Salmon",
+    format: "Frozen",
+    packaging: "10 kg carton",
+    certifications: ["HACCP", "ASC"],
   },
   {
     id: "2",
@@ -47,6 +53,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Listed today",
     image: "/images/shrimp-vannamei.jpg",
     category: "Shrimp",
+    format: "Frozen",
+    packaging: "20 kg master carton",
+    certifications: ["HACCP", "BAP"],
   },
   {
     id: "3",
@@ -63,6 +72,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 5h ago",
     image: "/images/cod-loin.jpg",
     category: "Whitefish",
+    format: "Fresh",
+    packaging: "5 kg styrofoam",
+    certifications: ["MSC", "HACCP"],
   },
   {
     id: "4",
@@ -79,6 +91,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 1d ago",
     image: "/images/tuna-loin.jpg",
     category: "Tuna",
+    format: "Chilled",
+    packaging: "10 kg vacuum pack",
+    certifications: ["HACCP"],
   },
   {
     id: "5",
@@ -95,6 +110,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Listed today",
     image: "/images/king-crab.jpg",
     category: "Crab",
+    format: "Frozen",
+    packaging: "10 kg carton",
+    certifications: ["HACCP", "MSC"],
   },
   {
     id: "6",
@@ -111,6 +129,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 8h ago",
     image: "/images/squid-tube.jpg",
     category: "Squid",
+    format: "Frozen",
+    packaging: "20 kg block",
+    certifications: ["HACCP"],
   },
   {
     id: "7",
@@ -127,6 +148,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 3h ago",
     image: "/images/mahi-mahi.jpg",
     category: "Whitefish",
+    format: "Frozen",
+    packaging: "10 kg IQF carton",
+    certifications: ["HACCP", "BAP"],
   },
   {
     id: "8",
@@ -143,6 +167,9 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 1h ago",
     image: "/images/pangasius.jpg",
     category: "Whitefish",
+    format: "Frozen",
+    packaging: "10 kg IVP carton",
+    certifications: ["HACCP", "ASC", "BRC"],
   },
 ];
 
@@ -177,25 +204,28 @@ export const activityFeed = [
 
 export const testimonials = [
   {
-    quote: "YORSO cut our sourcing time by 60%. We found three verified shrimp suppliers from Ecuador within a week.",
+    quote: "After losing $40K on Alibaba to a supplier who swapped product in the container, I swore off marketplaces. YORSO was different — I verified the factory before ordering, and they never hid the supplier's direct phone number. That changed everything.",
     name: "Marcus Hendriksen",
     role: "Procurement Director",
     company: "Nordic Fish Import AB",
     country: "Sweden",
+    painTag: "Bait-and-switch survivor",
   },
   {
-    quote: "The verified supplier badges give us confidence. We've sourced over 200 tonnes of salmon through the platform.",
+    quote: "My CFO asked why we pay 12% above market on shrimp. I had no answer — we'd been using the same broker for years. Now I walk into board meetings with YORSO's benchmark data and negotiate from strength. Last quarter we saved $180K.",
     name: "Sofia Chen",
     role: "Supply Chain Manager",
     company: "Pacific Seafood Trading",
     country: "Singapore",
+    painTag: "Price blindness → savings",
   },
   {
-    quote: "Finally, a B2B seafood platform that actually has real offers with real prices. Not just a directory.",
+    quote: "When our Chilean salmon supplier had a force majeure mid-season, we needed 20 tonnes in 48 hours. Previously that meant panicking at trade shows. On YORSO, we found three verified alternatives overnight and shipped on time.",
     name: "Jean-Pierre Moreau",
     role: "Import Manager",
     company: "Marée Fraîche SARL",
     country: "France",
+    painTag: "Emergency sourcing",
   },
 ];
 
