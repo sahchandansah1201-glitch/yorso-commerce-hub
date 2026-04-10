@@ -7,16 +7,20 @@ const SocialProof = () => {
       <div className="container">
         <div className="text-center">
           <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            Trusted by Buyers Worldwide
+            From Skeptics to Power Users
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Hear from procurement professionals who source on YORSO.
+            Real stories from procurement pros who've been burned before — and found something better.
           </p>
         </div>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
             <div key={t.name} className="flex flex-col rounded-xl border border-border bg-card p-6">
+              {/* Pain tag */}
+              <div className="mb-3 inline-flex self-start rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+                {t.painTag}
+              </div>
               <Quote className="h-5 w-5 text-primary/40" />
               <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground">
                 "{t.quote}"
