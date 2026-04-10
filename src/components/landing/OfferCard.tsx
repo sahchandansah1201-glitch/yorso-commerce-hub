@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Clock, MapPin } from "lucide-react";
+import { ShieldCheck, Clock, MapPin, Lock } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 
 interface OfferCardProps {
@@ -10,7 +10,7 @@ interface OfferCardProps {
 const OfferCard = ({ offer }: OfferCardProps) => {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
-      {/* Image — 4:3 ratio, ~58% visual weight */}
+      {/* Image — 4:3 ratio */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={offer.image}
@@ -45,9 +45,12 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           <span>{offer.originFlag} {offer.origin}</span>
         </div>
 
-        {/* Supplier */}
+        {/* Supplier — hidden, requires approval */}
         <div className="mt-1.5 flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground">{offer.supplierName}</span>
+          <div className="flex items-center gap-1 rounded bg-muted/60 px-2 py-0.5">
+            <Lock className="h-3 w-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground select-none">Supplier hidden</span>
+          </div>
           {offer.isVerified && (
             <Badge variant="secondary" className="gap-0.5 px-1.5 py-0 text-[10px] font-medium text-success">
               <ShieldCheck className="h-3 w-3" />
@@ -56,20 +59,23 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           )}
         </div>
 
-        {/* Price + MOQ */}
+        {/* Price — blurred range, login to reveal */}
         <div className="mt-auto pt-3">
-          <div className="flex items-baseline gap-1">
-            <span className="font-heading text-base font-bold text-foreground">
+          <div className="flex items-center gap-2">
+            <span className="font-heading text-base font-bold text-foreground blur-[5px] select-none pointer-events-none">
               {offer.priceRange}
             </span>
             <span className="text-xs text-muted-foreground">{offer.priceUnit}</span>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">{offer.moq}</p>
+          <div className="mt-1 flex items-center gap-1 text-xs text-primary">
+            <Lock className="h-3 w-3" />
+            <span className="font-medium">Register to see prices</span>
+          </div>
         </div>
 
         {/* CTA */}
         <Button variant="outline" size="sm" className="mt-3 w-full text-xs font-semibold transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-          View Offer
+          Request Access
         </Button>
       </div>
     </div>
