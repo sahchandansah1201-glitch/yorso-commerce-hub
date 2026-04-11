@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
 import LiveOffers from "@/components/landing/LiveOffers";
@@ -11,8 +12,13 @@ import FAQ from "@/components/landing/FAQ";
 import FinalCTA from "@/components/landing/FinalCTA";
 import Footer from "@/components/landing/Footer";
 import AnimatedSection from "@/components/landing/AnimatedSection";
+import { initScrollDepthTracking } from "@/lib/analytics";
 
 const Index = () => {
+  useEffect(() => {
+    return initScrollDepthTracking();
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Header />

@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, Eye, Ban } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 
 const FinalCTA = () => {
   const { t } = useLanguage();
@@ -15,10 +17,12 @@ const FinalCTA = () => {
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/70">{t.cta_subtitle}</p>
 
-          <Button size="lg" className="mt-8 gap-2 px-10 text-base font-semibold">
-            {t.cta_registerFree}
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          <Link to="/register" onClick={() => analytics.track("register_cta_final_click")}>
+            <Button size="lg" className="mt-8 gap-2 px-10 text-base font-semibold">
+              {t.cta_registerFree}
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </Link>
 
           <p className="mt-4 text-xs text-accent-foreground/50">{t.cta_freeNote}</p>
 

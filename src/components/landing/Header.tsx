@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
+import analytics from "@/lib/analytics";
 
 const langs: Language[] = ["en", "ru", "es"];
 
@@ -14,21 +16,18 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
-          <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
-            YORSO
-          </span>
-        </a>
+        <Link to="/" className="flex items-center gap-2">
+          <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="#offers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_liveOffers}</a>
-          <a href="#categories" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_categories}</a>
-          <a href="#how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_howItWorks}</a>
-          <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_faq}</a>
+          <a href="/#offers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_liveOffers}</a>
+          <a href="/#categories" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_categories}</a>
+          <a href="/#how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_howItWorks}</a>
+          <a href="/#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_faq}</a>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          {/* Language picker */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
@@ -53,8 +52,12 @@ const Header = () => {
               </div>
             )}
           </div>
-          <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
-          <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
+          <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
+            <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
+          </Link>
+          <Link to="/register" onClick={() => analytics.track("header_register_click")}>
+            <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
+          </Link>
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
@@ -65,12 +68,11 @@ const Header = () => {
       {mobileOpen && (
         <div className="border-t border-border bg-background px-4 pb-6 pt-4 md:hidden">
           <nav className="flex flex-col gap-4">
-            <a href="#offers" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</a>
-            <a href="#categories" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</a>
-            <a href="#faq" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
+            <a href="/#offers" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</a>
+            <a href="/#categories" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
+            <a href="/#how-it-works" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</a>
+            <a href="/#faq" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
           </nav>
-          {/* Mobile language picker */}
           <div className="mt-4 flex gap-2">
             {langs.map((l) => (
               <button
@@ -83,8 +85,12 @@ const Header = () => {
             ))}
           </div>
           <div className="mt-4 flex flex-col gap-3">
-            <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
-            <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
+            <Link to="/signin" onClick={() => setMobileOpen(false)}>
+              <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
+            </Link>
+            <Link to="/register" onClick={() => setMobileOpen(false)}>
+              <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
+            </Link>
           </div>
         </div>
       )}

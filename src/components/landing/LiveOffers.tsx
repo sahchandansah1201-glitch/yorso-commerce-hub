@@ -1,8 +1,10 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import OfferCard from "./OfferCard";
 import { mockOffers } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 
 const LiveOffers = () => {
   const { t } = useLanguage();
@@ -25,31 +27,50 @@ const LiveOffers = () => {
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">{t.offers_subtitle}</p>
           </div>
-          <Button variant="ghost" className="hidden gap-1 text-sm font-medium text-primary hover:text-primary md:flex">
-            {t.offers_viewAll}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link
+            to="/offers"
+            onClick={() => analytics.track("live_offers_view_all_click")}
+            className="hidden md:block"
+          >
+            <Button variant="ghost" className="gap-1 text-sm font-medium text-primary hover:text-primary">
+              {t.offers_viewAll}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
           {visibleOffers.slice(0, 4).map((offer) => (
             <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
-              <OfferCard offer={offer} />
+              <Link
+                to={`/offers/${offer.id}`}
+                onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
+              >
+                <OfferCard offer={offer} />
+              </Link>
             </div>
           ))}
         </div>
 
         <div className="mt-4 hidden grid-cols-4 gap-4 lg:grid">
           {visibleOffers.slice(4, 8).map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
+            <Link
+              key={offer.id}
+              to={`/offers/${offer.id}`}
+              onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
+            >
+              <OfferCard offer={offer} />
+            </Link>
           ))}
         </div>
 
         <div className="mt-6 text-center md:hidden">
-          <Button variant="outline" className="gap-1 font-semibold">
-            {t.offers_viewAllMobile}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link to="/offers" onClick={() => analytics.track("live_offers_view_all_click")}>
+            <Button variant="outline" className="gap-1 font-semibold">
+              {t.offers_viewAllMobile}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

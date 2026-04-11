@@ -1,15 +1,26 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Search, ShieldCheck, Package, Globe, Users } from "lucide-react";
 import { marketplaceStats } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 
 const Hero = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const subtitle = t.hero_subtitle
     .replace("{suppliers}", marketplaceStats.verifiedSuppliers.toString())
     .replace("{countries}", marketplaceStats.countries.toString());
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    analytics.track("hero_search_submit", { query: searchQuery });
+    navigate("/offers");
+  };
 
   return (
     <section className="relative overflow-hidden bg-accent pb-14 pt-20 md:pb-20 md:pt-28">
@@ -28,31 +39,37 @@ const Hero = () => {
             {subtitle}
           </p>
 
-          <div className="mx-auto mt-8 max-w-lg">
+          <form onSubmit={handleSearch} className="mx-auto mt-8 max-w-lg">
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t.hero_searchPlaceholder}
                   className="h-12 rounded-lg border-accent-foreground/20 bg-accent-foreground/5 pl-10 text-sm text-accent-foreground placeholder:text-accent-foreground/40 focus-visible:ring-primary"
                 />
               </div>
-              <Button size="lg" className="h-12 gap-1.5 px-5 font-semibold">
+              <Button type="submit" size="lg" className="h-12 gap-1.5 px-5 font-semibold">
                 {t.hero_searchBtn}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
             <p className="mt-2 text-xs text-accent-foreground/50">{t.hero_popular}</p>
-          </div>
+          </form>
 
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button size="lg" className="w-full gap-2 font-semibold sm:w-auto">
-              {t.hero_registerFree}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="lg" className="w-full gap-2 border-accent-foreground/20 bg-transparent text-accent-foreground hover:bg-accent-foreground/5 sm:w-auto">
-              {t.hero_exploreLiveOffers}
-            </Button>
+            <Link to="/register" onClick={() => analytics.track("hero_primary_cta_click")}>
+              <Button size="lg" className="w-full gap-2 font-semibold sm:w-auto">
+                {t.hero_registerFree}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <a href="#offers" onClick={() => analytics.track("hero_secondary_cta_click")}>
+              <Button variant="outline" size="lg" className="w-full gap-2 border-accent-foreground/20 bg-transparent text-accent-foreground hover:bg-accent-foreground/5 sm:w-auto">
+                {t.hero_exploreLiveOffers}
+              </Button>
+            </a>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-accent-foreground/60">

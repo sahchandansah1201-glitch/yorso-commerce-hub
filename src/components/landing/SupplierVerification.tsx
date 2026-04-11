@@ -1,14 +1,22 @@
+import { useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, FileSearch, BadgeCheck, ArrowRight, XCircle, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics, { trackSectionImpression } from "@/lib/analytics";
 
 const stepIcons = [FileSearch, ShieldCheck, BadgeCheck];
 
 const SupplierVerification = () => {
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    return trackSectionImpression(sectionRef.current, "supplier_verification");
+  }, []);
 
   return (
-    <section id="how-it-works" className="bg-accent py-16 text-accent-foreground md:py-20">
+    <section id="how-it-works" ref={sectionRef} className="bg-accent py-16 text-accent-foreground md:py-20">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-heading text-2xl font-bold tracking-tight md:text-3xl">{t.verify_title}</h2>
@@ -50,10 +58,12 @@ const SupplierVerification = () => {
 
         <div className="mt-12 text-center">
           <p className="text-sm text-accent-foreground/60">{t.verify_ctaHint}</p>
-          <Button size="lg" className="mt-4 gap-2 font-semibold">
-            {t.verify_ctaBtn}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link to="/register" onClick={() => analytics.track("register_cta_midpage_click", { section: "supplier_verification" })}>
+            <Button size="lg" className="mt-4 gap-2 font-semibold">
+              {t.verify_ctaBtn}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
