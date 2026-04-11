@@ -13,6 +13,13 @@ const formatIcon = {
   Chilled: Thermometer,
 };
 
+const translateFreshness = (raw: string, t: { card_listedToday: string; card_updatedAgo: string }) => {
+  if (/listed today/i.test(raw)) return t.card_listedToday;
+  const m = raw.match(/Updated\s+(.+?)\s+ago/i);
+  if (m) return (t.card_updatedAgo as string).replace("{time}", m[1]);
+  return raw;
+};
+
 const OfferCard = ({ offer }: OfferCardProps) => {
   const { t } = useLanguage();
   const FormatIcon = formatIcon[offer.format];
@@ -25,7 +32,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         <div className="absolute left-2 top-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
             <Clock className="h-3 w-3 text-primary" />
-            {offer.freshness}
+            {translateFreshness(offer.freshness, t)}
           </span>
         </div>
         <div className="absolute right-2 top-2">

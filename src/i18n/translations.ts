@@ -49,6 +49,8 @@ type TranslationKeys = {
   card_frozen: string;
   card_fresh: string;
   card_chilled: string;
+  card_updatedAgo: string;
+  card_listedToday: string;
 
   // Trust Strip
   trust_liveOffers: string;
@@ -177,6 +179,8 @@ const en: TranslationKeys = {
   card_frozen: "Frozen",
   card_fresh: "Fresh",
   card_chilled: "Chilled",
+  card_updatedAgo: "Updated {time} ago",
+  card_listedToday: "Listed today",
 
   // Trust Strip
   trust_liveOffers: "Live Offers",
@@ -365,6 +369,8 @@ const ru: TranslationKeys = {
   card_frozen: "Заморож.",
   card_fresh: "Свежий",
   card_chilled: "Охлажд.",
+  card_updatedAgo: "Обновлено {time} назад",
+  card_listedToday: "Добавлено сегодня",
 
   trust_liveOffers: "Предложений",
   trust_verifiedSuppliers: "Проверенных поставщиков",
@@ -544,6 +550,8 @@ const es: TranslationKeys = {
   card_frozen: "Congelado",
   card_fresh: "Fresco",
   card_chilled: "Refrigerado",
+  card_updatedAgo: "Actualizado hace {time}",
+  card_listedToday: "Publicado hoy",
 
   trust_liveOffers: "Ofertas activas",
   trust_verifiedSuppliers: "Proveedores verificados",
