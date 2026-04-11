@@ -3,7 +3,6 @@ import Hero from "@/components/landing/Hero";
 import LiveOffers from "@/components/landing/LiveOffers";
 import TrustStrip from "@/components/landing/TrustStrip";
 import ValueSplit from "@/components/landing/ValueSplit";
-import AntiObjection from "@/components/landing/AntiObjection";
 import CategoryAcceleration from "@/components/landing/CategoryAcceleration";
 import SupplierVerification from "@/components/landing/SupplierVerification";
 import MarketplaceActivity from "@/components/landing/MarketplaceActivity";
@@ -20,7 +19,6 @@ const Index = () => {
       <LiveOffers />
       <TrustStrip />
       <ValueSplit />
-      <AntiObjection />
       <CategoryAcceleration />
       <SupplierVerification />
       <MarketplaceActivity />
