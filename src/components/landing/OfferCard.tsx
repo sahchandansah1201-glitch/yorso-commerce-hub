@@ -13,7 +13,7 @@ const formatIcon = {
   Chilled: Thermometer,
 };
 
-const translateFreshness = (raw: string, t: Record<string, string>) => {
+const translateFreshness = (raw: string, t: { card_listedToday: string; card_updatedAgo: string }) => {
   if (/listed today/i.test(raw)) return t.card_listedToday;
   const m = raw.match(/Updated\s+(.+?)\s+ago/i);
   if (m) return (t.card_updatedAgo as string).replace("{time}", m[1]);
