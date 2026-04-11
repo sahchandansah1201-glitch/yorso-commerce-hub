@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450" fill="none">
+  <rect width="600" height="450" fill="#F5F3F0"/>
+  <g transform="translate(300, 195)" opacity="0.5">
+    <path d="M-60 0C-60 0-45-35 0-35C30-35 40-20 55-20C70-20 75-10 75 0C75 10 70 20 55 20C40 20 30 35 0 35C-45 35-60 0-60 0Z" stroke="#1B2E4A" stroke-width="2.5" fill="none"/>
+    <circle cx="-35" cy="-5" r="4" fill="#1B2E4A"/>
+    <path d="M75 0C75 0 90-20 95-25L95 25C90 20 75 0 75 0Z" stroke="#1B2E4A" stroke-width="2.5" fill="none"/>
+    <path d="M-10-30C-10-30 0-45 10-30" stroke="#1B2E4A" stroke-width="2" fill="none"/>
+    <path d="M20-15C20-15 25-5 20 5" stroke="#1B2E4A" stroke-width="1.5" fill="none" opacity="0.4"/>
+    <path d="M35-12C35-12 40-4 35 4" stroke="#1B2E4A" stroke-width="1.5" fill="none" opacity="0.3"/>
+  </g>
+  <text x="300" y="270" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" fill="#1B2E4A" opacity="0.45">Image unavailable</text>
+</svg>
