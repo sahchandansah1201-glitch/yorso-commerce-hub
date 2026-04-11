@@ -28,7 +28,17 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <img src={offer.image} alt={offer.productName} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+        <img
+          src={offer.image}
+          alt={offer.productName}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.onerror = null;
+            target.src = "/placeholder.svg";
+          }}
+        />
         <div className="absolute left-2 top-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
             <Clock className="h-3 w-3 text-primary" />
