@@ -7,22 +7,22 @@ const FinalCTA = () => {
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-heading text-3xl font-bold tracking-tight text-accent-foreground md:text-4xl">
-            Take Control of Your
-            <span className="text-primary"> Supply Chain</span>
+            Start Sourcing with
+            <span className="text-primary"> Confidence</span>
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/70">
-            Stop firefighting. Stop overpaying. Stop depending on a single supplier
-            who could fail you tomorrow. Start sourcing with confidence — verified suppliers,
-            transparent prices, direct contacts.
+            Join thousands of procurement professionals who source seafood through
+            verified suppliers, transparent pricing, and direct contacts — with zero
+            commissions and no lock-in.
           </p>
 
           <Button size="lg" className="mt-8 gap-2 px-10 text-base font-semibold">
-            Get Free Access Now
+            Register Free
             <ArrowRight className="h-5 w-5" />
           </Button>
 
           <p className="mt-4 text-xs text-accent-foreground/50">
-            Free forever for buyers · No credit card · No hidden fees · Cancel anytime
+            Free for buyers · No credit card required · Setup in 5 minutes
           </p>
 
           {/* Trust reinforcement */}
