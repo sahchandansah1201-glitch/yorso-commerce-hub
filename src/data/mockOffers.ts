@@ -89,7 +89,7 @@ export const mockOffers: SeafoodOffer[] = [
     priceUnit: "per kg",
     moq: "MOQ: 500 kg",
     freshness: "Updated 1d ago",
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=450&fit=crop",
+    image: "/offers/tuna.jpg",
     category: "Tuna",
     format: "Chilled",
     packaging: "10 kg vacuum pack",
