@@ -2,14 +2,15 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import OfferCard from "./OfferCard";
 import { mockOffers } from "@/data/mockOffers";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const LiveOffers = () => {
+  const { t } = useLanguage();
   const visibleOffers = mockOffers.slice(0, 8);
 
   return (
     <section id="offers" className="bg-background py-12 md:py-16">
       <div className="container">
-        {/* Header */}
         <div className="flex items-end justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -17,23 +18,19 @@ const LiveOffers = () => {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
-              <span className="text-sm font-medium text-primary">Live Marketplace</span>
+              <span className="text-sm font-medium text-primary">{t.offers_liveMarketplace}</span>
             </div>
             <h2 className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-              Wholesale Offers
+              {t.offers_title}
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Fresh listings from verified suppliers worldwide — updated continuously
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t.offers_subtitle}</p>
           </div>
           <Button variant="ghost" className="hidden gap-1 text-sm font-medium text-primary hover:text-primary md:flex">
-            View all offers
+            {t.offers_viewAll}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Grid */}
-        {/* Mobile: horizontal scroll, Tablet: 2-col, Desktop: 4-col */}
         <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
           {visibleOffers.slice(0, 4).map((offer) => (
             <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
@@ -42,17 +39,15 @@ const LiveOffers = () => {
           ))}
         </div>
 
-        {/* Second row — desktop only */}
         <div className="mt-4 hidden grid-cols-4 gap-4 lg:grid">
           {visibleOffers.slice(4, 8).map((offer) => (
             <OfferCard key={offer.id} offer={offer} />
           ))}
         </div>
 
-        {/* Mobile CTA */}
         <div className="mt-6 text-center md:hidden">
           <Button variant="outline" className="gap-1 font-semibold">
-            View All Offers
+            {t.offers_viewAllMobile}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
