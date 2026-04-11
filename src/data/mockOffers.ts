@@ -70,7 +70,7 @@ export const mockOffers: SeafoodOffer[] = [
     priceUnit: "per kg",
     moq: "MOQ: 2,000 kg",
     freshness: "Updated 5h ago",
-    image: "https://images.unsplash.com/photo-1510130113581-82d3bae53834?w=600&h=450&fit=crop",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&h=450&fit=crop",
     category: "Whitefish",
     format: "Fresh",
     packaging: "5 kg styrofoam",
