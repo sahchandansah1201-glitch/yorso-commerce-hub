@@ -47,6 +47,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         <h3 className="font-heading text-sm font-semibold leading-tight text-foreground line-clamp-2">
           {offer.productName}
         </h3>
+        <p className="mt-0.5 text-[11px] italic text-muted-foreground">{offer.latinName}</p>
 
         {/* Origin + MOQ row */}
         <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">

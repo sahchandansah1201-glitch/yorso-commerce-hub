@@ -33,9 +33,12 @@ const LiveOffers = () => {
         </div>
 
         {/* Grid */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Mobile: horizontal scroll, Tablet: 2-col, Desktop: 4-col */}
+        <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
           {visibleOffers.slice(0, 4).map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
+            <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
+              <OfferCard offer={offer} />
+            </div>
           ))}
         </div>
 
