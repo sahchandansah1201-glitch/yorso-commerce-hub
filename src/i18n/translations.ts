@@ -49,6 +49,8 @@ type TranslationKeys = {
   card_frozen: string;
   card_fresh: string;
   card_chilled: string;
+  card_updatedAgo: string;
+  card_listedToday: string;
 
   // Trust Strip
   trust_liveOffers: string;
