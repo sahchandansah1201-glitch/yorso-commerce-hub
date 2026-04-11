@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldOff, Eye, BarChart3, AlertTriangle, Globe, Users, TrendingUp, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 
 const buyerIcons = [AlertTriangle, Eye, ShieldOff, BarChart3];
 const supplierIcons = [Globe, Users, TrendingUp, ShieldCheck];
@@ -36,10 +38,12 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Button className="mt-8 w-full gap-2 font-semibold">
-              {t.value_registerBuyer}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <Link to="/register" onClick={() => analytics.track("value_register_buyer_click")}>
+              <Button className="mt-8 w-full gap-2 font-semibold">
+                {t.value_registerBuyer}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-6 md:p-8">
@@ -61,10 +65,12 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Button variant="outline" className="mt-8 w-full gap-2 font-semibold">
-              {t.value_registerSupplier}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <Link to="/register" onClick={() => analytics.track("value_register_supplier_click")}>
+              <Button variant="outline" className="mt-8 w-full gap-2 font-semibold">
+                {t.value_registerSupplier}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
