@@ -51,7 +51,7 @@ export const mockOffers: SeafoodOffer[] = [
     priceUnit: "per kg",
     moq: "MOQ: 5,000 kg",
     freshness: "Listed today",
-    image: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600&h=450&fit=crop",
+    image: "/offers/shrimp.jpg",
     category: "Shrimp",
     format: "Frozen",
     packaging: "20 kg master carton",
