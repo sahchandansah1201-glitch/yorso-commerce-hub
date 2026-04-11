@@ -1,21 +1,33 @@
 import { useEffect, useState, useRef } from "react";
-import { activityFeed } from "@/data/mockOffers";
 import { Plus, UserPlus, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const iconMap = {
-  new_listing: Plus,
-  new_supplier: UserPlus,
-  price_update: TrendingUp,
-};
+  0: Plus,
+  1: UserPlus,
+  2: TrendingUp,
+  3: Plus,
+  4: UserPlus,
+  5: TrendingUp,
+  6: Plus,
+  7: UserPlus,
+} as Record<number, typeof Plus>;
 
 const colorMap = {
-  new_listing: "bg-primary/10 text-primary",
-  new_supplier: "bg-success/10 text-success",
-  price_update: "bg-orange-glow/10 text-primary",
-};
+  0: "bg-primary/10 text-primary",
+  1: "bg-success/10 text-success",
+  2: "bg-orange-glow/10 text-primary",
+  3: "bg-primary/10 text-primary",
+  4: "bg-success/10 text-success",
+  5: "bg-orange-glow/10 text-primary",
+  6: "bg-primary/10 text-primary",
+  7: "bg-success/10 text-success",
+} as Record<number, string>;
 
 const MarketplaceActivity = () => {
-  const [visibleItems, setVisibleItems] = useState(activityFeed.slice(0, 5));
+  const { t } = useLanguage();
+  const feed = t.activity_feed;
+  const [visibleItems, setVisibleItems] = useState(feed.slice(0, 5).map((item, i) => ({ ...item, idx: i })));
   const [currentIndex, setCurrentIndex] = useState(5);
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -23,22 +35,18 @@ const MarketplaceActivity = () => {
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setIsAnimating(true);
-
       setTimeout(() => {
         setVisibleItems((prev) => {
-          const nextIndex = currentIndex % activityFeed.length;
-          const newItem = activityFeed[nextIndex];
+          const nextIndex = currentIndex % feed.length;
+          const newItem = { ...feed[nextIndex], idx: nextIndex };
           setCurrentIndex((ci) => ci + 1);
           return [newItem, ...prev.slice(0, 4)];
         });
         setIsAnimating(false);
       }, 300);
     }, 3000);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [currentIndex]);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [currentIndex, feed]);
 
   return (
     <section className="bg-background py-16 md:py-20">
@@ -49,21 +57,17 @@ const MarketplaceActivity = () => {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
-            <span className="text-xs font-semibold text-success">Live</span>
+            <span className="text-xs font-semibold text-success">{t.activity_live}</span>
           </div>
-          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-            Marketplace Activity
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Real-time updates — new listings, price changes, and supplier activity happening now.
-          </p>
+          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t.activity_title}</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{t.activity_subtitle}</p>
         </div>
 
         <div className="mx-auto mt-10 max-w-2xl">
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             {visibleItems.map((item, i) => {
-              const Icon = iconMap[item.type];
-              const colors = colorMap[item.type];
+              const Icon = iconMap[item.idx] || Plus;
+              const colors = colorMap[item.idx] || "bg-primary/10 text-primary";
               return (
                 <div
                   key={`${item.text}-${i}`}
@@ -80,9 +84,7 @@ const MarketplaceActivity = () => {
               );
             })}
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            Updates refresh automatically · Showing latest activity across all categories
-          </p>
+          <p className="mt-3 text-center text-xs text-muted-foreground">{t.activity_footer}</p>
         </div>
       </div>
     </section>
