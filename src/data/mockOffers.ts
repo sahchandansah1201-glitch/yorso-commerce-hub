@@ -108,7 +108,7 @@ export const mockOffers: SeafoodOffer[] = [
     priceUnit: "per kg",
     moq: "MOQ: 200 kg",
     freshness: "Listed today",
-    image: "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=600&h=450&fit=crop",
+    image: "/offers/crab.jpg",
     category: "Crab",
     format: "Frozen",
     packaging: "10 kg carton",
