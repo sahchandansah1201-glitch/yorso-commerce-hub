@@ -32,7 +32,7 @@ export const mockOffers: SeafoodOffer[] = [
     priceUnit: "per kg",
     moq: "MOQ: 1,000 kg",
     freshness: "Updated 2h ago",
-    image: "https://images.unsplash.com/photo-1574781330855-d0db8cc6a79c?w=600&h=450&fit=crop",
+    image: "/offers/salmon.jpg",
     category: "Salmon",
     format: "Frozen",
     packaging: "10 kg carton",
