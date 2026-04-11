@@ -10,21 +10,40 @@ import SocialProof from "@/components/landing/SocialProof";
 import FAQ from "@/components/landing/FAQ";
 import FinalCTA from "@/components/landing/FinalCTA";
 import Footer from "@/components/landing/Footer";
+import AnimatedSection from "@/components/landing/AnimatedSection";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Header />
       <Hero />
-      <LiveOffers />
-      <TrustStrip />
-      <ValueSplit />
-      <CategoryAcceleration />
-      <SupplierVerification />
-      <MarketplaceActivity />
-      <SocialProof />
-      <FAQ />
-      <FinalCTA />
+      <AnimatedSection>
+        <LiveOffers />
+      </AnimatedSection>
+      <AnimatedSection>
+        <TrustStrip />
+      </AnimatedSection>
+      <AnimatedSection>
+        <ValueSplit />
+      </AnimatedSection>
+      <AnimatedSection>
+        <CategoryAcceleration />
+      </AnimatedSection>
+      <AnimatedSection>
+        <SupplierVerification />
+      </AnimatedSection>
+      <AnimatedSection>
+        <MarketplaceActivity />
+      </AnimatedSection>
+      <AnimatedSection>
+        <SocialProof />
+      </AnimatedSection>
+      <AnimatedSection>
+        <FAQ />
+      </AnimatedSection>
+      <AnimatedSection>
+        <FinalCTA />
+      </AnimatedSection>
       <Footer />
     </div>
   );
