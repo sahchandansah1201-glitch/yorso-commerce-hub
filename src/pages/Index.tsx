@@ -26,28 +26,28 @@ const Index = () => {
       <AnimatedSection>
         <LiveOffers />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="scale" delay={0.05}>
         <TrustStrip />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="fade-left">
         <ValueSplit />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="fade-right" delay={0.1}>
         <CategoryAcceleration />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="blur">
         <SupplierVerification />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="fade-up" delay={0.05}>
         <MarketplaceActivity />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="scale">
         <SocialProof />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="fade-up">
         <FAQ />
       </AnimatedSection>
-      <AnimatedSection>
+      <AnimatedSection preset="blur" delay={0.1}>
         <FinalCTA />
       </AnimatedSection>
       <Footer />
