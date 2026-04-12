@@ -66,15 +66,14 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className="text-xs text-muted-foreground truncate">{offer.supplierName}</span>
-          {offer.isVerified && (
+        {offer.isVerified && (
+          <div className="mt-2">
             <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-success">
               <ShieldCheck className="h-3 w-3" />
               {t.card_verified}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="mt-auto pt-3">
           <div className="flex items-center gap-2">
