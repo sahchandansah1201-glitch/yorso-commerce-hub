@@ -145,6 +145,7 @@ export const mockOffers: SeafoodOffer[] = [
     images: ["/offers/salmon.webp", "/offers/cod.webp"],
     gallery: [
       { src: "/offers/salmon.webp", alt: "Atlantic Salmon Fillet — top view", caption: "Fillet skin-on, pin bone out, vacuum packed", sourceLabel: "Supplier-provided" },
+      { src: "/assets/salmon-vertical.jpg", alt: "Whole salmon on ice — vertical inspection", caption: "Fresh whole fish before processing", sourceLabel: "Supplier-provided" },
       { src: "/offers/cod.webp", alt: "Packaging and labeling", caption: "10 kg carton packaging with labeling", sourceLabel: "Supplier-provided" },
     ],
     category: "Salmon",
