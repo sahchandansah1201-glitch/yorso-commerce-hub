@@ -11,6 +11,7 @@ import SupplierTrustPanel from "@/components/offer-detail/SupplierTrustPanel";
 import TrustSection from "@/components/offer-detail/TrustSection";
 import FullSpecifications from "@/components/offer-detail/FullSpecifications";
 import SimilarOffers from "@/components/offer-detail/SimilarOffers";
+import SimilarProducts from "@/components/offer-detail/SimilarProducts";
 import RelatedArticles from "@/components/offer-detail/RelatedArticles";
 import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 
@@ -70,6 +71,7 @@ const OfferDetail = () => {
         <TrustSection offer={offer} />
         <FullSpecifications offer={offer} />
         <SimilarOffers current={offer} />
+        <SimilarProducts current={offer} />
         <RelatedArticles articles={offer.relatedArticles} />
         <DecisionFAQ />
       </main>

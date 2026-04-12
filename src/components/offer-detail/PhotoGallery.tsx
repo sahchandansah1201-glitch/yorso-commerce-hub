@@ -27,26 +27,52 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
         <span>{photoSourceLabel}</span>
       </div>
 
-      {/* Main image */}
+      {/* Main image with nav arrows */}
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
-        <img
-          src={imgs[active].src}
-          alt={imgs[active].alt}
-          className="h-full w-full object-cover aspect-[4/3] cursor-zoom-in"
-          onClick={() => setLightbox(true)}
-          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
-        />
+        <div className="flex items-center justify-center bg-muted/20" style={{ minHeight: 280 }}>
+          <img
+            src={imgs[active].src}
+            alt={imgs[active].alt}
+            className="max-h-[420px] w-full object-contain cursor-zoom-in"
+            onClick={() => setLightbox(true)}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
+          />
+        </div>
+
+        {/* Prev / Next arrows on the main image */}
+        {imgs.length > 1 && (
+          <>
+            <button
+              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-lg bg-background/80 p-1.5 text-foreground backdrop-blur opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); goNext(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-background/80 p-1.5 text-foreground backdrop-blur opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
+
+        {/* Fullscreen button */}
         <button
           onClick={() => setLightbox(true)}
           className="absolute top-3 right-3 rounded-lg bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
         >
           <Maximize2 className="h-4 w-4" />
         </button>
+
+        {/* Counter */}
         {imgs.length > 1 && (
           <span className="absolute bottom-3 right-3 rounded-md bg-background/80 px-2 py-0.5 text-xs font-medium text-foreground backdrop-blur">
             {active + 1} / {imgs.length}
           </span>
         )}
+
+        {/* Caption */}
         {imgs[active].caption && (
           <span className="absolute bottom-3 left-3 rounded-md bg-background/80 px-2 py-0.5 text-xs text-muted-foreground backdrop-blur">
             {imgs[active].caption}
