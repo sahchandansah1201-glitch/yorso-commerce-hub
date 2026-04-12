@@ -12,8 +12,8 @@ const LiveOffers = () => {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
-  const firstRow = mockOffers.slice(0, 4);
-  const extraRows = mockOffers.slice(4, 8);
+  const visibleOffers = mockOffers.slice(0, 8);
+  const extraOffers = mockOffers.slice(8);
 
   const toggleExpanded = () => {
     const next = !expanded;
@@ -50,10 +50,10 @@ const LiveOffers = () => {
           </Link>
         </div>
 
-        {/* First row — always visible */}
-        <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
-          {firstRow.map((offer) => (
-            <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
+        {/* Visible offers — 8 cards */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visibleOffers.map((offer) => (
+            <div key={offer.id}>
               <Link
                 to={`/offers/${offer.id}`}
                 onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
@@ -64,7 +64,7 @@ const LiveOffers = () => {
           ))}
         </div>
 
-        {/* Expandable extra rows */}
+        {/* Expandable extra offers */}
         <AnimatePresence>
           {expanded && (
             <motion.div
@@ -74,9 +74,9 @@ const LiveOffers = () => {
               transition={{ duration: 0.35, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="mt-4 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
-                {extraRows.map((offer) => (
-                  <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {extraOffers.map((offer) => (
+                  <div key={offer.id}>
                     <Link
                       to={`/offers/${offer.id}`}
                       onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
@@ -91,7 +91,7 @@ const LiveOffers = () => {
         </AnimatePresence>
 
         {/* Show more / Show less toggle */}
-        {extraRows.length > 0 && (
+        {extraOffers.length > 0 && (
           <div className="mt-6 flex justify-center">
             <Button
               variant="outline"
