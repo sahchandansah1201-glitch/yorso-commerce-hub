@@ -5,7 +5,6 @@ import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OfferCard from "./OfferCard";
 import { mockOffers } from "@/data/mockOffers";
-import { offerIdToSlug } from "@/data/offerSlugs";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 
@@ -56,7 +55,7 @@ const LiveOffers = () => {
           {visibleOffers.map((offer) => (
             <div key={offer.id}>
               <Link
-                to={`/product/${offerIdToSlug[offer.id] || offer.id}`}
+                to={`/offers/${offer.id}`}
                 onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
               >
                 <OfferCard offer={offer} />
@@ -79,7 +78,7 @@ const LiveOffers = () => {
                 {extraOffers.map((offer) => (
                   <div key={offer.id}>
                     <Link
-                      to={`/product/${offerIdToSlug[offer.id] || offer.id}`}
+                      to={`/offers/${offer.id}`}
                       onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
                     >
                       <OfferCard offer={offer} />
