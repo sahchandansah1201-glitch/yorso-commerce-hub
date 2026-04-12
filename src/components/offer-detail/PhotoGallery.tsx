@@ -29,11 +29,11 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
       {/* Main image with nav arrows */}
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
-        <div className="flex items-center justify-center bg-muted/20" style={{ minHeight: 280 }}>
+        <div className="flex items-center justify-center bg-muted/20 h-[420px]">
           <img
             src={imgs[active].src}
             alt={imgs[active].alt}
-            className="max-h-[420px] w-full object-contain cursor-zoom-in"
+            className="max-h-full max-w-full object-contain cursor-zoom-in"
             onClick={() => setLightbox(true)}
             onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
           />
