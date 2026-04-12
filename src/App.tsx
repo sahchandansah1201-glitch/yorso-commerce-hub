@@ -10,6 +10,7 @@ import Register from "./pages/Register.tsx";
 import SignIn from "./pages/SignIn.tsx";
 import Offers from "./pages/Offers.tsx";
 import OfferDetail from "./pages/OfferDetail.tsx";
+import ProductPage from "./pages/ProductPage.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
 import Terms from "./pages/Terms.tsx";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/signin" element={<SignIn />} />
             <Route path="/offers" element={<Offers />} />
             <Route path="/offers/:id" element={<OfferDetail />} />
+            <Route path="/product/mackerel-hgt-50" element={<ProductPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
