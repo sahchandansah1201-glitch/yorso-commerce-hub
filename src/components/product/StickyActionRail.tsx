@@ -29,22 +29,25 @@ export const StickyActionRail = ({ isLoggedIn, product }: Props) => (
         <>
           <Link to="/register" className="block">
             <Button className="w-full gap-2 font-semibold" size="default">
-              Register to Get Quote <ArrowRight className="h-4 w-4" />
+              Start Sourcing — Get Quote <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <Link to="/register" className="block">
             <Button variant="outline" className="w-full gap-2 text-sm font-semibold">
-              <Lock className="h-3.5 w-3.5" /> Contact Supplier
+              <Lock className="h-3.5 w-3.5" /> Unlock Supplier Contact
             </Button>
           </Link>
         </>
       )}
 
-      <div className="border-t border-border pt-3 flex flex-wrap gap-2">
-        <ActionBtn icon={Bookmark} label="Save" />
-        <ActionBtn icon={Bell} label="Track Price" />
-        <ActionBtn icon={GitCompare} label="Compare" />
-        <ActionBtn icon={Share2} label="Share" />
+      <div className="border-t border-border pt-3 space-y-1.5">
+        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Sourcing tools</p>
+        <div className="flex flex-wrap gap-2">
+          <ActionBtn icon={Bookmark} label="Save" />
+          <ActionBtn icon={Bell} label="Track Price" />
+          <ActionBtn icon={GitCompare} label="Compare" />
+          <ActionBtn icon={Share2} label="Share" />
+        </div>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageSquare, BarChart3, Bookmark, GitCompare, Bell, FileText } from "lucide-react";
+import { ArrowRight, MessageSquare, BarChart3, Bookmark, GitCompare, Bell, FileText, CheckCircle } from "lucide-react";
 
 const benefits = [
   { icon: MessageSquare, text: "Contact suppliers directly" },
@@ -28,6 +28,22 @@ export const RegistrationLayer = () => (
             <span className="text-xs text-foreground leading-snug">{text}</span>
           </div>
         ))}
+      </div>
+
+      {/* Social proof */}
+      <div className="mt-5 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle className="h-3 w-3 text-success" />
+          2,100+ active buyers
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle className="h-3 w-3 text-success" />
+          380+ verified suppliers
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle className="h-3 w-3 text-success" />
+          Free forever plan
+        </span>
       </div>
 
       <Link to="/register" className="inline-block mt-6">
