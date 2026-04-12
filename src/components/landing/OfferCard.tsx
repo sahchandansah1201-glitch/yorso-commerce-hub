@@ -59,12 +59,11 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         </h3>
         <p className="mt-0.5 text-[11px] italic text-muted-foreground">{offer.latinName}</p>
 
-        <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="mt-1.5 flex items-center text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <MapPin className="h-3 w-3" />
             <span>{offer.originFlag} {offer.origin}</span>
           </div>
-          <span className="font-medium">{offer.moq}</span>
         </div>
 
         <div className="mt-2 flex items-center gap-1.5">
