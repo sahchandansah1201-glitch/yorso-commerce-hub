@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -75,6 +76,21 @@ const OfferDetail = () => {
         <RelatedArticles articles={offer.relatedArticles} />
         <DecisionFAQ />
       </main>
+
+      {/* Sticky mobile CTA */}
+      <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 backdrop-blur p-3 lg:hidden">
+        <Link to="/register" className="block">
+          <Button className="w-full gap-2 font-semibold text-base h-12">
+            Register to Contact Supplier <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
+        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+          Free registration · Direct supplier access · No commission
+        </p>
+      </div>
+
+      {/* Bottom spacer for mobile sticky CTA */}
+      <div className="h-24 lg:hidden" />
     </div>
   );
 };
