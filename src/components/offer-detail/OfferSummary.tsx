@@ -62,7 +62,7 @@ const OfferSummary = ({ offer }: Props) => {
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Cut type" value={offer.cutType} />
         <SpecRow icon={<MapPin className="h-3.5 w-3.5" />} label="Origin" value={`${offer.originFlag} ${offer.origin}`} />
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Packaging" value={offer.packaging} />
-        <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Available" value={offer.commercial.availableVolume} />
+        <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Volume capacity" value={offer.commercial.availableVolume} />
       </div>
 
       {/* Commercial Terms Card */}
