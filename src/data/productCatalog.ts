@@ -58,6 +58,7 @@ export interface ProductData {
     image: string;
     substituteReason: string;
   }[];
+  faq?: { question: string; answer: string }[];
   seo: { title: string; description: string };
   image: string;
 }

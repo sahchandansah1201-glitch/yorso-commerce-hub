@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { productCatalog } from "@/data/productCatalog";
 import { ProductHero } from "@/components/product/ProductHero";
 import { CommercialCard } from "@/components/product/CommercialCard";
@@ -12,10 +12,13 @@ import { RetentionHooks } from "@/components/product/RetentionHooks";
 import { RelatedProducts } from "@/components/product/RelatedProducts";
 import { StickyActionRail } from "@/components/product/StickyActionRail";
 import { RegistrationLayer } from "@/components/product/RegistrationLayer";
+import { ProductJsonLd } from "@/components/product/ProductJsonLd";
+import { ProductFAQ } from "@/components/product/ProductFAQ";
 import { Button } from "@/components/ui/button";
 
 const ProductPage = () => {
   const { slug } = useParams();
+  const location = useLocation();
   const product = slug ? productCatalog[slug] : undefined;
   const [isLoggedIn] = useState(false);
 
@@ -40,9 +43,12 @@ const ProductPage = () => {
   }
 
   const breadcrumbName = product.name.length > 40 ? product.name.slice(0, 40) + "…" : product.name;
+  const currentUrl = `${window.location.origin}${location.pathname}`;
 
   return (
     <div className="min-h-screen bg-background font-body">
+      <ProductJsonLd product={product} url={currentUrl} />
+
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container flex h-14 items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold tracking-tight text-foreground">YORSO</Link>
@@ -81,6 +87,7 @@ const ProductPage = () => {
             <SupplyLogistics logistics={product.logistics} />
             <SupplierTrust supplier={product.supplier} isLoggedIn={isLoggedIn} />
             <DocumentsCompliance documents={product.documents} isLoggedIn={isLoggedIn} />
+            {product.faq && <ProductFAQ faq={product.faq} />}
             <RelatedProducts products={product.related} />
           </div>
           <div className="hidden lg:block">

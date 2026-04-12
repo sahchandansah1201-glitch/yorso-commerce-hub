@@ -142,6 +142,14 @@ export const mackerelProduct = {
     },
   ],
 
+  // FAQ
+  faq: [
+    { question: "What does mackerel HGT mean?", answer: "HGT stands for Headed, Gutted, Tail-off — a processing format where the head, viscera, and tail are removed. This format is widely used for further processing, smoking, canning, and retail-ready preparations. The 50+ designation refers to individual fish weight of 50 grams and above." },
+    { question: "Where is Pacific chub mackerel caught?", answer: "Scomber japonicus (Pacific chub mackerel) is primarily caught in the Northwest Pacific (FAO Area 61), with major fishing grounds off the coast of China, Japan, and Korea. Chinese processors are the largest global suppliers of frozen mackerel in HGT and other processed formats." },
+    { question: "What is the typical MOQ for wholesale mackerel?", answer: "Minimum order quantities for frozen mackerel typically start at 1 full container load (FCL), which is approximately 25-28 metric tons in a 40-foot reefer container. Some suppliers offer LCL (less than container load) options for trial orders, usually with a minimum of 5 metric tons." },
+    { question: "How should frozen mackerel HGT be stored?", answer: "Frozen mackerel HGT should be stored at -18°C or below. Under proper cold chain conditions, it maintains quality for 18-24 months from production date. Once thawed, it should be processed or consumed within 24-48 hours and should not be refrozen." },
+  ],
+
   // SEO
   seo: {
     title: "Frozen Mackerel HGT 50+ Wholesale — Pacific Chub Mackerel | YORSO",

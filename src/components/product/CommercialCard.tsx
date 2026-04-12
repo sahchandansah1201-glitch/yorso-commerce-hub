@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Lock, Package, DollarSign, Ship, MapPin, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Lock, Package, DollarSign, Ship, MapPin, CheckCircle2, TrendingUp } from "lucide-react";
 
 interface Props {
   product: {
@@ -63,12 +63,12 @@ export const CommercialCard = ({ product, isLoggedIn }: Props) => {
           <>
             <Link to="/register" className="block">
               <Button className="w-full gap-2 font-semibold" size="default">
-                Register to Request Quote <ArrowRight className="h-4 w-4" />
+                Start Sourcing — Get Quote <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link to="/register" className="block">
               <Button variant="outline" className="w-full gap-2 font-semibold text-sm" size="default">
-                <Lock className="h-3.5 w-3.5" /> Register to Contact Supplier
+                <Lock className="h-3.5 w-3.5" /> Unlock Supplier Contact
               </Button>
             </Link>
           </>
@@ -76,9 +76,17 @@ export const CommercialCard = ({ product, isLoggedIn }: Props) => {
       </div>
 
       {!isLoggedIn && (
-        <p className="mt-3 text-center text-[11px] text-muted-foreground">
-          Free registration · No credit card · Unlock full supplier details
-        </p>
+        <div className="mt-3 rounded-lg bg-muted/40 p-3 space-y-1.5">
+          <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
+            <TrendingUp className="h-3 w-3 text-primary" />
+            After registration you can:
+          </p>
+          <ul className="text-[11px] text-muted-foreground space-y-0.5 pl-5 list-disc">
+            <li>Negotiate pricing directly with the supplier</li>
+            <li>Request samples and custom specifications</li>
+            <li>Track price changes and availability</li>
+          </ul>
+        </div>
       )}
     </div>
   );
