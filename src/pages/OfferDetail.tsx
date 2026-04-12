@@ -95,8 +95,3 @@ const OfferDetail = () => {
   );
 };
 
-export default OfferDetail;
-  );
-};
-
-export default OfferDetail;
