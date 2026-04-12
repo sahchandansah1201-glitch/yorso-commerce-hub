@@ -27,9 +27,18 @@ const ProductPage = () => {
       document.title = product.seo.title;
       const meta = document.querySelector('meta[name="description"]');
       if (meta) meta.setAttribute("content", product.seo.description);
+
+      // Canonical tag
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+      if (!canonical) {
+        canonical = document.createElement("link");
+        canonical.rel = "canonical";
+        document.head.appendChild(canonical);
+      }
+      canonical.href = `${window.location.origin}${location.pathname}`;
     }
     window.scrollTo(0, 0);
-  }, [product]);
+  }, [product, location.pathname]);
 
   if (!product) {
     return (
