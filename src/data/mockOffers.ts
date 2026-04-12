@@ -21,7 +21,7 @@ export interface SeafoodOffer {
 export const mockOffers: SeafoodOffer[] = [
   {
     id: "1",
-    productName: "Atlantic Salmon Fillet",
+    productName: "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade",
     species: "Atlantic Salmon",
     latinName: "Salmo salar",
     origin: "Norway",
@@ -59,7 +59,7 @@ export const mockOffers: SeafoodOffer[] = [
   },
   {
     id: "3",
-    productName: "Cod Loin Skinless Boneless",
+    productName: "Cod Loin Skinless Boneless Center Cut Premium Selection",
     species: "Atlantic Cod",
     latinName: "Gadus morhua",
     origin: "Iceland",
