@@ -5,14 +5,24 @@ import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
 const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
-  // Show products from same category but different species, or same species different origin
-  const products = mockOffers
+  // Primary: same category or species. Fallback: same format, then any.
+  let products = mockOffers
     .filter(
       (o) =>
         o.id !== current.id &&
         (o.category === current.category || o.species === current.species)
     )
     .slice(0, 4);
+
+  if (products.length === 0) {
+    products = mockOffers
+      .filter((o) => o.id !== current.id && o.format === current.format)
+      .slice(0, 4);
+  }
+
+  if (products.length === 0) {
+    products = mockOffers.filter((o) => o.id !== current.id).slice(0, 4);
+  }
 
   if (products.length === 0) return null;
 
@@ -22,7 +32,7 @@ const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
         Explore Similar Products
       </h2>
       <p className="text-sm text-muted-foreground mt-1 mb-5">
-        Continue browsing {current.category.toLowerCase()} and related seafood products
+        Continue browsing related seafood products
       </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((o) => {
@@ -32,6 +42,8 @@ const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
               ? `Same species, ${o.origin} origin`
               : o.category === current.category
               ? `${o.category} category`
+              : o.format === current.format
+              ? `Also ${o.format.toLowerCase()}`
               : "Related product";
 
           return (

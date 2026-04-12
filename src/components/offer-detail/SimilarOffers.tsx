@@ -17,6 +17,7 @@ const getComparisonReason = (current: SeafoodOffer, other: SeafoodOffer): string
   if (other.species === current.species && other.origin !== current.origin) reasons.push("Different origin");
   if (other.species === current.species && other.origin === current.origin) reasons.push("Same species & origin");
   if (other.category === current.category && other.species !== current.species) reasons.push("Same category");
+  if (other.format === current.format && other.category !== current.category) reasons.push(`Also ${other.format.toLowerCase()}`);
 
   if (other.supplier.isVerified && !current.supplier.isVerified) reasons.push("Verified supplier");
   if (other.supplier.certifications.length > current.supplier.certifications.length) reasons.push("More certifications");
@@ -25,9 +26,20 @@ const getComparisonReason = (current: SeafoodOffer, other: SeafoodOffer): string
 };
 
 const SimilarOffers = ({ current }: { current: SeafoodOffer }) => {
-  const similar = mockOffers
+  // Primary: same category or species. Fallback: same format or any other offers.
+  let similar = mockOffers
     .filter((o) => o.id !== current.id && (o.category === current.category || o.species === current.species))
     .slice(0, 3);
+
+  if (similar.length === 0) {
+    similar = mockOffers
+      .filter((o) => o.id !== current.id && o.format === current.format)
+      .slice(0, 3);
+  }
+
+  if (similar.length === 0) {
+    similar = mockOffers.filter((o) => o.id !== current.id).slice(0, 3);
+  }
 
   if (similar.length === 0) return null;
 
@@ -35,7 +47,7 @@ const SimilarOffers = ({ current }: { current: SeafoodOffer }) => {
     <section className="py-10 border-t border-border">
       <div className="mb-1">
         <h2 className="font-heading text-lg font-bold text-foreground">Compare Alternatives</h2>
-        <p className="text-sm text-muted-foreground mt-1">Backup sourcing options for the same product category</p>
+        <p className="text-sm text-muted-foreground mt-1">Backup sourcing options to evaluate alongside this offer</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
         {similar.map((o) => {
@@ -43,7 +55,7 @@ const SimilarOffers = ({ current }: { current: SeafoodOffer }) => {
           const reason = getComparisonReason(current, o);
           return (
             <Link key={o.id} to={`/offers/${o.id}`} className="group rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-              <div className="overflow-hidden rounded-lg mb-3">
+              <div className="overflow-hidden rounded-lg mb-3 bg-muted/20">
                 <img src={o.image} alt={o.productName} className="aspect-[16/10] w-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }} />
               </div>
               <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary mb-2">
