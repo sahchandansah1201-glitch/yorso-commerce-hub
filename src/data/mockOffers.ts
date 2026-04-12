@@ -114,7 +114,7 @@ const defaultSpecs: ProductSpecs = {
 const defaultCommercial: CommercialTerms = {
   incoterm: "CIF",
   paymentTerms: "30% advance, 70% against B/L",
-  availableVolume: "40 MT/month",
+  availableVolume: "Medium capacity",
   leadTime: "14-21 days",
   stockStatus: "In Stock",
   shipmentPort: "Origin port",
@@ -180,7 +180,7 @@ export const mockOffers: SeafoodOffer[] = [
     commercial: {
       incoterm: "FOB",
       paymentTerms: "30% advance, 70% against B/L",
-      availableVolume: "60 MT/month",
+      availableVolume: "Medium-high capacity",
       leadTime: "14-21 days",
       stockStatus: "In Stock",
       shipmentPort: "Ålesund, Norway",
@@ -254,7 +254,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "100 MT/month",
+      availableVolume: "High capacity",
       leadTime: "21-28 days",
       stockStatus: "In Stock",
       shipmentPort: "Guayaquil, Ecuador",
@@ -321,7 +321,7 @@ export const mockOffers: SeafoodOffer[] = [
     commercial: {
       incoterm: "FCA",
       paymentTerms: "Net 14 days",
-      availableVolume: "10 MT/week",
+      availableVolume: "Limited weekly supply",
       leadTime: "3-5 days",
       stockStatus: "Limited",
       shipmentPort: "Reykjavik, Iceland",
@@ -387,7 +387,7 @@ export const mockOffers: SeafoodOffer[] = [
     commercial: {
       incoterm: "FOB",
       paymentTerms: "50% advance, 50% before shipment",
-      availableVolume: "5 MT/month",
+      availableVolume: "Small batch",
       leadTime: "5-7 days",
       stockStatus: "Limited",
       shipmentPort: "General Santos, Philippines",
@@ -446,7 +446,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "5 MT/month",
+      availableVolume: "Small batch",
       leadTime: "21-30 days",
       shipmentPort: "Vladivostok, Russia",
     },
@@ -508,7 +508,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "200 MT/month",
+      availableVolume: "Large capacity",
       leadTime: "28-35 days",
       shipmentPort: "Mar del Plata, Argentina",
     },
@@ -567,7 +567,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "20 MT/month",
+      availableVolume: "Medium capacity",
       leadTime: "21-28 days",
       shipmentPort: "Paita, Peru",
     },
@@ -625,7 +625,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "500 MT/month",
+      availableVolume: "Large capacity",
       leadTime: "21-28 days",
       shipmentPort: "Ho Chi Minh City, Vietnam",
     },
@@ -697,7 +697,7 @@ export const mockOffers: SeafoodOffer[] = [
     commercial: {
       incoterm: "FCA",
       paymentTerms: "Net 14 days",
-      availableVolume: "15 MT/week",
+      availableVolume: "Regular weekly supply",
       leadTime: "3-5 days",
       stockStatus: "In Stock",
       shipmentPort: "Izmir, Turkey",
@@ -758,7 +758,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "40 MT/month",
+      availableVolume: "Medium capacity",
       leadTime: "14-21 days",
       shipmentPort: "Agadir, Morocco",
     },
@@ -818,7 +818,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "500 MT/month",
+      availableVolume: "Large capacity",
       leadTime: "14-21 days",
       shipmentPort: "Bergen, Norway",
     },
@@ -877,7 +877,7 @@ export const mockOffers: SeafoodOffer[] = [
     },
     commercial: {
       ...defaultCommercial,
-      availableVolume: "30 MT/month",
+      availableVolume: "Medium capacity",
       leadTime: "21-28 days",
       stockStatus: "In Stock",
       shipmentPort: "Chittagong, Bangladesh",
