@@ -145,8 +145,8 @@ const salmonProduct: ProductData = {
     ],
   },
   related: [
-    { id: "mackerel-hgt-50-120", name: "Mackerel HGT 50+", species: "Scomber japonicus", origin: "China", price: "$1.45 – $1.70 / kg", format: "Frozen", image: "/offers/cod.webp", substituteReason: "Budget pelagic alternative for different market segments" },
-    { id: "9", name: "Sea Bass Fillet Skin-On", species: "Dicentrarchus labrax", origin: "Turkey", price: "$9.00 – $10.20 / kg", format: "Fresh", image: "/offers/salmon.webp", substituteReason: "Premium white fish fillet — complements salmon in mixed sourcing" },
+    { id: "mackerel-hgt-50-120", name: "Mackerel HGT 50+", species: "Scomber japonicus", origin: "China", price: "$1.45 – $1.70 / kg", format: "Frozen", image: "/offers/cod.webp", substituteReason: "Budget pelagic alternative for different market segments", slug: "mackerel-hgt-50-plus" },
+    { id: "9", name: "Sea Bass Fillet Skin-On", species: "Dicentrarchus labrax", origin: "Turkey", price: "$9.00 – $10.20 / kg", format: "Fresh", image: "/offers/salmon.webp", substituteReason: "Premium white fish fillet — complements salmon in mixed sourcing", slug: "sea-bass-fillet" },
   ],
   seo: {
     title: "Atlantic Salmon Fillet Wholesale — Premium Norwegian Salmon | YORSO",
@@ -235,8 +235,8 @@ const shrimpProduct: ProductData = {
     ],
   },
   related: [
-    { id: "12", name: "Black Tiger Shrimp HLSO", species: "Penaeus monodon", origin: "Bangladesh", price: "$7.20 – $8.10 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Premium species alternative — larger size, different flavor profile" },
-    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Cross-category premium protein for diversified sourcing" },
+    { id: "12", name: "Black Tiger Shrimp HLSO", species: "Penaeus monodon", origin: "Bangladesh", price: "$7.20 – $8.10 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Premium species alternative — larger size, different flavor profile", slug: "black-tiger-shrimp-hlso" },
+    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Cross-category premium protein for diversified sourcing", slug: "atlantic-salmon-fillet" },
   ],
   seo: {
     title: "Vannamei Shrimp HOSO Wholesale — Ecuador White Shrimp | YORSO",
@@ -326,8 +326,8 @@ const codProduct: ProductData = {
     ],
   },
   related: [
-    { id: "8", name: "Pangasius Fillet Well-Trimmed", species: "Pangasianodon hypophthalmus", origin: "Vietnam", price: "$2.40 – $2.90 / kg", format: "Frozen", image: "/offers/pangasius.webp", substituteReason: "Budget whitefish alternative for price-sensitive markets" },
-    { id: "9", name: "Sea Bass Fillet Skin-On", species: "Dicentrarchus labrax", origin: "Turkey", price: "$9.00 – $10.20 / kg", format: "Fresh", image: "/offers/salmon.webp", substituteReason: "Premium fresh fillet alternative with Mediterranean sourcing" },
+    { id: "8", name: "Pangasius Fillet Well-Trimmed", species: "Pangasianodon hypophthalmus", origin: "Vietnam", price: "$2.40 – $2.90 / kg", format: "Frozen", image: "/offers/pangasius.webp", substituteReason: "Budget whitefish alternative for price-sensitive markets", slug: "pangasius-fillet" },
+    { id: "9", name: "Sea Bass Fillet Skin-On", species: "Dicentrarchus labrax", origin: "Turkey", price: "$9.00 – $10.20 / kg", format: "Fresh", image: "/offers/salmon.webp", substituteReason: "Premium fresh fillet alternative with Mediterranean sourcing", slug: "sea-bass-fillet" },
   ],
   seo: {
     title: "Fresh Cod Loin Wholesale — Icelandic Atlantic Cod | YORSO",
@@ -417,8 +417,8 @@ const tunaProduct: ProductData = {
     ],
   },
   related: [
-    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Premium alternative for sushi/sashimi diversification" },
-    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish for mixed high-end sourcing" },
+    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Premium alternative for sushi/sashimi diversification", slug: "atlantic-salmon-fillet" },
+    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish for mixed high-end sourcing", slug: "cod-loin-skinless-boneless" },
   ],
   seo: {
     title: "Yellowfin Tuna Loin Grade A Wholesale — Sashimi Grade | YORSO",
@@ -508,8 +508,8 @@ const crabProduct: ProductData = {
     ],
   },
   related: [
-    { id: "10", name: "Octopus Whole Cleaned T4", species: "Octopus vulgaris", origin: "Morocco", price: "$6.50 – $7.40 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Premium shellfish alternative at lower price point" },
-    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "High-volume crustacean for broader market appeal" },
+    { id: "10", name: "Octopus Whole Cleaned T4", species: "Octopus vulgaris", origin: "Morocco", price: "$6.50 – $7.40 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Premium shellfish alternative at lower price point", slug: "octopus-whole-cleaned" },
+    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "High-volume crustacean for broader market appeal", slug: "vannamei-shrimp-hoso" },
   ],
   seo: {
     title: "King Crab Clusters Wholesale — Russian Red King Crab | YORSO",
@@ -598,8 +598,8 @@ const squidProduct: ProductData = {
     ],
   },
   related: [
-    { id: "10", name: "Octopus Whole Cleaned T4", species: "Octopus vulgaris", origin: "Morocco", price: "$6.50 – $7.40 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Premium cephalopod alternative for Mediterranean markets" },
-    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Cross-category seafood for mixed sourcing orders" },
+    { id: "10", name: "Octopus Whole Cleaned T4", species: "Octopus vulgaris", origin: "Morocco", price: "$6.50 – $7.40 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Premium cephalopod alternative for Mediterranean markets", slug: "octopus-whole-cleaned" },
+    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Cross-category seafood for mixed sourcing orders", slug: "vannamei-shrimp-hoso" },
   ],
   seo: {
     title: "Squid Tube & Tentacle Wholesale — Argentine Illex Squid | YORSO",
@@ -689,8 +689,8 @@ const mahiProduct: ProductData = {
     ],
   },
   related: [
-    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish alternative for higher-end markets" },
-    { id: "8", name: "Pangasius Fillet Well-Trimmed", species: "Pangasianodon hypophthalmus", origin: "Vietnam", price: "$2.40 – $2.90 / kg", format: "Frozen", image: "/offers/pangasius.webp", substituteReason: "Budget whitefish option for price-driven channels" },
+    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish alternative for higher-end markets", slug: "cod-loin-skinless-boneless" },
+    { id: "8", name: "Pangasius Fillet Well-Trimmed", species: "Pangasianodon hypophthalmus", origin: "Vietnam", price: "$2.40 – $2.90 / kg", format: "Frozen", image: "/offers/pangasius.webp", substituteReason: "Budget whitefish option for price-driven channels", slug: "pangasius-fillet" },
   ],
   seo: {
     title: "Mahi Mahi Portion 6oz Wholesale — Frozen Dolphinfish | YORSO",
@@ -780,7 +780,7 @@ const pangasiusProduct: ProductData = {
     ],
   },
   related: [
-    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish upgrade for higher-margin channels" },
+    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium whitefish upgrade for higher-margin channels", slug: "cod-loin-skinless-boneless" },
     { id: "7", name: "Mahi Mahi Portion 6oz", species: "Coryphaena hippurus", origin: "Peru", price: "$7.00 – $7.80 / kg", format: "Frozen", image: "/offers/mahi.webp", substituteReason: "Mid-range whitefish alternative with tropical appeal" },
   ],
   seo: {
@@ -870,8 +870,8 @@ const seaBassProduct: ProductData = {
     ],
   },
   related: [
-    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium fresh whitefish from Northern European fisheries" },
-    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Top-selling premium fillet for diversified sourcing" },
+    { id: "3", name: "Cod Loin Skinless Boneless", species: "Gadus morhua", origin: "Iceland", price: "$11.00 – $12.50 / kg", format: "Fresh", image: "/offers/cod.webp", substituteReason: "Premium fresh whitefish from Northern European fisheries", slug: "cod-loin-skinless-boneless" },
+    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Top-selling premium fillet for diversified sourcing", slug: "atlantic-salmon-fillet" },
   ],
   seo: {
     title: "Sea Bass Fillet Fresh Wholesale — Turkish European Sea Bass | YORSO",
@@ -961,8 +961,8 @@ const octopusProduct: ProductData = {
     ],
   },
   related: [
-    { id: "6", name: "Squid Tube & Tentacle", species: "Illex argentinus", origin: "Argentina", price: "$3.20 – $3.80 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Budget cephalopod alternative for volume-driven markets" },
-    { id: "5", name: "King Crab Clusters", species: "Paralithodes camtschaticus", origin: "Russia", price: "$28.00 – $32.00 / kg", format: "Frozen", image: "/offers/crab.webp", substituteReason: "Premium shellfish for upscale seafood assortment" },
+    { id: "6", name: "Squid Tube & Tentacle", species: "Illex argentinus", origin: "Argentina", price: "$3.20 – $3.80 / kg", format: "Frozen", image: "/offers/squid.webp", substituteReason: "Budget cephalopod alternative for volume-driven markets", slug: "squid-tube-tentacle" },
+    { id: "5", name: "King Crab Clusters", species: "Paralithodes camtschaticus", origin: "Russia", price: "$28.00 – $32.00 / kg", format: "Frozen", image: "/offers/crab.webp", substituteReason: "Premium shellfish for upscale seafood assortment", slug: "king-crab-clusters" },
   ],
   seo: {
     title: "Octopus Whole Cleaned T4 Wholesale — Moroccan Octopus | YORSO",
@@ -1053,8 +1053,8 @@ const mackerelHGProduct: ProductData = {
     ],
   },
   related: [
-    { id: "mackerel-hgt-50-120", name: "Mackerel HGT 50+", species: "Scomber japonicus", origin: "China", price: "$1.45 – $1.70 / kg", format: "Frozen", image: "/offers/cod.webp", substituteReason: "Pacific mackerel HGT — smaller size, Chinese processing, lower price tier" },
-    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Premium Norwegian fish for upselling within same origin" },
+    { id: "mackerel-hgt-50-120", name: "Mackerel HGT 50+", species: "Scomber japonicus", origin: "China", price: "$1.45 – $1.70 / kg", format: "Frozen", image: "/offers/cod.webp", substituteReason: "Pacific mackerel HGT — smaller size, Chinese processing, lower price tier", slug: "mackerel-hgt-50-plus" },
+    { id: "1", name: "Atlantic Salmon Fillet", species: "Salmo salar", origin: "Norway", price: "$8.50 – $9.20 / kg", format: "Frozen", image: "/offers/salmon.webp", substituteReason: "Premium Norwegian fish for upselling within same origin", slug: "atlantic-salmon-fillet" },
   ],
   seo: {
     title: "Mackerel HG 300-500g Wholesale — Norwegian Atlantic Mackerel | YORSO",
@@ -1143,8 +1143,8 @@ const blackTigerProduct: ProductData = {
     ],
   },
   related: [
-    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Budget shrimp alternative — higher volume, lower per-kg cost" },
-    { id: "5", name: "King Crab Clusters", species: "Paralithodes camtschaticus", origin: "Russia", price: "$28.00 – $32.00 / kg", format: "Frozen", image: "/offers/crab.webp", substituteReason: "Ultra-premium crustacean for luxury seafood assortment" },
+    { id: "2", name: "Vannamei Shrimp HOSO", species: "Litopenaeus vannamei", origin: "Ecuador", price: "$5.80 – $6.40 / kg", format: "Frozen", image: "/offers/shrimp.webp", substituteReason: "Budget shrimp alternative — higher volume, lower per-kg cost", slug: "vannamei-shrimp-hoso" },
+    { id: "5", name: "King Crab Clusters", species: "Paralithodes camtschaticus", origin: "Russia", price: "$28.00 – $32.00 / kg", format: "Frozen", image: "/offers/crab.webp", substituteReason: "Ultra-premium crustacean for luxury seafood assortment", slug: "king-crab-clusters" },
   ],
   seo: {
     title: "Black Tiger Shrimp HLSO Wholesale — Bangladesh | YORSO",
