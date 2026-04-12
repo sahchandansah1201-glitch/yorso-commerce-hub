@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Clock, MapPin, Snowflake, Leaf, Thermometer } from "lucide-react";
+import { Clock, MapPin, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -66,14 +66,6 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </div>
         </div>
 
-        <div className="mt-2 h-4">
-          {offer.isVerified && (
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-success">
-              <ShieldCheck className="h-3 w-3" />
-              {t.card_verified}
-            </span>
-          )}
-        </div>
 
         <div className="mt-auto pt-3">
           <div className="flex items-center gap-2">
