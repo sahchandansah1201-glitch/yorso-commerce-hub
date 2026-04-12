@@ -95,3 +95,4 @@ const OfferDetail = () => {
   );
 };
 
+export default OfferDetail;
