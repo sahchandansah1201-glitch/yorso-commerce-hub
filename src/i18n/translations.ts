@@ -41,6 +41,8 @@ type TranslationKeys = {
   offers_subtitle: string;
   offers_viewAll: string;
   offers_viewAllMobile: string;
+  offers_showMore: string;
+  offers_showLess: string;
 
   // Offer Card
   card_verified: string;
@@ -171,6 +173,8 @@ const en: TranslationKeys = {
   offers_subtitle: "Fresh listings from verified suppliers worldwide — updated continuously",
   offers_viewAll: "View all offers",
   offers_viewAllMobile: "View All Offers",
+  offers_showMore: "Show more offers",
+  offers_showLess: "Show less",
 
   // Offer Card
   card_verified: "Verified",
@@ -362,6 +366,8 @@ const ru: TranslationKeys = {
   offers_subtitle: "Актуальные предложения от проверенных поставщиков со всего мира — обновляются постоянно",
   offers_viewAll: "Все предложения",
   offers_viewAllMobile: "Все предложения",
+  offers_showMore: "Показать ещё",
+  offers_showLess: "Свернуть",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
@@ -543,6 +549,8 @@ const es: TranslationKeys = {
   offers_subtitle: "Listados actualizados de proveedores verificados en todo el mundo — actualización continua",
   offers_viewAll: "Ver todas las ofertas",
   offers_viewAllMobile: "Ver todas las ofertas",
+  offers_showMore: "Mostrar más ofertas",
+  offers_showLess: "Mostrar menos",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",

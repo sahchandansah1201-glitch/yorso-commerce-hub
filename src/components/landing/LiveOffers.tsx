@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import OfferCard from "./OfferCard";
 import { mockOffers } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -8,7 +10,16 @@ import analytics from "@/lib/analytics";
 
 const LiveOffers = () => {
   const { t } = useLanguage();
-  const visibleOffers = mockOffers.slice(0, 8);
+  const [expanded, setExpanded] = useState(false);
+
+  const firstRow = mockOffers.slice(0, 4);
+  const extraRows = mockOffers.slice(4, 8);
+
+  const toggleExpanded = () => {
+    const next = !expanded;
+    setExpanded(next);
+    analytics.track("live_offers_expand_toggle", { expanded: next });
+  };
 
   return (
     <section id="offers" className="bg-background py-12 md:py-16">
@@ -39,8 +50,9 @@ const LiveOffers = () => {
           </Link>
         </div>
 
+        {/* First row — always visible */}
         <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
-          {visibleOffers.slice(0, 4).map((offer) => (
+          {firstRow.map((offer) => (
             <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
               <Link
                 to={`/offers/${offer.id}`}
@@ -52,19 +64,47 @@ const LiveOffers = () => {
           ))}
         </div>
 
-        <div className="mt-4 hidden grid-cols-4 gap-4 lg:grid">
-          {visibleOffers.slice(4, 8).map((offer) => (
-            <Link
-              key={offer.id}
-              to={`/offers/${offer.id}`}
-              onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
+        {/* Expandable extra rows */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+              className="overflow-hidden"
             >
-              <OfferCard offer={offer} />
-            </Link>
-          ))}
-        </div>
+              <div className="mt-4 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
+                {extraRows.map((offer) => (
+                  <div key={offer.id} className="min-w-[280px] snap-start sm:min-w-0">
+                    <Link
+                      to={`/offers/${offer.id}`}
+                      onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
+                    >
+                      <OfferCard offer={offer} />
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="mt-6 text-center md:hidden">
+        {/* Show more / Show less toggle */}
+        {extraRows.length > 0 && (
+          <div className="mt-6 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={toggleExpanded}
+              className="gap-1.5 font-semibold"
+            >
+              {expanded ? t.offers_showLess : t.offers_showMore}
+              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
+        )}
+
+        <div className="mt-4 text-center md:hidden">
           <Link to="/offers" onClick={() => analytics.track("live_offers_view_all_click")}>
             <Button variant="outline" className="gap-1 font-semibold">
               {t.offers_viewAllMobile}
