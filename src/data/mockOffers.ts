@@ -1,3 +1,30 @@
+export interface DeliveryBasisOption {
+  code: string;
+  label: string;
+  isDefault: boolean;
+  priceRange: string;
+  priceUnit: string;
+  shipmentPort: string;
+  leadTime: string;
+  note?: string;
+}
+
+export interface GalleryImage {
+  src: string;
+  alt: string;
+  caption?: string;
+  sourceLabel?: string;
+}
+
+export interface RelatedArticle {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  readTime: string;
+  relevanceReason: string;
+}
+
 export interface SupplierInfo {
   name: string;
   isVerified: boolean;
@@ -8,6 +35,8 @@ export interface SupplierInfo {
   certifications: string[];
   documentsReviewed: string[];
   profileSlug: string;
+  verificationScope?: string;
+  verificationDate?: string;
 }
 
 export interface ProductSpecs {
@@ -28,6 +57,12 @@ export interface CommercialTerms {
   availableVolume: string;
   leadTime: string;
   stockStatus: "In Stock" | "Limited" | "Pre-order";
+  shipmentPort?: string;
+}
+
+export interface VolumeBreak {
+  minQty: string;
+  priceRange: string;
 }
 
 export interface SeafoodOffer {
@@ -45,6 +80,7 @@ export interface SeafoodOffer {
   freshness: string;
   image: string;
   images: string[];
+  gallery: GalleryImage[];
   category: string;
   format: "Frozen" | "Fresh" | "Chilled";
   cutType: string;
@@ -53,6 +89,14 @@ export interface SeafoodOffer {
   supplier: SupplierInfo;
   specs: ProductSpecs;
   commercial: CommercialTerms;
+  deliveryBasisOptions: DeliveryBasisOption[];
+  relatedArticles: RelatedArticle[];
+  volumeBreaks?: VolumeBreak[];
+  photoSourceLabel: string;
+  sampleAvailable: boolean;
+  inspectionAvailable: boolean;
+  traceability?: string;
+  comparisonReasons?: Record<string, string>;
 }
 
 const defaultSpecs: ProductSpecs = {
@@ -73,7 +117,15 @@ const defaultCommercial: CommercialTerms = {
   availableVolume: "40 MT/month",
   leadTime: "14-21 days",
   stockStatus: "In Stock",
+  shipmentPort: "Origin port",
 };
+
+const defaultDeliveryBasis: DeliveryBasisOption[] = [
+  { code: "FOB", label: "FOB", isDefault: true, priceRange: "", priceUnit: "per kg", shipmentPort: "", leadTime: "", note: "" },
+  { code: "CIF", label: "CIF", isDefault: false, priceRange: "", priceUnit: "per kg", shipmentPort: "", leadTime: "", note: "" },
+];
+
+const defaultArticles: RelatedArticle[] = [];
 
 export const mockOffers: SeafoodOffer[] = [
   {
@@ -91,11 +143,19 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 2h ago",
     image: "/offers/salmon.webp",
     images: ["/offers/salmon.webp", "/offers/cod.webp"],
+    gallery: [
+      { src: "/offers/salmon.webp", alt: "Atlantic Salmon Fillet — top view", caption: "Fillet skin-on, pin bone out, vacuum packed", sourceLabel: "Supplier-provided" },
+      { src: "/offers/cod.webp", alt: "Packaging and labeling", caption: "10 kg carton packaging with labeling", sourceLabel: "Supplier-provided" },
+    ],
     category: "Salmon",
     format: "Frozen",
     cutType: "Fillet, Skin-On, Pin Bone Out",
     packaging: "10 kg carton",
     certifications: ["HACCP", "ASC"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: true,
+    traceability: "Full chain traceability from aquaculture farm in Norwegian Sea (FAO 27) through processing at EU-approved facility (#NO-123) to cold-chain shipment. Catch certificate, health certificate, and origin documentation available upon request.",
     supplier: {
       name: "Nordic Seafood AS",
       isVerified: true,
@@ -104,8 +164,10 @@ export const mockOffers: SeafoodOffer[] = [
       inBusinessSince: 2008,
       responseTime: "< 4 hours",
       certifications: ["HACCP", "ASC", "BRC Grade AA", "ISO 22000"],
-      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "ASC Chain of Custody"],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "ASC Chain of Custody", "BRC audit report (Grade AA)", "Facility photos verified"],
       profileSlug: "nordic-seafood",
+      verificationScope: "YORSO reviewed business registration, export licenses, facility certifications (HACCP, BRC Grade AA, ASC CoC), trade references from 3 EU buyers, and conducted a virtual facility inspection in March 2025.",
+      verificationDate: "March 2025",
     },
     specs: {
       ...defaultSpecs,
@@ -116,12 +178,29 @@ export const mockOffers: SeafoodOffer[] = [
       nutritionPer100g: { calories: "208 kcal", protein: "20g", fat: "13g", carbs: "0g" },
     },
     commercial: {
-      incoterm: "CIF",
+      incoterm: "FOB",
       paymentTerms: "30% advance, 70% against B/L",
       availableVolume: "60 MT/month",
       leadTime: "14-21 days",
       stockStatus: "In Stock",
+      shipmentPort: "Ålesund, Norway",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Ålesund", isDefault: true, priceRange: "$8.50 – $9.20", priceUnit: "per kg", shipmentPort: "Ålesund, Norway", leadTime: "14-21 days", note: "Ex-works from processing facility" },
+      { code: "CIF", label: "CIF Rotterdam", isDefault: false, priceRange: "$9.10 – $9.80", priceUnit: "per kg", shipmentPort: "Rotterdam, Netherlands", leadTime: "18-25 days", note: "Insurance and freight included" },
+      { code: "CFR", label: "CFR Valencia", isDefault: false, priceRange: "$9.30 – $10.00", priceUnit: "per kg", shipmentPort: "Valencia, Spain", leadTime: "21-28 days", note: "Cost and freight to Mediterranean" },
+    ],
+    volumeBreaks: [
+      { minQty: "1,000 – 4,999 kg", priceRange: "$9.00 – $9.20" },
+      { minQty: "5,000 – 19,999 kg", priceRange: "$8.70 – $8.90" },
+      { minQty: "20,000+ kg", priceRange: "$8.50 – $8.70" },
+    ],
+    relatedArticles: [
+      { id: "a1", title: "Atlantic Salmon Sourcing Guide: Origins, Grades & Red Flags", slug: "salmon-sourcing-guide", category: "Buying Guide", readTime: "8 min", relevanceReason: "Same species" },
+      { id: "a2", title: "Understanding CIF vs. FOB for Frozen Seafood Imports", slug: "cif-vs-fob-seafood", category: "Logistics", readTime: "5 min", relevanceReason: "Delivery basis" },
+      { id: "a3", title: "Norway Salmon Market: 2025 Price Trends & Outlook", slug: "norway-salmon-trends-2025", category: "Market Analysis", readTime: "6 min", relevanceReason: "Same origin" },
+    ],
+    comparisonReasons: {},
   },
   {
     id: "2",
@@ -138,11 +217,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Listed today",
     image: "/offers/shrimp.webp",
     images: ["/offers/shrimp.webp"],
+    gallery: [
+      { src: "/offers/shrimp.webp", alt: "Vannamei Shrimp HOSO", caption: "Head-on shell-on, block frozen", sourceLabel: "Supplier-provided" },
+    ],
     category: "Shrimp",
     format: "Frozen",
     cutType: "HOSO (Head-On Shell-On)",
     packaging: "20 kg master carton",
     certifications: ["HACCP", "BAP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: false,
+    traceability: "Farm-to-port traceability. Aquaculture pond coordinates, feed records, and harvest dates documented.",
     supplier: {
       name: "Pacífico Export S.A.",
       isVerified: true,
@@ -153,6 +239,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "BAP 4-star", "GlobalG.A.P."],
       documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "BAP certificate"],
       profileSlug: "pacifico-export",
+      verificationScope: "YORSO reviewed business registration, BAP 4-star certification, export permits, and 2 trade references from US importers. Facility inspection pending.",
+      verificationDate: "January 2025",
     },
     specs: {
       ...defaultSpecs,
@@ -169,7 +257,15 @@ export const mockOffers: SeafoodOffer[] = [
       availableVolume: "100 MT/month",
       leadTime: "21-28 days",
       stockStatus: "In Stock",
+      shipmentPort: "Guayaquil, Ecuador",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Guayaquil", isDefault: true, priceRange: "$5.80 – $6.40", priceUnit: "per kg", shipmentPort: "Guayaquil, Ecuador", leadTime: "21-28 days" },
+      { code: "CFR", label: "CFR Shanghai", isDefault: false, priceRange: "$6.50 – $7.10", priceUnit: "per kg", shipmentPort: "Shanghai, China", leadTime: "35-42 days", note: "Freight included to East Asia" },
+    ],
+    relatedArticles: [
+      { id: "a4", title: "Vannamei vs. Black Tiger: A Buyer's Comparison", slug: "vannamei-vs-black-tiger", category: "Buying Guide", readTime: "7 min", relevanceReason: "Same species group" },
+    ],
   },
   {
     id: "3",
@@ -186,11 +282,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 5h ago",
     image: "/offers/cod.webp",
     images: ["/offers/cod.webp"],
+    gallery: [
+      { src: "/offers/cod.webp", alt: "Cod Loin Center Cut", caption: "Skinless boneless center cut loin", sourceLabel: "Supplier-provided" },
+    ],
     category: "Whitefish",
     format: "Fresh",
     cutType: "Loin, Skinless, Boneless, Center Cut",
     packaging: "5 kg styrofoam",
     certifications: ["MSC", "HACCP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: true,
+    traceability: "Full MSC chain of custody from fishing vessel to processing. Catch certificate and vessel ID traceable.",
     supplier: {
       name: "Ísland Fish ehf",
       isVerified: true,
@@ -201,6 +304,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["MSC", "HACCP", "IFS Food"],
       documentsReviewed: ["Business license", "Export permit", "MSC Chain of Custody", "HACCP certificate"],
       profileSlug: "island-fish",
+      verificationScope: "YORSO reviewed business registration, MSC Chain of Custody certification, export permits, IFS Food audit report, and 2 trade references from EU buyers.",
+      verificationDate: "November 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -219,7 +324,15 @@ export const mockOffers: SeafoodOffer[] = [
       availableVolume: "10 MT/week",
       leadTime: "3-5 days",
       stockStatus: "Limited",
+      shipmentPort: "Reykjavik, Iceland",
     },
+    deliveryBasisOptions: [
+      { code: "FCA", label: "FCA Reykjavik", isDefault: true, priceRange: "$11.00 – $12.50", priceUnit: "per kg", shipmentPort: "Reykjavik, Iceland", leadTime: "3-5 days", note: "Fresh product, air freight recommended" },
+      { code: "DAP", label: "DAP London", isDefault: false, priceRange: "$13.50 – $15.00", priceUnit: "per kg", shipmentPort: "London, UK", leadTime: "2-3 days", note: "Door-to-door, temperature-controlled" },
+    ],
+    relatedArticles: [
+      { id: "a5", title: "Fresh vs. Frozen Cod: What Buyers Need to Know", slug: "fresh-vs-frozen-cod", category: "Buying Guide", readTime: "6 min", relevanceReason: "Same species" },
+    ],
   },
   {
     id: "4",
@@ -236,11 +349,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 1d ago",
     image: "/offers/tuna.webp",
     images: ["/offers/tuna.webp"],
+    gallery: [
+      { src: "/offers/tuna.webp", alt: "Yellowfin Tuna Loin", caption: "Grade A sashimi-quality loin", sourceLabel: "Supplier-provided" },
+    ],
     category: "Tuna",
     format: "Chilled",
     cutType: "Loin, Grade A (sashimi)",
     packaging: "10 kg vacuum pack",
     certifications: ["HACCP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: false,
+    inspectionAvailable: false,
+    traceability: "Catch certificate available. Handline-caught with vessel ID documentation.",
     supplier: {
       name: "Gen. Santos Tuna Corp.",
       isVerified: false,
@@ -251,6 +371,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP"],
       documentsReviewed: ["Business license", "HACCP certificate"],
       profileSlug: "gen-santos-tuna",
+      verificationScope: "Basic verification only. Business license and HACCP certificate reviewed. Full facility audit and trade references pending.",
+      verificationDate: "Pending full review",
     },
     specs: {
       ...defaultSpecs,
@@ -268,7 +390,12 @@ export const mockOffers: SeafoodOffer[] = [
       availableVolume: "5 MT/month",
       leadTime: "5-7 days",
       stockStatus: "Limited",
+      shipmentPort: "General Santos, Philippines",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB General Santos", isDefault: true, priceRange: "$9.50 – $11.00", priceUnit: "per kg", shipmentPort: "General Santos, Philippines", leadTime: "5-7 days" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "5",
@@ -285,11 +412,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Listed today",
     image: "/offers/crab.webp",
     images: ["/offers/crab.webp"],
+    gallery: [
+      { src: "/offers/crab.webp", alt: "King Crab Clusters", caption: "Frozen clusters, 10 kg carton", sourceLabel: "Supplier-provided" },
+    ],
     category: "Crab",
     format: "Frozen",
     cutType: "Clusters (sections)",
     packaging: "10 kg carton",
     certifications: ["HACCP", "MSC"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: false,
+    traceability: "MSC certified. Fishing vessel and catch area documented per trip.",
     supplier: {
       name: "Kamchatka Seafood LLC",
       isVerified: true,
@@ -300,6 +434,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "MSC"],
       documentsReviewed: ["Business license", "Export permit", "MSC certificate"],
       profileSlug: "kamchatka-seafood",
+      verificationScope: "YORSO reviewed business registration, MSC certification, export permits. Trade references from 1 Asian importer verified.",
+      verificationDate: "September 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -312,7 +448,13 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "5 MT/month",
       leadTime: "21-30 days",
+      shipmentPort: "Vladivostok, Russia",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Vladivostok", isDefault: true, priceRange: "$28.00 – $32.00", priceUnit: "per kg", shipmentPort: "Vladivostok, Russia", leadTime: "21-30 days" },
+      { code: "CIF", label: "CIF Busan", isDefault: false, priceRange: "$30.00 – $34.50", priceUnit: "per kg", shipmentPort: "Busan, South Korea", leadTime: "25-35 days", note: "Including reefer freight to Korea" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "6",
@@ -329,11 +471,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 8h ago",
     image: "/offers/squid.webp",
     images: ["/offers/squid.webp"],
+    gallery: [
+      { src: "/offers/squid.webp", alt: "Squid Tube & Tentacle", caption: "Cleaned tubes and tentacles, block frozen", sourceLabel: "Supplier-provided" },
+    ],
     category: "Squid",
     format: "Frozen",
     cutType: "Tube & Tentacle, cleaned",
     packaging: "20 kg block",
     certifications: ["HACCP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: true,
+    traceability: "Caught by licensed jigging vessels in FAO 41. Catch certificates and vessel IDs available.",
     supplier: {
       name: "Mar del Plata Pesca",
       isVerified: true,
@@ -344,6 +493,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "EU Approved"],
       documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "EU approval number"],
       profileSlug: "mar-del-plata-pesca",
+      verificationScope: "YORSO reviewed business registration, EU establishment approval number, HACCP certification, and export permits. Trade references from 2 EU buyers verified.",
+      verificationDate: "July 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -359,7 +510,13 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "200 MT/month",
       leadTime: "28-35 days",
+      shipmentPort: "Mar del Plata, Argentina",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Mar del Plata", isDefault: true, priceRange: "$3.20 – $3.80", priceUnit: "per kg", shipmentPort: "Mar del Plata, Argentina", leadTime: "28-35 days" },
+      { code: "CFR", label: "CFR Vigo", isDefault: false, priceRange: "$3.90 – $4.50", priceUnit: "per kg", shipmentPort: "Vigo, Spain", leadTime: "35-42 days", note: "Major squid import hub" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "7",
@@ -376,11 +533,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 3h ago",
     image: "/offers/mahi.webp",
     images: ["/offers/mahi.webp"],
+    gallery: [
+      { src: "/offers/mahi.webp", alt: "Mahi Mahi Portion", caption: "6oz IQF portion", sourceLabel: "Supplier-provided" },
+    ],
     category: "Whitefish",
     format: "Frozen",
     cutType: "Portion, 6oz (170g)",
     packaging: "10 kg IQF carton",
     certifications: ["HACCP", "BAP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: false,
+    inspectionAvailable: false,
+    traceability: "Basic catch documentation available.",
     supplier: {
       name: "Pesquera del Pacífico",
       isVerified: false,
@@ -391,6 +555,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "BAP"],
       documentsReviewed: ["Business license", "HACCP certificate"],
       profileSlug: "pesquera-pacifico",
+      verificationScope: "Basic verification. Business license and HACCP certificate reviewed. BAP certification pending confirmation.",
+      verificationDate: "Pending full review",
     },
     specs: {
       ...defaultSpecs,
@@ -403,7 +569,12 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "20 MT/month",
       leadTime: "21-28 days",
+      shipmentPort: "Paita, Peru",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Paita", isDefault: true, priceRange: "$7.00 – $7.80", priceUnit: "per kg", shipmentPort: "Paita, Peru", leadTime: "21-28 days" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "8",
@@ -420,11 +591,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 1h ago",
     image: "/offers/pangasius.webp",
     images: ["/offers/pangasius.webp"],
+    gallery: [
+      { src: "/offers/pangasius.webp", alt: "Pangasius Fillet", caption: "Well-trimmed, IVP packed", sourceLabel: "Supplier-provided" },
+    ],
     category: "Whitefish",
     format: "Frozen",
     cutType: "Fillet, Well-Trimmed",
     packaging: "10 kg IVP carton",
     certifications: ["HACCP", "ASC", "BRC"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: true,
+    traceability: "Full ASC chain of custody. Farm GPS coordinates, feed records, and water quality data available.",
     supplier: {
       name: "Mekong Delta Foods",
       isVerified: true,
@@ -435,6 +613,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "ASC", "BRC Grade A", "ISO 22000", "BSCI"],
       documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "ASC certificate", "BRC audit report"],
       profileSlug: "mekong-delta-foods",
+      verificationScope: "YORSO reviewed business registration, ASC and BRC certifications, export permits, BSCI social compliance audit, and 3 trade references from EU importers. On-site facility inspection completed.",
+      verificationDate: "February 2025",
     },
     specs: {
       ...defaultSpecs,
@@ -447,7 +627,21 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "500 MT/month",
       leadTime: "21-28 days",
+      shipmentPort: "Ho Chi Minh City, Vietnam",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB HCMC", isDefault: true, priceRange: "$2.40 – $2.90", priceUnit: "per kg", shipmentPort: "Ho Chi Minh City, Vietnam", leadTime: "21-28 days" },
+      { code: "CIF", label: "CIF Hamburg", isDefault: false, priceRange: "$3.10 – $3.60", priceUnit: "per kg", shipmentPort: "Hamburg, Germany", leadTime: "35-42 days", note: "EU clearance docs included" },
+      { code: "CIF", label: "CIF Felixstowe", isDefault: false, priceRange: "$3.00 – $3.50", priceUnit: "per kg", shipmentPort: "Felixstowe, UK", leadTime: "35-42 days" },
+    ],
+    volumeBreaks: [
+      { minQty: "20,000 – 39,999 kg", priceRange: "$2.70 – $2.90" },
+      { minQty: "40,000 – 99,999 kg", priceRange: "$2.50 – $2.70" },
+      { minQty: "100,000+ kg", priceRange: "$2.40 – $2.50" },
+    ],
+    relatedArticles: [
+      { id: "a6", title: "Pangasius Import Guide: Quality Grades, Trimming & Red Flags", slug: "pangasius-import-guide", category: "Buying Guide", readTime: "7 min", relevanceReason: "Same species" },
+    ],
   },
   {
     id: "9",
@@ -464,11 +658,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 4h ago",
     image: "/offers/salmon.webp",
     images: ["/offers/salmon.webp"],
+    gallery: [
+      { src: "/offers/salmon.webp", alt: "Sea Bass Fillet Skin-On", caption: "Fresh fillet, skin-on", sourceLabel: "Supplier-provided" },
+    ],
     category: "Whitefish",
     format: "Fresh",
     cutType: "Fillet, Skin-On",
     packaging: "5 kg styrofoam",
     certifications: ["HACCP", "GlobalG.A.P."],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: true,
+    traceability: "GlobalG.A.P. certified aquaculture. Farm coordinates and harvest records available.",
     supplier: {
       name: "Aegean Aqua A.Ş.",
       isVerified: true,
@@ -479,6 +680,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "GlobalG.A.P.", "IFS Food"],
       documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "GlobalG.A.P. certificate"],
       profileSlug: "aegean-aqua",
+      verificationScope: "YORSO reviewed business registration, GlobalG.A.P. and IFS Food certifications, export permits, and 2 trade references from EU buyers.",
+      verificationDate: "December 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -497,7 +700,13 @@ export const mockOffers: SeafoodOffer[] = [
       availableVolume: "15 MT/week",
       leadTime: "3-5 days",
       stockStatus: "In Stock",
+      shipmentPort: "Izmir, Turkey",
     },
+    deliveryBasisOptions: [
+      { code: "FCA", label: "FCA Izmir", isDefault: true, priceRange: "$9.00 – $10.20", priceUnit: "per kg", shipmentPort: "Izmir, Turkey", leadTime: "3-5 days" },
+      { code: "DAP", label: "DAP Milan", isDefault: false, priceRange: "$11.50 – $12.80", priceUnit: "per kg", shipmentPort: "Milan, Italy", leadTime: "3-4 days", note: "Temperature-controlled road freight" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "10",
@@ -514,11 +723,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Listed today",
     image: "/offers/squid.webp",
     images: ["/offers/squid.webp"],
+    gallery: [
+      { src: "/offers/squid.webp", alt: "Octopus Whole Cleaned", caption: "T4 size, cleaned and frozen", sourceLabel: "Supplier-provided" },
+    ],
     category: "Squid & Octopus",
     format: "Frozen",
     cutType: "Whole, Cleaned, T4",
     packaging: "20 kg carton",
     certifications: ["HACCP", "MSC"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: true,
+    inspectionAvailable: false,
+    traceability: "MSC certified. Trap/pot catch documented with vessel IDs.",
     supplier: {
       name: "Atlas Pelagic SARL",
       isVerified: true,
@@ -529,6 +745,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "MSC", "EU Approved"],
       documentsReviewed: ["Business license", "Export permit", "MSC certificate", "EU approval number"],
       profileSlug: "atlas-pelagic",
+      verificationScope: "YORSO reviewed business registration, MSC certification, EU establishment approval, and export permits.",
+      verificationDate: "October 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -542,7 +760,13 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "40 MT/month",
       leadTime: "14-21 days",
+      shipmentPort: "Agadir, Morocco",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Agadir", isDefault: true, priceRange: "$6.50 – $7.40", priceUnit: "per kg", shipmentPort: "Agadir, Morocco", leadTime: "14-21 days" },
+      { code: "CIF", label: "CIF Vigo", isDefault: false, priceRange: "$7.20 – $8.10", priceUnit: "per kg", shipmentPort: "Vigo, Spain", leadTime: "7-10 days", note: "Short transit to Iberian peninsula" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "11",
@@ -559,11 +783,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 6h ago",
     image: "/offers/cod.webp",
     images: ["/offers/cod.webp"],
+    gallery: [
+      { src: "/offers/cod.webp", alt: "Mackerel HG", caption: "Headed & gutted, 300-500g", sourceLabel: "Supplier-provided" },
+    ],
     category: "Whitefish",
     format: "Frozen",
     cutType: "HG (Headed & Gutted), 300-500g",
     packaging: "20 kg carton",
     certifications: ["HACCP", "MSC"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: false,
+    inspectionAvailable: true,
+    traceability: "MSC chain of custody. Purse seine fleet with full catch documentation.",
     supplier: {
       name: "Bergen Pelagic AS",
       isVerified: true,
@@ -574,6 +805,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "MSC", "BRC Grade AA"],
       documentsReviewed: ["Business license", "Export permit", "MSC Chain of Custody", "BRC audit report"],
       profileSlug: "bergen-pelagic",
+      verificationScope: "YORSO reviewed business registration, MSC CoC, BRC Grade AA audit report, export permits, and 3 trade references.",
+      verificationDate: "August 2024",
     },
     specs: {
       ...defaultSpecs,
@@ -587,7 +820,13 @@ export const mockOffers: SeafoodOffer[] = [
       ...defaultCommercial,
       availableVolume: "500 MT/month",
       leadTime: "14-21 days",
+      shipmentPort: "Bergen, Norway",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Bergen", isDefault: true, priceRange: "$1.80 – $2.20", priceUnit: "per kg", shipmentPort: "Bergen, Norway", leadTime: "14-21 days" },
+      { code: "CIF", label: "CIF Lagos", isDefault: false, priceRange: "$2.40 – $2.80", priceUnit: "per kg", shipmentPort: "Lagos, Nigeria", leadTime: "28-35 days", note: "Major West African import destination" },
+    ],
+    relatedArticles: [],
   },
   {
     id: "12",
@@ -604,11 +843,18 @@ export const mockOffers: SeafoodOffer[] = [
     freshness: "Updated 2h ago",
     image: "/offers/shrimp.webp",
     images: ["/offers/shrimp.webp"],
+    gallery: [
+      { src: "/offers/shrimp.webp", alt: "Black Tiger Shrimp HLSO", caption: "Headless shell-on, IQF", sourceLabel: "Supplier-provided" },
+    ],
     category: "Shrimp",
     format: "Frozen",
     cutType: "HLSO (Headless Shell-On)",
     packaging: "10 kg carton",
     certifications: ["HACCP", "BAP"],
+    photoSourceLabel: "Supplier-provided product photos",
+    sampleAvailable: false,
+    inspectionAvailable: false,
+    traceability: "Basic catch documentation. Farm-level traceability limited.",
     supplier: {
       name: "Bengal Seafood Ltd",
       isVerified: false,
@@ -619,6 +865,8 @@ export const mockOffers: SeafoodOffer[] = [
       certifications: ["HACCP", "BAP"],
       documentsReviewed: ["Business license", "HACCP certificate"],
       profileSlug: "bengal-seafood",
+      verificationScope: "Basic verification only. Business license and HACCP certificate reviewed. Full verification pending.",
+      verificationDate: "Pending full review",
     },
     specs: {
       ...defaultSpecs,
@@ -632,7 +880,12 @@ export const mockOffers: SeafoodOffer[] = [
       availableVolume: "30 MT/month",
       leadTime: "21-28 days",
       stockStatus: "In Stock",
+      shipmentPort: "Chittagong, Bangladesh",
     },
+    deliveryBasisOptions: [
+      { code: "FOB", label: "FOB Chittagong", isDefault: true, priceRange: "$7.20 – $8.10", priceUnit: "per kg", shipmentPort: "Chittagong, Bangladesh", leadTime: "21-28 days" },
+    ],
+    relatedArticles: [],
   },
 ];
 
