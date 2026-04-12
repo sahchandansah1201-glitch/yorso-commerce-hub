@@ -1,3 +1,35 @@
+export interface SupplierInfo {
+  name: string;
+  isVerified: boolean;
+  country: string;
+  countryFlag: string;
+  inBusinessSince: number;
+  responseTime: string;
+  certifications: string[];
+  documentsReviewed: string[];
+  profileSlug: string;
+}
+
+export interface ProductSpecs {
+  catchingMethod: string;
+  freezingProcess: string;
+  glazing: string;
+  storageTemperature: string;
+  fishingArea: string;
+  ingredients: string;
+  nutritionPer100g: { calories: string; protein: string; fat: string; carbs: string };
+  packingWeight: string;
+  shelfLife: string;
+}
+
+export interface CommercialTerms {
+  incoterm: string;
+  paymentTerms: string;
+  availableVolume: string;
+  leadTime: string;
+  stockStatus: "In Stock" | "Limited" | "Pre-order";
+}
+
 export interface SeafoodOffer {
   id: string;
   productName: string;
@@ -12,11 +44,36 @@ export interface SeafoodOffer {
   moq: string;
   freshness: string;
   image: string;
+  images: string[];
   category: string;
   format: "Frozen" | "Fresh" | "Chilled";
+  cutType: string;
   packaging: string;
   certifications: string[];
+  supplier: SupplierInfo;
+  specs: ProductSpecs;
+  commercial: CommercialTerms;
 }
+
+const defaultSpecs: ProductSpecs = {
+  catchingMethod: "Aquaculture",
+  freezingProcess: "IQF (Individually Quick Frozen)",
+  glazing: "5-10%",
+  storageTemperature: "-18°C or below",
+  fishingArea: "FAO 27",
+  ingredients: "100% fish fillet",
+  nutritionPer100g: { calories: "208 kcal", protein: "20g", fat: "13g", carbs: "0g" },
+  packingWeight: "10 kg net",
+  shelfLife: "24 months from production",
+};
+
+const defaultCommercial: CommercialTerms = {
+  incoterm: "CIF",
+  paymentTerms: "30% advance, 70% against B/L",
+  availableVolume: "40 MT/month",
+  leadTime: "14-21 days",
+  stockStatus: "In Stock",
+};
 
 export const mockOffers: SeafoodOffer[] = [
   {
@@ -33,10 +90,38 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 1,000 kg",
     freshness: "Updated 2h ago",
     image: "/offers/salmon.webp",
+    images: ["/offers/salmon.webp", "/offers/cod.webp"],
     category: "Salmon",
     format: "Frozen",
+    cutType: "Fillet, Skin-On, Pin Bone Out",
     packaging: "10 kg carton",
     certifications: ["HACCP", "ASC"],
+    supplier: {
+      name: "Nordic Seafood AS",
+      isVerified: true,
+      country: "Norway",
+      countryFlag: "🇳🇴",
+      inBusinessSince: 2008,
+      responseTime: "< 4 hours",
+      certifications: ["HACCP", "ASC", "BRC Grade AA", "ISO 22000"],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "ASC Chain of Custody"],
+      profileSlug: "nordic-seafood",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Aquaculture (cage farming)",
+      fishingArea: "FAO 27 — Norwegian Sea",
+      glazing: "5%",
+      ingredients: "100% Atlantic Salmon (Salmo salar)",
+      nutritionPer100g: { calories: "208 kcal", protein: "20g", fat: "13g", carbs: "0g" },
+    },
+    commercial: {
+      incoterm: "CIF",
+      paymentTerms: "30% advance, 70% against B/L",
+      availableVolume: "60 MT/month",
+      leadTime: "14-21 days",
+      stockStatus: "In Stock",
+    },
   },
   {
     id: "2",
@@ -52,10 +137,39 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 5,000 kg",
     freshness: "Listed today",
     image: "/offers/shrimp.webp",
+    images: ["/offers/shrimp.webp"],
     category: "Shrimp",
     format: "Frozen",
+    cutType: "HOSO (Head-On Shell-On)",
     packaging: "20 kg master carton",
     certifications: ["HACCP", "BAP"],
+    supplier: {
+      name: "Pacífico Export S.A.",
+      isVerified: true,
+      country: "Ecuador",
+      countryFlag: "🇪🇨",
+      inBusinessSince: 2012,
+      responseTime: "< 8 hours",
+      certifications: ["HACCP", "BAP 4-star", "GlobalG.A.P."],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "BAP certificate"],
+      profileSlug: "pacifico-export",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Aquaculture (pond farming)",
+      freezingProcess: "Block frozen",
+      fishingArea: "FAO 87 — Southeast Pacific",
+      glazing: "10%",
+      ingredients: "100% White Shrimp (Litopenaeus vannamei)",
+      nutritionPer100g: { calories: "99 kcal", protein: "24g", fat: "0.3g", carbs: "0.2g" },
+      packingWeight: "20 kg net",
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "100 MT/month",
+      leadTime: "21-28 days",
+      stockStatus: "In Stock",
+    },
   },
   {
     id: "3",
@@ -71,10 +185,41 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 2,000 kg",
     freshness: "Updated 5h ago",
     image: "/offers/cod.webp",
+    images: ["/offers/cod.webp"],
     category: "Whitefish",
     format: "Fresh",
+    cutType: "Loin, Skinless, Boneless, Center Cut",
     packaging: "5 kg styrofoam",
     certifications: ["MSC", "HACCP"],
+    supplier: {
+      name: "Ísland Fish ehf",
+      isVerified: true,
+      country: "Iceland",
+      countryFlag: "🇮🇸",
+      inBusinessSince: 2001,
+      responseTime: "< 6 hours",
+      certifications: ["MSC", "HACCP", "IFS Food"],
+      documentsReviewed: ["Business license", "Export permit", "MSC Chain of Custody", "HACCP certificate"],
+      profileSlug: "island-fish",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (longline)",
+      freezingProcess: "Fresh / never frozen",
+      fishingArea: "FAO 27 — Icelandic waters",
+      glazing: "N/A (fresh product)",
+      ingredients: "100% Atlantic Cod (Gadus morhua)",
+      nutritionPer100g: { calories: "82 kcal", protein: "18g", fat: "0.7g", carbs: "0g" },
+      packingWeight: "5 kg net",
+      shelfLife: "7 days from packing",
+    },
+    commercial: {
+      incoterm: "FCA",
+      paymentTerms: "Net 14 days",
+      availableVolume: "10 MT/week",
+      leadTime: "3-5 days",
+      stockStatus: "Limited",
+    },
   },
   {
     id: "4",
@@ -90,10 +235,40 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 500 kg",
     freshness: "Updated 1d ago",
     image: "/offers/tuna.webp",
+    images: ["/offers/tuna.webp"],
     category: "Tuna",
     format: "Chilled",
+    cutType: "Loin, Grade A (sashimi)",
     packaging: "10 kg vacuum pack",
     certifications: ["HACCP"],
+    supplier: {
+      name: "Gen. Santos Tuna Corp.",
+      isVerified: false,
+      country: "Philippines",
+      countryFlag: "🇵🇭",
+      inBusinessSince: 2015,
+      responseTime: "< 12 hours",
+      certifications: ["HACCP"],
+      documentsReviewed: ["Business license", "HACCP certificate"],
+      profileSlug: "gen-santos-tuna",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (handline)",
+      freezingProcess: "Super-chilled (-1°C to -3°C)",
+      fishingArea: "FAO 71 — Western Pacific",
+      glazing: "N/A",
+      ingredients: "100% Yellowfin Tuna (Thunnus albacares)",
+      nutritionPer100g: { calories: "109 kcal", protein: "24g", fat: "0.5g", carbs: "0g" },
+      storageTemperature: "-1°C to -3°C (super-chilled)",
+    },
+    commercial: {
+      incoterm: "FOB",
+      paymentTerms: "50% advance, 50% before shipment",
+      availableVolume: "5 MT/month",
+      leadTime: "5-7 days",
+      stockStatus: "Limited",
+    },
   },
   {
     id: "5",
@@ -109,10 +284,35 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 200 kg",
     freshness: "Listed today",
     image: "/offers/crab.webp",
+    images: ["/offers/crab.webp"],
     category: "Crab",
     format: "Frozen",
+    cutType: "Clusters (sections)",
     packaging: "10 kg carton",
     certifications: ["HACCP", "MSC"],
+    supplier: {
+      name: "Kamchatka Seafood LLC",
+      isVerified: true,
+      country: "Russia",
+      countryFlag: "🇷🇺",
+      inBusinessSince: 2010,
+      responseTime: "< 12 hours",
+      certifications: ["HACCP", "MSC"],
+      documentsReviewed: ["Business license", "Export permit", "MSC certificate"],
+      profileSlug: "kamchatka-seafood",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (trap/pot)",
+      fishingArea: "FAO 61 — Sea of Okhotsk",
+      ingredients: "100% Red King Crab (Paralithodes camtschaticus)",
+      nutritionPer100g: { calories: "97 kcal", protein: "19g", fat: "1.5g", carbs: "0g" },
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "5 MT/month",
+      leadTime: "21-30 days",
+    },
   },
   {
     id: "6",
@@ -128,10 +328,38 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 10,000 kg",
     freshness: "Updated 8h ago",
     image: "/offers/squid.webp",
+    images: ["/offers/squid.webp"],
     category: "Squid",
     format: "Frozen",
+    cutType: "Tube & Tentacle, cleaned",
     packaging: "20 kg block",
     certifications: ["HACCP"],
+    supplier: {
+      name: "Mar del Plata Pesca",
+      isVerified: true,
+      country: "Argentina",
+      countryFlag: "🇦🇷",
+      inBusinessSince: 2005,
+      responseTime: "< 8 hours",
+      certifications: ["HACCP", "EU Approved"],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "EU approval number"],
+      profileSlug: "mar-del-plata-pesca",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (jigging)",
+      freezingProcess: "Block frozen at sea",
+      fishingArea: "FAO 41 — Southwest Atlantic",
+      glazing: "N/A (block frozen)",
+      ingredients: "100% Illex Squid (Illex argentinus)",
+      nutritionPer100g: { calories: "92 kcal", protein: "15g", fat: "1.4g", carbs: "3g" },
+      packingWeight: "20 kg net",
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "200 MT/month",
+      leadTime: "28-35 days",
+    },
   },
   {
     id: "7",
@@ -147,10 +375,35 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 3,000 kg",
     freshness: "Updated 3h ago",
     image: "/offers/mahi.webp",
+    images: ["/offers/mahi.webp"],
     category: "Whitefish",
     format: "Frozen",
+    cutType: "Portion, 6oz (170g)",
     packaging: "10 kg IQF carton",
     certifications: ["HACCP", "BAP"],
+    supplier: {
+      name: "Pesquera del Pacífico",
+      isVerified: false,
+      country: "Peru",
+      countryFlag: "🇵🇪",
+      inBusinessSince: 2018,
+      responseTime: "< 24 hours",
+      certifications: ["HACCP", "BAP"],
+      documentsReviewed: ["Business license", "HACCP certificate"],
+      profileSlug: "pesquera-pacifico",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (longline)",
+      fishingArea: "FAO 87 — Southeast Pacific",
+      ingredients: "100% Mahi Mahi (Coryphaena hippurus)",
+      nutritionPer100g: { calories: "85 kcal", protein: "18g", fat: "0.7g", carbs: "0g" },
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "20 MT/month",
+      leadTime: "21-28 days",
+    },
   },
   {
     id: "8",
@@ -166,10 +419,35 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 20,000 kg",
     freshness: "Updated 1h ago",
     image: "/offers/pangasius.webp",
+    images: ["/offers/pangasius.webp"],
     category: "Whitefish",
     format: "Frozen",
+    cutType: "Fillet, Well-Trimmed",
     packaging: "10 kg IVP carton",
     certifications: ["HACCP", "ASC", "BRC"],
+    supplier: {
+      name: "Mekong Delta Foods",
+      isVerified: true,
+      country: "Vietnam",
+      countryFlag: "🇻🇳",
+      inBusinessSince: 2009,
+      responseTime: "< 4 hours",
+      certifications: ["HACCP", "ASC", "BRC Grade A", "ISO 22000", "BSCI"],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "ASC certificate", "BRC audit report"],
+      profileSlug: "mekong-delta-foods",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Aquaculture (pond farming)",
+      fishingArea: "Mekong Delta, Vietnam",
+      ingredients: "100% Pangasius (Pangasianodon hypophthalmus)",
+      nutritionPer100g: { calories: "92 kcal", protein: "13g", fat: "3.5g", carbs: "0g" },
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "500 MT/month",
+      leadTime: "21-28 days",
+    },
   },
   {
     id: "9",
@@ -185,10 +463,41 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 1,500 kg",
     freshness: "Updated 4h ago",
     image: "/offers/salmon.webp",
+    images: ["/offers/salmon.webp"],
     category: "Whitefish",
     format: "Fresh",
+    cutType: "Fillet, Skin-On",
     packaging: "5 kg styrofoam",
     certifications: ["HACCP", "GlobalG.A.P."],
+    supplier: {
+      name: "Aegean Aqua A.Ş.",
+      isVerified: true,
+      country: "Turkey",
+      countryFlag: "🇹🇷",
+      inBusinessSince: 2006,
+      responseTime: "< 6 hours",
+      certifications: ["HACCP", "GlobalG.A.P.", "IFS Food"],
+      documentsReviewed: ["Business license", "Export permit", "HACCP certificate", "GlobalG.A.P. certificate"],
+      profileSlug: "aegean-aqua",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Aquaculture (sea cage)",
+      freezingProcess: "Fresh / never frozen",
+      fishingArea: "Aegean Sea, Turkey",
+      glazing: "N/A (fresh product)",
+      ingredients: "100% European Sea Bass (Dicentrarchus labrax)",
+      nutritionPer100g: { calories: "97 kcal", protein: "18g", fat: "2g", carbs: "0g" },
+      packingWeight: "5 kg net",
+      shelfLife: "7 days from packing",
+    },
+    commercial: {
+      incoterm: "FCA",
+      paymentTerms: "Net 14 days",
+      availableVolume: "15 MT/week",
+      leadTime: "3-5 days",
+      stockStatus: "In Stock",
+    },
   },
   {
     id: "10",
@@ -204,10 +513,36 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 5,000 kg",
     freshness: "Listed today",
     image: "/offers/squid.webp",
+    images: ["/offers/squid.webp"],
     category: "Squid & Octopus",
     format: "Frozen",
+    cutType: "Whole, Cleaned, T4",
     packaging: "20 kg carton",
     certifications: ["HACCP", "MSC"],
+    supplier: {
+      name: "Atlas Pelagic SARL",
+      isVerified: true,
+      country: "Morocco",
+      countryFlag: "🇲🇦",
+      inBusinessSince: 2011,
+      responseTime: "< 8 hours",
+      certifications: ["HACCP", "MSC", "EU Approved"],
+      documentsReviewed: ["Business license", "Export permit", "MSC certificate", "EU approval number"],
+      profileSlug: "atlas-pelagic",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (trap/pot)",
+      fishingArea: "FAO 34 — Eastern Central Atlantic",
+      ingredients: "100% Common Octopus (Octopus vulgaris)",
+      nutritionPer100g: { calories: "82 kcal", protein: "15g", fat: "1g", carbs: "2g" },
+      packingWeight: "20 kg net",
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "40 MT/month",
+      leadTime: "14-21 days",
+    },
   },
   {
     id: "11",
@@ -223,10 +558,36 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 25,000 kg",
     freshness: "Updated 6h ago",
     image: "/offers/cod.webp",
+    images: ["/offers/cod.webp"],
     category: "Whitefish",
     format: "Frozen",
+    cutType: "HG (Headed & Gutted), 300-500g",
     packaging: "20 kg carton",
     certifications: ["HACCP", "MSC"],
+    supplier: {
+      name: "Bergen Pelagic AS",
+      isVerified: true,
+      country: "Norway",
+      countryFlag: "🇳🇴",
+      inBusinessSince: 2003,
+      responseTime: "< 4 hours",
+      certifications: ["HACCP", "MSC", "BRC Grade AA"],
+      documentsReviewed: ["Business license", "Export permit", "MSC Chain of Custody", "BRC audit report"],
+      profileSlug: "bergen-pelagic",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Wild-caught (purse seine)",
+      fishingArea: "FAO 27 — Northeast Atlantic",
+      ingredients: "100% Atlantic Mackerel (Scomber scombrus)",
+      nutritionPer100g: { calories: "205 kcal", protein: "19g", fat: "14g", carbs: "0g" },
+      packingWeight: "20 kg net",
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "500 MT/month",
+      leadTime: "14-21 days",
+    },
   },
   {
     id: "12",
@@ -242,10 +603,36 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 3,000 kg",
     freshness: "Updated 2h ago",
     image: "/offers/shrimp.webp",
+    images: ["/offers/shrimp.webp"],
     category: "Shrimp",
     format: "Frozen",
+    cutType: "HLSO (Headless Shell-On)",
     packaging: "10 kg carton",
     certifications: ["HACCP", "BAP"],
+    supplier: {
+      name: "Bengal Seafood Ltd",
+      isVerified: false,
+      country: "Bangladesh",
+      countryFlag: "🇧🇩",
+      inBusinessSince: 2016,
+      responseTime: "< 24 hours",
+      certifications: ["HACCP", "BAP"],
+      documentsReviewed: ["Business license", "HACCP certificate"],
+      profileSlug: "bengal-seafood",
+    },
+    specs: {
+      ...defaultSpecs,
+      catchingMethod: "Aquaculture (semi-intensive)",
+      fishingArea: "Khulna Division, Bangladesh",
+      ingredients: "100% Black Tiger Shrimp (Penaeus monodon)",
+      nutritionPer100g: { calories: "99 kcal", protein: "21g", fat: "1g", carbs: "0.2g" },
+    },
+    commercial: {
+      ...defaultCommercial,
+      availableVolume: "30 MT/month",
+      leadTime: "21-28 days",
+      stockStatus: "In Stock",
+    },
   },
 ];
 
