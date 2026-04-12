@@ -57,6 +57,7 @@ export interface ProductData {
     format: string;
     image: string;
     substituteReason: string;
+    slug?: string;
   }[];
   faq?: { question: string; answer: string }[];
   seo: { title: string; description: string };
