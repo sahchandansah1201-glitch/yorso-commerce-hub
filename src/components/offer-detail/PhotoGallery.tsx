@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { GalleryImage } from "@/data/mockOffers";
 
