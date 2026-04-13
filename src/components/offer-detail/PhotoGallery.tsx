@@ -48,7 +48,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     return () => window.removeEventListener("keydown", handleKey);
   }, [lightbox, active, imgs.length]);
 
-
+  return (
     <div className="space-y-3">
       {/* Source label */}
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
