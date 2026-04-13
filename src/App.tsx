@@ -36,29 +36,31 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/register" element={<RegistrationProvider><RegisterChoose /></RegistrationProvider>} />
-            <Route path="/register/email" element={<RegistrationProvider><RegisterEmail /></RegistrationProvider>} />
-            <Route path="/register/verify" element={<RegistrationProvider><RegisterVerify /></RegistrationProvider>} />
-            <Route path="/register/details" element={<RegistrationProvider><RegisterDetails /></RegistrationProvider>} />
-            <Route path="/register/onboarding" element={<RegistrationProvider><RegisterOnboarding /></RegistrationProvider>} />
-            <Route path="/register/ready" element={<RegistrationProvider><RegisterReady /></RegistrationProvider>} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/offers" element={<Offers />} />
-            <Route path="/offers/:id" element={<OfferDetail />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/cookies" element={<Cookies />} />
-            <Route path="/gdpr" element={<GDPR />} />
-            <Route path="/anti-fraud" element={<AntiFraud />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/press" element={<Press />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <RegistrationProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/register" element={<RegisterChoose />} />
+              <Route path="/register/email" element={<RegisterEmail />} />
+              <Route path="/register/verify" element={<RegisterVerify />} />
+              <Route path="/register/details" element={<RegisterDetails />} />
+              <Route path="/register/onboarding" element={<RegisterOnboarding />} />
+              <Route path="/register/ready" element={<RegisterReady />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/offers" element={<Offers />} />
+              <Route path="/offers/:id" element={<OfferDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/cookies" element={<Cookies />} />
+              <Route path="/gdpr" element={<GDPR />} />
+              <Route path="/anti-fraud" element={<AntiFraud />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/press" element={<Press />} />
+              <Route path="/partners" element={<Partners />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </RegistrationProvider>
         </BrowserRouter>
       </TooltipProvider>
     </LanguageProvider>
