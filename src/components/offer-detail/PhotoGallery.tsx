@@ -19,7 +19,13 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const touchStart = useRef<number | null>(null);
+  const pinchStart = useRef<number | null>(null);
+  const zoomStart = useRef(1);
+  const panStart = useRef({ x: 0, y: 0 });
+  const lastPanPoint = useRef({ x: 0, y: 0 });
 
   const imgs = gallery.length > 0
     ? gallery
