@@ -26,6 +26,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const zoomStart = useRef(1);
   const panStart = useRef({ x: 0, y: 0 });
   const lastPanPoint = useRef({ x: 0, y: 0 });
+  const lastTap = useRef(0);
 
   const imgs = gallery.length > 0
     ? gallery
