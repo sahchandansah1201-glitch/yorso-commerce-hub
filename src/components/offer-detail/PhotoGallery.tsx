@@ -11,6 +11,7 @@ interface Props {
 const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const [active, setActive] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const touchStart = useRef<number | null>(null);
 
   const imgs = gallery.length > 0
     ? gallery
@@ -18,6 +19,14 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
   const goPrev = () => setActive((p) => (p === 0 ? imgs.length - 1 : p - 1));
   const goNext = () => setActive((p) => (p === imgs.length - 1 ? 0 : p + 1));
+
+  const onTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStart.current;
+    if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
+    touchStart.current = null;
+  };
 
   return (
     <div className="space-y-3">
