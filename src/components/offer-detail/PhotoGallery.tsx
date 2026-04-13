@@ -37,7 +37,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
       </div>
 
       {/* Main image with nav arrows */}
-      <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
+      <div className="group relative overflow-hidden rounded-xl border border-border bg-card" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="flex items-center justify-center bg-muted/20 h-[280px] sm:h-[350px] lg:h-[420px]">
           <img
             src={imgs[active].src}
