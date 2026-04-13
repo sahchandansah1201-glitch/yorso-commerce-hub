@@ -89,6 +89,7 @@ function findByCountryName(name: string): CountryEntry | undefined {
 interface CountryPhoneInputProps {
   phone: string;
   onPhoneChange: (phone: string) => void;
+  onCountryChange?: (countryName: string) => void;
   countryName?: string;
   disabled?: boolean;
 }
