@@ -106,7 +106,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goNext();
       else if (e.key === "ArrowLeft") goPrev();
-      else if (e.key === "Escape") setLightbox(false);
+      else if (e.key === "Escape") { setLightbox(false); setZoom(1); setPan({ x: 0, y: 0 }); }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
