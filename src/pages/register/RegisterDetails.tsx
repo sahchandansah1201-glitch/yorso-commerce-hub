@@ -194,20 +194,29 @@ const RegisterDetails = () => {
             <Phone className="h-4 w-4 text-muted-foreground" /> Номер телефона
           </label>
 
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
-              <CountryPhoneInput
-                phone={phoneNumber}
-                onPhoneChange={(val) => {
-                  setPhoneNumber(val);
-                  clearError("phone");
-                  setPhoneVerified(false);
-                  setPhoneSent(false);
-                  setCodeError(false);
-                }}
-                countryName={country}
-                disabled={phoneVerified}
-              />
+          <div className="space-y-2">
+            <div className="flex gap-2 items-start">
+              <div className="flex-1 min-w-0">
+                <CountryPhoneInput
+                  phone={phoneNumber}
+                  onPhoneChange={(val) => {
+                    setPhoneNumber(val);
+                    clearError("phone");
+                    setPhoneVerified(false);
+                    setPhoneSent(false);
+                    setCodeError(false);
+                  }}
+                  countryName={country}
+                  disabled={phoneVerified}
+                />
+              </div>
+
+              {phoneVerified && (
+                <div className="flex items-center gap-1.5 text-emerald-600 h-12 px-3 shrink-0">
+                  <CheckCircle2 className="h-5 w-5" />
+                  <span className="text-sm font-medium">Подтверждён</span>
+                </div>
+              )}
             </div>
 
             {!phoneVerified && !phoneSent && (
@@ -216,17 +225,11 @@ const RegisterDetails = () => {
                 variant="outline"
                 onClick={handleSendCode}
                 disabled={phoneLoading}
-                className="h-12 rounded-xl px-4 whitespace-nowrap shrink-0"
+                className="h-12 rounded-xl w-full"
               >
-                {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Получить код"}
+                {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Получить код
               </Button>
-            )}
-
-            {phoneVerified && (
-              <div className="flex items-center gap-1.5 text-emerald-600 h-12 px-3 shrink-0">
-                <CheckCircle2 className="h-5 w-5" />
-                <span className="text-sm font-medium">Подтверждён</span>
-              </div>
             )}
           </div>
 
