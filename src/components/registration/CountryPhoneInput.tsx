@@ -204,6 +204,20 @@ export default function CountryPhoneInput({
       c.code.includes(search)
   );
 
+  const currentCode = selected?.code || "";
+  const mask = getMask(currentCode);
+  const placeholder = getPlaceholder(currentCode);
+  const maxDigits = getMaxDigits(currentCode);
+
+  const handlePhoneInput = useCallback((rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, "").slice(0, maxDigits);
+    if (mask) {
+      onPhoneChange(applyMask(digits, mask));
+    } else {
+      onPhoneChange(digits);
+    }
+  }, [mask, maxDigits, onPhoneChange]);
+
   const handleSelect = (entry: CountryEntry) => {
     setSelected(entry);
     setOpen(false);
