@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -49,11 +49,18 @@ const OfferDetail = () => {
       </header>
 
       <main className="container py-6 md:py-10">
-        <Link to="/offers">
-          <Button variant="ghost" size="sm" className="mb-5 gap-1.5 text-muted-foreground">
-            <ArrowLeft className="h-4 w-4" /> All offers
-          </Button>
-        </Link>
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="mb-5">
+          <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
+            <li><Link to="/" className="hover:text-foreground transition-colors">Home</Link></li>
+            <li><ChevronRight className="h-3.5 w-3.5" /></li>
+            <li><Link to="/offers" className="hover:text-foreground transition-colors">Offers</Link></li>
+            <li><ChevronRight className="h-3.5 w-3.5" /></li>
+            <li><Link to={`/offers?category=${encodeURIComponent(offer.category)}`} className="hover:text-foreground transition-colors">{offer.category}</Link></li>
+            <li><ChevronRight className="h-3.5 w-3.5" /></li>
+            <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none">{offer.productName}</li>
+          </ol>
+        </nav>
 
         {/* Above-the-fold: 3-column desktop / stacked mobile */}
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]">
