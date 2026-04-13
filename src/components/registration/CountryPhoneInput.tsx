@@ -126,6 +126,36 @@ function findByCountryName(name: string): CountryEntry | undefined {
   return COUNTRIES.find((c) => c.name === name);
 }
 
+function getMask(code: string): string | undefined {
+  return PHONE_MASKS[code];
+}
+
+function applyMask(raw: string, mask: string): string {
+  const digits = raw.replace(/\D/g, "");
+  let result = "";
+  let di = 0;
+  for (let i = 0; i < mask.length && di < digits.length; i++) {
+    if (mask[i] === "#") {
+      result += digits[di++];
+    } else {
+      result += mask[i];
+    }
+  }
+  return result;
+}
+
+function getPlaceholder(code: string): string {
+  const mask = getMask(code);
+  if (!mask) return "Номер телефона";
+  return mask.replace(/#/g, "0");
+}
+
+function getMaxDigits(code: string): number {
+  const mask = getMask(code);
+  if (!mask) return 15;
+  return (mask.match(/#/g) || []).length;
+}
+
 interface CountryPhoneInputProps {
   phone: string;
   onPhoneChange: (phone: string) => void;
