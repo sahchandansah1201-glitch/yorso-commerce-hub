@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle, MessageCircle } from "lucide-react";
 import { detectCountry, detectCountryByIP, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +28,9 @@ const RegisterDetails = () => {
   const [phoneVerified, setPhoneVerified] = useState(data.phoneVerified);
   const [phoneLoading, setPhoneLoading] = useState(false);
   const [codeError, setCodeError] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [whatsAppCountdown, setWhatsAppCountdown] = useState(30);
+  const whatsAppTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -58,6 +61,27 @@ const RegisterDetails = () => {
     return Object.keys(errs).length === 0;
   };
 
+  // Start 30s WhatsApp fallback timer when SMS is sent
+  useEffect(() => {
+    if (phoneSent && !phoneVerified) {
+      setShowWhatsApp(false);
+      setWhatsAppCountdown(30);
+      whatsAppTimerRef.current = setInterval(() => {
+        setWhatsAppCountdown((prev) => {
+          if (prev <= 1) {
+            if (whatsAppTimerRef.current) clearInterval(whatsAppTimerRef.current);
+            setShowWhatsApp(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (whatsAppTimerRef.current) clearInterval(whatsAppTimerRef.current);
+    };
+  }, [phoneSent, phoneVerified]);
+
   const handleSendCode = () => {
     if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) {
       setErrors((prev) => ({ ...prev, phone: "Введите корректный номер" }));
@@ -73,6 +97,22 @@ const RegisterDetails = () => {
       });
       analytics.track("phone_verification_sent", { phone: phoneNumber });
     }, 1200);
+  };
+
+  const handleWhatsAppVerify = () => {
+    setPhoneLoading(true);
+    analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
+    // Mock: WhatsApp verification succeeds after short delay
+    setTimeout(() => {
+      setPhoneVerified(true);
+      setPhoneLoading(false);
+      setCodeError(false);
+      setErrors((prev) => ({ ...prev, phone: "" }));
+      toast.success("Телефон подтверждён через WhatsApp", {
+        description: "Номер успешно верифицирован",
+      });
+      analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
+    }, 1500);
   };
 
   const handleVerifyCode = () => {
@@ -291,14 +331,59 @@ const RegisterDetails = () => {
                     <XCircle className="h-3.5 w-3.5" /> Неверный код. Попробуйте снова.
                   </motion.p>
                 )}
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={phoneLoading}
-                  className="mt-2 text-xs text-primary hover:underline"
-                >
-                  Отправить код повторно
-                </button>
+                <div className="flex items-center justify-between mt-2">
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={phoneLoading}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Отправить код повторно
+                  </button>
+                  {!showWhatsApp && whatsAppCountdown > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      WhatsApp через {whatsAppCountdown}с
+                    </span>
+                  )}
+                </div>
+
+                {/* WhatsApp fallback button — appears after 30s */}
+                <AnimatePresence>
+                  {showWhatsApp && !phoneVerified && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-3"
+                    >
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t border-border" />
+                        </div>
+                        <div className="relative flex justify-center text-xs">
+                          <span className="bg-background px-2 text-muted-foreground">или</span>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleWhatsAppVerify}
+                        disabled={phoneLoading}
+                        className="mt-3 h-12 rounded-xl w-full gap-2 border-emerald-300 hover:border-emerald-400 hover:bg-emerald-50 text-emerald-700"
+                      >
+                        {phoneLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MessageCircle className="h-5 w-5" />
+                        )}
+                        Подтвердить через WhatsApp
+                      </Button>
+                      <p className="mt-1.5 text-xs text-muted-foreground text-center">
+                        Мы отправим код в WhatsApp на этот номер
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
           </AnimatePresence>
