@@ -112,7 +112,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
       {/* Lightbox */}
       {lightbox && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90" onClick={() => setLightbox(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90" onClick={() => setLightbox(false)} onTouchStart={onTouchStart} onTouchEnd={(e) => { e.stopPropagation(); onTouchEnd(e); }}>
           <button onClick={() => setLightbox(false)} className="absolute top-4 right-4 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
             <X className="h-5 w-5" />
           </button>
