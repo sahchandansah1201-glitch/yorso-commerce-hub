@@ -172,7 +172,7 @@ function applyMask(raw: string, mask: string): string {
 
 function getPlaceholder(code: string): string {
   const mask = getMask(code);
-  if (!mask) return "Номер телефона";
+  if (!mask) return "Phone number";
   return mask.replace(/#/g, "0");
 }
 
