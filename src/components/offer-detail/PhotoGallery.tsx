@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { GalleryImage } from "@/data/mockOffers";
 
 interface Props {
@@ -8,8 +9,15 @@ interface Props {
   photoSourceLabel: string;
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 200 : -200, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -200 : 200, opacity: 0 }),
+};
+
 const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const touchStart = useRef<number | null>(null);
 
@@ -17,8 +25,9 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     ? gallery
     : [{ src: "/placeholder.svg", alt: productName, caption: "", sourceLabel: "" }];
 
-  const goPrev = () => setActive((p) => (p === 0 ? imgs.length - 1 : p - 1));
-  const goNext = () => setActive((p) => (p === imgs.length - 1 ? 0 : p + 1));
+  const goPrev = () => { setDirection(-1); setActive((p) => (p === 0 ? imgs.length - 1 : p - 1)); };
+  const goNext = () => { setDirection(1); setActive((p) => (p === imgs.length - 1 ? 0 : p + 1)); };
+  const goTo = (i: number) => { setDirection(i > active ? 1 : -1); setActive(i); };
 
   const onTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -38,15 +47,23 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
       {/* Main image with nav arrows */}
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <div className="flex items-center justify-center bg-muted/20 h-[280px] sm:h-[350px] lg:h-[420px]">
-          <img
-            key={active}
-            src={imgs[active].src}
-            alt={imgs[active].alt}
-            className="max-h-full max-w-full object-contain cursor-zoom-in animate-fade-in"
-            onClick={() => setLightbox(true)}
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
-          />
+        <div className="flex items-center justify-center bg-muted/20 h-[280px] sm:h-[350px] lg:h-[420px] relative overflow-hidden">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.img
+              key={active}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              src={imgs[active].src}
+              alt={imgs[active].alt}
+              className="max-h-full max-w-full object-contain cursor-zoom-in absolute"
+              onClick={() => setLightbox(true)}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
+            />
+          </AnimatePresence>
         </div>
 
         {/* Prev / Next arrows on the main image */}
@@ -96,7 +113,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
           {imgs.map((img, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => goTo(i)}
               className={`overflow-hidden rounded-lg border-2 transition-colors ${i === active ? "border-primary" : "border-border hover:border-muted-foreground/50"}`}
               style={{ width: 60, height: 60 }}
             >
