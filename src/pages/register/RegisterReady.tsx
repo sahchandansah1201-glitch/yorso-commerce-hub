@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
 import { useEffect } from "react";
+import confetti from "canvas-confetti";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
