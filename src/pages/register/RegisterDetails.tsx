@@ -49,21 +49,6 @@ const RegisterDetails = () => {
     }
   }, []);
 
-  if (!guardPassed) return null;
-
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (fullName.trim().length < 2) errs.fullName = "Please enter your full name";
-    if (company.trim().length < 2) errs.company = "Please enter your company name";
-    if (password.length < 8) errs.password = "Minimum 8 characters";
-    if (!country) errs.country = "Please select a country";
-    if (vatTin.trim().length < 3) errs.vatTin = "Please enter a valid VAT/TIN number";
-    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) errs.phone = "Please enter your phone number";
-    if (!phoneVerified) errs.phone = "Please verify your phone number";
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
   // Start 30s WhatsApp fallback timer when SMS is sent
   useEffect(() => {
     if (phoneSent && !phoneVerified) {
@@ -84,6 +69,21 @@ const RegisterDetails = () => {
       if (whatsAppTimerRef.current) clearInterval(whatsAppTimerRef.current);
     };
   }, [phoneSent, phoneVerified]);
+
+  if (!guardPassed) return null;
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (fullName.trim().length < 2) errs.fullName = "Please enter your full name";
+    if (company.trim().length < 2) errs.company = "Please enter your company name";
+    if (password.length < 8) errs.password = "Minimum 8 characters";
+    if (!country) errs.country = "Please select a country";
+    if (vatTin.trim().length < 3) errs.vatTin = "Please enter a valid VAT/TIN number";
+    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) errs.phone = "Please enter your phone number";
+    if (!phoneVerified) errs.phone = "Please verify your phone number";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSendCode = () => {
     if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) {
