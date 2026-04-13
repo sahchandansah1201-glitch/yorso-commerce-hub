@@ -32,8 +32,16 @@ const RegisterDetails = () => {
 
   useEffect(() => {
     if (!country) {
+      // 1. Synchronous: timezone + browser language
       const detected = detectCountry();
-      if (detected) setCountry(detected);
+      if (detected) {
+        setCountry(detected);
+        return;
+      }
+      // 2. Async fallback: IP geolocation
+      detectCountryByIP().then((ipCountry) => {
+        if (ipCountry) setCountry(ipCountry);
+      });
     }
   }, []);
 
