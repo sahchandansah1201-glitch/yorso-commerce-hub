@@ -200,7 +200,7 @@ export default function CountryPhoneInput({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<CountryEntry | null>(
-    () => (countryName ? findByCountryName(countryName) : null) || findByCode("+7") || null
+    () => (countryName ? findByCountryName(countryName) : null) || null
   );
   const ref = useRef<HTMLDivElement>(null);
 
