@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { GalleryImage } from "@/data/mockOffers";
@@ -36,6 +36,17 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
     touchStart.current = null;
   };
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") setLightbox(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightbox, active, imgs.length]);
 
   return (
     <div className="space-y-3">
