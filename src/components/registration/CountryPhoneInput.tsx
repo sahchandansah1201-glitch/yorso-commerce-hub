@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CountryEntry {
@@ -169,51 +169,69 @@ export default function CountryPhoneInput({
         />
       </div>
 
-      {/* Dropdown */}
+      {/* Dropdown - fixed overlay on mobile for better UX */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="absolute z-50 left-0 right-0 mt-1.5 bg-background border border-input rounded-xl shadow-lg overflow-hidden"
-          >
-            {/* Search */}
-            <div className="p-2 border-b border-input">
-              <div className="relative">
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Страна или код"
-                  className="h-10 text-sm rounded-lg pl-3 pr-9"
-                  autoFocus
-                />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-
-            {/* List */}
-            <div className="max-h-60 overflow-y-auto">
-              {filtered.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">Не найдено</p>
-              )}
-              {filtered.map((c) => (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 z-40 md:hidden"
+              onClick={() => { setOpen(false); setSearch(""); }}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.15 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-input rounded-t-2xl shadow-2xl md:absolute md:bottom-auto md:top-full md:mt-1.5 md:rounded-xl md:border md:shadow-lg overflow-hidden"
+              style={{ maxHeight: "70vh" }}
+            >
+              {/* Header with close on mobile */}
+              <div className="flex items-center justify-between p-3 border-b border-input md:p-2">
+                <div className="relative flex-1">
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Страна или код"
+                    className="h-10 text-sm rounded-lg pl-3 pr-9"
+                    autoFocus
+                  />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
                 <button
-                  key={c.name}
                   type="button"
-                  onClick={() => handleSelect(c)}
-                  className={`flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-muted/60 transition-colors text-sm ${
-                    selected?.name === c.name ? "bg-muted/40 font-medium" : ""
-                  }`}
+                  onClick={() => { setOpen(false); setSearch(""); }}
+                  className="ml-2 p-2 rounded-lg hover:bg-muted md:hidden"
                 >
-                  <span className="text-lg">{c.flag}</span>
-                  <span className="text-muted-foreground font-mono w-12">{c.code}</span>
-                  <span className="text-foreground">{c.name}</span>
+                  <X className="h-5 w-5 text-muted-foreground" />
                 </button>
-              ))}
-            </div>
-          </motion.div>
+              </div>
+
+              {/* List */}
+              <div className="overflow-y-auto" style={{ maxHeight: "calc(70vh - 60px)" }}>
+                {filtered.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">Не найдено</p>
+                )}
+                {filtered.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => handleSelect(c)}
+                    className={`flex items-center gap-3 w-full px-4 py-3 md:py-2.5 text-left hover:bg-muted/60 transition-colors text-sm ${
+                      selected?.name === c.name ? "bg-muted/40 font-medium" : ""
+                    }`}
+                  >
+                    <span className="text-xl md:text-lg">{c.flag}</span>
+                    <span className="text-muted-foreground font-mono w-14 md:w-12">{c.code}</span>
+                    <span className="text-foreground">{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
