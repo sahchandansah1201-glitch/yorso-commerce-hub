@@ -249,8 +249,8 @@ export default function CountryPhoneInput({
         <Input
           type="tel"
           value={phone}
-          onChange={(e) => onPhoneChange(e.target.value.replace(/[^\d\s\-()]/g, ""))}
-          placeholder="6 12345678"
+          onChange={(e) => handlePhoneInput(e.target.value)}
+          placeholder={placeholder}
           className="h-12 text-base rounded-l-none rounded-r-xl border-l-0 flex-1"
           disabled={disabled}
         />
