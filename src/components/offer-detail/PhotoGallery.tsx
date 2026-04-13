@@ -40,9 +40,10 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="flex items-center justify-center bg-muted/20 h-[280px] sm:h-[350px] lg:h-[420px]">
           <img
+            key={active}
             src={imgs[active].src}
             alt={imgs[active].alt}
-            className="max-h-full max-w-full object-contain cursor-zoom-in"
+            className="max-h-full max-w-full object-contain cursor-zoom-in animate-fade-in"
             onClick={() => setLightbox(true)}
             onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
           />
