@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { GalleryImage } from "@/data/mockOffers";
 
 interface Props {
@@ -8,8 +9,15 @@ interface Props {
   photoSourceLabel: string;
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 200 : -200, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -200 : 200, opacity: 0 }),
+};
+
 const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const touchStart = useRef<number | null>(null);
 
@@ -17,8 +25,9 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     ? gallery
     : [{ src: "/placeholder.svg", alt: productName, caption: "", sourceLabel: "" }];
 
-  const goPrev = () => setActive((p) => (p === 0 ? imgs.length - 1 : p - 1));
-  const goNext = () => setActive((p) => (p === imgs.length - 1 ? 0 : p + 1));
+  const goPrev = () => { setDirection(-1); setActive((p) => (p === 0 ? imgs.length - 1 : p - 1)); };
+  const goNext = () => { setDirection(1); setActive((p) => (p === imgs.length - 1 ? 0 : p + 1)); };
+  const goTo = (i: number) => { setDirection(i > active ? 1 : -1); setActive(i); };
 
   const onTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
