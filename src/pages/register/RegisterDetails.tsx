@@ -4,7 +4,8 @@ import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle, MessageCircle } from "lucide-react";
+import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { detectCountry, detectCountryByIP, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
@@ -374,7 +375,7 @@ const RegisterDetails = () => {
                         {phoneLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <MessageCircle className="h-5 w-5" />
+                          <WhatsAppIcon className="h-5 w-5" />
                         )}
                         Подтвердить через WhatsApp
                       </Button>
