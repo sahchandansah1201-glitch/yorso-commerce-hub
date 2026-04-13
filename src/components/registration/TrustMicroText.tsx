@@ -5,11 +5,11 @@ type TrustVariant = "users" | "security" | "verified" | "global" | "growth" | "e
 
 const TRUST_DATA: Record<TrustVariant, { icon: typeof Shield; text: string }> = {
   users: { icon: Users, text: "12,000+ seafood professionals already on YORSO" },
-  security: { icon: Shield, text: "Your data is protected by enterprise-grade security" },
-  verified: { icon: BadgeCheck, text: "2,400+ verified suppliers across 48 countries" },
+  security: { icon: Shield, text: "Your data is handled according to our Privacy Policy" },
+  verified: { icon: BadgeCheck, text: "2,400+ suppliers verified through document and reference checks" },
   global: { icon: Globe, text: "Active deals in 48 countries — zero commission" },
   growth: { icon: TrendingUp, text: "300+ new members joined this week" },
-  encryption: { icon: Lock, text: "256-bit SSL encryption · GDPR compliant" },
+  encryption: { icon: Lock, text: "Your data is protected in transit · GDPR-compliant practices" },
 };
 
 interface Props {

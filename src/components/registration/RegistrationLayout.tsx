@@ -14,8 +14,8 @@ const STEPS = [
 ];
 
 const TRUST_MESSAGES = [
-  { icon: Lock, text: "256-bit SSL encryption · Your data is secure" },
-  { icon: ShieldCheck, text: "GDPR compliant · We never share your data" },
+  { icon: Lock, text: "Your data is protected in transit · GDPR-compliant practices" },
+  { icon: ShieldCheck, text: "We respect your privacy · You control your data" },
   { icon: Users, text: "Join 12,000+ seafood professionals worldwide" },
 ];
 
@@ -90,7 +90,6 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
       {/* Trust strip + Footer */}
       <footer className="border-t border-border/30 py-4">
         <div className="container space-y-3">
-          {/* Trust microcopy */}
           {!hideProgress && trust && (
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <trust.icon className="h-3.5 w-3.5 text-primary/50" />
