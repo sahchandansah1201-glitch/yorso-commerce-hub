@@ -144,13 +144,22 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
               </button>
             </>
           )}
-          <img
-            src={imgs[active].src}
-            alt={imgs[active].alt}
-            className="max-h-[85vh] max-w-[90vw] object-contain"
-            onClick={(e) => e.stopPropagation()}
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
-          />
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.img
+              key={active}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              src={imgs[active].src}
+              alt={imgs[active].alt}
+              className="max-h-[85vh] max-w-[90vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
+            />
+          </AnimatePresence>
           {imgs[active].caption && (
             <p className="absolute bottom-6 text-sm text-white/70">{imgs[active].caption}</p>
           )}
