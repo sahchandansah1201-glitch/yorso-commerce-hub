@@ -7,7 +7,47 @@ interface CountryEntry {
   name: string;
   code: string;
   flag: string;
+  mask?: string; // e.g. "### ### ####" where # is a digit placeholder
 }
+
+// Phone masks: # = digit, space/dash kept as-is
+const PHONE_MASKS: Record<string, string> = {
+  "+7":   "### ###-##-##",
+  "+1":   "### ### ####",
+  "+49":  "### #### ####",
+  "+44":  "#### ### ####",
+  "+33":  "# ## ## ## ##",
+  "+39":  "### ### ####",
+  "+34":  "### ## ## ##",
+  "+81":  "##-####-####",
+  "+86":  "### #### ####",
+  "+91":  "##### #####",
+  "+55":  "## #####-####",
+  "+82":  "##-####-####",
+  "+61":  "### ### ###",
+  "+64":  "## ### ####",
+  "+31":  "# #### ####",
+  "+46":  "##-### ## ##",
+  "+47":  "### ## ###",
+  "+45":  "## ## ## ##",
+  "+358": "## ### ## ##",
+  "+48":  "### ### ###",
+  "+351": "### ### ###",
+  "+90":  "### ### ## ##",
+  "+62":  "###-####-####",
+  "+66":  "## ### ####",
+  "+84":  "## ### ## ##",
+  "+27":  "## ### ####",
+  "+971": "## ### ####",
+  "+966": "## ### ####",
+  "+52":  "## #### ####",
+  "+63":  "### ### ####",
+  "+92":  "### #######",
+  "+880": "####-######",
+  "+20":  "## #### ####",
+  "+212": "##-### ####",
+  "+254": "### ######",
+};
 
 const COUNTRIES: CountryEntry[] = [
   { name: "Argentina", code: "+54", flag: "🇦🇷" },
@@ -86,6 +126,36 @@ function findByCountryName(name: string): CountryEntry | undefined {
   return COUNTRIES.find((c) => c.name === name);
 }
 
+function getMask(code: string): string | undefined {
+  return PHONE_MASKS[code];
+}
+
+function applyMask(raw: string, mask: string): string {
+  const digits = raw.replace(/\D/g, "");
+  let result = "";
+  let di = 0;
+  for (let i = 0; i < mask.length && di < digits.length; i++) {
+    if (mask[i] === "#") {
+      result += digits[di++];
+    } else {
+      result += mask[i];
+    }
+  }
+  return result;
+}
+
+function getPlaceholder(code: string): string {
+  const mask = getMask(code);
+  if (!mask) return "Номер телефона";
+  return mask.replace(/#/g, "0");
+}
+
+function getMaxDigits(code: string): number {
+  const mask = getMask(code);
+  if (!mask) return 15;
+  return (mask.match(/#/g) || []).length;
+}
+
 interface CountryPhoneInputProps {
   phone: string;
   onPhoneChange: (phone: string) => void;
@@ -134,6 +204,20 @@ export default function CountryPhoneInput({
       c.code.includes(search)
   );
 
+  const currentCode = selected?.code || "";
+  const mask = getMask(currentCode);
+  const placeholder = getPlaceholder(currentCode);
+  const maxDigits = getMaxDigits(currentCode);
+
+  const handlePhoneInput = useCallback((rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, "").slice(0, maxDigits);
+    if (mask) {
+      onPhoneChange(applyMask(digits, mask));
+    } else {
+      onPhoneChange(digits);
+    }
+  }, [mask, maxDigits, onPhoneChange]);
+
   const handleSelect = (entry: CountryEntry) => {
     setSelected(entry);
     setOpen(false);
@@ -165,8 +249,8 @@ export default function CountryPhoneInput({
         <Input
           type="tel"
           value={phone}
-          onChange={(e) => onPhoneChange(e.target.value.replace(/[^\d\s\-()]/g, ""))}
-          placeholder="6 12345678"
+          onChange={(e) => handlePhoneInput(e.target.value)}
+          placeholder={placeholder}
           className="h-12 text-base rounded-l-none rounded-r-xl border-l-0 flex-1"
           disabled={disabled}
         />
