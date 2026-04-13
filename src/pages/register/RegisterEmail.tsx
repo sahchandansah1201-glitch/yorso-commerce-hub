@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import SocialProofBanner from "@/components/registration/SocialProofBanner";
 import TrustMicroText from "@/components/registration/TrustMicroText";
@@ -12,8 +13,11 @@ import analytics from "@/lib/analytics";
 const RegisterEmail = () => {
   const navigate = useNavigate();
   const { data, setField } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/email");
   const [email, setEmail] = useState(data.email);
   const [error, setError] = useState("");
+
+  if (!guardPassed) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

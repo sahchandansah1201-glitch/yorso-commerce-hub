@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import SocialProofBanner from "@/components/registration/SocialProofBanner";
 import TrustMicroText from "@/components/registration/TrustMicroText";
@@ -10,9 +11,12 @@ import analytics from "@/lib/analytics";
 
 const RegisterVerify = () => {
   const navigate = useNavigate();
-  const { data } = useRegistration();
+  const { data, setField } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/verify");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
+
+  if (!guardPassed) return null;
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -53,6 +57,7 @@ const RegisterVerify = () => {
       setError("Please enter the full 6-digit code");
       return;
     }
+    setField("emailVerified", true);
     analytics.track("registration_email_verified", { role: data.role || "unknown" });
     navigate("/register/details");
   };

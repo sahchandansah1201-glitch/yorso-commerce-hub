@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const CERTIFICATIONS = [
 const RegisterOnboarding = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/onboarding");
   const isSupplier = data.role === "supplier";
 
   const categories = isSupplier ? SUPPLIER_CATEGORIES : BUYER_CATEGORIES;
@@ -42,6 +44,8 @@ const RegisterOnboarding = () => {
   const [selected, setSelected] = useState<string[]>(data.categories);
   const [volume, setVolume] = useState(data.volume);
   const [certs, setCerts] = useState<string[]>(data.certifications);
+
+  if (!guardPassed) return null;
 
   const toggleItem = (item: string, list: string[], setter: (v: string[]) => void) => {
     setter(list.includes(item) ? list.filter((c) => c !== item) : [...list, item]);
@@ -160,6 +164,7 @@ const RegisterOnboarding = () => {
 
         <button
           onClick={() => {
+            setFields({ onboardingSkipped: true });
             analytics.track("registration_onboarding_skipped");
             navigate("/register/countries");
           }}
