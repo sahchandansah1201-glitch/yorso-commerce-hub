@@ -10,6 +10,7 @@ import analytics from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
+import TrustMicroText from "@/components/registration/TrustMicroText";
 
 const RegisterDetails = () => {
   const navigate = useNavigate();
