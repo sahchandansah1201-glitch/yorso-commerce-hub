@@ -22,7 +22,12 @@ const RegisterCountries = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
   const isSupplier = data.role === "supplier";
-  const [selected, setSelected] = useState<string[]>(data.countries);
+  const [selected, setSelected] = useState<string[]>(() => {
+    if (data.countries.length > 0) return data.countries;
+    // Pre-select detected country if available
+    if (data.country && SEAFOOD_COUNTRIES.includes(data.country)) return [data.country];
+    return [];
+  });
   const [showAll, setShowAll] = useState(false);
 
   const popularMarkets = isSupplier ? POPULAR_SUPPLIER_MARKETS : POPULAR_BUYER_MARKETS;
