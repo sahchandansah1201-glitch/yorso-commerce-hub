@@ -172,7 +172,7 @@ function applyMask(raw: string, mask: string): string {
 
 function getPlaceholder(code: string): string {
   const mask = getMask(code);
-  if (!mask) return "Номер телефона";
+  if (!mask) return "Phone number";
   return mask.replace(/#/g, "0");
 }
 
@@ -308,7 +308,7 @@ export default function CountryPhoneInput({
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Страна или код"
+                    placeholder="Country or code"
                     className="h-10 text-sm rounded-lg pl-3 pr-9"
                     autoFocus
                   />
@@ -326,7 +326,7 @@ export default function CountryPhoneInput({
               {/* List */}
               <div className="overflow-y-auto" style={{ maxHeight: "calc(70vh - 60px)" }}>
                 {filtered.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">Не найдено</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">No results found</p>
                 )}
                 {filtered.map((c) => (
                   <button
