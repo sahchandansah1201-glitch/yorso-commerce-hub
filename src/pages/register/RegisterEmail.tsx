@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import SocialProofBanner from "@/components/registration/SocialProofBanner";
+import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail } from "lucide-react";
@@ -69,6 +70,7 @@ const RegisterEmail = () => {
       </form>
 
       <SocialProofBanner />
+      <TrustMicroText variant="growth" delay={0.7} className="mt-4" />
     </RegistrationLayout>
   );
 };
