@@ -81,7 +81,7 @@ const SignIn = () => {
               onClick={() => setShowWhatsApp(true)}
               className="w-full h-12 gap-2 font-semibold border-emerald-300 hover:border-emerald-400 hover:bg-emerald-50 text-emerald-700"
             >
-              <MessageCircle className="h-5 w-5" />
+              <WhatsAppIcon className="h-5 w-5" />
               Войти через WhatsApp
             </Button>
           ) : (
@@ -99,7 +99,7 @@ const SignIn = () => {
                 onClick={handleWhatsAppLogin}
                 className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                <MessageCircle className="h-5 w-5" />
+                <WhatsAppIcon className="h-5 w-5" />
                 Получить код в WhatsApp
               </Button>
             </div>

@@ -375,7 +375,7 @@ const RegisterDetails = () => {
                         {phoneLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <MessageCircle className="h-5 w-5" />
+                          <WhatsAppIcon className="h-5 w-5" />
                         )}
                         Подтвердить через WhatsApp
                       </Button>
