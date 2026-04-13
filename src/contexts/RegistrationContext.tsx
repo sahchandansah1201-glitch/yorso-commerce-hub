@@ -1,10 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
 export type UserRole = "buyer" | "supplier" | null;
 
-interface RegistrationData {
+export interface RegistrationData {
   role: UserRole;
   email: string;
+  emailVerified: boolean;
   fullName: string;
   company: string;
   password: string;
@@ -17,6 +18,10 @@ interface RegistrationData {
   certifications: string[];
   countries: string[];
   volume: string;
+  // Flow metadata
+  onboardingSkipped: boolean;
+  countriesSkipped: boolean;
+  completed: boolean;
 }
 
 interface RegistrationContextType {
@@ -26,9 +31,12 @@ interface RegistrationContextType {
   reset: () => void;
 }
 
+const STORAGE_KEY = "yorso_registration";
+
 const defaultData: RegistrationData = {
   role: null,
   email: "",
+  emailVerified: false,
   fullName: "",
   company: "",
   password: "",
@@ -40,7 +48,40 @@ const defaultData: RegistrationData = {
   certifications: [],
   countries: [],
   volume: "",
+  onboardingSkipped: false,
+  countriesSkipped: false,
+  completed: false,
 };
+
+function loadFromStorage(): RegistrationData {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultData;
+    const parsed = JSON.parse(raw);
+    // Validate shape — if stale/corrupted, discard
+    if (typeof parsed !== "object" || parsed === null) return defaultData;
+    if (parsed.completed) return defaultData; // completed flows should start fresh
+    return { ...defaultData, ...parsed };
+  } catch {
+    return defaultData;
+  }
+}
+
+function saveToStorage(data: RegistrationData) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage unavailable — silent fail
+  }
+}
+
+function clearStorage() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // silent
+  }
+}
 
 const RegistrationContext = createContext<RegistrationContextType | null>(null);
 
@@ -51,17 +92,28 @@ export const useRegistration = () => {
 };
 
 export const RegistrationProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<RegistrationData>(defaultData);
+  const [data, setData] = useState<RegistrationData>(loadFromStorage);
 
-  const setField = <K extends keyof RegistrationData>(key: K, value: RegistrationData[K]) => {
-    setData((prev) => ({ ...prev, [key]: value }));
-  };
+  const setField = useCallback(<K extends keyof RegistrationData>(key: K, value: RegistrationData[K]) => {
+    setData((prev) => {
+      const next = { ...prev, [key]: value };
+      saveToStorage(next);
+      return next;
+    });
+  }, []);
 
-  const setFields = (fields: Partial<RegistrationData>) => {
-    setData((prev) => ({ ...prev, ...fields }));
-  };
+  const setFields = useCallback((fields: Partial<RegistrationData>) => {
+    setData((prev) => {
+      const next = { ...prev, ...fields };
+      saveToStorage(next);
+      return next;
+    });
+  }, []);
 
-  const reset = () => setData(defaultData);
+  const reset = useCallback(() => {
+    setData(defaultData);
+    clearStorage();
+  }, []);
 
   return (
     <RegistrationContext.Provider value={{ data, setField, setFields, reset }}>

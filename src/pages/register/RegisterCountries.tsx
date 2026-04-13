@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,16 @@ const POPULAR_SUPPLIER_MARKETS = [
 const RegisterCountries = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/countries");
   const isSupplier = data.role === "supplier";
   const [selected, setSelected] = useState<string[]>(() => {
     if (data.countries.length > 0) return data.countries;
-    // Pre-select detected country if available
     if (data.country && SEAFOOD_COUNTRIES.includes(data.country)) return [data.country];
     return [];
   });
   const [showAll, setShowAll] = useState(false);
+
+  if (!guardPassed) return null;
 
   const popularMarkets = isSupplier ? POPULAR_SUPPLIER_MARKETS : POPULAR_BUYER_MARKETS;
   const displayList = showAll ? SEAFOOD_COUNTRIES : popularMarkets;
@@ -113,6 +116,7 @@ const RegisterCountries = () => {
 
         <button
           onClick={() => {
+            setFields({ countriesSkipped: true });
             analytics.track("registration_countries_skipped");
             navigate("/register/ready");
           }}

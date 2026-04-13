@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 const RegisterDetails = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/details");
   const isSupplier = data.role === "supplier";
 
   const [fullName, setFullName] = useState(data.fullName);
@@ -36,31 +38,16 @@ const RegisterDetails = () => {
 
   useEffect(() => {
     if (!country) {
-      // 1. Synchronous: timezone + browser language
       const detected = detectCountry();
       if (detected) {
         setCountry(detected);
         return;
       }
-      // 2. Async fallback: IP geolocation
       detectCountryByIP().then((ipCountry) => {
         if (ipCountry) setCountry(ipCountry);
       });
     }
   }, []);
-
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (fullName.trim().length < 2) errs.fullName = "Введите полное имя";
-    if (company.trim().length < 2) errs.company = "Введите название компании";
-    if (password.length < 8) errs.password = "Минимум 8 символов";
-    if (!country) errs.country = "Выберите страну";
-    if (vatTin.trim().length < 3) errs.vatTin = "Введите VAT/TIN номер";
-    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) errs.phone = "Введите номер телефона";
-    if (!phoneVerified) errs.phone = "Подтвердите номер телефона";
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
 
   // Start 30s WhatsApp fallback timer when SMS is sent
   useEffect(() => {
@@ -83,9 +70,24 @@ const RegisterDetails = () => {
     };
   }, [phoneSent, phoneVerified]);
 
+  if (!guardPassed) return null;
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (fullName.trim().length < 2) errs.fullName = "Please enter your full name";
+    if (company.trim().length < 2) errs.company = "Please enter your company name";
+    if (password.length < 8) errs.password = "Minimum 8 characters";
+    if (!country) errs.country = "Please select a country";
+    if (vatTin.trim().length < 3) errs.vatTin = "Please enter a valid VAT/TIN number";
+    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) errs.phone = "Please enter your phone number";
+    if (!phoneVerified) errs.phone = "Please verify your phone number";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSendCode = () => {
     if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) {
-      setErrors((prev) => ({ ...prev, phone: "Введите корректный номер" }));
+      setErrors((prev) => ({ ...prev, phone: "Please enter a valid phone number" }));
       return;
     }
     setPhoneLoading(true);
@@ -93,8 +95,8 @@ const RegisterDetails = () => {
     setTimeout(() => {
       setPhoneSent(true);
       setPhoneLoading(false);
-      toast.success("Код отправлен", {
-        description: `SMS с кодом отправлен на ваш номер`,
+      toast.success("Code sent", {
+        description: "An SMS with a verification code has been sent to your number",
       });
       analytics.track("phone_verification_sent", { phone: phoneNumber });
     }, 1200);
@@ -103,14 +105,13 @@ const RegisterDetails = () => {
   const handleWhatsAppVerify = () => {
     setPhoneLoading(true);
     analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
-    // Mock: WhatsApp verification succeeds after short delay
     setTimeout(() => {
       setPhoneVerified(true);
       setPhoneLoading(false);
       setCodeError(false);
       setErrors((prev) => ({ ...prev, phone: "" }));
-      toast.success("Телефон подтверждён через WhatsApp", {
-        description: "Номер успешно верифицирован",
+      toast.success("Phone verified via WhatsApp", {
+        description: "Your number has been successfully verified",
       });
       analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
     }, 1500);
@@ -118,19 +119,17 @@ const RegisterDetails = () => {
 
   const handleVerifyCode = () => {
     if (phoneCode.length < 4) {
-      setErrors((prev) => ({ ...prev, phone: "Введите код из SMS" }));
+      setErrors((prev) => ({ ...prev, phone: "Please enter the code from the SMS" }));
       return;
     }
     setPhoneLoading(true);
     setCodeError(false);
-    // Mock: accept "1234" or any 4+ digit code
     setTimeout(() => {
-      // Simulate wrong code for "0000"
       if (phoneCode === "0000") {
         setCodeError(true);
         setPhoneLoading(false);
-        toast.error("Неверный код", {
-          description: "Проверьте код из SMS и попробуйте снова",
+        toast.error("Invalid code", {
+          description: "Please check the code from the SMS and try again",
         });
         return;
       }
@@ -138,8 +137,8 @@ const RegisterDetails = () => {
       setPhoneLoading(false);
       setCodeError(false);
       setErrors((prev) => ({ ...prev, phone: "" }));
-      toast.success("Телефон подтверждён", {
-        description: "Номер успешно верифицирован",
+      toast.success("Phone verified", {
+        description: "Your number has been successfully verified",
       });
       analytics.track("phone_verified", { phone: phoneNumber });
     }, 800);
@@ -159,10 +158,11 @@ const RegisterDetails = () => {
     <RegistrationLayout>
       <div className="text-center mb-10">
         <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-          Расскажите о себе
+          Tell us about yourself
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          Информация для настройки вашего {isSupplier ? "аккаунта поставщика" : "аккаунта покупателя"}.
+          We use your business details to set up your {isSupplier ? "supplier" : "buyer"} profile
+          and improve trust between marketplace participants.
         </p>
       </div>
 
@@ -170,13 +170,13 @@ const RegisterDetails = () => {
         {/* Full Name */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <User className="h-4 w-4 text-muted-foreground" /> Полное имя
+            <User className="h-4 w-4 text-muted-foreground" /> Full name
           </label>
           <Input
             type="text"
             value={fullName}
             onChange={(e) => { setFullName(e.target.value); clearError("fullName"); }}
-            placeholder="Иван Петров"
+            placeholder="John Smith"
             className="h-12 text-base rounded-xl"
             required
           />
@@ -186,7 +186,7 @@ const RegisterDetails = () => {
         {/* Company */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <Building className="h-4 w-4 text-muted-foreground" /> Название компании
+            <Building className="h-4 w-4 text-muted-foreground" /> Company name
           </label>
           <Input
             type="text"
@@ -202,15 +202,15 @@ const RegisterDetails = () => {
         {/* Country */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <MapPin className="h-4 w-4 text-muted-foreground" /> Страна
-            {country && <span className="text-xs font-normal text-muted-foreground ml-1">(определена автоматически)</span>}
+            <MapPin className="h-4 w-4 text-muted-foreground" /> Country
+            {country && <span className="text-xs font-normal text-muted-foreground ml-1">(auto-detected)</span>}
           </label>
           <select
             value={country}
             onChange={(e) => { setCountry(e.target.value); clearError("country"); }}
             className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <option value="">Выберите страну...</option>
+            <option value="">Select country...</option>
             {SEAFOOD_COUNTRIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -221,7 +221,7 @@ const RegisterDetails = () => {
         {/* VAT/TIN */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <FileText className="h-4 w-4 text-muted-foreground" /> VAT / TIN номер
+            <FileText className="h-4 w-4 text-muted-foreground" /> VAT / TIN number
           </label>
           <Input
             type="text"
@@ -233,15 +233,15 @@ const RegisterDetails = () => {
           {errors.vatTin && <p className="mt-1 text-sm text-destructive">{errors.vatTin}</p>}
           <p className="mt-1 text-xs text-muted-foreground">
             {isSupplier
-              ? "Обязательно для верификации поставщика"
-              : "Необходим для оформления B2B-сделок и выставления инвойсов"}
+              ? "Required for supplier verification and marketplace credibility."
+              : "Needed for B2B invoicing and trade documentation."}
           </p>
         </div>
 
         {/* Phone with country code picker */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <Phone className="h-4 w-4 text-muted-foreground" /> Номер телефона
+            <Phone className="h-4 w-4 text-muted-foreground" /> Phone number
           </label>
 
           <div className="space-y-2">
@@ -268,7 +268,7 @@ const RegisterDetails = () => {
               {phoneVerified && (
                 <div className="flex items-center gap-1.5 text-emerald-600 h-12 px-3 shrink-0">
                   <CheckCircle2 className="h-5 w-5" />
-                  <span className="text-sm font-medium">Подтверждён</span>
+                  <span className="text-sm font-medium">Verified</span>
                 </div>
               )}
             </div>
@@ -282,7 +282,7 @@ const RegisterDetails = () => {
                 className="h-12 rounded-xl w-full"
               >
                 {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Получить код
+                Send verification code
               </Button>
             )}
           </div>
@@ -297,7 +297,7 @@ const RegisterDetails = () => {
                 className="mt-3"
               >
                 <p className="text-sm text-muted-foreground mb-2">
-                  Код отправлен. Введите его ниже:
+                  Code sent. Enter it below:
                 </p>
                 <div className="flex gap-2">
                   <Input
@@ -307,7 +307,7 @@ const RegisterDetails = () => {
                       setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6));
                       setCodeError(false);
                     }}
-                    placeholder="Код из SMS"
+                    placeholder="SMS code"
                     className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${
                       codeError ? "border-destructive ring-destructive" : ""
                     }`}
@@ -320,7 +320,7 @@ const RegisterDetails = () => {
                     disabled={phoneLoading || phoneCode.length < 4}
                     className="h-12 rounded-xl px-5"
                   >
-                    {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Подтвердить"}
+                    {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
                   </Button>
                 </div>
                 {codeError && (
@@ -329,7 +329,7 @@ const RegisterDetails = () => {
                     animate={{ opacity: 1 }}
                     className="mt-1.5 text-sm text-destructive flex items-center gap-1"
                   >
-                    <XCircle className="h-3.5 w-3.5" /> Неверный код. Попробуйте снова.
+                    <XCircle className="h-3.5 w-3.5" /> Invalid code. Please try again.
                   </motion.p>
                 )}
                 <div className="flex items-center justify-between mt-2">
@@ -339,16 +339,16 @@ const RegisterDetails = () => {
                     disabled={phoneLoading}
                     className="text-xs text-primary hover:underline"
                   >
-                    Отправить код повторно
+                    Resend code
                   </button>
                   {!showWhatsApp && whatsAppCountdown > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      WhatsApp через {whatsAppCountdown}с
+                      WhatsApp in {whatsAppCountdown}s
                     </span>
                   )}
                 </div>
 
-                {/* WhatsApp fallback button — appears after 30s */}
+                {/* WhatsApp fallback */}
                 <AnimatePresence>
                   {showWhatsApp && !phoneVerified && (
                     <motion.div
@@ -362,7 +362,7 @@ const RegisterDetails = () => {
                           <span className="w-full border-t border-border" />
                         </div>
                         <div className="relative flex justify-center text-xs">
-                          <span className="bg-background px-2 text-muted-foreground">или</span>
+                          <span className="bg-background px-2 text-muted-foreground">or</span>
                         </div>
                       </div>
                       <Button
@@ -377,10 +377,10 @@ const RegisterDetails = () => {
                         ) : (
                           <WhatsAppIcon className="h-5 w-5" />
                         )}
-                        Подтвердить через WhatsApp
+                        Verify via WhatsApp
                       </Button>
                       <p className="mt-1.5 text-xs text-muted-foreground text-center">
-                        Мы отправим код в WhatsApp на этот номер
+                        We'll send a verification code to this number via WhatsApp
                       </p>
                     </motion.div>
                   )}
@@ -391,20 +391,20 @@ const RegisterDetails = () => {
 
           {errors.phone && !codeError && <p className="mt-1 text-sm text-destructive">{errors.phone}</p>}
           <p className="mt-1 text-xs text-muted-foreground">
-            Для быстрой связи по сделкам и защиты от спам-регистраций
+            Used for deal communication and to help prevent fake registrations.
           </p>
         </div>
 
         {/* Password */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
-            <Lock className="h-4 w-4 text-muted-foreground" /> Пароль
+            <Lock className="h-4 w-4 text-muted-foreground" /> Password
           </label>
           <Input
             type="password"
             value={password}
             onChange={(e) => { setPassword(e.target.value); clearError("password"); }}
-            placeholder="Минимум 8 символов"
+            placeholder="Minimum 8 characters"
             className="h-12 text-base rounded-xl"
             minLength={8}
             required
@@ -413,7 +413,7 @@ const RegisterDetails = () => {
         </div>
 
         <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2 mt-2">
-          Продолжить <ArrowRight className="h-5 w-5" />
+          Continue <ArrowRight className="h-5 w-5" />
         </Button>
 
         <TrustMicroText variant="encryption" delay={0.4} className="mt-3" />

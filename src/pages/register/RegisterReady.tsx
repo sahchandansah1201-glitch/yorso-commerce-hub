@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
+import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
@@ -19,11 +20,15 @@ const anim = (delay: number) => ({
 });
 
 const RegisterReady = () => {
-  const { data } = useRegistration();
+  const { data, setField } = useRegistration();
+  const guardPassed = useRegistrationGuard("/register/ready");
   const isSupplier = data.role === "supplier";
   const firstName = data.fullName?.split(" ")[0] || "there";
 
   useEffect(() => {
+    if (!guardPassed) return;
+    setField("completed", true);
+
     analytics.track("registration_complete", {
       role: data.role || "unknown",
       country: data.country,
@@ -31,7 +36,6 @@ const RegisterReady = () => {
       countries: data.countries.length,
     });
 
-    // Fire confetti burst
     const end = Date.now() + 1500;
     const frame = () => {
       confetti({
@@ -51,15 +55,15 @@ const RegisterReady = () => {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     frame();
-  }, []);
+  }, [guardPassed]);
 
-  // Personalized stats
+  if (!guardPassed) return null;
+
   const categoriesCount = data.categories.length;
   const countriesCount = data.countries.length;
   const certsCount = data.certifications.length;
   const matchCount = Math.max(12, categoriesCount * 15 + countriesCount * 8);
 
-  // Dynamic next steps based on collected data
   const getNextSteps = () => {
     if (isSupplier) {
       const steps = ["Create your first product offer"];
@@ -94,7 +98,6 @@ const RegisterReady = () => {
 
   const nextSteps = getNextSteps();
 
-  // Country-based welcome flavor
   const getWelcomeEmoji = () => {
     const map: Record<string, string> = {
       "Russia": "🇷🇺", "United States": "🇺🇸", "Germany": "🇩🇪", "Norway": "🇳🇴",
@@ -108,7 +111,6 @@ const RegisterReady = () => {
   return (
     <RegistrationLayout hideProgress>
       <div className="text-center">
-        {/* Success icon */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -118,7 +120,6 @@ const RegisterReady = () => {
           <CheckCircle2 className="h-10 w-10 text-success" />
         </motion.div>
 
-        {/* Personalized heading */}
         <motion.h1
           {...anim(0.25)}
           className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight"
@@ -127,12 +128,11 @@ const RegisterReady = () => {
         </motion.h1>
 
         <motion.p {...anim(0.35)} className="mt-3 text-lg text-muted-foreground">
-          Your {isSupplier ? "supplier" : "buyer"} account
+          Your {isSupplier ? "supplier" : "buyer"} profile setup
           {data.company && <> for <span className="font-medium text-foreground">{data.company}</span></>}
-          {" "}is ready.
+          {" "}is complete.
         </motion.p>
 
-        {/* Profile summary card */}
         <motion.div
           {...anim(0.4)}
           className="mt-6 rounded-2xl border border-border bg-card p-5 text-left"
@@ -174,12 +174,8 @@ const RegisterReady = () => {
           </div>
         </motion.div>
 
-        {/* Stats grid */}
         {(categoriesCount > 0 || countriesCount > 0) && (
-          <motion.div
-            {...anim(0.48)}
-            className="mt-4 grid grid-cols-3 gap-3"
-          >
+          <motion.div {...anim(0.48)} className="mt-4 grid grid-cols-3 gap-3">
             {categoriesCount > 0 && (
               <div className="rounded-xl border border-border bg-card p-3 text-center">
                 <Package className="h-5 w-5 text-primary mx-auto mb-1" />
@@ -212,11 +208,7 @@ const RegisterReady = () => {
           </motion.div>
         )}
 
-        {/* Personalized next steps */}
-        <motion.div
-          {...anim(0.55)}
-          className="mt-4 rounded-2xl border border-border bg-card p-6 text-left"
-        >
+        <motion.div {...anim(0.55)} className="mt-4 rounded-2xl border border-border bg-card p-6 text-left">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-5 w-5 text-primary" />
             <p className="font-heading font-bold text-foreground">What's next for you</p>
@@ -233,7 +225,6 @@ const RegisterReady = () => {
           </ul>
         </motion.div>
 
-        {/* CTA */}
         <motion.div {...anim(0.65)} className="mt-6">
           <Link to="/offers">
             <Button size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
