@@ -4,29 +4,12 @@ import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { detectCountry, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
-
-const PHONE_PREFIXES: Record<string, string> = {
-  Norway: "+47", Iceland: "+354", "Faroe Islands": "+298", Denmark: "+45",
-  Sweden: "+46", Finland: "+358", Russia: "+7", Canada: "+1",
-  "United States": "+1", Chile: "+56", Peru: "+51", Ecuador: "+593",
-  China: "+86", Japan: "+81", "South Korea": "+82", Thailand: "+66",
-  Vietnam: "+84", India: "+91", Indonesia: "+62", Philippines: "+63",
-  Spain: "+34", Portugal: "+351", France: "+33", Netherlands: "+31",
-  Germany: "+49", Italy: "+39", Greece: "+30", Turkey: "+90", Poland: "+48",
-  "United Kingdom": "+44", Ireland: "+353", Morocco: "+212", Senegal: "+221",
-  Mauritania: "+222", Namibia: "+264", "South Africa": "+27",
-  Mozambique: "+258", Tanzania: "+255", Kenya: "+254", Madagascar: "+261",
-  Australia: "+61", "New Zealand": "+64", "Papua New Guinea": "+675",
-  Mexico: "+52", Argentina: "+54", Brazil: "+55", Colombia: "+57",
-  "Costa Rica": "+506", Panama: "+507", Honduras: "+504",
-  "Saudi Arabia": "+966", "United Arab Emirates": "+971", Oman: "+968",
-  Egypt: "+20", Israel: "+972", Iran: "+98", Pakistan: "+92",
-  Bangladesh: "+880", Myanmar: "+95", Taiwan: "+886", "Sri Lanka": "+94",
-};
+import { toast } from "sonner";
+import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
 
 const RegisterDetails = () => {
   const navigate = useNavigate();
@@ -38,11 +21,12 @@ const RegisterDetails = () => {
   const [password, setPassword] = useState(data.password);
   const [country, setCountry] = useState(data.country);
   const [vatTin, setVatTin] = useState(data.vatTin);
-  const [phone, setPhone] = useState(data.phone);
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneCode, setPhoneCode] = useState("");
   const [phoneSent, setPhoneSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(data.phoneVerified);
   const [phoneLoading, setPhoneLoading] = useState(false);
+  const [codeError, setCodeError] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -52,14 +36,6 @@ const RegisterDetails = () => {
     }
   }, []);
 
-  // Auto-set phone prefix when country changes
-  useEffect(() => {
-    if (country && !phone) {
-      const prefix = PHONE_PREFIXES[country];
-      if (prefix) setPhone(prefix + " ");
-    }
-  }, [country]);
-
   const validate = () => {
     const errs: Record<string, string> = {};
     if (fullName.trim().length < 2) errs.fullName = "Введите полное имя";
@@ -67,23 +43,26 @@ const RegisterDetails = () => {
     if (password.length < 8) errs.password = "Минимум 8 символов";
     if (!country) errs.country = "Выберите страну";
     if (vatTin.trim().length < 3) errs.vatTin = "Введите VAT/TIN номер";
-    if (!phone || phone.replace(/[\s+\-]/g, "").length < 7) errs.phone = "Введите номер телефона";
+    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) errs.phone = "Введите номер телефона";
     if (!phoneVerified) errs.phone = "Подтвердите номер телефона";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleSendCode = () => {
-    if (!phone || phone.replace(/[\s+\-]/g, "").length < 7) {
+    if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) {
       setErrors((prev) => ({ ...prev, phone: "Введите корректный номер" }));
       return;
     }
     setPhoneLoading(true);
-    // Mock: имитация отправки SMS
+    setCodeError(false);
     setTimeout(() => {
       setPhoneSent(true);
       setPhoneLoading(false);
-      analytics.track("phone_verification_sent", { phone });
+      toast.success("Код отправлен", {
+        description: `SMS с кодом отправлен на ваш номер`,
+      });
+      analytics.track("phone_verification_sent", { phone: phoneNumber });
     }, 1200);
   };
 
@@ -93,19 +72,33 @@ const RegisterDetails = () => {
       return;
     }
     setPhoneLoading(true);
-    // Mock: любой 4+ значный код принимается
+    setCodeError(false);
+    // Mock: accept "1234" or any 4+ digit code
     setTimeout(() => {
+      // Simulate wrong code for "0000"
+      if (phoneCode === "0000") {
+        setCodeError(true);
+        setPhoneLoading(false);
+        toast.error("Неверный код", {
+          description: "Проверьте код из SMS и попробуйте снова",
+        });
+        return;
+      }
       setPhoneVerified(true);
       setPhoneLoading(false);
+      setCodeError(false);
       setErrors((prev) => ({ ...prev, phone: "" }));
-      analytics.track("phone_verified", { phone });
+      toast.success("Телефон подтверждён", {
+        description: "Номер успешно верифицирован",
+      });
+      analytics.track("phone_verified", { phone: phoneNumber });
     }, 800);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    setFields({ fullName, company, password, country, vatTin, phone, phoneVerified });
+    setFields({ fullName, company, password, country, vatTin, phone: phoneNumber, phoneVerified });
     analytics.track("registration_details_completed", { role: data.role || "unknown", country });
     navigate("/register/onboarding");
   };
@@ -175,7 +168,7 @@ const RegisterDetails = () => {
           {errors.country && <p className="mt-1 text-sm text-destructive">{errors.country}</p>}
         </div>
 
-        {/* VAT/TIN — for both roles */}
+        {/* VAT/TIN */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
             <FileText className="h-4 w-4 text-muted-foreground" /> VAT / TIN номер
@@ -195,39 +188,49 @@ const RegisterDetails = () => {
           </p>
         </div>
 
-        {/* Phone with verification */}
+        {/* Phone with country code picker */}
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
             <Phone className="h-4 w-4 text-muted-foreground" /> Номер телефона
           </label>
-          <div className="flex gap-2">
-            <Input
-              type="tel"
-              value={phone}
-              onChange={(e) => { setPhone(e.target.value); clearError("phone"); setPhoneVerified(false); setPhoneSent(false); }}
-              placeholder="+7 999 123 4567"
-              className="h-12 text-base rounded-xl flex-1"
-              disabled={phoneVerified}
-            />
+
+          <div className="flex gap-2 items-start">
+            <div className="flex-1">
+              <CountryPhoneInput
+                phone={phoneNumber}
+                onPhoneChange={(val) => {
+                  setPhoneNumber(val);
+                  clearError("phone");
+                  setPhoneVerified(false);
+                  setPhoneSent(false);
+                  setCodeError(false);
+                }}
+                countryName={country}
+                disabled={phoneVerified}
+              />
+            </div>
+
             {!phoneVerified && !phoneSent && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleSendCode}
                 disabled={phoneLoading}
-                className="h-12 rounded-xl px-4 whitespace-nowrap"
+                className="h-12 rounded-xl px-4 whitespace-nowrap shrink-0"
               >
                 {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Получить код"}
               </Button>
             )}
+
             {phoneVerified && (
-              <div className="flex items-center gap-1.5 text-emerald-600 px-3">
+              <div className="flex items-center gap-1.5 text-emerald-600 h-12 px-3 shrink-0">
                 <CheckCircle2 className="h-5 w-5" />
                 <span className="text-sm font-medium">Подтверждён</span>
               </div>
             )}
           </div>
 
+          {/* OTP input */}
           <AnimatePresence>
             {phoneSent && !phoneVerified && (
               <motion.div
@@ -237,15 +240,20 @@ const RegisterDetails = () => {
                 className="mt-3"
               >
                 <p className="text-sm text-muted-foreground mb-2">
-                  Код отправлен на {phone}. Введите его ниже:
+                  Код отправлен. Введите его ниже:
                 </p>
                 <div className="flex gap-2">
                   <Input
                     type="text"
                     value={phoneCode}
-                    onChange={(e) => setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    onChange={(e) => {
+                      setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                      setCodeError(false);
+                    }}
                     placeholder="Код из SMS"
-                    className="h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono"
+                    className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${
+                      codeError ? "border-destructive ring-destructive" : ""
+                    }`}
                     maxLength={6}
                     autoFocus
                   />
@@ -258,11 +266,28 @@ const RegisterDetails = () => {
                     {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Подтвердить"}
                   </Button>
                 </div>
+                {codeError && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-1.5 text-sm text-destructive flex items-center gap-1"
+                  >
+                    <XCircle className="h-3.5 w-3.5" /> Неверный код. Попробуйте снова.
+                  </motion.p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  disabled={phoneLoading}
+                  className="mt-2 text-xs text-primary hover:underline"
+                >
+                  Отправить код повторно
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {errors.phone && <p className="mt-1 text-sm text-destructive">{errors.phone}</p>}
+          {errors.phone && !codeError && <p className="mt-1 text-sm text-destructive">{errors.phone}</p>}
           <p className="mt-1 text-xs text-muted-foreground">
             Для быстрой связи по сделкам и защиты от спам-регистраций
           </p>
