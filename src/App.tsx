@@ -38,9 +38,12 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/register/buyer" element={<Register />} />
-            <Route path="/register/supplier" element={<Register />} />
+            <Route path="/register" element={<RegistrationProvider><RegisterChoose /></RegistrationProvider>} />
+            <Route path="/register/email" element={<RegistrationProvider><RegisterEmail /></RegistrationProvider>} />
+            <Route path="/register/verify" element={<RegistrationProvider><RegisterVerify /></RegistrationProvider>} />
+            <Route path="/register/details" element={<RegistrationProvider><RegisterDetails /></RegistrationProvider>} />
+            <Route path="/register/onboarding" element={<RegistrationProvider><RegisterOnboarding /></RegistrationProvider>} />
+            <Route path="/register/ready" element={<RegistrationProvider><RegisterReady /></RegistrationProvider>} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/offers" element={<Offers />} />
             <Route path="/offers/:id" element={<OfferDetail />} />
