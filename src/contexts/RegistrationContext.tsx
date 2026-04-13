@@ -10,6 +10,8 @@ interface RegistrationData {
   password: string;
   country: string;
   vatTin: string;
+  phone: string;
+  phoneVerified: boolean;
   // Onboarding
   categories: string[];
   certifications: string[];
@@ -32,6 +34,8 @@ const defaultData: RegistrationData = {
   password: "",
   country: "",
   vatTin: "",
+  phone: "",
+  phoneVerified: false,
   categories: [],
   certifications: [],
   countries: [],
