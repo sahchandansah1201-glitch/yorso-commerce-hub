@@ -88,7 +88,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
               key={i}
               onClick={() => setActive(i)}
               className={`overflow-hidden rounded-lg border-2 transition-colors ${i === active ? "border-primary" : "border-border hover:border-muted-foreground/50"}`}
-              style={{ width: 72, height: 54 }}
+              style={{ width: 60, height: 60 }}
             >
               <img
                 src={img.src}
