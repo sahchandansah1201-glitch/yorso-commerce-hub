@@ -29,7 +29,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
       {/* Main image with nav arrows */}
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card">
-        <div className="flex items-center justify-center bg-muted/20 h-[420px]">
+        <div className="flex items-center justify-center bg-muted/20 h-[280px] sm:h-[350px] lg:h-[420px]">
           <img
             src={imgs[active].src}
             alt={imgs[active].alt}
