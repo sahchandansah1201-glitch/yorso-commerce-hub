@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
+import SocialProofBanner from "@/components/registration/SocialProofBanner";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import analytics from "@/lib/analytics";
@@ -21,7 +22,6 @@ const RegisterVerify = () => {
     setCode(newCode);
     setError("");
 
-    // Auto-focus next input
     if (value && index < 5) {
       const next = document.getElementById(`otp-${index + 1}`);
       next?.focus();
@@ -52,7 +52,6 @@ const RegisterVerify = () => {
       setError("Please enter the full 6-digit code");
       return;
     }
-    // Mock: any code is accepted
     analytics.track("registration_email_verified", { role: data.role || "unknown" });
     navigate("/register/details");
   };
@@ -102,15 +101,15 @@ const RegisterVerify = () => {
         <div className="text-center">
           <button
             type="button"
-            onClick={() => {
-              analytics.track("registration_resend_code");
-            }}
+            onClick={() => analytics.track("registration_resend_code")}
             className="text-sm text-primary hover:underline font-medium"
           >
             Didn't receive the code? Resend
           </button>
         </div>
       </form>
+
+      <SocialProofBanner variant="strip" />
     </RegistrationLayout>
   );
 };

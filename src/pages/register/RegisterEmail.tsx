@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
+import SocialProofBanner from "@/components/registration/SocialProofBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail } from "lucide-react";
@@ -66,6 +67,8 @@ const RegisterEmail = () => {
           <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
         </p>
       </form>
+
+      <SocialProofBanner />
     </RegistrationLayout>
   );
 };

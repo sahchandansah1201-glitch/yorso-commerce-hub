@@ -8,8 +8,11 @@ interface RegistrationData {
   fullName: string;
   company: string;
   password: string;
+  country: string;
+  vatTin: string;
   // Onboarding
   categories: string[];
+  certifications: string[];
   countries: string[];
   volume: string;
 }
@@ -27,7 +30,10 @@ const defaultData: RegistrationData = {
   fullName: "",
   company: "",
   password: "",
+  country: "",
+  vatTin: "",
   categories: [],
+  certifications: [],
   countries: [],
   volume: "",
 };
