@@ -206,6 +206,10 @@ const RegisterDetails = () => {
                     setPhoneSent(false);
                     setCodeError(false);
                   }}
+                  onCountryChange={(name) => {
+                    setCountry(name);
+                    clearError("country");
+                  }}
                   countryName={country}
                   disabled={phoneVerified}
                 />

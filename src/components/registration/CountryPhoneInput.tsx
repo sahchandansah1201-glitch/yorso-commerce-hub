@@ -97,6 +97,7 @@ interface CountryPhoneInputProps {
 export default function CountryPhoneInput({
   phone,
   onPhoneChange,
+  onCountryChange,
   countryName,
   disabled,
 }: CountryPhoneInputProps) {
