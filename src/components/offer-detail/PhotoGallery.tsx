@@ -37,7 +37,18 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     touchStart.current = null;
   };
 
-  return (
+  useEffect(() => {
+    if (!lightbox) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") setLightbox(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightbox, active, imgs.length]);
+
+
     <div className="space-y-3">
       {/* Source label */}
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
