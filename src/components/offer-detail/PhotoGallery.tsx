@@ -31,12 +31,70 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     ? gallery
     : [{ src: "/placeholder.svg", alt: productName, caption: "", sourceLabel: "" }];
 
-  const goPrev = () => { setDirection(-1); setActive((p) => (p === 0 ? imgs.length - 1 : p - 1)); };
-  const goNext = () => { setDirection(1); setActive((p) => (p === imgs.length - 1 ? 0 : p + 1)); };
+  const goPrev = () => { setDirection(-1); setZoom(1); setPan({ x: 0, y: 0 }); setActive((p) => (p === 0 ? imgs.length - 1 : p - 1)); };
+  const goNext = () => { setDirection(1); setZoom(1); setPan({ x: 0, y: 0 }); setActive((p) => (p === imgs.length - 1 ? 0 : p + 1)); };
   const goTo = (i: number) => { setDirection(i > active ? 1 : -1); setActive(i); };
 
   const onTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStart.current;
+    if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
+    touchStart.current = null;
+  };
+
+  const getDistance = (t: React.TouchList) => {
+    const dx = t[0].clientX - t[1].clientX;
+    const dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const getMidpoint = (t: React.TouchList) => ({
+    x: (t[0].clientX + t[1].clientX) / 2,
+    y: (t[0].clientY + t[1].clientY) / 2,
+  });
+
+  const onLightboxTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      pinchStart.current = getDistance(e.touches);
+      zoomStart.current = zoom;
+      panStart.current = { ...pan };
+      lastPanPoint.current = getMidpoint(e.touches);
+    } else if (e.touches.length === 1 && zoom > 1) {
+      lastPanPoint.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      panStart.current = { ...pan };
+    } else if (e.touches.length === 1) {
+      touchStart.current = e.touches[0].clientX;
+    }
+  };
+
+  const onLightboxTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStart.current !== null) {
+      e.preventDefault();
+      const newDist = getDistance(e.touches);
+      const scale = Math.min(Math.max(zoomStart.current * (newDist / pinchStart.current), 1), 4);
+      setZoom(scale);
+      const mid = getMidpoint(e.touches);
+      setPan({
+        x: panStart.current.x + (mid.x - lastPanPoint.current.x),
+        y: panStart.current.y + (mid.y - lastPanPoint.current.y),
+      });
+    } else if (e.touches.length === 1 && zoom > 1) {
+      setPan({
+        x: panStart.current.x + (e.touches[0].clientX - lastPanPoint.current.x),
+        y: panStart.current.y + (e.touches[0].clientY - lastPanPoint.current.y),
+      });
+    }
+  };
+
+  const onLightboxTouchEnd = (e: React.TouchEvent) => {
+    if (pinchStart.current !== null && e.touches.length < 2) {
+      pinchStart.current = null;
+      if (zoom <= 1.05) { setZoom(1); setPan({ x: 0, y: 0 }); }
+      return;
+    }
+    if (zoom > 1) return; // don't swipe when zoomed
     if (touchStart.current === null) return;
     const diff = e.changedTouches[0].clientX - touchStart.current;
     if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
