@@ -5,7 +5,7 @@ import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2, Loader2, XCircle } from "lucide-react";
-import { detectCountry, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
+import { detectCountry, detectCountryByIP, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
