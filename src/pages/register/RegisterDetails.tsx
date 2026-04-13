@@ -321,6 +321,8 @@ const RegisterDetails = () => {
         <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2 mt-2">
           Продолжить <ArrowRight className="h-5 w-5" />
         </Button>
+
+        <TrustMicroText variant="encryption" delay={0.4} className="mt-3" />
       </form>
     </RegistrationLayout>
   );
