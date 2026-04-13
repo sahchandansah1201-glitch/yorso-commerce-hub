@@ -139,6 +139,7 @@ export default function CountryPhoneInput({
     setOpen(false);
     setSearch("");
     onPhoneChange("");
+    onCountryChange?.(entry.name);
   };
 
   return (
