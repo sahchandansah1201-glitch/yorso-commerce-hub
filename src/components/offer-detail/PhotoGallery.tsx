@@ -26,6 +26,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const zoomStart = useRef(1);
   const panStart = useRef({ x: 0, y: 0 });
   const lastPanPoint = useRef({ x: 0, y: 0 });
+  const lastTap = useRef(0);
 
   const imgs = gallery.length > 0
     ? gallery
@@ -246,7 +247,22 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
               alt={imgs[active].alt}
               className="max-h-[85vh] max-w-[90vw] object-contain"
               style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                const now = Date.now();
+                if (now - lastTap.current < 300) {
+                  // Double tap
+                  if (zoom > 1) {
+                    setZoom(1);
+                    setPan({ x: 0, y: 0 });
+                  } else {
+                    setZoom(2);
+                  }
+                  lastTap.current = 0;
+                } else {
+                  lastTap.current = now;
+                }
+              }}
               onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
             />
           </AnimatePresence>
