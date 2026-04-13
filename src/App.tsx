@@ -11,6 +11,7 @@ import RegisterEmail from "./pages/register/RegisterEmail.tsx";
 import RegisterVerify from "./pages/register/RegisterVerify.tsx";
 import RegisterDetails from "./pages/register/RegisterDetails.tsx";
 import RegisterOnboarding from "./pages/register/RegisterOnboarding.tsx";
+import RegisterCountries from "./pages/register/RegisterCountries.tsx";
 import RegisterReady from "./pages/register/RegisterReady.tsx";
 import { RegistrationProvider } from "./contexts/RegistrationContext.tsx";
 import SignIn from "./pages/SignIn.tsx";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/register/verify" element={<RegisterVerify />} />
               <Route path="/register/details" element={<RegisterDetails />} />
               <Route path="/register/onboarding" element={<RegisterOnboarding />} />
+              <Route path="/register/countries" element={<RegisterCountries />} />
               <Route path="/register/ready" element={<RegisterReady />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/offers" element={<Offers />} />

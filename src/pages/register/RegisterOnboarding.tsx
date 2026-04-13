@@ -17,45 +17,56 @@ const SUPPLIER_CATEGORIES = [
   "Trading & Distribution", "Cold Storage & Logistics", "Other",
 ];
 
-const VOLUMES = [
+const BUYER_VOLUMES = [
   "< 10 tons/month", "10–50 tons/month", "50–200 tons/month", "200+ tons/month",
+];
+
+const SUPPLIER_VOLUMES = [
+  "< 50 tons/month", "50–200 tons/month", "200–1000 tons/month", "1000+ tons/month",
+];
+
+const CERTIFICATIONS = [
+  "MSC", "ASC", "HACCP", "BRC", "IFS", "GlobalG.A.P.",
+  "BAP", "ISO 22000", "EU Approved", "FDA Registered", "Other",
 ];
 
 const RegisterOnboarding = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
-  const isBuyer = data.role !== "supplier";
+  const isSupplier = data.role === "supplier";
 
-  const categories = isBuyer ? BUYER_CATEGORIES : SUPPLIER_CATEGORIES;
+  const categories = isSupplier ? SUPPLIER_CATEGORIES : BUYER_CATEGORIES;
+  const volumes = isSupplier ? SUPPLIER_VOLUMES : BUYER_VOLUMES;
+
   const [selected, setSelected] = useState<string[]>(data.categories);
   const [volume, setVolume] = useState(data.volume);
+  const [certs, setCerts] = useState<string[]>(data.certifications);
 
-  const toggleCategory = (cat: string) => {
-    setSelected((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
+  const toggleItem = (item: string, list: string[], setter: (v: string[]) => void) => {
+    setter(list.includes(item) ? list.filter((c) => c !== item) : [...list, item]);
   };
 
   const handleSubmit = () => {
-    setFields({ categories: selected, volume });
+    setFields({ categories: selected, volume, certifications: certs });
     analytics.track("registration_onboarding_completed", {
       role: data.role || "unknown",
       categoriesCount: selected.length,
       volume,
+      certificationsCount: certs.length,
     });
-    navigate("/register/ready");
+    navigate("/register/countries");
   };
 
   return (
     <RegistrationLayout>
       <div className="text-center mb-10">
         <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-          {isBuyer ? "What do you source?" : "What do you offer?"}
+          {isSupplier ? "What do you offer?" : "What do you source?"}
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          {isBuyer
-            ? "Select categories you're interested in. We'll show you relevant offers."
-            : "Select your business type so buyers can find you easily."}
+          {isSupplier
+            ? "Tell us about your business so buyers can find you."
+            : "Select categories you're interested in. We'll show you relevant offers."}
         </p>
       </div>
 
@@ -63,7 +74,7 @@ const RegisterOnboarding = () => {
         {/* Categories */}
         <div>
           <p className="text-sm font-medium text-foreground mb-3">
-            {isBuyer ? "Product categories" : "Business type"}{" "}
+            {isSupplier ? "Business type" : "Product categories"}{" "}
             <span className="text-muted-foreground font-normal">(select all that apply)</span>
           </p>
           <div className="flex flex-wrap gap-2.5">
@@ -72,14 +83,12 @@ const RegisterOnboarding = () => {
               return (
                 <button
                   key={cat}
-                  onClick={() => toggleCategory(cat)}
-                  className={`
-                    inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all
-                    ${isSelected
+                  onClick={() => toggleItem(cat, selected, setSelected)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
+                    isSelected
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                    }
-                  `}
+                  }`}
                 >
                   {isSelected && <Check className="h-3.5 w-3.5" />}
                   {cat}
@@ -89,23 +98,50 @@ const RegisterOnboarding = () => {
           </div>
         </div>
 
+        {/* Certifications — suppliers */}
+        {isSupplier && (
+          <div>
+            <p className="text-sm font-medium text-foreground mb-3">
+              Certifications{" "}
+              <span className="text-muted-foreground font-normal">(select all that apply)</span>
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              {CERTIFICATIONS.map((cert) => {
+                const isSelected = certs.includes(cert);
+                return (
+                  <button
+                    key={cert}
+                    onClick={() => toggleItem(cert, certs, setCerts)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                    }`}
+                  >
+                    {isSelected && <Check className="h-3.5 w-3.5" />}
+                    {cert}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Volume */}
         <div>
           <p className="text-sm font-medium text-foreground mb-3">
-            {isBuyer ? "Monthly sourcing volume" : "Monthly production capacity"}
+            {isSupplier ? "Monthly production capacity" : "Monthly sourcing volume"}
           </p>
           <div className="grid grid-cols-2 gap-2.5">
-            {VOLUMES.map((v) => (
+            {volumes.map((v) => (
               <button
                 key={v}
                 onClick={() => setVolume(v)}
-                className={`
-                  rounded-xl border px-4 py-3 text-sm font-medium transition-all
-                  ${volume === v
+                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                  volume === v
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }
-                `}
+                }`}
               >
                 {v}
               </button>
@@ -118,13 +154,13 @@ const RegisterOnboarding = () => {
           size="lg"
           className="w-full h-14 text-base font-semibold rounded-xl gap-2"
         >
-          Complete Setup <ArrowRight className="h-5 w-5" />
+          Continue <ArrowRight className="h-5 w-5" />
         </Button>
 
         <button
           onClick={() => {
             analytics.track("registration_onboarding_skipped");
-            navigate("/register/ready");
+            navigate("/register/countries");
           }}
           className="block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
