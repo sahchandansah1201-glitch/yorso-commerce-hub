@@ -205,16 +205,30 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
       {/* Lightbox */}
       {lightbox && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90" onClick={() => setLightbox(false)} onTouchStart={onTouchStart} onTouchEnd={(e) => { e.stopPropagation(); onTouchEnd(e); }}>
-          <button onClick={() => setLightbox(false)} className="absolute top-4 right-4 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 touch-none"
+          onClick={() => { if (zoom <= 1) setLightbox(false); else { setZoom(1); setPan({ x: 0, y: 0 }); } }}
+          onTouchStart={onLightboxTouchStart}
+          onTouchMove={onLightboxTouchMove}
+          onTouchEnd={onLightboxTouchEnd}
+        >
+          <button onClick={(e) => { e.stopPropagation(); setLightbox(false); }} className="absolute top-4 right-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
             <X className="h-5 w-5" />
           </button>
-          {imgs.length > 1 && (
+          {zoom > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setZoom(1); setPan({ x: 0, y: 0 }); }}
+              className="absolute top-4 left-4 z-10 rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20"
+            >
+              Reset zoom
+            </button>
+          )}
+          {imgs.length > 1 && zoom <= 1 && (
             <>
-              <button onClick={(e) => { e.stopPropagation(); goPrev(); }} className="absolute left-4 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+              <button onClick={(e) => { e.stopPropagation(); goPrev(); }} className="absolute left-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); goNext(); }} className="absolute right-4 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+              <button onClick={(e) => { e.stopPropagation(); goNext(); }} className="absolute right-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
                 <ChevronRight className="h-6 w-6" />
               </button>
             </>
@@ -231,6 +245,7 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
               src={imgs[active].src}
               alt={imgs[active].alt}
               className="max-h-[85vh] max-w-[90vw] object-contain"
+              style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
               onClick={(e) => e.stopPropagation()}
               onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.svg"; }}
             />
