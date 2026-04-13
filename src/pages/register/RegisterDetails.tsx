@@ -369,7 +369,7 @@ const RegisterDetails = () => {
                         variant="outline"
                         onClick={handleWhatsAppVerify}
                         disabled={phoneLoading}
-                        className="mt-3 h-12 rounded-xl w-full gap-2 border-emerald-300 hover:border-emerald-400 hover:bg-emerald-50 text-emerald-700"
+                        className="mt-3 h-12 rounded-xl w-full gap-2 border-emerald-300 hover:border-emerald-400 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800"
                       >
                         {phoneLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
