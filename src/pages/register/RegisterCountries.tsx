@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
+import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, Globe } from "lucide-react";
 import { SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
@@ -114,6 +115,8 @@ const RegisterCountries = () => {
         >
           Skip for now — I'll set this up later
         </button>
+
+        <TrustMicroText variant="global" delay={0.4} className="mt-2" />
       </div>
     </RegistrationLayout>
   );

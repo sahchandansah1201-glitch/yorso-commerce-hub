@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
+import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Building2, ShoppingCart } from "lucide-react";
 import analytics from "@/lib/analytics";
 
@@ -77,6 +78,8 @@ const RegisterChoose = () => {
           </button>
         ))}
       </div>
+
+      <TrustMicroText variant="users" delay={0.6} className="mt-8" />
     </RegistrationLayout>
   );
 };
