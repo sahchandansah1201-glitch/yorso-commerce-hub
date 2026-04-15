@@ -10,11 +10,13 @@ import { ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
 import { authApi, getErrorMessage } from "@/lib/api-contracts";
 import { toast } from "sonner";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterVerify = () => {
   const navigate = useNavigate();
   const { data, setField } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/verify");
+  const { t } = useLanguage();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,56 +26,38 @@ const RegisterVerify = () => {
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
     if (value && !/^\d$/.test(value)) return;
-
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
     setError("");
-
-    if (value && index < 5) {
-      const next = document.getElementById(`otp-${index + 1}`);
-      next?.focus();
-    }
+    if (value && index < 5) document.getElementById(`otp-${index + 1}`)?.focus();
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      const prev = document.getElementById(`otp-${index - 1}`);
-      prev?.focus();
-    }
+    if (e.key === "Backspace" && !code[index] && index > 0) document.getElementById(`otp-${index - 1}`)?.focus();
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     const newCode = [...code];
-    pasted.split("").forEach((ch, i) => {
-      if (i < 6) newCode[i] = ch;
-    });
+    pasted.split("").forEach((ch, i) => { if (i < 6) newCode[i] = ch; });
     setCode(newCode);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const full = code.join("");
-    if (full.length < 6) {
-      setError("Please enter the full 6-digit code");
-      return;
-    }
+    if (full.length < 6) { setError(t.reg_enterFullCode); return; }
 
     setLoading(true);
     setError("");
-
-    const result = await authApi.verifyEmail({
-      sessionId: `sess_mock`,
-      code: full,
-    });
-
+    const result = await authApi.verifyEmail({ sessionId: "sess_mock", code: full });
     setLoading(false);
 
     if (!result.ok) {
       setError(getErrorMessage((result as { code: string }).code));
-      toast.error("Verification failed", { description: (result as { message: string }).message });
+      toast.error(t.reg_verificationFailed, { description: (result as { message: string }).message });
       return;
     }
 
@@ -84,12 +68,10 @@ const RegisterVerify = () => {
 
   const handleResend = () => {
     analytics.track("registration_resend_code");
-    toast.success("Code resent", { description: "Check your inbox for a new code." });
+    toast.success(t.reg_codeResent, { description: t.reg_codeResentDesc });
   };
 
-  const maskedEmail = data.email
-    ? data.email.replace(/(.{2})(.*)(@.*)/, "$1***$3")
-    : "your email";
+  const maskedEmail = data.email ? data.email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "your email";
 
   return (
     <RegistrationLayout>
@@ -98,10 +80,10 @@ const RegisterVerify = () => {
           <ShieldCheck className="h-8 w-8 text-success" />
         </div>
         <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-          Check your inbox
+          {t.reg_checkInbox}
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          We sent a 6-digit code to <span className="font-medium text-foreground">{maskedEmail}</span>
+          {t.reg_codeSentTo} <span className="font-medium text-foreground">{maskedEmail}</span>
         </p>
       </div>
 
@@ -126,31 +108,13 @@ const RegisterVerify = () => {
 
         {error && <p className="text-center text-sm text-destructive">{error}</p>}
 
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full h-14 text-base font-semibold rounded-xl gap-2"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" /> Verifying…
-            </>
-          ) : (
-            <>
-              Verify & Continue <ArrowRight className="h-5 w-5" />
-            </>
-          )}
+        <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2" disabled={loading}>
+          {loading ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_verifying}</>) : (<>{t.reg_verifyAndContinue} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
         <div className="text-center">
-          <button
-            type="button"
-            onClick={handleResend}
-            className="text-sm text-primary hover:underline font-medium"
-            disabled={loading}
-          >
-            Didn't receive the code? Resend
+          <button type="button" onClick={handleResend} className="text-sm text-primary hover:underline font-medium" disabled={loading}>
+            {t.reg_didntReceive}
           </button>
         </div>
       </form>

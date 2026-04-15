@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import OfferCard from "@/components/landing/OfferCard";
 import { mockOffers, categories } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const Offers = () => {
+  const { t } = useLanguage();
+
   useEffect(() => {
     analytics.track("offers_list_view");
   }, []);
@@ -18,8 +21,8 @@ const Offers = () => {
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</Link>
           <div className="flex items-center gap-3">
-            <Link to="/signin"><Button variant="ghost" size="sm">Sign In</Button></Link>
-            <Link to="/register"><Button size="sm" className="font-semibold">Register Free</Button></Link>
+            <Link to="/signin"><Button variant="ghost" size="sm">{t.nav_signIn}</Button></Link>
+            <Link to="/register"><Button size="sm" className="font-semibold">{t.nav_registerFree}</Button></Link>
           </div>
         </div>
       </header>
@@ -27,17 +30,17 @@ const Offers = () => {
       <main className="container py-8 md:py-12">
         <Link to="/">
           <Button variant="ghost" size="sm" className="mb-4 gap-1.5 text-muted-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back to homepage
+            <ArrowLeft className="h-4 w-4" /> {t.offersPage_backToHome}
           </Button>
         </Link>
 
-        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">All Wholesale Offers</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Browse {mockOffers.length}+ live offers from verified suppliers worldwide.</p>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">{t.offersPage_title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t.offersPage_subtitle.replace("{count}", String(mockOffers.length))}</p>
 
         <div className="mt-6 flex gap-2">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search products..." className="pl-10" />
+            <Input placeholder={t.offersPage_searchPlaceholder} className="pl-10" />
           </div>
         </div>
 
@@ -58,10 +61,10 @@ const Offers = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">Showing all available offers. Register to see full supplier details and pricing.</p>
+          <p className="text-sm text-muted-foreground">{t.offersPage_showingAll}</p>
           <Link to="/register">
             <Button className="mt-4 gap-2 font-semibold">
-              Register Free <ArrowRight className="h-4 w-4" />
+              {t.nav_registerFree} <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
