@@ -4,35 +4,29 @@ import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Building2, ShoppingCart } from "lucide-react";
 import analytics from "@/lib/analytics";
-
-const roleCards = [
-  {
-    role: "buyer" as const,
-    icon: ShoppingCart,
-    title: "I'm a Buyer",
-    subtitle: "Source seafood from verified suppliers",
-    features: [
-      "Access 2,000+ verified offers",
-      "Compare prices across 48 countries",
-      "Contact suppliers directly — zero commission",
-    ],
-  },
-  {
-    role: "supplier" as const,
-    icon: Building2,
-    title: "I'm a Supplier",
-    subtitle: "Reach qualified buyers worldwide",
-    features: [
-      "Year-round visibility for your products",
-      "Direct contact with verified buyers",
-      "Zero commission on all deals",
-    ],
-  },
-];
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterChoose = () => {
   const navigate = useNavigate();
   const { setField } = useRegistration();
+  const { t } = useLanguage();
+
+  const roleCards = [
+    {
+      role: "buyer" as const,
+      icon: ShoppingCart,
+      title: t.reg_imBuyer,
+      subtitle: t.reg_buyerSubtitle,
+      features: t.reg_buyerFeatures,
+    },
+    {
+      role: "supplier" as const,
+      icon: Building2,
+      title: t.reg_imSupplier,
+      subtitle: t.reg_supplierSubtitle,
+      features: t.reg_supplierFeatures,
+    },
+  ];
 
   const handleChoose = (role: "buyer" | "supplier") => {
     setField("role", role);
@@ -44,10 +38,10 @@ const RegisterChoose = () => {
     <RegistrationLayout>
       <div className="text-center mb-10">
         <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-          Join YORSO
+          {t.reg_joinYorso}
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          Choose how you'll use the platform. It takes under 3 minutes.
+          {t.reg_chooseSubtitle}
         </p>
       </div>
 

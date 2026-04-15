@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { mockOffers } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 import PhotoGallery from "@/components/offer-detail/PhotoGallery";
 import OfferSummary from "@/components/offer-detail/OfferSummary";
@@ -18,6 +18,7 @@ import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 
 const OfferDetail = () => {
   const { id } = useParams();
+  const { t } = useLanguage();
   const offer = mockOffers.find((o) => o.id === id);
 
   useEffect(() => {
@@ -28,8 +29,8 @@ const OfferDetail = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-heading text-2xl font-bold text-foreground">Offer not found</h1>
-          <Link to="/offers"><Button className="mt-4">Browse all offers</Button></Link>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{t.offerDetail_notFound}</h1>
+          <Link to="/offers"><Button className="mt-4">{t.offerDetail_browseAll}</Button></Link>
         </div>
       </div>
     );
@@ -37,24 +38,22 @@ const OfferDetail = () => {
 
   return (
     <div className="min-h-screen bg-background font-body">
-      {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
         <div className="container flex h-14 items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold tracking-tight text-foreground">YORSO</Link>
           <div className="flex items-center gap-2">
-            <Link to="/signin"><Button variant="ghost" size="sm">Sign In</Button></Link>
-            <Link to="/register"><Button size="sm" className="font-semibold">Register Free</Button></Link>
+            <Link to="/signin"><Button variant="ghost" size="sm">{t.nav_signIn}</Button></Link>
+            <Link to="/register"><Button size="sm" className="font-semibold">{t.nav_registerFree}</Button></Link>
           </div>
         </div>
       </header>
 
       <main className="container py-6 md:py-10">
-        {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
-            <li><Link to="/" className="hover:text-foreground transition-colors">Home</Link></li>
+            <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link to="/offers" className="hover:text-foreground transition-colors">Offers</Link></li>
+            <li><Link to="/offers" className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li><Link to={`/offers?category=${encodeURIComponent(offer.category)}`} className="hover:text-foreground transition-colors">{offer.category}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
@@ -62,20 +61,12 @@ const OfferDetail = () => {
           </ol>
         </nav>
 
-        {/* Above-the-fold: 3-column desktop / stacked mobile */}
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]">
-          <PhotoGallery
-            gallery={offer.gallery}
-            productName={offer.productName}
-            photoSourceLabel={offer.photoSourceLabel}
-          />
+          <PhotoGallery gallery={offer.gallery} productName={offer.productName} photoSourceLabel={offer.photoSourceLabel} />
           <OfferSummary offer={offer} />
-          <div className="lg:sticky lg:top-20 lg:self-start">
-            <SupplierTrustPanel offer={offer} />
-          </div>
+          <div className="lg:sticky lg:top-20 lg:self-start"><SupplierTrustPanel offer={offer} /></div>
         </div>
 
-        {/* Below-the-fold */}
         <TrustSection offer={offer} />
         <FullSpecifications offer={offer} />
         <SimilarOffers current={offer} />
@@ -84,19 +75,15 @@ const OfferDetail = () => {
         <DecisionFAQ />
       </main>
 
-      {/* Sticky mobile CTA */}
       <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 backdrop-blur p-3 lg:hidden">
         <Link to="/register" className="block">
           <Button className="w-full gap-2 font-semibold text-base h-12">
-            Register to Contact Supplier <ArrowRight className="h-4 w-4" />
+            {t.offerDetail_registerToContact} <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
-        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
-          Free registration · Direct supplier access · No commission
-        </p>
+        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">{t.offerDetail_freeRegistration}</p>
       </div>
 
-      {/* Bottom spacer for mobile sticky CTA */}
       <div className="h-24 lg:hidden" />
     </div>
   );

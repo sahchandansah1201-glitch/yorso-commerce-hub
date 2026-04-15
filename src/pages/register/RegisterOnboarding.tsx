@@ -7,6 +7,7 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
 import analytics from "@/lib/analytics";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const BUYER_CATEGORIES = [
   "Salmon & Trout", "Shrimp & Prawns", "White Fish (Cod, Haddock, Pollock)",
@@ -19,13 +20,8 @@ const SUPPLIER_CATEGORIES = [
   "Trading & Distribution", "Cold Storage & Logistics", "Other",
 ];
 
-const BUYER_VOLUMES = [
-  "< 10 tons/month", "10–50 tons/month", "50–200 tons/month", "200+ tons/month",
-];
-
-const SUPPLIER_VOLUMES = [
-  "< 50 tons/month", "50–200 tons/month", "200–1000 tons/month", "1000+ tons/month",
-];
+const BUYER_VOLUMES = ["< 10 tons/month", "10–50 tons/month", "50–200 tons/month", "200+ tons/month"];
+const SUPPLIER_VOLUMES = ["< 50 tons/month", "50–200 tons/month", "200–1000 tons/month", "1000+ tons/month"];
 
 const CERTIFICATIONS = [
   "MSC", "ASC", "HACCP", "BRC", "IFS", "GlobalG.A.P.",
@@ -36,6 +32,7 @@ const RegisterOnboarding = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/onboarding");
+  const { t } = useLanguage();
   const isSupplier = data.role === "supplier";
 
   const categories = isSupplier ? SUPPLIER_CATEGORIES : BUYER_CATEGORIES;
@@ -54,10 +51,7 @@ const RegisterOnboarding = () => {
   const handleSubmit = () => {
     setFields({ categories: selected, volume, certifications: certs });
     analytics.track("registration_onboarding_completed", {
-      role: data.role || "unknown",
-      categoriesCount: selected.length,
-      volume,
-      certificationsCount: certs.length,
+      role: data.role || "unknown", categoriesCount: selected.length, volume, certificationsCount: certs.length,
     });
     navigate("/register/countries");
   };
@@ -66,35 +60,25 @@ const RegisterOnboarding = () => {
     <RegistrationLayout>
       <div className="text-center mb-10">
         <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
-          {isSupplier ? "What do you offer?" : "What do you source?"}
+          {isSupplier ? t.reg_whatDoYouOffer : t.reg_whatDoYouSource}
         </h1>
         <p className="mt-3 text-lg text-muted-foreground">
-          {isSupplier
-            ? "Tell us about your business so buyers can find you."
-            : "Select categories you're interested in. We'll show you relevant offers."}
+          {isSupplier ? t.reg_onboardingSubtitleSupplier : t.reg_onboardingSubtitleBuyer}
         </p>
       </div>
 
       <div className="space-y-8">
-        {/* Categories */}
         <div>
           <p className="text-sm font-medium text-foreground mb-3">
-            {isSupplier ? "Business type" : "Product categories"}{" "}
-            <span className="text-muted-foreground font-normal">(select all that apply)</span>
+            {isSupplier ? t.reg_businessType : t.reg_productCategories}{" "}
+            <span className="text-muted-foreground font-normal">{t.reg_selectAllApply}</span>
           </p>
           <div className="flex flex-wrap gap-2.5">
             {categories.map((cat) => {
               const isSelected = selected.includes(cat);
               return (
-                <button
-                  key={cat}
-                  onClick={() => toggleItem(cat, selected, setSelected)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }`}
-                >
+                <button key={cat} onClick={() => toggleItem(cat, selected, setSelected)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                   {isSelected && <Check className="h-3.5 w-3.5" />}
                   {cat}
                 </button>
@@ -103,26 +87,18 @@ const RegisterOnboarding = () => {
           </div>
         </div>
 
-        {/* Certifications — suppliers */}
         {isSupplier && (
           <div>
             <p className="text-sm font-medium text-foreground mb-3">
-              Certifications{" "}
-              <span className="text-muted-foreground font-normal">(select all that apply)</span>
+              {t.reg_certifications}{" "}
+              <span className="text-muted-foreground font-normal">{t.reg_selectAllApply}</span>
             </p>
             <div className="flex flex-wrap gap-2.5">
               {CERTIFICATIONS.map((cert) => {
                 const isSelected = certs.includes(cert);
                 return (
-                  <button
-                    key={cert}
-                    onClick={() => toggleItem(cert, certs, setCerts)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
-                      isSelected
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                    }`}
-                  >
+                  <button key={cert} onClick={() => toggleItem(cert, certs, setCerts)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                     {isSelected && <Check className="h-3.5 w-3.5" />}
                     {cert}
                   </button>
@@ -132,45 +108,27 @@ const RegisterOnboarding = () => {
           </div>
         )}
 
-        {/* Volume */}
         <div>
           <p className="text-sm font-medium text-foreground mb-3">
-            {isSupplier ? "Monthly production capacity" : "Monthly sourcing volume"}
+            {isSupplier ? t.reg_monthlyVolumeSupplier : t.reg_monthlyVolumeBuyer}
           </p>
           <div className="grid grid-cols-2 gap-2.5">
             {volumes.map((v) => (
-              <button
-                key={v}
-                onClick={() => setVolume(v)}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                  volume === v
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                }`}
-              >
+              <button key={v} onClick={() => setVolume(v)}
+                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${volume === v ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                 {v}
               </button>
             ))}
           </div>
         </div>
 
-        <Button
-          onClick={handleSubmit}
-          size="lg"
-          className="w-full h-14 text-base font-semibold rounded-xl gap-2"
-        >
-          Continue <ArrowRight className="h-5 w-5" />
+        <Button onClick={handleSubmit} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+          {t.reg_continue} <ArrowRight className="h-5 w-5" />
         </Button>
 
-        <button
-          onClick={() => {
-            setFields({ onboardingSkipped: true });
-            analytics.track("registration_onboarding_skipped");
-            navigate("/register/countries");
-          }}
-          className="block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Skip for now — I'll set this up later
+        <button onClick={() => { setFields({ onboardingSkipped: true }); analytics.track("registration_onboarding_skipped"); navigate("/register/countries"); }}
+          className="block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+          {t.reg_skipForNow}
         </button>
 
         <TrustMicroText variant="verified" delay={0.4} className="mt-2" />

@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
@@ -22,36 +23,21 @@ const anim = (delay: number) => ({
 const RegisterReady = () => {
   const { data, setField } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/ready");
+  const { t } = useLanguage();
   const isSupplier = data.role === "supplier";
   const firstName = data.fullName?.split(" ")[0] || "there";
 
   useEffect(() => {
     if (!guardPassed) return;
     setField("completed", true);
-
     analytics.track("registration_complete", {
-      role: data.role || "unknown",
-      country: data.country,
-      categories: data.categories.length,
-      countries: data.countries.length,
+      role: data.role || "unknown", country: data.country, categories: data.categories.length, countries: data.countries.length,
     });
 
     const end = Date.now() + 1500;
     const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"],
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"],
-      });
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     frame();
@@ -63,40 +49,6 @@ const RegisterReady = () => {
   const countriesCount = data.countries.length;
   const certsCount = data.certifications.length;
   const matchCount = Math.max(12, categoriesCount * 15 + countriesCount * 8);
-
-  const getNextSteps = () => {
-    if (isSupplier) {
-      const steps = ["Create your first product offer"];
-      if (certsCount > 0) {
-        steps.push(`Your ${certsCount} certification${certsCount > 1 ? "s" : ""} will be displayed on your profile`);
-      } else {
-        steps.push("Add certifications to boost buyer trust");
-      }
-      if (countriesCount > 0) {
-        steps.push(`Buyers from your ${countriesCount} target market${countriesCount > 1 ? "s" : ""} will see your offers first`);
-      } else {
-        steps.push("Set target markets to reach the right buyers");
-      }
-      return steps;
-    }
-
-    const steps: string[] = [];
-    if (categoriesCount > 0) {
-      const topCat = data.categories[0];
-      steps.push(`Browse ${matchCount}+ offers matching "${topCat}" and more`);
-    } else {
-      steps.push("Browse live offers from verified suppliers");
-    }
-    if (countriesCount > 0) {
-      steps.push(`We'll prioritize offers from your ${countriesCount} selected origin${countriesCount > 1 ? " countries" : " country"}`);
-    } else {
-      steps.push("Save favorites and compare prices across 48 countries");
-    }
-    steps.push("Contact suppliers directly — zero commission");
-    return steps;
-  };
-
-  const nextSteps = getNextSteps();
 
   const getWelcomeEmoji = () => {
     const map: Record<string, string> = {
@@ -111,35 +63,24 @@ const RegisterReady = () => {
   return (
     <RegistrationLayout hideProgress>
       <div className="text-center">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10"
-        >
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }} className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
           <CheckCircle2 className="h-10 w-10 text-success" />
         </motion.div>
 
-        <motion.h1
-          {...anim(0.25)}
-          className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight"
-        >
-          {getWelcomeEmoji()} Welcome, {firstName}!
+        <motion.h1 {...anim(0.25)} className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+          {getWelcomeEmoji()} {t.reg_welcome.replace("{name}", firstName)}
         </motion.h1>
 
         <motion.p {...anim(0.35)} className="mt-3 text-lg text-muted-foreground">
-          Your {isSupplier ? "supplier" : "buyer"} profile setup
-          {data.company && <> for <span className="font-medium text-foreground">{data.company}</span></>}
-          {" "}is complete.
+          {t.reg_profileComplete
+            .replace("{role}", isSupplier ? t.reg_supplier.toLowerCase() : t.reg_buyer.toLowerCase())
+            .replace("{company}", data.company ? ` for ${data.company}` : "")}
         </motion.p>
 
-        <motion.div
-          {...anim(0.4)}
-          className="mt-6 rounded-2xl border border-border bg-card p-5 text-left"
-        >
+        <motion.div {...anim(0.4)} className="mt-6 rounded-2xl border border-border bg-card p-5 text-left">
           <div className="flex items-center gap-2 mb-3">
             <BadgeCheck className="h-4.5 w-4.5 text-primary" />
-            <p className="text-sm font-semibold text-foreground">Your profile</p>
+            <p className="text-sm font-semibold text-foreground">{t.reg_yourProfile}</p>
           </div>
           <div className="space-y-2">
             {data.company && (
@@ -147,7 +88,7 @@ const RegisterReady = () => {
                 <Building className="h-4 w-4 text-muted-foreground/60 shrink-0" />
                 <span>{data.company}</span>
                 <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                  {isSupplier ? "Supplier" : "Buyer"}
+                  {isSupplier ? t.reg_supplier : t.reg_buyer}
                 </span>
               </div>
             )}
@@ -180,14 +121,14 @@ const RegisterReady = () => {
               <div className="rounded-xl border border-border bg-card p-3 text-center">
                 <Package className="h-5 w-5 text-primary mx-auto mb-1" />
                 <p className="text-xl font-bold text-foreground">{categoriesCount}</p>
-                <p className="text-xs text-muted-foreground">{categoriesCount === 1 ? "category" : "categories"}</p>
+                <p className="text-xs text-muted-foreground">{categoriesCount === 1 ? t.reg_category : t.reg_categories}</p>
               </div>
             )}
             {countriesCount > 0 && (
               <div className="rounded-xl border border-border bg-card p-3 text-center">
                 <Globe className="h-5 w-5 text-primary mx-auto mb-1" />
                 <p className="text-xl font-bold text-foreground">{countriesCount}</p>
-                <p className="text-xs text-muted-foreground">{countriesCount === 1 ? "market" : "markets"}</p>
+                <p className="text-xs text-muted-foreground">{countriesCount === 1 ? t.reg_market : t.reg_markets}</p>
               </div>
             )}
             <div className="rounded-xl border border-border bg-card p-3 text-center">
@@ -195,13 +136,13 @@ const RegisterReady = () => {
                 <>
                   <Award className="h-5 w-5 text-primary mx-auto mb-1" />
                   <p className="text-xl font-bold text-foreground">{certsCount}</p>
-                  <p className="text-xs text-muted-foreground">{certsCount === 1 ? "certification" : "certifications"}</p>
+                  <p className="text-xs text-muted-foreground">{certsCount === 1 ? t.reg_certification : t.reg_certificationsLabel}</p>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-5 w-5 text-primary mx-auto mb-1" />
                   <p className="text-xl font-bold text-foreground">{matchCount}+</p>
-                  <p className="text-xs text-muted-foreground">matching offers</p>
+                  <p className="text-xs text-muted-foreground">{t.reg_matchingOffers}</p>
                 </>
               )}
             </div>
@@ -211,24 +152,14 @@ const RegisterReady = () => {
         <motion.div {...anim(0.55)} className="mt-4 rounded-2xl border border-border bg-card p-6 text-left">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-5 w-5 text-primary" />
-            <p className="font-heading font-bold text-foreground">What's next for you</p>
+            <p className="font-heading font-bold text-foreground">{t.reg_whatsNext}</p>
           </div>
-          <ul className="space-y-3">
-            {nextSteps.map((step, i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {i + 1}
-                </span>
-                {step}
-              </li>
-            ))}
-          </ul>
         </motion.div>
 
         <motion.div {...anim(0.65)} className="mt-6">
           <Link to="/offers">
             <Button size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
-              {isSupplier ? "Create Your First Offer" : "Explore Offers"}
+              {isSupplier ? t.reg_createFirstOffer : t.reg_exploreOffers}
               <ArrowRight className="h-5 w-5" />
             </Button>
           </Link>

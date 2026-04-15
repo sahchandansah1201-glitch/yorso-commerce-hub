@@ -1,17 +1,20 @@
 import { Shield, Users, Globe } from "lucide-react";
 import { motion } from "framer-motion";
-
-const PROOFS = [
-  { icon: Users, text: "12,000+ seafood professionals onboard" },
-  { icon: Shield, text: "2,400+ verified suppliers across 48 countries" },
-  { icon: Globe, text: "Zero commission — direct deals, always" },
-];
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface Props {
   variant?: "inline" | "strip";
 }
 
 const SocialProofBanner = ({ variant = "inline" }: Props) => {
+  const { t } = useLanguage();
+
+  const PROOFS = [
+    { icon: Users, text: t.socialBanner_professionals },
+    { icon: Shield, text: t.socialBanner_suppliers },
+    { icon: Globe, text: t.socialBanner_zeroCom },
+  ];
+
   if (variant === "strip") {
     return (
       <motion.div
@@ -42,8 +45,8 @@ const SocialProofBanner = ({ variant = "inline" }: Props) => {
           <Shield className="h-4.5 w-4.5 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium text-foreground">Trusted by 12,000+ professionals</p>
-          <p className="text-xs text-muted-foreground">2,400+ verified suppliers · 48 countries · Zero commission</p>
+          <p className="text-sm font-medium text-foreground">{t.socialBanner_trustedBy}</p>
+          <p className="text-xs text-muted-foreground">{t.socialBanner_detail}</p>
         </div>
       </div>
     </motion.div>
