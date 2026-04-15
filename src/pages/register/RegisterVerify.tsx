@@ -72,8 +72,8 @@ const RegisterVerify = () => {
     setLoading(false);
 
     if (!result.ok) {
-      setError(getErrorMessage(result.code));
-      toast.error("Verification failed", { description: result.message });
+      setError(getErrorMessage((result as { code: string }).code));
+      toast.error("Verification failed", { description: (result as { message: string }).message });
       return;
     }
 

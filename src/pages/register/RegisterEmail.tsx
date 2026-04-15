@@ -40,8 +40,8 @@ const RegisterEmail = () => {
     setLoading(false);
 
     if (!result.ok) {
-      setError(getErrorMessage(result.code));
-      toast.error("Could not continue", { description: result.message });
+      setError(getErrorMessage((result as { code: string }).code));
+      toast.error("Could not continue", { description: (result as { message: string }).message });
       return;
     }
 
