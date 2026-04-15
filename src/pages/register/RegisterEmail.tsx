@@ -7,8 +7,10 @@ import SocialProofBanner from "@/components/registration/SocialProofBanner";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage } from "@/lib/api-contracts";
+import { toast } from "sonner";
 
 const RegisterEmail = () => {
   const navigate = useNavigate();
@@ -16,15 +18,33 @@ const RegisterEmail = () => {
   const guardPassed = useRegistrationGuard("/register/email");
   const [email, setEmail] = useState(data.email);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!guardPassed) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.includes("@") || !email.includes(".")) {
       setError("Please enter a valid business email");
       return;
     }
+
+    setLoading(true);
+    setError("");
+
+    const result = await authApi.startRegistration({
+      email,
+      role: (data.role as "buyer" | "supplier") || "buyer",
+    });
+
+    setLoading(false);
+
+    if (!result.ok) {
+      setError(getErrorMessage(result.code));
+      toast.error("Could not continue", { description: result.message });
+      return;
+    }
+
     setField("email", email);
     analytics.track("registration_email_submitted", { role: data.role || "unknown" });
     navigate("/register/verify");
@@ -57,12 +77,26 @@ const RegisterEmail = () => {
             className="h-14 text-lg px-4 rounded-xl"
             autoFocus
             required
+            disabled={loading}
           />
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         </div>
 
-        <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
-          Continue <ArrowRight className="h-5 w-5" />
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full h-14 text-base font-semibold rounded-xl gap-2"
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" /> Checking…
+            </>
+          ) : (
+            <>
+              Continue <ArrowRight className="h-5 w-5" />
+            </>
+          )}
         </Button>
 
         <p className="text-center text-xs text-muted-foreground leading-relaxed">

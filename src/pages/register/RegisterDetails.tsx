@@ -9,6 +9,7 @@ import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { detectCountry, detectCountryByIP, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage } from "@/lib/api-contracts";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";

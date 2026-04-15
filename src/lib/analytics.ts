@@ -1,7 +1,64 @@
+// ─── Phase 0 Typed Analytics Event Contract ─────────────────────
+
+/**
+ * All Phase 0 analytics event names. Use this type to ensure
+ * every analytics.track() call uses a known event name.
+ *
+ * Scroll-depth events are dynamic (`scroll_depth_25/50/75`) and
+ * handled separately via template literals.
+ */
+export type AnalyticsEvent =
+  // Landing / Navigation
+  | "hero_primary_cta_click"
+  | "hero_secondary_cta_click"
+  | "hero_search_submit"
+  | "header_register_click"
+  | "header_signin_click"
+  | "footer_link_click"
+  | "live_offer_card_click"
+  | "live_offers_expand_toggle"
+  | "live_offers_view_all_click"
+  | "register_cta_final_click"
+  | "register_cta_midpage_click"
+  | "register_cta_offer_detail"
+  | "value_register_buyer_click"
+  | "value_register_supplier_click"
+  | "section_view"
+  // Offers
+  | "offers_list_view"
+  | "offer_detail_view"
+  // Registration
+  | "registration_role_selected"
+  | "registration_email_submitted"
+  | "registration_email_verified"
+  | "registration_resend_code"
+  | "registration_details_completed"
+  | "registration_onboarding_completed"
+  | "registration_onboarding_skipped"
+  | "registration_countries_completed"
+  | "registration_countries_skipped"
+  | "registration_complete"
+  | "value_destination_selected"
+  // Phone verification
+  | "phone_verification_sent"
+  | "phone_verified"
+  | "phone_whatsapp_verify_started"
+  | "phone_whatsapp_verified"
+  // Auth
+  | "signin_email"
+  | "signin_phone"
+  | "signin_whatsapp"
+  | "forgot_password"
+  // Legacy (kept for backward compat, remove when dead code is cleaned)
+  | "registration_start"
+  | "registration_complete_mock"
+  // Scroll depth (dynamic)
+  | `scroll_depth_${number}`;
+
 type EventPayload = Record<string, string | number | boolean | undefined>;
 
 const analytics = {
-  track(event: string, payload?: EventPayload) {
+  track(event: AnalyticsEvent, payload?: EventPayload) {
     const base = {
       timestamp: new Date().toISOString(),
       language: localStorage.getItem("yorso-lang") || "en",
