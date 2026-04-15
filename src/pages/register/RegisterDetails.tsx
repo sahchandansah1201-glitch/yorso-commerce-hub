@@ -9,6 +9,7 @@ import { ArrowRight, User, Building, Lock, MapPin, FileText, Phone, CheckCircle2
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { detectCountry, detectCountryByIP, SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage } from "@/lib/api-contracts";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
@@ -35,6 +36,7 @@ const RegisterDetails = () => {
   const [whatsAppCountdown, setWhatsAppCountdown] = useState(30);
   const whatsAppTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!country) {
@@ -144,9 +146,30 @@ const RegisterDetails = () => {
     }, 800);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    setSubmitting(true);
+    const result = await authApi.submitDetails({
+      sessionId: "sess_mock",
+      fullName,
+      company,
+      country,
+      vatTin,
+      password,
+    });
+    setSubmitting(false);
+
+    if (!result.ok) {
+      const err = result as { code: string; message: string; field?: string };
+      if (err.field) {
+        setErrors((prev) => ({ ...prev, [err.field!]: getErrorMessage(err.code) }));
+      }
+      toast.error("Could not continue", { description: err.message });
+      return;
+    }
+
     setFields({ fullName, company, password, country, vatTin, phone: phoneNumber, phoneVerified });
     analytics.track("registration_details_completed", { role: data.role || "unknown", country });
     navigate("/register/onboarding");
@@ -412,8 +435,16 @@ const RegisterDetails = () => {
           {errors.password && <p className="mt-1 text-sm text-destructive">{errors.password}</p>}
         </div>
 
-        <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2 mt-2">
-          Continue <ArrowRight className="h-5 w-5" />
+        <Button type="submit" size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2 mt-2" disabled={submitting}>
+          {submitting ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" /> Saving…
+            </>
+          ) : (
+            <>
+              Continue <ArrowRight className="h-5 w-5" />
+            </>
+          )}
         </Button>
 
         <TrustMicroText variant="encryption" delay={0.4} className="mt-3" />

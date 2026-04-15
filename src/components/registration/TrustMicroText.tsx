@@ -9,7 +9,7 @@ const TRUST_DATA: Record<TrustVariant, { icon: typeof Shield; text: string }> = 
   verified: { icon: BadgeCheck, text: "2,400+ suppliers verified through document and reference checks" },
   global: { icon: Globe, text: "Active deals in 48 countries — zero commission" },
   growth: { icon: TrendingUp, text: "300+ new members joined this week" },
-  encryption: { icon: Lock, text: "Your data is protected in transit · GDPR-compliant practices" },
+  encryption: { icon: Lock, text: "We follow industry-standard privacy practices · GDPR-aligned" },
 };
 
 interface Props {
