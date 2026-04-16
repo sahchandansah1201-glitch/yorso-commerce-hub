@@ -2,7 +2,7 @@ import { Shield, Users, Lock, Globe, BadgeCheck, TrendingUp } from "lucide-react
 import { motion } from "framer-motion";
 import { useLanguage } from "@/i18n/LanguageContext";
 
-type TrustVariant = "users" | "security" | "verified" | "global" | "growth" | "encryption";
+type TrustVariant = "users" | "security" | "verified" | "global" | "growth" | "privacy";
 
 interface Props {
   variant: TrustVariant;
@@ -16,7 +16,7 @@ const ICONS: Record<TrustVariant, typeof Shield> = {
   verified: BadgeCheck,
   global: Globe,
   growth: TrendingUp,
-  encryption: Lock,
+  privacy: Lock,
 };
 
 const TrustMicroText = ({ variant, delay = 0.5, className = "" }: Props) => {
@@ -29,7 +29,7 @@ const TrustMicroText = ({ variant, delay = 0.5, className = "" }: Props) => {
     verified: t.trustMicro_verified,
     global: t.trustMicro_global,
     growth: t.trustMicro_growth,
-    encryption: t.trustMicro_encryption,
+    privacy: t.trustMicro_privacy,
   };
 
   return (

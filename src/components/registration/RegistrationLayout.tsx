@@ -31,7 +31,7 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
   const canGoBack = currentIndex > 0;
 
   const trustTexts = [
-    t.trustMicro_encryption,
+    t.trustMicro_privacy,
     t.trustMicro_security,
     t.trustMicro_users,
   ];
