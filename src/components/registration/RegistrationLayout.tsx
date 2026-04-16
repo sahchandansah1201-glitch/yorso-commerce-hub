@@ -76,7 +76,7 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
         )}
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-4 py-12 md:py-20">
+      <main className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 20 }}
