@@ -22,8 +22,7 @@ const SignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phonePassword, setPhonePassword] = useState("");
   const [phoneCountry, setPhoneCountry] = useState("");
-  const [showWhatsApp, setShowWhatsApp] = useState(false);
-  const [whatsAppPhone, setWhatsAppPhone] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
