@@ -58,8 +58,8 @@ const SignIn = () => {
         </div>
       </header>
 
-      <main className="flex flex-1 items-start justify-center px-4 py-12 md:pt-24">
-        <div className="w-full max-w-md">
+      <main className="flex flex-1 justify-center px-4 py-12 md:pt-24">
+        <div className="w-full max-w-md pt-24 md:pt-0">
           {view === "login" ? (
             <>
               <Link to="/"><Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t.signin_back}</Button></Link>
