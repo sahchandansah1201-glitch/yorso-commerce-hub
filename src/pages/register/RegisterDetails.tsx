@@ -215,7 +215,7 @@ const RegisterDetails = () => {
           <div className="space-y-2">
             <div className="flex gap-2 items-start">
               <div className="flex-1 min-w-0">
-                <CountryPhoneInput phone={phoneNumber} onPhoneChange={(val) => { setPhoneNumber(val); clearError("phone"); setPhoneVerified(false); setPhoneSent(false); setCodeError(false); }} onCountryChange={(name) => { setCountry(name); clearError("country"); }} countryName={country} disabled={phoneVerified} />
+                <CountryPhoneInput phone={phoneNumber} onPhoneChange={(val) => { setPhoneNumber(val); clearError("phone"); setPhoneVerified(false); setPhoneSent(false); setCodeError(false); }} onCountryChange={(name) => { setCountry(name); clearError("country"); }} countryName={country} disabled={phoneVerified} placeholderText={t.signin_phoneLabel} />
               </div>
               {phoneVerified && (
                 <div className="flex items-center gap-1.5 text-emerald-600 h-12 px-3 shrink-0">
