@@ -20,8 +20,29 @@ const RegisterVerify = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const submittingRef = useRef(false);
 
   if (!guardPassed) return null;
+
+  const submitCode = async (full: string) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setLoading(true);
+    setError("");
+    const result = await authApi.verifyEmail({ sessionId: "sess_mock", code: full });
+    setLoading(false);
+    submittingRef.current = false;
+
+    if (!result.ok) {
+      setError(getErrorMessage((result as { code: string }).code));
+      toast.error(t.reg_verificationFailed, { description: (result as { message: string }).message });
+      return;
+    }
+
+    setField("emailVerified", true);
+    analytics.track("registration_email_verified", { role: data.role || "unknown" });
+    navigate("/register/details");
+  };
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -30,7 +51,13 @@ const RegisterVerify = () => {
     newCode[index] = value;
     setCode(newCode);
     setError("");
-    if (value && index < 5) document.getElementById(`otp-${index + 1}`)?.focus();
+    if (value && index < 5) {
+      document.getElementById(`otp-${index + 1}`)?.focus();
+    }
+    // Auto-submit when all 6 digits filled
+    if (value && newCode.every(d => d !== "")) {
+      submitCode(newCode.join(""));
+    }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -43,27 +70,17 @@ const RegisterVerify = () => {
     const newCode = [...code];
     pasted.split("").forEach((ch, i) => { if (i < 6) newCode[i] = ch; });
     setCode(newCode);
+    // Auto-submit if pasted full code
+    if (newCode.every(d => d !== "")) {
+      submitCode(newCode.join(""));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const full = code.join("");
     if (full.length < 6) { setError(t.reg_enterFullCode); return; }
-
-    setLoading(true);
-    setError("");
-    const result = await authApi.verifyEmail({ sessionId: "sess_mock", code: full });
-    setLoading(false);
-
-    if (!result.ok) {
-      setError(getErrorMessage((result as { code: string }).code));
-      toast.error(t.reg_verificationFailed, { description: (result as { message: string }).message });
-      return;
-    }
-
-    setField("emailVerified", true);
-    analytics.track("registration_email_verified", { role: data.role || "unknown" });
-    navigate("/register/details");
+    submitCode(full);
   };
 
   const handleResend = () => {
