@@ -77,55 +77,60 @@ const RegisterDetails = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (!phoneNumber || phoneNumber.replace(/[\s\-()]/g, "").length < 5) {
       setErrors((prev) => ({ ...prev, phone: t.reg_enterValidPhone }));
       return;
     }
     setPhoneLoading(true);
     setCodeError(false);
-    setTimeout(() => {
-      setPhoneSent(true);
-      setPhoneLoading(false);
-      toast.success(t.reg_codeSentToast, { description: t.reg_codeSentToastDesc });
-      analytics.track("phone_verification_sent", { phone: phoneNumber });
-    }, 1200);
+    const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "sms" });
+    setPhoneLoading(false);
+    if (!result.ok) {
+      toast.error(t.reg_couldNotContinue, { description: result.message });
+      return;
+    }
+    setPhoneSent(true);
+    toast.success(t.reg_codeSentToast, { description: t.reg_codeSentToastDesc });
+    analytics.track("phone_verification_sent", { phone: phoneNumber });
   };
 
-  const handleWhatsAppVerify = () => {
+  const handleWhatsAppVerify = async () => {
     setPhoneLoading(true);
     analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
-    setTimeout(() => {
-      setPhoneVerified(true);
-      setPhoneLoading(false);
-      setCodeError(false);
-      setErrors((prev) => ({ ...prev, phone: "" }));
-      toast.success(t.reg_phoneVerifiedWhatsApp, { description: t.reg_phoneVerifiedWhatsAppDesc });
-      analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
-    }, 1500);
+    const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "whatsapp" });
+    setPhoneLoading(false);
+    if (!result.ok) {
+      toast.error(t.reg_couldNotContinue, { description: result.message });
+      return;
+    }
+    // Mock: WhatsApp auto-verifies
+    setPhoneVerified(true);
+    setCodeError(false);
+    setErrors((prev) => ({ ...prev, phone: "" }));
+    toast.success(t.reg_phoneVerifiedWhatsApp, { description: t.reg_phoneVerifiedWhatsAppDesc });
+    analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
   };
 
-  const handleVerifyCode = () => {
+  const handleVerifyCode = async () => {
     if (phoneCode.length < 4) {
       setErrors((prev) => ({ ...prev, phone: t.reg_enterCodeFromSms }));
       return;
     }
     setPhoneLoading(true);
     setCodeError(false);
-    setTimeout(() => {
-      if (phoneCode === "0000") {
-        setCodeError(true);
-        setPhoneLoading(false);
-        toast.error(t.reg_invalidCode, { description: t.reg_invalidCodeDesc });
-        return;
-      }
-      setPhoneVerified(true);
-      setPhoneLoading(false);
-      setCodeError(false);
-      setErrors((prev) => ({ ...prev, phone: "" }));
-      toast.success(t.reg_phoneVerified, { description: t.reg_phoneVerifiedDesc });
-      analytics.track("phone_verified", { phone: phoneNumber });
-    }, 800);
+    const result = await authApi.verifyPhone({ sessionId: "sess_mock", phone: phoneNumber, code: phoneCode });
+    setPhoneLoading(false);
+    if (!result.ok) {
+      setCodeError(true);
+      toast.error(t.reg_invalidCode, { description: result.message });
+      return;
+    }
+    setPhoneVerified(true);
+    setCodeError(false);
+    setErrors((prev) => ({ ...prev, phone: "" }));
+    toast.success(t.reg_phoneVerified, { description: t.reg_phoneVerifiedDesc });
+    analytics.track("phone_verified", { phone: phoneNumber });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -280,7 +285,7 @@ const RegisterDetails = () => {
           {submitting ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_saving}</>) : (<>{t.reg_continue} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
-        <TrustMicroText variant="encryption" delay={0.4} className="mt-3" />
+        <TrustMicroText variant="privacy" delay={0.4} className="mt-3" />
       </form>
     </RegistrationLayout>
   );
