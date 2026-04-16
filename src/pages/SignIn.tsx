@@ -78,26 +78,27 @@ const SignIn = () => {
 
               <form onSubmit={method === "email" ? handleEmailSubmit : handlePhoneSubmit} className="mt-6 space-y-4">
                 <div>
-                  {method === "email" ? (
-                    <>
-                      <label className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
-                      <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
-                    </>
-                  ) : (
-                    <>
-                      <label className="text-sm font-medium text-foreground">{t.signin_phoneLabel}</label>
-                      <div className="mt-1"><CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} /></div>
-                    </>
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-foreground">{t.signin_passwordLabel}</label>
-                    {method === "email" && (
-                      <button type="button" onClick={() => { setForgotEmail(email); setView("forgot"); }} className="text-xs font-medium text-primary hover:underline">{t.signin_forgotPassword}</button>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    {method === "email" ? t.signin_emailLabel : t.signin_phoneLabel}
+                  </label>
+                  <div className="h-12">
+                    {method === "email" ? (
+                      <Input className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
+                    ) : (
+                      <CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} />
                     )}
                   </div>
-                  <Input className="mt-1 h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between h-5 mb-1">
+                    <label className="text-sm font-medium text-foreground">{t.signin_passwordLabel}</label>
+                    <button
+                      type="button"
+                      onClick={() => { setForgotEmail(email); setView("forgot"); }}
+                      className={`text-xs font-medium text-primary hover:underline transition-opacity ${method === "email" ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    >{t.signin_forgotPassword}</button>
+                  </div>
+                  <Input className="h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
                 </div>
                 <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
               </form>
