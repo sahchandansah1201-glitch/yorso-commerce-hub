@@ -197,6 +197,7 @@ export default function CountryPhoneInput({
   onCountryChange,
   countryName,
   disabled,
+  placeholderText,
 }: CountryPhoneInputProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
