@@ -87,7 +87,8 @@ const RegisterDetails = () => {
     const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "sms" });
     setPhoneLoading(false);
     if (!result.ok) {
-      toast.error(t.reg_couldNotContinue, { description: result.message });
+      const err = result as import("@/lib/api-contracts").ApiError;
+      toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
     setPhoneSent(true);
@@ -101,7 +102,8 @@ const RegisterDetails = () => {
     const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "whatsapp" });
     setPhoneLoading(false);
     if (!result.ok) {
-      toast.error(t.reg_couldNotContinue, { description: result.message });
+      const err = result as import("@/lib/api-contracts").ApiError;
+      toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
     // Mock: WhatsApp auto-verifies
@@ -123,7 +125,8 @@ const RegisterDetails = () => {
     setPhoneLoading(false);
     if (!result.ok) {
       setCodeError(true);
-      toast.error(t.reg_invalidCode, { description: result.message });
+      const err = result as import("@/lib/api-contracts").ApiError;
+      toast.error(t.reg_invalidCode, { description: err.message });
       return;
     }
     setPhoneVerified(true);
