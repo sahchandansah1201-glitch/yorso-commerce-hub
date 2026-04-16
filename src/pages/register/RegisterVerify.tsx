@@ -121,7 +121,7 @@ const RegisterVerify = () => {
               type="button"
               onClick={() => {
                 setField("emailVerified", true);
-                analytics.track("registration_email_verified_dev_skip", { role: data.role || "unknown" });
+                analytics.track("registration_email_verified", { role: data.role || "unknown" });
                 navigate("/register/details");
               }}
               className="block mx-auto text-xs text-muted-foreground/50 hover:text-muted-foreground underline"
