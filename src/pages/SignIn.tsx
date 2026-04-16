@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { detectCountry, detectCountryByIP } from "@/lib/detectCountry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, ArrowRight, Mail, Phone } from "lucide-react";
@@ -21,7 +22,16 @@ const SignIn = () => {
   const [emailPassword, setEmailPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phonePassword, setPhonePassword] = useState("");
-  const [phoneCountry, setPhoneCountry] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState(() => detectCountry());
+
+  // Enhance with IP-based detection if timezone/language didn't match
+  useEffect(() => {
+    if (!phoneCountry) {
+      detectCountryByIP().then((c) => {
+        if (c) setPhoneCountry(c);
+      });
+    }
+  }, []);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
