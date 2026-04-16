@@ -59,9 +59,9 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
           </div>
           <Link
             to="/signin"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-right shrink-0"
           >
-            {t.reg_alreadyHaveAccount} <span className="text-primary">{t.reg_signIn}</span>
+            <span className="hidden sm:inline">{t.reg_alreadyHaveAccount} </span><span className="text-primary">{t.reg_signIn}</span>
           </Link>
         </div>
         {!hideProgress && currentIndex >= 0 && (
