@@ -23,7 +23,6 @@ const SignIn = () => {
   const [phonePassword, setPhonePassword] = useState("");
   const [phoneCountry, setPhoneCountry] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
-  const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
   const handleEmailSubmit = (e: React.FormEvent) => {
@@ -41,13 +40,6 @@ const SignIn = () => {
     analytics.track("signin_phone", { phone: phoneNumber });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate("/offers");
-  };
-
-  const handleWhatsAppLogin = () => {
-    if (!whatsAppPhone || whatsAppPhone.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; }
-    analytics.track("signin_whatsapp", { phone: whatsAppPhone });
-    toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp });
-    setTimeout(() => navigate("/offers"), 1500);
   };
 
   const handleForgotSubmit = (e: React.FormEvent) => {
