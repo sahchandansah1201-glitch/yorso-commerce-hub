@@ -22,8 +22,6 @@ const SignIn = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phonePassword, setPhonePassword] = useState("");
   const [phoneCountry, setPhoneCountry] = useState("");
-  const [showWhatsApp, setShowWhatsApp] = useState(false);
-  const [whatsAppPhone, setWhatsAppPhone] = useState("");
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
@@ -42,13 +40,6 @@ const SignIn = () => {
     analytics.track("signin_phone", { phone: phoneNumber });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate("/offers");
-  };
-
-  const handleWhatsAppLogin = () => {
-    if (!whatsAppPhone || whatsAppPhone.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; }
-    analytics.track("signin_whatsapp", { phone: whatsAppPhone });
-    toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp });
-    setTimeout(() => navigate("/offers"), 1500);
   };
 
   const handleForgotSubmit = (e: React.FormEvent) => {
@@ -116,22 +107,17 @@ const SignIn = () => {
                 </form>
               )}
 
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
-              </div>
+              {method === "phone" && (
+                <>
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
+                  </div>
 
-              {!showWhatsApp ? (
-                <Button type="button" variant="outline" onClick={() => setShowWhatsApp(true)} className="w-full h-12 gap-2 font-semibold border-emerald-300 hover:border-emerald-400 hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-xl">
-                  <WhatsAppIcon className="h-5 w-5" /> {t.signin_viaWhatsApp}
-                </Button>
-              ) : (
-                <div className="space-y-3">
-                  <Input type="tel" value={whatsAppPhone} onChange={(e) => setWhatsAppPhone(e.target.value)} placeholder="+1 555 123-4567" className="h-12 text-base rounded-xl" autoFocus />
-                  <Button type="button" onClick={handleWhatsAppLogin} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate("/offers"), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                     <WhatsAppIcon className="h-5 w-5" /> {t.signin_getCodeWhatsApp}
                   </Button>
-                </div>
+                </>
               )}
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
