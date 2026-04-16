@@ -314,7 +314,7 @@ type TranslationKeys = {
   trustMicro_verified: string;
   trustMicro_global: string;
   trustMicro_growth: string;
-  trustMicro_encryption: string;
+  trustMicro_privacy: string;
 
   // ─── Shared: SocialProofBanner ─────────────────────────────────
   socialBanner_professionals: string;
@@ -670,7 +670,7 @@ const en: TranslationKeys = {
   trustMicro_verified: "2,400+ suppliers verified through document and reference checks",
   trustMicro_global: "Active deals in 48 countries — zero commission",
   trustMicro_growth: "300+ new members joined this week",
-  trustMicro_encryption: "We follow industry-standard privacy practices · GDPR-aligned",
+  trustMicro_privacy: "We follow industry-standard privacy practices · GDPR-aligned",
 
   // SocialProofBanner
   socialBanner_professionals: "12,000+ seafood professionals onboard",
@@ -1013,7 +1013,7 @@ const ru: TranslationKeys = {
   trustMicro_verified: "2,400+ поставщиков проверены через документы и рекомендации",
   trustMicro_global: "Сделки в 48 странах — без комиссии",
   trustMicro_growth: "300+ новых участников на этой неделе",
-  trustMicro_encryption: "Мы следуем стандартным практикам конфиденциальности · Соответствие GDPR",
+  trustMicro_privacy: "Мы следуем стандартным практикам конфиденциальности · Соответствие GDPR",
 
   // SocialProofBanner
   socialBanner_professionals: "12,000+ специалистов по морепродуктам",
@@ -1356,7 +1356,7 @@ const es: TranslationKeys = {
   trustMicro_verified: "2,400+ proveedores verificados por documentos y referencias",
   trustMicro_global: "Operaciones en 48 países — sin comisión",
   trustMicro_growth: "300+ nuevos miembros esta semana",
-  trustMicro_encryption: "Seguimos prácticas estándar de privacidad · Alineados con GDPR",
+  trustMicro_privacy: "Seguimos prácticas estándar de privacidad · Alineados con GDPR",
 
   // SocialProofBanner
   socialBanner_professionals: "12,000+ profesionales de mariscos a bordo",
