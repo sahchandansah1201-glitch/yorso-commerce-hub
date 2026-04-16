@@ -188,6 +188,7 @@ interface CountryPhoneInputProps {
   onCountryChange?: (countryName: string) => void;
   countryName?: string;
   disabled?: boolean;
+  placeholderText?: string;
 }
 
 export default function CountryPhoneInput({
@@ -196,6 +197,7 @@ export default function CountryPhoneInput({
   onCountryChange,
   countryName,
   disabled,
+  placeholderText,
 }: CountryPhoneInputProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -232,7 +234,8 @@ export default function CountryPhoneInput({
 
   const currentCode = selected?.code || "";
   const mask = getMask(currentCode);
-  const placeholder = getPlaceholder(currentCode);
+  const placeholderFallback = placeholderText || "Phone number";
+  const placeholder = mask ? mask.replace(/#/g, "0") : placeholderFallback;
   const maxDigits = getMaxDigits(currentCode);
 
   const handlePhoneInput = useCallback((rawValue: string) => {

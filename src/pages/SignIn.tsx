@@ -85,7 +85,7 @@ const SignIn = () => {
                     {method === "email" ? (
                       <Input className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
                     ) : (
-                      <CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} />
+                      <CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} placeholderText={t.signin_phoneLabel} />
                     )}
                   </div>
                 </div>
