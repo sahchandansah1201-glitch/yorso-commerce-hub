@@ -112,10 +112,23 @@ const RegisterVerify = () => {
           {loading ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_verifying}</>) : (<>{t.reg_verifyAndContinue} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
-        <div className="text-center">
+        <div className="text-center space-y-2">
           <button type="button" onClick={handleResend} className="text-sm text-primary hover:underline font-medium" disabled={loading}>
             {t.reg_didntReceive}
           </button>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={() => {
+                setField("emailVerified", true);
+                analytics.track("registration_email_verified_dev_skip", { role: data.role || "unknown" });
+                navigate("/register/details");
+              }}
+              className="block mx-auto text-xs text-muted-foreground/50 hover:text-muted-foreground underline"
+            >
+              Skip verification (Dev)
+            </button>
+          )}
         </div>
       </form>
 
