@@ -188,6 +188,7 @@ interface CountryPhoneInputProps {
   onCountryChange?: (countryName: string) => void;
   countryName?: string;
   disabled?: boolean;
+  placeholderText?: string;
 }
 
 export default function CountryPhoneInput({
