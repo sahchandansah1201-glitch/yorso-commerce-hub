@@ -233,8 +233,8 @@ export default function CountryPhoneInput({
   );
 
   const currentCode = selected?.code || "";
-  const mask = getMask(currentCode);
-  const placeholder = getPlaceholder(currentCode);
+  const placeholderFallback = placeholderText || "Phone number";
+  const placeholder = getMask(currentCode) ? getMask(currentCode)!.replace(/#/g, "0") : placeholderFallback;
   const maxDigits = getMaxDigits(currentCode);
 
   const handlePhoneInput = useCallback((rawValue: string) => {
