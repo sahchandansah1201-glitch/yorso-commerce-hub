@@ -58,7 +58,7 @@ const SignIn = () => {
         </div>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <main className="flex flex-1 items-start justify-center px-4 py-12 md:pt-24">
         <div className="w-full max-w-md">
           {view === "login" ? (
             <>
