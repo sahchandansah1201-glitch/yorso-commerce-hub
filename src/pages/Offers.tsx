@@ -47,7 +47,7 @@ const Offers = () => {
         <div className="mt-4 flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button key={cat.name} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground">
-              {cat.icon} {cat.name} ({cat.count})
+              {cat.icon} {(t.cat_names as Record<string, string>)[cat.name] || cat.name} ({cat.count})
             </button>
           ))}
         </div>
