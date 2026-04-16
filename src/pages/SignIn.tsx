@@ -76,36 +76,31 @@ const SignIn = () => {
                 </button>
               </div>
 
-              {method === "email" && (
-                <form onSubmit={handleEmailSubmit} className="mt-6 space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
-                    <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-foreground">{t.signin_passwordLabel}</label>
-                      <button type="button" onClick={() => { setForgotEmail(email); setView("forgot"); }} className="text-xs font-medium text-primary hover:underline">{t.signin_forgotPassword}</button>
-                    </div>
-                    <Input className="mt-1 h-12 text-base rounded-xl" type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
-                  </div>
-                  <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
-                </form>
-              )}
-
-              {method === "phone" && (
-                <form onSubmit={handlePhoneSubmit} className="mt-6 space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">{t.signin_phoneLabel}</label>
-                    <div className="mt-1"><CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} /></div>
-                  </div>
-                  <div>
+              <form onSubmit={method === "email" ? handleEmailSubmit : handlePhoneSubmit} className="mt-6 space-y-4">
+                <div>
+                  {method === "email" ? (
+                    <>
+                      <label className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
+                      <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
+                    </>
+                  ) : (
+                    <>
+                      <label className="text-sm font-medium text-foreground">{t.signin_phoneLabel}</label>
+                      <div className="mt-1"><CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} /></div>
+                    </>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-foreground">{t.signin_passwordLabel}</label>
-                    <Input className="mt-1 h-12 text-base rounded-xl" type="password" value={phonePassword} onChange={(e) => setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
+                    {method === "email" && (
+                      <button type="button" onClick={() => { setForgotEmail(email); setView("forgot"); }} className="text-xs font-medium text-primary hover:underline">{t.signin_forgotPassword}</button>
+                    )}
                   </div>
-                  <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
-                </form>
-              )}
+                  <Input className="mt-1 h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
+                </div>
+                <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
+              </form>
 
               {method === "phone" && (
                 <>
@@ -113,7 +108,6 @@ const SignIn = () => {
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
                     <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
                   </div>
-
                   <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate("/offers"), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                     <WhatsAppIcon className="h-5 w-5" /> {t.signin_getCodeWhatsApp}
                   </Button>
