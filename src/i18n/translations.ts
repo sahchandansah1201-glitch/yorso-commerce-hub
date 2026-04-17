@@ -66,6 +66,18 @@ type TranslationKeys = {
   offer_locked_supplierCta: string;
   offer_locked_helper: string;
 
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: string;
+  trust_verifiedTitle: string;
+  trust_verifiedDescVerified: string;
+  trust_verifiedDescPending: string;
+  trust_complianceTitle: string;
+  trust_complianceDesc: string;
+  trust_traceabilityTitle: string;
+  trust_traceabilityDesc: string;
+  trust_directTitle: string;
+  trust_directDesc: string;
+
   // Live Offers extras
   offers_microMarker: string;
   offers_registerHintBefore: string;
