@@ -405,6 +405,18 @@ const en: TranslationKeys = {
   offer_locked_supplierCta: "Register to request supplier profile",
   offer_locked_helper: "Exact price, supplier identity and MOQ are shared after access is granted.",
 
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: "Why this offer is safe",
+  trust_verifiedTitle: "Verified Supplier",
+  trust_verifiedDescVerified: "This supplier passed YORSO's multi-step verification. Business license, certifications and trade references reviewed.",
+  trust_verifiedDescPending: "This supplier has submitted basic documentation. Full verification including facility audit and trade references is in progress.",
+  trust_complianceTitle: "Export & Compliance",
+  trust_complianceDesc: "Ships from {region}. Supplier holds {certifications} certification{plural}. Cold-chain documentation and health certificates available.",
+  trust_traceabilityTitle: "Traceability",
+  trust_traceabilityDesc: "Product origin ({origin}), fishing area ({area}) and catching method ({method}) are documented.",
+  trust_directTitle: "Direct Supplier Relationship",
+  trust_directDesc: "After access is granted, you communicate directly with the supplier ({region}). No intermediaries, no commission.",
+
   // Live Offers extras
   offers_microMarker: "Real supplier photos · Updated continuously",
   offers_registerHintBefore: "Register to message suppliers and see full contact details.",
