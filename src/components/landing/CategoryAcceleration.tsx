@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import { categories } from "@/data/mockOffers";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 
 const CategoryAcceleration = () => {
   const { t } = useLanguage();
@@ -15,8 +17,10 @@ const CategoryAcceleration = () => {
 
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
           {categories.map((cat) => (
-            <button
+            <Link
               key={cat.name}
+              to="/offers"
+              onClick={() => analytics.track("home_category_click", { category: cat.name })}
               className="group flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-primary/40 hover:shadow-sm"
             >
               <span className="text-2xl">{cat.icon}</span>
@@ -25,7 +29,7 @@ const CategoryAcceleration = () => {
                 <p className="text-xs text-muted-foreground">{cat.count} {t.cat_offers}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-            </button>
+            </Link>
           ))}
         </div>
       </div>

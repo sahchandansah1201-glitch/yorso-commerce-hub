@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Snowflake, Leaf, Thermometer } from "lucide-react";
+import { Clock, MapPin, Snowflake, Leaf, Thermometer, ShieldCheck } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -66,11 +66,27 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </div>
         </div>
 
+        {/* Supplier identity row */}
+        <div className="mt-2 flex items-start gap-1.5 text-xs min-h-[2rem]">
+          <span className="text-muted-foreground shrink-0">{t.card_supplierLabel}:</span>
+          <span className="font-medium text-foreground line-clamp-2 leading-snug">
+            {offer.supplierName}
+          </span>
+          {offer.isVerified && (
+            <ShieldCheck
+              className="h-3.5 w-3.5 shrink-0 text-success mt-0.5"
+              aria-label={t.card_verified}
+            />
+          )}
+        </div>
 
         <div className="mt-auto pt-3">
-          <div className="flex items-center gap-2">
-            <span className="font-heading text-base font-bold text-foreground">{offer.priceRange}</span>
-            <span className="text-xs text-muted-foreground">{t.card_perKg}</span>
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="flex items-baseline gap-2">
+              <span className="font-heading text-base font-bold text-foreground">{offer.priceRange}</span>
+              <span className="text-xs text-muted-foreground">{t.card_perKg}</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground shrink-0">{offer.moq}</span>
           </div>
         </div>
 
