@@ -378,6 +378,12 @@ const en: TranslationKeys = {
   card_chilled: "Chilled",
   card_updatedAgo: "Updated {time} ago",
   card_listedToday: "Listed today",
+  card_supplierLabel: "Supplier",
+
+  // Live Offers extras
+  offers_microMarker: "Real supplier photos · Updated continuously",
+  offers_registerHintBefore: "Register to message suppliers and see full contact details.",
+  offers_registerHintLink: "Register",
 
   // Trust Strip
   trust_liveOffers: "Live Offers",
@@ -392,6 +398,7 @@ const en: TranslationKeys = {
   trust_zeroCommission: "0% commission — your margins stay yours",
   trust_directContacts: "Direct contacts — always open, never gated",
   trust_verificationEarned: "Verification earned, not bought",
+  trust_differentiatorIntro: "What makes YORSO different",
 
   // Value Split
   value_title: "Built for Both Sides of the Trade",
@@ -730,6 +737,11 @@ const ru: TranslationKeys = {
   card_chilled: "Охлажд.",
   card_updatedAgo: "Обновлено {time} назад",
   card_listedToday: "Добавлено сегодня",
+  card_supplierLabel: "Поставщик",
+
+  offers_microMarker: "Реальные фото поставщиков · Обновляется постоянно",
+  offers_registerHintBefore: "Зарегистрируйтесь, чтобы написать поставщикам и увидеть полные контакты.",
+  offers_registerHintLink: "Регистрация",
 
   trust_liveOffers: "Предложений",
   trust_verifiedSuppliers: "Проверенных поставщиков",
@@ -743,6 +755,7 @@ const ru: TranslationKeys = {
   trust_zeroCommission: "0% комиссии — ваша маржа остаётся вашей",
   trust_directContacts: "Прямые контакты — всегда открыты, без ограничений",
   trust_verificationEarned: "Верификация заслужена, а не куплена",
+  trust_differentiatorIntro: "Чем YORSO отличается",
 
   value_title: "Создано для обеих сторон торговли",
   value_subtitle: "Закупаете ли вы морепродукты или продаёте — YORSO даёт инструменты для уверенной торговли.",
@@ -1073,6 +1086,11 @@ const es: TranslationKeys = {
   card_chilled: "Refrigerado",
   card_updatedAgo: "Actualizado hace {time}",
   card_listedToday: "Publicado hoy",
+  card_supplierLabel: "Proveedor",
+
+  offers_microMarker: "Fotos reales de proveedores · Actualizado continuamente",
+  offers_registerHintBefore: "Regístrese para contactar proveedores y ver datos completos.",
+  offers_registerHintLink: "Registrarse",
 
   trust_liveOffers: "Ofertas activas",
   trust_verifiedSuppliers: "Proveedores verificados",
@@ -1086,6 +1104,7 @@ const es: TranslationKeys = {
   trust_zeroCommission: "0% comisión — sus márgenes son suyos",
   trust_directContacts: "Contactos directos — siempre abiertos, sin restricciones",
   trust_verificationEarned: "Verificación ganada, no comprada",
+  trust_differentiatorIntro: "Qué hace diferente a YORSO",
 
   value_title: "Diseñado para ambos lados del comercio",
   value_subtitle: "Ya sea que compre o venda mariscos, YORSO le da las herramientas para comerciar con confianza.",
