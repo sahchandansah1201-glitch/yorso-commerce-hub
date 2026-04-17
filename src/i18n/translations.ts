@@ -53,6 +53,15 @@ type TranslationKeys = {
   card_chilled: string;
   card_updatedAgo: string;
   card_listedToday: string;
+  card_supplierLabel: string;
+
+  // Live Offers extras
+  offers_microMarker: string;
+  offers_registerHintBefore: string;
+  offers_registerHintLink: string;
+
+  // Trust Strip extras
+  trust_differentiatorIntro: string;
 
   // Trust Strip
   trust_liveOffers: string;
@@ -112,7 +121,9 @@ type TranslationKeys = {
     company: string;
     country: string;
     painTag: string;
+    verifiedBuyer?: boolean;
   }[];
+  social_verifiedBuyer: string;
 
   // FAQ
   faq_title: string;
