@@ -54,6 +54,17 @@ type TranslationKeys = {
   card_updatedAgo: string;
   card_listedToday: string;
   card_supplierLabel: string;
+  card_supplierAnonymous: string;
+  card_supplierAnonymousVerified: string;
+  card_priceOnRequest: string;
+  card_availability_container: string;
+  card_availability_pallet: string;
+  card_availability_limited: string;
+  offer_locked_priceTitle: string;
+  offer_locked_priceCta: string;
+  offer_locked_supplierTitle: string;
+  offer_locked_supplierCta: string;
+  offer_locked_helper: string;
 
   // Live Offers extras
   offers_microMarker: string;
@@ -370,6 +381,17 @@ const en: TranslationKeys = {
   card_updatedAgo: "Updated {time} ago",
   card_listedToday: "Listed today",
   card_supplierLabel: "Supplier",
+  card_supplierAnonymous: "Supplier · {region}",
+  card_supplierAnonymousVerified: "Verified supplier · {region}",
+  card_priceOnRequest: "Price on request",
+  card_availability_container: "Container-scale availability",
+  card_availability_pallet: "Pallet-scale availability",
+  card_availability_limited: "Limited lots available",
+  offer_locked_priceTitle: "Price on request",
+  offer_locked_priceCta: "Register to request price access",
+  offer_locked_supplierTitle: "Supplier identity protected",
+  offer_locked_supplierCta: "Register to request supplier profile",
+  offer_locked_helper: "Exact price, supplier identity and MOQ are shared after access is granted.",
 
   // Live Offers extras
   offers_microMarker: "Real supplier photos · Updated continuously",
@@ -721,6 +743,17 @@ const ru: TranslationKeys = {
   card_updatedAgo: "Обновлено {time} назад",
   card_listedToday: "Добавлено сегодня",
   card_supplierLabel: "Поставщик",
+  card_supplierAnonymous: "Поставщик · {region}",
+  card_supplierAnonymousVerified: "Проверенный поставщик · {region}",
+  card_priceOnRequest: "Цена по запросу",
+  card_availability_container: "Доступны контейнерные объёмы",
+  card_availability_pallet: "Доступны паллетные объёмы",
+  card_availability_limited: "Ограниченные партии",
+  offer_locked_priceTitle: "Цена по запросу",
+  offer_locked_priceCta: "Зарегистрируйтесь, чтобы запросить цену",
+  offer_locked_supplierTitle: "Имя поставщика скрыто",
+  offer_locked_supplierCta: "Зарегистрируйтесь, чтобы запросить профиль поставщика",
+  offer_locked_helper: "Точная цена, имя поставщика и MOQ открываются после согласования доступа.",
 
   offers_microMarker: "Реальные фото поставщиков · Обновляется постоянно",
   offers_registerHintBefore: "Зарегистрируйтесь, чтобы написать поставщикам и увидеть полные контакты.",
@@ -1062,6 +1095,17 @@ const es: TranslationKeys = {
   card_updatedAgo: "Actualizado hace {time}",
   card_listedToday: "Publicado hoy",
   card_supplierLabel: "Proveedor",
+  card_supplierAnonymous: "Proveedor · {region}",
+  card_supplierAnonymousVerified: "Proveedor verificado · {region}",
+  card_priceOnRequest: "Precio bajo solicitud",
+  card_availability_container: "Disponibilidad a escala de contenedor",
+  card_availability_pallet: "Disponibilidad a escala de palet",
+  card_availability_limited: "Lotes limitados disponibles",
+  offer_locked_priceTitle: "Precio bajo solicitud",
+  offer_locked_priceCta: "Regístrese para solicitar acceso al precio",
+  offer_locked_supplierTitle: "Identidad del proveedor protegida",
+  offer_locked_supplierCta: "Regístrese para solicitar el perfil del proveedor",
+  offer_locked_helper: "El precio exacto, la identidad del proveedor y el MOQ se comparten tras conceder el acceso.",
 
   offers_microMarker: "Fotos reales de proveedores · Actualizado continuamente",
   offers_registerHintBefore: "Regístrese para contactar proveedores y ver datos completos.",

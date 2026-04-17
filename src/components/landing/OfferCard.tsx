@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Snowflake, Leaf, Thermometer, ShieldCheck } from "lucide-react";
+import { Clock, MapPin, Snowflake, Leaf, Thermometer, ShieldCheck, Lock } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { getAvailabilityTier, getSupplierRegion } from "@/lib/visibility";
 
 interface OfferCardProps {
   offer: SeafoodOffer;
@@ -66,27 +67,38 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           </div>
         </div>
 
-        {/* Supplier identity row */}
-        <div className="mt-2 flex items-start gap-1.5 text-xs min-h-[2rem]">
-          <span className="text-muted-foreground shrink-0">{t.card_supplierLabel}:</span>
-          <span className="font-medium text-foreground line-clamp-2 leading-snug">
-            {offer.supplierName}
-          </span>
+        {/* Anonymous supplier trust row — no name, region only */}
+        <div className="mt-2 flex items-center gap-1.5 text-xs min-h-[2rem]">
           {offer.isVerified && (
             <ShieldCheck
-              className="h-3.5 w-3.5 shrink-0 text-success mt-0.5"
+              className="h-3.5 w-3.5 shrink-0 text-success"
               aria-label={t.card_verified}
             />
           )}
+          <span className="font-medium text-foreground line-clamp-2 leading-snug">
+            {(offer.isVerified ? t.card_supplierAnonymousVerified : t.card_supplierAnonymous).replace(
+              "{region}",
+              getSupplierRegion(offer.supplier?.country)
+            )}
+          </span>
         </div>
 
         <div className="mt-auto pt-3">
           <div className="flex items-baseline justify-between gap-2">
-            <div className="flex items-baseline gap-2">
-              <span className="font-heading text-base font-bold text-foreground">{offer.priceRange}</span>
-              <span className="text-xs text-muted-foreground">{t.card_perKg}</span>
+            <div className="flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-heading text-sm font-semibold text-foreground">
+                {t.card_priceOnRequest}
+              </span>
             </div>
-            <span className="text-[11px] text-muted-foreground shrink-0">{offer.moq}</span>
+            <span className="text-[11px] text-muted-foreground shrink-0">
+              {(() => {
+                const tier = getAvailabilityTier(offer);
+                if (tier === "container") return t.card_availability_container;
+                if (tier === "limited") return t.card_availability_limited;
+                return t.card_availability_pallet;
+              })()}
+            </span>
           </div>
         </div>
 
