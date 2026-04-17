@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight, ShieldCheck, ShieldAlert, Building2, Timer, BadgeCheck,
-  Bookmark, GitCompareArrows, Info,
+  ArrowRight, ShieldCheck, ShieldAlert, Building2, BadgeCheck,
+  Bookmark, GitCompareArrows, Lock,
 } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
-import { useState } from "react";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { getSupplierRegion } from "@/lib/visibility";
 
 const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
@@ -19,32 +20,37 @@ const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string
 );
 
 const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
+  const { t } = useLanguage();
   const s = offer.supplier;
   const yearsInBusiness = new Date().getFullYear() - s.inBusinessSince;
-  const [showScope, setShowScope] = useState(false);
+  const region = getSupplierRegion(s.country);
+  const anonymousLabel = (s.isVerified ? t.card_supplierAnonymousVerified : t.card_supplierAnonymous)
+    .replace("{region}", region);
 
   return (
     <div className="space-y-4">
-      {/* Supplier card */}
+      {/* Anonymous supplier trust card */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-heading font-bold text-foreground">
-            {s.name.charAt(0)}
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+            <Lock className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-heading font-semibold text-foreground truncate">{s.name}</span>
+              <span className="font-heading font-semibold text-foreground truncate">
+                {anonymousLabel}
+              </span>
               {s.isVerified ? (
                 <ShieldCheck className="h-4 w-4 shrink-0 text-success" />
               ) : (
                 <ShieldAlert className="h-4 w-4 shrink-0 text-orange-500" />
               )}
             </div>
-            <p className="text-xs text-muted-foreground">{s.countryFlag} {s.country}</p>
+            <p className="text-xs text-muted-foreground">{t.offer_locked_supplierTitle}</p>
           </div>
         </div>
 
-        {/* Verification status */}
+        {/* Verification status — anonymous */}
         <div className={`rounded-lg p-3 text-xs leading-relaxed ${
           s.isVerified
             ? "bg-success/5 border border-success/20 text-foreground"
@@ -54,34 +60,22 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
             <>
               <p className="font-semibold text-success mb-1">✓ Verified Supplier</p>
               <p className="text-muted-foreground">
-                Verified {s.verificationDate}. Business license, certifications, and trade references reviewed by YORSO.
+                Business license, certifications, and trade references reviewed by YORSO.
               </p>
             </>
           ) : (
             <>
               <p className="font-semibold text-orange-600 dark:text-orange-400 mb-1">⏳ Pending Full Verification</p>
               <p className="text-muted-foreground">
-                Basic documents reviewed. Full verification in progress. Exercise due diligence for large orders.
+                Basic documents reviewed. Full verification in progress.
               </p>
             </>
-          )}
-          {s.verificationScope && (
-            <button
-              onClick={() => setShowScope(!showScope)}
-              className="mt-1.5 inline-flex items-center gap-1 text-primary hover:underline"
-            >
-              <Info className="h-3 w-3" />
-              {showScope ? "Hide details" : "What was reviewed?"}
-            </button>
-          )}
-          {showScope && s.verificationScope && (
-            <p className="mt-2 text-muted-foreground border-t border-border/50 pt-2">{s.verificationScope}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <MiniStat icon={<Building2 className="h-3.5 w-3.5" />} label="In business" value={`${yearsInBusiness} years`} />
-          <MiniStat icon={<Timer className="h-3.5 w-3.5" />} label="Response" value={s.responseTime} />
+          <MiniStat icon={<Building2 className="h-3.5 w-3.5" />} label="In business" value={`${yearsInBusiness}+ years`} />
+          <MiniStat icon={<BadgeCheck className="h-3.5 w-3.5" />} label="Certifications" value={`${s.certifications.length} active`} />
         </div>
 
         {s.certifications.length > 0 && (
@@ -94,35 +88,26 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
             </div>
           </div>
         )}
-
-        {s.documentsReviewed.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">Reviewed documents</p>
-            <ul className="space-y-1">
-              {s.documentsReviewed.map((d) => (
-                <li key={d} className="flex items-center gap-1.5 text-xs text-foreground">
-                  <BadgeCheck className="h-3 w-3 text-success shrink-0" /> {d}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <Button variant="outline" size="sm" className="w-full text-xs">
-          View Supplier Profile
-        </Button>
       </div>
 
-      {/* CTA stack */}
+      {/* CTA stack — register to unlock */}
       <div className="space-y-2.5">
-        <Link to="/register" className="block">
-          <Button className="w-full gap-2 font-semibold" size="lg"
-            onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id })}>
-            Register to Contact Supplier <ArrowRight className="h-4 w-4" />
+        <Link
+          to="/register"
+          className="block"
+          onClick={() =>
+            analytics.track("register_to_unlock_click", {
+              surface: "supplier_panel",
+              offerId: offer.id,
+            })
+          }
+        >
+          <Button className="w-full gap-2 font-semibold" size="lg">
+            {t.offer_locked_supplierCta} <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
         <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
-          Registration unlocks direct messaging, quote requests, sample orders, and full supplier contact details. Free forever.
+          {t.offer_locked_helper}
         </p>
         <Button variant="outline" className="w-full gap-2" size="sm">
           <Bookmark className="h-4 w-4" /> Save to Shortlist

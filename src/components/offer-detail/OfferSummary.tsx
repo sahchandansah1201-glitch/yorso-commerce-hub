@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  Clock, Snowflake, Leaf, Thermometer, Package, MapPin, Globe, Scale,
-  FileText, Truck, Anchor as AnchorIcon,
+  Clock, Snowflake, Leaf, Thermometer, Package, MapPin, Scale, Lock, ArrowRight,
 } from "lucide-react";
-import type { SeafoodOffer, DeliveryBasisOption } from "@/data/mockOffers";
+import type { SeafoodOffer } from "@/data/mockOffers";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { getAvailabilityTier } from "@/lib/visibility";
+import analytics from "@/lib/analytics";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
@@ -35,10 +38,18 @@ interface Props {
 }
 
 const OfferSummary = ({ offer }: Props) => {
+  const { t } = useLanguage();
   const FormatIcon = formatIcon[offer.format];
-  const bases = offer.deliveryBasisOptions;
-  const defaultBasis = bases.find((b) => b.isDefault) || bases[0];
-  const [selectedBasis, setSelectedBasis] = useState<DeliveryBasisOption>(defaultBasis);
+  const tier = getAvailabilityTier(offer);
+  const availabilityLabel =
+    tier === "container"
+      ? t.card_availability_container
+      : tier === "limited"
+      ? t.card_availability_limited
+      : t.card_availability_pallet;
+
+  // Incoterm codes only — no port, no exact price, no lead time
+  const incotermCodes = Array.from(new Set(offer.deliveryBasisOptions.map((b) => b.code)));
 
   return (
     <div className="space-y-5">
@@ -57,86 +68,62 @@ const OfferSummary = ({ offer }: Props) => {
         <p className="mt-1 text-sm italic text-muted-foreground">{offer.latinName}</p>
       </div>
 
-      {/* Product specs grid */}
+      {/* Public product specs — no commercial intelligence */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Cut type" value={offer.cutType} />
         <SpecRow icon={<MapPin className="h-3.5 w-3.5" />} label="Origin" value={`${offer.originFlag} ${offer.origin}`} />
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Packaging" value={offer.packaging} />
-        <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Volume capacity" value={offer.commercial.availableVolume} />
+        <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Availability" value={availabilityLabel} />
       </div>
 
-      {/* Commercial Terms Card */}
-      <div className="rounded-xl border border-border bg-card">
-        <div className="border-b border-border px-4 py-3">
-          <h2 className="font-heading text-sm font-semibold text-foreground">Commercial Terms</h2>
+      {/* Locked Commercial Terms — guest view */}
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="border-b border-border px-4 py-3 flex items-center gap-2">
+          <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+          <h2 className="font-heading text-sm font-semibold text-foreground">
+            {t.offer_locked_priceTitle}
+          </h2>
         </div>
         <div className="p-4 space-y-4">
-          {/* Delivery basis selector */}
-          {bases.length > 1 && (
+          {/* Incoterm codes only — no ports, no exact prices */}
+          {incotermCodes.length > 0 && (
             <div>
-              <p className="text-[11px] font-medium text-muted-foreground mb-2">Delivery Basis</p>
+              <p className="text-[11px] font-medium text-muted-foreground mb-2">Incoterms supported</p>
               <div className="flex flex-wrap gap-1.5">
-                {bases.map((b) => (
-                  <button
-                    key={b.code + b.shipmentPort}
-                    onClick={() => setSelectedBasis(b)}
-                    className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                      selectedBasis.code === b.code && selectedBasis.shipmentPort === b.shipmentPort
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
-                    }`}
+                {incotermCodes.map((code) => (
+                  <span
+                    key={code}
+                    className="rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground"
                   >
-                    <span className="font-semibold">{b.code}</span>
-                    <span className="ml-1 text-[11px] opacity-70">{b.shipmentPort.split(",")[0]}</span>
-                  </button>
+                    {code}
+                  </span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Price */}
-          <div>
-            <p className="text-[11px] font-medium text-muted-foreground mb-1">Price ({selectedBasis.code})</p>
-            <div className="flex items-baseline gap-2">
-              <span className="font-heading text-2xl font-bold text-foreground">{selectedBasis.priceRange}</span>
-              <span className="text-sm text-muted-foreground">{selectedBasis.priceUnit}</span>
-            </div>
-            {selectedBasis.note && (
-              <p className="mt-1 text-xs text-muted-foreground">{selectedBasis.note}</p>
-            )}
-          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t.offer_locked_helper}
+          </p>
 
-          {/* Terms grid */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            <SpecRow icon={<AnchorIcon className="h-3.5 w-3.5" />} label="Shipment port" value={selectedBasis.shipmentPort} />
-            <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="MOQ" value={offer.moq.replace("MOQ: ", "")} />
-            <SpecRow icon={<FileText className="h-3.5 w-3.5" />} label="Payment" value={offer.commercial.paymentTerms} />
-            <SpecRow icon={<Truck className="h-3.5 w-3.5" />} label="Lead time" value={selectedBasis.leadTime} />
-            <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Incoterm" value={selectedBasis.code} />
-          </div>
-
-          {/* Volume breaks */}
-          {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
-            <div>
-              <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Volume pricing</p>
-              <div className="rounded-lg border border-border overflow-hidden">
-                <table className="w-full text-xs">
-                  <tbody>
-                    {offer.volumeBreaks.map((vb, i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                        <td className="px-3 py-1.5 text-muted-foreground">{vb.minQty}</td>
-                        <td className="px-3 py-1.5 font-semibold text-foreground text-right">{vb.priceRange}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          <Link
+            to="/register"
+            className="block"
+            onClick={() =>
+              analytics.track("register_to_unlock_click", {
+                surface: "detail",
+                offerId: offer.id,
+              })
+            }
+          >
+            <Button className="w-full gap-2 font-semibold" size="lg">
+              {t.offer_locked_priceCta} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Availability indicators */}
+      {/* Public availability indicators — non-commercial */}
       <div className="flex flex-wrap gap-3 text-xs">
         {offer.sampleAvailable && (
           <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-success">
