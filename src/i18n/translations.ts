@@ -66,6 +66,18 @@ type TranslationKeys = {
   offer_locked_supplierCta: string;
   offer_locked_helper: string;
 
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: string;
+  trust_verifiedTitle: string;
+  trust_verifiedDescVerified: string;
+  trust_verifiedDescPending: string;
+  trust_complianceTitle: string;
+  trust_complianceDesc: string;
+  trust_traceabilityTitle: string;
+  trust_traceabilityDesc: string;
+  trust_directTitle: string;
+  trust_directDesc: string;
+
   // Live Offers extras
   offers_microMarker: string;
   offers_registerHintBefore: string;
@@ -392,6 +404,18 @@ const en: TranslationKeys = {
   offer_locked_supplierTitle: "Supplier identity protected",
   offer_locked_supplierCta: "Register to request supplier profile",
   offer_locked_helper: "Exact price, supplier identity and MOQ are shared after access is granted.",
+
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: "Why this offer is safe",
+  trust_verifiedTitle: "Verified Supplier",
+  trust_verifiedDescVerified: "This supplier passed YORSO's multi-step verification. Business license, certifications and trade references reviewed.",
+  trust_verifiedDescPending: "This supplier has submitted basic documentation. Full verification including facility audit and trade references is in progress.",
+  trust_complianceTitle: "Export & Compliance",
+  trust_complianceDesc: "Ships from {region}. Supplier holds {certifications} certification{plural}. Cold-chain documentation and health certificates available.",
+  trust_traceabilityTitle: "Traceability",
+  trust_traceabilityDesc: "Product origin ({origin}), fishing area ({area}) and catching method ({method}) are documented.",
+  trust_directTitle: "Direct Supplier Relationship",
+  trust_directDesc: "After access is granted, you communicate directly with the supplier ({region}). No intermediaries, no commission.",
 
   // Live Offers extras
   offers_microMarker: "Real supplier photos · Updated continuously",
@@ -755,6 +779,18 @@ const ru: TranslationKeys = {
   offer_locked_supplierCta: "Зарегистрируйтесь, чтобы запросить профиль поставщика",
   offer_locked_helper: "Точная цена, имя поставщика и MOQ открываются после согласования доступа.",
 
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: "Почему этот оффер безопасен",
+  trust_verifiedTitle: "Проверенный поставщик",
+  trust_verifiedDescVerified: "Поставщик прошёл многоступенчатую верификацию YORSO. Проверены лицензия, сертификаты и торговые рекомендации.",
+  trust_verifiedDescPending: "Поставщик предоставил базовые документы. Полная верификация, включая аудит производства и торговые рекомендации, в процессе.",
+  trust_complianceTitle: "Экспорт и комплаенс",
+  trust_complianceDesc: "Отгрузка из региона {region}. Поставщик имеет сертификации: {certifications}. Документы холодовой цепи и ветеринарные сертификаты доступны.",
+  trust_traceabilityTitle: "Прослеживаемость",
+  trust_traceabilityDesc: "Документировано: происхождение продукта ({origin}), район промысла ({area}), способ добычи ({method}).",
+  trust_directTitle: "Прямое сотрудничество с поставщиком",
+  trust_directDesc: "После согласования доступа вы общаетесь с поставщиком напрямую ({region}). Без посредников и комиссий.",
+
   offers_microMarker: "Реальные фото поставщиков · Обновляется постоянно",
   offers_registerHintBefore: "Зарегистрируйтесь, чтобы написать поставщикам и увидеть полные контакты.",
   offers_registerHintLink: "Регистрация",
@@ -1106,6 +1142,18 @@ const es: TranslationKeys = {
   offer_locked_supplierTitle: "Identidad del proveedor protegida",
   offer_locked_supplierCta: "Regístrese para solicitar el perfil del proveedor",
   offer_locked_helper: "El precio exacto, la identidad del proveedor y el MOQ se comparten tras conceder el acceso.",
+
+  // Trust section (anonymous, guest-safe)
+  trust_sectionTitle: "Por qué esta oferta es segura",
+  trust_verifiedTitle: "Proveedor verificado",
+  trust_verifiedDescVerified: "Este proveedor superó la verificación de varios pasos de YORSO. Se revisaron licencia comercial, certificaciones y referencias de comercio.",
+  trust_verifiedDescPending: "Este proveedor ha presentado documentación básica. La verificación completa, incluida la auditoría de instalaciones y referencias comerciales, está en curso.",
+  trust_complianceTitle: "Exportación y cumplimiento",
+  trust_complianceDesc: "Envío desde {region}. El proveedor cuenta con las certificaciones: {certifications}. Documentación de cadena de frío y certificados sanitarios disponibles.",
+  trust_traceabilityTitle: "Trazabilidad",
+  trust_traceabilityDesc: "Documentado: origen del producto ({origin}), zona de pesca ({area}) y método de captura ({method}).",
+  trust_directTitle: "Relación directa con el proveedor",
+  trust_directDesc: "Una vez concedido el acceso, se comunica directamente con el proveedor ({region}). Sin intermediarios ni comisiones.",
 
   offers_microMarker: "Fotos reales de proveedores · Actualizado continuamente",
   offers_registerHintBefore: "Regístrese para contactar proveedores y ver datos completos.",
