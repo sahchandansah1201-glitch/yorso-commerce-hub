@@ -4,7 +4,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { getSupplierRegion } from "@/lib/visibility";
 
 const fmt = (tpl: string, vars: Record<string, string>) =>
-  Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), tpl);
+  Object.entries(vars).reduce((s, [k, v]) => s.split(`{${k}}`).join(v), tpl);
 
 const TrustSection = ({ offer }: { offer: SeafoodOffer }) => {
   const { t } = useLanguage();
