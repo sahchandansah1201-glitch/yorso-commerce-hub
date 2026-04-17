@@ -461,10 +461,11 @@ const en: TranslationKeys = {
   social_title: "From Skeptics to Power Users",
   social_subtitle: "Real stories from procurement pros who've been burned before — and found something better.",
   social_testimonials: [
-    { quote: "After losing $40K on Alibaba to a supplier who swapped product in the container, I swore off marketplaces. YORSO was different — I verified the factory before ordering, and they never hid the supplier's direct phone number. That changed everything.", name: "Marcus Hendriksen", role: "Procurement Director", company: "Nordic Fish Import AB", country: "Sweden", painTag: "Bait-and-switch survivor" },
-    { quote: "My CFO asked why we pay 12% above market on shrimp. I had no answer — we'd been using the same broker for years. Now I walk into board meetings with YORSO's benchmark data and negotiate from strength. Last quarter we saved $180K.", name: "Sofia Chen", role: "Supply Chain Manager", company: "Pacific Seafood Trading", country: "Singapore", painTag: "Price blindness → savings" },
+    { quote: "After losing $40K on Alibaba to a supplier who swapped product in the container, I swore off marketplaces. YORSO was different — I verified the factory before ordering, and they never hid the supplier's direct phone number. That changed everything.", name: "Marcus Hendriksen", role: "Procurement Director", company: "Nordic Fish Import AB", country: "Sweden", painTag: "Bait-and-switch survivor", verifiedBuyer: true },
+    { quote: "My CFO asked why we pay 12% above market on shrimp. I had no answer — we'd been using the same broker for years. Now I walk into board meetings with YORSO's benchmark data and negotiate from strength. Last quarter we saved $180K.", name: "Sofia Chen", role: "Supply Chain Manager", company: "Pacific Seafood Trading", country: "Singapore", painTag: "Price blindness → savings", verifiedBuyer: true },
     { quote: "When our Chilean salmon supplier had a force majeure mid-season, we needed 20 tonnes in 48 hours. Previously that meant panicking at trade shows. On YORSO, we found three verified alternatives overnight and shipped on time.", name: "Jean-Pierre Moreau", role: "Import Manager", company: "Marée Fraîche SARL", country: "France", painTag: "Emergency sourcing" },
   ],
+  social_verifiedBuyer: "Verified buyer",
 
   // FAQ
   faq_title: "Frequently Asked Questions",
@@ -813,10 +814,11 @@ const ru: TranslationKeys = {
   social_title: "От скептиков к постоянным пользователям",
   social_subtitle: "Реальные истории закупщиков, которые обожглись раньше — и нашли кое-что лучше.",
   social_testimonials: [
-    { quote: "Потеряв $40K на Alibaba из-за поставщика, который подменил товар в контейнере, я зарёкся от маркетплейсов. YORSO оказался другим — я проверил фабрику до заказа, и мне никогда не скрывали прямой телефон поставщика.", name: "Маркус Хендриксен", role: "Директор по закупкам", company: "Nordic Fish Import AB", country: "Швеция", painTag: "Выжил после подмены" },
-    { quote: "CFO спросил, почему мы платим на 12% выше рынка за креветку. У меня не было ответа. Теперь я прихожу на совет директоров с данными YORSO и веду переговоры с позиции силы. В прошлом квартале сэкономили $180K.", name: "София Чень", role: "Менеджер по цепям поставок", company: "Pacific Seafood Trading", country: "Сингапур", painTag: "Ценовая слепота → экономия" },
+    { quote: "Потеряв $40K на Alibaba из-за поставщика, который подменил товар в контейнере, я зарёкся от маркетплейсов. YORSO оказался другим — я проверил фабрику до заказа, и мне никогда не скрывали прямой телефон поставщика.", name: "Маркус Хендриксен", role: "Директор по закупкам", company: "Nordic Fish Import AB", country: "Швеция", painTag: "Выжил после подмены", verifiedBuyer: true },
+    { quote: "CFO спросил, почему мы платим на 12% выше рынка за креветку. У меня не было ответа. Теперь я прихожу на совет директоров с данными YORSO и веду переговоры с позиции силы. В прошлом квартале сэкономили $180K.", name: "София Чень", role: "Менеджер по цепям поставок", company: "Pacific Seafood Trading", country: "Сингапур", painTag: "Ценовая слепота → экономия", verifiedBuyer: true },
     { quote: "Когда у чилийского поставщика лосося случился форс-мажор, нам нужно было 20 тонн за 48 часов. На YORSO мы нашли три проверенные альтернативы за ночь и отгрузили вовремя.", name: "Жан-Пьер Моро", role: "Менеджер по импорту", company: "Marée Fraîche SARL", country: "Франция", painTag: "Экстренные закупки" },
   ],
+  social_verifiedBuyer: "Проверенный покупатель",
 
   faq_title: "Часто задаваемые вопросы",
   faq_subtitle: "Частые вопросы от покупателей, оценивающих YORSO для своих закупок.",
@@ -1162,10 +1164,11 @@ const es: TranslationKeys = {
   social_title: "De escépticos a usuarios habituales",
   social_subtitle: "Historias reales de profesionales que se quemaron antes — y encontraron algo mejor.",
   social_testimonials: [
-    { quote: "Después de perder $40K en Alibaba, juré no usar más marketplaces. YORSO fue diferente — verifiqué la fábrica antes de ordenar y nunca ocultaron el teléfono del proveedor.", name: "Marcus Hendriksen", role: "Director de Compras", company: "Nordic Fish Import AB", country: "Suecia", painTag: "Sobreviviente de fraude" },
-    { quote: "Mi CFO preguntó por qué pagamos 12% más por camarón. Ahora llego con datos de YORSO y negocio con fuerza. Ahorramos $180K el último trimestre.", name: "Sofia Chen", role: "Gerente de Cadena de Suministro", company: "Pacific Seafood Trading", country: "Singapur", painTag: "Ceguera de precios → ahorro" },
+    { quote: "Después de perder $40K en Alibaba, juré no usar más marketplaces. YORSO fue diferente — verifiqué la fábrica antes de ordenar y nunca ocultaron el teléfono del proveedor.", name: "Marcus Hendriksen", role: "Director de Compras", company: "Nordic Fish Import AB", country: "Suecia", painTag: "Sobreviviente de fraude", verifiedBuyer: true },
+    { quote: "Mi CFO preguntó por qué pagamos 12% más por camarón. Ahora llego con datos de YORSO y negocio con fuerza. Ahorramos $180K el último trimestre.", name: "Sofia Chen", role: "Gerente de Cadena de Suministro", company: "Pacific Seafood Trading", country: "Singapur", painTag: "Ceguera de precios → ahorro", verifiedBuyer: true },
     { quote: "Cuando nuestro proveedor chileno tuvo fuerza mayor, necesitábamos 20 toneladas en 48 horas. En YORSO encontramos tres alternativas verificadas en una noche.", name: "Jean-Pierre Moreau", role: "Gerente de Importación", company: "Marée Fraîche SARL", country: "Francia", painTag: "Compras de emergencia" },
   ],
+  social_verifiedBuyer: "Comprador verificado",
 
   faq_title: "Preguntas frecuentes",
   faq_subtitle: "Preguntas comunes de compradores que evalúan YORSO.",
