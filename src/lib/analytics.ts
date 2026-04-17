@@ -28,6 +28,8 @@ export type AnalyticsEvent =
   // Offers
   | "offers_list_view"
   | "offer_detail_view"
+  | "offer_detail_locked_view"
+  | "register_to_unlock_click"
   // Registration
   | "registration_role_selected"
   | "registration_email_submitted"
