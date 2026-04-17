@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Snowflake, Leaf, Thermometer, ShieldCheck, Lock } from "lucide-react";
+import { Clock, MapPin, Snowflake, Leaf, Thermometer, ShieldCheck } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { getAvailabilityTier, getSupplierRegion } from "@/lib/visibility";
@@ -85,11 +85,11 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         <div className="mt-auto pt-3">
           <div className="flex items-baseline justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className="flex items-baseline gap-1">
               <span className="font-heading text-sm font-semibold text-foreground">
-                {t.card_priceOnRequest}
+                {offer.priceRange}
               </span>
+              <span className="text-[11px] text-muted-foreground">{offer.priceUnit}</span>
             </div>
             <span className="text-[11px] text-muted-foreground shrink-0">
               {(() => {
