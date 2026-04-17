@@ -24,6 +24,7 @@ export type AnalyticsEvent =
   | "value_register_buyer_click"
   | "value_register_supplier_click"
   | "section_view"
+  | "home_category_click"
   // Offers
   | "offers_list_view"
   | "offer_detail_view"
