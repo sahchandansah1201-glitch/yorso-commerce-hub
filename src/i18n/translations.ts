@@ -64,15 +64,6 @@ type TranslationKeys = {
   trust_differentiatorIntro: string;
 
   // Trust Strip
-  trust_liveOffers: string;
-  trust_verifiedSuppliers: string;
-  trust_countries: string;
-  trust_activeBuyers: string;
-  trust_liveOffersDetail: string;
-  trust_verifiedSuppliersDetail: string;
-  trust_countriesDetail: string;
-  trust_activeBuyersDetail: string;
-  trust_unlikeOthers: string;
   trust_zeroCommission: string;
   trust_directContacts: string;
   trust_verificationEarned: string;
@@ -386,15 +377,6 @@ const en: TranslationKeys = {
   offers_registerHintLink: "Register",
 
   // Trust Strip
-  trust_liveOffers: "Live Offers",
-  trust_verifiedSuppliers: "Verified Suppliers",
-  trust_countries: "Countries",
-  trust_activeBuyers: "Active Buyers",
-  trust_liveOffersDetail: "updated daily from verified sources",
-  trust_verifiedSuppliersDetail: "each passed 3-step due diligence",
-  trust_countriesDetail: "from Norway to Vietnam",
-  trust_activeBuyersDetail: "sourcing right now",
-  trust_unlikeOthers: "Unlike other platforms:",
   trust_zeroCommission: "0% commission — your margins stay yours",
   trust_directContacts: "Direct contacts — always open, never gated",
   trust_verificationEarned: "Verification earned, not bought",
@@ -744,15 +726,6 @@ const ru: TranslationKeys = {
   offers_registerHintBefore: "Зарегистрируйтесь, чтобы написать поставщикам и увидеть полные контакты.",
   offers_registerHintLink: "Регистрация",
 
-  trust_liveOffers: "Предложений",
-  trust_verifiedSuppliers: "Проверенных поставщиков",
-  trust_countries: "Стран",
-  trust_activeBuyers: "Активных покупателей",
-  trust_liveOffersDetail: "обновляются ежедневно из проверенных источников",
-  trust_verifiedSuppliersDetail: "каждый прошёл 3-этапную проверку",
-  trust_countriesDetail: "от Норвегии до Вьетнама",
-  trust_activeBuyersDetail: "закупают прямо сейчас",
-  trust_unlikeOthers: "В отличие от других платформ:",
   trust_zeroCommission: "0% комиссии — ваша маржа остаётся вашей",
   trust_directContacts: "Прямые контакты — всегда открыты, без ограничений",
   trust_verificationEarned: "Верификация заслужена, а не куплена",
@@ -1094,15 +1067,6 @@ const es: TranslationKeys = {
   offers_registerHintBefore: "Regístrese para contactar proveedores y ver datos completos.",
   offers_registerHintLink: "Registrarse",
 
-  trust_liveOffers: "Ofertas activas",
-  trust_verifiedSuppliers: "Proveedores verificados",
-  trust_countries: "Países",
-  trust_activeBuyers: "Compradores activos",
-  trust_liveOffersDetail: "actualizadas diariamente de fuentes verificadas",
-  trust_verifiedSuppliersDetail: "cada uno pasó verificación de 3 pasos",
-  trust_countriesDetail: "desde Noruega hasta Vietnam",
-  trust_activeBuyersDetail: "comprando ahora mismo",
-  trust_unlikeOthers: "A diferencia de otras plataformas:",
   trust_zeroCommission: "0% comisión — sus márgenes son suyos",
   trust_directContacts: "Contactos directos — siempre abiertos, sin restricciones",
   trust_verificationEarned: "Verificación ganada, no comprada",
