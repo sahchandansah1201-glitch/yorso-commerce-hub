@@ -37,6 +37,7 @@ const LiveOffers = () => {
               {t.offers_title}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">{t.offers_subtitle}</p>
+            <p className="mt-1 text-xs text-muted-foreground/80">{t.offers_microMarker}</p>
           </div>
           <Link
             to="/offers"
@@ -63,6 +64,14 @@ const LiveOffers = () => {
             </div>
           ))}
         </div>
+
+        {/* Subtle inline registration hint */}
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          {t.offers_registerHintBefore}{" "}
+          <Link to="/register" className="text-primary underline-offset-2 hover:underline">
+            {t.offers_registerHintLink}
+          </Link>
+        </p>
 
         {/* Expandable extra offers */}
         <AnimatePresence>
