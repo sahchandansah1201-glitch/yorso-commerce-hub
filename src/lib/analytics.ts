@@ -24,12 +24,9 @@ export type AnalyticsEvent =
   | "value_register_buyer_click"
   | "value_register_supplier_click"
   | "section_view"
-  | "home_category_click"
   // Offers
   | "offers_list_view"
   | "offer_detail_view"
-  | "offer_detail_locked_view"
-  | "register_to_unlock_click"
   // Registration
   | "registration_role_selected"
   | "registration_email_submitted"

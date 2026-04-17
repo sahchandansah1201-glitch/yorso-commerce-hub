@@ -22,7 +22,7 @@ const OfferDetail = () => {
   const offer = mockOffers.find((o) => o.id === id);
 
   useEffect(() => {
-    if (offer) analytics.track("offer_detail_locked_view", { offerId: offer.id, product: offer.productName });
+    if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
   }, [offer]);
 
   if (!offer) {

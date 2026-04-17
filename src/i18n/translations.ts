@@ -53,40 +53,17 @@ type TranslationKeys = {
   card_chilled: string;
   card_updatedAgo: string;
   card_listedToday: string;
-  card_supplierLabel: string;
-  card_supplierAnonymous: string;
-  card_supplierAnonymousVerified: string;
-  card_priceOnRequest: string;
-  card_availability_container: string;
-  card_availability_pallet: string;
-  card_availability_limited: string;
-  offer_locked_priceTitle: string;
-  offer_locked_priceCta: string;
-  offer_locked_supplierTitle: string;
-  offer_locked_supplierCta: string;
-  offer_locked_helper: string;
-
-  // Trust section (anonymous, guest-safe)
-  trust_sectionTitle: string;
-  trust_verifiedTitle: string;
-  trust_verifiedDescVerified: string;
-  trust_verifiedDescPending: string;
-  trust_complianceTitle: string;
-  trust_complianceDesc: string;
-  trust_traceabilityTitle: string;
-  trust_traceabilityDesc: string;
-  trust_directTitle: string;
-  trust_directDesc: string;
-
-  // Live Offers extras
-  offers_microMarker: string;
-  offers_registerHintBefore: string;
-  offers_registerHintLink: string;
-
-  // Trust Strip extras
-  trust_differentiatorIntro: string;
 
   // Trust Strip
+  trust_liveOffers: string;
+  trust_verifiedSuppliers: string;
+  trust_countries: string;
+  trust_activeBuyers: string;
+  trust_liveOffersDetail: string;
+  trust_verifiedSuppliersDetail: string;
+  trust_countriesDetail: string;
+  trust_activeBuyersDetail: string;
+  trust_unlikeOthers: string;
   trust_zeroCommission: string;
   trust_directContacts: string;
   trust_verificationEarned: string;
@@ -135,9 +112,7 @@ type TranslationKeys = {
     company: string;
     country: string;
     painTag: string;
-    verifiedBuyer?: boolean;
   }[];
-  social_verifiedBuyer: string;
 
   // FAQ
   faq_title: string;
@@ -392,41 +367,20 @@ const en: TranslationKeys = {
   card_chilled: "Chilled",
   card_updatedAgo: "Updated {time} ago",
   card_listedToday: "Listed today",
-  card_supplierLabel: "Supplier",
-  card_supplierAnonymous: "Supplier · {region}",
-  card_supplierAnonymousVerified: "Verified supplier · {region}",
-  card_priceOnRequest: "Price on request",
-  card_availability_container: "Container-scale availability",
-  card_availability_pallet: "Pallet-scale availability",
-  card_availability_limited: "Limited lots available",
-  offer_locked_priceTitle: "Price on request",
-  offer_locked_priceCta: "Register to request price access",
-  offer_locked_supplierTitle: "Supplier identity protected",
-  offer_locked_supplierCta: "Register to request supplier profile",
-  offer_locked_helper: "Exact price, supplier identity and MOQ are shared after access is granted.",
-
-  // Trust section (anonymous, guest-safe)
-  trust_sectionTitle: "Why this offer is safe",
-  trust_verifiedTitle: "Verified Supplier",
-  trust_verifiedDescVerified: "This supplier passed YORSO's multi-step verification. Business license, certifications and trade references reviewed.",
-  trust_verifiedDescPending: "This supplier has submitted basic documentation. Full verification including facility audit and trade references is in progress.",
-  trust_complianceTitle: "Export & Compliance",
-  trust_complianceDesc: "Ships from {region}. Supplier holds {certifications} certification{plural}. Cold-chain documentation and health certificates available.",
-  trust_traceabilityTitle: "Traceability",
-  trust_traceabilityDesc: "Product origin ({origin}), fishing area ({area}) and catching method ({method}) are documented.",
-  trust_directTitle: "Direct Supplier Relationship",
-  trust_directDesc: "After access is granted, you communicate directly with the supplier ({region}). No intermediaries, no commission.",
-
-  // Live Offers extras
-  offers_microMarker: "Real supplier photos · Updated continuously",
-  offers_registerHintBefore: "Register to message suppliers and see full contact details.",
-  offers_registerHintLink: "Register",
 
   // Trust Strip
+  trust_liveOffers: "Live Offers",
+  trust_verifiedSuppliers: "Verified Suppliers",
+  trust_countries: "Countries",
+  trust_activeBuyers: "Active Buyers",
+  trust_liveOffersDetail: "updated daily from verified sources",
+  trust_verifiedSuppliersDetail: "each passed 3-step due diligence",
+  trust_countriesDetail: "from Norway to Vietnam",
+  trust_activeBuyersDetail: "sourcing right now",
+  trust_unlikeOthers: "Unlike other platforms:",
   trust_zeroCommission: "0% commission — your margins stay yours",
   trust_directContacts: "Direct contacts — always open, never gated",
   trust_verificationEarned: "Verification earned, not bought",
-  trust_differentiatorIntro: "What makes YORSO different",
 
   // Value Split
   value_title: "Built for Both Sides of the Trade",
@@ -489,11 +443,10 @@ const en: TranslationKeys = {
   social_title: "From Skeptics to Power Users",
   social_subtitle: "Real stories from procurement pros who've been burned before — and found something better.",
   social_testimonials: [
-    { quote: "After losing $40K on Alibaba to a supplier who swapped product in the container, I swore off marketplaces. YORSO was different — I verified the factory before ordering, and they never hid the supplier's direct phone number. That changed everything.", name: "Marcus Hendriksen", role: "Procurement Director", company: "Nordic Fish Import AB", country: "Sweden", painTag: "Bait-and-switch survivor", verifiedBuyer: true },
-    { quote: "My CFO asked why we pay 12% above market on shrimp. I had no answer — we'd been using the same broker for years. Now I walk into board meetings with YORSO's benchmark data and negotiate from strength. Last quarter we saved $180K.", name: "Sofia Chen", role: "Supply Chain Manager", company: "Pacific Seafood Trading", country: "Singapore", painTag: "Price blindness → savings", verifiedBuyer: true },
+    { quote: "After losing $40K on Alibaba to a supplier who swapped product in the container, I swore off marketplaces. YORSO was different — I verified the factory before ordering, and they never hid the supplier's direct phone number. That changed everything.", name: "Marcus Hendriksen", role: "Procurement Director", company: "Nordic Fish Import AB", country: "Sweden", painTag: "Bait-and-switch survivor" },
+    { quote: "My CFO asked why we pay 12% above market on shrimp. I had no answer — we'd been using the same broker for years. Now I walk into board meetings with YORSO's benchmark data and negotiate from strength. Last quarter we saved $180K.", name: "Sofia Chen", role: "Supply Chain Manager", company: "Pacific Seafood Trading", country: "Singapore", painTag: "Price blindness → savings" },
     { quote: "When our Chilean salmon supplier had a force majeure mid-season, we needed 20 tonnes in 48 hours. Previously that meant panicking at trade shows. On YORSO, we found three verified alternatives overnight and shipped on time.", name: "Jean-Pierre Moreau", role: "Import Manager", company: "Marée Fraîche SARL", country: "France", painTag: "Emergency sourcing" },
   ],
-  social_verifiedBuyer: "Verified buyer",
 
   // FAQ
   faq_title: "Frequently Asked Questions",
@@ -766,39 +719,19 @@ const ru: TranslationKeys = {
   card_chilled: "Охлажд.",
   card_updatedAgo: "Обновлено {time} назад",
   card_listedToday: "Добавлено сегодня",
-  card_supplierLabel: "Поставщик",
-  card_supplierAnonymous: "Поставщик · {region}",
-  card_supplierAnonymousVerified: "Проверенный поставщик · {region}",
-  card_priceOnRequest: "Цена по запросу",
-  card_availability_container: "Доступны контейнерные объёмы",
-  card_availability_pallet: "Доступны паллетные объёмы",
-  card_availability_limited: "Ограниченные партии",
-  offer_locked_priceTitle: "Цена по запросу",
-  offer_locked_priceCta: "Зарегистрируйтесь, чтобы запросить цену",
-  offer_locked_supplierTitle: "Имя поставщика скрыто",
-  offer_locked_supplierCta: "Зарегистрируйтесь, чтобы запросить профиль поставщика",
-  offer_locked_helper: "Точная цена, имя поставщика и MOQ открываются после согласования доступа.",
 
-  // Trust section (anonymous, guest-safe)
-  trust_sectionTitle: "Почему этот оффер безопасен",
-  trust_verifiedTitle: "Проверенный поставщик",
-  trust_verifiedDescVerified: "Поставщик прошёл многоступенчатую верификацию YORSO. Проверены лицензия, сертификаты и торговые рекомендации.",
-  trust_verifiedDescPending: "Поставщик предоставил базовые документы. Полная верификация, включая аудит производства и торговые рекомендации, в процессе.",
-  trust_complianceTitle: "Экспорт и комплаенс",
-  trust_complianceDesc: "Отгрузка из региона {region}. Поставщик имеет сертификации: {certifications}. Документы холодовой цепи и ветеринарные сертификаты доступны.",
-  trust_traceabilityTitle: "Прослеживаемость",
-  trust_traceabilityDesc: "Документировано: происхождение продукта ({origin}), район промысла ({area}), способ добычи ({method}).",
-  trust_directTitle: "Прямое сотрудничество с поставщиком",
-  trust_directDesc: "После согласования доступа вы общаетесь с поставщиком напрямую ({region}). Без посредников и комиссий.",
-
-  offers_microMarker: "Реальные фото поставщиков · Обновляется постоянно",
-  offers_registerHintBefore: "Зарегистрируйтесь, чтобы написать поставщикам и увидеть полные контакты.",
-  offers_registerHintLink: "Регистрация",
-
+  trust_liveOffers: "Предложений",
+  trust_verifiedSuppliers: "Проверенных поставщиков",
+  trust_countries: "Стран",
+  trust_activeBuyers: "Активных покупателей",
+  trust_liveOffersDetail: "обновляются ежедневно из проверенных источников",
+  trust_verifiedSuppliersDetail: "каждый прошёл 3-этапную проверку",
+  trust_countriesDetail: "от Норвегии до Вьетнама",
+  trust_activeBuyersDetail: "закупают прямо сейчас",
+  trust_unlikeOthers: "В отличие от других платформ:",
   trust_zeroCommission: "0% комиссии — ваша маржа остаётся вашей",
   trust_directContacts: "Прямые контакты — всегда открыты, без ограничений",
   trust_verificationEarned: "Верификация заслужена, а не куплена",
-  trust_differentiatorIntro: "Чем YORSO отличается",
 
   value_title: "Создано для обеих сторон торговли",
   value_subtitle: "Закупаете ли вы морепродукты или продаёте — YORSO даёт инструменты для уверенной торговли.",
@@ -856,11 +789,10 @@ const ru: TranslationKeys = {
   social_title: "От скептиков к постоянным пользователям",
   social_subtitle: "Реальные истории закупщиков, которые обожглись раньше — и нашли кое-что лучше.",
   social_testimonials: [
-    { quote: "Потеряв $40K на Alibaba из-за поставщика, который подменил товар в контейнере, я зарёкся от маркетплейсов. YORSO оказался другим — я проверил фабрику до заказа, и мне никогда не скрывали прямой телефон поставщика.", name: "Маркус Хендриксен", role: "Директор по закупкам", company: "Nordic Fish Import AB", country: "Швеция", painTag: "Выжил после подмены", verifiedBuyer: true },
-    { quote: "CFO спросил, почему мы платим на 12% выше рынка за креветку. У меня не было ответа. Теперь я прихожу на совет директоров с данными YORSO и веду переговоры с позиции силы. В прошлом квартале сэкономили $180K.", name: "София Чень", role: "Менеджер по цепям поставок", company: "Pacific Seafood Trading", country: "Сингапур", painTag: "Ценовая слепота → экономия", verifiedBuyer: true },
+    { quote: "Потеряв $40K на Alibaba из-за поставщика, который подменил товар в контейнере, я зарёкся от маркетплейсов. YORSO оказался другим — я проверил фабрику до заказа, и мне никогда не скрывали прямой телефон поставщика.", name: "Маркус Хендриксен", role: "Директор по закупкам", company: "Nordic Fish Import AB", country: "Швеция", painTag: "Выжил после подмены" },
+    { quote: "CFO спросил, почему мы платим на 12% выше рынка за креветку. У меня не было ответа. Теперь я прихожу на совет директоров с данными YORSO и веду переговоры с позиции силы. В прошлом квартале сэкономили $180K.", name: "София Чень", role: "Менеджер по цепям поставок", company: "Pacific Seafood Trading", country: "Сингапур", painTag: "Ценовая слепота → экономия" },
     { quote: "Когда у чилийского поставщика лосося случился форс-мажор, нам нужно было 20 тонн за 48 часов. На YORSO мы нашли три проверенные альтернативы за ночь и отгрузили вовремя.", name: "Жан-Пьер Моро", role: "Менеджер по импорту", company: "Marée Fraîche SARL", country: "Франция", painTag: "Экстренные закупки" },
   ],
-  social_verifiedBuyer: "Проверенный покупатель",
 
   faq_title: "Часто задаваемые вопросы",
   faq_subtitle: "Частые вопросы от покупателей, оценивающих YORSO для своих закупок.",
@@ -1130,39 +1062,19 @@ const es: TranslationKeys = {
   card_chilled: "Refrigerado",
   card_updatedAgo: "Actualizado hace {time}",
   card_listedToday: "Publicado hoy",
-  card_supplierLabel: "Proveedor",
-  card_supplierAnonymous: "Proveedor · {region}",
-  card_supplierAnonymousVerified: "Proveedor verificado · {region}",
-  card_priceOnRequest: "Precio bajo solicitud",
-  card_availability_container: "Disponibilidad a escala de contenedor",
-  card_availability_pallet: "Disponibilidad a escala de palet",
-  card_availability_limited: "Lotes limitados disponibles",
-  offer_locked_priceTitle: "Precio bajo solicitud",
-  offer_locked_priceCta: "Regístrese para solicitar acceso al precio",
-  offer_locked_supplierTitle: "Identidad del proveedor protegida",
-  offer_locked_supplierCta: "Regístrese para solicitar el perfil del proveedor",
-  offer_locked_helper: "El precio exacto, la identidad del proveedor y el MOQ se comparten tras conceder el acceso.",
 
-  // Trust section (anonymous, guest-safe)
-  trust_sectionTitle: "Por qué esta oferta es segura",
-  trust_verifiedTitle: "Proveedor verificado",
-  trust_verifiedDescVerified: "Este proveedor superó la verificación de varios pasos de YORSO. Se revisaron licencia comercial, certificaciones y referencias de comercio.",
-  trust_verifiedDescPending: "Este proveedor ha presentado documentación básica. La verificación completa, incluida la auditoría de instalaciones y referencias comerciales, está en curso.",
-  trust_complianceTitle: "Exportación y cumplimiento",
-  trust_complianceDesc: "Envío desde {region}. El proveedor cuenta con las certificaciones: {certifications}. Documentación de cadena de frío y certificados sanitarios disponibles.",
-  trust_traceabilityTitle: "Trazabilidad",
-  trust_traceabilityDesc: "Documentado: origen del producto ({origin}), zona de pesca ({area}) y método de captura ({method}).",
-  trust_directTitle: "Relación directa con el proveedor",
-  trust_directDesc: "Una vez concedido el acceso, se comunica directamente con el proveedor ({region}). Sin intermediarios ni comisiones.",
-
-  offers_microMarker: "Fotos reales de proveedores · Actualizado continuamente",
-  offers_registerHintBefore: "Regístrese para contactar proveedores y ver datos completos.",
-  offers_registerHintLink: "Registrarse",
-
+  trust_liveOffers: "Ofertas activas",
+  trust_verifiedSuppliers: "Proveedores verificados",
+  trust_countries: "Países",
+  trust_activeBuyers: "Compradores activos",
+  trust_liveOffersDetail: "actualizadas diariamente de fuentes verificadas",
+  trust_verifiedSuppliersDetail: "cada uno pasó verificación de 3 pasos",
+  trust_countriesDetail: "desde Noruega hasta Vietnam",
+  trust_activeBuyersDetail: "comprando ahora mismo",
+  trust_unlikeOthers: "A diferencia de otras plataformas:",
   trust_zeroCommission: "0% comisión — sus márgenes son suyos",
   trust_directContacts: "Contactos directos — siempre abiertos, sin restricciones",
   trust_verificationEarned: "Verificación ganada, no comprada",
-  trust_differentiatorIntro: "Qué hace diferente a YORSO",
 
   value_title: "Diseñado para ambos lados del comercio",
   value_subtitle: "Ya sea que compre o venda mariscos, YORSO le da las herramientas para comerciar con confianza.",
@@ -1220,11 +1132,10 @@ const es: TranslationKeys = {
   social_title: "De escépticos a usuarios habituales",
   social_subtitle: "Historias reales de profesionales que se quemaron antes — y encontraron algo mejor.",
   social_testimonials: [
-    { quote: "Después de perder $40K en Alibaba, juré no usar más marketplaces. YORSO fue diferente — verifiqué la fábrica antes de ordenar y nunca ocultaron el teléfono del proveedor.", name: "Marcus Hendriksen", role: "Director de Compras", company: "Nordic Fish Import AB", country: "Suecia", painTag: "Sobreviviente de fraude", verifiedBuyer: true },
-    { quote: "Mi CFO preguntó por qué pagamos 12% más por camarón. Ahora llego con datos de YORSO y negocio con fuerza. Ahorramos $180K el último trimestre.", name: "Sofia Chen", role: "Gerente de Cadena de Suministro", company: "Pacific Seafood Trading", country: "Singapur", painTag: "Ceguera de precios → ahorro", verifiedBuyer: true },
+    { quote: "Después de perder $40K en Alibaba, juré no usar más marketplaces. YORSO fue diferente — verifiqué la fábrica antes de ordenar y nunca ocultaron el teléfono del proveedor.", name: "Marcus Hendriksen", role: "Director de Compras", company: "Nordic Fish Import AB", country: "Suecia", painTag: "Sobreviviente de fraude" },
+    { quote: "Mi CFO preguntó por qué pagamos 12% más por camarón. Ahora llego con datos de YORSO y negocio con fuerza. Ahorramos $180K el último trimestre.", name: "Sofia Chen", role: "Gerente de Cadena de Suministro", company: "Pacific Seafood Trading", country: "Singapur", painTag: "Ceguera de precios → ahorro" },
     { quote: "Cuando nuestro proveedor chileno tuvo fuerza mayor, necesitábamos 20 toneladas en 48 horas. En YORSO encontramos tres alternativas verificadas en una noche.", name: "Jean-Pierre Moreau", role: "Gerente de Importación", company: "Marée Fraîche SARL", country: "Francia", painTag: "Compras de emergencia" },
   ],
-  social_verifiedBuyer: "Comprador verificado",
 
   faq_title: "Preguntas frecuentes",
   faq_subtitle: "Preguntas comunes de compradores que evalúan YORSO.",
