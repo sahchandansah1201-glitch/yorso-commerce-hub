@@ -7,6 +7,7 @@ import {
 import type { SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
 import { useState } from "react";
+import CertificationBadges from "@/components/CertificationBadges";
 
 const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
@@ -87,11 +88,7 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
         {s.certifications.length > 0 && (
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-1.5">Certifications</p>
-            <div className="flex flex-wrap gap-1.5">
-              {s.certifications.map((c) => (
-                <span key={c} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{c}</span>
-              ))}
-            </div>
+            <CertificationBadges certifications={s.certifications} size="sm" />
           </div>
         )}
 
