@@ -89,6 +89,8 @@ type TranslationKeys = {
   cat_subtitle: string;
   cat_offers: string;
   cat_names: Record<string, string>;
+  species_names: Record<string, string>;
+  species_descriptors: Record<string, string>;
 
   // Supplier Verification
   verify_title: string;
@@ -411,10 +413,30 @@ const en: TranslationKeys = {
   ],
 
   // Category
-  cat_title: "Browse by Category",
-  cat_subtitle: "Find exactly what you need — from salmon and shrimp to crab and surimi.",
+  cat_title: "Source by Species",
+  cat_subtitle: "Real commercial species, real wholesale offers — recognise what you buy at a glance.",
   cat_offers: "offers",
   cat_names: { Salmon: "Salmon", Shrimp: "Shrimp", Whitefish: "Whitefish", Tuna: "Tuna", Crab: "Crab", "Squid & Octopus": "Squid & Octopus", Shellfish: "Shellfish", Surimi: "Surimi" },
+  species_names: {
+    atlanticSalmon: "Atlantic Salmon",
+    cod: "Atlantic Cod",
+    haddock: "Haddock",
+    hake: "European Hake",
+    seaBass: "Sea Bass",
+    seaBream: "Sea Bream",
+    yellowfinTuna: "Yellowfin Tuna",
+    mackerel: "Atlantic Mackerel",
+  },
+  species_descriptors: {
+    atlanticSalmon: "Farmed · Norway, Faroe",
+    cod: "Wild-caught · Atlantic",
+    haddock: "Wild-caught · North Sea",
+    hake: "Wild-caught · Iberian",
+    seaBass: "Farmed · Mediterranean",
+    seaBream: "Farmed · Mediterranean",
+    yellowfinTuna: "Loins · Sashimi grade",
+    mackerel: "Wild-caught · Pelagic",
+  },
 
   // Supplier Verification
   verify_title: "How Suppliers Are Verified",
