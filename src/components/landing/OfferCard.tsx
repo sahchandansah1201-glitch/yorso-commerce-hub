@@ -1,16 +1,8 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Clock, Award, Snowflake, Leaf, Thermometer, ExternalLink } from "lucide-react";
+import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { getCertificationInfo, type CertificationInfo } from "@/data/certifications";
+import CertificationBadges from "@/components/CertificationBadges";
 
 interface OfferCardProps {
   offer: SeafoodOffer;
