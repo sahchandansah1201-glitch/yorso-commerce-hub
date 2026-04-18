@@ -54,6 +54,10 @@ type TranslationKeys = {
   card_updatedAgo: string;
   card_listedToday: string;
 
+  // Certifications modal
+  cert_issuer: string;
+  cert_officialWebsite: string;
+
   // Trust Strip
   trust_liveOffers: string;
   trust_verifiedSuppliers: string;
@@ -366,6 +370,9 @@ const en: TranslationKeys = {
   card_fresh: "Fresh",
   card_chilled: "Chilled",
   card_updatedAgo: "Updated {time} ago",
+  card_listedToday: "Listed today",
+  cert_issuer: "Issuer",
+  cert_officialWebsite: "Official website",
   card_listedToday: "Listed today",
 
   // Trust Strip
