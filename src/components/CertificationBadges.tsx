@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { getCertificationInfo, type CertificationInfo } from "@/data/certifications";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface CertificationBadgesProps {
   certifications: string[];
