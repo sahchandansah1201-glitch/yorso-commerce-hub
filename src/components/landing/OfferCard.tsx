@@ -1,7 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Clock, Award, Snowflake, Leaf, Thermometer } from "lucide-react";
+import { Clock, Award, Snowflake, Leaf, Thermometer, ExternalLink } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { getCertificationInfo, type CertificationInfo } from "@/data/certifications";
 
 interface OfferCardProps {
   offer: SeafoodOffer;
@@ -24,6 +33,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   const { t } = useLanguage();
   const FormatIcon = formatIcon[offer.format];
   const formatLabels = { Frozen: t.card_frozen, Fresh: t.card_fresh, Chilled: t.card_chilled };
+  const [activeCert, setActiveCert] = useState<CertificationInfo | null>(null);
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
@@ -62,16 +72,63 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         {offer.certifications && offer.certifications.length > 0 && (
           <div className="mt-1.5 flex flex-wrap items-center gap-1">
             {offer.certifications.slice(0, 3).map((cert) => (
-              <span
+              <button
                 key={cert}
-                className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setActiveCert(getCertificationInfo(cert));
+                }}
+                className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                aria-label={`View details for ${cert} certification`}
               >
                 <Award className="h-2.5 w-2.5 text-primary" />
                 {cert}
-              </span>
+              </button>
             ))}
           </div>
         )}
+
+        <Dialog open={!!activeCert} onOpenChange={(open) => !open && setActiveCert(null)}>
+          <DialogContent className="sm:max-w-md">
+            {activeCert && (
+              <>
+                <DialogHeader>
+                  <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <Award className="h-5 w-5 text-primary" />
+                  </div>
+                  <DialogTitle className="font-heading text-lg">
+                    {activeCert.fullName}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs uppercase tracking-wide text-primary">
+                    {activeCert.code}
+                  </DialogDescription>
+                </DialogHeader>
+                <p className="text-sm leading-relaxed text-foreground">
+                  {activeCert.description}
+                </p>
+                <div className="mt-2 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                  <div>
+                    <span className="font-semibold text-foreground">Issuer: </span>
+                    {activeCert.issuer}
+                  </div>
+                  {activeCert.website && (
+                    <a
+                      href={activeCert.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      Official website
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
 
         <div className="mt-auto pt-3">
