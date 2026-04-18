@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { getCertificationInfo, type CertificationInfo } from "@/data/certifications";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface CertificationBadgesProps {
   certifications: string[];
@@ -35,6 +36,7 @@ const CertificationBadges = ({
   limit,
   className,
 }: CertificationBadgesProps) => {
+  const { lang, t } = useLanguage();
   const [activeCert, setActiveCert] = useState<CertificationInfo | null>(null);
 
   if (!certifications || certifications.length === 0) return null;
@@ -51,7 +53,7 @@ const CertificationBadges = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setActiveCert(getCertificationInfo(cert));
+              setActiveCert(getCertificationInfo(cert, lang));
             }}
             className={cn(
               "inline-flex items-center rounded border border-border bg-muted/50 font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
@@ -85,7 +87,7 @@ const CertificationBadges = ({
               </p>
               <div className="mt-2 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
                 <div>
-                  <span className="font-semibold text-foreground">Issuer: </span>
+                  <span className="font-semibold text-foreground">{t.cert_issuer}: </span>
                   {activeCert.issuer}
                 </div>
                 {activeCert.website && (
@@ -95,7 +97,7 @@ const CertificationBadges = ({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-primary hover:underline"
                   >
-                    Official website
+                    {t.cert_officialWebsite}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
