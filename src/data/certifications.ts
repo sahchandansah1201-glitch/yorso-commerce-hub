@@ -359,5 +359,6 @@ export function getCertificationInfo(code: string, lang: Language): Certificatio
     description: localized.description,
     issuer: localized.issuer,
     website: def.website,
+    logo: def.logo,
   };
 }
