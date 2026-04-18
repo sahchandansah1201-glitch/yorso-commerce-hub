@@ -373,7 +373,6 @@ const en: TranslationKeys = {
   card_listedToday: "Listed today",
   cert_issuer: "Issuer",
   cert_officialWebsite: "Official website",
-  card_listedToday: "Listed today",
 
   // Trust Strip
   trust_liveOffers: "Live Offers",
@@ -726,6 +725,8 @@ const ru: TranslationKeys = {
   card_chilled: "Охлажд.",
   card_updatedAgo: "Обновлено {time} назад",
   card_listedToday: "Добавлено сегодня",
+  cert_issuer: "Кем выдан",
+  cert_officialWebsite: "Официальный сайт",
 
   trust_liveOffers: "Предложений",
   trust_verifiedSuppliers: "Проверенных поставщиков",
@@ -1069,6 +1070,8 @@ const es: TranslationKeys = {
   card_chilled: "Refrigerado",
   card_updatedAgo: "Actualizado hace {time}",
   card_listedToday: "Publicado hoy",
+  cert_issuer: "Emisor",
+  cert_officialWebsite: "Sitio web oficial",
 
   trust_liveOffers: "Ofertas activas",
   trust_verifiedSuppliers: "Proveedores verificados",
