@@ -1,5 +1,6 @@
 import { ShieldCheck, FileCheck, Anchor, Building2 } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
+import CertificationBadges from "@/components/CertificationBadges";
 
 const TrustSection = ({ offer }: { offer: SeafoodOffer }) => {
   const s = offer.supplier;
@@ -15,7 +16,8 @@ const TrustSection = ({ offer }: { offer: SeafoodOffer }) => {
     {
       icon: FileCheck,
       title: "Export & Compliance",
-      desc: `This product ships from ${offer.commercial.shipmentPort || offer.origin}. Supplier holds ${s.certifications.join(", ")} certification${s.certifications.length > 1 ? "s" : ""}. ${offer.format === "Frozen" ? "Cold-chain documentation and health certificates available." : "Temperature-controlled shipping with health certificates."}`,
+      desc: `This product ships from ${offer.commercial.shipmentPort || offer.origin}. ${offer.format === "Frozen" ? "Cold-chain documentation and health certificates available." : "Temperature-controlled shipping with health certificates."}`,
+      certifications: s.certifications,
     },
     {
       icon: Anchor,
@@ -36,9 +38,16 @@ const TrustSection = ({ offer }: { offer: SeafoodOffer }) => {
         {trustPoints.map((tp) => (
           <div key={tp.title} className="flex gap-3 rounded-lg border border-border bg-card p-4">
             <tp.icon className={`h-5 w-5 shrink-0 mt-0.5 ${s.isVerified || tp.title !== "Verified Supplier" ? "text-success" : "text-orange-500"}`} />
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="font-heading text-sm font-semibold text-foreground">{tp.title}</p>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{tp.desc}</p>
+              {tp.certifications && tp.certifications.length > 0 && (
+                <CertificationBadges
+                  certifications={tp.certifications}
+                  size="sm"
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
         ))}
