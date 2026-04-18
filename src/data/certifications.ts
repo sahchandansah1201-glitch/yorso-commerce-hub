@@ -1,5 +1,5 @@
 import type { Language } from "@/i18n/translations";
-import mscLogo from "@/assets/certs/msc.png";
+import mscLogo from "@/assets/certs/msc.svg";
 import ascLogo from "@/assets/certs/asc.png";
 import brcLogo from "@/assets/certs/brc.png";
 
