@@ -1,4 +1,7 @@
 import type { Language } from "@/i18n/translations";
+import mscLogo from "@/assets/certs/msc.png";
+import ascLogo from "@/assets/certs/asc.png";
+import brcLogo from "@/assets/certs/brc.png";
 
 export interface CertificationInfo {
   code: string;
@@ -7,6 +10,7 @@ export interface CertificationInfo {
   description: string;
   issuer: string;
   website?: string;
+  logo?: string;
 }
 
 interface LocalizedCertFields {
@@ -19,6 +23,7 @@ interface CertificationDef {
   code: string;
   name: string;
   website?: string;
+  logo?: string;
   i18n: Record<Language, LocalizedCertFields>;
 }
 
@@ -27,6 +32,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     code: "MSC",
     name: "MSC",
     website: "https://www.msc.org",
+    logo: mscLogo,
     i18n: {
       en: {
         fullName: "Marine Stewardship Council",
