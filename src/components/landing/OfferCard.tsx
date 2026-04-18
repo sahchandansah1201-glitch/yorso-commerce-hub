@@ -47,8 +47,8 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         </div>
         <div className="absolute right-2 top-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-[10px] font-semibold text-foreground backdrop-blur-sm">
-            <FormatIcon className="h-3 w-3" />
-            {formatLabels[offer.format]}
+            <span>{offer.originFlag}</span>
+            {offer.origin}
           </span>
         </div>
       </div>
