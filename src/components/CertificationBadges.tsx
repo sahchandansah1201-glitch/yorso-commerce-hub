@@ -72,15 +72,30 @@ const CertificationBadges = ({
           {activeCert && (
             <>
               <DialogHeader>
-                <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Award className="h-5 w-5 text-primary" />
+                <div className="flex items-start gap-3">
+                  {activeCert.logo ? (
+                    <img
+                      src={activeCert.logo}
+                      alt={`${activeCert.code} logo`}
+                      loading="lazy"
+                      width={56}
+                      height={56}
+                      className="h-14 w-14 shrink-0 rounded-md border border-border bg-white object-contain p-1"
+                    />
+                  ) : (
+                    <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                      <Award className="h-6 w-6 text-primary" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 text-left">
+                    <DialogTitle className="font-heading text-lg leading-tight">
+                      {activeCert.fullName}
+                    </DialogTitle>
+                    <DialogDescription className="mt-1 text-xs uppercase tracking-wide text-primary">
+                      {activeCert.code}
+                    </DialogDescription>
+                  </div>
                 </div>
-                <DialogTitle className="font-heading text-lg">
-                  {activeCert.fullName}
-                </DialogTitle>
-                <DialogDescription className="text-xs uppercase tracking-wide text-primary">
-                  {activeCert.code}
-                </DialogDescription>
               </DialogHeader>
               <p className="text-sm leading-relaxed text-foreground">
                 {activeCert.description}
