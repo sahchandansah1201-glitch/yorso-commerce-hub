@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Clock, MapPin, Snowflake, Leaf, Thermometer } from "lucide-react";
+import { Clock, Award, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -59,12 +59,19 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         </h3>
         <p className="mt-0.5 text-[11px] italic text-muted-foreground">{offer.latinName}</p>
 
-        <div className="mt-1.5 flex items-center text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            <span>{offer.originFlag} {offer.origin}</span>
+        {offer.certifications && offer.certifications.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+            {offer.certifications.slice(0, 3).map((cert) => (
+              <span
+                key={cert}
+                className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+              >
+                <Award className="h-2.5 w-2.5 text-primary" />
+                {cert}
+              </span>
+            ))}
           </div>
-        </div>
+        )}
 
 
         <div className="mt-auto pt-3">
