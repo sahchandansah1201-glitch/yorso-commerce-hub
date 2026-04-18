@@ -58,6 +58,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     code: "ASC",
     name: "ASC",
     website: "https://www.asc-aqua.org",
+    logo: ascLogo,
     i18n: {
       en: {
         fullName: "Aquaculture Stewardship Council",
@@ -107,6 +108,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     code: "BRC",
     name: "BRC",
     website: "https://www.brcgs.com",
+    logo: brcLogo,
     i18n: {
       en: {
         fullName: "BRCGS Global Standard for Food Safety",
