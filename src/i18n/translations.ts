@@ -89,6 +89,8 @@ type TranslationKeys = {
   cat_subtitle: string;
   cat_offers: string;
   cat_names: Record<string, string>;
+  species_names: Record<string, string>;
+  species_descriptors: Record<string, string>;
 
   // Supplier Verification
   verify_title: string;
@@ -411,10 +413,30 @@ const en: TranslationKeys = {
   ],
 
   // Category
-  cat_title: "Browse by Category",
-  cat_subtitle: "Find exactly what you need — from salmon and shrimp to crab and surimi.",
+  cat_title: "Source by Species",
+  cat_subtitle: "Real commercial species, real wholesale offers — recognise what you buy at a glance.",
   cat_offers: "offers",
   cat_names: { Salmon: "Salmon", Shrimp: "Shrimp", Whitefish: "Whitefish", Tuna: "Tuna", Crab: "Crab", "Squid & Octopus": "Squid & Octopus", Shellfish: "Shellfish", Surimi: "Surimi" },
+  species_names: {
+    atlanticSalmon: "Atlantic Salmon",
+    cod: "Atlantic Cod",
+    haddock: "Haddock",
+    hake: "European Hake",
+    seaBass: "Sea Bass",
+    seaBream: "Sea Bream",
+    yellowfinTuna: "Yellowfin Tuna",
+    mackerel: "Atlantic Mackerel",
+  },
+  species_descriptors: {
+    atlanticSalmon: "Farmed · Norway, Faroe",
+    cod: "Wild-caught · Atlantic",
+    haddock: "Wild-caught · North Sea",
+    hake: "Wild-caught · Iberian",
+    seaBass: "Farmed · Mediterranean",
+    seaBream: "Farmed · Mediterranean",
+    yellowfinTuna: "Loins · Sashimi grade",
+    mackerel: "Wild-caught · Pelagic",
+  },
 
   // Supplier Verification
   verify_title: "How Suppliers Are Verified",
@@ -762,10 +784,30 @@ const ru: TranslationKeys = {
     { title: "Доверие через верификацию", desc: "Демонстрируйте сертификаты и репутацию. Покупатели в первую очередь обращаются к проверенным поставщикам." },
   ],
 
-  cat_title: "Категории продукции",
-  cat_subtitle: "Найдите именно то, что нужно — от лосося и креветок до краба и сурими.",
+  cat_title: "Поиск по видам рыбы",
+  cat_subtitle: "Реальные коммерческие виды и реальные оптовые предложения — узнавайте товар с первого взгляда.",
   cat_offers: "предложений",
   cat_names: { Salmon: "Лосось", Shrimp: "Креветки", Whitefish: "Белая рыба", Tuna: "Тунец", Crab: "Краб", "Squid & Octopus": "Кальмар и осьминог", Shellfish: "Моллюски", Surimi: "Сурими" },
+  species_names: {
+    atlanticSalmon: "Атлантический лосось",
+    cod: "Атлантическая треска",
+    haddock: "Пикша",
+    hake: "Европейская хек",
+    seaBass: "Сибас",
+    seaBream: "Дорада",
+    yellowfinTuna: "Желтопёрый тунец",
+    mackerel: "Атлантическая скумбрия",
+  },
+  species_descriptors: {
+    atlanticSalmon: "Аквакультура · Норвегия, Фареры",
+    cod: "Дикий вылов · Атлантика",
+    haddock: "Дикий вылов · Северное море",
+    hake: "Дикий вылов · Иберия",
+    seaBass: "Аквакультура · Средиземноморье",
+    seaBream: "Аквакультура · Средиземноморье",
+    yellowfinTuna: "Лоины · Сашими-класс",
+    mackerel: "Дикий вылов · Пелагический",
+  },
 
   verify_title: "Как проверяются поставщики",
   verify_subtitle: "Наша верификация заслужена, а не куплена. Вот что именно мы проверяем — и чем это отличается от того, что вы видели раньше.",
@@ -1107,10 +1149,30 @@ const es: TranslationKeys = {
     { title: "Confianza por verificación", desc: "Muestre certificaciones y trayectoria. Los compradores contactan primero a verificados." },
   ],
 
-  cat_title: "Explorar por categoría",
-  cat_subtitle: "Encuentre exactamente lo que necesita — desde salmón y camarón hasta cangrejo y surimi.",
+  cat_title: "Comprar por especie",
+  cat_subtitle: "Especies comerciales reales y ofertas mayoristas reales — reconozca el producto a primera vista.",
   cat_offers: "ofertas",
   cat_names: { Salmon: "Salmón", Shrimp: "Camarón", Whitefish: "Pescado blanco", Tuna: "Atún", Crab: "Cangrejo", "Squid & Octopus": "Calamar y pulpo", Shellfish: "Mariscos", Surimi: "Surimi" },
+  species_names: {
+    atlanticSalmon: "Salmón atlántico",
+    cod: "Bacalao del Atlántico",
+    haddock: "Eglefino",
+    hake: "Merluza europea",
+    seaBass: "Lubina",
+    seaBream: "Dorada",
+    yellowfinTuna: "Atún de aleta amarilla",
+    mackerel: "Caballa atlántica",
+  },
+  species_descriptors: {
+    atlanticSalmon: "Acuicultura · Noruega, Feroe",
+    cod: "Captura salvaje · Atlántico",
+    haddock: "Captura salvaje · Mar del Norte",
+    hake: "Captura salvaje · Ibérico",
+    seaBass: "Acuicultura · Mediterráneo",
+    seaBream: "Acuicultura · Mediterráneo",
+    yellowfinTuna: "Lomos · Calidad sashimi",
+    mackerel: "Captura salvaje · Pelágico",
+  },
 
   verify_title: "Cómo se verifican los proveedores",
   verify_subtitle: "Nuestra verificación se gana, no se compra. Esto es lo que revisamos — y en qué se diferencia.",
