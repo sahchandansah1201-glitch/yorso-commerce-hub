@@ -70,7 +70,7 @@ const CategoryAcceleration = () => {
                 </div>
                 <div className="flex items-center gap-2 p-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">{name}</p>
+                    <p className="text-sm font-semibold leading-snug text-foreground">{name}</p>
                     <p className="text-xs leading-snug text-muted-foreground">
                       {descriptor} · {sp.offers} {t.cat_offers}
                     </p>
