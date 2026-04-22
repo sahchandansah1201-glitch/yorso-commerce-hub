@@ -255,3 +255,182 @@ describe("analytics.track UI safety", () => {
     ).not.toThrow();
   });
 });
+
+// ─── Failure counter ────────────────────────────────────────────────────────
+// Internal `analytics_failures` telemetry: counts + recent context entries
+// for transport/serialization issues. Must never reach the UI.
+
+describe("analytics failure counter", () => {
+  let originalBeacon: typeof navigator.sendBeacon | undefined;
+  let originalFetch: typeof globalThis.fetch | undefined;
+
+  beforeEach(() => {
+    __resetAnalyticsFailures();
+    originalBeacon = navigator.sendBeacon;
+    originalFetch = globalThis.fetch;
+  });
+
+  afterEach(() => {
+    if (originalBeacon === undefined) {
+      delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    } else {
+      Object.defineProperty(navigator, "sendBeacon", {
+        configurable: true,
+        value: originalBeacon,
+      });
+    }
+    globalThis.fetch = originalFetch as typeof globalThis.fetch;
+  });
+
+  it("starts at zero", () => {
+    const f = getAnalyticsFailures();
+    expect(f.total).toBe(0);
+    expect(f.recent).toEqual([]);
+  });
+
+  it("records 'serialize' on circular payload and drops the batch", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: vi.fn().mockReturnValue(true),
+    });
+    const p = new BatchProvider();
+    const bad = env("bad");
+    (bad.payload as Record<string, unknown>).self = bad.payload;
+    p.send(bad);
+    p.flush();
+
+    const f = getAnalyticsFailures();
+    expect(f.total).toBe(1);
+    expect(f.byReason.serialize).toBe(1);
+    expect(f.recent[0]).toMatchObject({
+      reason: "serialize",
+      transport: "none",
+      droppedEvents: 1,
+    });
+    expect(f.recent[0].errorMessage).toMatch(/circular|JSON/i);
+    expect(navigator.sendBeacon).not.toHaveBeenCalled();
+  });
+
+  it("records 'beacon_threw' and falls back to fetch", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: () => {
+        throw new Error("beacon disabled");
+      },
+    });
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(""));
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+
+    const f = getAnalyticsFailures();
+    expect(f.byReason.beacon_threw).toBe(1);
+    expect(f.recent[0]).toMatchObject({
+      reason: "beacon_threw",
+      transport: "beacon",
+      errorName: "Error",
+      errorMessage: "beacon disabled",
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("records 'beacon_refused' when sendBeacon returns false", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: vi.fn().mockReturnValue(false),
+    });
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response("")) as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+
+    const f = getAnalyticsFailures();
+    expect(f.byReason.beacon_refused).toBe(1);
+    expect(f.recent[0].transport).toBe("beacon");
+  });
+
+  it("records 'fetch_rejected' when fetch fails (offline)", async () => {
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    globalThis.fetch = vi
+      .fn()
+      .mockRejectedValue(new TypeError("Failed to fetch")) as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const f = getAnalyticsFailures();
+    expect(f.byReason.fetch_rejected).toBe(1);
+    expect(f.recent.at(-1)).toMatchObject({
+      reason: "fetch_rejected",
+      transport: "fetch",
+      errorName: "TypeError",
+    });
+  });
+
+  it("records 'no_transport' when both beacon and fetch are gone", () => {
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    delete (globalThis as { fetch?: unknown }).fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+
+    const f = getAnalyticsFailures();
+    expect(f.byReason.no_transport).toBe(1);
+  });
+
+  it("records 'provider_threw' from analytics.track without surfacing", async () => {
+    const { default: analytics } = await import("./analytics");
+    setProvider({
+      name: "boom",
+      send() {
+        throw new Error("transport down");
+      },
+    });
+    expect(() => analytics.track("hero_primary_cta_click")).not.toThrow();
+
+    const f = getAnalyticsFailures();
+    expect(f.byReason.provider_threw).toBeGreaterThanOrEqual(1);
+    expect(f.recent.at(-1)).toMatchObject({
+      reason: "provider_threw",
+      transport: "provider",
+      errorMessage: "transport down",
+      droppedEvents: 1,
+    });
+  });
+
+  it("caps recent[] at 20 entries", () => {
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    delete (globalThis as { fetch?: unknown }).fetch;
+
+    const p = new BatchProvider();
+    for (let i = 0; i < 30; i++) {
+      p.send(env(`evt_${i}`));
+      p.flush();
+    }
+
+    const f = getAnalyticsFailures();
+    expect(f.total).toBe(30);
+    expect(f.recent).toHaveLength(20);
+  });
+
+  it("exposes counters on window.__yorsoAnalyticsFailures", () => {
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    delete (globalThis as { fetch?: unknown }).fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exposed = (window as any).__yorsoAnalyticsFailures;
+    expect(exposed.total).toBeGreaterThan(0);
+    expect(exposed.byReason.no_transport).toBeGreaterThan(0);
+  });
+});
