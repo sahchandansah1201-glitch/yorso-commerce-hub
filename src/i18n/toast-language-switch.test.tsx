@@ -123,8 +123,8 @@ describe("Validation toasts follow current language after in-UI switch", () => {
     );
     expect(getToastText()).not.toContain(translations.en.reg_couldNotContinue);
 
-    // 2) Сбросим toast-контейнер и переключим язык в UI.
-    dismissToasts();
+    // 2) Переключаем язык в UI (toast от прошлого submit может ещё висеть —
+    //    это ОК: мы дождёмся, что в контейнере появится строка нового языка).
     act(() => setLang("en"));
 
     // 3) Повторный submit — новый toast уже на английском.
