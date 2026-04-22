@@ -37,7 +37,7 @@ const RegisterOnboarding = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/onboarding");
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const isSupplier = data.role === "supplier";
 
   const categories = isSupplier ? SUPPLIER_CATEGORIES : BUYER_CATEGORIES;
