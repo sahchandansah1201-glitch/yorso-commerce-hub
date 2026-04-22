@@ -110,6 +110,13 @@
     @apply border-border;
   }
 
+  html {
+    /* Header is sticky h-16 (4rem) + 1px border. Reserve 5rem so anchor
+       targets (#offers, #categories, #how-it-works, #faq) and smooth
+       scrollIntoView land below the header instead of under it. */
+    scroll-padding-top: 5rem;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
