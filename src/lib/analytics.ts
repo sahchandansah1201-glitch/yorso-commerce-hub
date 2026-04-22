@@ -160,7 +160,25 @@ export interface EventPayloadMap {
     /** Length of the code submitted on this attempt (0..6). */
     enteredCodeLength: number;
   };
-  // OTP input diagnostics ──────────────────────────────────────
+  /**
+   * Fired exactly once per resend that NEVER produced a follow-up verify attempt
+   * because the user left the verify page (route change, tab close, refresh).
+   * Closes the loop with `registration_resend_outcome` so resend efficacy is
+   * measurable end-to-end even for abandoned sessions.
+   */
+  registration_resend_abandoned: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** 1-based index of the abandoned resend within the session. */
+    resendIndex: number;
+    /** ms between the resend click and the abandonment. */
+    msSinceResend: number;
+    /** How the page was left. */
+    leaveReason: "unmount" | "pagehide";
+    /** Number of code slots the user had filled when they left (0..6). */
+    filledCount: number;
+  };
   // These exist to answer: "are verify failures driven by user input behaviour
   // (paste shape, backspace storms, premature blur) vs. wrong codes?"
   registration_otp_paste: {
