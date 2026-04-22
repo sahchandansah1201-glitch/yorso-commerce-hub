@@ -46,7 +46,7 @@ const SignIn = () => {
     const result = await authApi.signIn({ method: "email", identifier: email, password: emailPassword });
     setSigninLoading(false);
     if (isApiError(result)) {
-      toast.error("Sign in failed", { description: getErrorMessage(result.code) });
+      toast.error(t.signin_signInFailed, { description: getErrorMessage(result.code) });
       analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
       return;
     }
@@ -63,7 +63,7 @@ const SignIn = () => {
     const result = await authApi.signIn({ method: "phone", identifier: phoneNumber, password: phonePassword });
     setSigninLoading(false);
     if (isApiError(result)) {
-      toast.error("Sign in failed", { description: getErrorMessage(result.code) });
+      toast.error(t.signin_signInFailed, { description: getErrorMessage(result.code) });
       analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
       return;
     }
@@ -79,7 +79,7 @@ const SignIn = () => {
     const result = await authApi.requestPasswordReset({ email: forgotEmail });
     setForgotLoading(false);
     if (isApiError(result)) {
-      toast.error("Could not send link", { description: getErrorMessage(result.code) });
+      toast.error(t.signin_couldNotSendLink, { description: getErrorMessage(result.code) });
       analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
       return;
     }

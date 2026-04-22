@@ -48,7 +48,7 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
               <button
                 onClick={() => navigate(-1)}
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                aria-label="Go back"
+                aria-label={t.aria_goBack}
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>

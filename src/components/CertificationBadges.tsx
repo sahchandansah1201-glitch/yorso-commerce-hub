@@ -59,7 +59,7 @@ const CertificationBadges = ({
               "inline-flex items-center rounded border border-border bg-muted/50 font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               sizeClasses[size],
             )}
-            aria-label={`View details for ${cert} certification`}
+            aria-label={t.cert_viewDetails.replace("{cert}", cert)}
           >
             <Award className={cn(iconSize[size], "text-primary")} />
             {cert}
