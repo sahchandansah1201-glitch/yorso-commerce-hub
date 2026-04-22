@@ -331,6 +331,11 @@ type TranslationKeys = {
   offerDetail_registerToContact: string;
   offerDetail_freeRegistration: string;
 
+  // ─── 404 / Not Found ───────────────────────────────────────────
+  notFound_title: string;
+  notFound_subtitle: string;
+  notFound_returnHome: string;
+
   // ─── Shared: TrustMicroText ────────────────────────────────────
   trustMicro_users: string;
   trustMicro_security: string;
@@ -726,6 +731,11 @@ const en: TranslationKeys = {
   offerDetail_registerToContact: "Register to Contact Supplier",
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
 
+  // 404 / Not Found
+  notFound_title: "404",
+  notFound_subtitle: "Oops! Page not found",
+  notFound_returnHome: "Return to Home",
+
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
   trustMicro_security: "Your data is handled according to our Privacy Policy",
@@ -1108,6 +1118,11 @@ const ru: TranslationKeys = {
   offerDetail_registerToContact: "Зарегистрируйтесь для связи с поставщиком",
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
 
+  // 404 / Not Found
+  notFound_title: "404",
+  notFound_subtitle: "Упс! Страница не найдена",
+  notFound_returnHome: "Вернуться на главную",
+
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
   trustMicro_security: "Ваши данные обрабатываются согласно нашей Политике конфиденциальности",
@@ -1489,6 +1504,11 @@ const es: TranslationKeys = {
   offerDetail_offers: "Ofertas",
   offerDetail_registerToContact: "Regístrese para contactar al proveedor",
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
+
+  // 404 / Not Found
+  notFound_title: "404",
+  notFound_subtitle: "¡Vaya! Página no encontrada",
+  notFound_returnHome: "Volver al inicio",
 
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",
