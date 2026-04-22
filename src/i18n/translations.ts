@@ -382,6 +382,9 @@ const en: TranslationKeys = {
   offers_showLess: "Show less",
   offers_listLabel: "Live wholesale offers from verified suppliers",
   offers_cardLabel: "{product} from {origin}, {price} per kg. View offer.",
+  offers_priceUnit_perKg: "per kg",
+  offers_qtyUnit_kg: "kg",
+  offers_moqLabel: "MOQ",
 
   // Offer Card
   card_verified: "Verified",
