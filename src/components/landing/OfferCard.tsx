@@ -23,9 +23,17 @@ const translateFreshness = (raw: string, t: { card_listedToday: string; card_upd
 };
 
 const OfferCard = ({ offer }: OfferCardProps) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const FormatIcon = formatIcon[offer.format];
   const formatLabels = { Frozen: t.card_frozen, Fresh: t.card_fresh, Chilled: t.card_chilled };
+
+  // Если у оффера есть числовая цена — форматируем по локали через Intl.
+  // Иначе fallback на захардкоженную строку (для офферов, ещё не мигрированных).
+  const hasNumericPrice = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
+  const formattedPrice = hasNumericPrice
+    ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
+    : offer.priceRange;
+  const priceUnitLabel = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
