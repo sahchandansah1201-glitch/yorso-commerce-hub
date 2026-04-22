@@ -22,6 +22,7 @@ const RegisterVerify = () => {
   const [loading, setLoading] = useState(false);
   const submittingRef = useRef(false);
   const attemptsRef = useRef(0);
+  const resendCountRef = useRef(0);
 
   if (!guardPassed) return null;
 
@@ -31,6 +32,7 @@ const RegisterVerify = () => {
     setLoading(true);
     setError("");
     attemptsRef.current += 1;
+    const enteredCodeLength = full.length;
     const result = await authApi.verifyEmail({ sessionId: data.sessionId, code: full });
     setLoading(false);
     submittingRef.current = false;
@@ -51,6 +53,8 @@ const RegisterVerify = () => {
         reason,
         attempt: attemptsRef.current,
         elapsedMs: data.emailSubmittedAt > 0 ? Date.now() - data.emailSubmittedAt : null,
+        enteredCodeLength,
+        isResend: resendCountRef.current > 0,
       });
       if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
@@ -107,6 +111,7 @@ const RegisterVerify = () => {
   };
 
   const handleResend = () => {
+    resendCountRef.current += 1;
     analytics.track("registration_resend_code");
     toast.success(t.reg_codeResent, { description: t.reg_codeResentDesc });
   };
