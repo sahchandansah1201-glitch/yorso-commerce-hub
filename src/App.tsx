@@ -41,6 +41,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <RegistrationProvider>
+            <DocumentMetaSync />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/register" element={<RegisterChoose />} />
