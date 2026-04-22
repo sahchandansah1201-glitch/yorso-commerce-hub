@@ -78,8 +78,8 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         <div className="mt-auto pt-3">
           <div className="flex items-center gap-2">
-            <span className="font-heading text-base font-bold text-foreground">{offer.priceRange}</span>
-            <span className="text-xs text-muted-foreground">{t.card_perKg}</span>
+            <span className="font-heading text-base font-bold text-foreground" data-testid="offer-price">{formattedPrice}</span>
+            <span className="text-xs text-muted-foreground" data-testid="offer-price-unit">{priceUnitLabel}</span>
           </div>
         </div>
 
