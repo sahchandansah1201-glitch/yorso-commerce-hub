@@ -1,153 +1,127 @@
 
 
-# Стратегия и концепции редизайна главной страницы YORSO
+# План: Контракты Phase 0 — Analytics + Backend (Registration + Marketplace)
 
-## Диагностика текущего состояния
-
-Текущая главная (старая версия) — это по сути каталог с простой навигацией. Она показывает товары сразу, что создаёт ощущение «живого» маркетплейса, но:
-- Нет trust-архитектуры (верификация, отзывы, proof)
-- Нет progressive disclosure — всё свалено в каталог
-- Нет конверсионной воронки — регистрация не мотивирована
-- Карточки товаров слишком примитивные (нет поставщика, происхождения, свежести)
-- Нет B2B-позиционирования — выглядит как розничный магазин
+Реализуем три направления последовательно, каждое — самостоятельный шаг с приёмкой. Все три используют один и тот же стиль контрактов: типы → моки → адаптер → подключение UI → документация.
 
 ---
 
-## Информационная архитектура новой главной
+## Шаг 1. Analytics Contract v1
+
+**Что делаем:** превращаем `analytics.ts` из «свободного track()» в строгий типизированный контракт с провайдер-адаптером и публичной документацией.
+
+**Изменения в коде:**
+- `src/lib/analytics.ts` — рефакторинг:
+  - Per-event payload типы: каждое событие из `AnalyticsEvent` получает свой интерфейс (например, `LiveOfferCardClickPayload { offerId; supplierId; species; position; surface }`).
+  - Перегрузка `track<E extends AnalyticsEvent>(event: E, payload: PayloadFor<E>)` — TS требует именно нужные поля.
+  - Базовые поля (`timestamp`, `language`, `url`, `sessionId`, `userRole`) добавляются автоматически.
+  - `sessionId` — UUID в `sessionStorage`, генерится один раз на сессию.
+- `src/lib/analytics-provider.ts` (новый) — адаптер:
+  - Интерфейс `AnalyticsProvider { send(event, payload): void }`.
+  - Реализации: `ConsoleProvider` (dev), `NoopProvider` (prod-заглушка), `BatchProvider` (буфер + `navigator.sendBeacon` на `/api/analytics`).
+  - Конфиг через `import.meta.env.VITE_ANALYTICS_PROVIDER`.
+- Аудит существующих вызовов `analytics.track(...)` по проекту — добавить недостающие payload-поля под новые типы.
+
+**Документация:**
+- `.lovable/analytics-contract.md` — таблица: `event | trigger | surface | payload | KPI`.
+  - KPI-колонка: `traffic +411%` / `registration +539%` / `retention +361%` / `trust +300%`.
+  - Naming-конвенция: `surface_object_action`, snake_case.
+  - Группировка: Landing, Offers, Registration, Auth, Scroll/Section, Future.
+
+**Приёмка:** `tsc` ловит вызовы с неправильным payload; в console.log в dev видны обогащённые события; doc открывается и читается.
+
+---
+
+## Шаг 2. Backend Contract v1 — Registration (доводка)
+
+**Что делаем:** в `api-contracts.ts` уже есть 9 операций и моки, но UI регистрации их **не использует** — пишем напрямую в `RegistrationContext` и `toast.success`. Подключаем моки и расширяем error-кейсы.
+
+**Изменения в коде:**
+- `src/lib/api-contracts.ts` — расширение моков:
+  - Реалистичные ошибки по триггерам: email `taken@yorso.test` → `EMAIL_ALREADY_EXISTS`; код `123456` → success, иначе `INVALID_CODE`; rate-limit после 5 запросов кода (in-memory счётчик); 5% случайный `SERVER_ERROR` для отладки UI ошибок (флаг `VITE_MOCK_FLAKY`).
+  - Логические переходы: `verifyEmail` нельзя вызвать без `startRegistration` (несуществующий `sessionId` → `VERIFICATION_FAILED`).
+- Подключение в страницы:
+  - `RegisterEmail.tsx` → `authApi.startRegistration` + loading state на кнопке + inline error по `field`.
+  - `RegisterVerify.tsx` → `authApi.verifyEmail` + `authApi.requestPhoneVerification` (resend code).
+  - `RegisterDetails.tsx` → `authApi.submitDetails` + `authApi.verifyPhone`.
+  - `RegisterOnboarding.tsx` → `authApi.submitOnboarding`.
+  - `RegisterCountries.tsx` → `authApi.submitMarkets`.
+  - `RegisterReady.tsx` → `authApi.completeRegistration`.
+  - `SignIn.tsx` → `authApi.signIn` + `requestPasswordReset`.
+- `RegistrationContext` — хранить `sessionId`, возвращаемый `startRegistration`, прокидывать в последующие вызовы.
+- Унифицированный хук `useApiCall()` — обёртка над `ApiResult<T>`, возвращает `{ loading, error, run }`, дергает `analytics.track('api_error', ...)` при `ok:false`.
+
+**Документация:**
+- `.lovable/backend-contract-registration.md` — endpoint, payload, success, error-codes, mock-триггеры, frontend state-машина.
+
+**Приёмка:** все 7 шагов регистрации идут через `authApi.*`; ошибки рендерятся inline; refresh страницы сохраняет `sessionId`; mock-триггеры (`taken@yorso.test`, код `123456`) работают.
+
+---
+
+## Шаг 3. Backend Contract v1 — Marketplace
+
+**Что делаем:** новый файл контрактов для каталожной части + перевод страниц `/offers`, `/offers/:id`, `/supplier/:slug` (если будет), `LiveOffers` на моки.
+
+**Изменения в коде:**
+- `src/lib/marketplace-contracts.ts` (новый) — 6 операций:
+  1. `GET /api/offers` — `listOffers(filters, pagination, sort)` → `{ items: OfferSummary[]; total; page; pageSize; facets }`.
+  2. `GET /api/offers/:id` — `getOfferDetail(id)` → `OfferDetail` (специф., галерея, supplier, terms).
+  3. `GET /api/suppliers/:slug` — `getSupplierProfile(slug)` → `SupplierProfile` (verification, certs, products, activity).
+  4. `POST /api/price-access/request` — `requestPriceAccess({ offerId, message })` → `{ requestId, status: 'pending' }`.
+  5. `GET /api/price-access/status?offerId=` — `getPriceAccessStatus(offerId)` → `'none'|'pending'|'approved'|'rejected'`.
+  6. `GET /api/offers/featured` — для `LiveOffers` на homepage.
+  - Типы переиспользуют существующие из `mockOffers.ts` (`SupplierInfo`, `ProductSpecs`, `CommercialTerms`, `GalleryImage`).
+  - Error-codes: `OFFER_NOT_FOUND`, `SUPPLIER_NOT_FOUND`, `PRICE_ACCESS_DENIED`, `PRICE_ACCESS_ALREADY_REQUESTED`, `AUTH_REQUIRED`.
+  - Моки читают из `src/data/mockOffers.ts` + имитируют пагинацию/фильтрацию/задержку 300–800мс.
+  - `requestPriceAccess` хранит state в `sessionStorage` (`yorso_price_access`), чтобы статус сохранялся между переходами.
+- Подключение страниц:
+  - `Offers.tsx` → `marketplaceApi.listOffers` с loading-skeleton, empty-state, error-state.
+  - `OfferDetail.tsx` → `marketplaceApi.getOfferDetail` + `getPriceAccessStatus` + кнопка `requestPriceAccess` (если не залогинен → `AUTH_REQUIRED` → редирект на `/register?return=...`).
+  - `LiveOffers.tsx` → `marketplaceApi.getFeaturedOffers`.
+
+**Документация:**
+- `.lovable/backend-contract-marketplace.md` — endpoint × payload × error × mock-trigger × состояние UI.
+
+**Приёмка:** каталог рендерится из мок-API (видна задержка/skeleton); фильтры идут через payload; price access флоу работает с persisted статусом; ошибочные id показывают 404-state.
+
+---
+
+## Технические детали
 
 ```text
-┌─────────────────────────────────────────────┐
-│ 1. HEADER                                   │
-│    Logo · Каталог · О нас · Язык · Войти    │
-│    Регистрация (кнопка)                     │
-├─────────────────────────────────────────────┤
-│ 2. HERO                                     │
-│    Заголовок + подзаголовок + поиск/катег.  │
-│    CTA: Register free / Explore offers      │
-│    Proof strip: 1200+ offers · 48 countries │
-├─────────────────────────────────────────────┤
-│ 3. LIVE WHOLESALE OFFERS (обязательный)     │
-│    4 карточки (desktop) с реальными фото    │
-│    Фото 55-60% · Название · Вид · Цена     │
-│    Поставщик · Верификация · Свежесть       │
-│    CTA: View offer                          │
-├─────────────────────────────────────────────┤
-│ 4. TRUST STRIP                              │
-│    Цифры: поставщики · страны · сделки      │
-│    Логотипы сертификаций или партнёров      │
-├─────────────────────────────────────────────┤
-│ 5. BUYER / SUPPLIER VALUE SPLIT             │
-│    Две колонки: зачем байеру / поставщику   │
-├─────────────────────────────────────────────┤
-│ 6. CATEGORY ACCELERATION                    │
-│    Быстрый доступ по категориям             │
-├─────────────────────────────────────────────┤
-│ 7. SUPPLIER VERIFICATION                    │
-│    Как проверяются поставщики               │
-│    CTA: Register to unlock supplier details │
-├─────────────────────────────────────────────┤
-│ 8. MARKETPLACE ACTIVITY                     │
-│    Живая лента: новые листинги, активность  │
-├─────────────────────────────────────────────┤
-│ 9. SOCIAL PROOF                             │
-│    Отзывы/кейсы реальных покупателей        │
-├─────────────────────────────────────────────┤
-│ 10. FAQ / OBJECTIONS                        │
-│    Ответы на типичные возражения            │
-├─────────────────────────────────────────────┤
-│ 11. FINAL CTA                               │
-│    Register and start sourcing              │
-├─────────────────────────────────────────────┤
-│ 12. FOOTER                                  │
-│    Навигация · Контакты · Соцсети · Языки   │
-└─────────────────────────────────────────────┘
+src/
+├── lib/
+│   ├── analytics.ts                  ← Шаг 1: типизированные payload'ы
+│   ├── analytics-provider.ts         ← Шаг 1 (новый): адаптер
+│   ├── api-contracts.ts              ← Шаг 2: расширение моков и error-кейсов
+│   ├── marketplace-contracts.ts      ← Шаг 3 (новый)
+│   └── use-api-call.ts               ← Шаг 2 (новый): хук-обёртка
+├── pages/register/*.tsx              ← Шаг 2: подключение authApi
+├── pages/Offers.tsx                  ← Шаг 3
+├── pages/OfferDetail.tsx             ← Шаг 3
+└── components/landing/LiveOffers.tsx ← Шаг 3
+
+.lovable/
+├── analytics-contract.md             ← Шаг 1
+├── backend-contract-registration.md  ← Шаг 2
+└── backend-contract-marketplace.md   ← Шаг 3
 ```
 
----
-
-## Концепт A: Conversion-Forward
-
-**Философия:** Максимальная скорость к регистрации. Hero компактный, Live Offers занимают экран сразу. Агрессивные CTA.
-
-- Hero: минимальный, 40vh. Крупный заголовок, строка поиска по продуктам, две кнопки. Proof-числа прямо в hero.
-- Live Offers: сразу под hero, 4 карточки в ряд. Кнопка «View all offers» ведёт на регистрацию.
-- Mid-page CTA появляется рано — после offers + trust strip (после ~2 экранов скролла).
-- Supplier verification — краткий блок с иконками, не длинный текст.
-- FAQ сжатый — 4-5 вопросов.
-- Итого: ~6-7 экранов скролла. Быстрая страница.
-
-**Плюсы:** Быстрая конверсия, меньше отвлечений.
-**Минусы:** Меньше времени на построение доверия для скептичной аудитории.
+**Принципы для всех шагов:**
+- Никакого реального бэкенда, БД, Supabase, auth.
+- Все моки — чистые функции с `delay()`, без сетевых вызовов.
+- Все state — `sessionStorage` с safe-parsing.
+- Контракты — single source of truth: типы экспортируются и переиспользуются в UI.
+- Каждый mock-триггер задокументирован в md (чтобы можно было руками протестировать ошибки).
+- `import.meta.env.VITE_*` флаги: `VITE_ANALYTICS_PROVIDER`, `VITE_MOCK_FLAKY`, `VITE_MOCK_LATENCY_MS`.
 
 ---
 
-## Концепт B: Trust/Editorial-Forward
+## Порядок и точки одобрения
 
-**Философия:** Строим доверие через глубину контента. Каждая секция усиливает уверенность перед просьбой о регистрации.
+1. **Шаг 1 (Analytics)** — самый изолированный, ничего не ломает в UI. Делаем первым.
+2. **Шаг 2 (Registration)** — затрагивает 7 страниц регистрации, нужна аккуратная миграция. Делаем вторым, чтобы новые ошибки уже трекались через Analytics из Шага 1.
+3. **Шаг 3 (Marketplace)** — самый большой по объёму UI-изменений. Делаем последним, моки покроют каталог целиком.
 
-- Hero: 50vh, более editorial. Подзаголовок раскрывает ценность. Категории-чипы под поиском.
-- Live Offers: 4 карточки + «Обновлено сегодня» маркер на всю секцию.
-- Trust strip: развёрнутый — цифры + иконки процесса верификации.
-- Buyer/Supplier split: развёрнутые карточки с 3-4 преимуществами каждая.
-- Verification section: пошаговый процесс с визуалом (как Alibaba Trade Assurance).
-- Activity feed: живая лента последних действий на платформе.
-- Social proof: 2-3 цитаты с именами, компаниями, странами.
-- FAQ: 6-8 вопросов, включая «Как проверяются поставщики?», «Безопасны ли сделки?».
-- Итого: ~9-10 экранов. Глубокая, убедительная страница.
-
-**Плюсы:** Максимальное доверие, подходит для скептичной B2B-аудитории.
-**Минусы:** Длиннее, часть пользователей может не доскроллить.
-
----
-
-## Рекомендация: Концепт B (Trust/Editorial-Forward)
-
-**Почему:**
-1. Аудитория YORSO — B2B закупщики. Они не регистрируются импульсивно. Им нужны доказательства.
-2. Цель +300% trust к поставщикам невозможна без глубокой trust-архитектуры.
-3. Цель +411% page exploration требует больше контента для изучения.
-4. Live Offers всё равно появляются сразу — конверсионный момент не теряется.
-5. Скептичный B2B-пользователь скорее зарегистрируется после 9 экранов доверия, чем после 4 экранов давления.
-
-Мы берём основу Концепта B, но добавляем конверсионную агрессию из A: компактный hero, ранний mid-page CTA, чёткие кнопки.
-
----
-
-## Визуальное направление
-
-- **Основной цвет:** Оранжевый акцент (как текущий YORSO)
-- **Фон:** Светлый, тёплый белый (#FAFAF8 / #F8F9FA)
-- **Тёмные элементы:** Deep navy (#1B2A4A) для заголовков и header
-- **Типографика:** Strong hierarchy — крупные заголовки, средний body
-- **Карточки:** Белые с мягкими тенями, фото 4:3, оранжевые CTA
-- **Стиль:** Premium B2B, международный, editorial, морская торговля
-- **Мультиязычность:** Подготовка структуры под i18n, начинаем с английского
-
----
-
-## План реализации (после одобрения)
-
-1. Сохранить Knowledge file с визией, персонами, целями
-2. Настроить i18n-инфраструктуру
-3. Создать дизайн-токены (цвета, типографика)
-4. Header
-5. Hero
-6. Live Wholesale Offers (с моковыми данными)
-7. Trust Strip
-8. Buyer/Supplier Value Split
-9. Category Acceleration
-10. Supplier Verification
-11. Marketplace Activity
-12. Social Proof
-13. FAQ
-14. Final CTA
-15. Footer
-16. Мобильная адаптация и финальная полировка
-17. Event tracking план
-
-Каждая секция — отдельный компонент, с ратionale и гипотезами.
-
----
-
-Одобряете Концепт B (trust-forward с конверсионными элементами из A) для реализации?
+После каждого шага — короткий чек-лист приёмки, прежде чем двигаться дальше.
 
