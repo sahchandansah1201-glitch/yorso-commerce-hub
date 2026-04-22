@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
-import { authApi, getErrorMessage } from "@/lib/api-contracts";
+import { authApi, getErrorMessage, type ApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
