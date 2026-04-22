@@ -160,6 +160,55 @@ export interface EventPayloadMap {
     /** Length of the code submitted on this attempt (0..6). */
     enteredCodeLength: number;
   };
+  // OTP input diagnostics ──────────────────────────────────────
+  // These exist to answer: "are verify failures driven by user input behaviour
+  // (paste shape, backspace storms, premature blur) vs. wrong codes?"
+  registration_otp_paste: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** Raw length of clipboard text. */
+    rawLength: number;
+    /** Length after digit-only filter (slice 0..6). */
+    digitLength: number;
+    /** True if the pasted content auto-filled all 6 inputs. */
+    filledAllSlots: boolean;
+    /** True if the pasted text contained any non-digit chars. */
+    hadNonDigits: boolean;
+  };
+  registration_otp_backspace: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** Index of the input where backspace was pressed (0..5). */
+    fromIndex: number;
+    /** True if the slot was empty (focus jumped back to previous input). */
+    onEmptySlot: boolean;
+    /** Number of slots filled at the moment of the keypress. */
+    filledCount: number;
+  };
+  registration_otp_focus: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** Index of the focused input (0..5). */
+    inputIndex: number;
+    /** True only on the very first focus event of the verify screen lifecycle. */
+    isFirstFocus: boolean;
+    /** ms since the verify screen mounted. */
+    msSinceMount: number;
+  };
+  registration_otp_blur: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** Index of the blurred input (0..5). */
+    inputIndex: number;
+    /** Number of slots filled at the moment of blur. */
+    filledCount: number;
+    /** True if the user blurred before all 6 slots were filled. */
+    incomplete: boolean;
+  };
   registration_details_completed: { role: UserRole; country: string };
   registration_onboarding_completed: {
     role: UserRole;
