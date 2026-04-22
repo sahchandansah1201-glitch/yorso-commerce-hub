@@ -105,9 +105,9 @@ stages. This is the primary source of the +539% registration KPI.
 
 | Event | Trigger | Surface | Payload | KPI |
 |---|---|---|---|---|
-| `registration_role_selected` | Role chosen on `/register` | `registration` | `role` | REG |
-| `registration_email_submitted` | Email submitted on `/register/email` | `registration` | `role` | REG |
-| `registration_email_verified` | Email OTP accepted on `/register/verify` | `registration` | `role` | REG |
+| `registration_role_selected` | Role chosen on `/register` | `registration` | `role`, `step:1` | REG |
+| `registration_email_submitted` | Email submitted on `/register/email` | `registration` | `role`, `step:2`, `sessionId`, `emailDomain` | REG |
+| `registration_email_verified` | Email OTP accepted on `/register/verify` | `registration` | `role`, `step:3`, `sessionId`, `verificationLatencyMs` | REG |
 | `registration_resend_code` | "Resend code" tapped | `registration` | — | REG |
 | `registration_details_completed` | Details form submitted on `/register/details` | `registration` | `role`, `country` | REG |
 | `registration_onboarding_completed` | Onboarding submitted | `registration` | `role`, `categoriesCount`, `volume`, `certificationsCount` | REG, RET |
