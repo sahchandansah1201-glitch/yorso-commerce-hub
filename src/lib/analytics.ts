@@ -96,6 +96,20 @@ export interface EventPayloadMap {
     /** True if the user requested at least one resend before this attempt. */
     isResend: boolean;
   };
+  /**
+   * Fired when verification is hard-blocked (e.g. rate limit). Distinct from
+   * `_failed` so dashboards can separate transient input errors from blocking states.
+   */
+  registration_verification_blocked: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    reason: "TOO_MANY_ATTEMPTS" | "RATE_LIMITED";
+    /** Number of failed attempts when the block triggered. */
+    attempt: number;
+    /** Recommended wait time before retrying, in seconds (null if API didn't provide one). */
+    retryAfterSec: number | null;
+  };
   registration_resend_code: Empty;
   registration_details_completed: { role: UserRole; country: string };
   registration_onboarding_completed: {

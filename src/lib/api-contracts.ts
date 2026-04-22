@@ -49,6 +49,8 @@ export interface ApiError {
   code: string;
   message: string;
   field?: string;
+  /** Suggested wait time before retrying, in seconds. Set for TOO_MANY_ATTEMPTS / RATE_LIMITED. */
+  retryAfterSec?: number;
 }
 
 export type ApiResult<T> = ApiSuccess<T> | ApiError;
@@ -334,7 +336,20 @@ export const authApi = {
     const sessErr = requireSession(payload.sessionId);
     if (sessErr) return sessErr;
 
-    if (payload.code !== "123456") return err(ERROR_CODES.INVALID_CODE);
+    if (payload.code !== "123456") {
+      // Track per-session failed attempts to surface TOO_MANY_ATTEMPTS with retry hint.
+      const attemptsKey = `yorso_mock_verify_attempts_${payload.sessionId}`;
+      let attempts = 0;
+      try {
+        attempts = Number(sessionStorage.getItem(attemptsKey) ?? "0") || 0;
+      } catch { /* no storage */ }
+      attempts += 1;
+      try { sessionStorage.setItem(attemptsKey, String(attempts)); } catch { /* no storage */ }
+      if (attempts >= 5) {
+        return { ...err(ERROR_CODES.TOO_MANY_ATTEMPTS), retryAfterSec: 60 };
+      }
+      return err(ERROR_CODES.INVALID_CODE);
+    }
 
     upsertSession(payload.sessionId, { emailVerified: true });
     return { ok: true, data: { verified: true } };

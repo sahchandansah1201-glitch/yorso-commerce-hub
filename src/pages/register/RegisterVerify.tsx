@@ -56,6 +56,16 @@ const RegisterVerify = () => {
         enteredCodeLength,
         isResend: resendCountRef.current > 0,
       });
+      if (reason === "TOO_MANY_ATTEMPTS" || result.code === "RATE_LIMITED") {
+        analytics.track("registration_verification_blocked", {
+          role: data.role || "unknown",
+          step: 3,
+          sessionId: data.sessionId,
+          reason: reason === "TOO_MANY_ATTEMPTS" ? "TOO_MANY_ATTEMPTS" : "RATE_LIMITED",
+          attempt: attemptsRef.current,
+          retryAfterSec: typeof result.retryAfterSec === "number" ? result.retryAfterSec : null,
+        });
+      }
       if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
