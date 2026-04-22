@@ -164,12 +164,19 @@ describe("Toast title AND body match the current language after switching", () =
     let setLang!: (l: Language) => void;
     renderRegisterEmail((s) => (setLang = s));
 
+    // Дожидаемся, что начальный рендер формы стабилен (нет спиннера, кнопка enabled).
+    await waitForIdle();
+
     // ── ru ──────────────────────────────────────────────────────────────────
     submitEmail("taken@yorso.test");
     await waitFor(() => {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.ru.reg_couldNotContinue);
     }, { timeout: 3000 });
+    // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: ждём, пока запрос startRegistration завершится
+    // (loading=false, спиннер ушёл). Без этого следующий submit может быть
+    // отброшен `disabled`-кнопкой или интерферировать с прошлым pending-запросом.
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.ru.reg_couldNotContinue);
@@ -185,6 +192,7 @@ describe("Toast title AND body match the current language after switching", () =
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.en.reg_couldNotContinue);
     }, { timeout: 3000 });
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.en.reg_couldNotContinue);
@@ -195,13 +203,12 @@ describe("Toast title AND body match the current language after switching", () =
 
     // ── en → es ─────────────────────────────────────────────────────────────
     act(() => setLang("es"));
-    // Возвращаемся к taken@yorso.test, чтобы получить иной message в description
-    // и заодно убедиться, что Sonner не дедуплицирует с прошлым toast.
     submitEmail("taken@yorso.test");
     await waitFor(() => {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
     }, { timeout: 3000 });
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
