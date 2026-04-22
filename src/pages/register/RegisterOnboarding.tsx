@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useState as useReactState } from "react";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { getCategoryLabel, getCertificationLabel, getVolumeLabel } from "@/i18n/onboarding-labels";
 
 const BUYER_CATEGORIES = [
   "Salmon & Trout", "Shrimp & Prawns", "White Fish (Cod, Haddock, Pollock)",
