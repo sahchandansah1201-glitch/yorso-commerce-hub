@@ -91,6 +91,10 @@ export interface EventPayloadMap {
     attempt: number;
     /** ms since the email was submitted (null if not measurable). */
     elapsedMs: number | null;
+    /** Length of the code the user submitted (0..6). Distinguishes input issues from wrong codes. */
+    enteredCodeLength: number;
+    /** True if the user requested at least one resend before this attempt. */
+    isResend: boolean;
   };
   registration_resend_code: Empty;
   registration_details_completed: { role: UserRole; country: string };
