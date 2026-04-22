@@ -8,7 +8,7 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
-import { authApi, getErrorMessage } from "@/lib/api-contracts";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
