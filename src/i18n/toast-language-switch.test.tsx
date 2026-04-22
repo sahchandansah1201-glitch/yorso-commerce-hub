@@ -88,11 +88,18 @@ const getToastText = () =>
   document.querySelector("[data-sonner-toaster]")?.textContent ?? "";
 
 /**
- * Sonner монтирует toasts внутрь своего контейнера и сам управляет узлами,
- * поэтому ручная очистка innerHTML ломает его внутренний реестр.
- * Вместо «очистки» мы просто ждём, пока новый submit заменит контент:
- * waitFor проверяет вхождение строки нового языка.
+ * Возвращает текст ПОСЛЕДНЕГО (самого нового) toast в контейнере Sonner.
+ * Sonner оставляет угасающие старые toasts в DOM — для проверки «новый
+ * toast пришёл на новом языке» правильно смотреть именно последний узел.
  */
+const getLatestToastText = () => {
+  const toasts = document.querySelectorAll<HTMLElement>(
+    "[data-sonner-toaster] [data-sonner-toast]",
+  );
+  if (toasts.length === 0) return "";
+  return toasts[toasts.length - 1].textContent ?? "";
+};
+
 
 describe("Validation toasts follow current language after in-UI switch", () => {
   const originalLanguage = Object.getOwnPropertyDescriptor(window.navigator, "language");
