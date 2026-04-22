@@ -3,6 +3,7 @@ import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import CertificationBadges from "@/components/CertificationBadges";
+import { formatPriceRange, formatNumber } from "@/lib/format";
 
 interface OfferCardProps {
   offer: SeafoodOffer;
@@ -22,9 +23,17 @@ const translateFreshness = (raw: string, t: { card_listedToday: string; card_upd
 };
 
 const OfferCard = ({ offer }: OfferCardProps) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const FormatIcon = formatIcon[offer.format];
   const formatLabels = { Frozen: t.card_frozen, Fresh: t.card_fresh, Chilled: t.card_chilled };
+
+  // Если у оффера есть числовая цена — форматируем по локали через Intl.
+  // Иначе fallback на захардкоженную строку (для офферов, ещё не мигрированных).
+  const hasNumericPrice = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
+  const formattedPrice = hasNumericPrice
+    ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
+    : offer.priceRange;
+  const priceUnitLabel = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
@@ -69,9 +78,14 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         <div className="mt-auto pt-3">
           <div className="flex items-center gap-2">
-            <span className="font-heading text-base font-bold text-foreground">{offer.priceRange}</span>
-            <span className="text-xs text-muted-foreground">{t.card_perKg}</span>
+            <span className="font-heading text-base font-bold text-foreground" data-testid="offer-price">{formattedPrice}</span>
+            <span className="text-xs text-muted-foreground" data-testid="offer-price-unit">{priceUnitLabel}</span>
           </div>
+          {typeof offer.moqValue === "number" && offer.moqUnitKey && (
+            <p className="mt-1 text-[11px] text-muted-foreground" data-testid="offer-moq">
+              {t.offers_moqLabel}: {formatNumber(offer.moqValue, lang)} {t[offer.moqUnitKey]}
+            </p>
+          )}
         </div>
 
         <Button variant="outline" size="sm" className="mt-3 w-full text-xs font-semibold transition-colors group-hover:bg-primary group-hover:text-primary-foreground">

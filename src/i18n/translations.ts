@@ -45,6 +45,9 @@ type TranslationKeys = {
   offers_showLess: string;
   offers_listLabel: string;
   offers_cardLabel: string;
+  offers_priceUnit_perKg: string;
+  offers_qtyUnit_kg: string;
+  offers_moqLabel: string;
 
   // Offer Card
   card_verified: string;
@@ -379,6 +382,9 @@ const en: TranslationKeys = {
   offers_showLess: "Show less",
   offers_listLabel: "Live wholesale offers from verified suppliers",
   offers_cardLabel: "{product} from {origin}, {price} per kg. View offer.",
+  offers_priceUnit_perKg: "per kg",
+  offers_qtyUnit_kg: "kg",
+  offers_moqLabel: "MOQ",
 
   // Offer Card
   card_verified: "Verified",
@@ -768,6 +774,9 @@ const ru: TranslationKeys = {
   offers_showLess: "Свернуть",
   offers_listLabel: "Актуальные оптовые предложения от проверенных поставщиков",
   offers_cardLabel: "{product}, происхождение: {origin}, цена: {price} за кг. Открыть предложение.",
+  offers_priceUnit_perKg: "за кг",
+  offers_qtyUnit_kg: "кг",
+  offers_moqLabel: "Мин. партия",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
@@ -1147,6 +1156,9 @@ const es: TranslationKeys = {
   offers_showLess: "Mostrar menos",
   offers_listLabel: "Ofertas mayoristas en vivo de proveedores verificados",
   offers_cardLabel: "{product} de {origin}, {price} por kg. Ver oferta.",
+  offers_priceUnit_perKg: "por kg",
+  offers_qtyUnit_kg: "kg",
+  offers_moqLabel: "Pedido mínimo",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",
