@@ -264,6 +264,20 @@ export interface EventPayloadMap {
   // API errors (used by upcoming useApiCall hook) ───────────────
   api_error: { endpoint: string; code: string; field?: string };
 
+  // Buyer Workspace ─────────────────────────────────────────────
+  workspace_session_started: { method: "email" | "phone" | "whatsapp" };
+  workspace_session_ended: Empty;
+  workspace_view: {
+    section: "dashboard" | "saved" | "price_requests" | "messages";
+  };
+  workspace_quick_action_click: {
+    action: "browse_offers" | "view_saved" | "open_messages";
+  };
+  workspace_saved_offer_open: { offerId: string };
+  workspace_saved_offer_remove: { offerId: string };
+  workspace_price_request_open: { requestId: string; status: "pending" | "approved" | "rejected" };
+  workspace_message_thread_open: { threadId: string; unread: number };
+
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
   registration_complete_mock: Empty;
