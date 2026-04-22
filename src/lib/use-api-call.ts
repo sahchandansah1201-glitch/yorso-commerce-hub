@@ -26,15 +26,16 @@ export function useApiCall<TArgs extends unknown[], TData>(
   const run = useCallback(
     async (...args: TArgs): Promise<ApiResult<TData>> => {
       setState({ loading: true, error: null });
-      const result = await fn(...args);
-      if (result.ok) {
+      const result: ApiResult<TData> = await fn(...args);
+      if (result.ok === true) {
         setState({ loading: false, error: null });
       } else {
-        setState({ loading: false, error: result });
+        const failure: ApiError = result;
+        setState({ loading: false, error: failure });
         analytics.track("api_error", {
           endpoint,
-          code: result.code,
-          ...(result.field ? { field: result.field } : {}),
+          code: failure.code,
+          ...(failure.field ? { field: failure.field } : {}),
         });
       }
       return result;
