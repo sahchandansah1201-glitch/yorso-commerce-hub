@@ -1373,6 +1373,19 @@ const es: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "Volver al inicio",
+  info_lastUpdated: "Última actualización",
+  info_aboutTitle: "Sobre YORSO",
+  info_contactTitle: "Contáctenos",
+  info_termsTitle: "Términos de servicio",
+  info_privacyTitle: "Política de privacidad",
+  info_cookiesTitle: "Política de cookies",
+  info_gdprTitle: "Cumplimiento GDPR",
+  info_antiFraudTitle: "Política antifraude",
+  info_careersTitle: "Carreras en YORSO",
+  info_pressTitle: "Prensa y medios",
+  info_partnersTitle: "Programa de socios",
   // Registration
   reg_joinYorso: "Únase a YORSO",
   reg_chooseSubtitle: "Elija cómo usará la plataforma. Toma menos de 3 minutos.",
