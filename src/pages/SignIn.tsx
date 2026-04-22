@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
+type LoginMethod = "email" | "phone";
+type View = "login" | "forgot";
+
 /**
  * Returns a safe in-app redirect path. Rejects external URLs, protocol-relative
  * paths, and anything that doesn't start with a single "/".
