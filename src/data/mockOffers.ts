@@ -247,6 +247,12 @@ export const mockOffers: SeafoodOffer[] = [
     photoSourceLabel: "Supplier-provided product photos",
     sampleAvailable: true,
     inspectionAvailable: false,
+    priceMin: 5.8,
+    priceMax: 6.4,
+    currency: "USD",
+    priceUnitKey: "offers_priceUnit_perKg",
+    moqValue: 5000,
+    moqUnitKey: "offers_qtyUnit_kg",
     traceability: "Farm-to-port traceability. Aquaculture pond coordinates, feed records, and harvest dates documented.",
     supplier: {
       name: "Pacífico Export S.A.",
