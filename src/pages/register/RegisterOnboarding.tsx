@@ -45,6 +45,7 @@ const RegisterOnboarding = () => {
   const [selected, setSelected] = useState<string[]>(data.categories);
   const [volume, setVolume] = useState(data.volume);
   const [certs, setCerts] = useState<string[]>(data.certifications);
+  const [submitting, setSubmitting] = useReactState(false);
 
   if (!guardPassed) return null;
 
@@ -52,7 +53,20 @@ const RegisterOnboarding = () => {
     setter(list.includes(item) ? list.filter((c) => c !== item) : [...list, item]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const result = await authApi.submitOnboarding({
+      sessionId: data.sessionId, categories: selected, volume, certifications: certs,
+    });
+    setSubmitting(false);
+
+    if (isApiError(result)) {
+      toast.error("Could not save", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/register/onboarding", code: result.code });
+      if (result.code === "VERIFICATION_FAILED") navigate("/register/email");
+      return;
+    }
+
     setFields({ categories: selected, volume, certifications: certs });
     analytics.track("registration_onboarding_completed", {
       role: data.role || "unknown", categoriesCount: selected.length, volume, certificationsCount: certs.length,
