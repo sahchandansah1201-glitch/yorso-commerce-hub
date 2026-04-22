@@ -340,6 +340,23 @@ type TranslationKeys = {
   meta_siteTitle: string;
   meta_siteDescription: string;
 
+  // ─── Info pages: shared chrome ─────────────────────────────────
+  info_backToHome: string;
+  info_lastUpdated: string;
+
+  // ─── Cookies page ──────────────────────────────────────────────
+  cookies_title: string;
+  cookies_updated: string;
+  cookies_intro: string;
+  cookies_essentialTitle: string;
+  cookies_essentialBody: string;
+  cookies_analyticsTitle: string;
+  cookies_analyticsBody: string;
+  cookies_manageTitle: string;
+  cookies_manageBody: string;
+  cookies_contactTitle: string;
+  cookies_contactBody: string;
+
   // ─── Shared: TrustMicroText ────────────────────────────────────
   trustMicro_users: string;
   trustMicro_security: string;
