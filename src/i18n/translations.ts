@@ -973,6 +973,19 @@ const ru: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "На главную",
+  info_lastUpdated: "Последнее обновление",
+  info_aboutTitle: "О YORSO",
+  info_contactTitle: "Контакты",
+  info_termsTitle: "Условия использования",
+  info_privacyTitle: "Политика конфиденциальности",
+  info_cookiesTitle: "Политика cookies",
+  info_gdprTitle: "Соответствие GDPR",
+  info_antiFraudTitle: "Антифрод политика",
+  info_careersTitle: "Карьера в YORSO",
+  info_pressTitle: "Пресса и медиа",
+  info_partnersTitle: "Партнёрская программа",
   // Registration
   reg_joinYorso: "Присоединиться к YORSO",
   reg_chooseSubtitle: "Выберите, как вы будете использовать платформу. Это займёт менее 3 минут.",
