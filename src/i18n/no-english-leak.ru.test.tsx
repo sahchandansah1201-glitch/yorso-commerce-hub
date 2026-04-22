@@ -127,6 +127,116 @@ const collectText = () =>
 const findLeaks = (text: string) =>
   ENGLISH_UI_MARKERS.filter((m) => text.includes(m));
 
+/**
+ * Английские маркеры специально для атрибутов (aria-label, title, placeholder).
+ * Здесь шире, чем в видимом тексте: в атрибутах одиночные английские слова
+ * (Search, Email, Menu, Close, Next, Submit, Loading…) — почти всегда утечка,
+ * потому что для невизуального UI у нас обязаны быть локализованные ключи.
+ *
+ * Бренд (YORSO), e-mail-адреса, технические токены (KVK, GDPR, MSC, EN/RU/ES),
+ * URL и единичные акронимы по-прежнему НЕ считаются утечкой.
+ */
+const ENGLISH_ATTR_MARKERS = [
+  // явные плейсхолдеры из старого кода
+  "Search offers",
+  "Country or code",
+  "John Smith",
+  "Acme Seafood Ltd.",
+  "john@company.com",
+  "you@company.com",
+  "Enter your email",
+  "Enter your password",
+  "Search...",
+  "Search",
+  // навигация / aria
+  "Toggle menu",
+  "Open menu",
+  "Close menu",
+  "Go back",
+  "Breadcrumb",
+  "Previous",
+  "Next page",
+  "Previous page",
+  "Go to next page",
+  "Go to previous page",
+  "View details for",
+  "View offer",
+  "View Offer",
+  // тултипы статусов
+  "Verified Supplier",
+  "Pending Full Verification",
+  "Loading",
+  "Submit",
+  "Close",
+];
+
+interface AttrLeak {
+  attr: "aria-label" | "title" | "placeholder";
+  value: string;
+  marker: string;
+  tag: string;
+}
+
+/**
+ * Грубая эвристика: содержит ли строка кириллицу.
+ * Если в атрибуте под локалью ru нет ни одной кириллической буквы,
+ * но есть «слова» (≥2 латинских буквы подряд) — это сильный сигнал утечки,
+ * который мы ловим в дополнение к точечному списку маркеров.
+ */
+const hasCyrillic = (s: string) => /[А-Яа-яЁё]/.test(s);
+const hasLatinWord = (s: string) => /[A-Za-z]{2,}/.test(s);
+
+/**
+ * Значения, которые мы заведомо НЕ считаем утечкой,
+ * даже если в них есть латиница и нет кириллицы.
+ */
+const ATTR_ALLOWLIST_REGEX = [
+  /^https?:\/\//i, // URL
+  /@/, // e-mail
+  /^[A-Z0-9_-]{1,8}$/, // короткие коды/ISO/акронимы (RU, EN, ES, GDPR, MSC, BRC...)
+  /^YORSO$/i, // бренд
+  /^\+?\d[\d\s()-]+$/, // телефонные форматы
+  /^[\d.,\s/%-]+$/, // числа и единицы
+];
+
+const isAllowlistedAttr = (value: string) => {
+  const v = value.trim();
+  if (v.length === 0) return true;
+  return ATTR_ALLOWLIST_REGEX.some((re) => re.test(v));
+};
+
+const collectAttrLeaks = (): AttrLeak[] => {
+  const leaks: AttrLeak[] = [];
+  const all = Array.from(document.querySelectorAll<HTMLElement>("*"));
+  for (const el of all) {
+    const tag = el.tagName.toLowerCase();
+    for (const attr of ["aria-label", "title", "placeholder"] as const) {
+      const value = el.getAttribute(attr);
+      if (!value) continue;
+      // 1) точечные маркеры
+      const marker = ENGLISH_ATTR_MARKERS.find((m) => value.includes(m));
+      if (marker) {
+        leaks.push({ attr, value, marker, tag });
+        continue;
+      }
+      // 2) общая эвристика «латиница без кириллицы»
+      if (
+        !isAllowlistedAttr(value) &&
+        hasLatinWord(value) &&
+        !hasCyrillic(value)
+      ) {
+        leaks.push({ attr, value, marker: "<latin-only attr>", tag });
+      }
+    }
+  }
+  return leaks;
+};
+
+const formatAttrLeaks = (leaks: AttrLeak[]) =>
+  leaks
+    .map((l) => `  • <${l.tag} ${l.attr}="${l.value}">  ← ${l.marker}`)
+    .join("\n");
+
 interface RouteCase {
   name: string;
   path: string;
