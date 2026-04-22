@@ -42,7 +42,13 @@ const RegisterVerify = () => {
     }
 
     setField("emailVerified", true);
-    analytics.track("registration_email_verified", { role: data.role || "unknown" });
+    const verificationLatencyMs = data.emailSubmittedAt > 0 ? Date.now() - data.emailSubmittedAt : null;
+    analytics.track("registration_email_verified", {
+      role: data.role || "unknown",
+      step: 3,
+      sessionId: data.sessionId,
+      verificationLatencyMs,
+    });
     navigate("/register/details");
   };
 

@@ -56,6 +56,8 @@ const defaultData: RegistrationData = {
   onboardingSkipped: false,
   countriesSkipped: false,
   completed: false,
+  startedAt: 0,
+  emailSubmittedAt: 0,
 };
 
 function loadFromStorage(): RegistrationData {
