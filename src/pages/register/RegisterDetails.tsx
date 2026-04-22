@@ -174,7 +174,7 @@ const RegisterDetails = () => {
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
             <User className="h-4 w-4 text-muted-foreground" /> {t.reg_fullName}
           </label>
-          <Input type="text" value={fullName} onChange={(e) => { setFullName(e.target.value); clearError("fullName"); }} placeholder="John Smith" className="h-12 text-base rounded-xl" required />
+          <Input type="text" value={fullName} onChange={(e) => { setFullName(e.target.value); clearError("fullName"); }} placeholder={t.reg_fullNamePlaceholder} className="h-12 text-base rounded-xl" required />
           {errors.fullName && <p className="mt-1 text-sm text-destructive">{errors.fullName}</p>}
         </div>
 
@@ -182,7 +182,7 @@ const RegisterDetails = () => {
           <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-1.5">
             <Building className="h-4 w-4 text-muted-foreground" /> {t.reg_companyName}
           </label>
-          <Input type="text" value={company} onChange={(e) => { setCompany(e.target.value); clearError("company"); }} placeholder="Acme Seafood Ltd." className="h-12 text-base rounded-xl" required />
+          <Input type="text" value={company} onChange={(e) => { setCompany(e.target.value); clearError("company"); }} placeholder={t.reg_companyPlaceholder} className="h-12 text-base rounded-xl" required />
           {errors.company && <p className="mt-1 text-sm text-destructive">{errors.company}</p>}
         </div>
 

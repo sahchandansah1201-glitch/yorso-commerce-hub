@@ -121,7 +121,7 @@ const SignIn = () => {
                   </label>
                   <div className="h-12">
                     {method === "email" ? (
-                      <Input className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@company.com" required />
+                      <Input className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} required />
                     ) : (
                       <CountryPhoneInput phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} placeholderText={t.signin_phoneLabel} />
                     )}
@@ -180,7 +180,7 @@ const SignIn = () => {
                 <form onSubmit={handleForgotSubmit} className="mt-6 space-y-4">
                   <div>
                     <label className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
-                    <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="john@company.com" required autoFocus />
+                    <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} required autoFocus />
                   </div>
                   <Button type="submit" disabled={forgotLoading} className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_sendResetLink} <ArrowRight className="h-5 w-5" /></Button>
                 </form>
