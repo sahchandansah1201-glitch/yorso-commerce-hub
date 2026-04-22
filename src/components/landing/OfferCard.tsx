@@ -3,7 +3,7 @@ import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import CertificationBadges from "@/components/CertificationBadges";
-import { formatPriceRange } from "@/lib/format";
+import { formatPriceRange, formatNumber } from "@/lib/format";
 
 interface OfferCardProps {
   offer: SeafoodOffer;
