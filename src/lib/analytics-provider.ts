@@ -73,14 +73,25 @@ class BatchProvider implements AnalyticsProvider {
       this.timer = null;
     }
     if (this.buffer.length === 0) return;
-    const payload = JSON.stringify({ events: this.buffer });
+    const events = this.buffer;
     this.buffer = [];
+
+    let payload: string;
+    try {
+      payload = JSON.stringify({ events });
+    } catch {
+      // Serialization failed (e.g. circular reference) — drop the batch.
+      return;
+    }
 
     try {
       if (typeof navigator !== "undefined" && navigator.sendBeacon) {
         const blob = new Blob([payload], { type: "application/json" });
-        navigator.sendBeacon(this.endpoint, blob);
-      } else if (typeof fetch !== "undefined") {
+        const ok = navigator.sendBeacon(this.endpoint, blob);
+        if (ok) return;
+        // sendBeacon refused (queue full / disabled) — fall through to fetch.
+      }
+      if (typeof fetch !== "undefined") {
         // Fire-and-forget fallback
         void fetch(this.endpoint, {
           method: "POST",
