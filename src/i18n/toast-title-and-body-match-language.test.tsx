@@ -91,6 +91,29 @@ const submitEmail = (value: string) => {
 };
 
 /**
+ * Дожидается, пока форма регистрации перейдёт в idle-состояние:
+ *  - submit-кнопка не `disabled` (loading=false в RegisterEmail)
+ *  - спиннер `.animate-spin` (Loader2) исчез из DOM
+ *  - текст кнопки больше не содержит `reg_checking` ни на одном языке
+ *
+ * Это устраняет flakiness, когда тест проверяет следующий toast,
+ * пока предыдущий запрос startRegistration ещё в полёте (mock latency 700ms)
+ * или пока React не успел снять loading-state.
+ */
+const waitForIdle = async () => {
+  await waitFor(() => {
+    const button = document.querySelector<HTMLButtonElement>("button[type='submit']");
+    expect(button).not.toBeNull();
+    expect(button!.disabled).toBe(false);
+    expect(document.querySelector(".animate-spin")).toBeNull();
+    const btnText = button!.textContent ?? "";
+    expect(btnText).not.toContain(translations.en.reg_checking);
+    expect(btnText).not.toContain(translations.ru.reg_checking);
+    expect(btnText).not.toContain(translations.es.reg_checking);
+  }, { timeout: 5000 });
+};
+
+/**
  * Возвращает строго САМЫЙ ВЕРХНИЙ (= самый свежий) toast и из него выделяет
  * title и description через data-атрибуты Sonner.
  *
@@ -141,12 +164,19 @@ describe("Toast title AND body match the current language after switching", () =
     let setLang!: (l: Language) => void;
     renderRegisterEmail((s) => (setLang = s));
 
+    // Дожидаемся, что начальный рендер формы стабилен (нет спиннера, кнопка enabled).
+    await waitForIdle();
+
     // ── ru ──────────────────────────────────────────────────────────────────
     submitEmail("taken@yorso.test");
     await waitFor(() => {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.ru.reg_couldNotContinue);
     }, { timeout: 3000 });
+    // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: ждём, пока запрос startRegistration завершится
+    // (loading=false, спиннер ушёл). Без этого следующий submit может быть
+    // отброшен `disabled`-кнопкой или интерферировать с прошлым pending-запросом.
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.ru.reg_couldNotContinue);
@@ -162,6 +192,7 @@ describe("Toast title AND body match the current language after switching", () =
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.en.reg_couldNotContinue);
     }, { timeout: 3000 });
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.en.reg_couldNotContinue);
@@ -172,13 +203,12 @@ describe("Toast title AND body match the current language after switching", () =
 
     // ── en → es ─────────────────────────────────────────────────────────────
     act(() => setLang("es"));
-    // Возвращаемся к taken@yorso.test, чтобы получить иной message в description
-    // и заодно убедиться, что Sonner не дедуплицирует с прошлым toast.
     submitEmail("taken@yorso.test");
     await waitFor(() => {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
     }, { timeout: 3000 });
+    await waitForIdle();
     {
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
@@ -230,6 +260,7 @@ describe("Toast title AND body match the current language after switching", () =
     let setLang!: (l: Language) => void;
     renderRegisterEmail((s) => (setLang = s));
 
+    await waitForIdle();
     act(() => setLang("es"));
 
     // Локализуемая часть страницы вокруг toast — кнопка continue.
@@ -241,6 +272,9 @@ describe("Toast title AND body match the current language after switching", () =
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
     }, { timeout: 3000 });
+    // Дожидаемся, чтобы при assert ниже кнопка уже вернулась из loading-состояния
+    // (`reg_checking` → `reg_continue`) и не дала ложный fail.
+    await waitForIdle();
 
     const { title } = getLatestToastParts();
     expect(title).toBe(translations.es.reg_couldNotContinue);
