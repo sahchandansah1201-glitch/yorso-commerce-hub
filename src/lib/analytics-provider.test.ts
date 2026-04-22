@@ -9,6 +9,8 @@ import {
   NoopProvider,
   setProvider,
   getProvider,
+  getAnalyticsFailures,
+  __resetAnalyticsFailures,
 } from "./analytics-provider";
 import type { AnalyticsEnvelope } from "./analytics";
 
