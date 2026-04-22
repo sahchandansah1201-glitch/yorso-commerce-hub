@@ -34,6 +34,7 @@ const RegisterCountries = () => {
     return [];
   });
   const [showAll, setShowAll] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!guardPassed) return null;
 
@@ -44,7 +45,18 @@ const RegisterCountries = () => {
     setSelected((prev) => prev.includes(country) ? prev.filter((c) => c !== country) : [...prev, country]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const result = await authApi.submitMarkets({ sessionId: data.sessionId, countries: selected });
+    setSubmitting(false);
+
+    if (isApiError(result)) {
+      toast.error("Could not save", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/register/markets", code: result.code });
+      if (result.code === "VERIFICATION_FAILED") navigate("/register/email");
+      return;
+    }
+
     setFields({ countries: selected });
     selected.forEach((c) => { analytics.track("value_destination_selected", { country: c, role: data.role || "unknown" }); });
     analytics.track("registration_countries_completed", { role: data.role || "unknown", countriesCount: selected.length });
