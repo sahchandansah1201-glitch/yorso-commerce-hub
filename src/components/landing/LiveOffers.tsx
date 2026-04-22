@@ -14,10 +14,7 @@ const LiveOffers = () => {
   const [highlightTick, setHighlightTick] = useState(0);
 
   useEffect(() => {
-    const onHighlight = () => {
-      setHighlightTick((n) => n + 1);
-      analytics.track("live_offers_highlighted", { source: "hero_cta" });
-    };
+    const onHighlight = () => setHighlightTick((n) => n + 1);
     window.addEventListener("yorso:highlight-offers", onHighlight);
     return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
   }, []);
