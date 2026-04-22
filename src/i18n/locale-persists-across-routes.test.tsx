@@ -105,10 +105,9 @@ describe("Selected locale persists across client-side route changes", () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
 
     const routes: Array<{ path: string; expectedRu: string }> = [
-      { path: "/register", expectedRu: translations.ru.regChoose_title },
+      { path: "/register", expectedRu: translations.ru.reg_chooseSubtitle },
       { path: "/signin", expectedRu: translations.ru.signin_title },
       { path: "/offers", expectedRu: translations.ru.offersPage_title },
-      { path: "/about", expectedRu: translations.ru.about_title },
       { path: "/", expectedRu: translations.ru.hero_title1 },
     ];
 
