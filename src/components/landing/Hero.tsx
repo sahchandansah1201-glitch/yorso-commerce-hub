@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,16 @@ const Hero = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const highlightTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current !== null) {
+        window.clearTimeout(highlightTimerRef.current);
+        highlightTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const subtitle = t.hero_subtitle
     .replace("{suppliers}", marketplaceStats.verifiedSuppliers.toString())
@@ -23,12 +33,21 @@ const Hero = () => {
   };
 
   const handleExploreOffers = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Respect modifier-clicks (open in new tab/window) — don't hijack them.
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+      return;
+    }
     e.preventDefault();
     analytics.track("hero_secondary_cta_click");
     const target = document.getElementById("offers");
     if (!target) return;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.setTimeout(() => {
+    // Debounce the highlight dispatch: rapid re-clicks must not stack pulses.
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+    }
+    highlightTimerRef.current = window.setTimeout(() => {
+      highlightTimerRef.current = null;
       window.dispatchEvent(new CustomEvent("yorso:highlight-offers"));
     }, 450);
   };
