@@ -80,6 +80,10 @@ export interface EventPayloadMap {
     sessionId: string;
     /** ms between email_submitted and email_verified (null if not measurable) */
     verificationLatencyMs: number | null;
+    /** True if the user requested at least one resend before successfully verifying. */
+    isResend: boolean;
+    /** Number of code submissions before success (1 = first try). */
+    attempt: number;
   };
   registration_email_verification_failed: {
     role: UserRole;

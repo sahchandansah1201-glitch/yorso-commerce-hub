@@ -77,6 +77,8 @@ const RegisterVerify = () => {
       step: 3,
       sessionId: data.sessionId,
       verificationLatencyMs,
+      isResend: resendCountRef.current > 0,
+      attempt: attemptsRef.current,
     });
     navigate("/register/details");
   };
