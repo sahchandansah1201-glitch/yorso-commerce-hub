@@ -79,19 +79,17 @@ describe("BatchProvider (R6)", () => {
     expect(beacon).not.toHaveBeenCalled();
   });
 
-  it("serializes events as { events: [...] }", () => {
+  it("serializes events as { events: [...] }", async () => {
     const p = new BatchProvider();
     p.send(env("a"));
     p.send(env("b"));
     p.flush();
     const blob = beacon.mock.calls[0][1] as Blob;
-    return blob.text().then((text) => {
-      const parsed = JSON.parse(text);
-      expect(parsed.events).toHaveLength(2);
-      expect(parsed.events[0].event).toBe("a");
-    });
+    const text = await new Response(blob).text();
+    const parsed = JSON.parse(text);
+    expect(parsed.events).toHaveLength(2);
+    expect(parsed.events[0].event).toBe("a");
   });
-});
 
 describe("setProvider (R8)", () => {
   it("swaps the active provider at runtime", () => {
