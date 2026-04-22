@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
+import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import { useLanguage } from "@/i18n/LanguageContext";

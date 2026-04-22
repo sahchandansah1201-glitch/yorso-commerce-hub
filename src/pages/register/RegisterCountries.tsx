@@ -5,9 +5,11 @@ import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Globe } from "lucide-react";
+import { ArrowRight, Check, Globe, Loader2 } from "lucide-react";
 import { SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const POPULAR_BUYER_MARKETS = [

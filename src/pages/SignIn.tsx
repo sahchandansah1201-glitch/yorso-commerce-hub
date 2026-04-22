@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Mail, Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
