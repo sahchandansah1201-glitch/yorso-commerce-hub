@@ -81,6 +81,17 @@ export interface EventPayloadMap {
     /** ms between email_submitted and email_verified (null if not measurable) */
     verificationLatencyMs: number | null;
   };
+  registration_email_verification_failed: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** Backend error code, e.g. INVALID_CODE, CODE_EXPIRED, TOO_MANY_ATTEMPTS, VERIFICATION_FAILED. */
+    reason: "INVALID_CODE" | "CODE_EXPIRED" | "TOO_MANY_ATTEMPTS" | "VERIFICATION_FAILED" | "SERVER_ERROR" | "NETWORK_ERROR" | "UNKNOWN";
+    /** Number of failed attempts in this verification session (incl. current). */
+    attempt: number;
+    /** ms since the email was submitted (null if not measurable). */
+    elapsedMs: number | null;
+  };
   registration_resend_code: Empty;
   registration_details_completed: { role: UserRole; country: string };
   registration_onboarding_completed: {

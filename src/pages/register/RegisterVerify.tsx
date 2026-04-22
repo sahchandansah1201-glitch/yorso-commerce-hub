@@ -21,6 +21,7 @@ const RegisterVerify = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const submittingRef = useRef(false);
+  const attemptsRef = useRef(0);
 
   if (!guardPassed) return null;
 
@@ -29,6 +30,7 @@ const RegisterVerify = () => {
     submittingRef.current = true;
     setLoading(true);
     setError("");
+    attemptsRef.current += 1;
     const result = await authApi.verifyEmail({ sessionId: data.sessionId, code: full });
     setLoading(false);
     submittingRef.current = false;
@@ -37,6 +39,19 @@ const RegisterVerify = () => {
       setError(getErrorMessage(result.code));
       toast.error(t.reg_verificationFailed, { description: result.message });
       analytics.track("api_error", { endpoint: "auth/register/verify-email", code: result.code });
+      const allowedReasons = ["INVALID_CODE", "CODE_EXPIRED", "TOO_MANY_ATTEMPTS", "VERIFICATION_FAILED", "SERVER_ERROR", "NETWORK_ERROR"] as const;
+      type FailReason = typeof allowedReasons[number] | "UNKNOWN";
+      const reason: FailReason = (allowedReasons as readonly string[]).includes(result.code)
+        ? (result.code as FailReason)
+        : "UNKNOWN";
+      analytics.track("registration_email_verification_failed", {
+        role: data.role || "unknown",
+        step: 3,
+        sessionId: data.sessionId,
+        reason,
+        attempt: attemptsRef.current,
+        elapsedMs: data.emailSubmittedAt > 0 ? Date.now() - data.emailSubmittedAt : null,
+      });
       if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
