@@ -1245,6 +1245,54 @@ const ru: TranslationKeys = {
   socialBanner_zeroCom: "Без комиссии — прямые сделки, всегда",
   socialBanner_trustedBy: "Доверяют 12,000+ профессионалов",
   socialBanner_detail: "2,400+ проверенных поставщиков · 48 стран · Без комиссии",
+
+  // Buyer Workspace
+  workspace_brand: "Кабинет покупателя",
+  workspace_signOut: "Выйти",
+  workspace_greeting: "С возвращением, {name}",
+  workspace_tab_dashboard: "Обзор",
+  workspace_tab_saved: "Сохранённые офферы",
+  workspace_tab_priceRequests: "Запросы цены",
+  workspace_tab_messages: "Сообщения",
+
+  workspace_dashboard_title: "Ваш закупочный кабинет",
+  workspace_dashboard_subtitle: "Отслеживайте сохранённые офферы, запросы цен и переписку с поставщиками в одном месте.",
+  workspace_kpi_saved: "Сохранённые офферы",
+  workspace_kpi_priceRequests: "Активные запросы цены",
+  workspace_kpi_unread: "Непрочитанные сообщения",
+  workspace_kpi_suppliers: "Активные поставщики",
+  workspace_recentActivity: "Недавняя активность",
+  workspace_quickActions: "Быстрые действия",
+  workspace_action_browseOffers: "Перейти к офферам",
+  workspace_action_viewSaved: "Открыть сохранённые",
+  workspace_action_openMessages: "Открыть сообщения",
+
+  workspace_saved_title: "Сохранённые офферы",
+  workspace_saved_subtitle: "Офферы, которые вы добавили для сравнения и дальнейшей работы.",
+  workspace_saved_empty: "Пока нет сохранённых офферов. Просмотрите витрину и сохраните подходящие.",
+  workspace_saved_open: "Открыть оффер",
+  workspace_saved_remove: "Удалить",
+  workspace_saved_savedAt: "Сохранено {date}",
+
+  workspace_priceReq_title: "Запросы цены",
+  workspace_priceReq_subtitle: "Отслеживайте отправленные поставщикам запросы на доступ к цене.",
+  workspace_priceReq_empty: "Пока нет запросов на доступ к цене.",
+  workspace_priceReq_status_pending: "На рассмотрении",
+  workspace_priceReq_status_approved: "Одобрено",
+  workspace_priceReq_status_rejected: "Отклонено",
+  workspace_priceReq_requestedAt: "Отправлено {date}",
+  workspace_priceReq_respondedAt: "Ответ {date}",
+  workspace_priceReq_open: "Открыть оффер",
+
+  workspace_msg_title: "Сообщения",
+  workspace_msg_subtitle: "Переписка с проверенными поставщиками.",
+  workspace_msg_empty: "Переписок пока нет.",
+  workspace_msg_unread: "{count} непрочитанных",
+  workspace_msg_open: "Открыть переписку",
+
+  workspace_activity_offer_view: "Просмотр оффера",
+  workspace_activity_price_request: "Запрос цены по",
+  workspace_activity_message: "Новый ответ от",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
