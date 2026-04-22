@@ -34,7 +34,7 @@ const Offers = () => {
           </Button>
         </Link>
 
-        <h1 data-testid="page-title" className="font-heading text-3xl font-bold tracking-tight text-foreground">{t.offersPage_title}</h1>
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">{t.offersPage_title}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t.offersPage_subtitle.replace("{count}", String(mockOffers.length))}</p>
 
         <div className="mt-6 flex gap-2">

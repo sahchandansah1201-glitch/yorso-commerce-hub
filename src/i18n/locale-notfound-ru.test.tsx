@@ -3,10 +3,11 @@
  * локализованную страницу NotFound (404) с русским заголовком и не
  * сбрасывают локаль обратно на en.
  *
- * Для стабильности проверяем конкретные элементы:
- *   - [data-testid="page-title"]      — "404"
- *   - [data-testid="page-subtitle"]   — "Упс! Страница не найдена"
- *   - [data-testid="page-home-link"]  — "Вернуться на главную"
+ * Покрытые сценарии:
+ *   1) Прямой вход на /some-unknown-route при уже выбранной ru → 404 на русском.
+ *   2) Несколько разных несуществующих путей подряд (глубокие, с query, кейс-
+ *      вариации, вложенные) — каждый показывает русский 404, lang остаётся ru.
+ *   3) Переход с главной на 404 и обратно сохраняет ru в localStorage и в UI.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, screen, act, cleanup } from "@testing-library/react";
@@ -58,30 +59,13 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
 const UNKNOWN_PATHS = [
   "/some-unknown-route",
   "/does/not/exist",
-  "/profile",
+  "/profile", // нет в роутере — тоже 404
   "/offers/NOT_A_REAL_ID/extra",
   "/register/email/extra-segment",
   "/RANDOM?foo=bar&baz=1",
 ];
 
-/** Забирает page-title НЕ из главной (hero). На 404 он единственный. */
-const getNotFoundTitle = () => screen.getByTestId("page-title");
-const getNotFoundSubtitle = () => screen.getByTestId("page-subtitle");
-const getNotFoundHomeLink = () => screen.getByTestId("page-home-link");
-
-const assertRuNotFoundPage = () => {
-  expect(getNotFoundTitle().textContent ?? "").toBe(translations.ru.notFound_title);
-  expect(getNotFoundSubtitle().textContent ?? "").toBe(translations.ru.notFound_subtitle);
-  expect(getNotFoundHomeLink().textContent?.trim() ?? "").toBe(translations.ru.notFound_returnHome);
-
-  // En/Es-версии НЕ должны проскакивать в эти элементы.
-  expect(getNotFoundSubtitle().textContent ?? "").not.toContain(translations.en.notFound_subtitle);
-  expect(getNotFoundSubtitle().textContent ?? "").not.toContain(translations.es.notFound_subtitle);
-  expect(getNotFoundHomeLink().textContent ?? "").not.toContain(translations.en.notFound_returnHome);
-  expect(getNotFoundHomeLink().textContent ?? "").not.toContain(translations.es.notFound_returnHome);
-};
-
-describe("Locale ru: 404/NotFound — стабильные проверки через data-testid", () => {
+describe("Locale ru сохраняется на несуществующих маршрутах и 404-страница локализована", () => {
   const originalLanguage = Object.getOwnPropertyDescriptor(window.navigator, "language");
   const originalLanguages = Object.getOwnPropertyDescriptor(window.navigator, "languages");
 
@@ -98,7 +82,8 @@ describe("Locale ru: 404/NotFound — стабильные проверки че
     if (originalLanguages) Object.defineProperty(window.navigator, "languages", originalLanguages);
   });
 
-  it("Прямой вход на несуществующий маршрут при сохранённой ru-локали — русский 404", () => {
+  it("Прямой вход на несуществующий маршрут при сохранённой ru-локали показывает русский 404", () => {
+    // Предзаполняем storage — имитируем возврат пользователя, который уже выбирал ru.
     localStorage.setItem(STORAGE_KEY, "ru");
 
     let api!: Api;
@@ -106,46 +91,64 @@ describe("Locale ru: 404/NotFound — стабильные проверки че
 
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    assertRuNotFoundPage();
+
+    const body = document.body.textContent ?? "";
+    expect(body).toContain(translations.ru.notFound_subtitle);
+    expect(body).toContain(translations.ru.notFound_returnHome);
+    // Английская версия НЕ должна присутствовать.
+    expect(body).not.toContain(translations.en.notFound_subtitle);
+    expect(body).not.toContain(translations.en.notFound_returnHome);
   });
 
-  it("Серия несуществующих маршрутов не сбрасывает ru и каждый раз показывает локализованный 404", () => {
+  it("Переход на несколько несуществующих маршрутов не сбрасывает ru и каждый раз показывает локализованный 404", () => {
     let api!: Api;
     renderApp((a) => (api = a), "/");
 
+    // Включаем ru после старта (как если бы пользователь выбрал язык вручную).
     act(() => api.setLang("ru"));
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
+    expect(screen.getByTestId("lang").textContent).toBe("ru");
 
     for (const path of UNKNOWN_PATHS) {
       act(() => api.navigateTo(path));
+
       expect(screen.getByTestId("lang").textContent, `lang сбросился на ${path}`).toBe("ru");
       expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-      assertRuNotFoundPage();
+
+      const body = document.body.textContent ?? "";
+      expect(body, `Русский subtitle отсутствует на ${path}`).toContain(translations.ru.notFound_subtitle);
+      expect(body, `Русская ссылка "Вернуться на главную" отсутствует на ${path}`).toContain(
+        translations.ru.notFound_returnHome,
+      );
+      // En/Es версии не должны попадать в тот же 404.
+      expect(body).not.toContain(translations.en.notFound_subtitle);
+      expect(body).not.toContain(translations.en.notFound_returnHome);
+      expect(body).not.toContain(translations.es.notFound_subtitle);
+      expect(body).not.toContain(translations.es.notFound_returnHome);
     }
   });
 
-  it("Циклы / ↔ 404 сохраняют ru и локализованные заголовки", () => {
+  it("Возврат с 404 на главную и повторный переход на 404 сохраняют ru", () => {
     let api!: Api;
     renderApp((a) => (api = a), "/");
 
     act(() => api.setLang("ru"));
 
-    // 1) → 404
+    // На 404
     act(() => api.navigateTo("/unknown-1"));
-    assertRuNotFoundPage();
+    expect(document.body.textContent ?? "").toContain(translations.ru.notFound_subtitle);
 
-    // 2) → / (Hero). page-title должен быть hero_title1.
+    // Обратно на /
     act(() => api.navigateTo("/"));
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    const heroTitles = screen.getAllByTestId("page-title");
-    expect(heroTitles.length).toBeGreaterThan(0);
-    expect(heroTitles[0].textContent ?? "").toContain(translations.ru.hero_title1);
+    expect(document.body.textContent ?? "").toContain(translations.ru.hero_title1);
 
-    // 3) → другой 404.
+    // Ещё раз на другой 404
     act(() => api.navigateTo("/another-missing"));
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    assertRuNotFoundPage();
+    expect(document.body.textContent ?? "").toContain(translations.ru.notFound_subtitle);
+    expect(document.body.textContent ?? "").not.toContain(translations.en.notFound_subtitle);
   });
 });

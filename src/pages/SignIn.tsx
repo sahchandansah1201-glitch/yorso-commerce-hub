@@ -102,7 +102,7 @@ const SignIn = () => {
             <>
               <Link to="/"><Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t.signin_back}</Button></Link>
 
-              <h1 data-testid="page-title" className="font-heading text-2xl font-bold text-foreground">{t.signin_title}</h1>
+              <h1 className="font-heading text-2xl font-bold text-foreground">{t.signin_title}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{t.signin_subtitle}</p>
 
               <div className="mt-6 flex rounded-xl border border-border bg-muted/40 p-1">

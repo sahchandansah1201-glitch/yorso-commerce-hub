@@ -1,10 +1,7 @@
 import InfoPageLayout from "@/components/InfoPageLayout";
-import { useLanguage } from "@/i18n/LanguageContext";
 
-const Terms = () => {
-  const { t } = useLanguage();
-  return (
-  <InfoPageLayout title={t.info_termsTitle} updated="January 2026">
+const Terms = () => (
+  <InfoPageLayout title="Terms of Service" updated="January 2026">
     <p>These Terms of Service ("Terms") govern your access to and use of the YORSO platform operated by YORSO B.V., a company registered in the Netherlands (KVK 12345678).</p>
     <h2 className="font-heading text-xl font-bold text-foreground mt-8">1. Acceptance of Terms</h2>
     <p>By accessing or using YORSO, you agree to be bound by these Terms. If you do not agree, you may not use the platform.</p>
@@ -22,6 +19,5 @@ const Terms = () => {
     <p>These Terms are governed by the laws of the Netherlands. Any disputes shall be submitted to the competent courts of Amsterdam.</p>
   </InfoPageLayout>
 );
-};
 
 export default Terms;

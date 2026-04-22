@@ -41,10 +41,7 @@ const Hero = () => {
 
       <div className="container relative">
         <div className="mx-auto max-w-3xl text-center">
-          <h1
-            data-testid="page-title"
-            className="font-heading text-3xl font-extrabold leading-[1.1] tracking-tight text-accent-foreground md:text-4xl lg:text-5xl"
-          >
+          <h1 className="font-heading text-3xl font-extrabold leading-[1.1] tracking-tight text-accent-foreground md:text-4xl lg:text-5xl">
             {t.hero_title1}
             <span className="block text-primary">{t.hero_title2}</span>
           </h1>

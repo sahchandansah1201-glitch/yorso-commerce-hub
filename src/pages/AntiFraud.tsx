@@ -1,10 +1,7 @@
 import InfoPageLayout from "@/components/InfoPageLayout";
-import { useLanguage } from "@/i18n/LanguageContext";
 
-const AntiFraud = () => {
-  const { t } = useLanguage();
-  return (
-  <InfoPageLayout title={t.info_antiFraudTitle} updated="January 2026">
+const AntiFraud = () => (
+  <InfoPageLayout title="Anti-Fraud Policy" updated="January 2026">
     <p>YORSO takes fraud prevention seriously. Our platform is designed to protect both buyers and suppliers from fraudulent activity.</p>
     <h2 className="font-heading text-xl font-bold text-foreground mt-8">Supplier Verification</h2>
     <p>Every supplier undergoes multi-step verification before receiving a verified badge. This includes business registration checks, export license verification, facility certification review (HACCP, BRC, MSC), and trade reference validation.</p>
@@ -16,6 +13,5 @@ const AntiFraud = () => {
     <p>YORSO conducts trade sanctions screening as part of the supplier verification process, in compliance with EU and international trade regulations.</p>
   </InfoPageLayout>
 );
-};
 
 export default AntiFraud;

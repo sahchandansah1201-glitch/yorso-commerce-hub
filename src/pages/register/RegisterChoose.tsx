@@ -38,13 +38,10 @@ const RegisterChoose = () => {
   return (
     <RegistrationLayout>
       <div className="text-center mb-10">
-        <h1
-          data-testid="page-title"
-          className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight"
-        >
+        <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
           {t.reg_joinYorso}
         </h1>
-        <p data-testid="page-subtitle" className="mt-3 text-lg text-muted-foreground">
+        <p className="mt-3 text-lg text-muted-foreground">
           {t.reg_chooseSubtitle}
         </p>
       </div>
