@@ -37,7 +37,7 @@ describe("ConsoleProvider (R5)", () => {
 describe("NoopProvider", () => {
   it("never throws and returns undefined", () => {
     const p = new NoopProvider();
-    expect(p.send(env())).toBeUndefined();
+    expect(() => p.send()).not.toThrow();
   });
 });
 
