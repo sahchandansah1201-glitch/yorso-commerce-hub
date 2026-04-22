@@ -4,6 +4,7 @@ export type UserRole = "buyer" | "supplier" | null;
 
 export interface RegistrationData {
   role: UserRole;
+  sessionId: string;
   email: string;
   emailVerified: boolean;
   fullName: string;
@@ -35,6 +36,7 @@ const STORAGE_KEY = "yorso_registration";
 
 const defaultData: RegistrationData = {
   role: null,
+  sessionId: "",
   email: "",
   emailVerified: false,
   fullName: "",

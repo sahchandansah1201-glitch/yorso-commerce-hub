@@ -7,6 +7,10 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { toast } from "sonner";
+import { useState as useReactState } from "react";
+import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const BUYER_CATEGORIES = [
@@ -41,6 +45,7 @@ const RegisterOnboarding = () => {
   const [selected, setSelected] = useState<string[]>(data.categories);
   const [volume, setVolume] = useState(data.volume);
   const [certs, setCerts] = useState<string[]>(data.certifications);
+  const [submitting, setSubmitting] = useReactState(false);
 
   if (!guardPassed) return null;
 
@@ -48,7 +53,20 @@ const RegisterOnboarding = () => {
     setter(list.includes(item) ? list.filter((c) => c !== item) : [...list, item]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const result = await authApi.submitOnboarding({
+      sessionId: data.sessionId, categories: selected, volume, certifications: certs,
+    });
+    setSubmitting(false);
+
+    if (isApiError(result)) {
+      toast.error("Could not save", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/register/onboarding", code: result.code });
+      if (result.code === "VERIFICATION_FAILED") navigate("/register/email");
+      return;
+    }
+
     setFields({ categories: selected, volume, certifications: certs });
     analytics.track("registration_onboarding_completed", {
       role: data.role || "unknown", categoriesCount: selected.length, volume, certificationsCount: certs.length,
@@ -122,8 +140,8 @@ const RegisterOnboarding = () => {
           </div>
         </div>
 
-        <Button onClick={handleSubmit} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
-          {t.reg_continue} <ArrowRight className="h-5 w-5" />
+        <Button onClick={handleSubmit} disabled={submitting} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+          {submitting ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_saving}</>) : (<>{t.reg_continue} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
         <button onClick={() => { setFields({ onboardingSkipped: true }); analytics.track("registration_onboarding_skipped"); navigate("/register/countries"); }}

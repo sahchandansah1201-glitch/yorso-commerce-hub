@@ -84,7 +84,7 @@ const RegisterDetails = () => {
     }
     setPhoneLoading(true);
     setCodeError(false);
-    const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "sms" });
+    const result = await authApi.requestPhoneVerification({ sessionId: data.sessionId, phone: phoneNumber, method: "sms" });
     setPhoneLoading(false);
     if (!result.ok) {
       const err = result as import("@/lib/api-contracts").ApiError;
@@ -99,7 +99,7 @@ const RegisterDetails = () => {
   const handleWhatsAppVerify = async () => {
     setPhoneLoading(true);
     analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
-    const result = await authApi.requestPhoneVerification({ sessionId: "sess_mock", phone: phoneNumber, method: "whatsapp" });
+    const result = await authApi.requestPhoneVerification({ sessionId: data.sessionId, phone: phoneNumber, method: "whatsapp" });
     setPhoneLoading(false);
     if (!result.ok) {
       const err = result as import("@/lib/api-contracts").ApiError;
@@ -121,7 +121,7 @@ const RegisterDetails = () => {
     }
     setPhoneLoading(true);
     setCodeError(false);
-    const result = await authApi.verifyPhone({ sessionId: "sess_mock", phone: phoneNumber, code: phoneCode });
+    const result = await authApi.verifyPhone({ sessionId: data.sessionId, phone: phoneNumber, code: phoneCode });
     setPhoneLoading(false);
     if (!result.ok) {
       setCodeError(true);
@@ -141,7 +141,7 @@ const RegisterDetails = () => {
     if (!validate()) return;
 
     setSubmitting(true);
-    const result = await authApi.submitDetails({ sessionId: "sess_mock", fullName, company, country, vatTin, password });
+    const result = await authApi.submitDetails({ sessionId: data.sessionId, fullName, company, country, vatTin, password });
     setSubmitting(false);
 
     if (!result.ok) {

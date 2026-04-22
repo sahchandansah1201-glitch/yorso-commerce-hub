@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Mail, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
-import { authApi, getErrorMessage } from "@/lib/api-contracts";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -41,13 +41,15 @@ const RegisterEmail = () => {
 
     setLoading(false);
 
-    if (!result.ok) {
-      setError(getErrorMessage((result as { code: string }).code));
-      toast.error(t.reg_couldNotContinue, { description: (result as { message: string }).message });
+    if (isApiError(result)) {
+      setError(getErrorMessage(result.code));
+      toast.error(t.reg_couldNotContinue, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/register/start", code: result.code, ...(result.field ? { field: result.field } : {}) });
       return;
     }
 
     setField("email", email);
+    setField("sessionId", result.data.sessionId);
     analytics.track("registration_email_submitted", { role: data.role || "unknown" });
     navigate("/register/verify");
   };

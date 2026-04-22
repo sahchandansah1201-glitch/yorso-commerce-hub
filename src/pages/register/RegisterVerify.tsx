@@ -8,7 +8,7 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
 import analytics from "@/lib/analytics";
-import { authApi, getErrorMessage } from "@/lib/api-contracts";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -29,13 +29,15 @@ const RegisterVerify = () => {
     submittingRef.current = true;
     setLoading(true);
     setError("");
-    const result = await authApi.verifyEmail({ sessionId: "sess_mock", code: full });
+    const result = await authApi.verifyEmail({ sessionId: data.sessionId, code: full });
     setLoading(false);
     submittingRef.current = false;
 
-    if (!result.ok) {
-      setError(getErrorMessage((result as { code: string }).code));
-      toast.error(t.reg_verificationFailed, { description: (result as { message: string }).message });
+    if (isApiError(result)) {
+      setError(getErrorMessage(result.code));
+      toast.error(t.reg_verificationFailed, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/register/verify-email", code: result.code });
+      if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
 

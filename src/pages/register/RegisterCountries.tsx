@@ -5,9 +5,11 @@ import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Globe } from "lucide-react";
+import { ArrowRight, Check, Globe, Loader2 } from "lucide-react";
 import { SEAFOOD_COUNTRIES } from "@/lib/detectCountry";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const POPULAR_BUYER_MARKETS = [
@@ -32,6 +34,7 @@ const RegisterCountries = () => {
     return [];
   });
   const [showAll, setShowAll] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!guardPassed) return null;
 
@@ -42,7 +45,18 @@ const RegisterCountries = () => {
     setSelected((prev) => prev.includes(country) ? prev.filter((c) => c !== country) : [...prev, country]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    const result = await authApi.submitMarkets({ sessionId: data.sessionId, countries: selected });
+    setSubmitting(false);
+
+    if (isApiError(result)) {
+      toast.error("Could not save", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/register/markets", code: result.code });
+      if (result.code === "VERIFICATION_FAILED") navigate("/register/email");
+      return;
+    }
+
     setFields({ countries: selected });
     selected.forEach((c) => { analytics.track("value_destination_selected", { country: c, role: data.role || "unknown" }); });
     analytics.track("registration_countries_completed", { role: data.role || "unknown", countriesCount: selected.length });
@@ -90,8 +104,8 @@ const RegisterCountries = () => {
           </p>
         )}
 
-        <Button onClick={handleSubmit} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
-          {t.reg_completeSetup} <ArrowRight className="h-5 w-5" />
+        <Button onClick={handleSubmit} disabled={submitting} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+          {submitting ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_saving}</>) : (<>{t.reg_completeSetup} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
         <button onClick={() => { setFields({ countriesSkipped: true }); analytics.track("registration_countries_skipped"); navigate("/register/ready"); }}
