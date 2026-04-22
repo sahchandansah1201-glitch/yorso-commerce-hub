@@ -1,7 +1,10 @@
 import InfoPageLayout from "@/components/InfoPageLayout";
+import { useLanguage } from "@/i18n/LanguageContext";
 
-const GDPR = () => (
-  <InfoPageLayout title="GDPR Compliance" updated="January 2026">
+const GDPR = () => {
+  const { t } = useLanguage();
+  return (
+  <InfoPageLayout title={t.info_gdprTitle} updated="January 2026">
     <p>YORSO B.V. is fully committed to compliance with the General Data Protection Regulation (EU) 2016/679.</p>
     <h2 className="font-heading text-xl font-bold text-foreground mt-8">Our Commitment</h2>
     <ul className="list-disc pl-5 space-y-1">
@@ -27,5 +30,6 @@ const GDPR = () => (
     <p>You have the right to lodge a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).</p>
   </InfoPageLayout>
 );
+};
 
 export default GDPR;
