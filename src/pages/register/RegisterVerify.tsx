@@ -154,8 +154,35 @@ const RegisterVerify = () => {
   };
 
   const handleResend = () => {
+    const now = Date.now();
     resendCountRef.current += 1;
-    analytics.track("registration_resend_code");
+    const resendIndex = resendCountRef.current;
+    // If a previous resend never produced a verify attempt (user resent twice in a row),
+    // emit its outcome as "abandoned"-style failed with reason=null so we never lose it.
+    if (pendingResendRef.current) {
+      const prev = pendingResendRef.current;
+      analytics.track("registration_resend_outcome", {
+        role: data.role || "unknown",
+        step: 3,
+        sessionId: data.sessionId,
+        resendIndex: prev.resendIndex,
+        outcome: "failed",
+        reason: null,
+        msFromResendToAttempt: null,
+        enteredCodeLength: 0,
+      });
+    }
+    analytics.track("registration_resend_code", {
+      role: data.role || "unknown",
+      step: 3,
+      sessionId: data.sessionId,
+      resendIndex,
+      attemptsBeforeResend: attemptsRef.current,
+      msSinceEmailSubmitted: data.emailSubmittedAt > 0 ? now - data.emailSubmittedAt : null,
+      msSinceLastResend: lastResendAtRef.current !== null ? now - lastResendAtRef.current : null,
+    });
+    lastResendAtRef.current = now;
+    pendingResendRef.current = { resendIndex, resendAt: now };
     toast.success(t.reg_codeResent, { description: t.reg_codeResentDesc });
   };
 
