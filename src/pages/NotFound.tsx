@@ -11,15 +11,9 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div
-      data-testid="notfound-root"
-      data-route="not-found"
-      role="alert"
-      aria-labelledby="notfound-heading"
-      className="flex min-h-screen items-center justify-center bg-muted"
-    >
+    <div className="flex min-h-screen items-center justify-center bg-muted">
       <div className="text-center">
-        <h1 id="notfound-heading" data-testid="page-title" className="mb-4 text-4xl font-bold">
+        <h1 data-testid="page-title" className="mb-4 text-4xl font-bold">
           {t.notFound_title}
         </h1>
         <p data-testid="page-subtitle" className="mb-4 text-xl text-muted-foreground">

@@ -40,9 +40,15 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     if (typeof document === "undefined") return;
     const t = translations[lang];
     document.documentElement.setAttribute("lang", lang);
+    // en/ru/es — все LTR-локали.
+    document.documentElement.setAttribute("dir", "ltr");
     document.title = t.meta_siteTitle;
 
-    const upsertMeta = (selector: string, attr: "name" | "property", key: string): HTMLMetaElement => {
+    const upsertMeta = (
+      selector: string,
+      attr: "name" | "property",
+      key: string,
+    ): HTMLMetaElement => {
       let tag = document.querySelector<HTMLMetaElement>(selector);
       if (!tag) {
         tag = document.createElement("meta");
@@ -52,24 +58,35 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       return tag;
     };
 
-    const descTag = upsertMeta('meta[name="description"]', "name", "description");
-    descTag.setAttribute("content", t.meta_siteDescription);
+    upsertMeta('meta[name="description"]', "name", "description").setAttribute(
+      "content",
+      t.meta_siteDescription,
+    );
 
-    // Open Graph: title, description, locale — синхронизируем с активной локалью.
-    const ogLocaleMap: Record<Language, string> = {
-      en: "en_US",
-      ru: "ru_RU",
-      es: "es_ES",
-    };
+    // Open Graph.
+    const ogLocaleMap: Record<Language, string> = { en: "en_US", ru: "ru_RU", es: "es_ES" };
+    upsertMeta('meta[property="og:title"]', "property", "og:title").setAttribute(
+      "content",
+      t.meta_siteTitle,
+    );
+    upsertMeta('meta[property="og:description"]', "property", "og:description").setAttribute(
+      "content",
+      t.meta_siteDescription,
+    );
+    upsertMeta('meta[property="og:locale"]', "property", "og:locale").setAttribute(
+      "content",
+      ogLocaleMap[lang],
+    );
 
-    const ogTitle = upsertMeta('meta[property="og:title"]', "property", "og:title");
-    ogTitle.setAttribute("content", t.meta_siteTitle);
-
-    const ogDesc = upsertMeta('meta[property="og:description"]', "property", "og:description");
-    ogDesc.setAttribute("content", t.meta_siteDescription);
-
-    const ogLocale = upsertMeta('meta[property="og:locale"]', "property", "og:locale");
-    ogLocale.setAttribute("content", ogLocaleMap[lang]);
+    // Twitter Card.
+    upsertMeta('meta[name="twitter:title"]', "name", "twitter:title").setAttribute(
+      "content",
+      t.meta_siteTitle,
+    );
+    upsertMeta('meta[name="twitter:description"]', "name", "twitter:description").setAttribute(
+      "content",
+      t.meta_siteDescription,
+    );
   }, [lang]);
 
   return (

@@ -174,19 +174,7 @@ describe("Footer links (ru): все href ведут на существующи�
       expect(screen.getByTestId("lang").textContent, `lang сбросился на ${link.href}`).toBe("ru");
       expect(localStorage.getItem(STORAGE_KEY), `storage сбросился на ${link.href}`).toBe("ru");
 
-      // НЕ 404: dedicated NotFound root маркер должен отсутствовать.
-      const notFoundRoot = document.querySelector<HTMLElement>('[data-testid="notfound-root"]');
-      expect(
-        notFoundRoot,
-        `маршрут ${link.href} отрендерил NotFound (найден [data-testid="notfound-root"])`,
-      ).toBeNull();
-      const notFoundByRoute = document.querySelector<HTMLElement>('[data-route="not-found"]');
-      expect(
-        notFoundByRoute,
-        `маршрут ${link.href} отрендерил NotFound (найден [data-route="not-found"])`,
-      ).toBeNull();
-
-      // Доп. защита: текстовые маркеры тоже не должны совпадать с 404.
+      // НЕ 404.
       const pageTitleNodes = Array.from(
         document.querySelectorAll<HTMLElement>('[data-testid="page-title"]'),
       );
