@@ -1174,6 +1174,29 @@ const ru: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
   meta_siteDescription: "Оптовые морепродукты от проверенных поставщиков по всему миру.",
 
+  // Info pages: shared chrome
+  info_backToHome: "На главную",
+  info_lastUpdated: "Обновлено",
+
+  // Cookies page
+  cookies_title: "Политика использования cookies",
+  cookies_updated: "Январь 2026",
+  cookies_intro:
+    "YORSO использует файлы cookies и аналогичные технологии для обеспечения работы, защиты и улучшения работы платформы.",
+  cookies_essentialTitle: "Обязательные cookies",
+  cookies_essentialBody:
+    "Необходимы для работы платформы. Включают управление сессией, токены аутентификации и языковые настройки. Их нельзя отключить.",
+  cookies_analyticsTitle: "Аналитические cookies",
+  cookies_analyticsBody:
+    "Помогают понять, как пользователи взаимодействуют с YORSO. Эти данные используются для улучшения функций и пользовательского опыта. Данные анонимизированы и никогда не продаются.",
+  cookies_manageTitle: "Управление cookies",
+  cookies_manageBody:
+    "Вы можете управлять cookies через настройки браузера. Отключение обязательных cookies может повлиять на работу платформы.",
+  cookies_contactTitle: "Контакты",
+  cookies_contactBody:
+    "Вопросы о нашей политике cookies? Напишите на privacy@yorso.com.",
+
+
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
   trustMicro_security: "Ваши данные обрабатываются согласно нашей Политике конфиденциальности",
