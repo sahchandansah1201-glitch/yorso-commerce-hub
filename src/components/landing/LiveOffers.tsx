@@ -59,8 +59,12 @@ const LiveOffers = () => {
 
         {/* Visible offers — 8 cards */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {visibleOffers.map((offer) => (
-            <div key={offer.id}>
+          {visibleOffers.map((offer, idx) => (
+            <div
+              key={`${offer.id}-${highlightTick}`}
+              className={highlightTick > 0 ? "offer-highlight" : undefined}
+              style={highlightTick > 0 ? { animationDelay: `${idx * 60}ms` } : undefined}
+            >
               <Link
                 to={`/offers/${offer.id}`}
                 onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
