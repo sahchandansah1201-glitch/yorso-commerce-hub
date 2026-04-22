@@ -91,6 +91,29 @@ const submitEmail = (value: string) => {
 };
 
 /**
+ * Дожидается, пока форма регистрации перейдёт в idle-состояние:
+ *  - submit-кнопка не `disabled` (loading=false в RegisterEmail)
+ *  - спиннер `.animate-spin` (Loader2) исчез из DOM
+ *  - текст кнопки больше не содержит `reg_checking` ни на одном языке
+ *
+ * Это устраняет flakiness, когда тест проверяет следующий toast,
+ * пока предыдущий запрос startRegistration ещё в полёте (mock latency 700ms)
+ * или пока React не успел снять loading-state.
+ */
+const waitForIdle = async () => {
+  await waitFor(() => {
+    const button = document.querySelector<HTMLButtonElement>("button[type='submit']");
+    expect(button).not.toBeNull();
+    expect(button!.disabled).toBe(false);
+    expect(document.querySelector(".animate-spin")).toBeNull();
+    const btnText = button!.textContent ?? "";
+    expect(btnText).not.toContain(translations.en.reg_checking);
+    expect(btnText).not.toContain(translations.ru.reg_checking);
+    expect(btnText).not.toContain(translations.es.reg_checking);
+  }, { timeout: 5000 });
+};
+
+/**
  * Возвращает строго САМЫЙ ВЕРХНИЙ (= самый свежий) toast и из него выделяет
  * title и description через data-атрибуты Sonner.
  *
