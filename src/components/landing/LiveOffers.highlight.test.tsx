@@ -15,7 +15,7 @@ const renderLiveOffers = () =>
 
 const getCardWrappers = (container: HTMLElement) =>
   Array.from(
-    container.querySelectorAll<HTMLElement>("#offers .grid > div"),
+    container.querySelectorAll<HTMLElement>("#offers .grid > li"),
   );
 
 const fireHighlight = () => {
