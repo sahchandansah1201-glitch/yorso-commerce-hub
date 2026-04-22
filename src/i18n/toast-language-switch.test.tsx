@@ -134,15 +134,15 @@ describe("Validation toasts follow current language after in-UI switch", () => {
     //    это ОК: мы дождёмся, что в контейнере появится строка нового языка).
     act(() => setLang("en"));
 
-    // 3) Повторный submit — новый toast уже на английском.
+    // 3) Повторный submit — последний (новый) toast уже на английском.
     submitEmail("taken@yorso.test");
     await waitFor(
-      () => expect(getToastText()).toContain(translations.en.reg_couldNotContinue),
+      () => expect(getLatestToastText()).toContain(translations.en.reg_couldNotContinue),
       { timeout: 3000 },
     );
-    const text = getToastText();
-    expect(text).toContain(translations.en.reg_couldNotContinue);
-    expect(text).not.toContain(translations.ru.reg_couldNotContinue);
+    const latest = getLatestToastText();
+    expect(latest).toContain(translations.en.reg_couldNotContinue);
+    expect(latest).not.toContain(translations.ru.reg_couldNotContinue);
   });
 
   it("ru → es: после смены языка в UI новый toast приходит на испанском", async () => {
