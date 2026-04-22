@@ -41,7 +41,7 @@ const RegisterEmail = () => {
 
     setLoading(false);
 
-    if (!result.ok) {
+    if (isApiError(result)) {
       setError(getErrorMessage(result.code));
       toast.error(t.reg_couldNotContinue, { description: result.message });
       analytics.track("api_error", { endpoint: "auth/register/start", code: result.code, ...(result.field ? { field: result.field } : {}) });

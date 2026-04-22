@@ -33,11 +33,10 @@ const RegisterVerify = () => {
     setLoading(false);
     submittingRef.current = false;
 
-    if (!result.ok) {
+    if (isApiError(result)) {
       setError(getErrorMessage(result.code));
       toast.error(t.reg_verificationFailed, { description: result.message });
       analytics.track("api_error", { endpoint: "auth/register/verify-email", code: result.code });
-      // expired session → back to start
       if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
