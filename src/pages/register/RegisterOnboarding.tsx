@@ -61,7 +61,7 @@ const RegisterOnboarding = () => {
     setSubmitting(false);
 
     if (isApiError(result)) {
-      toast.error("Could not save", { description: getErrorMessage(result.code) });
+      toast.error(t.reg_couldNotSave, { description: getErrorMessage(result.code) });
       analytics.track("api_error", { endpoint: "auth/register/onboarding", code: result.code });
       if (result.code === "VERIFICATION_FAILED") navigate("/register/email");
       return;

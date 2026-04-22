@@ -167,6 +167,12 @@ type TranslationKeys = {
   reg_continue: string;
   reg_checking: string;
   reg_couldNotContinue: string;
+  reg_couldNotSave: string;
+  signin_signInFailed: string;
+  signin_couldNotSendLink: string;
+  cert_viewDetails: string;
+  aria_toggleMenu: string;
+  aria_goBack: string;
   reg_byContAgreeTo: string;
   reg_terms: string;
   reg_and: string;
@@ -551,6 +557,12 @@ const en: TranslationKeys = {
   reg_continue: "Continue",
   reg_checking: "Checking…",
   reg_couldNotContinue: "Could not continue",
+  reg_couldNotSave: "Could not save",
+  signin_signInFailed: "Sign in failed",
+  signin_couldNotSendLink: "Could not send link",
+  cert_viewDetails: "View details for {cert} certification",
+  aria_toggleMenu: "Toggle menu",
+  aria_goBack: "Go back",
   reg_byContAgreeTo: "By continuing, you agree to our",
   reg_terms: "Terms",
   reg_and: "and",
@@ -918,6 +930,12 @@ const ru: TranslationKeys = {
   reg_continue: "Продолжить",
   reg_checking: "Проверяем…",
   reg_couldNotContinue: "Не удалось продолжить",
+  reg_couldNotSave: "Не удалось сохранить",
+  signin_signInFailed: "Не удалось войти",
+  signin_couldNotSendLink: "Не удалось отправить ссылку",
+  cert_viewDetails: "Подробнее о сертификации {cert}",
+  aria_toggleMenu: "Открыть меню",
+  aria_goBack: "Назад",
   reg_byContAgreeTo: "Продолжая, вы соглашаетесь с",
   reg_terms: "Условиями",
   reg_and: "и",
@@ -1285,6 +1303,12 @@ const es: TranslationKeys = {
   reg_continue: "Continuar",
   reg_checking: "Verificando…",
   reg_couldNotContinue: "No se pudo continuar",
+  reg_couldNotSave: "No se pudo guardar",
+  signin_signInFailed: "Error al iniciar sesión",
+  signin_couldNotSendLink: "No se pudo enviar el enlace",
+  cert_viewDetails: "Ver detalles de la certificación {cert}",
+  aria_toggleMenu: "Abrir menú",
+  aria_goBack: "Atrás",
   reg_byContAgreeTo: "Al continuar, acepta nuestros",
   reg_terms: "Términos",
   reg_and: "y",
