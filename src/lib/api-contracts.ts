@@ -53,6 +53,11 @@ export interface ApiError {
 
 export type ApiResult<T> = ApiSuccess<T> | ApiError;
 
+/** Type guard — narrows ApiResult to ApiError when result.ok is false. */
+export function isApiError<T>(result: ApiResult<T>): result is ApiError {
+  return result.ok === false;
+}
+
 // ─── Error codes ─────────────────────────────────────────────────────────────
 
 export const ERROR_CODES = {
