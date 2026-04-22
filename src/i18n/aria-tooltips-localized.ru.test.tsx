@@ -100,7 +100,18 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
 
   it("OfferDetail: breadcrumb aria-label is Russian", () => {
     const id = mockOffers[0]?.id ?? "1";
-    renderRu(`/offers/${id}`, <OfferDetail />);
+    localStorage.setItem("yorso-lang", "ru");
+    render(
+      <MemoryRouter initialEntries={[`/offers/${id}`]}>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Routes>
+              <Route path="/offers/:id" element={<OfferDetail />} />
+            </Routes>
+          </TooltipProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
     const { labels } = collectAttrs();
     expect(labels).toContain(translations.ru.aria_breadcrumb);
     expect(labels).not.toContain("Breadcrumb");
