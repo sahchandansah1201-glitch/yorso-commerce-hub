@@ -572,6 +572,20 @@ const en: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "Back to homepage",
+  info_lastUpdated: "Last updated",
+  info_aboutTitle: "About YORSO",
+  info_contactTitle: "Contact Us",
+  info_termsTitle: "Terms of Service",
+  info_privacyTitle: "Privacy Policy",
+  info_cookiesTitle: "Cookie Policy",
+  info_gdprTitle: "GDPR Compliance",
+  info_antiFraudTitle: "Anti-Fraud Policy",
+  info_careersTitle: "Careers at YORSO",
+  info_pressTitle: "Press & Media",
+  info_partnersTitle: "Partner Program",
+
   // Registration
   reg_joinYorso: "Join YORSO",
   reg_chooseSubtitle: "Choose how you'll use the platform. It takes under 3 minutes.",
