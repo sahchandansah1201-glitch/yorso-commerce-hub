@@ -97,20 +97,68 @@ class BatchProvider implements AnalyticsProvider {
   }
 }
 
+// ─── Tap (E2E inspection) ───────────────────────────────────────────────────
+/**
+ * Wraps another provider and additionally pushes every envelope into
+ * `window.__yorsoAnalyticsTap`. Enabled by `?analytics-tap=1` (sticky via
+ * localStorage `yorso_analytics_tap=1`). E2E tests read the array to assert
+ * the funnel without owning a full mock pipeline.
+ */
+class TapProvider implements AnalyticsProvider {
+  readonly name: string;
+  constructor(private inner: AnalyticsProvider) {
+    this.name = `tap(${inner.name})`;
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__yorsoAnalyticsTap = (window as any).__yorsoAnalyticsTap ?? [];
+    }
+  }
+  send(envelope: AnalyticsEnvelope) {
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tap = (window as any).__yorsoAnalyticsTap as AnalyticsEnvelope[] | undefined;
+      if (tap) tap.push(envelope);
+    }
+    this.inner.send(envelope);
+  }
+  flush() {
+    this.inner.flush?.();
+  }
+}
+
+function tapEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("analytics-tap") === "1") {
+      localStorage.setItem("yorso_analytics_tap", "1");
+      return true;
+    }
+    return localStorage.getItem("yorso_analytics_tap") === "1";
+  } catch {
+    return false;
+  }
+}
+
 // ─── Selection ──────────────────────────────────────────────────────────────
 function pickProvider(): AnalyticsProvider {
   const envChoice = (import.meta.env.VITE_ANALYTICS_PROVIDER as string | undefined)?.toLowerCase();
   const choice = envChoice ?? (import.meta.env.DEV ? "console" : "noop");
 
+  let base: AnalyticsProvider;
   switch (choice) {
     case "batch":
-      return new BatchProvider();
+      base = new BatchProvider();
+      break;
     case "noop":
-      return new NoopProvider();
+      base = new NoopProvider();
+      break;
     case "console":
     default:
-      return new ConsoleProvider();
+      base = new ConsoleProvider();
   }
+
+  return tapEnabled() ? new TapProvider(base) : base;
 }
 
 let activeProvider: AnalyticsProvider = pickProvider();
@@ -124,4 +172,4 @@ export function setProvider(provider: AnalyticsProvider): void {
   activeProvider = provider;
 }
 
-export { ConsoleProvider, NoopProvider, BatchProvider };
+export { ConsoleProvider, NoopProvider, BatchProvider, TapProvider };
