@@ -174,7 +174,7 @@ const SignIn = () => {
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
                     <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
                   </div>
-                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate("/offers"), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); signIn({ identifier: phoneNumber, method: "whatsapp" }); analytics.track("workspace_session_started", { method: "whatsapp" }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate(redirectTo), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                     <WhatsAppIcon className="h-5 w-5" /> {t.signin_getCodeWhatsApp}
                   </Button>
                 </>
