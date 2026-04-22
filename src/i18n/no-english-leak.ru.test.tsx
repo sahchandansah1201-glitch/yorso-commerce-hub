@@ -180,3 +180,90 @@ describe("UI leaks: untranslated English strings under ru locale", () => {
     });
   }
 });
+
+/**
+ * Прицельные позитивные проверки каталога/карточек: убеждаемся, что
+ * под локалью ru видны ожидаемые русские лейблы фильтров, кнопок и
+ * подсказок карточек товара.
+ */
+describe("Catalog & offer cards render Russian UI under ru locale", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.body.innerHTML = "";
+  });
+
+  it("Offers (catalog page): заголовок, поиск, кнопки и категории — на русском", () => {
+    renderRoute("/offers", <Offers />);
+    const ru = translations.ru;
+
+    // Заголовок и подзаголовок
+    expect(document.body.textContent).toContain(ru.offersPage_title);
+    expect(
+      document.body.textContent ?? "",
+    ).toContain(ru.offersPage_subtitle.replace("{count}", String(mockOffers.length)));
+
+    // Поле поиска c русским placeholder
+    const placeholders = Array.from(
+      document.querySelectorAll<HTMLInputElement>("input[placeholder]"),
+    ).map((i) => i.getAttribute("placeholder") ?? "");
+    expect(placeholders).toContain(ru.offersPage_searchPlaceholder);
+    expect(placeholders).not.toContain("Search offers");
+
+    // Кнопка "назад на главную"
+    expect(document.body.textContent).toContain(ru.offersPage_backToHome);
+
+    // Хотя бы одна локализованная категория из cat_names присутствует
+    const catNames = Object.values(ru.cat_names);
+    const text = document.body.textContent ?? "";
+    expect(catNames.some((name) => text.includes(name))).toBe(true);
+  });
+
+  it("OfferCard: подписи под карточкой (per kg, View Offer, freshness) — на русском", () => {
+    const offer = mockOffers[0];
+    localStorage.setItem("yorso-lang", "ru");
+    render(
+      <MemoryRouter>
+        <LanguageProvider>
+          <OfferCard offer={offer} />
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
+    const ru = translations.ru;
+    const text = document.body.textContent ?? "";
+
+    expect(text).toContain(ru.card_perKg);
+    expect(text).toContain(ru.card_viewOffer);
+    expect(text).not.toContain("per kg");
+    expect(text).not.toContain("View Offer");
+
+    // Freshness нормализуется: либо "Добавлено сегодня", либо "Обновлено … назад"
+    const isToday = text.includes(ru.card_listedToday);
+    const isUpdated = text.includes(ru.card_updatedAgo.replace(" {time} ", " "));
+    const isUpdatedAnyTime = /Обновлено\s.+\sназад/.test(text);
+    expect(isToday || isUpdated || isUpdatedAnyTime).toBe(true);
+  });
+
+  it("LiveOffers: бейдж 'Live Marketplace', заголовок и список — на русском", () => {
+    renderRoute("/", <LiveOffers />);
+    const ru = translations.ru;
+    const text = document.body.textContent ?? "";
+
+    expect(text).toContain(ru.offers_liveMarketplace);
+    expect(text).toContain(ru.offers_title);
+    expect(text).toContain(ru.offers_subtitle);
+    expect(text).not.toContain("Live Marketplace");
+
+    // CTA "Смотреть" / "за кг" приходят из карточек
+    expect(text).toContain(ru.card_viewOffer);
+    expect(text).toContain(ru.card_perKg);
+
+    // Aria-label секции/списка — локализованы
+    const labels = Array.from(document.querySelectorAll("[aria-label]")).map(
+      (e) => e.getAttribute("aria-label") ?? "",
+    );
+    // Для секции/списка должно быть хоть одно нелатинское aria-label
+    const hasCyrillic = labels.some((l) => /[А-Яа-яЁё]/.test(l));
+    expect(hasCyrillic).toBe(true);
+  });
+});
+
