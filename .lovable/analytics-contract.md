@@ -114,8 +114,10 @@ stages. This is the primary source of the +539% registration KPI.
 | `registration_onboarding_skipped` | Onboarding skipped | `registration` | — | REG |
 | `registration_countries_completed` | Countries submitted | `registration` | `role`, `countriesCount` | REG, RET |
 | `registration_countries_skipped` | Countries skipped | `registration` | — | REG |
-| `registration_complete` | Final "Ready" screen reached | `registration` | `role`, `country`, `categories`, `countries` | REG (north-star) |
+| `registration_complete` | Final "Ready" screen reached | `registration` | `role`, `step:7`, `sessionId`, `country`, `categories`, `countries`, `funnelDurationMs` | REG (north-star) |
 | `value_destination_selected` | Each country selected during onboarding | `registration` | `country`, `role` | RET, TRUST |
+
+**Funnel notes.** Step events `1 → 2 → 3 → 7` carry literal `step` and shared `sessionId`, so per-user drop-off and time-between-steps reconstruct without DB joins. `verificationLatencyMs` = inbox-to-confirm; `funnelDurationMs` = full role-to-complete journey. Both are `null` when timing isn't measurable (e.g. dev skip).
 
 ### Phone verification
 
