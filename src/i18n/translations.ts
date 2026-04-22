@@ -742,6 +742,8 @@ const ru: TranslationKeys = {
   offers_viewAllMobile: "Все предложения",
   offers_showMore: "Показать ещё",
   offers_showLess: "Свернуть",
+  offers_regionLabel: "Живые оптовые предложения",
+  offers_highlightAnnouncement: "Раздел «Живые оптовые предложения» подсвечен. Показаны актуальные предложения от проверенных поставщиков.",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
