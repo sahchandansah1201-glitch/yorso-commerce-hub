@@ -79,16 +79,22 @@ describe("BatchProvider (R6)", () => {
     expect(beacon).not.toHaveBeenCalled();
   });
 
-  it("serializes events as { events: [...] }", async () => {
-    const p = new BatchProvider();
-    p.send(env("a"));
-    p.send(env("b"));
-    p.flush();
-    const blob = beacon.mock.calls[0][1] as Blob;
-    const text = await new Response(blob).text();
-    const parsed = JSON.parse(text);
-    expect(parsed.events).toHaveLength(2);
-    expect(parsed.events[0].event).toBe("a");
+  it("serializes events as { events: [...] }", () => {
+    const blobSpy = vi.spyOn(globalThis, "Blob").mockImplementation(
+      ((parts: BlobPart[]) => ({ __parts: parts }) as unknown as Blob) as never,
+    );
+    try {
+      const p = new BatchProvider();
+      p.send(env("a"));
+      p.send(env("b"));
+      p.flush();
+      const captured = beacon.mock.calls[0][1] as { __parts: string[] };
+      const parsed = JSON.parse(captured.__parts[0]);
+      expect(parsed.events).toHaveLength(2);
+      expect(parsed.events[0].event).toBe("a");
+    } finally {
+      blobSpy.mockRestore();
+    }
   });
 });
 
