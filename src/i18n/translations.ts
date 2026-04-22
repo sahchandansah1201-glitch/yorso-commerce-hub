@@ -43,6 +43,8 @@ type TranslationKeys = {
   offers_viewAllMobile: string;
   offers_showMore: string;
   offers_showLess: string;
+  offers_listLabel: string;
+  offers_cardLabel: string;
 
   // Offer Card
   card_verified: string;
