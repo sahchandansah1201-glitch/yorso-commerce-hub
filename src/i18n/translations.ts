@@ -1684,6 +1684,54 @@ const es: TranslationKeys = {
   socialBanner_zeroCom: "Sin comisión — operaciones directas, siempre",
   socialBanner_trustedBy: "Confianza de 12,000+ profesionales",
   socialBanner_detail: "2,400+ proveedores verificados · 48 países · Sin comisión",
+
+  // Buyer Workspace
+  workspace_brand: "Panel del comprador",
+  workspace_signOut: "Cerrar sesión",
+  workspace_greeting: "Bienvenido de nuevo, {name}",
+  workspace_tab_dashboard: "Resumen",
+  workspace_tab_saved: "Ofertas guardadas",
+  workspace_tab_priceRequests: "Solicitudes de precio",
+  workspace_tab_messages: "Mensajes",
+
+  workspace_dashboard_title: "Tu espacio de compras",
+  workspace_dashboard_subtitle: "Sigue ofertas guardadas, solicitudes de precio y conversaciones con proveedores en un solo lugar.",
+  workspace_kpi_saved: "Ofertas guardadas",
+  workspace_kpi_priceRequests: "Solicitudes pendientes",
+  workspace_kpi_unread: "Mensajes sin leer",
+  workspace_kpi_suppliers: "Proveedores activos",
+  workspace_recentActivity: "Actividad reciente",
+  workspace_quickActions: "Acciones rápidas",
+  workspace_action_browseOffers: "Ver mercado",
+  workspace_action_viewSaved: "Ver guardadas",
+  workspace_action_openMessages: "Abrir mensajes",
+
+  workspace_saved_title: "Ofertas guardadas",
+  workspace_saved_subtitle: "Ofertas marcadas para revisar o comparar.",
+  workspace_saved_empty: "Aún no tienes ofertas guardadas.",
+  workspace_saved_open: "Abrir oferta",
+  workspace_saved_remove: "Quitar",
+  workspace_saved_savedAt: "Guardado el {date}",
+
+  workspace_priceReq_title: "Solicitudes de precio",
+  workspace_priceReq_subtitle: "Sigue tus solicitudes de acceso a precio enviadas a proveedores.",
+  workspace_priceReq_empty: "Aún no has solicitado acceso a precio.",
+  workspace_priceReq_status_pending: "Pendiente",
+  workspace_priceReq_status_approved: "Aprobada",
+  workspace_priceReq_status_rejected: "Rechazada",
+  workspace_priceReq_requestedAt: "Enviada el {date}",
+  workspace_priceReq_respondedAt: "Respondida el {date}",
+  workspace_priceReq_open: "Abrir oferta",
+
+  workspace_msg_title: "Mensajes",
+  workspace_msg_subtitle: "Conversaciones con proveedores verificados.",
+  workspace_msg_empty: "Aún no tienes conversaciones.",
+  workspace_msg_unread: "{count} sin leer",
+  workspace_msg_open: "Abrir conversación",
+
+  workspace_activity_offer_view: "Vista de oferta",
+  workspace_activity_price_request: "Solicitud de precio para",
+  workspace_activity_message: "Nueva respuesta de",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
