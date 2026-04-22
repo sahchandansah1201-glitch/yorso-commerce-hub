@@ -365,6 +365,8 @@ const en: TranslationKeys = {
   offers_viewAllMobile: "View All Offers",
   offers_showMore: "Show more offers",
   offers_showLess: "Show less",
+  offers_listLabel: "Live wholesale offers from verified suppliers",
+  offers_cardLabel: "{product} from {origin}, {price} per kg. View offer.",
 
   // Offer Card
   card_verified: "Verified",
