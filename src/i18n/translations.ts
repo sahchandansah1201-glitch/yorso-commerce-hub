@@ -742,6 +742,8 @@ const ru: TranslationKeys = {
   offers_viewAllMobile: "Все предложения",
   offers_showMore: "Показать ещё",
   offers_showLess: "Свернуть",
+  offers_listLabel: "Актуальные оптовые предложения от проверенных поставщиков",
+  offers_cardLabel: "{product}, происхождение: {origin}, цена: {price} за кг. Открыть предложение.",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
