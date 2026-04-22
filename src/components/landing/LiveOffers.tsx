@@ -31,22 +31,29 @@ const LiveOffers = () => {
   return (
     <section
       id="offers"
+      aria-labelledby="offers-heading"
+      aria-describedby="offers-subtitle"
       className="scroll-mt-20 md:scroll-mt-24 bg-background py-12 md:py-16"
     >
       <div className="container">
         <div className="flex items-end justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5">
+              <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-medium text-primary">{t.offers_liveMarketplace}</span>
             </div>
-            <h2 className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            <h2
+              id="offers-heading"
+              className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl"
+            >
               {t.offers_title}
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t.offers_subtitle}</p>
+            <p id="offers-subtitle" className="mt-1 text-sm text-muted-foreground">
+              {t.offers_subtitle}
+            </p>
           </div>
           <Link
             to="/offers"
@@ -61,11 +68,19 @@ const LiveOffers = () => {
         </div>
 
         {/* Visible offers — 8 cards */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul
+          role="list"
+          aria-label={t.offers_listLabel}
+          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 list-none p-0"
+        >
           {visibleOffers.map((offer, idx) => {
             const cardKey = `${offer.id}-${highlightTick}`;
+            const ariaLabel = t.offers_cardLabel
+              .replace("{product}", offer.productName)
+              .replace("{origin}", offer.origin)
+              .replace("{price}", offer.priceRange);
             return (
-              <div
+              <li
                 key={cardKey}
                 data-card-key={cardKey}
                 className={highlightTick > 0 ? "offer-highlight" : undefined}
@@ -73,14 +88,17 @@ const LiveOffers = () => {
               >
                 <Link
                   to={`/offers/${offer.id}`}
+                  aria-label={ariaLabel}
                   onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
                 >
-                  <OfferCard offer={offer} />
+                  <div aria-hidden="true">
+                    <OfferCard offer={offer} />
+                  </div>
                 </Link>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
         {/* Expandable extra offers */}
         <AnimatePresence>
@@ -92,18 +110,31 @@ const LiveOffers = () => {
               transition={{ duration: 0.35, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {extraOffers.map((offer) => (
-                  <div key={offer.id}>
-                    <Link
-                      to={`/offers/${offer.id}`}
-                      onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
-                    >
-                      <OfferCard offer={offer} />
-                    </Link>
-                  </div>
-                ))}
-              </div>
+              <ul
+                role="list"
+                aria-label={t.offers_listLabel}
+                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 list-none p-0"
+              >
+                {extraOffers.map((offer) => {
+                  const ariaLabel = t.offers_cardLabel
+                    .replace("{product}", offer.productName)
+                    .replace("{origin}", offer.origin)
+                    .replace("{price}", offer.priceRange);
+                  return (
+                    <li key={offer.id}>
+                      <Link
+                        to={`/offers/${offer.id}`}
+                        aria-label={ariaLabel}
+                        onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}
+                      >
+                        <div aria-hidden="true">
+                          <OfferCard offer={offer} />
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </motion.div>
           )}
         </AnimatePresence>

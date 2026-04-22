@@ -43,6 +43,8 @@ type TranslationKeys = {
   offers_viewAllMobile: string;
   offers_showMore: string;
   offers_showLess: string;
+  offers_listLabel: string;
+  offers_cardLabel: string;
 
   // Offer Card
   card_verified: string;
@@ -363,6 +365,8 @@ const en: TranslationKeys = {
   offers_viewAllMobile: "View All Offers",
   offers_showMore: "Show more offers",
   offers_showLess: "Show less",
+  offers_listLabel: "Live wholesale offers from verified suppliers",
+  offers_cardLabel: "{product} from {origin}, {price} per kg. View offer.",
 
   // Offer Card
   card_verified: "Verified",
@@ -738,6 +742,8 @@ const ru: TranslationKeys = {
   offers_viewAllMobile: "Все предложения",
   offers_showMore: "Показать ещё",
   offers_showLess: "Свернуть",
+  offers_listLabel: "Актуальные оптовые предложения от проверенных поставщиков",
+  offers_cardLabel: "{product}, происхождение: {origin}, цена: {price} за кг. Открыть предложение.",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
@@ -1103,6 +1109,8 @@ const es: TranslationKeys = {
   offers_viewAllMobile: "Ver todas las ofertas",
   offers_showMore: "Mostrar más ofertas",
   offers_showLess: "Mostrar menos",
+  offers_listLabel: "Ofertas mayoristas en vivo de proveedores verificados",
+  offers_cardLabel: "{product} de {origin}, {price} por kg. Ver oferta.",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",
