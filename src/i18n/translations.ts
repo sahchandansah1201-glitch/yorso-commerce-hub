@@ -354,6 +354,54 @@ type TranslationKeys = {
   socialBanner_zeroCom: string;
   socialBanner_trustedBy: string;
   socialBanner_detail: string;
+
+  // ─── Buyer Workspace ───────────────────────────────────────────
+  workspace_brand: string;
+  workspace_signOut: string;
+  workspace_greeting: string;
+  workspace_tab_dashboard: string;
+  workspace_tab_saved: string;
+  workspace_tab_priceRequests: string;
+  workspace_tab_messages: string;
+
+  workspace_dashboard_title: string;
+  workspace_dashboard_subtitle: string;
+  workspace_kpi_saved: string;
+  workspace_kpi_priceRequests: string;
+  workspace_kpi_unread: string;
+  workspace_kpi_suppliers: string;
+  workspace_recentActivity: string;
+  workspace_quickActions: string;
+  workspace_action_browseOffers: string;
+  workspace_action_viewSaved: string;
+  workspace_action_openMessages: string;
+
+  workspace_saved_title: string;
+  workspace_saved_subtitle: string;
+  workspace_saved_empty: string;
+  workspace_saved_open: string;
+  workspace_saved_remove: string;
+  workspace_saved_savedAt: string;
+
+  workspace_priceReq_title: string;
+  workspace_priceReq_subtitle: string;
+  workspace_priceReq_empty: string;
+  workspace_priceReq_status_pending: string;
+  workspace_priceReq_status_approved: string;
+  workspace_priceReq_status_rejected: string;
+  workspace_priceReq_requestedAt: string;
+  workspace_priceReq_respondedAt: string;
+  workspace_priceReq_open: string;
+
+  workspace_msg_title: string;
+  workspace_msg_subtitle: string;
+  workspace_msg_empty: string;
+  workspace_msg_unread: string;
+  workspace_msg_open: string;
+
+  workspace_activity_offer_view: string;
+  workspace_activity_price_request: string;
+  workspace_activity_message: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
