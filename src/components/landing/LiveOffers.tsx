@@ -29,7 +29,10 @@ const LiveOffers = () => {
   };
 
   return (
-    <section id="offers" className="bg-background py-12 md:py-16">
+    <section
+      id="offers"
+      className="scroll-mt-20 md:scroll-mt-24 bg-background py-12 md:py-16"
+    >
       <div className="container">
         <div className="flex items-end justify-between">
           <div>
