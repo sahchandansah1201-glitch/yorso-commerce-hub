@@ -148,7 +148,6 @@ describe("Validation toasts follow current language after in-UI switch", () => {
       { timeout: 3000 },
     );
 
-    dismissToasts();
     act(() => setLang("es"));
 
     submitEmail("taken@yorso.test");
