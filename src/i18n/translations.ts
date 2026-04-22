@@ -154,6 +154,20 @@ type TranslationKeys = {
     legal: { label: string; href: string }[];
   };
 
+  // ─── Info / Legal Pages ────────────────────────────────────────
+  info_backToHome: string;
+  info_lastUpdated: string;
+  info_aboutTitle: string;
+  info_contactTitle: string;
+  info_termsTitle: string;
+  info_privacyTitle: string;
+  info_cookiesTitle: string;
+  info_gdprTitle: string;
+  info_antiFraudTitle: string;
+  info_careersTitle: string;
+  info_pressTitle: string;
+  info_partnersTitle: string;
+
   // ─── Registration ──────────────────────────────────────────────
   reg_joinYorso: string;
   reg_chooseSubtitle: string;
