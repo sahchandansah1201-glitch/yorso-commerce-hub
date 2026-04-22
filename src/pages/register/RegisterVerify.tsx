@@ -69,6 +69,20 @@ const RegisterVerify = () => {
           retryAfterSec: typeof result.retryAfterSec === "number" ? result.retryAfterSec : null,
         });
       }
+      if (pendingResendRef.current) {
+        const { resendIndex, resendAt } = pendingResendRef.current;
+        pendingResendRef.current = null;
+        analytics.track("registration_resend_outcome", {
+          role: data.role || "unknown",
+          step: 3,
+          sessionId: data.sessionId,
+          resendIndex,
+          outcome: "failed",
+          reason,
+          msFromResendToAttempt: Date.now() - resendAt,
+          enteredCodeLength,
+        });
+      }
       if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
