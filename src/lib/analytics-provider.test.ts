@@ -123,7 +123,6 @@ describe("BatchProvider degraded transports", () => {
 
   afterEach(() => {
     if (originalBeacon === undefined) {
-      // @ts-expect-error — restoring missing property
       delete (navigator as { sendBeacon?: unknown }).sendBeacon;
     } else {
       Object.defineProperty(navigator, "sendBeacon", {
@@ -135,7 +134,6 @@ describe("BatchProvider degraded transports", () => {
   });
 
   it("falls back to fetch when sendBeacon is missing", () => {
-    // @ts-expect-error — simulate older browser / disabled API
     delete (navigator as { sendBeacon?: unknown }).sendBeacon;
     const fetchSpy = vi.fn().mockResolvedValue(new Response(""));
     globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
@@ -169,7 +167,6 @@ describe("BatchProvider degraded transports", () => {
   });
 
   it("does not throw when offline (fetch rejects)", async () => {
-    // @ts-expect-error — simulate no beacon
     delete (navigator as { sendBeacon?: unknown }).sendBeacon;
     const fetchSpy = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
     globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
@@ -195,9 +192,7 @@ describe("BatchProvider degraded transports", () => {
   });
 
   it("does not throw when both transports are missing", () => {
-    // @ts-expect-error — simulate stripped environment
     delete (navigator as { sendBeacon?: unknown }).sendBeacon;
-    // @ts-expect-error — wipe fetch to simulate non-browser env
     delete (globalThis as { fetch?: unknown }).fetch;
 
     const p = new BatchProvider();
