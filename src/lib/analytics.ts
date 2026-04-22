@@ -1,85 +1,233 @@
-// ─── Phase 0 Typed Analytics Event Contract ─────────────────────
-
 /**
- * All Phase 0 analytics event names. Use this type to ensure
- * every analytics.track() call uses a known event name.
+ * YORSO Analytics Contract v1
  *
- * Scroll-depth events are dynamic (`scroll_depth_25/50/75`) and
- * handled separately via template literals.
+ * This module is the single source of truth for everything the frontend is
+ * allowed to track. It guarantees:
+ *
+ *   1. A closed set of event names (the AnalyticsEvent union).
+ *   2. A typed payload for every event (the EventPayloadMap).
+ *   3. A consistent envelope (timestamp, language, url, sessionId, role).
+ *   4. A pluggable provider boundary (see analytics-provider.ts).
+ *
+ * Adding a new event:
+ *   - Add the name to AnalyticsEvent.
+ *   - Add its payload shape to EventPayloadMap (use {} for events with no fields).
+ *   - Document it in .lovable/analytics-contract.md with KPI mapping.
+ *
+ * Naming convention: `surface_object_action`, snake_case.
  */
-export type AnalyticsEvent =
-  // Landing / Navigation
-  | "hero_primary_cta_click"
-  | "hero_secondary_cta_click"
-  | "hero_search_submit"
-  | "header_register_click"
-  | "header_signin_click"
-  | "footer_link_click"
-  | "live_offer_card_click"
-  | "live_offers_expand_toggle"
-  | "live_offers_view_all_click"
-  | "register_cta_final_click"
-  | "register_cta_midpage_click"
-  | "register_cta_offer_detail"
-  | "value_register_buyer_click"
-  | "value_register_supplier_click"
-  | "section_view"
-  // Offers
-  | "offers_list_view"
-  | "offer_detail_view"
-  // Registration
-  | "registration_role_selected"
-  | "registration_email_submitted"
-  | "registration_email_verified"
-  | "registration_resend_code"
-  | "registration_details_completed"
-  | "registration_onboarding_completed"
-  | "registration_onboarding_skipped"
-  | "registration_countries_completed"
-  | "registration_countries_skipped"
-  | "registration_complete"
-  | "value_destination_selected"
-  // Phone verification
-  | "phone_verification_sent"
-  | "phone_verified"
-  | "phone_whatsapp_verify_started"
-  | "phone_whatsapp_verified"
-  // Auth
-  | "signin_email"
-  | "signin_phone"
-  | "signin_whatsapp"
-  | "forgot_password"
-  // Legacy (kept for backward compat, remove when dead code is cleaned)
-  | "registration_start"
-  | "registration_complete_mock"
-  // Scroll depth (dynamic)
-  | `scroll_depth_${number}`;
 
-type EventPayload = Record<string, string | number | boolean | undefined>;
+import { getProvider } from "./analytics-provider";
 
-const analytics = {
-  track(event: AnalyticsEvent, payload?: EventPayload) {
-    const base = {
-      timestamp: new Date().toISOString(),
-      language: localStorage.getItem("yorso-lang") || "en",
-      url: window.location.pathname,
-    };
-    const data = { event, ...base, ...payload };
+// ─── Common payload primitives ──────────────────────────────────────────────
 
-    // Console log for development — replace with real provider
-    if (import.meta.env.DEV) {
-      console.log(`[YORSO Analytics]`, data);
+export type UserRole = "buyer" | "supplier" | "unknown";
+export type Surface =
+  | "homepage"
+  | "offers_list"
+  | "offer_detail"
+  | "registration"
+  | "signin"
+  | "header"
+  | "footer"
+  | "hero"
+  | "live_offers"
+  | "supplier_verification"
+  | "value_split"
+  | "final_cta"
+  | "midpage_cta";
+
+interface Empty {
+  /* no fields */
+}
+
+// ─── Per-event payload contracts ────────────────────────────────────────────
+
+export interface EventPayloadMap {
+  // Landing / Navigation ────────────────────────────────────────
+  hero_primary_cta_click: Empty;
+  hero_secondary_cta_click: Empty;
+  hero_search_submit: { query: string };
+  header_register_click: Empty;
+  header_signin_click: Empty;
+  footer_link_click: { label: string; href: string };
+
+  live_offer_card_click: { offerId: string; product: string; position?: number };
+  live_offers_expand_toggle: { expanded: boolean };
+  live_offers_view_all_click: Empty;
+
+  register_cta_final_click: Empty;
+  register_cta_midpage_click: { section: string };
+  register_cta_offer_detail: { offerId: string };
+
+  value_register_buyer_click: Empty;
+  value_register_supplier_click: Empty;
+
+  section_view: { section: string };
+
+  // Offers ──────────────────────────────────────────────────────
+  offers_list_view: Empty;
+  offer_detail_view: { offerId: string; product: string };
+
+  // Registration ────────────────────────────────────────────────
+  registration_role_selected: { role: UserRole };
+  registration_email_submitted: { role: UserRole };
+  registration_email_verified: { role: UserRole };
+  registration_resend_code: Empty;
+  registration_details_completed: { role: UserRole; country: string };
+  registration_onboarding_completed: {
+    role: UserRole;
+    categoriesCount: number;
+    volume: string;
+    certificationsCount: number;
+  };
+  registration_onboarding_skipped: Empty;
+  registration_countries_completed: { role: UserRole; countriesCount: number };
+  registration_countries_skipped: Empty;
+  registration_complete: {
+    role: UserRole;
+    country: string;
+    categories: number;
+    countries: number;
+  };
+  value_destination_selected: { country: string; role: UserRole };
+
+  // Phone verification ──────────────────────────────────────────
+  phone_verification_sent: { phone: string };
+  phone_verified: { phone: string };
+  phone_whatsapp_verify_started: { phone: string };
+  phone_whatsapp_verified: { phone: string };
+
+  // Auth ────────────────────────────────────────────────────────
+  signin_email: { email: string };
+  signin_phone: { phone: string };
+  signin_whatsapp: { phone: string };
+  forgot_password: { email: string };
+
+  // API errors (used by upcoming useApiCall hook) ───────────────
+  api_error: { endpoint: string; code: string; field?: string };
+
+  // Legacy (kept for backward compat — remove during cleanup) ───
+  registration_start: Empty;
+  registration_complete_mock: Empty;
+}
+
+export type AnalyticsEvent = keyof EventPayloadMap;
+
+// Scroll depth events are dynamic (`scroll_depth_25`, `scroll_depth_50`, ...).
+// They share one payload shape and bypass the typed map intentionally.
+type ScrollDepthEvent = `scroll_depth_${number}`;
+interface ScrollDepthPayload {
+  depth: number;
+}
+
+// ─── Envelope ───────────────────────────────────────────────────────────────
+
+export interface AnalyticsEnvelope {
+  event: string;
+  timestamp: string;
+  url: string;
+  language: string;
+  sessionId: string;
+  role: UserRole;
+  payload: Record<string, unknown>;
+}
+
+// ─── Session helpers ────────────────────────────────────────────────────────
+
+const SESSION_KEY = "yorso_analytics_session";
+
+function getSessionId(): string {
+  if (typeof window === "undefined") return "ssr";
+  try {
+    let id = sessionStorage.getItem(SESSION_KEY);
+    if (!id) {
+      id = `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+      sessionStorage.setItem(SESSION_KEY, id);
     }
+    return id;
+  } catch {
+    return "no_storage";
+  }
+}
 
-    // Future: send to analytics endpoint
-    // fetch('/api/analytics', { method: 'POST', body: JSON.stringify(data) });
+function getRole(): UserRole {
+  if (typeof window === "undefined") return "unknown";
+  try {
+    const raw = sessionStorage.getItem("yorso_registration");
+    if (!raw) return "unknown";
+    const parsed = JSON.parse(raw) as { role?: UserRole };
+    return parsed.role ?? "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+function getLanguage(): string {
+  if (typeof window === "undefined") return "en";
+  try {
+    return localStorage.getItem("yorso-lang") ?? "en";
+  } catch {
+    return "en";
+  }
+}
+
+function getUrl(): string {
+  return typeof window === "undefined" ? "" : window.location.pathname;
+}
+
+// ─── Public API ─────────────────────────────────────────────────────────────
+
+interface Analytics {
+  track<E extends AnalyticsEvent>(
+    event: E,
+    ...args: EventPayloadMap[E] extends Empty ? [] | [EventPayloadMap[E]] : [EventPayloadMap[E]]
+  ): void;
+  /** Dynamic scroll-depth events bypass the typed map. */
+  trackScrollDepth(event: ScrollDepthEvent, payload: ScrollDepthPayload): void;
+}
+
+const analytics: Analytics = {
+  track(event, ...args) {
+    const payload = (args[0] ?? {}) as Record<string, unknown>;
+    const envelope: AnalyticsEnvelope = {
+      event,
+      timestamp: new Date().toISOString(),
+      url: getUrl(),
+      language: getLanguage(),
+      sessionId: getSessionId(),
+      role: getRole(),
+      payload,
+    };
+    try {
+      getProvider().send(envelope);
+    } catch {
+      /* analytics must never break the app */
+    }
+  },
+  trackScrollDepth(event, payload) {
+    const envelope: AnalyticsEnvelope = {
+      event,
+      timestamp: new Date().toISOString(),
+      url: getUrl(),
+      language: getLanguage(),
+      sessionId: getSessionId(),
+      role: getRole(),
+      payload: payload as unknown as Record<string, unknown>,
+    };
+    try {
+      getProvider().send(envelope);
+    } catch {
+      /* swallow */
+    }
   },
 };
 
-// Scroll depth tracking — fires once per threshold per page load
+// ─── Scroll depth tracking ──────────────────────────────────────────────────
+
 let firedDepths = new Set<number>();
 
-export function initScrollDepthTracking() {
+export function initScrollDepthTracking(): () => void {
   firedDepths = new Set();
   const handler = () => {
     const scrollTop = window.scrollY;
@@ -90,7 +238,7 @@ export function initScrollDepthTracking() {
     [25, 50, 75].forEach((threshold) => {
       if (pct >= threshold && !firedDepths.has(threshold)) {
         firedDepths.add(threshold);
-        analytics.track(`scroll_depth_${threshold}`, { depth: threshold });
+        analytics.trackScrollDepth(`scroll_depth_${threshold}`, { depth: threshold });
       }
     });
   };
@@ -99,11 +247,12 @@ export function initScrollDepthTracking() {
   return () => window.removeEventListener("scroll", handler);
 }
 
-// Section impression observer — fires once when section enters viewport
+// ─── Section impression observer ────────────────────────────────────────────
+
 export function trackSectionImpression(
   element: HTMLElement | null,
-  sectionName: string
-) {
+  sectionName: string,
+): () => void {
   if (!element) return () => {};
   const observer = new IntersectionObserver(
     ([entry]) => {
@@ -112,7 +261,7 @@ export function trackSectionImpression(
         observer.disconnect();
       }
     },
-    { threshold: 0.3 }
+    { threshold: 0.3 },
   );
   observer.observe(element);
   return () => observer.disconnect();
