@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useState as useReactState } from "react";
 import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { getCategoryLabel, getCertificationLabel, getVolumeLabel } from "@/i18n/onboarding-labels";
 
 const BUYER_CATEGORIES = [
   "Salmon & Trout", "Shrimp & Prawns", "White Fish (Cod, Haddock, Pollock)",
@@ -36,7 +37,7 @@ const RegisterOnboarding = () => {
   const navigate = useNavigate();
   const { data, setFields } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/onboarding");
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const isSupplier = data.role === "supplier";
 
   const categories = isSupplier ? SUPPLIER_CATEGORIES : BUYER_CATEGORIES;
@@ -98,7 +99,7 @@ const RegisterOnboarding = () => {
                 <button key={cat} onClick={() => toggleItem(cat, selected, setSelected)}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                   {isSelected && <Check className="h-3.5 w-3.5" />}
-                  {cat}
+                  {getCategoryLabel(cat, lang)}
                 </button>
               );
             })}
@@ -118,7 +119,7 @@ const RegisterOnboarding = () => {
                   <button key={cert} onClick={() => toggleItem(cert, certs, setCerts)}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                     {isSelected && <Check className="h-3.5 w-3.5" />}
-                    {cert}
+                    {getCertificationLabel(cert, lang)}
                   </button>
                 );
               })}
@@ -134,7 +135,7 @@ const RegisterOnboarding = () => {
             {volumes.map((v) => (
               <button key={v} onClick={() => setVolume(v)}
                 className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${volume === v ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
-                {v}
+                {getVolumeLabel(v, lang)}
               </button>
             ))}
           </div>
