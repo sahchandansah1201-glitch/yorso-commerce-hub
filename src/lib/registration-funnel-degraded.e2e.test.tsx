@@ -226,21 +226,29 @@ describe("registration funnel — degraded analytics transports", () => {
       renderFunnel("/register/ready");
     });
 
-    // Page mounted — registration_complete was fired (and silently dropped
-    // by the broken transports) without throwing.
+    // Page mounted — registration_complete fires from a useEffect that
+    // awaits completeRegistration() (~900ms mock latency). Wait for the
+    // success screen first, then for the async track to land in the
+    // BatchProvider buffer (signaled by failures going up after flush).
     await waitFor(() => {
       expect(screen.getByText(/Welcome, Jane/i)).toBeTruthy();
     });
 
-    // Now flush the buffered events through the broken transports.
-    await act(async () => {
-      forceFlush();
-      await Promise.resolve();
-      await Promise.resolve();
-    });
+    // Poll: flush periodically until the broken transports record a failure
+    // (= the buffered registration_complete envelope was attempted).
+    await waitFor(
+      async () => {
+        await act(async () => {
+          forceFlush();
+          await Promise.resolve();
+          await Promise.resolve();
+        });
+        expect(getAnalyticsFailures().total).toBeGreaterThan(0);
+      },
+      { timeout: 3000, interval: 100 },
+    );
 
     assertNoErrorToast();
-    expect(getAnalyticsFailures().total).toBeGreaterThan(0);
     expect(getAnalyticsFailures().byReason.fetch_rejected).toBeGreaterThan(0);
   });
 
