@@ -109,7 +109,8 @@ stages. This is the primary source of the +539% registration KPI.
 | `registration_email_submitted` | Email submitted on `/register/email` | `registration` | `role`, `step:2`, `sessionId`, `emailDomain` | REG |
 | `registration_email_verified` | Email OTP accepted on `/register/verify` | `registration` | `role`, `step:3`, `sessionId`, `verificationLatencyMs` | REG |
 | `registration_email_verification_failed` | OTP rejected by backend on `/register/verify` | `registration` | `role`, `step:3`, `sessionId`, `reason`, `attempt`, `elapsedMs`, `enteredCodeLength`, `isResend` | REG (drop-off diagnostics) |
-| `registration_resend_code` | "Resend code" tapped | `registration` | — | REG |
+| `registration_resend_code` | "Resend code" tapped | `registration` | `role`, `step:3`, `sessionId`, `resendIndex`, `attemptsBeforeResend`, `msSinceEmailSubmitted`, `msSinceLastResend` | REG |
+| `registration_resend_outcome` | First verify attempt after a resend (one per resend) | `registration` | `role`, `step:3`, `sessionId`, `resendIndex`, `outcome`, `reason`, `msFromResendToAttempt`, `enteredCodeLength` | REG (resend efficacy) |
 | `registration_details_completed` | Details form submitted on `/register/details` | `registration` | `role`, `country` | REG |
 | `registration_onboarding_completed` | Onboarding submitted | `registration` | `role`, `categoriesCount`, `volume`, `certificationsCount` | REG, RET |
 | `registration_onboarding_skipped` | Onboarding skipped | `registration` | — | REG |
