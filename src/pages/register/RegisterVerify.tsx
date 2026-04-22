@@ -120,7 +120,14 @@ const RegisterVerify = () => {
           enteredCodeLength,
         });
       }
-      if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
+      // Clear OTP inputs so the user can retype without manually erasing each digit.
+      setCode(["", "", "", "", "", ""]);
+      if (result.code === "VERIFICATION_FAILED") {
+        setTimeout(() => navigate("/register/email"), 1500);
+      } else {
+        // Wait one frame for re-render (inputs no longer disabled) before focusing.
+        requestAnimationFrame(() => document.getElementById("otp-0")?.focus());
+      }
       return;
     }
 
