@@ -70,9 +70,17 @@ export interface EventPayloadMap {
   offer_detail_view: { offerId: string; product: string };
 
   // Registration ────────────────────────────────────────────────
-  registration_role_selected: { role: UserRole };
-  registration_email_submitted: { role: UserRole };
-  registration_email_verified: { role: UserRole };
+  // Funnel events carry `step` (1..7) and `sessionId` so drop-off and
+  // time-between-steps can be reconstructed without joining tables.
+  registration_role_selected: { role: UserRole; step: 1 };
+  registration_email_submitted: { role: UserRole; step: 2; sessionId: string; emailDomain: string };
+  registration_email_verified: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** ms between email_submitted and email_verified (null if not measurable) */
+    verificationLatencyMs: number | null;
+  };
   registration_resend_code: Empty;
   registration_details_completed: { role: UserRole; country: string };
   registration_onboarding_completed: {
@@ -86,9 +94,13 @@ export interface EventPayloadMap {
   registration_countries_skipped: Empty;
   registration_complete: {
     role: UserRole;
+    step: 7;
+    sessionId: string;
     country: string;
     categories: number;
     countries: number;
+    /** ms from role_selected → complete (null if not measurable) */
+    funnelDurationMs: number | null;
   };
   value_destination_selected: { country: string; role: UserRole };
 
