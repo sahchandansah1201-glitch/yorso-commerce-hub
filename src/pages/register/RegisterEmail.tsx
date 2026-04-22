@@ -50,7 +50,14 @@ const RegisterEmail = () => {
 
     setField("email", email);
     setField("sessionId", result.data.sessionId);
-    analytics.track("registration_email_submitted", { role: data.role || "unknown" });
+    setField("emailSubmittedAt", Date.now());
+    const emailDomain = email.split("@")[1]?.toLowerCase() ?? "";
+    analytics.track("registration_email_submitted", {
+      role: data.role || "unknown",
+      step: 2,
+      sessionId: result.data.sessionId,
+      emailDomain,
+    });
     navigate("/register/verify");
   };
 

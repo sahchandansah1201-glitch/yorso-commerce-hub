@@ -23,6 +23,9 @@ export interface RegistrationData {
   onboardingSkipped: boolean;
   countriesSkipped: boolean;
   completed: boolean;
+  // Funnel timing (epoch ms; 0 = not yet measured)
+  startedAt: number;
+  emailSubmittedAt: number;
 }
 
 interface RegistrationContextType {
@@ -53,6 +56,8 @@ const defaultData: RegistrationData = {
   onboardingSkipped: false,
   countriesSkipped: false,
   completed: false,
+  startedAt: 0,
+  emailSubmittedAt: 0,
 };
 
 function loadFromStorage(): RegistrationData {

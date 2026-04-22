@@ -30,7 +30,8 @@ const RegisterChoose = () => {
 
   const handleChoose = (role: "buyer" | "supplier") => {
     setField("role", role);
-    analytics.track("registration_role_selected", { role });
+    setField("startedAt", Date.now());
+    analytics.track("registration_role_selected", { role, step: 1 });
     navigate("/register/email");
   };
 

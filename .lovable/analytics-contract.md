@@ -105,17 +105,19 @@ stages. This is the primary source of the +539% registration KPI.
 
 | Event | Trigger | Surface | Payload | KPI |
 |---|---|---|---|---|
-| `registration_role_selected` | Role chosen on `/register` | `registration` | `role` | REG |
-| `registration_email_submitted` | Email submitted on `/register/email` | `registration` | `role` | REG |
-| `registration_email_verified` | Email OTP accepted on `/register/verify` | `registration` | `role` | REG |
+| `registration_role_selected` | Role chosen on `/register` | `registration` | `role`, `step:1` | REG |
+| `registration_email_submitted` | Email submitted on `/register/email` | `registration` | `role`, `step:2`, `sessionId`, `emailDomain` | REG |
+| `registration_email_verified` | Email OTP accepted on `/register/verify` | `registration` | `role`, `step:3`, `sessionId`, `verificationLatencyMs` | REG |
 | `registration_resend_code` | "Resend code" tapped | `registration` | — | REG |
 | `registration_details_completed` | Details form submitted on `/register/details` | `registration` | `role`, `country` | REG |
 | `registration_onboarding_completed` | Onboarding submitted | `registration` | `role`, `categoriesCount`, `volume`, `certificationsCount` | REG, RET |
 | `registration_onboarding_skipped` | Onboarding skipped | `registration` | — | REG |
 | `registration_countries_completed` | Countries submitted | `registration` | `role`, `countriesCount` | REG, RET |
 | `registration_countries_skipped` | Countries skipped | `registration` | — | REG |
-| `registration_complete` | Final "Ready" screen reached | `registration` | `role`, `country`, `categories`, `countries` | REG (north-star) |
+| `registration_complete` | Final "Ready" screen reached | `registration` | `role`, `step:7`, `sessionId`, `country`, `categories`, `countries`, `funnelDurationMs` | REG (north-star) |
 | `value_destination_selected` | Each country selected during onboarding | `registration` | `country`, `role` | RET, TRUST |
+
+**Funnel notes.** Step events `1 → 2 → 3 → 7` carry literal `step` and shared `sessionId`, so per-user drop-off and time-between-steps reconstruct without DB joins. `verificationLatencyMs` = inbox-to-confirm; `funnelDurationMs` = full role-to-complete journey. Both are `null` when timing isn't measurable (e.g. dev skip).
 
 ### Phone verification
 
