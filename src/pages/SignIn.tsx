@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { detectCountry, detectCountryByIP } from "@/lib/detectCountry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +10,33 @@ import analytics from "@/lib/analytics";
 import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
-type LoginMethod = "email" | "phone";
-type View = "login" | "forgot";
+/**
+ * Returns a safe in-app redirect path. Rejects external URLs, protocol-relative
+ * paths, and anything that doesn't start with a single "/".
+ */
+const sanitizeRedirect = (raw: string | null): string => {
+  if (!raw) return "/workspace";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/workspace";
+  return raw;
+};
 
 const SignIn = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { signIn, isSignedIn } = useBuyerSession();
+  const [searchParams] = useSearchParams();
+  const redirectTo = useMemo(
+    () => sanitizeRedirect(searchParams.get("redirect")),
+    [searchParams],
+  );
+
+  // If already signed in, skip the form entirely.
+  useEffect(() => {
+    if (isSignedIn) navigate(redirectTo, { replace: true });
+  }, [isSignedIn, redirectTo, navigate]);
+
   const [method, setMethod] = useState<LoginMethod>("email");
   const [view, setView] = useState<View>("login");
   const [email, setEmail] = useState("");
