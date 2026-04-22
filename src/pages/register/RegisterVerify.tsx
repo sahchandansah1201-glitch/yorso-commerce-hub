@@ -97,6 +97,20 @@ const RegisterVerify = () => {
       isResend: resendCountRef.current > 0,
       attempt: attemptsRef.current,
     });
+    if (pendingResendRef.current) {
+      const { resendIndex, resendAt } = pendingResendRef.current;
+      pendingResendRef.current = null;
+      analytics.track("registration_resend_outcome", {
+        role: data.role || "unknown",
+        step: 3,
+        sessionId: data.sessionId,
+        resendIndex,
+        outcome: "succeeded",
+        reason: null,
+        msFromResendToAttempt: Date.now() - resendAt,
+        enteredCodeLength,
+      });
+    }
     navigate("/register/details");
   };
 
