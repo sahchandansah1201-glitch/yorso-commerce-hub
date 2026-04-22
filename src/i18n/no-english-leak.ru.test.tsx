@@ -288,6 +288,19 @@ describe("UI leaks: untranslated English strings under ru locale", () => {
       }
       expect(leaks).toEqual([]);
     });
+
+    it(`route "${route.name}" must not contain English aria-label / title / placeholder`, () => {
+      renderRoute(route.path, route.element);
+      const attrLeaks = collectAttrLeaks();
+      if (attrLeaks.length > 0) {
+        throw new Error(
+          `Найдены непереведённые атрибуты (aria-label / title / placeholder) на маршруте "${route.name}" (${route.path}):\n` +
+            formatAttrLeaks(attrLeaks) +
+            `\n\nЛокализуйте через useLanguage() и translations.ru.*.`,
+        );
+      }
+      expect(attrLeaks).toEqual([]);
+    });
   }
 });
 
