@@ -33,7 +33,11 @@ class MockResizeObserver {
 
 (globalThis as unknown as { IntersectionObserver: typeof MockIntersectionObserver }).IntersectionObserver =
   MockIntersectionObserver;
+(window as unknown as { IntersectionObserver: typeof MockIntersectionObserver }).IntersectionObserver =
+  MockIntersectionObserver;
 (globalThis as unknown as { ResizeObserver: typeof MockResizeObserver }).ResizeObserver =
+  MockResizeObserver;
+(window as unknown as { ResizeObserver: typeof MockResizeObserver }).ResizeObserver =
   MockResizeObserver;
 
 // scrollTo не реализован в jsdom — тихий no-op избавит от шумных ошибок.

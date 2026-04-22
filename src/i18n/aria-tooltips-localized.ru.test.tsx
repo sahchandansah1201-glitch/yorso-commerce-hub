@@ -10,7 +10,7 @@ import { RegistrationProvider } from "@/contexts/RegistrationContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { translations } from "@/i18n/translations";
 
-import Index from "@/pages/Index";
+import Header from "@/components/landing/Header";
 import SignIn from "@/pages/SignIn";
 import OfferDetail from "@/pages/OfferDetail";
 import RegisterDetails from "@/pages/register/RegisterDetails";
@@ -88,8 +88,8 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
     document.body.innerHTML = "";
   });
 
-  it("Homepage: aria-label uses Russian (toggle menu) and no English markers leak", () => {
-    renderRu("/", <Index />);
+  it("Header: aria-label uses Russian (toggle menu) and no English markers leak", () => {
+    renderRu("/", <Header />);
     const { labels, placeholders, titles } = collectAttrs();
     expect(labels).toContain(translations.ru.aria_toggleMenu);
     const all = [...labels, ...placeholders, ...titles];
