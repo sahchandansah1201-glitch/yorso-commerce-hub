@@ -16,7 +16,18 @@ const LanguageContext = createContext<LanguageContextType>({
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLang] = useState<Language>(() => {
     const saved = localStorage.getItem("yorso-lang") as Language | null;
-    return saved && translations[saved] ? saved : "en";
+    if (saved && translations[saved]) return saved;
+    if (typeof navigator !== "undefined") {
+      const browserLangs = [navigator.language, ...(navigator.languages ?? [])]
+        .filter(Boolean)
+        .map((l) => l.toLowerCase().split("-")[0]);
+      for (const code of browserLangs) {
+        if (code === "ru" || code === "es" || code === "en") {
+          return code as Language;
+        }
+      }
+    }
+    return "en";
   });
 
   const handleSetLang = (newLang: Language) => {
