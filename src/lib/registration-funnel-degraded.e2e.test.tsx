@@ -180,7 +180,7 @@ describe("registration funnel — degraded analytics transports", () => {
 
     // Navigation actually happened — we're on the details screen now.
     await waitFor(() => {
-      expect(screen.getByText(/almost there|tell us about|company/i)).toBeTruthy();
+      expect(screen.getByText(/tell us about yourself/i)).toBeTruthy();
     });
 
     // No error UI was shown anywhere along the way.
@@ -229,9 +229,7 @@ describe("registration funnel — degraded analytics transports", () => {
     // Page mounted — registration_complete was fired (and silently dropped
     // by the broken transports) without throwing.
     await waitFor(() => {
-      expect(
-        screen.getByText(/welcome|you're in|ready|account is ready/i),
-      ).toBeTruthy();
+      expect(screen.getByText(/Welcome, Jane/i)).toBeTruthy();
     });
 
     await act(async () => {
