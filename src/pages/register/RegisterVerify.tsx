@@ -263,6 +263,8 @@ const RegisterVerify = () => {
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
+              onFocus={() => handleFocus(i)}
+              onBlur={() => handleBlur(i)}
               className="h-14 w-12 rounded-xl border border-input bg-background text-center text-2xl font-bold text-foreground transition-all focus:border-primary focus:ring-2 focus:ring-ring focus:outline-none disabled:opacity-50"
               autoFocus={i === 0}
               disabled={loading}

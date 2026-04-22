@@ -111,6 +111,10 @@ stages. This is the primary source of the +539% registration KPI.
 | `registration_email_verification_failed` | OTP rejected by backend on `/register/verify` | `registration` | `role`, `step:3`, `sessionId`, `reason`, `attempt`, `elapsedMs`, `enteredCodeLength`, `isResend` | REG (drop-off diagnostics) |
 | `registration_resend_code` | "Resend code" tapped | `registration` | `role`, `step:3`, `sessionId`, `resendIndex`, `attemptsBeforeResend`, `msSinceEmailSubmitted`, `msSinceLastResend` | REG |
 | `registration_resend_outcome` | First verify attempt after a resend (one per resend) | `registration` | `role`, `step:3`, `sessionId`, `resendIndex`, `outcome`, `reason`, `msFromResendToAttempt`, `enteredCodeLength` | REG (resend efficacy) |
+| `registration_otp_paste` | Clipboard paste into OTP input | `registration` | `role`, `step:3`, `sessionId`, `rawLength`, `digitLength`, `filledAllSlots`, `hadNonDigits` | REG (input diagnostics) |
+| `registration_otp_backspace` | Backspace pressed inside OTP input | `registration` | `role`, `step:3`, `sessionId`, `fromIndex`, `onEmptySlot`, `filledCount` | REG (input diagnostics) |
+| `registration_otp_focus` | OTP input focused | `registration` | `role`, `step:3`, `sessionId`, `inputIndex`, `isFirstFocus`, `msSinceMount` | REG (input diagnostics) |
+| `registration_otp_blur` | OTP input blurred | `registration` | `role`, `step:3`, `sessionId`, `inputIndex`, `filledCount`, `incomplete` | REG (input diagnostics) |
 | `registration_details_completed` | Details form submitted on `/register/details` | `registration` | `role`, `country` | REG |
 | `registration_onboarding_completed` | Onboarding submitted | `registration` | `role`, `categoriesCount`, `volume`, `certificationsCount` | REG, RET |
 | `registration_onboarding_skipped` | Onboarding skipped | `registration` | — | REG |
