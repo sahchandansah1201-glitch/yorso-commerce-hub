@@ -260,6 +260,7 @@ describe("Toast title AND body match the current language after switching", () =
     let setLang!: (l: Language) => void;
     renderRegisterEmail((s) => (setLang = s));
 
+    await waitForIdle();
     act(() => setLang("es"));
 
     // Локализуемая часть страницы вокруг toast — кнопка continue.
@@ -271,6 +272,9 @@ describe("Toast title AND body match the current language after switching", () =
       const { title } = getLatestToastParts();
       expect(title).toBe(translations.es.reg_couldNotContinue);
     }, { timeout: 3000 });
+    // Дожидаемся, чтобы при assert ниже кнопка уже вернулась из loading-состояния
+    // (`reg_checking` → `reg_continue`) и не дала ложный fail.
+    await waitForIdle();
 
     const { title } = getLatestToastParts();
     expect(title).toBe(translations.es.reg_couldNotContinue);
