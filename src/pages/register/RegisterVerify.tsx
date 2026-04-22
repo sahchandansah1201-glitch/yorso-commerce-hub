@@ -29,13 +29,16 @@ const RegisterVerify = () => {
     submittingRef.current = true;
     setLoading(true);
     setError("");
-    const result = await authApi.verifyEmail({ sessionId: "sess_mock", code: full });
+    const result = await authApi.verifyEmail({ sessionId: data.sessionId, code: full });
     setLoading(false);
     submittingRef.current = false;
 
     if (!result.ok) {
-      setError(getErrorMessage((result as { code: string }).code));
-      toast.error(t.reg_verificationFailed, { description: (result as { message: string }).message });
+      setError(getErrorMessage(result.code));
+      toast.error(t.reg_verificationFailed, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/register/verify-email", code: result.code });
+      // expired session → back to start
+      if (result.code === "VERIFICATION_FAILED") setTimeout(() => navigate("/register/email"), 1500);
       return;
     }
 

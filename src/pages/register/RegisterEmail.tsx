@@ -42,12 +42,14 @@ const RegisterEmail = () => {
     setLoading(false);
 
     if (!result.ok) {
-      setError(getErrorMessage((result as { code: string }).code));
-      toast.error(t.reg_couldNotContinue, { description: (result as { message: string }).message });
+      setError(getErrorMessage(result.code));
+      toast.error(t.reg_couldNotContinue, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/register/start", code: result.code, ...(result.field ? { field: result.field } : {}) });
       return;
     }
 
     setField("email", email);
+    setField("sessionId", result.data.sessionId);
     analytics.track("registration_email_submitted", { role: data.role || "unknown" });
     navigate("/register/verify");
   };
