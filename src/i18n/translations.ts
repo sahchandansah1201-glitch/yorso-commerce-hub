@@ -1109,6 +1109,8 @@ const es: TranslationKeys = {
   offers_viewAllMobile: "Ver todas las ofertas",
   offers_showMore: "Mostrar más ofertas",
   offers_showLess: "Mostrar menos",
+  offers_regionLabel: "Ofertas mayoristas en vivo",
+  offers_highlightAnnouncement: "Sección «Ofertas mayoristas en vivo» resaltada. Mostrando listados actualizados de proveedores verificados.",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",
