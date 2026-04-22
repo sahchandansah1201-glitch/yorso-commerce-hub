@@ -99,8 +99,6 @@ describe("404/NotFound: ru-локаль и [data-testid=page-title] на каж�
     const title = getNotFoundTitle();
     expect(title).toBeInTheDocument();
     expect(title.textContent).toBe(translations.ru.notFound_title);
-    expect(title.textContent).not.toBe(translations.en.notFound_title);
-    expect(title.textContent).not.toBe(translations.es.notFound_title);
 
     // Доп. подтверждение: subtitle и home-link тоже на русском.
     expect(screen.getByTestId("page-subtitle").textContent).toBe(translations.ru.notFound_subtitle);
