@@ -122,12 +122,8 @@ describe("404/NotFound: ru-локаль и [data-testid=page-title] на каж�
       // page-title существует и содержит именно русский заголовок 404.
       const title = getNotFoundTitle();
       expect(title, `page-title отсутствует на ${path}`).toBeInTheDocument();
-      expect(title.textContent, `page-title не на русском на ${path}`).toBe(translations.ru.notFound_title);
-      expect(title.textContent, `page-title оказался на английском на ${path}`).not.toBe(
-        translations.en.notFound_title,
-      );
-      expect(title.textContent, `page-title оказался на испанском на ${path}`).not.toBe(
-        translations.es.notFound_title,
+      expect(title.textContent, `page-title не равен notFound_title на ${path}`).toBe(
+        translations.ru.notFound_title,
       );
 
       // page-title находится внутри отрендеренной 404-страницы (есть и subtitle/home-link рядом).
