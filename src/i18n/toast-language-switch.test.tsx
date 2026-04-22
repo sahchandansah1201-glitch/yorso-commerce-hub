@@ -88,16 +88,16 @@ const getToastText = () =>
   document.querySelector("[data-sonner-toaster]")?.textContent ?? "";
 
 /**
- * Возвращает текст ПОСЛЕДНЕГО (самого нового) toast в контейнере Sonner.
- * Sonner оставляет угасающие старые toasts в DOM — для проверки «новый
- * toast пришёл на новом языке» правильно смотреть именно последний узел.
+ * Возвращает текст САМОГО НОВОГО toast в контейнере Sonner.
+ * Sonner вставляет свежие toasts В НАЧАЛО списка (DOM-порядок: новый → старый),
+ * поэтому берём первый узел `[data-sonner-toast]`.
  */
 const getLatestToastText = () => {
   const toasts = document.querySelectorAll<HTMLElement>(
     "[data-sonner-toaster] [data-sonner-toast]",
   );
   if (toasts.length === 0) return "";
-  return toasts[toasts.length - 1].textContent ?? "";
+  return toasts[0].textContent ?? "";
 };
 
 
