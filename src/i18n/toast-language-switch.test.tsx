@@ -159,13 +159,13 @@ describe("Validation toasts follow current language after in-UI switch", () => {
 
     submitEmail("taken@yorso.test");
     await waitFor(
-      () => expect(getToastText()).toContain(translations.es.reg_couldNotContinue),
+      () => expect(getLatestToastText()).toContain(translations.es.reg_couldNotContinue),
       { timeout: 3000 },
     );
-    const text = getToastText();
-    expect(text).toContain(translations.es.reg_couldNotContinue);
-    expect(text).not.toContain(translations.ru.reg_couldNotContinue);
-    expect(text).not.toContain(translations.en.reg_couldNotContinue);
+    const latest = getLatestToastText();
+    expect(latest).toContain(translations.es.reg_couldNotContinue);
+    expect(latest).not.toContain(translations.ru.reg_couldNotContinue);
+    expect(latest).not.toContain(translations.en.reg_couldNotContinue);
   });
 
   it("Смена языка обновляет также inline-валидацию (некорректный email)", () => {
