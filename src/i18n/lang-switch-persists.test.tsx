@@ -34,7 +34,7 @@ const Probe = ({ onReady }: { onReady?: (setter: (l: Language) => void) => void 
   return (
     <div>
       <span data-testid="lang">{lang}</span>
-      <span data-testid="hero">{t.hero_title}</span>
+      <span data-testid="hero">{t.hero_title1}</span>
     </div>
   );
 };
@@ -73,7 +73,7 @@ describe("Language switch persists to localStorage and overrides navigator.langu
 
     // 1. Стартовая локаль — ru (из navigator), localStorage пуст.
     expect(screen.getByTestId("lang").textContent).toBe("ru");
-    expect(screen.getByTestId("hero").textContent).toBe(translations.ru.hero_title);
+    expect(screen.getByTestId("hero").textContent).toBe(translations.ru.hero_title1);
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
 
     // 2. Пользователь переключает язык в UI.
@@ -84,7 +84,7 @@ describe("Language switch persists to localStorage and overrides navigator.langu
 
     // 3. Локаль обновилась и записалась в localStorage.
     expect(screen.getByTestId("lang").textContent).toBe("en");
-    expect(screen.getByTestId("hero").textContent).toBe(translations.en.hero_title);
+    expect(screen.getByTestId("hero").textContent).toBe(translations.en.hero_title1);
     expect(localStorage.getItem(STORAGE_KEY)).toBe("en");
   });
 
@@ -110,8 +110,8 @@ describe("Language switch persists to localStorage and overrides navigator.langu
     renderWithProvider();
 
     expect(screen.getByTestId("lang").textContent).toBe("en");
-    expect(screen.getByTestId("hero").textContent).toBe(translations.en.hero_title);
-    expect(screen.getByTestId("hero").textContent).not.toBe(translations.ru.hero_title);
+    expect(screen.getByTestId("hero").textContent).toBe(translations.en.hero_title1);
+    expect(screen.getByTestId("hero").textContent).not.toBe(translations.ru.hero_title1);
   });
 
   it("переключение на es также персистится и переопределяет navigator при перезагрузке", () => {
@@ -127,7 +127,7 @@ describe("Language switch persists to localStorage and overrides navigator.langu
       setLang!("es");
     });
     expect(localStorage.getItem(STORAGE_KEY)).toBe("es");
-    expect(screen.getByTestId("hero").textContent).toBe(translations.es.hero_title);
+    expect(screen.getByTestId("hero").textContent).toBe(translations.es.hero_title1);
 
     // Перезагрузка: navigator по-прежнему ru, но в storage — es.
     cleanup();
@@ -136,7 +136,7 @@ describe("Language switch persists to localStorage and overrides navigator.langu
     renderWithProvider();
 
     expect(screen.getByTestId("lang").textContent).toBe("es");
-    expect(screen.getByTestId("hero").textContent).toBe(translations.es.hero_title);
+    expect(screen.getByTestId("hero").textContent).toBe(translations.es.hero_title1);
   });
 
   it("значение в localStorage записывается ровно как код языка ('ru' | 'en' | 'es')", () => {
