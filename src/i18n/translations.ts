@@ -740,6 +740,10 @@ const en: TranslationKeys = {
   notFound_subtitle: "Oops! Page not found",
   notFound_returnHome: "Return to Home",
 
+  // Document metadata
+  meta_siteTitle: "YORSO — B2B Seafood Marketplace",
+  meta_siteDescription: "Wholesale seafood from verified suppliers worldwide.",
+
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
   trustMicro_security: "Your data is handled according to our Privacy Policy",
