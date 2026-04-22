@@ -1131,6 +1131,10 @@ const ru: TranslationKeys = {
   notFound_subtitle: "Упс! Страница не найдена",
   notFound_returnHome: "Вернуться на главную",
 
+  // Document metadata
+  meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
+  meta_siteDescription: "Оптовые морепродукты от проверенных поставщиков по всему миру.",
+
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
   trustMicro_security: "Ваши данные обрабатываются согласно нашей Политике конфиденциальности",
@@ -1517,6 +1521,10 @@ const es: TranslationKeys = {
   notFound_title: "404",
   notFound_subtitle: "¡Vaya! Página no encontrada",
   notFound_returnHome: "Volver al inicio",
+
+  // Document metadata
+  meta_siteTitle: "YORSO — Mercado B2B de mariscos",
+  meta_siteDescription: "Mariscos al por mayor de proveedores verificados en todo el mundo.",
 
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",
