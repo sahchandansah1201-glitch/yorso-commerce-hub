@@ -104,8 +104,8 @@ const RegisterCountries = () => {
           </p>
         )}
 
-        <Button onClick={handleSubmit} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
-          {t.reg_completeSetup} <ArrowRight className="h-5 w-5" />
+        <Button onClick={handleSubmit} disabled={submitting} size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+          {submitting ? (<><Loader2 className="h-5 w-5 animate-spin" /> {t.reg_saving}</>) : (<>{t.reg_completeSetup} <ArrowRight className="h-5 w-5" /></>)}
         </Button>
 
         <button onClick={() => { setFields({ countriesSkipped: true }); analytics.track("registration_countries_skipped"); navigate("/register/ready"); }}
