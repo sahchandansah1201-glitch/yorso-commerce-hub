@@ -122,6 +122,8 @@ describe("registration funnel events", () => {
       step: 3,
       sessionId: "s_test",
       verificationLatencyMs: 1234,
+      isResend: false,
+      attempt: 1,
     });
     analytics.track("registration_complete", {
       role: "buyer",
