@@ -134,8 +134,11 @@ describe("Validation toasts follow current language after in-UI switch", () => {
     //    это ОК: мы дождёмся, что в контейнере появится строка нового языка).
     act(() => setLang("en"));
 
-    // 3) Повторный submit — последний (новый) toast уже на английском.
-    submitEmail("taken@yorso.test");
+    // 3) Повторный submit с другим email-триггером (чтобы Sonner не дедуплицировал
+    //    toast по идентичному содержимому). Здесь — SERVER_ERROR-кейс,
+    //    но заголовок берётся из того же ключа `t.reg_couldNotContinue`,
+    //    значит должен прийти на английском.
+    submitEmail("blocked@yorso.test");
     await waitFor(
       () => expect(getLatestToastText()).toContain(translations.en.reg_couldNotContinue),
       { timeout: 3000 },
