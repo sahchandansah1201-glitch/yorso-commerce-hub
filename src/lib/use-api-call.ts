@@ -27,15 +27,15 @@ export function useApiCall<TArgs extends unknown[], TData>(
     async (...args: TArgs): Promise<ApiResult<TData>> => {
       setState({ loading: true, error: null });
       const result = await fn(...args);
-      if (!result.ok) {
+      if (result.ok) {
+        setState({ loading: false, error: null });
+      } else {
         setState({ loading: false, error: result });
         analytics.track("api_error", {
           endpoint,
           code: result.code,
           ...(result.field ? { field: result.field } : {}),
         });
-      } else {
-        setState({ loading: false, error: null });
       }
       return result;
     },
