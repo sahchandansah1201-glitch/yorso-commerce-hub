@@ -1156,6 +1156,9 @@ const es: TranslationKeys = {
   offers_showLess: "Mostrar menos",
   offers_listLabel: "Ofertas mayoristas en vivo de proveedores verificados",
   offers_cardLabel: "{product} de {origin}, {price} por kg. Ver oferta.",
+  offers_priceUnit_perKg: "por kg",
+  offers_qtyUnit_kg: "kg",
+  offers_moqLabel: "Pedido mínimo",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",
