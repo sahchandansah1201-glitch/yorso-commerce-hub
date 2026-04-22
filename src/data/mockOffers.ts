@@ -97,6 +97,18 @@ export interface SeafoodOffer {
   inspectionAvailable: boolean;
   traceability?: string;
   comparisonReasons?: Record<string, string>;
+  // ── Локаль-зависимое форматирование (Phase 0+) ───────────────────────────
+  // Если эти поля заданы, OfferCard рендерит цену и MOQ через Intl, иначе
+  // отображает старые захардкоженные строки `priceRange`, `priceUnit`, `moq`.
+  priceMin?: number;
+  priceMax?: number;
+  currency?: string;
+  /** i18n-ключ для единицы цены, например "offers_priceUnit_perKg". */
+  priceUnitKey?: "offers_priceUnit_perKg";
+  /** Минимальный объём заказа в базовых единицах (кг). */
+  moqValue?: number;
+  /** i18n-ключ для единицы количества, например "offers_qtyUnit_kg". */
+  moqUnitKey?: "offers_qtyUnit_kg";
 }
 
 const defaultSpecs: ProductSpecs = {
