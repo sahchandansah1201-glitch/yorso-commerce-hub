@@ -160,7 +160,7 @@ describe("Validation toasts follow current language after in-UI switch", () => {
 
     act(() => setLang("es"));
 
-    submitEmail("taken@yorso.test");
+    submitEmail("blocked@yorso.test");
     await waitFor(
       () => expect(getLatestToastText()).toContain(translations.es.reg_couldNotContinue),
       { timeout: 3000 },
