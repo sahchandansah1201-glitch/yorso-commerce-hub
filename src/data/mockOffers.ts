@@ -168,6 +168,12 @@ export const mockOffers: SeafoodOffer[] = [
     photoSourceLabel: "Supplier-provided product photos",
     sampleAvailable: true,
     inspectionAvailable: true,
+    priceMin: 8.5,
+    priceMax: 9.2,
+    currency: "USD",
+    priceUnitKey: "offers_priceUnit_perKg",
+    moqValue: 1000,
+    moqUnitKey: "offers_qtyUnit_kg",
     traceability: "Full chain traceability from aquaculture farm in Norwegian Sea (FAO 27) through processing at EU-approved facility (#NO-123) to cold-chain shipment. Catch certificate, health certificate, and origin documentation available upon request.",
     supplier: {
       name: "Nordic Seafood AS",
