@@ -74,8 +74,10 @@ const SignIn = () => {
       return;
     }
     analytics.track("signin_email", { email });
+    signIn({ identifier: email, method: "email" });
+    analytics.track("workspace_session_started", { method: "email" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
-    navigate("/offers");
+    navigate(redirectTo);
   };
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
@@ -91,8 +93,10 @@ const SignIn = () => {
       return;
     }
     analytics.track("signin_phone", { phone: phoneNumber });
+    signIn({ identifier: phoneNumber, method: "phone" });
+    analytics.track("workspace_session_started", { method: "phone" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
-    navigate("/offers");
+    navigate(redirectTo);
   };
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
