@@ -232,6 +232,7 @@ describe("registration funnel — degraded analytics transports", () => {
       expect(screen.getByText(/Welcome, Jane/i)).toBeTruthy();
     });
 
+    // Now flush the buffered events through the broken transports.
     await act(async () => {
       forceFlush();
       await Promise.resolve();
@@ -240,6 +241,7 @@ describe("registration funnel — degraded analytics transports", () => {
 
     assertNoErrorToast();
     expect(getAnalyticsFailures().total).toBeGreaterThan(0);
+    expect(getAnalyticsFailures().byReason.fetch_rejected).toBeGreaterThan(0);
   });
 
   it("survives JSON.stringify failure on a circular payload mid-funnel", async () => {
@@ -282,9 +284,16 @@ describe("registration funnel — degraded analytics transports", () => {
     await screen.findByText(/Skip verification/i);
     assertNoErrorToast();
 
+    // Flush funnel events through the broken fetch transport.
+    await act(async () => {
+      forceFlush();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
     const failures = getAnalyticsFailures();
     expect(failures.byReason.serialize).toBeGreaterThan(0);
     // And the rest of the funnel still flushed via the broken fetch path:
-    expect(failures.total).toBeGreaterThan(failures.byReason.serialize);
+    expect(failures.byReason.fetch_rejected).toBeGreaterThan(0);
   });
 });
