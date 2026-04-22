@@ -45,6 +45,9 @@ type TranslationKeys = {
   offers_showLess: string;
   offers_listLabel: string;
   offers_cardLabel: string;
+  offers_priceUnit_perKg: string;
+  offers_qtyUnit_kg: string;
+  offers_moqLabel: string;
 
   // Offer Card
   card_verified: string;
