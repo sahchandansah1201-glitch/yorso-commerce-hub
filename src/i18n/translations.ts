@@ -761,6 +761,28 @@ const en: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B Seafood Marketplace",
   meta_siteDescription: "Wholesale seafood from verified suppliers worldwide.",
 
+  // Info pages: shared chrome
+  info_backToHome: "Back to homepage",
+  info_lastUpdated: "Last updated",
+
+  // Cookies page
+  cookies_title: "Cookie Policy",
+  cookies_updated: "January 2026",
+  cookies_intro:
+    "YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.",
+  cookies_essentialTitle: "Essential Cookies",
+  cookies_essentialBody:
+    "Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.",
+  cookies_analyticsTitle: "Analytics Cookies",
+  cookies_analyticsBody:
+    "Help us understand how users interact with YORSO. We use this data to improve features and user experience. Data is anonymized and never sold.",
+  cookies_manageTitle: "Managing Cookies",
+  cookies_manageBody:
+    "You can control cookies through your browser settings. Disabling essential cookies may affect platform functionality.",
+  cookies_contactTitle: "Contact",
+  cookies_contactBody: "Questions about our cookie practices? Contact privacy@yorso.com.",
+
+
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
   trustMicro_security: "Your data is handled according to our Privacy Policy",
