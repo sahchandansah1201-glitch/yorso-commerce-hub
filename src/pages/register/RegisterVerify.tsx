@@ -23,6 +23,9 @@ const RegisterVerify = () => {
   const submittingRef = useRef(false);
   const attemptsRef = useRef(0);
   const resendCountRef = useRef(0);
+  const lastResendAtRef = useRef<number | null>(null);
+  /** Set when the user resends; cleared after the next verify attempt emits an outcome. */
+  const pendingResendRef = useRef<{ resendIndex: number; resendAt: number } | null>(null);
 
   if (!guardPassed) return null;
 
