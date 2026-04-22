@@ -65,7 +65,6 @@ const renderApp = (
               <Route path="/register" element={<RegisterChoose />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/offers" element={<Offers />} />
-              <Route path="/about" element={<About />} />
             </Routes>
           </RegistrationProvider>
         </TooltipProvider>
