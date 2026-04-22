@@ -39,6 +39,109 @@ class NoopProvider implements AnalyticsProvider {
   }
 }
 
+// ─── Failure telemetry ──────────────────────────────────────────────────────
+// Internal counter + ring buffer for transport/serialization failures. Not
+// shipped to the analytics endpoint (it would create a feedback loop on
+// outage). Surfaced via `getAnalyticsFailures()` for diagnostics, manual
+// inspection from DevTools, and tests.
+
+export type AnalyticsFailureReason =
+  | "serialize"
+  | "beacon_threw"
+  | "beacon_refused"
+  | "fetch_rejected"
+  | "no_transport"
+  | "provider_threw";
+
+export interface AnalyticsFailure {
+  reason: AnalyticsFailureReason;
+  transport: "beacon" | "fetch" | "none" | "provider";
+  errorName?: string;
+  errorMessage?: string;
+  droppedEvents: number;
+  at: string; // ISO timestamp
+}
+
+interface FailureCounters {
+  total: number;
+  byReason: Record<AnalyticsFailureReason, number>;
+  recent: AnalyticsFailure[];
+}
+
+const MAX_RECENT_FAILURES = 20;
+
+const failures: FailureCounters = {
+  total: 0,
+  byReason: {
+    serialize: 0,
+    beacon_threw: 0,
+    beacon_refused: 0,
+    fetch_rejected: 0,
+    no_transport: 0,
+    provider_threw: 0,
+  },
+  recent: [],
+};
+
+export function recordAnalyticsFailure(input: {
+  reason: AnalyticsFailureReason;
+  transport: AnalyticsFailure["transport"];
+  error?: unknown;
+  droppedEvents?: number;
+}): void {
+  const err = input.error;
+  const entry: AnalyticsFailure = {
+    reason: input.reason,
+    transport: input.transport,
+    errorName: err instanceof Error ? err.name : undefined,
+    errorMessage:
+      err instanceof Error
+        ? err.message
+        : err === undefined
+        ? undefined
+        : String(err),
+    droppedEvents: input.droppedEvents ?? 0,
+    at: new Date().toISOString(),
+  };
+  failures.total += 1;
+  failures.byReason[input.reason] += 1;
+  failures.recent.push(entry);
+  if (failures.recent.length > MAX_RECENT_FAILURES) failures.recent.shift();
+
+  // Dev-only context log. Prod stays silent so a broken endpoint doesn't
+  // spam the user's console; counters are still queryable.
+  try {
+    if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[YORSO Analytics] failure (${entry.reason}/${entry.transport})`,
+        entry,
+      );
+    }
+  } catch {
+    /* never break the caller */
+  }
+
+  // Expose to DevTools without leaking module internals.
+  if (typeof window !== "undefined") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__yorsoAnalyticsFailures = failures;
+  }
+}
+
+export function getAnalyticsFailures(): Readonly<FailureCounters> {
+  return failures;
+}
+
+/** Test-only — reset counters between cases. */
+export function __resetAnalyticsFailures(): void {
+  failures.total = 0;
+  (Object.keys(failures.byReason) as AnalyticsFailureReason[]).forEach((k) => {
+    failures.byReason[k] = 0;
+  });
+  failures.recent.length = 0;
+}
+
 // ─── Batch (sendBeacon) ─────────────────────────────────────────────────────
 class BatchProvider implements AnalyticsProvider {
   readonly name = "batch";
@@ -75,21 +178,42 @@ class BatchProvider implements AnalyticsProvider {
     if (this.buffer.length === 0) return;
     const events = this.buffer;
     this.buffer = [];
+    const dropped = events.length;
 
     let payload: string;
     try {
       payload = JSON.stringify({ events });
-    } catch {
-      // Serialization failed (e.g. circular reference) — drop the batch.
+    } catch (error) {
+      recordAnalyticsFailure({
+        reason: "serialize",
+        transport: "none",
+        error,
+        droppedEvents: dropped,
+      });
       return;
     }
 
     try {
       if (typeof navigator !== "undefined" && navigator.sendBeacon) {
-        const blob = new Blob([payload], { type: "application/json" });
-        const ok = navigator.sendBeacon(this.endpoint, blob);
-        if (ok) return;
-        // sendBeacon refused (queue full / disabled) — fall through to fetch.
+        try {
+          const blob = new Blob([payload], { type: "application/json" });
+          const ok = navigator.sendBeacon(this.endpoint, blob);
+          if (ok) return;
+          recordAnalyticsFailure({
+            reason: "beacon_refused",
+            transport: "beacon",
+            droppedEvents: dropped,
+          });
+          // fall through to fetch
+        } catch (error) {
+          recordAnalyticsFailure({
+            reason: "beacon_threw",
+            transport: "beacon",
+            error,
+            droppedEvents: dropped,
+          });
+          // fall through to fetch
+        }
       }
       if (typeof fetch !== "undefined") {
         // Fire-and-forget fallback
@@ -98,12 +222,28 @@ class BatchProvider implements AnalyticsProvider {
           headers: { "Content-Type": "application/json" },
           body: payload,
           keepalive: true,
-        }).catch(() => {
-          /* swallow — analytics must never break the app */
+        }).catch((error) => {
+          recordAnalyticsFailure({
+            reason: "fetch_rejected",
+            transport: "fetch",
+            error,
+            droppedEvents: dropped,
+          });
+        });
+      } else {
+        recordAnalyticsFailure({
+          reason: "no_transport",
+          transport: "none",
+          droppedEvents: dropped,
         });
       }
-    } catch {
-      /* swallow */
+    } catch (error) {
+      recordAnalyticsFailure({
+        reason: "provider_threw",
+        transport: "provider",
+        error,
+        droppedEvents: dropped,
+      });
     }
   }
 }
