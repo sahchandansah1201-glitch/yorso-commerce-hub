@@ -23,6 +23,9 @@ export interface RegistrationData {
   onboardingSkipped: boolean;
   countriesSkipped: boolean;
   completed: boolean;
+  // Funnel timing (epoch ms; 0 = not yet measured)
+  startedAt: number;
+  emailSubmittedAt: number;
 }
 
 interface RegistrationContextType {
