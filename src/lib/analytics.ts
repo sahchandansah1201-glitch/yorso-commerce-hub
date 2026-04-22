@@ -114,7 +114,52 @@ export interface EventPayloadMap {
     /** Recommended wait time before retrying, in seconds (null if API didn't provide one). */
     retryAfterSec: number | null;
   };
-  registration_resend_code: Empty;
+  /**
+   * Fired the moment the user taps "Resend code".
+   * Carries enough context to compute "did the user resend before even trying?",
+   * resend frequency, and time-since-email so funnel dashboards can isolate
+   * resend-driven drop-off.
+   */
+  registration_resend_code: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** 1-based index of this resend within the current verification session. */
+    resendIndex: number;
+    /** Failed verify attempts the user made before pressing resend (0 = none). */
+    attemptsBeforeResend: number;
+    /** ms since the email was submitted (null if not measurable). */
+    msSinceEmailSubmitted: number | null;
+    /** ms since the previous resend (null on the first resend). */
+    msSinceLastResend: number | null;
+  };
+  /**
+   * Fired on the first verify attempt that follows a resend, exactly once per resend.
+   * Lets us answer end-to-end: "did resending the code actually unblock the user?"
+   */
+  registration_resend_outcome: {
+    role: UserRole;
+    step: 3;
+    sessionId: string;
+    /** 1-based index of the resend this outcome belongs to. */
+    resendIndex: number;
+    /** Whether the verify attempt after this resend succeeded or failed. */
+    outcome: "succeeded" | "failed";
+    /** Failure reason when outcome is "failed", otherwise null. */
+    reason:
+      | "INVALID_CODE"
+      | "CODE_EXPIRED"
+      | "TOO_MANY_ATTEMPTS"
+      | "VERIFICATION_FAILED"
+      | "SERVER_ERROR"
+      | "NETWORK_ERROR"
+      | "UNKNOWN"
+      | null;
+    /** ms between the resend click and this verify attempt completing (null if not measurable). */
+    msFromResendToAttempt: number | null;
+    /** Length of the code submitted on this attempt (0..6). */
+    enteredCodeLength: number;
+  };
   registration_details_completed: { role: UserRole; country: string };
   registration_onboarding_completed: {
     role: UserRole;
