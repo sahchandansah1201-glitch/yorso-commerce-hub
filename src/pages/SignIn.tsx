@@ -36,26 +36,53 @@ const SignIn = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const [signinLoading, setSigninLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !emailPassword) { toast.error(t.signin_fillAll); return; }
+    setSigninLoading(true);
+    const result = await authApi.signIn({ method: "email", identifier: email, password: emailPassword });
+    setSigninLoading(false);
+    if (isApiError(result)) {
+      toast.error("Sign in failed", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
+      return;
+    }
     analytics.track("signin_email", { email });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate("/offers");
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const digits = phoneNumber.replace(/[\s\-()]/g, "");
     if (digits.length < 5 || !phonePassword) { toast.error(t.signin_enterPhonePassword); return; }
+    setSigninLoading(true);
+    const result = await authApi.signIn({ method: "phone", identifier: phoneNumber, password: phonePassword });
+    setSigninLoading(false);
+    if (isApiError(result)) {
+      toast.error("Sign in failed", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
+      return;
+    }
     analytics.track("signin_phone", { phone: phoneNumber });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate("/offers");
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotEmail) { toast.error(t.signin_enterEmail); return; }
+    setForgotLoading(true);
+    const result = await authApi.requestPasswordReset({ email: forgotEmail });
+    setForgotLoading(false);
+    if (isApiError(result)) {
+      toast.error("Could not send link", { description: getErrorMessage(result.code) });
+      analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
+      return;
+    }
     analytics.track("forgot_password", { email: forgotEmail });
     setForgotSent(true);
     toast.success(t.signin_emailSentToast, { description: t.signin_emailSentToastDesc });
