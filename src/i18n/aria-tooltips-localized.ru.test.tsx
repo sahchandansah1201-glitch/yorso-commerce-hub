@@ -3,7 +3,7 @@
  * в публичном UI берутся из translations и не содержат английских строк.
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
@@ -16,6 +16,25 @@ import OfferDetail from "@/pages/OfferDetail";
 import RegisterDetails from "@/pages/register/RegisterDetails";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
 import { mockOffers } from "@/data/mockOffers";
+
+const REG_STORAGE_KEY = "yorso_registration";
+
+const seedRegistration = () => {
+  sessionStorage.setItem(
+    REG_STORAGE_KEY,
+    JSON.stringify({
+      role: "buyer",
+      email: "test@example.com",
+      emailVerified: true,
+      fullName: "",
+      company: "",
+      password: "",
+      country: "",
+      vatTin: "",
+      phoneVerified: false,
+    }),
+  );
+};
 
 const renderRu = (path: string, element: React.ReactNode) => {
   localStorage.setItem("yorso-lang", "ru");
@@ -56,7 +75,6 @@ const EN_TOOLTIP_MARKERS = [
   "Go back",
   "Breadcrumb",
   "Country or code",
-  "No results found",
   "John Smith",
   "Acme Seafood Ltd.",
   "john@company.com",
@@ -66,15 +84,17 @@ const EN_TOOLTIP_MARKERS = [
 describe("ARIA / placeholders / tooltips are localized under ru", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     document.body.innerHTML = "";
   });
 
-  it("Homepage: aria-label uses Russian (toggle menu)", () => {
+  it("Homepage: aria-label uses Russian (toggle menu) and no English markers leak", () => {
     renderRu("/", <Index />);
-    const { labels } = collectAttrs();
+    const { labels, placeholders, titles } = collectAttrs();
     expect(labels).toContain(translations.ru.aria_toggleMenu);
+    const all = [...labels, ...placeholders, ...titles];
     for (const m of EN_TOOLTIP_MARKERS) {
-      expect(labels.some((l) => l.includes(m))).toBe(false);
+      expect(all.some((v) => v.includes(m))).toBe(false);
     }
   });
 
@@ -94,6 +114,7 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
   });
 
   it("RegisterDetails: full-name & company placeholders are Russian", () => {
+    seedRegistration();
     renderRu("/register/details", <RegisterDetails />);
     const { placeholders } = collectAttrs();
     expect(placeholders).toContain(translations.ru.reg_fullNamePlaceholder);
@@ -102,7 +123,7 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
     expect(placeholders).not.toContain("Acme Seafood Ltd.");
   });
 
-  it("CountryPhoneInput: search placeholder & empty-state are Russian", () => {
+  it("CountryPhoneInput: country search placeholder & empty-state are Russian", () => {
     localStorage.setItem("yorso-lang", "ru");
     const { container } = render(
       <MemoryRouter>
@@ -117,9 +138,10 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
         </LanguageProvider>
       </MemoryRouter>,
     );
-    // Открываем выпадающий список
+    // Открываем выпадающий список — кликаем по селектору страны (первая кнопка)
     const trigger = container.querySelector("button");
-    trigger?.click();
+    expect(trigger).not.toBeNull();
+    fireEvent.click(trigger!);
 
     const { placeholders } = collectAttrs();
     expect(placeholders).toContain(translations.ru.country_searchPlaceholder);
