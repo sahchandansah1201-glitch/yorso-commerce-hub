@@ -67,8 +67,7 @@ let beaconCalls = 0;
 
 function installDegradedTransports() {
   // 1. Remove sendBeacon entirely.
-  // @ts-expect-error — intentionally clearing for the test
-  delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+  delete (navigator as { sendBeacon?: typeof navigator.sendBeacon }).sendBeacon;
 
   // 2. Make fetch always reject (simulated offline / firewalled endpoint).
   globalThis.fetch = vi.fn(async () => {
