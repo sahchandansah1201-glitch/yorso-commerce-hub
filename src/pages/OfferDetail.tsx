@@ -49,7 +49,7 @@ const OfferDetail = () => {
       </header>
 
       <main className="container py-6 md:py-10">
-        <nav aria-label="Breadcrumb" className="mb-5">
+        <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
             <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>

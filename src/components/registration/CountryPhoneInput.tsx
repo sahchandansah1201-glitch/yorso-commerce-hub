@@ -200,6 +200,7 @@ export default function CountryPhoneInput({
   disabled,
   placeholderText,
 }: CountryPhoneInputProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<CountryEntry | null>(
@@ -312,7 +313,7 @@ export default function CountryPhoneInput({
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Country or code"
+                    placeholder={t.country_searchPlaceholder}
                     className="h-10 text-sm rounded-lg pl-3 pr-9"
                     autoFocus
                   />
@@ -330,7 +331,7 @@ export default function CountryPhoneInput({
               {/* List */}
               <div className="overflow-y-auto" style={{ maxHeight: "calc(70vh - 60px)" }}>
                 {filtered.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No results found</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">{t.country_noResults}</p>
                 )}
                 {filtered.map((c) => (
                   <button
