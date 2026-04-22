@@ -99,7 +99,7 @@ const RegisterOnboarding = () => {
                 <button key={cat} onClick={() => toggleItem(cat, selected, setSelected)}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
                   {isSelected && <Check className="h-3.5 w-3.5" />}
-                  {cat}
+                  {getCategoryLabel(cat, lang)}
                 </button>
               );
             })}
