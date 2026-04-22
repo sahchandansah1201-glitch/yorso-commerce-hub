@@ -7,6 +7,10 @@ import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check } from "lucide-react";
 import analytics from "@/lib/analytics";
+import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { toast } from "sonner";
+import { useState as useReactState } from "react";
+import { Loader2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const BUYER_CATEGORIES = [
