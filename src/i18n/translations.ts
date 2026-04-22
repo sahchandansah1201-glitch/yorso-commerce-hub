@@ -336,6 +336,10 @@ type TranslationKeys = {
   notFound_subtitle: string;
   notFound_returnHome: string;
 
+  // ─── Document metadata ─────────────────────────────────────────
+  meta_siteTitle: string;
+  meta_siteDescription: string;
+
   // ─── Shared: TrustMicroText ────────────────────────────────────
   trustMicro_users: string;
   trustMicro_security: string;
