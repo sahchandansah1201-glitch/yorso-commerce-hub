@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
@@ -12,12 +12,27 @@ const LiveOffers = () => {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
   const [highlightTick, setHighlightTick] = useState(0);
+  const [announcement, setAnnouncement] = useState("");
+  const sectionRef = useRef<HTMLElement>(null);
+  const announceTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const onHighlight = () => setHighlightTick((n) => n + 1);
+    const onHighlight = () => {
+      setHighlightTick((n) => n + 1);
+      // Move keyboard focus to the region so screen readers announce its label.
+      sectionRef.current?.focus({ preventScroll: true });
+      // Polite live-region announcement; clear shortly after so repeat clicks
+      // re-trigger the announcement instead of being deduped by AT.
+      setAnnouncement(t.offers_highlightAnnouncement);
+      if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
+      announceTimerRef.current = window.setTimeout(() => setAnnouncement(""), 1500);
+    };
     window.addEventListener("yorso:highlight-offers", onHighlight);
-    return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
-  }, []);
+    return () => {
+      window.removeEventListener("yorso:highlight-offers", onHighlight);
+      if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
+    };
+  }, [t.offers_highlightAnnouncement]);
 
   const visibleOffers = mockOffers.slice(0, 8);
   const extraOffers = mockOffers.slice(8);
@@ -29,7 +44,23 @@ const LiveOffers = () => {
   };
 
   return (
-    <section id="offers" className="bg-background py-12 md:py-16">
+    <section
+      id="offers"
+      ref={sectionRef}
+      role="region"
+      aria-label={t.offers_regionLabel}
+      tabIndex={-1}
+      className="bg-background py-12 md:py-16 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+    >
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+        data-testid="offers-live-announcer"
+      >
+        {announcement}
+      </div>
       <div className="container">
         <div className="flex items-end justify-between">
           <div>
