@@ -183,6 +183,8 @@ const RegisterVerify = () => {
                   step: 3,
                   sessionId: data.sessionId,
                   verificationLatencyMs: null,
+                  isResend: false,
+                  attempt: 0,
                 });
                 navigate("/register/details");
               }}
