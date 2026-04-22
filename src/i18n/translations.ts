@@ -154,6 +154,20 @@ type TranslationKeys = {
     legal: { label: string; href: string }[];
   };
 
+  // ─── Info / Legal Pages ────────────────────────────────────────
+  info_backToHome: string;
+  info_lastUpdated: string;
+  info_aboutTitle: string;
+  info_contactTitle: string;
+  info_termsTitle: string;
+  info_privacyTitle: string;
+  info_cookiesTitle: string;
+  info_gdprTitle: string;
+  info_antiFraudTitle: string;
+  info_careersTitle: string;
+  info_pressTitle: string;
+  info_partnersTitle: string;
+
   // ─── Registration ──────────────────────────────────────────────
   reg_joinYorso: string;
   reg_chooseSubtitle: string;
@@ -558,6 +572,20 @@ const en: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "Back to homepage",
+  info_lastUpdated: "Last updated",
+  info_aboutTitle: "About YORSO",
+  info_contactTitle: "Contact Us",
+  info_termsTitle: "Terms of Service",
+  info_privacyTitle: "Privacy Policy",
+  info_cookiesTitle: "Cookie Policy",
+  info_gdprTitle: "GDPR Compliance",
+  info_antiFraudTitle: "Anti-Fraud Policy",
+  info_careersTitle: "Careers at YORSO",
+  info_pressTitle: "Press & Media",
+  info_partnersTitle: "Partner Program",
+
   // Registration
   reg_joinYorso: "Join YORSO",
   reg_chooseSubtitle: "Choose how you'll use the platform. It takes under 3 minutes.",
@@ -945,6 +973,19 @@ const ru: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "На главную",
+  info_lastUpdated: "Последнее обновление",
+  info_aboutTitle: "О YORSO",
+  info_contactTitle: "Контакты",
+  info_termsTitle: "Условия использования",
+  info_privacyTitle: "Политика конфиденциальности",
+  info_cookiesTitle: "Политика cookies",
+  info_gdprTitle: "Соответствие GDPR",
+  info_antiFraudTitle: "Антифрод политика",
+  info_careersTitle: "Карьера в YORSO",
+  info_pressTitle: "Пресса и медиа",
+  info_partnersTitle: "Партнёрская программа",
   // Registration
   reg_joinYorso: "Присоединиться к YORSO",
   reg_chooseSubtitle: "Выберите, как вы будете использовать платформу. Это займёт менее 3 минут.",
@@ -1332,6 +1373,19 @@ const es: TranslationKeys = {
     ],
   },
 
+  // Info / Legal Pages
+  info_backToHome: "Volver al inicio",
+  info_lastUpdated: "Última actualización",
+  info_aboutTitle: "Sobre YORSO",
+  info_contactTitle: "Contáctenos",
+  info_termsTitle: "Términos de servicio",
+  info_privacyTitle: "Política de privacidad",
+  info_cookiesTitle: "Política de cookies",
+  info_gdprTitle: "Cumplimiento GDPR",
+  info_antiFraudTitle: "Política antifraude",
+  info_careersTitle: "Carreras en YORSO",
+  info_pressTitle: "Prensa y medios",
+  info_partnersTitle: "Programa de socios",
   // Registration
   reg_joinYorso: "Únase a YORSO",
   reg_chooseSubtitle: "Elija cómo usará la plataforma. Toma menos de 3 minutos.",

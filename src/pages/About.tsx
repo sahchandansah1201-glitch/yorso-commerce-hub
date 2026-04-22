@@ -1,7 +1,10 @@
 import InfoPageLayout from "@/components/InfoPageLayout";
+import { useLanguage } from "@/i18n/LanguageContext";
 
-const About = () => (
-  <InfoPageLayout title="About YORSO">
+const About = () => {
+  const { t } = useLanguage();
+  return (
+  <InfoPageLayout title={t.info_aboutTitle}>
     <p>YORSO is the global B2B seafood marketplace, headquartered in Amsterdam, Netherlands. We connect professional buyers with verified suppliers across 48 countries — with transparent pricing, direct contacts, and zero commissions.</p>
     <h2 className="font-heading text-xl font-bold text-foreground mt-8">Our Mission</h2>
     <p>To make international seafood trade transparent, efficient, and trustworthy. We believe that every buyer deserves access to verified suppliers, real prices, and direct contacts — without paying middleman fees or relying on outdated sourcing methods.</p>
@@ -17,5 +20,6 @@ const About = () => (
     </ul>
   </InfoPageLayout>
 );
+};
 
 export default About;

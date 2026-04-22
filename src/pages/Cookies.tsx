@@ -1,7 +1,10 @@
 import InfoPageLayout from "@/components/InfoPageLayout";
+import { useLanguage } from "@/i18n/LanguageContext";
 
-const Cookies = () => (
-  <InfoPageLayout title="Cookie Policy" updated="January 2026">
+const Cookies = () => {
+  const { t } = useLanguage();
+  return (
+  <InfoPageLayout title={t.info_cookiesTitle} updated="January 2026">
     <p>YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.</p>
     <h2 className="font-heading text-xl font-bold text-foreground mt-8">Essential Cookies</h2>
     <p>Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.</p>
@@ -13,5 +16,6 @@ const Cookies = () => (
     <p>Questions about our cookie practices? Contact <a href="mailto:privacy@yorso.com" className="text-primary hover:underline">privacy@yorso.com</a>.</p>
   </InfoPageLayout>
 );
+};
 
 export default Cookies;
