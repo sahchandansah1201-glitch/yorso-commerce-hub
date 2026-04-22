@@ -26,6 +26,8 @@ const RegisterVerify = () => {
   const lastResendAtRef = useRef<number | null>(null);
   /** Set when the user resends; cleared after the next verify attempt emits an outcome. */
   const pendingResendRef = useRef<{ resendIndex: number; resendAt: number } | null>(null);
+  const mountedAtRef = useRef(Date.now());
+  const firstFocusFiredRef = useRef(false);
 
   if (!guardPassed) return null;
 
@@ -131,17 +133,64 @@ const RegisterVerify = () => {
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) document.getElementById(`otp-${index - 1}`)?.focus();
+    if (e.key === "Backspace") {
+      const filledCount = code.filter((d) => d !== "").length;
+      analytics.track("registration_otp_backspace", {
+        role: data.role || "unknown",
+        step: 3,
+        sessionId: data.sessionId,
+        fromIndex: index,
+        onEmptySlot: !code[index],
+        filledCount,
+      });
+      if (!code[index] && index > 0) document.getElementById(`otp-${index - 1}`)?.focus();
+    }
+  };
+
+  const handleFocus = (index: number) => {
+    const isFirstFocus = !firstFocusFiredRef.current;
+    if (isFirstFocus) firstFocusFiredRef.current = true;
+    analytics.track("registration_otp_focus", {
+      role: data.role || "unknown",
+      step: 3,
+      sessionId: data.sessionId,
+      inputIndex: index,
+      isFirstFocus,
+      msSinceMount: Date.now() - mountedAtRef.current,
+    });
+  };
+
+  const handleBlur = (index: number) => {
+    const filledCount = code.filter((d) => d !== "").length;
+    analytics.track("registration_otp_blur", {
+      role: data.role || "unknown",
+      step: 3,
+      sessionId: data.sessionId,
+      inputIndex: index,
+      filledCount,
+      incomplete: filledCount < 6,
+    });
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const raw = e.clipboardData.getData("text");
+    const digits = raw.replace(/\D/g, "").slice(0, 6);
     const newCode = [...code];
-    pasted.split("").forEach((ch, i) => { if (i < 6) newCode[i] = ch; });
+    digits.split("").forEach((ch, i) => { if (i < 6) newCode[i] = ch; });
     setCode(newCode);
+    const filledAllSlots = newCode.every((d) => d !== "");
+    analytics.track("registration_otp_paste", {
+      role: data.role || "unknown",
+      step: 3,
+      sessionId: data.sessionId,
+      rawLength: raw.length,
+      digitLength: digits.length,
+      filledAllSlots,
+      hadNonDigits: digits.length < raw.length,
+    });
     // Auto-submit if pasted full code
-    if (newCode.every(d => d !== "")) {
+    if (filledAllSlots) {
       submitCode(newCode.join(""));
     }
   };
@@ -214,6 +263,8 @@ const RegisterVerify = () => {
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
+              onFocus={() => handleFocus(i)}
+              onBlur={() => handleBlur(i)}
               className="h-14 w-12 rounded-xl border border-input bg-background text-center text-2xl font-bold text-foreground transition-all focus:border-primary focus:ring-2 focus:ring-ring focus:outline-none disabled:opacity-50"
               autoFocus={i === 0}
               disabled={loading}
