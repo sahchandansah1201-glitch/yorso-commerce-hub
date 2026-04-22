@@ -33,10 +33,14 @@ import Press from "@/pages/Press";
 import Partners from "@/pages/Partners";
 import NotFound from "@/pages/NotFound";
 import OfferDetail from "@/pages/OfferDetail";
+import Offers from "@/pages/Offers";
+import OfferCard from "@/components/landing/OfferCard";
+import LiveOffers from "@/components/landing/LiveOffers";
 import RegisterChoose from "@/pages/register/RegisterChoose";
 import RegisterEmail from "@/pages/register/RegisterEmail";
 import RegisterDetails from "@/pages/register/RegisterDetails";
 import { mockOffers } from "@/data/mockOffers";
+import { translations } from "@/i18n/translations";
 
 /**
  * Маркерные английские фразы, которые точно должны быть переведены
@@ -63,6 +67,17 @@ const ENGLISH_UI_MARKERS = [
   // registration
   "Country or code",
   "No results found",
+  // catalog / offer cards (UI labels — НЕ названия продуктов / стран)
+  "View Offer",
+  "per kg",
+  "Listed today",
+  "Live Marketplace",
+  "View All",
+  "Show more",
+  "Show less",
+  "Search offers",
+  "Showing all",
+  "Back to home",
   // info pages
   "About YORSO",
   "Our Mission",
@@ -120,6 +135,7 @@ interface RouteCase {
 
 const ROUTES: RouteCase[] = [
   { name: "Index (homepage)", path: "/", element: <Index /> },
+  { name: "Offers (catalog)", path: "/offers", element: <Offers /> },
   { name: "SignIn", path: "/signin", element: <SignIn /> },
   { name: "About", path: "/about", element: <About /> },
   { name: "Contact", path: "/contact", element: <Contact /> },
