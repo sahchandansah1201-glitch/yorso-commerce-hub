@@ -31,22 +31,29 @@ const LiveOffers = () => {
   return (
     <section
       id="offers"
+      aria-labelledby="offers-heading"
+      aria-describedby="offers-subtitle"
       className="scroll-mt-20 md:scroll-mt-24 bg-background py-12 md:py-16"
     >
       <div className="container">
         <div className="flex items-end justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5">
+              <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               <span className="text-sm font-medium text-primary">{t.offers_liveMarketplace}</span>
             </div>
-            <h2 className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            <h2
+              id="offers-heading"
+              className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl"
+            >
               {t.offers_title}
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t.offers_subtitle}</p>
+            <p id="offers-subtitle" className="mt-1 text-sm text-muted-foreground">
+              {t.offers_subtitle}
+            </p>
           </div>
           <Link
             to="/offers"
