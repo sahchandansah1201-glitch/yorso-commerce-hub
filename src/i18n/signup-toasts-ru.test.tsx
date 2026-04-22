@@ -128,12 +128,8 @@ describe("SignUp toasts are localized to ru when navigator.language=ru-RU", () =
     expect(text).not.toContain(translations.en.reg_couldNotContinue);
   });
 
-  it("Placeholder поля email — на русском при автоопределении ru", () => {
-    renderRegisterEmail();
-    const input = document.querySelector<HTMLInputElement>('input[type="email"]');
-    expect(input?.getAttribute("placeholder")).toBe(translations.ru.reg_emailPlaceholder);
-    expect(input?.getAttribute("placeholder")).not.toBe(translations.en.reg_emailPlaceholder);
-  });
+  // Placeholder поля email отдельно покрыт в `aria-tooltips-localized.ru.test.tsx`.
+  // Здесь фокус — именно на toast-сообщениях.
 
   it("Inline-валидация (некорректный email) — на русском", async () => {
     renderRegisterEmail();
