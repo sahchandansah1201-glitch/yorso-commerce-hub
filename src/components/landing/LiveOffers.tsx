@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
@@ -11,6 +11,13 @@ import analytics from "@/lib/analytics";
 const LiveOffers = () => {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
+  const [highlightTick, setHighlightTick] = useState(0);
+
+  useEffect(() => {
+    const onHighlight = () => setHighlightTick((n) => n + 1);
+    window.addEventListener("yorso:highlight-offers", onHighlight);
+    return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
+  }, []);
 
   const visibleOffers = mockOffers.slice(0, 8);
   const extraOffers = mockOffers.slice(8);
@@ -52,8 +59,12 @@ const LiveOffers = () => {
 
         {/* Visible offers — 8 cards */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {visibleOffers.map((offer) => (
-            <div key={offer.id}>
+          {visibleOffers.map((offer, idx) => (
+            <div
+              key={`${offer.id}-${highlightTick}`}
+              className={highlightTick > 0 ? "offer-highlight" : undefined}
+              style={highlightTick > 0 ? { animationDelay: `${idx * 60}ms` } : undefined}
+            >
               <Link
                 to={`/offers/${offer.id}`}
                 onClick={() => analytics.track("live_offer_card_click", { offerId: offer.id, product: offer.productName })}

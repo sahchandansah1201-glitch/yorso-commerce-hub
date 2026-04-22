@@ -725,7 +725,7 @@ const ru: TranslationKeys = {
   hero_searchBtn: "Найти",
   hero_popular: "Популярное: Атлантический лосось · Креветка ваннамей · Филе трески · Королевский краб",
   hero_registerFree: "Регистрация",
-  hero_exploreLiveOffers: "Смотреть предложения",
+  hero_exploreLiveOffers: "Изучить живые предложения",
   hero_liveOffers: "предложений",
   hero_verifiedSuppliers: "проверенных поставщиков",
   hero_countries: "стран",

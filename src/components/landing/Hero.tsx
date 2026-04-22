@@ -22,6 +22,17 @@ const Hero = () => {
     navigate("/offers");
   };
 
+  const handleExploreOffers = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    analytics.track("hero_secondary_cta_click");
+    const target = document.getElementById("offers");
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("yorso:highlight-offers"));
+    }, 450);
+  };
+
   return (
     <section className="relative overflow-hidden bg-accent pb-14 pt-20 md:pb-20 md:pt-28">
       <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -65,7 +76,7 @@ const Hero = () => {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <a href="#offers" onClick={() => analytics.track("hero_secondary_cta_click")}>
+            <a href="#offers" onClick={handleExploreOffers}>
               <Button variant="outline" size="lg" className="w-full gap-2 border-accent-foreground/20 bg-transparent text-accent-foreground hover:bg-accent-foreground/5 sm:w-auto">
                 {t.hero_exploreLiveOffers}
               </Button>
