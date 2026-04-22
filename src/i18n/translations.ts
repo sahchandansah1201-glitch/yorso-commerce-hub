@@ -340,6 +340,23 @@ type TranslationKeys = {
   meta_siteTitle: string;
   meta_siteDescription: string;
 
+  // ─── Info pages: shared chrome ─────────────────────────────────
+  info_backToHome: string;
+  info_lastUpdated: string;
+
+  // ─── Cookies page ──────────────────────────────────────────────
+  cookies_title: string;
+  cookies_updated: string;
+  cookies_intro: string;
+  cookies_essentialTitle: string;
+  cookies_essentialBody: string;
+  cookies_analyticsTitle: string;
+  cookies_analyticsBody: string;
+  cookies_manageTitle: string;
+  cookies_manageBody: string;
+  cookies_contactTitle: string;
+  cookies_contactBody: string;
+
   // ─── Shared: TrustMicroText ────────────────────────────────────
   trustMicro_users: string;
   trustMicro_security: string;
@@ -744,6 +761,28 @@ const en: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B Seafood Marketplace",
   meta_siteDescription: "Wholesale seafood from verified suppliers worldwide.",
 
+  // Info pages: shared chrome
+  info_backToHome: "Back to homepage",
+  info_lastUpdated: "Last updated",
+
+  // Cookies page
+  cookies_title: "Cookie Policy",
+  cookies_updated: "January 2026",
+  cookies_intro:
+    "YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.",
+  cookies_essentialTitle: "Essential Cookies",
+  cookies_essentialBody:
+    "Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.",
+  cookies_analyticsTitle: "Analytics Cookies",
+  cookies_analyticsBody:
+    "Help us understand how users interact with YORSO. We use this data to improve features and user experience. Data is anonymized and never sold.",
+  cookies_manageTitle: "Managing Cookies",
+  cookies_manageBody:
+    "You can control cookies through your browser settings. Disabling essential cookies may affect platform functionality.",
+  cookies_contactTitle: "Contact",
+  cookies_contactBody: "Questions about our cookie practices? Contact privacy@yorso.com.",
+
+
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
   trustMicro_security: "Your data is handled according to our Privacy Policy",
@@ -1135,6 +1174,29 @@ const ru: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
   meta_siteDescription: "Оптовые морепродукты от проверенных поставщиков по всему миру.",
 
+  // Info pages: shared chrome
+  info_backToHome: "На главную",
+  info_lastUpdated: "Обновлено",
+
+  // Cookies page
+  cookies_title: "Политика использования cookies",
+  cookies_updated: "Январь 2026",
+  cookies_intro:
+    "YORSO использует файлы cookies и аналогичные технологии для обеспечения работы, защиты и улучшения работы платформы.",
+  cookies_essentialTitle: "Обязательные cookies",
+  cookies_essentialBody:
+    "Необходимы для работы платформы. Включают управление сессией, токены аутентификации и языковые настройки. Их нельзя отключить.",
+  cookies_analyticsTitle: "Аналитические cookies",
+  cookies_analyticsBody:
+    "Помогают понять, как пользователи взаимодействуют с YORSO. Эти данные используются для улучшения функций и пользовательского опыта. Данные анонимизированы и никогда не продаются.",
+  cookies_manageTitle: "Управление cookies",
+  cookies_manageBody:
+    "Вы можете управлять cookies через настройки браузера. Отключение обязательных cookies может повлиять на работу платформы.",
+  cookies_contactTitle: "Контакты",
+  cookies_contactBody:
+    "Вопросы о нашей политике cookies? Напишите на privacy@yorso.com.",
+
+
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
   trustMicro_security: "Ваши данные обрабатываются согласно нашей Политике конфиденциальности",
@@ -1525,6 +1587,29 @@ const es: TranslationKeys = {
   // Document metadata
   meta_siteTitle: "YORSO — Mercado B2B de mariscos",
   meta_siteDescription: "Mariscos al por mayor de proveedores verificados en todo el mundo.",
+
+  // Info pages: shared chrome
+  info_backToHome: "Volver al inicio",
+  info_lastUpdated: "Última actualización",
+
+  // Cookies page
+  cookies_title: "Política de cookies",
+  cookies_updated: "Enero 2026",
+  cookies_intro:
+    "YORSO utiliza cookies y tecnologías similares para proporcionar, proteger y mejorar la experiencia de la plataforma.",
+  cookies_essentialTitle: "Cookies esenciales",
+  cookies_essentialBody:
+    "Necesarias para el funcionamiento de la plataforma. Incluyen gestión de sesión, tokens de autenticación y preferencias de idioma. No se pueden desactivar.",
+  cookies_analyticsTitle: "Cookies analíticas",
+  cookies_analyticsBody:
+    "Nos ayudan a entender cómo los usuarios interactúan con YORSO. Usamos estos datos para mejorar funciones y experiencia de usuario. Los datos son anónimos y nunca se venden.",
+  cookies_manageTitle: "Gestión de cookies",
+  cookies_manageBody:
+    "Puede controlar las cookies mediante la configuración de su navegador. Deshabilitar cookies esenciales puede afectar al funcionamiento de la plataforma.",
+  cookies_contactTitle: "Contacto",
+  cookies_contactBody:
+    "¿Preguntas sobre nuestras prácticas de cookies? Contacte a privacy@yorso.com.",
+
 
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",
