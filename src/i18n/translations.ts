@@ -173,6 +173,12 @@ type TranslationKeys = {
   cert_viewDetails: string;
   aria_toggleMenu: string;
   aria_goBack: string;
+  aria_breadcrumb: string;
+  country_searchPlaceholder: string;
+  country_noResults: string;
+  signin_emailPlaceholder: string;
+  reg_fullNamePlaceholder: string;
+  reg_companyPlaceholder: string;
   reg_byContAgreeTo: string;
   reg_terms: string;
   reg_and: string;
@@ -563,6 +569,12 @@ const en: TranslationKeys = {
   cert_viewDetails: "View details for {cert} certification",
   aria_toggleMenu: "Toggle menu",
   aria_goBack: "Go back",
+  aria_breadcrumb: "Breadcrumb",
+  country_searchPlaceholder: "Country or code",
+  country_noResults: "No results found",
+  signin_emailPlaceholder: "you@company.com",
+  reg_fullNamePlaceholder: "John Smith",
+  reg_companyPlaceholder: "Acme Seafood Ltd.",
   reg_byContAgreeTo: "By continuing, you agree to our",
   reg_terms: "Terms",
   reg_and: "and",
@@ -936,6 +948,12 @@ const ru: TranslationKeys = {
   cert_viewDetails: "Подробнее о сертификации {cert}",
   aria_toggleMenu: "Открыть меню",
   aria_goBack: "Назад",
+  aria_breadcrumb: "Хлебные крошки",
+  country_searchPlaceholder: "Страна или код",
+  country_noResults: "Ничего не найдено",
+  signin_emailPlaceholder: "name@company.com",
+  reg_fullNamePlaceholder: "Иван Иванов",
+  reg_companyPlaceholder: "ООО «Дары Моря»",
   reg_byContAgreeTo: "Продолжая, вы соглашаетесь с",
   reg_terms: "Условиями",
   reg_and: "и",
@@ -1309,6 +1327,12 @@ const es: TranslationKeys = {
   cert_viewDetails: "Ver detalles de la certificación {cert}",
   aria_toggleMenu: "Abrir menú",
   aria_goBack: "Atrás",
+  aria_breadcrumb: "Ruta de navegación",
+  country_searchPlaceholder: "País o código",
+  country_noResults: "No se encontraron resultados",
+  signin_emailPlaceholder: "nombre@empresa.com",
+  reg_fullNamePlaceholder: "Juan Pérez",
+  reg_companyPlaceholder: "Mariscos del Mar S.L.",
   reg_byContAgreeTo: "Al continuar, acepta nuestros",
   reg_terms: "Términos",
   reg_and: "y",
