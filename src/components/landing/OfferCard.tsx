@@ -81,6 +81,11 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             <span className="font-heading text-base font-bold text-foreground" data-testid="offer-price">{formattedPrice}</span>
             <span className="text-xs text-muted-foreground" data-testid="offer-price-unit">{priceUnitLabel}</span>
           </div>
+          {typeof offer.moqValue === "number" && offer.moqUnitKey && (
+            <p className="mt-1 text-[11px] text-muted-foreground" data-testid="offer-moq">
+              {t.offers_moqLabel}: {formatNumber(offer.moqValue, lang)} {t[offer.moqUnitKey]}
+            </p>
+          )}
         </div>
 
         <Button variant="outline" size="sm" className="mt-3 w-full text-xs font-semibold transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
