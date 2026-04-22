@@ -30,10 +30,19 @@ const RegisterReady = () => {
 
   useEffect(() => {
     if (!guardPassed) return;
-    setField("completed", true);
-    analytics.track("registration_complete", {
-      role: data.role || "unknown", country: data.country, categories: data.categories.length, countries: data.countries.length,
-    });
+
+    // Finalize registration through the contract.
+    (async () => {
+      const result = await authApi.completeRegistration({ sessionId: data.sessionId });
+      if (isApiError(result)) {
+        analytics.track("api_error", { endpoint: "auth/register/complete", code: result.code });
+        // Soft-fail: still show the success screen so the user is not blocked.
+      }
+      setField("completed", true);
+      analytics.track("registration_complete", {
+        role: data.role || "unknown", country: data.country, categories: data.categories.length, countries: data.countries.length,
+      });
+    })();
 
     const end = Date.now() + 1500;
     const frame = () => {
