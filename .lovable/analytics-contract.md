@@ -167,7 +167,34 @@ backward compatibility with old code paths. Do not add new call sites.
 5. Verify with `npx tsc --noEmit` — the compiler must accept every existing
    `analytics.track(...)` call site.
 
-## Removing an event — checklist
+## Buyer Workspace (post-signin) events
+
+All workspace events are emitted only on `/workspace/*` routes after a mock
+buyer session is created (see `src/lib/buyer-session.ts`). They support the
+**Retention** KPI (return visits, depth of post-signin engagement).
+
+| Event | Trigger | Surface | Payload | KPI |
+|---|---|---|---|---|
+| `workspace_session_started` | SignIn success creates a mock session | `/signin` | `{ method: "email" \| "phone" \| "whatsapp" }` | Retention |
+| `workspace_session_ended` | User clicks "Sign out" in workspace header | `/workspace/*` | `Empty` | Retention |
+| `workspace_view` | Workspace section route mounts | `/workspace/*` | `{ section: "dashboard" \| "saved" \| "price_requests" \| "messages" }` | Retention |
+| `workspace_tab_switch` | Top-tabs navigation between sections | `/workspace/*` | `{ from, to }` (same union as `workspace_view.section`) | Retention |
+| `workspace_quick_action_click` | Dashboard quick-action button | `/workspace` | `{ action: "browse_offers" \| "view_saved" \| "open_messages" }` | Retention |
+| `workspace_dashboard_kpi_click` | KPI tile on dashboard | `/workspace` | `{ key: "saved" \| "price_requests" \| "messages" \| "alerts" }` | Retention |
+| `workspace_saved_offer_open` | "View" on a saved offer | `/workspace/saved` | `{ offerId }` | Retention |
+| `workspace_saved_offer_remove` | "Remove" on a saved offer | `/workspace/saved` | `{ offerId }` | Retention |
+| `workspace_price_request_open` | Price request row clicked | `/workspace/price-requests` | `{ requestId, status: "pending" \| "approved" \| "rejected" }` | Retention |
+| `workspace_message_thread_open` | Thread row clicked | `/workspace/messages` | `{ threadId, unread }` | Retention |
+| `workspace_list_search` | User types into a list search input | `/workspace/saved\|price-requests\|messages` | `{ section, queryLength }` | Retention |
+| `workspace_list_filter` | Filter chip toggled on a list | `/workspace/saved\|price-requests\|messages` | `{ section, filter }` | Retention |
+
+Notes:
+- `workspace_view` fires on every section mount; `workspace_tab_switch` only
+  fires on user-initiated tab changes (not initial load).
+- `queryLength` is sent instead of the raw query to avoid PII.
+- `filter` is the canonical English token (e.g. `"all"`, `"pending"`,
+  `"unread"`), independent of the displayed locale.
+
 
 1. Search the codebase for the event name.
 2. Replace or delete every call site.

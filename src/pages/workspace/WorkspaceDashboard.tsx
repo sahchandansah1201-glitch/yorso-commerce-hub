@@ -31,11 +31,19 @@ const WorkspaceDashboard = () => {
 
   const greeting = session ? t.workspace_greeting.replace("{name}", session.displayName) : "";
 
-  const kpiCards = [
-    { id: "saved", label: t.workspace_kpi_saved, value: kpis.savedCount, icon: Bookmark, to: "/workspace/saved" },
-    { id: "price", label: t.workspace_kpi_priceRequests, value: kpis.pendingPriceRequests, icon: BadgeDollarSign, to: "/workspace/price-requests" },
-    { id: "unread", label: t.workspace_kpi_unread, value: kpis.unreadMessages, icon: MailOpen, to: "/workspace/messages" },
-    { id: "suppliers", label: t.workspace_kpi_suppliers, value: kpis.activeSuppliers, icon: Building2, to: "/workspace/messages" },
+  // `kpiKey` is the canonical analytics key (must match `workspace_dashboard_kpi_click.key`).
+  const kpiCards: Array<{
+    id: string;
+    kpiKey: "saved" | "price_requests" | "messages" | "alerts";
+    label: string;
+    value: number;
+    icon: typeof Bookmark;
+    to: string;
+  }> = [
+    { id: "saved", kpiKey: "saved", label: t.workspace_kpi_saved, value: kpis.savedCount, icon: Bookmark, to: "/workspace/saved" },
+    { id: "price", kpiKey: "price_requests", label: t.workspace_kpi_priceRequests, value: kpis.pendingPriceRequests, icon: BadgeDollarSign, to: "/workspace/price-requests" },
+    { id: "unread", kpiKey: "messages", label: t.workspace_kpi_unread, value: kpis.unreadMessages, icon: MailOpen, to: "/workspace/messages" },
+    { id: "suppliers", kpiKey: "alerts", label: t.workspace_kpi_suppliers, value: kpis.activeSuppliers, icon: Building2, to: "/workspace/messages" },
   ];
 
   const activityLabel = (item: ActivityItem) => {
@@ -70,7 +78,12 @@ const WorkspaceDashboard = () => {
           className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           {kpiCards.map((k) => (
-            <Link key={k.id} to={k.to} className="block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl">
+            <Link
+              key={k.id}
+              to={k.to}
+              onClick={() => analytics.track("workspace_dashboard_kpi_click", { key: k.kpiKey })}
+              className="block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl"
+            >
               <Card className="p-5 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-muted-foreground">{k.label}</span>

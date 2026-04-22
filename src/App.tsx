@@ -44,34 +44,40 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <RegistrationProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/register" element={<RegisterChoose />} />
-              <Route path="/register/email" element={<RegisterEmail />} />
-              <Route path="/register/verify" element={<RegisterVerify />} />
-              <Route path="/register/details" element={<RegisterDetails />} />
-              <Route path="/register/onboarding" element={<RegisterOnboarding />} />
-              <Route path="/register/countries" element={<RegisterCountries />} />
-              <Route path="/register/ready" element={<RegisterReady />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/offers" element={<Offers />} />
-              <Route path="/offers/:id" element={<OfferDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/cookies" element={<Cookies />} />
-              <Route path="/gdpr" element={<GDPR />} />
-              <Route path="/anti-fraud" element={<AntiFraud />} />
-              <Route path="/careers" element={<Careers />} />
-              <Route path="/press" element={<Press />} />
-              <Route path="/partners" element={<Partners />} />
-              <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
-              <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </RegistrationProvider>
+          <BuyerSessionProvider>
+            <RegistrationProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/register" element={<RegisterChoose />} />
+                <Route path="/register/email" element={<RegisterEmail />} />
+                <Route path="/register/verify" element={<RegisterVerify />} />
+                <Route path="/register/details" element={<RegisterDetails />} />
+                <Route path="/register/onboarding" element={<RegisterOnboarding />} />
+                <Route path="/register/countries" element={<RegisterCountries />} />
+                <Route path="/register/ready" element={<RegisterReady />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/offers" element={<Offers />} />
+                <Route path="/offers/:id" element={<OfferDetail />} />
+                <Route path="/workspace" element={<WorkspaceDashboard />} />
+                <Route path="/workspace/saved" element={<WorkspaceSaved />} />
+                <Route path="/workspace/price-requests" element={<WorkspacePriceRequests />} />
+                <Route path="/workspace/messages" element={<WorkspaceMessages />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/cookies" element={<Cookies />} />
+                <Route path="/gdpr" element={<GDPR />} />
+                <Route path="/anti-fraud" element={<AntiFraud />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/press" element={<Press />} />
+                <Route path="/partners" element={<Partners />} />
+                <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
+                <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </RegistrationProvider>
+          </BuyerSessionProvider>
         </BrowserRouter>
       </TooltipProvider>
     </LanguageProvider>

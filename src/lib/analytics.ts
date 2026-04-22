@@ -277,6 +277,26 @@ export interface EventPayloadMap {
   workspace_saved_offer_remove: { offerId: string };
   workspace_price_request_open: { requestId: string; status: "pending" | "approved" | "rejected" };
   workspace_message_thread_open: { threadId: string; unread: number };
+  /** Switch between top-tabs (dashboard / saved / price-requests / messages). */
+  workspace_tab_switch: {
+    from: "dashboard" | "saved" | "price_requests" | "messages";
+    to: "dashboard" | "saved" | "price_requests" | "messages";
+  };
+  /** Click on a KPI tile in the workspace dashboard. `key` identifies which KPI. */
+  workspace_dashboard_kpi_click: {
+    key: "saved" | "price_requests" | "messages" | "alerts";
+  };
+  /** Search input usage on Saved / Price Requests / Messages lists. */
+  workspace_list_search: {
+    section: "saved" | "price_requests" | "messages";
+    queryLength: number;
+  };
+  /** Filter chip toggled on a workspace list. */
+  workspace_list_filter: {
+    section: "saved" | "price_requests" | "messages";
+    /** Canonical filter value (e.g. "all", "pending", "unread"). */
+    filter: string;
+  };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
