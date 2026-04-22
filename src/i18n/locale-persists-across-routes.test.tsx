@@ -20,7 +20,6 @@ import { translations, type Language } from "@/i18n/translations";
 import RegisterChoose from "@/pages/register/RegisterChoose";
 import SignIn from "@/pages/SignIn";
 import Offers from "@/pages/Offers";
-import About from "@/pages/About";
 import Index from "@/pages/Index";
 
 const STORAGE_KEY = "yorso-lang";
