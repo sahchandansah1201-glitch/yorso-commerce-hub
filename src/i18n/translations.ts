@@ -1588,6 +1588,29 @@ const es: TranslationKeys = {
   meta_siteTitle: "YORSO — Mercado B2B de mariscos",
   meta_siteDescription: "Mariscos al por mayor de proveedores verificados en todo el mundo.",
 
+  // Info pages: shared chrome
+  info_backToHome: "Volver al inicio",
+  info_lastUpdated: "Última actualización",
+
+  // Cookies page
+  cookies_title: "Política de cookies",
+  cookies_updated: "Enero 2026",
+  cookies_intro:
+    "YORSO utiliza cookies y tecnologías similares para proporcionar, proteger y mejorar la experiencia de la plataforma.",
+  cookies_essentialTitle: "Cookies esenciales",
+  cookies_essentialBody:
+    "Necesarias para el funcionamiento de la plataforma. Incluyen gestión de sesión, tokens de autenticación y preferencias de idioma. No se pueden desactivar.",
+  cookies_analyticsTitle: "Cookies analíticas",
+  cookies_analyticsBody:
+    "Nos ayudan a entender cómo los usuarios interactúan con YORSO. Usamos estos datos para mejorar funciones y experiencia de usuario. Los datos son anónimos y nunca se venden.",
+  cookies_manageTitle: "Gestión de cookies",
+  cookies_manageBody:
+    "Puede controlar las cookies mediante la configuración de su navegador. Deshabilitar cookies esenciales puede afectar al funcionamiento de la plataforma.",
+  cookies_contactTitle: "Contacto",
+  cookies_contactBody:
+    "¿Preguntas sobre nuestras prácticas de cookies? Contacte a privacy@yorso.com.",
+
+
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",
   trustMicro_security: "Sus datos se manejan según nuestra Política de privacidad",
