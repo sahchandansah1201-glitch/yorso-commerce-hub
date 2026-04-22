@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
@@ -11,6 +11,16 @@ import analytics from "@/lib/analytics";
 const LiveOffers = () => {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
+  const [highlightTick, setHighlightTick] = useState(0);
+
+  useEffect(() => {
+    const onHighlight = () => {
+      setHighlightTick((n) => n + 1);
+      analytics.track("live_offers_highlighted", { source: "hero_cta" });
+    };
+    window.addEventListener("yorso:highlight-offers", onHighlight);
+    return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
+  }, []);
 
   const visibleOffers = mockOffers.slice(0, 8);
   const extraOffers = mockOffers.slice(8);
