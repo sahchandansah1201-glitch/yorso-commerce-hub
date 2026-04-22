@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { translations, type Language } from "./translations";
 
 interface LanguageContextType {
@@ -34,6 +34,21 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLang(newLang);
     localStorage.setItem("yorso-lang", newLang);
   };
+
+  // Синхронизируем метаданные документа с текущей локалью.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const t = translations[lang];
+    document.documentElement.setAttribute("lang", lang);
+    document.title = t.meta_siteTitle;
+    let descTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (!descTag) {
+      descTag = document.createElement("meta");
+      descTag.setAttribute("name", "description");
+      document.head.appendChild(descTag);
+    }
+    descTag.setAttribute("content", t.meta_siteDescription);
+  }, [lang]);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang: handleSetLang, t: translations[lang] }}>
