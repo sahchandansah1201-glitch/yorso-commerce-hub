@@ -774,6 +774,9 @@ const ru: TranslationKeys = {
   offers_showLess: "Свернуть",
   offers_listLabel: "Актуальные оптовые предложения от проверенных поставщиков",
   offers_cardLabel: "{product}, происхождение: {origin}, цена: {price} за кг. Открыть предложение.",
+  offers_priceUnit_perKg: "за кг",
+  offers_qtyUnit_kg: "кг",
+  offers_moqLabel: "Мин. партия",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
