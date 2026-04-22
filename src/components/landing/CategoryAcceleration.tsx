@@ -43,7 +43,7 @@ const CategoryAcceleration = () => {
     <section id="categories" className="border-t border-border bg-cool-gray py-16 md:py-20">
       <div className="container">
         <div className="text-center">
-          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          <h2 data-testid="section-title" data-section="categories" className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
             {t.cat_title}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{t.cat_subtitle}</p>

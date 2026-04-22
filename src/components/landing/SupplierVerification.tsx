@@ -19,7 +19,7 @@ const SupplierVerification = () => {
     <section id="how-it-works" ref={sectionRef} className="bg-accent py-16 text-accent-foreground md:py-20">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-2xl font-bold tracking-tight md:text-3xl">{t.verify_title}</h2>
+          <h2 data-testid="section-title" data-section="how-it-works" className="font-heading text-2xl font-bold tracking-tight md:text-3xl">{t.verify_title}</h2>
           <p className="mt-2 text-sm text-accent-foreground/70">{t.verify_subtitle}</p>
         </div>
 

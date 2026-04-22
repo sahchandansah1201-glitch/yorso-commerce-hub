@@ -13,7 +13,7 @@ const FAQ = () => {
     <section id="faq" className="bg-background py-16 md:py-20">
       <div className="container">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t.faq_title}</h2>
+          <h2 data-testid="section-title" data-section="faq" className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">{t.faq_title}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t.faq_subtitle}</p>
         </div>
 

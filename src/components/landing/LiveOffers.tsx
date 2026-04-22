@@ -47,6 +47,8 @@ const LiveOffers = () => {
             </div>
             <h2
               id="offers-heading"
+              data-testid="section-title"
+              data-section="offers"
               className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl"
             >
               {t.offers_title}
