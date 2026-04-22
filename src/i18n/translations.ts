@@ -806,6 +806,54 @@ const en: TranslationKeys = {
   socialBanner_zeroCom: "Zero commission — direct deals, always",
   socialBanner_trustedBy: "Trusted by 12,000+ professionals",
   socialBanner_detail: "2,400+ verified suppliers · 48 countries · Zero commission",
+
+  // Buyer Workspace
+  workspace_brand: "Buyer Workspace",
+  workspace_signOut: "Sign out",
+  workspace_greeting: "Welcome back, {name}",
+  workspace_tab_dashboard: "Overview",
+  workspace_tab_saved: "Saved offers",
+  workspace_tab_priceRequests: "Price requests",
+  workspace_tab_messages: "Messages",
+
+  workspace_dashboard_title: "Your procurement workspace",
+  workspace_dashboard_subtitle: "Track saved offers, price access requests, and supplier conversations in one place.",
+  workspace_kpi_saved: "Saved offers",
+  workspace_kpi_priceRequests: "Pending price requests",
+  workspace_kpi_unread: "Unread messages",
+  workspace_kpi_suppliers: "Active suppliers",
+  workspace_recentActivity: "Recent activity",
+  workspace_quickActions: "Quick actions",
+  workspace_action_browseOffers: "Browse marketplace",
+  workspace_action_viewSaved: "View saved offers",
+  workspace_action_openMessages: "Open messages",
+
+  workspace_saved_title: "Saved offers",
+  workspace_saved_subtitle: "Offers you bookmarked for closer review or comparison.",
+  workspace_saved_empty: "No saved offers yet. Browse the marketplace and bookmark what fits your sourcing brief.",
+  workspace_saved_open: "Open offer",
+  workspace_saved_remove: "Remove",
+  workspace_saved_savedAt: "Saved {date}",
+
+  workspace_priceReq_title: "Price requests",
+  workspace_priceReq_subtitle: "Track requests for price access you sent to suppliers.",
+  workspace_priceReq_empty: "You haven't requested price access yet.",
+  workspace_priceReq_status_pending: "Pending",
+  workspace_priceReq_status_approved: "Approved",
+  workspace_priceReq_status_rejected: "Declined",
+  workspace_priceReq_requestedAt: "Requested {date}",
+  workspace_priceReq_respondedAt: "Responded {date}",
+  workspace_priceReq_open: "Open offer",
+
+  workspace_msg_title: "Messages",
+  workspace_msg_subtitle: "Conversations with verified suppliers.",
+  workspace_msg_empty: "No conversations yet.",
+  workspace_msg_unread: "{count} unread",
+  workspace_msg_open: "Open thread",
+
+  workspace_activity_offer_view: "Viewed offer",
+  workspace_activity_price_request: "Requested price for",
+  workspace_activity_message: "New reply from",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
