@@ -138,7 +138,7 @@ const SignIn = () => {
                   </div>
                   <Input className="h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
                 </div>
-                <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
+                <Button type="submit" disabled={signinLoading} className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
               </form>
 
               {method === "phone" && (
@@ -182,7 +182,7 @@ const SignIn = () => {
                     <label className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
                     <Input className="mt-1 h-12 text-base rounded-xl" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="john@company.com" required autoFocus />
                   </div>
-                  <Button type="submit" className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_sendResetLink} <ArrowRight className="h-5 w-5" /></Button>
+                  <Button type="submit" disabled={forgotLoading} className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_sendResetLink} <ArrowRight className="h-5 w-5" /></Button>
                 </form>
               )}
             </>
