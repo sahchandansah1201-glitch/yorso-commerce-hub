@@ -17,7 +17,7 @@
  * Naming convention: `surface_object_action`, snake_case.
  */
 
-import { getProvider } from "./analytics-provider";
+import { getProvider, recordAnalyticsFailure } from "./analytics-provider";
 
 // ─── Common payload primitives ──────────────────────────────────────────────
 
@@ -213,8 +213,13 @@ const analytics: Analytics = {
     };
     try {
       getProvider().send(envelope);
-    } catch {
-      /* analytics must never break the app */
+    } catch (error) {
+      recordAnalyticsFailure({
+        reason: "provider_threw",
+        transport: "provider",
+        error,
+        droppedEvents: 1,
+      });
     }
   },
   trackScrollDepth(event, payload) {
@@ -229,8 +234,13 @@ const analytics: Analytics = {
     };
     try {
       getProvider().send(envelope);
-    } catch {
-      /* swallow */
+    } catch (error) {
+      recordAnalyticsFailure({
+        reason: "provider_threw",
+        transport: "provider",
+        error,
+        droppedEvents: 1,
+      });
     }
   },
 };
