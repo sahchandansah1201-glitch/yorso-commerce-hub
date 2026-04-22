@@ -107,3 +107,154 @@ describe("setProvider (R8)", () => {
     expect(stub.send).toHaveBeenCalledTimes(1);
   });
 });
+
+// ─── Degraded conditions ────────────────────────────────────────────────────
+// Contract: analytics must never throw, and must never block UI flows, even
+// when the transport is missing, offline, or the payload can't be serialized.
+
+describe("BatchProvider degraded transports", () => {
+  let originalBeacon: typeof navigator.sendBeacon | undefined;
+  let originalFetch: typeof globalThis.fetch | undefined;
+
+  beforeEach(() => {
+    originalBeacon = navigator.sendBeacon;
+    originalFetch = globalThis.fetch;
+  });
+
+  afterEach(() => {
+    if (originalBeacon === undefined) {
+      // @ts-expect-error — restoring missing property
+      delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    } else {
+      Object.defineProperty(navigator, "sendBeacon", {
+        configurable: true,
+        value: originalBeacon,
+      });
+    }
+    globalThis.fetch = originalFetch as typeof globalThis.fetch;
+  });
+
+  it("falls back to fetch when sendBeacon is missing", () => {
+    // @ts-expect-error — simulate older browser / disabled API
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(""));
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider("/api/analytics");
+    p.send(env("a"));
+    p.flush();
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe("/api/analytics");
+    expect((init as RequestInit).method).toBe("POST");
+    expect((init as RequestInit).keepalive).toBe(true);
+    const parsed = JSON.parse((init as RequestInit).body as string);
+    expect(parsed.events[0].event).toBe("a");
+  });
+
+  it("falls back to fetch when sendBeacon refuses (returns false)", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: vi.fn().mockReturnValue(false),
+    });
+    const fetchSpy = vi.fn().mockResolvedValue(new Response(""));
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    p.flush();
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not throw when offline (fetch rejects)", async () => {
+    // @ts-expect-error — simulate no beacon
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    const fetchSpy = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    expect(() => p.flush()).not.toThrow();
+    // Allow the swallowed promise rejection to settle without unhandled errors.
+    await Promise.resolve();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not throw when sendBeacon itself throws", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: () => {
+        throw new Error("beacon disabled by policy");
+      },
+    });
+    const p = new BatchProvider();
+    p.send(env());
+    expect(() => p.flush()).not.toThrow();
+  });
+
+  it("does not throw when both transports are missing", () => {
+    // @ts-expect-error — simulate stripped environment
+    delete (navigator as { sendBeacon?: unknown }).sendBeacon;
+    // @ts-expect-error — wipe fetch to simulate non-browser env
+    delete (globalThis as { fetch?: unknown }).fetch;
+
+    const p = new BatchProvider();
+    p.send(env());
+    expect(() => p.flush()).not.toThrow();
+  });
+
+  it("drops the batch silently when JSON.stringify fails (circular ref)", () => {
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: vi.fn().mockReturnValue(true),
+    });
+    const fetchSpy = vi.fn();
+    globalThis.fetch = fetchSpy as unknown as typeof globalThis.fetch;
+
+    const p = new BatchProvider();
+    const bad = env("bad");
+    // Force a cycle inside payload
+    (bad.payload as Record<string, unknown>).self = bad.payload;
+    p.send(bad);
+
+    expect(() => p.flush()).not.toThrow();
+    expect(navigator.sendBeacon).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ─── UI safety contract ─────────────────────────────────────────────────────
+// `analytics.track()` is the call site every UI component uses. It must never
+// surface a transport failure to the caller — otherwise a flaky beacon would
+// crash registration / checkout / etc.
+
+describe("analytics.track UI safety", () => {
+  it("never throws even when the active provider explodes", async () => {
+    const { default: analytics } = await import("./analytics");
+    setProvider({
+      name: "boom",
+      send() {
+        throw new Error("transport down");
+      },
+    });
+    expect(() => analytics.track("hero_primary_cta_click")).not.toThrow();
+    expect(() =>
+      analytics.track("hero_search_submit", { query: "salmon" }),
+    ).not.toThrow();
+  });
+
+  it("never throws when scroll-depth event hits a broken provider", async () => {
+    const { default: analytics } = await import("./analytics");
+    setProvider({
+      name: "boom",
+      send() {
+        throw new Error("nope");
+      },
+    });
+    expect(() =>
+      analytics.trackScrollDepth("scroll_depth_50", { depth: 50 }),
+    ).not.toThrow();
+  });
+});
