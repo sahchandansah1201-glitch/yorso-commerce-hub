@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import { useRegistrationGuard } from "@/hooks/use-registration-guard";
@@ -28,6 +28,41 @@ const RegisterVerify = () => {
   const pendingResendRef = useRef<{ resendIndex: number; resendAt: number } | null>(null);
   const mountedAtRef = useRef(Date.now());
   const firstFocusFiredRef = useRef(false);
+  // Mirror `code` into a ref so the unmount/pagehide handler reads the latest
+  // value without re-binding listeners on every keystroke.
+  const codeRef = useRef(code);
+  codeRef.current = code;
+
+  /**
+   * Captures resend abandonment so `registration_resend_outcome` always has a
+   * counterpart event, even when the user leaves before submitting a code.
+   * Fires for both route changes (cleanup) and tab close / refresh (pagehide).
+   */
+  useEffect(() => {
+    const emitAbandoned = (leaveReason: "unmount" | "pagehide") => {
+      const pending = pendingResendRef.current;
+      if (!pending) return;
+      pendingResendRef.current = null;
+      analytics.track("registration_resend_abandoned", {
+        role: data.role || "unknown",
+        step: 3,
+        sessionId: data.sessionId,
+        resendIndex: pending.resendIndex,
+        msSinceResend: Date.now() - pending.resendAt,
+        leaveReason,
+        filledCount: codeRef.current.filter((d) => d !== "").length,
+      });
+    };
+    const onPageHide = () => emitAbandoned("pagehide");
+    window.addEventListener("pagehide", onPageHide);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      emitAbandoned("unmount");
+    };
+    // Intentionally bind once: role/sessionId are stable for the verify screen
+    // and re-binding would reset the listener every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!guardPassed) return null;
 
