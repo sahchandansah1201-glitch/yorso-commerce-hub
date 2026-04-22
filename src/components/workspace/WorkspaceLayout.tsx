@@ -103,6 +103,12 @@ const WorkspaceLayout = ({ children, section }: Props) => {
                 to={tab.to}
                 data-testid={`workspace-tab-${tab.key}`}
                 aria-current={active ? "page" : undefined}
+                onClick={() => {
+                  // Only emit on actual cross-tab navigation, not when clicking the active tab.
+                  if (!active) {
+                    analytics.track("workspace_tab_switch", { from: section, to: tab.key });
+                  }
+                }}
                 className={cn(
                   "px-4 py-3 text-sm font-medium border-b-2 transition-colors",
                   active
