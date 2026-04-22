@@ -31,7 +31,7 @@ import SignIn from "@/pages/SignIn";
 import Offers from "@/pages/Offers";
 import OfferDetail from "@/pages/OfferDetail";
 import RegisterChoose from "@/pages/register/RegisterChoose";
-import { sampleOffers } from "@/data/mockOffers";
+import { mockOffers } from "@/data/mockOffers";
 
 const STORAGE_KEY = "yorso-lang";
 
@@ -130,7 +130,7 @@ describe("После sign-in с ru-локалью все основные экр
     expectRuAbsentOthers("offersPage_title");
 
     // 4) Переход на карточку оффера — /offers/:id.
-    const firstOfferId = sampleOffers[0]?.id;
+    const firstOfferId = mockOffers[0]?.id;
     expect(firstOfferId, "В mockOffers должен быть хотя бы один оффер").toBeTruthy();
     act(() => api.navigateTo(`/offers/${firstOfferId}`));
 
