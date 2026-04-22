@@ -90,6 +90,7 @@ describe("BatchProvider (R6)", () => {
     expect(parsed.events).toHaveLength(2);
     expect(parsed.events[0].event).toBe("a");
   });
+});
 
 describe("setProvider (R8)", () => {
   it("swaps the active provider at runtime", () => {
