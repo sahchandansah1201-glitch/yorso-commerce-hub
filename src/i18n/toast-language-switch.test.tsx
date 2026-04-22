@@ -139,6 +139,11 @@ describe("Validation toasts follow current language after in-UI switch", () => {
     //    но заголовок берётся из того же ключа `t.reg_couldNotContinue`,
     //    значит должен прийти на английском.
     submitEmail("blocked@yorso.test");
+    await new Promise((r) => setTimeout(r, 1500));
+    // eslint-disable-next-line no-console
+    console.log("[debug ru→en] toaster:", document.querySelector("[data-sonner-toaster]")?.textContent);
+    // eslint-disable-next-line no-console
+    console.log("[debug ru→en] toasts count:", document.querySelectorAll("[data-sonner-toaster] [data-sonner-toast]").length);
     await waitFor(
       () => expect(getLatestToastText()).toContain(translations.en.reg_couldNotContinue),
       { timeout: 3000 },
