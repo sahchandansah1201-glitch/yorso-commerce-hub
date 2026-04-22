@@ -1,21 +1,15 @@
 /**
- * Проходит по всем основным локализованным маршрутам приложения и
- * проверяет, что после установки локали ru на каждой странице
- * присутствует ключевой русский заголовок/текст.
+ * Проходит по всем основным локализованным маршрутам и проверяет, что
+ * после `setLang('ru')` у каждого маршрута виден стабильный элемент
+ * `[data-testid="page-title"]` с корректным русским текстом. Это
+ * избавляет тест от хрупких проверок по `document.body.textContent`.
  *
- * Покрытые маршруты:
- *   - /          (Index → Hero, hero_title1)
- *   - /register  (RegisterChoose → reg_chooseSubtitle)
- *   - /signin    (SignIn → signin_title)
- *   - /offers    (Offers → offersPage_title)
- *
- * Информационные страницы (/about, /contact, /terms, /privacy и т.д.)
- * сейчас не локализованы (статический английский контент) и осознанно
- * исключены из проверки русского текста, но валидируются как
- * "не падают и сохраняют локаль ru" — отдельным smoke-проходом.
+ * Информационные страницы (/about, /contact, /terms, …) в Phase 0 ещё
+ * не локализованы — они проверяются отдельным smoke-проходом: страницы
+ * рендерятся, локаль ru не сбрасывается.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, act, cleanup } from "@testing-library/react";
+import { render, screen, act, cleanup, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
@@ -95,9 +89,11 @@ type LocalizedRoute = {
   key: keyof typeof translations.ru;
 };
 
+// Каждый маршрут рендерит элемент [data-testid="page-title"] с текстом,
+// соответствующим указанному ключу переводов.
 const LOCALIZED_ROUTES: LocalizedRoute[] = [
   { path: "/", key: "hero_title1" },
-  { path: "/register", key: "reg_chooseSubtitle" },
+  { path: "/register", key: "reg_joinYorso" },
   { path: "/signin", key: "signin_title" },
   { path: "/offers", key: "offersPage_title" },
 ];
@@ -115,7 +111,19 @@ const STATIC_INFO_ROUTES = [
   "/partners",
 ];
 
-describe("Locale ru: ключевой русский заголовок присутствует на всех основных маршрутах", () => {
+/**
+ * Возвращает видимый элемент page-title. На главной в DOM есть как
+ * заголовок хедера, так и Hero-заголовок — нас интересует именно тот,
+ * что помечен как page-title через data-testid. Если их несколько
+ * (маловероятно), берём первый.
+ */
+const getPageTitle = (): HTMLElement => {
+  const nodes = screen.getAllByTestId("page-title");
+  expect(nodes.length, "Ожидался хотя бы один [data-testid=page-title]").toBeGreaterThan(0);
+  return nodes[0];
+};
+
+describe("Locale ru: каждый маршрут показывает русский заголовок через [data-testid=page-title]", () => {
   const originalLanguage = Object.getOwnPropertyDescriptor(window.navigator, "language");
   const originalLanguages = Object.getOwnPropertyDescriptor(window.navigator, "languages");
 
@@ -132,40 +140,48 @@ describe("Locale ru: ключевой русский заголовок прис
     if (originalLanguages) Object.defineProperty(window.navigator, "languages", originalLanguages);
   });
 
-  it("На каждом локализованном маршруте отображается соответствующий русский текст", () => {
+  it("На каждом локализованном маршруте [data-testid=page-title] содержит русский текст", () => {
     let api!: { setLang: (l: Language) => void; navigateTo: (p: string) => void };
     renderApp((a) => (api = a), "/");
 
     act(() => api.setLang("ru"));
-    expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
     expect(screen.getByTestId("lang").textContent).toBe("ru");
+    expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
 
     for (const route of LOCALIZED_ROUTES) {
       act(() => api.navigateTo(route.path));
-      const ruText = translations.ru[route.key] as string;
-      const enText = translations.en[route.key] as string;
-      const esText = translations.es[route.key] as string;
 
       expect(screen.getByTestId("lang").textContent).toBe("ru");
       expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
 
-      const body = document.body.textContent ?? "";
+      const title = getPageTitle();
+      const ruText = translations.ru[route.key] as string;
+      const enText = translations.en[route.key] as string;
+      const esText = translations.es[route.key] as string;
+
+      // Основное утверждение: заголовок страницы содержит русскую версию ключа.
       expect(
-        body,
-        `Ожидался русский текст "${ruText}" для ключа "${String(route.key)}" на маршруте ${route.path}`,
+        title.textContent ?? "",
+        `Ожидался русский заголовок "${ruText}" на ${route.path}`,
       ).toContain(ruText);
 
-      // На локализованных страницах английских/испанских версий тех же ключей быть не должно.
+      // En/Es-варианты НЕ должны присутствовать в заголовке.
       if (enText && enText !== ruText) {
-        expect(body, `Английский текст "${enText}" не должен присутствовать на ${route.path}`).not.toContain(enText);
+        expect(title.textContent ?? "").not.toContain(enText);
       }
       if (esText && esText !== ruText) {
-        expect(body).not.toContain(esText);
+        expect(title.textContent ?? "").not.toContain(esText);
+      }
+
+      // Для /register дополнительно валидируем подзаголовок.
+      if (route.path === "/register") {
+        const subtitle = screen.getByTestId("page-subtitle");
+        expect(subtitle.textContent ?? "").toContain(translations.ru.reg_chooseSubtitle);
       }
     }
   });
 
-  it("Smoke: статические информационные маршруты рендерятся без падений и не сбрасывают локаль ru", () => {
+  it("Smoke: статические информационные маршруты рендерятся и не сбрасывают ru", () => {
     let api!: { setLang: (l: Language) => void; navigateTo: (p: string) => void };
     renderApp((a) => (api = a), "/");
 
@@ -175,8 +191,9 @@ describe("Locale ru: ключевой русский заголовок прис
       act(() => api.navigateTo(path));
       expect(screen.getByTestId("lang").textContent).toBe("ru");
       expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-      // Базовый smoke: на странице есть хоть какой-то контент.
-      expect((document.body.textContent ?? "").length).toBeGreaterThan(0);
+      // На этих страницах page-title может не существовать (нет локализации) —
+      // поэтому проверяем только, что в DOM хоть что-то отрендерилось.
+      expect(within(document.body).getByRole("main") || document.body.firstChild).toBeTruthy();
     }
   });
 });
