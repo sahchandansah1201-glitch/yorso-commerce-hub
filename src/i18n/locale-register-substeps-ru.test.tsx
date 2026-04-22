@@ -10,8 +10,12 @@
  * Чтобы изолированно проверить i18n каждой страницы, мы предварительно
  * заполняем контекст валидными mock-данными через `setFields`.
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, act, cleanup } from "@testing-library/react";
+
+// canvas-confetti использует HTMLCanvasElement.getContext, который не реализован
+// в jsdom. На /register/ready запускается confetti — мокаем его no-op'ом.
+vi.mock("canvas-confetti", () => ({ default: () => undefined }));
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
