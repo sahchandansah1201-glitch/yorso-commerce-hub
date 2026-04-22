@@ -40,53 +40,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     if (typeof document === "undefined") return;
     const t = translations[lang];
     document.documentElement.setAttribute("lang", lang);
-    // en/ru/es — все LTR-локали.
-    document.documentElement.setAttribute("dir", "ltr");
     document.title = t.meta_siteTitle;
-
-    const upsertMeta = (
-      selector: string,
-      attr: "name" | "property",
-      key: string,
-    ): HTMLMetaElement => {
-      let tag = document.querySelector<HTMLMetaElement>(selector);
-      if (!tag) {
-        tag = document.createElement("meta");
-        tag.setAttribute(attr, key);
-        document.head.appendChild(tag);
-      }
-      return tag;
-    };
-
-    upsertMeta('meta[name="description"]', "name", "description").setAttribute(
-      "content",
-      t.meta_siteDescription,
-    );
-
-    // Open Graph.
-    const ogLocaleMap: Record<Language, string> = { en: "en_US", ru: "ru_RU", es: "es_ES" };
-    upsertMeta('meta[property="og:title"]', "property", "og:title").setAttribute(
-      "content",
-      t.meta_siteTitle,
-    );
-    upsertMeta('meta[property="og:description"]', "property", "og:description").setAttribute(
-      "content",
-      t.meta_siteDescription,
-    );
-    upsertMeta('meta[property="og:locale"]', "property", "og:locale").setAttribute(
-      "content",
-      ogLocaleMap[lang],
-    );
-
-    // Twitter Card.
-    upsertMeta('meta[name="twitter:title"]', "name", "twitter:title").setAttribute(
-      "content",
-      t.meta_siteTitle,
-    );
-    upsertMeta('meta[name="twitter:description"]', "name", "twitter:description").setAttribute(
-      "content",
-      t.meta_siteDescription,
-    );
+    let descTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (!descTag) {
+      descTag = document.createElement("meta");
+      descTag.setAttribute("name", "description");
+      document.head.appendChild(descTag);
+    }
+    descTag.setAttribute("content", t.meta_siteDescription);
   }, [lang]);
 
   return (

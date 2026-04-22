@@ -4,9 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
-import DocumentMetaSync from "@/i18n/DocumentMetaSync";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import WorkspaceDashboard from "./pages/workspace/WorkspaceDashboard.tsx";
+import WorkspaceSaved from "./pages/workspace/WorkspaceSaved.tsx";
+import WorkspacePriceRequests from "./pages/workspace/WorkspacePriceRequests.tsx";
+import WorkspaceMessages from "./pages/workspace/WorkspaceMessages.tsx";
 import RegisterChoose from "./pages/register/RegisterChoose.tsx";
 import RegisterEmail from "./pages/register/RegisterEmail.tsx";
 import RegisterVerify from "./pages/register/RegisterVerify.tsx";
@@ -41,7 +45,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <RegistrationProvider>
-            <DocumentMetaSync />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/register" element={<RegisterChoose />} />

@@ -340,23 +340,6 @@ type TranslationKeys = {
   meta_siteTitle: string;
   meta_siteDescription: string;
 
-  // ─── Info pages: shared chrome ─────────────────────────────────
-  info_backToHome: string;
-  info_lastUpdated: string;
-
-  // ─── Cookies page ──────────────────────────────────────────────
-  cookies_title: string;
-  cookies_updated: string;
-  cookies_intro: string;
-  cookies_essentialTitle: string;
-  cookies_essentialBody: string;
-  cookies_analyticsTitle: string;
-  cookies_analyticsBody: string;
-  cookies_manageTitle: string;
-  cookies_manageBody: string;
-  cookies_contactTitle: string;
-  cookies_contactBody: string;
-
   // ─── Shared: TrustMicroText ────────────────────────────────────
   trustMicro_users: string;
   trustMicro_security: string;
@@ -371,6 +354,54 @@ type TranslationKeys = {
   socialBanner_zeroCom: string;
   socialBanner_trustedBy: string;
   socialBanner_detail: string;
+
+  // ─── Buyer Workspace ───────────────────────────────────────────
+  workspace_brand: string;
+  workspace_signOut: string;
+  workspace_greeting: string;
+  workspace_tab_dashboard: string;
+  workspace_tab_saved: string;
+  workspace_tab_priceRequests: string;
+  workspace_tab_messages: string;
+
+  workspace_dashboard_title: string;
+  workspace_dashboard_subtitle: string;
+  workspace_kpi_saved: string;
+  workspace_kpi_priceRequests: string;
+  workspace_kpi_unread: string;
+  workspace_kpi_suppliers: string;
+  workspace_recentActivity: string;
+  workspace_quickActions: string;
+  workspace_action_browseOffers: string;
+  workspace_action_viewSaved: string;
+  workspace_action_openMessages: string;
+
+  workspace_saved_title: string;
+  workspace_saved_subtitle: string;
+  workspace_saved_empty: string;
+  workspace_saved_open: string;
+  workspace_saved_remove: string;
+  workspace_saved_savedAt: string;
+
+  workspace_priceReq_title: string;
+  workspace_priceReq_subtitle: string;
+  workspace_priceReq_empty: string;
+  workspace_priceReq_status_pending: string;
+  workspace_priceReq_status_approved: string;
+  workspace_priceReq_status_rejected: string;
+  workspace_priceReq_requestedAt: string;
+  workspace_priceReq_respondedAt: string;
+  workspace_priceReq_open: string;
+
+  workspace_msg_title: string;
+  workspace_msg_subtitle: string;
+  workspace_msg_empty: string;
+  workspace_msg_unread: string;
+  workspace_msg_open: string;
+
+  workspace_activity_offer_view: string;
+  workspace_activity_price_request: string;
+  workspace_activity_message: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -761,28 +792,6 @@ const en: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B Seafood Marketplace",
   meta_siteDescription: "Wholesale seafood from verified suppliers worldwide.",
 
-  // Info pages: shared chrome
-  info_backToHome: "Back to homepage",
-  info_lastUpdated: "Last updated",
-
-  // Cookies page
-  cookies_title: "Cookie Policy",
-  cookies_updated: "January 2026",
-  cookies_intro:
-    "YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.",
-  cookies_essentialTitle: "Essential Cookies",
-  cookies_essentialBody:
-    "Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.",
-  cookies_analyticsTitle: "Analytics Cookies",
-  cookies_analyticsBody:
-    "Help us understand how users interact with YORSO. We use this data to improve features and user experience. Data is anonymized and never sold.",
-  cookies_manageTitle: "Managing Cookies",
-  cookies_manageBody:
-    "You can control cookies through your browser settings. Disabling essential cookies may affect platform functionality.",
-  cookies_contactTitle: "Contact",
-  cookies_contactBody: "Questions about our cookie practices? Contact privacy@yorso.com.",
-
-
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
   trustMicro_security: "Your data is handled according to our Privacy Policy",
@@ -797,6 +806,54 @@ const en: TranslationKeys = {
   socialBanner_zeroCom: "Zero commission — direct deals, always",
   socialBanner_trustedBy: "Trusted by 12,000+ professionals",
   socialBanner_detail: "2,400+ verified suppliers · 48 countries · Zero commission",
+
+  // Buyer Workspace
+  workspace_brand: "Buyer Workspace",
+  workspace_signOut: "Sign out",
+  workspace_greeting: "Welcome back, {name}",
+  workspace_tab_dashboard: "Overview",
+  workspace_tab_saved: "Saved offers",
+  workspace_tab_priceRequests: "Price requests",
+  workspace_tab_messages: "Messages",
+
+  workspace_dashboard_title: "Your procurement workspace",
+  workspace_dashboard_subtitle: "Track saved offers, price access requests, and supplier conversations in one place.",
+  workspace_kpi_saved: "Saved offers",
+  workspace_kpi_priceRequests: "Pending price requests",
+  workspace_kpi_unread: "Unread messages",
+  workspace_kpi_suppliers: "Active suppliers",
+  workspace_recentActivity: "Recent activity",
+  workspace_quickActions: "Quick actions",
+  workspace_action_browseOffers: "Browse marketplace",
+  workspace_action_viewSaved: "View saved offers",
+  workspace_action_openMessages: "Open messages",
+
+  workspace_saved_title: "Saved offers",
+  workspace_saved_subtitle: "Offers you bookmarked for closer review or comparison.",
+  workspace_saved_empty: "No saved offers yet. Browse the marketplace and bookmark what fits your sourcing brief.",
+  workspace_saved_open: "Open offer",
+  workspace_saved_remove: "Remove",
+  workspace_saved_savedAt: "Saved {date}",
+
+  workspace_priceReq_title: "Price requests",
+  workspace_priceReq_subtitle: "Track requests for price access you sent to suppliers.",
+  workspace_priceReq_empty: "You haven't requested price access yet.",
+  workspace_priceReq_status_pending: "Pending",
+  workspace_priceReq_status_approved: "Approved",
+  workspace_priceReq_status_rejected: "Declined",
+  workspace_priceReq_requestedAt: "Requested {date}",
+  workspace_priceReq_respondedAt: "Responded {date}",
+  workspace_priceReq_open: "Open offer",
+
+  workspace_msg_title: "Messages",
+  workspace_msg_subtitle: "Conversations with verified suppliers.",
+  workspace_msg_empty: "No conversations yet.",
+  workspace_msg_unread: "{count} unread",
+  workspace_msg_open: "Open thread",
+
+  workspace_activity_offer_view: "Viewed offer",
+  workspace_activity_price_request: "Requested price for",
+  workspace_activity_message: "New reply from",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -1174,29 +1231,6 @@ const ru: TranslationKeys = {
   meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
   meta_siteDescription: "Оптовые морепродукты от проверенных поставщиков по всему миру.",
 
-  // Info pages: shared chrome
-  info_backToHome: "На главную",
-  info_lastUpdated: "Обновлено",
-
-  // Cookies page
-  cookies_title: "Политика использования cookies",
-  cookies_updated: "Январь 2026",
-  cookies_intro:
-    "YORSO использует файлы cookies и аналогичные технологии для обеспечения работы, защиты и улучшения работы платформы.",
-  cookies_essentialTitle: "Обязательные cookies",
-  cookies_essentialBody:
-    "Необходимы для работы платформы. Включают управление сессией, токены аутентификации и языковые настройки. Их нельзя отключить.",
-  cookies_analyticsTitle: "Аналитические cookies",
-  cookies_analyticsBody:
-    "Помогают понять, как пользователи взаимодействуют с YORSO. Эти данные используются для улучшения функций и пользовательского опыта. Данные анонимизированы и никогда не продаются.",
-  cookies_manageTitle: "Управление cookies",
-  cookies_manageBody:
-    "Вы можете управлять cookies через настройки браузера. Отключение обязательных cookies может повлиять на работу платформы.",
-  cookies_contactTitle: "Контакты",
-  cookies_contactBody:
-    "Вопросы о нашей политике cookies? Напишите на privacy@yorso.com.",
-
-
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
   trustMicro_security: "Ваши данные обрабатываются согласно нашей Политике конфиденциальности",
@@ -1211,6 +1245,54 @@ const ru: TranslationKeys = {
   socialBanner_zeroCom: "Без комиссии — прямые сделки, всегда",
   socialBanner_trustedBy: "Доверяют 12,000+ профессионалов",
   socialBanner_detail: "2,400+ проверенных поставщиков · 48 стран · Без комиссии",
+
+  // Buyer Workspace
+  workspace_brand: "Кабинет покупателя",
+  workspace_signOut: "Выйти",
+  workspace_greeting: "С возвращением, {name}",
+  workspace_tab_dashboard: "Обзор",
+  workspace_tab_saved: "Сохранённые офферы",
+  workspace_tab_priceRequests: "Запросы цены",
+  workspace_tab_messages: "Сообщения",
+
+  workspace_dashboard_title: "Ваш закупочный кабинет",
+  workspace_dashboard_subtitle: "Отслеживайте сохранённые офферы, запросы цен и переписку с поставщиками в одном месте.",
+  workspace_kpi_saved: "Сохранённые офферы",
+  workspace_kpi_priceRequests: "Активные запросы цены",
+  workspace_kpi_unread: "Непрочитанные сообщения",
+  workspace_kpi_suppliers: "Активные поставщики",
+  workspace_recentActivity: "Недавняя активность",
+  workspace_quickActions: "Быстрые действия",
+  workspace_action_browseOffers: "Перейти к офферам",
+  workspace_action_viewSaved: "Открыть сохранённые",
+  workspace_action_openMessages: "Открыть сообщения",
+
+  workspace_saved_title: "Сохранённые офферы",
+  workspace_saved_subtitle: "Офферы, которые вы добавили для сравнения и дальнейшей работы.",
+  workspace_saved_empty: "Пока нет сохранённых офферов. Просмотрите витрину и сохраните подходящие.",
+  workspace_saved_open: "Открыть оффер",
+  workspace_saved_remove: "Удалить",
+  workspace_saved_savedAt: "Сохранено {date}",
+
+  workspace_priceReq_title: "Запросы цены",
+  workspace_priceReq_subtitle: "Отслеживайте отправленные поставщикам запросы на доступ к цене.",
+  workspace_priceReq_empty: "Пока нет запросов на доступ к цене.",
+  workspace_priceReq_status_pending: "На рассмотрении",
+  workspace_priceReq_status_approved: "Одобрено",
+  workspace_priceReq_status_rejected: "Отклонено",
+  workspace_priceReq_requestedAt: "Отправлено {date}",
+  workspace_priceReq_respondedAt: "Ответ {date}",
+  workspace_priceReq_open: "Открыть оффер",
+
+  workspace_msg_title: "Сообщения",
+  workspace_msg_subtitle: "Переписка с проверенными поставщиками.",
+  workspace_msg_empty: "Переписок пока нет.",
+  workspace_msg_unread: "{count} непрочитанных",
+  workspace_msg_open: "Открыть переписку",
+
+  workspace_activity_offer_view: "Просмотр оффера",
+  workspace_activity_price_request: "Запрос цены по",
+  workspace_activity_message: "Новый ответ от",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -1588,29 +1670,6 @@ const es: TranslationKeys = {
   meta_siteTitle: "YORSO — Mercado B2B de mariscos",
   meta_siteDescription: "Mariscos al por mayor de proveedores verificados en todo el mundo.",
 
-  // Info pages: shared chrome
-  info_backToHome: "Volver al inicio",
-  info_lastUpdated: "Última actualización",
-
-  // Cookies page
-  cookies_title: "Política de cookies",
-  cookies_updated: "Enero 2026",
-  cookies_intro:
-    "YORSO utiliza cookies y tecnologías similares para proporcionar, proteger y mejorar la experiencia de la plataforma.",
-  cookies_essentialTitle: "Cookies esenciales",
-  cookies_essentialBody:
-    "Necesarias para el funcionamiento de la plataforma. Incluyen gestión de sesión, tokens de autenticación y preferencias de idioma. No se pueden desactivar.",
-  cookies_analyticsTitle: "Cookies analíticas",
-  cookies_analyticsBody:
-    "Nos ayudan a entender cómo los usuarios interactúan con YORSO. Usamos estos datos para mejorar funciones y experiencia de usuario. Los datos son anónimos y nunca se venden.",
-  cookies_manageTitle: "Gestión de cookies",
-  cookies_manageBody:
-    "Puede controlar las cookies mediante la configuración de su navegador. Deshabilitar cookies esenciales puede afectar al funcionamiento de la plataforma.",
-  cookies_contactTitle: "Contacto",
-  cookies_contactBody:
-    "¿Preguntas sobre nuestras prácticas de cookies? Contacte a privacy@yorso.com.",
-
-
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",
   trustMicro_security: "Sus datos se manejan según nuestra Política de privacidad",
@@ -1625,6 +1684,54 @@ const es: TranslationKeys = {
   socialBanner_zeroCom: "Sin comisión — operaciones directas, siempre",
   socialBanner_trustedBy: "Confianza de 12,000+ profesionales",
   socialBanner_detail: "2,400+ proveedores verificados · 48 países · Sin comisión",
+
+  // Buyer Workspace
+  workspace_brand: "Panel del comprador",
+  workspace_signOut: "Cerrar sesión",
+  workspace_greeting: "Bienvenido de nuevo, {name}",
+  workspace_tab_dashboard: "Resumen",
+  workspace_tab_saved: "Ofertas guardadas",
+  workspace_tab_priceRequests: "Solicitudes de precio",
+  workspace_tab_messages: "Mensajes",
+
+  workspace_dashboard_title: "Tu espacio de compras",
+  workspace_dashboard_subtitle: "Sigue ofertas guardadas, solicitudes de precio y conversaciones con proveedores en un solo lugar.",
+  workspace_kpi_saved: "Ofertas guardadas",
+  workspace_kpi_priceRequests: "Solicitudes pendientes",
+  workspace_kpi_unread: "Mensajes sin leer",
+  workspace_kpi_suppliers: "Proveedores activos",
+  workspace_recentActivity: "Actividad reciente",
+  workspace_quickActions: "Acciones rápidas",
+  workspace_action_browseOffers: "Ver mercado",
+  workspace_action_viewSaved: "Ver guardadas",
+  workspace_action_openMessages: "Abrir mensajes",
+
+  workspace_saved_title: "Ofertas guardadas",
+  workspace_saved_subtitle: "Ofertas marcadas para revisar o comparar.",
+  workspace_saved_empty: "Aún no tienes ofertas guardadas.",
+  workspace_saved_open: "Abrir oferta",
+  workspace_saved_remove: "Quitar",
+  workspace_saved_savedAt: "Guardado el {date}",
+
+  workspace_priceReq_title: "Solicitudes de precio",
+  workspace_priceReq_subtitle: "Sigue tus solicitudes de acceso a precio enviadas a proveedores.",
+  workspace_priceReq_empty: "Aún no has solicitado acceso a precio.",
+  workspace_priceReq_status_pending: "Pendiente",
+  workspace_priceReq_status_approved: "Aprobada",
+  workspace_priceReq_status_rejected: "Rechazada",
+  workspace_priceReq_requestedAt: "Enviada el {date}",
+  workspace_priceReq_respondedAt: "Respondida el {date}",
+  workspace_priceReq_open: "Abrir oferta",
+
+  workspace_msg_title: "Mensajes",
+  workspace_msg_subtitle: "Conversaciones con proveedores verificados.",
+  workspace_msg_empty: "Aún no tienes conversaciones.",
+  workspace_msg_unread: "{count} sin leer",
+  workspace_msg_open: "Abrir conversación",
+
+  workspace_activity_offer_view: "Vista de oferta",
+  workspace_activity_price_request: "Solicitud de precio para",
+  workspace_activity_message: "Nueva respuesta de",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };

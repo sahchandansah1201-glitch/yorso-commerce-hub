@@ -71,3 +71,21 @@ export const formatQuantity = (
   unit: string,
   lang: Language,
 ): string => `${formatNumber(value, lang)} ${unit}`;
+
+/**
+ * Локализованная дата (без времени) для UI workspace и других списков.
+ */
+export const formatDate = (
+  iso: string,
+  lang: Language,
+  options?: Intl.DateTimeFormatOptions,
+): string => {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return new Intl.DateTimeFormat(localeFor(lang), {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    ...options,
+  }).format(date);
+};
