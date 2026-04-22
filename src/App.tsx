@@ -28,6 +28,7 @@ import Careers from "./pages/Careers.tsx";
 import Press from "./pages/Press.tsx";
 import Partners from "./pages/Partners.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
+import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/press" element={<Press />} />
               <Route path="/partners" element={<Partners />} />
               <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
+              <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </RegistrationProvider>
