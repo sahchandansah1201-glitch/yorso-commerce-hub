@@ -146,7 +146,12 @@ const RegisterVerify = () => {
               type="button"
               onClick={() => {
                 setField("emailVerified", true);
-                analytics.track("registration_email_verified", { role: data.role || "unknown" });
+                analytics.track("registration_email_verified", {
+                  role: data.role || "unknown",
+                  step: 3,
+                  sessionId: data.sessionId,
+                  verificationLatencyMs: null,
+                });
                 navigate("/register/details");
               }}
               className="block mx-auto text-xs text-muted-foreground/50 hover:text-muted-foreground underline"

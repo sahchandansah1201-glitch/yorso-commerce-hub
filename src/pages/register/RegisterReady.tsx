@@ -39,8 +39,15 @@ const RegisterReady = () => {
         // Soft-fail: still show the success screen so the user is not blocked.
       }
       setField("completed", true);
+      const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
       analytics.track("registration_complete", {
-        role: data.role || "unknown", country: data.country, categories: data.categories.length, countries: data.countries.length,
+        role: data.role || "unknown",
+        step: 7,
+        sessionId: data.sessionId,
+        country: data.country,
+        categories: data.categories.length,
+        countries: data.countries.length,
+        funnelDurationMs,
       });
     })();
 
