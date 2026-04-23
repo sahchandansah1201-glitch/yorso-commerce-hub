@@ -529,6 +529,122 @@ type TranslationKeys = {
   info_privacy_rightsBody2: string;
   info_privacy_contact: string;
   info_privacy_contactBody: string;
+
+  // ─── Catalog (Phase 1 Marketplace Core) ─────────────────────────
+  catalog_pageTitle: string;
+  catalog_breadcrumbHome: string;
+  catalog_breadcrumbCatalog: string;
+  catalog_marketStatus_live: string;
+  catalog_resultCount: string;
+  catalog_quickRequest_title: string;
+  catalog_quickRequest_subtitle: string;
+  catalog_quickRequest_cta: string;
+  catalog_filters_title: string;
+  catalog_filters_clearAll: string;
+  catalog_filters_search: string;
+  catalog_filters_searchPlaceholder: string;
+  catalog_filters_species: string;
+  catalog_filters_origin: string;
+  catalog_filters_supplierCountry: string;
+  catalog_filters_supplier: string;
+  catalog_filters_logisticsBasis: string;
+  catalog_filters_currency: string;
+  catalog_filters_certification: string;
+  catalog_filters_paymentTerms: string;
+  catalog_filters_state: string;
+  catalog_filters_cutType: string;
+  catalog_filters_advanced: string;
+  catalog_filters_any: string;
+  catalog_filters_all: string;
+  catalog_filters_state_frozen: string;
+  catalog_filters_state_fresh: string;
+  catalog_filters_state_chilled: string;
+  catalog_results_none: string;
+  catalog_results_resetFilters: string;
+
+  // Access banners
+  catalog_access_anon_title: string;
+  catalog_access_anon_body: string;
+  catalog_access_anon_cta: string;
+  catalog_access_reg_title: string;
+  catalog_access_reg_body: string;
+  catalog_access_reg_cta: string;
+  catalog_access_qual_title: string;
+  catalog_access_qual_body: string;
+  catalog_access_devSwitcher_label: string;
+  catalog_access_devSwitcher_anon: string;
+  catalog_access_devSwitcher_reg: string;
+  catalog_access_devSwitcher_qual: string;
+  catalog_access_devSwitcher_note: string;
+
+  // Card / gating
+  catalog_card_priceRange: string;
+  catalog_card_priceLocked: string;
+  catalog_card_priceLockedHint: string;
+  catalog_card_supplierStub: string;
+  catalog_card_supplierLocked: string;
+  catalog_card_supplierPartial: string;
+  catalog_card_volumeBreaks: string;
+  catalog_card_paymentTerms: string;
+  catalog_card_logistics: string;
+  catalog_card_interest: string;
+  catalog_card_action_signupForPrice: string;
+  catalog_card_action_requestSupplier: string;
+  catalog_card_action_sendRequest: string;
+  catalog_card_action_save: string;
+  catalog_card_action_compare: string;
+  catalog_card_action_watch: string;
+  catalog_card_action_followSupplier: string;
+  catalog_card_action_notifyPrice: string;
+  catalog_card_action_contactSupplier: string;
+  catalog_card_action_addToCart: string;
+  catalog_card_action_view: string;
+
+  // Intelligence rail
+  catalog_intel_title: string;
+  catalog_intel_lockedTitle: string;
+  catalog_intel_lockedBody: string;
+  catalog_intel_partialTitle: string;
+  catalog_intel_partialBody: string;
+  catalog_intel_priceTrend_title: string;
+  catalog_intel_priceTrend_index: string;
+  catalog_intel_priceTrend_d7: string;
+  catalog_intel_priceTrend_d30: string;
+  catalog_intel_priceTrend_d90: string;
+  catalog_intel_priceTrend_volatility: string;
+  catalog_intel_priceTrend_vol_low: string;
+  catalog_intel_priceTrend_vol_medium: string;
+  catalog_intel_priceTrend_vol_high: string;
+  catalog_intel_news_title: string;
+  catalog_intel_news_more: string;
+  catalog_intel_impact_title: string;
+  catalog_intel_impact_role_supplier_country: string;
+  catalog_intel_impact_role_origin_country: string;
+  catalog_intel_impact_role_export_port: string;
+  catalog_intel_impact_role_competing_producer: string;
+  catalog_intel_impact_role_demand_driver: string;
+  catalog_intel_impact_share: string;
+  catalog_intel_signals_title: string;
+  catalog_intel_signal_supply: string;
+  catalog_intel_signal_demand: string;
+  catalog_intel_signal_logistics: string;
+  catalog_intel_signal_regulation: string;
+  catalog_intel_signal_severity_info: string;
+  catalog_intel_signal_severity_watch: string;
+  catalog_intel_signal_severity_alert: string;
+
+  // Related requests
+  catalog_relatedReq_title: string;
+  catalog_relatedReq_subtitle: string;
+  catalog_relatedReq_volume: string;
+  catalog_relatedReq_buyer: string;
+  catalog_relatedReq_respond: string;
+
+  // Recovery footer
+  catalog_recovery_title: string;
+  catalog_recovery_body: string;
+  catalog_recovery_signup: string;
+  catalog_recovery_signin: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1132,6 +1248,117 @@ const en: TranslationKeys = {
   info_privacy_rightsBody2: " to exercise your rights.",
   info_privacy_contact: "Contact",
   info_privacy_contactBody: "Data Protection Officer: ",
+
+  // Catalog
+  catalog_pageTitle: "Seafood Procurement Catalog",
+  catalog_breadcrumbHome: "Home",
+  catalog_breadcrumbCatalog: "Catalog",
+  catalog_marketStatus_live: "Marketplace live",
+  catalog_resultCount: "{count} active offers",
+  catalog_quickRequest_title: "Don't see exactly what you need?",
+  catalog_quickRequest_subtitle: "Post a structured request and verified suppliers will respond directly.",
+  catalog_quickRequest_cta: "Send a request",
+  catalog_filters_title: "Procurement filters",
+  catalog_filters_clearAll: "Clear all",
+  catalog_filters_search: "Search",
+  catalog_filters_searchPlaceholder: "Species, latin name, supplier, origin…",
+  catalog_filters_species: "Species / category",
+  catalog_filters_origin: "Origin country",
+  catalog_filters_supplierCountry: "Supplier country",
+  catalog_filters_supplier: "Supplier",
+  catalog_filters_logisticsBasis: "Logistics basis",
+  catalog_filters_currency: "Currency",
+  catalog_filters_certification: "Certification",
+  catalog_filters_paymentTerms: "Payment terms",
+  catalog_filters_state: "Product state",
+  catalog_filters_cutType: "Cut type",
+  catalog_filters_advanced: "Advanced filters",
+  catalog_filters_any: "Any",
+  catalog_filters_all: "All",
+  catalog_filters_state_frozen: "Frozen",
+  catalog_filters_state_fresh: "Fresh",
+  catalog_filters_state_chilled: "Chilled",
+  catalog_results_none: "No offers match the current filters.",
+  catalog_results_resetFilters: "Reset filters",
+
+  catalog_access_anon_title: "You're browsing as a guest",
+  catalog_access_anon_body: "You can explore live offers, filters and market signals. Exact prices and direct supplier contacts are protected to prevent low-intent scraping and to keep supplier data safe.",
+  catalog_access_anon_cta: "Sign up to access exact prices",
+  catalog_access_reg_title: "You're signed in — full access requires qualification",
+  catalog_access_reg_body: "You can save offers, compare suppliers, request price access and follow suppliers. Exact prices and direct supplier contacts are unlocked once your buyer account is qualified.",
+  catalog_access_reg_cta: "Request qualification",
+  catalog_access_qual_title: "Full procurement access",
+  catalog_access_qual_body: "You can see exact prices, supplier contacts and the full intelligence layer. Use it for live procurement decisions.",
+  catalog_access_devSwitcher_label: "Demo access level",
+  catalog_access_devSwitcher_anon: "Anonymous",
+  catalog_access_devSwitcher_reg: "Registered",
+  catalog_access_devSwitcher_qual: "Qualified",
+  catalog_access_devSwitcher_note: "Demo control — not part of real authorization",
+
+  catalog_card_priceRange: "Price range",
+  catalog_card_priceLocked: "Exact price locked",
+  catalog_card_priceLockedHint: "Sign up to see exact pricing",
+  catalog_card_supplierStub: "Verified supplier",
+  catalog_card_supplierLocked: "Supplier identity locked",
+  catalog_card_supplierPartial: "Partial supplier profile",
+  catalog_card_volumeBreaks: "Volume breaks",
+  catalog_card_paymentTerms: "Payment",
+  catalog_card_logistics: "Logistics",
+  catalog_card_interest: "Active interest",
+  catalog_card_action_signupForPrice: "Sign up for exact price",
+  catalog_card_action_requestSupplier: "Register to unlock supplier",
+  catalog_card_action_sendRequest: "Send request",
+  catalog_card_action_save: "Save",
+  catalog_card_action_compare: "Compare",
+  catalog_card_action_watch: "Watch",
+  catalog_card_action_followSupplier: "Follow supplier",
+  catalog_card_action_notifyPrice: "Notify on price change",
+  catalog_card_action_contactSupplier: "Contact supplier",
+  catalog_card_action_addToCart: "Add to procurement cart",
+  catalog_card_action_view: "View offer",
+
+  catalog_intel_title: "Procurement intelligence",
+  catalog_intel_lockedTitle: "Intelligence preview",
+  catalog_intel_lockedBody: "Sign up to preview market signals. Full intelligence is available after qualification.",
+  catalog_intel_partialTitle: "Limited intelligence",
+  catalog_intel_partialBody: "You see headlines and direction. Full statistics and country-level analysis are unlocked after qualification.",
+  catalog_intel_priceTrend_title: "Price trend",
+  catalog_intel_priceTrend_index: "Price index",
+  catalog_intel_priceTrend_d7: "7 days",
+  catalog_intel_priceTrend_d30: "30 days",
+  catalog_intel_priceTrend_d90: "90 days",
+  catalog_intel_priceTrend_volatility: "Volatility",
+  catalog_intel_priceTrend_vol_low: "Low",
+  catalog_intel_priceTrend_vol_medium: "Medium",
+  catalog_intel_priceTrend_vol_high: "High",
+  catalog_intel_news_title: "Country news affecting this category",
+  catalog_intel_news_more: "Read source",
+  catalog_intel_impact_title: "Countries affecting price",
+  catalog_intel_impact_role_supplier_country: "Supplier country",
+  catalog_intel_impact_role_origin_country: "Origin country",
+  catalog_intel_impact_role_export_port: "Export hub",
+  catalog_intel_impact_role_competing_producer: "Competing producer",
+  catalog_intel_impact_role_demand_driver: "Demand driver",
+  catalog_intel_impact_share: "Price impact",
+  catalog_intel_signals_title: "Market signals",
+  catalog_intel_signal_supply: "Supply",
+  catalog_intel_signal_demand: "Demand",
+  catalog_intel_signal_logistics: "Logistics",
+  catalog_intel_signal_regulation: "Regulation",
+  catalog_intel_signal_severity_info: "Info",
+  catalog_intel_signal_severity_watch: "Watch",
+  catalog_intel_signal_severity_alert: "Alert",
+
+  catalog_relatedReq_title: "Related buyer requests",
+  catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
+  catalog_relatedReq_volume: "Volume",
+  catalog_relatedReq_buyer: "Buyer",
+  catalog_relatedReq_respond: "Respond",
+
+  catalog_recovery_title: "Get more out of the catalog",
+  catalog_recovery_body: "Sign up free to save offers, compare suppliers and request price access. Already have an account? Sign in to continue.",
+  catalog_recovery_signup: "Register free",
+  catalog_recovery_signin: "Sign in",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -1722,6 +1949,117 @@ const ru: TranslationKeys = {
   info_privacy_rightsBody2: ".",
   info_privacy_contact: "Контакты",
   info_privacy_contactBody: "Сотрудник по защите данных: ",
+
+  // Catalog
+  catalog_pageTitle: "Каталог морепродуктов для закупок",
+  catalog_breadcrumbHome: "Главная",
+  catalog_breadcrumbCatalog: "Каталог",
+  catalog_marketStatus_live: "Рынок активен",
+  catalog_resultCount: "{count} активных предложений",
+  catalog_quickRequest_title: "Не нашли точно нужный товар?",
+  catalog_quickRequest_subtitle: "Опубликуйте структурированный запрос — проверенные поставщики ответят напрямую.",
+  catalog_quickRequest_cta: "Отправить запрос",
+  catalog_filters_title: "Закупочные фильтры",
+  catalog_filters_clearAll: "Сбросить",
+  catalog_filters_search: "Поиск",
+  catalog_filters_searchPlaceholder: "Вид, латинское название, поставщик, страна…",
+  catalog_filters_species: "Вид / категория",
+  catalog_filters_origin: "Страна происхождения",
+  catalog_filters_supplierCountry: "Страна поставщика",
+  catalog_filters_supplier: "Поставщик",
+  catalog_filters_logisticsBasis: "Условия поставки",
+  catalog_filters_currency: "Валюта",
+  catalog_filters_certification: "Сертификация",
+  catalog_filters_paymentTerms: "Условия оплаты",
+  catalog_filters_state: "Состояние продукта",
+  catalog_filters_cutType: "Тип разделки",
+  catalog_filters_advanced: "Расширенные фильтры",
+  catalog_filters_any: "Любой",
+  catalog_filters_all: "Все",
+  catalog_filters_state_frozen: "Замороженный",
+  catalog_filters_state_fresh: "Охлаждённый (свежий)",
+  catalog_filters_state_chilled: "Подмороженный",
+  catalog_results_none: "Ни одно предложение не соответствует выбранным фильтрам.",
+  catalog_results_resetFilters: "Сбросить фильтры",
+
+  catalog_access_anon_title: "Вы просматриваете каталог как гость",
+  catalog_access_anon_body: "Доступны предложения, фильтры и рыночные сигналы. Точные цены и прямые контакты поставщиков скрыты — это защищает данные поставщиков и снижает нецелевой парсинг.",
+  catalog_access_anon_cta: "Зарегистрируйтесь, чтобы видеть точные цены",
+  catalog_access_reg_title: "Вы вошли — полный доступ требует квалификации",
+  catalog_access_reg_body: "Вы можете сохранять предложения, сравнивать поставщиков, запрашивать доступ к цене и следить за поставщиками. Точные цены и прямые контакты открываются после квалификации аккаунта покупателя.",
+  catalog_access_reg_cta: "Запросить квалификацию",
+  catalog_access_qual_title: "Полный закупочный доступ",
+  catalog_access_qual_body: "Доступны точные цены, контакты поставщиков и полный аналитический слой. Используйте для рабочих закупочных решений.",
+  catalog_access_devSwitcher_label: "Демо-уровень доступа",
+  catalog_access_devSwitcher_anon: "Аноним",
+  catalog_access_devSwitcher_reg: "Зарегистрирован",
+  catalog_access_devSwitcher_qual: "Квалифицирован",
+  catalog_access_devSwitcher_note: "Демо-контрол, не часть реальной авторизации",
+
+  catalog_card_priceRange: "Диапазон цены",
+  catalog_card_priceLocked: "Точная цена скрыта",
+  catalog_card_priceLockedHint: "Зарегистрируйтесь, чтобы видеть точную цену",
+  catalog_card_supplierStub: "Проверенный поставщик",
+  catalog_card_supplierLocked: "Поставщик скрыт",
+  catalog_card_supplierPartial: "Профиль поставщика частично",
+  catalog_card_volumeBreaks: "Объёмные скидки",
+  catalog_card_paymentTerms: "Оплата",
+  catalog_card_logistics: "Логистика",
+  catalog_card_interest: "Активный интерес",
+  catalog_card_action_signupForPrice: "Регистрация для точной цены",
+  catalog_card_action_requestSupplier: "Регистрация для доступа к поставщику",
+  catalog_card_action_sendRequest: "Отправить запрос",
+  catalog_card_action_save: "Сохранить",
+  catalog_card_action_compare: "Сравнить",
+  catalog_card_action_watch: "Следить",
+  catalog_card_action_followSupplier: "Подписаться на поставщика",
+  catalog_card_action_notifyPrice: "Уведомлять об изменении цены",
+  catalog_card_action_contactSupplier: "Связаться с поставщиком",
+  catalog_card_action_addToCart: "В закупочную корзину",
+  catalog_card_action_view: "Открыть предложение",
+
+  catalog_intel_title: "Закупочная аналитика",
+  catalog_intel_lockedTitle: "Превью аналитики",
+  catalog_intel_lockedBody: "Зарегистрируйтесь, чтобы видеть превью рыночных сигналов. Полная аналитика доступна после квалификации.",
+  catalog_intel_partialTitle: "Ограниченная аналитика",
+  catalog_intel_partialBody: "Видны заголовки и направление движения. Полная статистика и страновой анализ открываются после квалификации.",
+  catalog_intel_priceTrend_title: "Динамика цены",
+  catalog_intel_priceTrend_index: "Индекс цены",
+  catalog_intel_priceTrend_d7: "7 дней",
+  catalog_intel_priceTrend_d30: "30 дней",
+  catalog_intel_priceTrend_d90: "90 дней",
+  catalog_intel_priceTrend_volatility: "Волатильность",
+  catalog_intel_priceTrend_vol_low: "Низкая",
+  catalog_intel_priceTrend_vol_medium: "Средняя",
+  catalog_intel_priceTrend_vol_high: "Высокая",
+  catalog_intel_news_title: "Новости стран по этой категории",
+  catalog_intel_news_more: "Источник",
+  catalog_intel_impact_title: "Страны, влияющие на цену",
+  catalog_intel_impact_role_supplier_country: "Страна поставщика",
+  catalog_intel_impact_role_origin_country: "Страна происхождения",
+  catalog_intel_impact_role_export_port: "Экспортный хаб",
+  catalog_intel_impact_role_competing_producer: "Конкурирующий производитель",
+  catalog_intel_impact_role_demand_driver: "Драйвер спроса",
+  catalog_intel_impact_share: "Влияние на цену",
+  catalog_intel_signals_title: "Рыночные сигналы",
+  catalog_intel_signal_supply: "Предложение",
+  catalog_intel_signal_demand: "Спрос",
+  catalog_intel_signal_logistics: "Логистика",
+  catalog_intel_signal_regulation: "Регулирование",
+  catalog_intel_signal_severity_info: "Инфо",
+  catalog_intel_signal_severity_watch: "Внимание",
+  catalog_intel_signal_severity_alert: "Сигнал",
+
+  catalog_relatedReq_title: "Связанные запросы покупателей",
+  catalog_relatedReq_subtitle: "Открытые запросы от проверенных покупателей по этой категории.",
+  catalog_relatedReq_volume: "Объём",
+  catalog_relatedReq_buyer: "Покупатель",
+  catalog_relatedReq_respond: "Ответить",
+
+  catalog_recovery_title: "Получите больше от каталога",
+  catalog_recovery_body: "Зарегистрируйтесь бесплатно, чтобы сохранять предложения, сравнивать поставщиков и запрашивать доступ к цене. Уже есть аккаунт? Войдите, чтобы продолжить.",
+  catalog_recovery_signup: "Бесплатная регистрация",
+  catalog_recovery_signin: "Войти",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -2312,6 +2650,117 @@ const es: TranslationKeys = {
   info_privacy_rightsBody2: " para ejercer tus derechos.",
   info_privacy_contact: "Contacto",
   info_privacy_contactBody: "Delegado de Protección de Datos: ",
+
+  // Catalog
+  catalog_pageTitle: "Catálogo de aprovisionamiento de mariscos",
+  catalog_breadcrumbHome: "Inicio",
+  catalog_breadcrumbCatalog: "Catálogo",
+  catalog_marketStatus_live: "Mercado activo",
+  catalog_resultCount: "{count} ofertas activas",
+  catalog_quickRequest_title: "¿No ves exactamente lo que necesitas?",
+  catalog_quickRequest_subtitle: "Publica una solicitud estructurada y los proveedores verificados responderán directamente.",
+  catalog_quickRequest_cta: "Enviar una solicitud",
+  catalog_filters_title: "Filtros de aprovisionamiento",
+  catalog_filters_clearAll: "Limpiar todo",
+  catalog_filters_search: "Buscar",
+  catalog_filters_searchPlaceholder: "Especie, nombre latino, proveedor, origen…",
+  catalog_filters_species: "Especie / categoría",
+  catalog_filters_origin: "País de origen",
+  catalog_filters_supplierCountry: "País del proveedor",
+  catalog_filters_supplier: "Proveedor",
+  catalog_filters_logisticsBasis: "Base logística",
+  catalog_filters_currency: "Moneda",
+  catalog_filters_certification: "Certificación",
+  catalog_filters_paymentTerms: "Condiciones de pago",
+  catalog_filters_state: "Estado del producto",
+  catalog_filters_cutType: "Tipo de corte",
+  catalog_filters_advanced: "Filtros avanzados",
+  catalog_filters_any: "Cualquiera",
+  catalog_filters_all: "Todos",
+  catalog_filters_state_frozen: "Congelado",
+  catalog_filters_state_fresh: "Fresco",
+  catalog_filters_state_chilled: "Refrigerado",
+  catalog_results_none: "Ninguna oferta coincide con los filtros actuales.",
+  catalog_results_resetFilters: "Restablecer filtros",
+
+  catalog_access_anon_title: "Estás navegando como invitado",
+  catalog_access_anon_body: "Puedes explorar ofertas, filtros y señales de mercado. Los precios exactos y los contactos directos de proveedores están protegidos para evitar el scraping de baja intención y proteger los datos del proveedor.",
+  catalog_access_anon_cta: "Regístrate para acceder a precios exactos",
+  catalog_access_reg_title: "Has iniciado sesión — el acceso completo requiere calificación",
+  catalog_access_reg_body: "Puedes guardar ofertas, comparar proveedores, solicitar acceso al precio y seguir proveedores. Los precios exactos y los contactos directos se desbloquean tras calificar la cuenta.",
+  catalog_access_reg_cta: "Solicitar calificación",
+  catalog_access_qual_title: "Acceso completo de aprovisionamiento",
+  catalog_access_qual_body: "Tienes precios exactos, contactos de proveedores y la capa completa de inteligencia. Úsala para decisiones de compra reales.",
+  catalog_access_devSwitcher_label: "Nivel de acceso demo",
+  catalog_access_devSwitcher_anon: "Anónimo",
+  catalog_access_devSwitcher_reg: "Registrado",
+  catalog_access_devSwitcher_qual: "Calificado",
+  catalog_access_devSwitcher_note: "Control demo, no es parte de la autorización real",
+
+  catalog_card_priceRange: "Rango de precio",
+  catalog_card_priceLocked: "Precio exacto bloqueado",
+  catalog_card_priceLockedHint: "Regístrate para ver el precio exacto",
+  catalog_card_supplierStub: "Proveedor verificado",
+  catalog_card_supplierLocked: "Identidad del proveedor bloqueada",
+  catalog_card_supplierPartial: "Perfil parcial del proveedor",
+  catalog_card_volumeBreaks: "Descuentos por volumen",
+  catalog_card_paymentTerms: "Pago",
+  catalog_card_logistics: "Logística",
+  catalog_card_interest: "Interés activo",
+  catalog_card_action_signupForPrice: "Regístrate para precio exacto",
+  catalog_card_action_requestSupplier: "Regístrate para ver al proveedor",
+  catalog_card_action_sendRequest: "Enviar solicitud",
+  catalog_card_action_save: "Guardar",
+  catalog_card_action_compare: "Comparar",
+  catalog_card_action_watch: "Seguir",
+  catalog_card_action_followSupplier: "Seguir al proveedor",
+  catalog_card_action_notifyPrice: "Notificar cambios de precio",
+  catalog_card_action_contactSupplier: "Contactar al proveedor",
+  catalog_card_action_addToCart: "Añadir a carrito de compras",
+  catalog_card_action_view: "Ver oferta",
+
+  catalog_intel_title: "Inteligencia de aprovisionamiento",
+  catalog_intel_lockedTitle: "Vista previa de inteligencia",
+  catalog_intel_lockedBody: "Regístrate para ver señales de mercado. La inteligencia completa está disponible tras la calificación.",
+  catalog_intel_partialTitle: "Inteligencia limitada",
+  catalog_intel_partialBody: "Ves titulares y dirección del precio. Las estadísticas completas y el análisis por país se desbloquean tras la calificación.",
+  catalog_intel_priceTrend_title: "Tendencia de precio",
+  catalog_intel_priceTrend_index: "Índice de precio",
+  catalog_intel_priceTrend_d7: "7 días",
+  catalog_intel_priceTrend_d30: "30 días",
+  catalog_intel_priceTrend_d90: "90 días",
+  catalog_intel_priceTrend_volatility: "Volatilidad",
+  catalog_intel_priceTrend_vol_low: "Baja",
+  catalog_intel_priceTrend_vol_medium: "Media",
+  catalog_intel_priceTrend_vol_high: "Alta",
+  catalog_intel_news_title: "Noticias de países que afectan a esta categoría",
+  catalog_intel_news_more: "Fuente",
+  catalog_intel_impact_title: "Países que afectan al precio",
+  catalog_intel_impact_role_supplier_country: "País del proveedor",
+  catalog_intel_impact_role_origin_country: "País de origen",
+  catalog_intel_impact_role_export_port: "Hub de exportación",
+  catalog_intel_impact_role_competing_producer: "Productor competidor",
+  catalog_intel_impact_role_demand_driver: "Impulsor de demanda",
+  catalog_intel_impact_share: "Impacto en el precio",
+  catalog_intel_signals_title: "Señales de mercado",
+  catalog_intel_signal_supply: "Oferta",
+  catalog_intel_signal_demand: "Demanda",
+  catalog_intel_signal_logistics: "Logística",
+  catalog_intel_signal_regulation: "Regulación",
+  catalog_intel_signal_severity_info: "Info",
+  catalog_intel_signal_severity_watch: "Atención",
+  catalog_intel_signal_severity_alert: "Alerta",
+
+  catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
+  catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",
+  catalog_relatedReq_volume: "Volumen",
+  catalog_relatedReq_buyer: "Comprador",
+  catalog_relatedReq_respond: "Responder",
+
+  catalog_recovery_title: "Saca más partido al catálogo",
+  catalog_recovery_body: "Regístrate gratis para guardar ofertas, comparar proveedores y solicitar acceso a precios. ¿Ya tienes cuenta? Inicia sesión para continuar.",
+  catalog_recovery_signup: "Registro gratis",
+  catalog_recovery_signin: "Iniciar sesión",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
