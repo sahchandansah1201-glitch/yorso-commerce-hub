@@ -405,67 +405,130 @@ type TranslationKeys = {
 
   // Info / legal pages — shared
   info_backToHome: string;
+  info_lastUpdated: string;
+  info_updated_january2026: string;
+  info_footer_rights: string;
 
   // About
   info_about_title: string;
+  info_about_intro: string;
   info_about_mission: string;
+  info_about_missionBody: string;
   info_about_whatWeDo: string;
+  info_about_whatWeDoBody: string;
   info_about_keyFacts: string;
+  info_about_facts: string[];
 
   // Contact
   info_contact_title: string;
+  info_contact_intro: string;
   info_contact_general: string;
   info_contact_buyer: string;
   info_contact_supplier: string;
   info_contact_office: string;
+  info_contact_emailLabel: string;
+  info_contact_officeAddress: string;
+  info_contact_kvk: string;
 
   // Cookies
   info_cookies_title: string;
+  info_cookies_intro: string;
   info_cookies_essential: string;
+  info_cookies_essentialBody: string;
   info_cookies_analytics: string;
+  info_cookies_analyticsBody: string;
   info_cookies_managing: string;
+  info_cookies_managingBody: string;
   info_cookies_contact: string;
+  info_cookies_contactBody1: string;
+  info_cookies_contactBody2: string;
 
   // GDPR
   info_gdpr_title: string;
+  info_gdpr_intro: string;
   info_gdpr_commitment: string;
+  info_gdpr_commitmentList: string[];
   info_gdpr_rights: string;
+  info_gdpr_rightsList: { term: string; desc: string }[];
   info_gdpr_dpo: string;
+  info_gdpr_dpoBody: string;
   info_gdpr_authority: string;
+  info_gdpr_authorityBody: string;
 
   // Anti-fraud
   info_antifraud_title: string;
+  info_antifraud_intro: string;
   info_antifraud_supplierVerification: string;
+  info_antifraud_supplierVerificationBody: string;
   info_antifraud_ongoingMonitoring: string;
+  info_antifraud_ongoingMonitoringBody: string;
   info_antifraud_reportingConcerns: string;
+  info_antifraud_reportingConcernsBody1: string;
+  info_antifraud_reportingConcernsBody2: string;
   info_antifraud_sanctions: string;
+  info_antifraud_sanctionsBody: string;
 
   // Careers
   info_careers_title: string;
+  info_careers_intro: string;
   info_careers_why: string;
+  info_careers_whyList: string[];
   info_careers_openPositions: string;
+  info_careers_openPositionsBody1: string;
+  info_careers_openPositionsBody2: string;
 
   // Press
   info_press_title: string;
+  info_press_intro: string;
   info_press_contact: string;
+  info_press_emailLabel: string;
   info_press_about: string;
+  info_press_aboutBody: string;
   info_press_brand: string;
+  info_press_brandBody1: string;
+  info_press_brandBody2: string;
 
   // Partners
   info_partners_title: string;
+  info_partners_intro: string;
   info_partners_types: string;
+  info_partners_typesList: { term: string; desc: string }[];
   info_partners_contact: string;
+  info_partners_contactBody1: string;
+  info_partners_contactBody2: string;
 
   // Terms
   info_terms_title: string;
+  info_terms_intro: string;
+  info_terms_h1: string;
+  info_terms_p1: string;
+  info_terms_h2: string;
+  info_terms_p2: string;
+  info_terms_h3: string;
+  info_terms_p3: string;
+  info_terms_h4: string;
+  info_terms_p4: string;
+  info_terms_h5: string;
+  info_terms_p5: string;
+  info_terms_h6: string;
+  info_terms_p6: string;
+  info_terms_h7: string;
+  info_terms_p7: string;
 
   // Privacy
   info_privacy_title: string;
+  info_privacy_intro: string;
   info_privacy_dataCollect: string;
+  info_privacy_dataCollectList: string[];
   info_privacy_use: string;
+  info_privacy_useBody: string;
   info_privacy_storage: string;
+  info_privacy_storageBody: string;
   info_privacy_rights: string;
+  info_privacy_rightsBody1: string;
+  info_privacy_rightsBody2: string;
   info_privacy_contact: string;
+  info_privacy_contactBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
