@@ -2872,7 +2872,7 @@ const es: TranslationKeys = {
   catalog_access_request_cancel_pending: "Cancelar solicitud",
   catalog_access_request_canceled_toast: "Solicitud de acceso cancelada.",
   catalog_reqForm_submitted_title: "Tus solicitudes enviadas",
-  catalog_reqForm_submitted_subtitle: "Historial solo en el frontend para esta sesión.",
+  catalog_reqForm_submitted_subtitle: "Revisa tus últimas solicitudes de abastecimiento mientras los proveedores responden.",
   catalog_reqForm_submitted_at: "Enviado",
   catalog_reqForm_title: "¿No encontraste el producto exacto?",
   catalog_reqForm_subtitle: "Envía una solicitud de compra estructurada — los proveedores verificados pueden responder tras la revisión.",
