@@ -14,21 +14,6 @@ import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
-// Defensive dynamic loader for canvas-confetti.
-// Keeps the build resilient if the package or its types are unavailable,
-// and lets the completion screen degrade gracefully instead of crashing.
-type ConfettiFn = (opts: Record<string, unknown>) => void;
-const loadConfetti = async (): Promise<ConfettiFn | null> => {
-  try {
-    const mod: { default?: ConfettiFn } = await import(
-      /* @vite-ignore */ "canvas-confetti"
-    );
-    return typeof mod.default === "function" ? mod.default : null;
-  } catch {
-    return null;
-  }
-};
-
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0 },
@@ -64,21 +49,6 @@ const RegisterReady = () => {
         funnelDurationMs,
       });
     })();
-
-    let cancelled = false;
-    loadConfetti().then((confetti) => {
-      if (cancelled || !confetti) return;
-      const end = Date.now() + 1500;
-      const frame = () => {
-        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      };
-      frame();
-    });
-    return () => {
-      cancelled = true;
-    };
   }, [guardPassed]);
 
   if (!guardPassed) return null;
@@ -101,9 +71,35 @@ const RegisterReady = () => {
   return (
     <RegistrationLayout hideProgress>
       <div className="text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }} className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
-          <CheckCircle2 className="h-10 w-10 text-success" />
-        </motion.div>
+        <div className="relative mx-auto mb-6 h-20 w-20">
+          {/* Soft pulsating glow */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-success/20 blur-xl"
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: [0, 0.9, 0.5], scale: [0.6, 1.4, 1.2] }}
+            transition={{ duration: 1.6, ease: "easeOut" }}
+          />
+          {/* Expanding celebratory rings */}
+          {[0, 0.25, 0.5].map((delay) => (
+            <motion.span
+              key={delay}
+              aria-hidden
+              className="absolute inset-0 rounded-full border-2 border-success/40"
+              initial={{ opacity: 0.7, scale: 0.6 }}
+              animate={{ opacity: 0, scale: 1.8 }}
+              transition={{ duration: 1.4, delay, ease: "easeOut" }}
+            />
+          ))}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+            className="relative flex h-20 w-20 items-center justify-center rounded-full bg-success/10"
+          >
+            <CheckCircle2 className="h-10 w-10 text-success" />
+          </motion.div>
+        </div>
 
         <motion.h1 {...anim(0.25)} className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
           {getWelcomeEmoji()} {t.reg_welcome.replace("{name}", firstName)}
