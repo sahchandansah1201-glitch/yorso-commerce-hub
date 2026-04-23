@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, ChevronRight, Activity } from "lucide-react";
+import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
@@ -10,6 +10,7 @@ import CatalogOfferCard from "@/components/catalog/CatalogOfferCard";
 import IntelligenceRail from "@/components/catalog/IntelligenceRail";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
+import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 
 const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
   if (f.q) {
@@ -151,19 +152,6 @@ const Offers = () => {
           ))}
         </div>
 
-        {/* Quick request / RFQ entry strip */}
-        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-border bg-gradient-to-r from-primary/5 to-primary/0 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-heading text-sm font-semibold text-foreground">{t.catalog_quickRequest_title}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{t.catalog_quickRequest_subtitle}</p>
-          </div>
-          <Link to="/register">
-            <Button size="sm" className="gap-1.5 font-semibold">
-              {t.catalog_quickRequest_cta} <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
-        </div>
-
         {/* Capability-led value strip (hidden once buyer is fully qualified) */}
         <div className="mt-4">
           <CatalogValueStrip />
@@ -178,17 +166,20 @@ const Offers = () => {
         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
           <section aria-label="Catalog results">
             {visible.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
-                <p className="text-sm text-muted-foreground">{t.catalog_results_none}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setFilters(emptyCatalogFilters)}
-                  data-testid="catalog-empty-reset"
-                >
-                  {t.catalog_results_resetFilters}
-                </Button>
+              <div className="space-y-5">
+                <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
+                  <p className="text-sm text-muted-foreground">{t.catalog_results_none}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => setFilters(emptyCatalogFilters)}
+                    data-testid="catalog-empty-reset"
+                  >
+                    {t.catalog_results_resetFilters}
+                  </Button>
+                </div>
+                <CatalogRequestForm initialProduct={filters.q ?? ""} />
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">
