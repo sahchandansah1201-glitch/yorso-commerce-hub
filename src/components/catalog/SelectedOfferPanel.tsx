@@ -294,7 +294,7 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
             <ul className="mt-2 grid grid-cols-2 gap-1.5 text-[11px]">
               {getDocumentReadiness(offer).map((d) => {
                 const labelKey = `catalog_panel_doc_${d.key}` as const;
-                const label = (t as Record<string, string>)[labelKey] ?? d.key;
+                const label = (t as unknown as Record<string, string>)[labelKey] ?? d.key;
                 return (
                   <li
                     key={d.key}

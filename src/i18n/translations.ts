@@ -699,6 +699,37 @@ type TranslationKeys = {
   catalog_recovery_body: string;
   catalog_recovery_signup: string;
   catalog_recovery_signin: string;
+
+  // Procurement workspace — row signals
+  catalog_row_signal_news: string;
+  catalog_row_signal_docsReady: string;
+  catalog_row_signal_docsPending: string;
+
+  // Procurement workspace — selected-offer panel
+  catalog_panel_aria: string;
+  catalog_panel_neutral_title: string;
+  catalog_panel_neutral_body: string;
+  catalog_panel_summary_title: string;
+  catalog_panel_summary_origin: string;
+  catalog_panel_summary_supplier: string;
+  catalog_panel_summary_basis: string;
+  catalog_panel_news_title: string;
+  catalog_panel_news_subtitle: string;
+  catalog_panel_news_primary: string;
+  catalog_panel_docs_title: string;
+  catalog_panel_docs_disclaimer: string;
+  catalog_panel_doc_health: string;
+  catalog_panel_doc_haccp: string;
+  catalog_panel_doc_catch: string;
+  catalog_panel_doc_cert: string;
+  catalog_panel_doc_packing: string;
+  catalog_panel_doc_traceability: string;
+  catalog_panel_supplier_title: string;
+  catalog_panel_supplier_verification: string;
+  catalog_panel_supplier_verified: string;
+  catalog_panel_supplier_unverified: string;
+  catalog_panel_supplier_response: string;
+  catalog_panel_supplier_since: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1464,6 +1495,35 @@ const en: TranslationKeys = {
   catalog_recovery_body: "Sign up free to save offers, compare suppliers and request price access. Already have an account? Sign in to continue.",
   catalog_recovery_signup: "Register free",
   catalog_recovery_signin: "Sign in",
+
+  catalog_row_signal_news: "news",
+  catalog_row_signal_docsReady: "Docs ready",
+  catalog_row_signal_docsPending: "Docs pending",
+
+  catalog_panel_aria: "Selected offer intelligence",
+  catalog_panel_neutral_title: "Select an offer to view procurement intelligence",
+  catalog_panel_neutral_body: "Pick any offer on the left to track price movement, country news, document readiness and supplier trust for that exact product.",
+  catalog_panel_summary_title: "Selected offer",
+  catalog_panel_summary_origin: "Origin",
+  catalog_panel_summary_supplier: "Supplier country",
+  catalog_panel_summary_basis: "Logistics",
+  catalog_panel_news_title: "Country news affecting this offer",
+  catalog_panel_news_subtitle: "Prioritised for {origin} (origin) and {supplier} (supplier).",
+  catalog_panel_news_primary: "Direct",
+  catalog_panel_docs_title: "Document readiness",
+  catalog_panel_docs_disclaimer: "Mock readiness — confirm with supplier before contract.",
+  catalog_panel_doc_health: "Health certificate",
+  catalog_panel_doc_haccp: "HACCP",
+  catalog_panel_doc_catch: "Catch / IUU certificate",
+  catalog_panel_doc_cert: "Sustainability cert.",
+  catalog_panel_doc_packing: "Packing list / invoice",
+  catalog_panel_doc_traceability: "Traceability data",
+  catalog_panel_supplier_title: "Supplier trust summary",
+  catalog_panel_supplier_verification: "Verification",
+  catalog_panel_supplier_verified: "Verified",
+  catalog_panel_supplier_unverified: "Pending",
+  catalog_panel_supplier_response: "Response time",
+  catalog_panel_supplier_since: "In business since",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -2216,6 +2276,35 @@ const ru: TranslationKeys = {
   catalog_recovery_body: "Зарегистрируйтесь бесплатно, чтобы сохранять предложения, сравнивать поставщиков и запрашивать доступ к цене. Уже есть аккаунт? Войдите, чтобы продолжить.",
   catalog_recovery_signup: "Бесплатная регистрация",
   catalog_recovery_signin: "Войти",
+
+  catalog_row_signal_news: "новости",
+  catalog_row_signal_docsReady: "Документы готовы",
+  catalog_row_signal_docsPending: "Документы уточняются",
+
+  catalog_panel_aria: "Аналитика выбранного предложения",
+  catalog_panel_neutral_title: "Выберите предложение, чтобы открыть закупочную аналитику",
+  catalog_panel_neutral_body: "Кликните по любому предложению слева, чтобы видеть динамику цен, страновые новости, готовность документов и доверие к поставщику для этого продукта.",
+  catalog_panel_summary_title: "Выбранное предложение",
+  catalog_panel_summary_origin: "Происхождение",
+  catalog_panel_summary_supplier: "Страна поставщика",
+  catalog_panel_summary_basis: "Логистика",
+  catalog_panel_news_title: "Новости стран, влияющие на это предложение",
+  catalog_panel_news_subtitle: "Приоритет: {origin} (происхождение) и {supplier} (поставщик).",
+  catalog_panel_news_primary: "Прямое",
+  catalog_panel_docs_title: "Готовность документов",
+  catalog_panel_docs_disclaimer: "Мок-данные — подтвердите у поставщика перед контрактом.",
+  catalog_panel_doc_health: "Ветеринарный сертификат",
+  catalog_panel_doc_haccp: "HACCP",
+  catalog_panel_doc_catch: "Сертификат вылова / IUU",
+  catalog_panel_doc_cert: "Сертификат устойчивости",
+  catalog_panel_doc_packing: "Упаковочный лист / инвойс",
+  catalog_panel_doc_traceability: "Данные прослеживаемости",
+  catalog_panel_supplier_title: "Доверие к поставщику",
+  catalog_panel_supplier_verification: "Верификация",
+  catalog_panel_supplier_verified: "Подтверждён",
+  catalog_panel_supplier_unverified: "В процессе",
+  catalog_panel_supplier_response: "Время ответа",
+  catalog_panel_supplier_since: "В бизнесе с",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -2968,6 +3057,35 @@ const es: TranslationKeys = {
   catalog_recovery_body: "Regístrate gratis para guardar ofertas, comparar proveedores y solicitar acceso a precios. ¿Ya tienes cuenta? Inicia sesión para continuar.",
   catalog_recovery_signup: "Registro gratis",
   catalog_recovery_signin: "Iniciar sesión",
+
+  catalog_row_signal_news: "noticias",
+  catalog_row_signal_docsReady: "Documentos listos",
+  catalog_row_signal_docsPending: "Documentos pendientes",
+
+  catalog_panel_aria: "Inteligencia de la oferta seleccionada",
+  catalog_panel_neutral_title: "Selecciona una oferta para ver la inteligencia de compra",
+  catalog_panel_neutral_body: "Elige cualquier oferta a la izquierda para seguir el movimiento de precios, noticias por país, preparación documental y confianza del proveedor de ese producto.",
+  catalog_panel_summary_title: "Oferta seleccionada",
+  catalog_panel_summary_origin: "Origen",
+  catalog_panel_summary_supplier: "País del proveedor",
+  catalog_panel_summary_basis: "Logística",
+  catalog_panel_news_title: "Noticias de países que afectan a esta oferta",
+  catalog_panel_news_subtitle: "Priorizado para {origin} (origen) y {supplier} (proveedor).",
+  catalog_panel_news_primary: "Directo",
+  catalog_panel_docs_title: "Preparación documental",
+  catalog_panel_docs_disclaimer: "Datos simulados — confirma con el proveedor antes del contrato.",
+  catalog_panel_doc_health: "Certificado sanitario",
+  catalog_panel_doc_haccp: "HACCP",
+  catalog_panel_doc_catch: "Certificado de captura / IUU",
+  catalog_panel_doc_cert: "Cert. sostenibilidad",
+  catalog_panel_doc_packing: "Lista de empaque / factura",
+  catalog_panel_doc_traceability: "Datos de trazabilidad",
+  catalog_panel_supplier_title: "Confianza del proveedor",
+  catalog_panel_supplier_verification: "Verificación",
+  catalog_panel_supplier_verified: "Verificado",
+  catalog_panel_supplier_unverified: "Pendiente",
+  catalog_panel_supplier_response: "Tiempo de respuesta",
+  catalog_panel_supplier_since: "En activo desde",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
