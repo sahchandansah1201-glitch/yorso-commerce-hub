@@ -24,6 +24,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { translations, type Language } from "@/i18n/translations";
 
 import Index from "@/pages/Index";
@@ -54,17 +55,19 @@ const renderApp = (onReady: (api: Api) => void) =>
     <MemoryRouter initialEntries={["/signin"]}>
       <LanguageProvider>
         <TooltipProvider>
-          <RegistrationProvider>
-            <Probe onReady={onReady} />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/offers" element={<Offers />} />
-              <Route path="/offers/:id" element={<OfferDetail />} />
-              <Route path="/register" element={<RegisterChoose />} />
-            </Routes>
-            <Sonner />
-          </RegistrationProvider>
+          <BuyerSessionProvider>
+            <RegistrationProvider>
+              <Probe onReady={onReady} />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/offers" element={<Offers />} />
+                <Route path="/offers/:id" element={<OfferDetail />} />
+                <Route path="/register" element={<RegisterChoose />} />
+              </Routes>
+              <Sonner />
+            </RegistrationProvider>
+          </BuyerSessionProvider>
         </TooltipProvider>
       </LanguageProvider>
     </MemoryRouter>,

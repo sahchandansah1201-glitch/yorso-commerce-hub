@@ -26,6 +26,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { translations, type Language } from "@/i18n/translations";
 
 import SignIn from "@/pages/SignIn";
@@ -58,13 +59,15 @@ const renderApp = (onReady: (s: (l: Language) => void) => void) =>
         <ExposeSetter onReady={onReady} />
         <LangProbe />
         <TooltipProvider>
-          <RegistrationProvider>
-            <Routes>
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/offers" element={<Offers />} />
-            </Routes>
-            <Sonner />
-          </RegistrationProvider>
+          <BuyerSessionProvider>
+            <RegistrationProvider>
+              <Routes>
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/offers" element={<Offers />} />
+              </Routes>
+              <Sonner />
+            </RegistrationProvider>
+          </BuyerSessionProvider>
         </TooltipProvider>
       </LanguageProvider>
     </MemoryRouter>,
