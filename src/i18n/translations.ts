@@ -1682,6 +1682,7 @@ const ru: TranslationKeys = {
   aria_toggleMenu: "Открыть меню",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
+  aria_catalogResults: "Результаты каталога",
   country_searchPlaceholder: "Страна или код",
   country_noResults: "Ничего не найдено",
   signin_emailPlaceholder: "name@company.com",
