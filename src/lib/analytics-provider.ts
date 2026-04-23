@@ -26,7 +26,6 @@ export interface AnalyticsProvider {
 class ConsoleProvider implements AnalyticsProvider {
   readonly name = "console";
   send(envelope: AnalyticsEnvelope) {
-    // eslint-disable-next-line no-console
     console.log(`[YORSO Analytics] ${envelope.event}`, envelope);
   }
 }
@@ -112,7 +111,6 @@ export function recordAnalyticsFailure(input: {
   // spam the user's console; counters are still queryable.
   try {
     if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
-      // eslint-disable-next-line no-console
       console.warn(
         `[YORSO Analytics] failure (${entry.reason}/${entry.transport})`,
         entry,

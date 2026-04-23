@@ -55,6 +55,8 @@ const SignIn = () => {
         if (c) setPhoneCountry(c);
       });
     }
+    // Run-once IP detection on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);

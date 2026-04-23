@@ -46,6 +46,8 @@ const RegisterDetails = () => {
       if (detected) { setCountry(detected); return; }
       detectCountryByIP().then((c) => { if (c) setCountry(c); });
     }
+    // Run-once country detection on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

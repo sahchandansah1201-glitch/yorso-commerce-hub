@@ -37,9 +37,7 @@ export type Surface =
   | "final_cta"
   | "midpage_cta";
 
-interface Empty {
-  /* no fields */
-}
+type Empty = Record<string, never>;
 
 // ─── Per-event payload contracts ────────────────────────────────────────────
 

@@ -217,6 +217,8 @@ export default function CountryPhoneInput({
         if (!phone) onPhoneChange("");
       }
     }
+    // Intentionally only react to countryName changes to avoid loops with parent state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryName]);
 
   // Close dropdown on outside click
