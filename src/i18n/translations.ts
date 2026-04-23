@@ -2434,6 +2434,7 @@ const es: TranslationKeys = {
   aria_toggleMenu: "Abrir menú",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
+  aria_catalogResults: "Resultados del catálogo",
   country_searchPlaceholder: "País o código",
   country_noResults: "No se encontraron resultados",
   signin_emailPlaceholder: "nombre@empresa.com",
