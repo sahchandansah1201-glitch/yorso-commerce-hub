@@ -651,7 +651,7 @@ type TranslationKeys = {
 
 const en: TranslationKeys = {
   // Header
-  nav_liveOffers: "Live Offers",
+  nav_liveOffers: "Catalog",
   nav_categories: "Categories",
   nav_howItWorks: "How It Works",
   nav_faq: "FAQ",
@@ -1364,7 +1364,7 @@ const en: TranslationKeys = {
 // ─── RUSSIAN ─────────────────────────────────────────────────────
 
 const ru: TranslationKeys = {
-  nav_liveOffers: "Предложения",
+  nav_liveOffers: "Каталог",
   nav_categories: "Категории",
   nav_howItWorks: "Как это работает",
   nav_faq: "FAQ",
@@ -2065,7 +2065,7 @@ const ru: TranslationKeys = {
 // ─── SPANISH ─────────────────────────────────────────────────────
 
 const es: TranslationKeys = {
-  nav_liveOffers: "Ofertas",
+  nav_liveOffers: "Catálogo",
   nav_categories: "Categorías",
   nav_howItWorks: "Cómo funciona",
   nav_faq: "FAQ",
