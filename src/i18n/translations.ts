@@ -930,6 +930,7 @@ const en: TranslationKeys = {
   aria_toggleMenu: "Toggle menu",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
+  aria_catalogResults: "Catalog results",
   country_searchPlaceholder: "Country or code",
   country_noResults: "No results found",
   signin_emailPlaceholder: "you@company.com",
