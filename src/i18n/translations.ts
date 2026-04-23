@@ -918,6 +918,59 @@ const en: TranslationKeys = {
   workspace_activity_offer_view: "Viewed offer",
   workspace_activity_price_request: "Requested price for",
   workspace_activity_message: "New reply from",
+
+  info_backToHome: "Back to homepage",
+
+  info_about_title: "About YORSO",
+  info_about_mission: "Our Mission",
+  info_about_whatWeDo: "What We Do",
+  info_about_keyFacts: "Key Facts",
+
+  info_contact_title: "Contact Us",
+  info_contact_general: "General Inquiries",
+  info_contact_buyer: "Buyer Support",
+  info_contact_supplier: "Supplier Onboarding",
+  info_contact_office: "Office",
+
+  info_cookies_title: "Cookie Policy",
+  info_cookies_essential: "Essential Cookies",
+  info_cookies_analytics: "Analytics Cookies",
+  info_cookies_managing: "Managing Cookies",
+  info_cookies_contact: "Contact",
+
+  info_gdpr_title: "GDPR Compliance",
+  info_gdpr_commitment: "Our Commitment",
+  info_gdpr_rights: "Your Rights Under GDPR",
+  info_gdpr_dpo: "Data Protection Officer",
+  info_gdpr_authority: "Supervisory Authority",
+
+  info_antifraud_title: "Anti-Fraud Policy",
+  info_antifraud_supplierVerification: "Supplier Verification",
+  info_antifraud_ongoingMonitoring: "Ongoing Monitoring",
+  info_antifraud_reportingConcerns: "Reporting Concerns",
+  info_antifraud_sanctions: "Sanctions Screening",
+
+  info_careers_title: "Careers at YORSO",
+  info_careers_why: "Why YORSO?",
+  info_careers_openPositions: "Open Positions",
+
+  info_press_title: "Press & Media",
+  info_press_contact: "Press Contact",
+  info_press_about: "About YORSO",
+  info_press_brand: "Brand Assets",
+
+  info_partners_title: "Partner Program",
+  info_partners_types: "Partnership Types",
+  info_partners_contact: "Get in Touch",
+
+  info_terms_title: "Terms of Service",
+
+  info_privacy_title: "Privacy Policy",
+  info_privacy_dataCollect: "Data We Collect",
+  info_privacy_use: "How We Use Your Data",
+  info_privacy_storage: "Data Storage & Security",
+  info_privacy_rights: "Your Rights",
+  info_privacy_contact: "Contact",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
