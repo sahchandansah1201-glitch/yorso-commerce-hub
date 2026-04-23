@@ -90,7 +90,7 @@ const Offers = () => {
 
       <main className="container py-6 md:py-8">
         {/* Breadcrumbs */}
-        <nav aria-label="breadcrumb" className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}
           </Link>
