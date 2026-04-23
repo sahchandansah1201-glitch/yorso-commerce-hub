@@ -145,7 +145,8 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             size="sm"
             className="mt-4 font-semibold"
             onClick={() => {
-              setForm(empty);
+              productDirtyRef.current = false;
+              setForm({ ...empty, product: initialProduct });
               setSubmitted(false);
             }}
           >
