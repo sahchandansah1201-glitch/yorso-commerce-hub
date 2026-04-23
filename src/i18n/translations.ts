@@ -177,6 +177,7 @@ type TranslationKeys = {
   aria_toggleMenu: string;
   aria_goBack: string;
   aria_breadcrumb: string;
+  aria_catalogResults: string;
   country_searchPlaceholder: string;
   country_noResults: string;
   signin_emailPlaceholder: string;
