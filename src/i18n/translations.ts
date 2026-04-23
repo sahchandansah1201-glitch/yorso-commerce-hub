@@ -713,11 +713,23 @@ type TranslationKeys = {
   catalog_panel_summary_origin: string;
   catalog_panel_summary_supplier: string;
   catalog_panel_summary_basis: string;
+  catalog_panel_summary_format: string;
+  catalog_panel_price_title: string;
+  catalog_panel_price_offerIndex: string;
+  catalog_panel_price_vsBenchmark: string;
   catalog_panel_news_title: string;
   catalog_panel_news_subtitle: string;
   catalog_panel_news_primary: string;
+  catalog_panel_news_reason_price: string;
+  catalog_panel_news_reason_availability: string;
+  catalog_panel_news_reason_logistics: string;
+  catalog_panel_news_reason_compliance: string;
+  catalog_panel_news_reason_supplier_risk: string;
   catalog_panel_docs_title: string;
   catalog_panel_docs_disclaimer: string;
+  catalog_panel_docs_status_verified: string;
+  catalog_panel_docs_status_pending: string;
+  catalog_panel_docs_status_supplier: string;
   catalog_panel_doc_health: string;
   catalog_panel_doc_haccp: string;
   catalog_panel_doc_catch: string;
@@ -730,6 +742,49 @@ type TranslationKeys = {
   catalog_panel_supplier_unverified: string;
   catalog_panel_supplier_response: string;
   catalog_panel_supplier_since: string;
+  catalog_panel_supplier_docReadiness: string;
+  catalog_panel_supplier_countryRisk: string;
+  catalog_panel_supplier_risk_low: string;
+  catalog_panel_supplier_risk_medium: string;
+  catalog_panel_supplier_risk_elevated: string;
+  catalog_panel_landed_title: string;
+  catalog_panel_landed_estimateBadge: string;
+  catalog_panel_landed_perKg: string;
+  catalog_panel_landed_unit: string;
+  catalog_panel_landed_freight: string;
+  catalog_panel_landed_duty: string;
+  catalog_panel_landed_handling: string;
+  catalog_panel_landed_disclaimer: string;
+
+  // Procurement workspace — row toggle (compare)
+  catalog_row_compareToggle_add: string;
+  catalog_row_compareToggle_remove: string;
+
+  // Procurement workspace — compare tray
+  catalog_compare_trayTitle: string;
+  catalog_compare_remove: string;
+  catalog_compare_clear: string;
+  catalog_compare_open: string;
+  catalog_compare_sheetTitle: string;
+  catalog_compare_sheetSubtitle: string;
+  catalog_compare_col_attribute: string;
+  catalog_compare_row_origin: string;
+  catalog_compare_row_supplierCountry: string;
+  catalog_compare_row_format: string;
+  catalog_compare_row_price: string;
+  catalog_compare_row_moq: string;
+  catalog_compare_row_logistics: string;
+  catalog_compare_row_payment: string;
+  catalog_compare_row_certifications: string;
+  catalog_compare_row_docs: string;
+  catalog_compare_docsReady: string;
+  catalog_compare_row_move30: string;
+  catalog_compare_row_landed: string;
+  catalog_compare_row_access: string;
+  catalog_compare_accessFull: string;
+  catalog_compare_accessPartial: string;
+  catalog_compare_accessRestricted: string;
+  catalog_compare_disclaimer: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
