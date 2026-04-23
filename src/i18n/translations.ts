@@ -177,6 +177,7 @@ type TranslationKeys = {
   aria_toggleMenu: string;
   aria_goBack: string;
   aria_breadcrumb: string;
+  aria_catalogResults: string;
   country_searchPlaceholder: string;
   country_noResults: string;
   signin_emailPlaceholder: string;
@@ -929,6 +930,7 @@ const en: TranslationKeys = {
   aria_toggleMenu: "Toggle menu",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
+  aria_catalogResults: "Catalog results",
   country_searchPlaceholder: "Country or code",
   country_noResults: "No results found",
   signin_emailPlaceholder: "you@company.com",
@@ -1370,7 +1372,7 @@ const en: TranslationKeys = {
   catalog_access_request_cancel_pending: "Cancel request",
   catalog_access_request_canceled_toast: "Access request canceled.",
   catalog_reqForm_submitted_title: "Your submitted requests",
-  catalog_reqForm_submitted_subtitle: "Frontend-only history for this session.",
+  catalog_reqForm_submitted_subtitle: "Review your latest sourcing requests while suppliers respond.",
   catalog_reqForm_submitted_at: "Submitted",
   catalog_reqForm_title: "Didn't find the exact product?",
   catalog_reqForm_subtitle: "Submit a structured procurement request — verified suppliers can respond after review.",
@@ -1680,6 +1682,7 @@ const ru: TranslationKeys = {
   aria_toggleMenu: "Открыть меню",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
+  aria_catalogResults: "Результаты каталога",
   country_searchPlaceholder: "Страна или код",
   country_noResults: "Ничего не найдено",
   signin_emailPlaceholder: "name@company.com",
@@ -2121,7 +2124,7 @@ const ru: TranslationKeys = {
   catalog_access_request_cancel_pending: "Отменить запрос",
   catalog_access_request_canceled_toast: "Запрос на доступ отменён.",
   catalog_reqForm_submitted_title: "Ваши отправленные запросы",
-  catalog_reqForm_submitted_subtitle: "История только на фронтенде, в рамках текущей сессии.",
+  catalog_reqForm_submitted_subtitle: "Отслеживайте недавние закупочные запросы, пока поставщики готовят ответ.",
   catalog_reqForm_submitted_at: "Отправлено",
   catalog_reqForm_title: "Не нашли точно нужный товар?",
   catalog_reqForm_subtitle: "Отправьте структурированный закупочный запрос — проверенные поставщики смогут ответить после рассмотрения.",
@@ -2431,6 +2434,7 @@ const es: TranslationKeys = {
   aria_toggleMenu: "Abrir menú",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
+  aria_catalogResults: "Resultados del catálogo",
   country_searchPlaceholder: "País o código",
   country_noResults: "No se encontraron resultados",
   signin_emailPlaceholder: "nombre@empresa.com",
@@ -2872,7 +2876,7 @@ const es: TranslationKeys = {
   catalog_access_request_cancel_pending: "Cancelar solicitud",
   catalog_access_request_canceled_toast: "Solicitud de acceso cancelada.",
   catalog_reqForm_submitted_title: "Tus solicitudes enviadas",
-  catalog_reqForm_submitted_subtitle: "Historial solo en el frontend para esta sesión.",
+  catalog_reqForm_submitted_subtitle: "Revisa tus últimas solicitudes de abastecimiento mientras los proveedores responden.",
   catalog_reqForm_submitted_at: "Enviado",
   catalog_reqForm_title: "¿No encontraste el producto exacto?",
   catalog_reqForm_subtitle: "Envía una solicitud de compra estructurada — los proveedores verificados pueden responder tras la revisión.",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,9 +47,21 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
   const [form, setForm] = useState<FormState>({ ...empty, product: initialProduct });
   const [submitted, setSubmitted] = useState(false);
   const submittedList = useProductRequests();
+  const productDirtyRef = useRef(false);
 
-  const update = <K extends keyof FormState>(key: K, value: string) =>
+  // Keep `product` aligned with the live search query while the user has not
+  // manually edited the field. This handles the empty-results case where the
+  // buyer keeps refining the catalog search and we want the request form to
+  // reflect the latest query without overriding user input.
+  useEffect(() => {
+    if (productDirtyRef.current) return;
+    setForm((prev) => (prev.product === initialProduct ? prev : { ...prev, product: initialProduct }));
+  }, [initialProduct]);
+
+  const update = <K extends keyof FormState>(key: K, value: string) => {
+    if (key === "product") productDirtyRef.current = true;
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const canSubmit = form.product.trim().length > 1 && form.volume.trim().length > 0;
 
@@ -133,7 +145,8 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             size="sm"
             className="mt-4 font-semibold"
             onClick={() => {
-              setForm(empty);
+              productDirtyRef.current = false;
+              setForm({ ...empty, product: initialProduct });
               setSubmitted(false);
             }}
           >
