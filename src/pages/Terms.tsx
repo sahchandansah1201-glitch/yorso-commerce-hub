@@ -14,7 +14,7 @@ const Terms = () => {
       <p>You must provide accurate and complete registration information. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">4. Commission Policy</h2>
       <p>YORSO charges 0% commission on deals between buyers and suppliers. Revenue is generated through optional premium services available to suppliers.</p>
-      <h2 className="font-heading text-xl font-bold text-foreground mt-8">5. Supplier Verification</h2>
+      <h2 className="font-heading text-xl font-bold text-foreground mt-8">5. {t.info_antifraud_supplierVerification}</h2>
       <p>YORSO conducts due diligence on suppliers seeking verified status. Verification does not constitute a warranty or guarantee of supplier performance, product quality, or transaction outcomes.</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">6. Limitation of Liability</h2>
       <p>YORSO is not liable for disputes between buyers and suppliers, product quality issues, shipping delays, or financial losses arising from transactions arranged through the platform.</p>
