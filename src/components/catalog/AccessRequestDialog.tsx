@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { submitAccessRequest } from "@/lib/catalog-requests";
+import { submitAccessRequest, type AccessRequestScope } from "@/lib/catalog-requests";
 import analytics from "@/lib/analytics";
 
 type Props = {
@@ -21,8 +21,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-const SCOPES = ["prices", "suppliers", "intelligence"] as const;
-type Scope = (typeof SCOPES)[number];
+const SCOPES: AccessRequestScope[] = ["prices", "suppliers", "intelligence"];
+type Scope = AccessRequestScope;
 
 export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
   const { t } = useLanguage();
@@ -37,9 +37,13 @@ export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitAccessRequest();
+    const selected = SCOPES.filter((s) => scopes[s]);
+    submitAccessRequest({
+      scopes: selected,
+      note: note.trim() || undefined,
+    });
     analytics.track("catalog_access_request_submit", {
-      scopes: SCOPES.filter((s) => scopes[s]),
+      scopes: selected,
       hasNote: note.trim().length > 0,
     });
     toast.success(t.catalog_access_request_toast);

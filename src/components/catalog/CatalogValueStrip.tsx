@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Lock, Users, LineChart, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
-import { useAccessRequestPending } from "@/lib/catalog-requests";
+import {
+  useAccessRequest,
+  clearAccessRequest,
+  type AccessRequestScope,
+} from "@/lib/catalog-requests";
 import AccessRequestDialog from "./AccessRequestDialog";
 
 /**
@@ -16,36 +21,67 @@ import AccessRequestDialog from "./AccessRequestDialog";
  * Behavior:
  *  - anonymous_locked: CTA links to /register
  *  - registered_locked: CTA opens an access-request dialog (frontend mock).
- *    After submission, the strip switches to a pending state. It NEVER
- *    auto-qualifies the user — qualification is granted out-of-band.
+ *    After submission, the strip switches to a pending state showing what
+ *    was requested. It NEVER auto-qualifies the user.
  *  - qualified_unlocked: hidden
  */
 export const CatalogValueStrip = () => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
-  const pending = useAccessRequestPending();
+  const accessRequest = useAccessRequest();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   if (level === "qualified_unlocked") return null;
 
   const isRegistered = level === "registered_locked";
 
+  const scopeLabel: Record<AccessRequestScope, string> = {
+    prices: t.catalog_access_request_scope_prices,
+    suppliers: t.catalog_access_request_scope_suppliers,
+    intelligence: t.catalog_access_request_scope_intelligence,
+  };
+
   // Pending state for registered buyers who already submitted a request.
-  if (isRegistered && pending) {
+  if (isRegistered && accessRequest) {
     return (
       <div
-        className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3"
+        className="flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
         data-testid="catalog-value-strip-pending"
       >
-        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground">
-            {t.catalog_access_request_pending_title}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {t.catalog_access_request_pending_body}
-          </p>
+        <div className="flex items-start gap-3">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">
+              {t.catalog_access_request_pending_title}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t.catalog_access_request_pending_body}
+            </p>
+            {accessRequest.scopes.length > 0 && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {t.catalog_access_request_pending_scopes}
+                </span>{" "}
+                {accessRequest.scopes.map((s) => scopeLabel[s]).join(" · ")}
+              </p>
+            )}
+          </div>
         </div>
+        {import.meta.env.DEV && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="self-start text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              clearAccessRequest();
+              toast(t.catalog_access_request_canceled_toast);
+            }}
+            data-testid="catalog-value-strip-cancel"
+          >
+            {t.catalog_access_request_cancel_pending}
+          </Button>
+        )}
       </div>
     );
   }
