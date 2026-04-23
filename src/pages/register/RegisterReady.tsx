@@ -49,6 +49,8 @@ const RegisterReady = () => {
         funnelDurationMs,
       });
     })();
+    // One-shot completion analytics; re-running on data changes would double-fire.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guardPassed]);
 
   if (!guardPassed) return null;

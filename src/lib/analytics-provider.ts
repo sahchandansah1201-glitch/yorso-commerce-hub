@@ -26,7 +26,6 @@ export interface AnalyticsProvider {
 class ConsoleProvider implements AnalyticsProvider {
   readonly name = "console";
   send(envelope: AnalyticsEnvelope) {
-    // eslint-disable-next-line no-console
     console.log(`[YORSO Analytics] ${envelope.event}`, envelope);
   }
 }

@@ -117,6 +117,8 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
+    // goNext/goPrev are stable for this effect's purpose; re-binding on every render is unnecessary.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightbox, active, imgs.length]);
 
   return (
