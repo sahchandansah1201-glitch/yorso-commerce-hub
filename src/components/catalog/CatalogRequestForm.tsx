@@ -46,6 +46,7 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
   const { t } = useLanguage();
   const [form, setForm] = useState<FormState>({ ...empty, product: initialProduct });
   const [submitted, setSubmitted] = useState(false);
+  const submittedList = useProductRequests();
 
   const update = <K extends keyof FormState>(key: K, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -74,30 +75,72 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
     setSubmitted(true);
   };
 
+  const submittedHistory = submittedList.length > 0 && (
+    <section
+      className="rounded-lg border border-border bg-card/60 p-4"
+      data-testid="catalog-request-form-history"
+    >
+      <header className="mb-3 flex items-start gap-2">
+        <FileText className="mt-0.5 h-4 w-4 text-primary" aria-hidden />
+        <div>
+          <h4 className="text-sm font-semibold text-foreground">
+            {t.catalog_reqForm_submitted_title}
+          </h4>
+          <p className="text-xs text-muted-foreground">{t.catalog_reqForm_submitted_subtitle}</p>
+        </div>
+      </header>
+      <ul className="space-y-2">
+        {submittedList.map((r) => {
+          const meta = [r.format, r.origin, r.supplierCountry, r.destination, r.timing]
+            .filter(Boolean)
+            .join(" · ");
+          return (
+            <li
+              key={r.id}
+              className="rounded-md border border-border/70 bg-background px-3 py-2 text-xs"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="font-semibold text-foreground">{r.product}</span>
+                <span className="text-muted-foreground">{r.volume}</span>
+              </div>
+              {meta && <p className="mt-0.5 text-muted-foreground">{meta}</p>}
+              <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t.catalog_reqForm_submitted_at}: {new Date(r.submittedAt).toLocaleString()}
+              </p>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+
   if (submitted) {
     return (
-      <div
-        className="rounded-lg border border-primary/30 bg-primary/5 p-6 text-center"
-        data-testid="catalog-request-form-success"
-      >
-        <CheckCircle2 className="mx-auto h-8 w-8 text-primary" aria-hidden />
-        <h3 className="mt-3 font-heading text-base font-bold text-foreground">
-          {t.catalog_reqForm_success_title}
-        </h3>
-        <p className="mx-auto mt-1.5 max-w-md text-sm text-muted-foreground">
-          {t.catalog_reqForm_success_body}
-        </p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4 font-semibold"
-          onClick={() => {
-            setForm(empty);
-            setSubmitted(false);
-          }}
+      <div className="space-y-5">
+        <div
+          className="rounded-lg border border-primary/30 bg-primary/5 p-6 text-center"
+          data-testid="catalog-request-form-success"
         >
-          {t.catalog_reqForm_success_new}
-        </Button>
+          <CheckCircle2 className="mx-auto h-8 w-8 text-primary" aria-hidden />
+          <h3 className="mt-3 font-heading text-base font-bold text-foreground">
+            {t.catalog_reqForm_success_title}
+          </h3>
+          <p className="mx-auto mt-1.5 max-w-md text-sm text-muted-foreground">
+            {t.catalog_reqForm_success_body}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-4 font-semibold"
+            onClick={() => {
+              setForm(empty);
+              setSubmitted(false);
+            }}
+          >
+            {t.catalog_reqForm_success_new}
+          </Button>
+        </div>
+        {submittedHistory}
       </div>
     );
   }
