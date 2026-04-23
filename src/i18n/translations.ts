@@ -1370,7 +1370,7 @@ const en: TranslationKeys = {
   catalog_access_request_cancel_pending: "Cancel request",
   catalog_access_request_canceled_toast: "Access request canceled.",
   catalog_reqForm_submitted_title: "Your submitted requests",
-  catalog_reqForm_submitted_subtitle: "Frontend-only history for this session.",
+  catalog_reqForm_submitted_subtitle: "Review your latest sourcing requests while suppliers respond.",
   catalog_reqForm_submitted_at: "Submitted",
   catalog_reqForm_title: "Didn't find the exact product?",
   catalog_reqForm_subtitle: "Submit a structured procurement request — verified suppliers can respond after review.",
