@@ -577,6 +577,13 @@ type TranslationKeys = {
   catalog_access_devSwitcher_qual: string;
   catalog_access_devSwitcher_note: string;
 
+  // Value strip (capability-led, replaces user-facing access labels)
+  catalog_value_cap_prices: string;
+  catalog_value_cap_suppliers: string;
+  catalog_value_cap_intelligence: string;
+  catalog_value_ctaSignup: string;
+  catalog_value_ctaQualify: string;
+
   // Card / gating
   catalog_card_priceRange: string;
   catalog_card_priceLocked: string;
@@ -1295,6 +1302,12 @@ const en: TranslationKeys = {
   catalog_access_devSwitcher_qual: "Qualified",
   catalog_access_devSwitcher_note: "Demo control — not part of real authorization",
 
+  catalog_value_cap_prices: "Unlock exact prices",
+  catalog_value_cap_suppliers: "Access supplier details",
+  catalog_value_cap_intelligence: "Track price signals & country news",
+  catalog_value_ctaSignup: "Create buyer account",
+  catalog_value_ctaQualify: "Request full access",
+
   catalog_card_priceRange: "Price range",
   catalog_card_priceLocked: "Exact price locked",
   catalog_card_priceLockedHint: "Sign up to see exact pricing",
@@ -1996,6 +2009,12 @@ const ru: TranslationKeys = {
   catalog_access_devSwitcher_qual: "Квалифицирован",
   catalog_access_devSwitcher_note: "Демо-контрол, не часть реальной авторизации",
 
+  catalog_value_cap_prices: "Открыть точные цены",
+  catalog_value_cap_suppliers: "Доступ к данным поставщиков",
+  catalog_value_cap_intelligence: "Динамика цен и новости стран",
+  catalog_value_ctaSignup: "Создать аккаунт покупателя",
+  catalog_value_ctaQualify: "Запросить полный доступ",
+
   catalog_card_priceRange: "Диапазон цены",
   catalog_card_priceLocked: "Точная цена скрыта",
   catalog_card_priceLockedHint: "Зарегистрируйтесь, чтобы видеть точную цену",
@@ -2696,6 +2715,12 @@ const es: TranslationKeys = {
   catalog_access_devSwitcher_reg: "Registrado",
   catalog_access_devSwitcher_qual: "Calificado",
   catalog_access_devSwitcher_note: "Control demo, no es parte de la autorización real",
+
+  catalog_value_cap_prices: "Desbloquear precios exactos",
+  catalog_value_cap_suppliers: "Acceder a datos del proveedor",
+  catalog_value_cap_intelligence: "Señales de precio y noticias por país",
+  catalog_value_ctaSignup: "Crear cuenta de comprador",
+  catalog_value_ctaQualify: "Solicitar acceso completo",
 
   catalog_card_priceRange: "Rango de precio",
   catalog_card_priceLocked: "Precio exacto bloqueado",
