@@ -164,7 +164,7 @@ const Offers = () => {
 
         {/* Workspace: results + intelligence rail */}
         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <section aria-label="Catalog results">
+          <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
                 <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
