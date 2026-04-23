@@ -2121,7 +2121,7 @@ const ru: TranslationKeys = {
   catalog_access_request_cancel_pending: "Отменить запрос",
   catalog_access_request_canceled_toast: "Запрос на доступ отменён.",
   catalog_reqForm_submitted_title: "Ваши отправленные запросы",
-  catalog_reqForm_submitted_subtitle: "История только на фронтенде, в рамках текущей сессии.",
+  catalog_reqForm_submitted_subtitle: "Отслеживайте недавние закупочные запросы, пока поставщики готовят ответ.",
   catalog_reqForm_submitted_at: "Отправлено",
   catalog_reqForm_title: "Не нашли точно нужный товар?",
   catalog_reqForm_subtitle: "Отправьте структурированный закупочный запрос — проверенные поставщики смогут ответить после рассмотрения.",
