@@ -71,9 +71,35 @@ const RegisterReady = () => {
   return (
     <RegistrationLayout hideProgress>
       <div className="text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }} className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
-          <CheckCircle2 className="h-10 w-10 text-success" />
-        </motion.div>
+        <div className="relative mx-auto mb-6 h-20 w-20">
+          {/* Soft pulsating glow */}
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-success/20 blur-xl"
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: [0, 0.9, 0.5], scale: [0.6, 1.4, 1.2] }}
+            transition={{ duration: 1.6, ease: "easeOut" }}
+          />
+          {/* Expanding celebratory rings */}
+          {[0, 0.25, 0.5].map((delay) => (
+            <motion.span
+              key={delay}
+              aria-hidden
+              className="absolute inset-0 rounded-full border-2 border-success/40"
+              initial={{ opacity: 0.7, scale: 0.6 }}
+              animate={{ opacity: 0, scale: 1.8 }}
+              transition={{ duration: 1.4, delay, ease: "easeOut" }}
+            />
+          ))}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+            className="relative flex h-20 w-20 items-center justify-center rounded-full bg-success/10"
+          >
+            <CheckCircle2 className="h-10 w-10 text-success" />
+          </motion.div>
+        </div>
 
         <motion.h1 {...anim(0.25)} className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
           {getWelcomeEmoji()} {t.reg_welcome.replace("{name}", firstName)}
