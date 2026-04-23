@@ -283,17 +283,19 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
         </div>
       </div>
 
-      <div className="mt-5 flex justify-end">
-        <Button
-          type="submit"
-          disabled={!canSubmit}
-          className="font-semibold"
-          data-testid="catalog-request-form-submit"
-        >
-          {t.catalog_reqForm_submit}
-        </Button>
-      </div>
-    </form>
+        <div className="mt-5 flex justify-end">
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="font-semibold"
+            data-testid="catalog-request-form-submit"
+          >
+            {t.catalog_reqForm_submit}
+          </Button>
+        </div>
+      </form>
+      {submittedHistory}
+    </div>
   );
 };
 
