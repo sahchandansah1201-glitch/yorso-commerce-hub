@@ -597,6 +597,12 @@ type TranslationKeys = {
   catalog_access_request_pending_title: string;
   catalog_access_request_pending_body: string;
   catalog_access_request_toast: string;
+  catalog_access_request_pending_scopes: string;
+  catalog_access_request_cancel_pending: string;
+  catalog_access_request_canceled_toast: string;
+  catalog_reqForm_submitted_title: string;
+  catalog_reqForm_submitted_subtitle: string;
+  catalog_reqForm_submitted_at: string;
   // Empty-state product request form
   catalog_reqForm_title: string;
   catalog_reqForm_subtitle: string;
@@ -1360,6 +1366,12 @@ const en: TranslationKeys = {
   catalog_access_request_pending_title: "Access request submitted",
   catalog_access_request_pending_body: "Verified suppliers and our review team will respond after review. You'll be notified once access is granted.",
   catalog_access_request_toast: "Access request submitted for review.",
+  catalog_access_request_pending_scopes: "Requested:",
+  catalog_access_request_cancel_pending: "Cancel request",
+  catalog_access_request_canceled_toast: "Access request canceled.",
+  catalog_reqForm_submitted_title: "Your submitted requests",
+  catalog_reqForm_submitted_subtitle: "Frontend-only history for this session.",
+  catalog_reqForm_submitted_at: "Submitted",
   catalog_reqForm_title: "Didn't find the exact product?",
   catalog_reqForm_subtitle: "Submit a structured procurement request — verified suppliers can respond after review.",
   catalog_reqForm_product: "Product / species",
@@ -2105,6 +2117,12 @@ const ru: TranslationKeys = {
   catalog_access_request_pending_title: "Запрос на доступ отправлен",
   catalog_access_request_pending_body: "Проверенные поставщики и наша команда рассмотрят запрос. Вы получите уведомление после открытия доступа.",
   catalog_access_request_toast: "Запрос на доступ отправлен на рассмотрение.",
+  catalog_access_request_pending_scopes: "Запрошено:",
+  catalog_access_request_cancel_pending: "Отменить запрос",
+  catalog_access_request_canceled_toast: "Запрос на доступ отменён.",
+  catalog_reqForm_submitted_title: "Ваши отправленные запросы",
+  catalog_reqForm_submitted_subtitle: "История только на фронтенде, в рамках текущей сессии.",
+  catalog_reqForm_submitted_at: "Отправлено",
   catalog_reqForm_title: "Не нашли точно нужный товар?",
   catalog_reqForm_subtitle: "Отправьте структурированный закупочный запрос — проверенные поставщики смогут ответить после рассмотрения.",
   catalog_reqForm_product: "Продукт / вид",
@@ -2850,6 +2868,12 @@ const es: TranslationKeys = {
   catalog_access_request_pending_title: "Solicitud de acceso enviada",
   catalog_access_request_pending_body: "Los proveedores verificados y nuestro equipo de revisión responderán tras la revisión. Recibirás una notificación cuando se conceda el acceso.",
   catalog_access_request_toast: "Solicitud de acceso enviada para revisión.",
+  catalog_access_request_pending_scopes: "Solicitado:",
+  catalog_access_request_cancel_pending: "Cancelar solicitud",
+  catalog_access_request_canceled_toast: "Solicitud de acceso cancelada.",
+  catalog_reqForm_submitted_title: "Tus solicitudes enviadas",
+  catalog_reqForm_submitted_subtitle: "Historial solo en el frontend para esta sesión.",
+  catalog_reqForm_submitted_at: "Enviado",
   catalog_reqForm_title: "¿No encontraste el producto exacto?",
   catalog_reqForm_subtitle: "Envía una solicitud de compra estructurada — los proveedores verificados pueden responder tras la revisión.",
   catalog_reqForm_product: "Producto / especie",
