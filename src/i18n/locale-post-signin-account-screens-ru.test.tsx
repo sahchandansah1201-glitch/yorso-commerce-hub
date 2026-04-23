@@ -52,7 +52,7 @@ const Probe = ({ onReady }: { onReady: (api: Api) => void }) => {
 
 const renderApp = (onReady: (api: Api) => void) =>
   render(
-    <MemoryRouter initialEntries={["/signin"]}>
+    <MemoryRouter initialEntries={["/signin?redirect=/offers"]}>
       <LanguageProvider>
         <TooltipProvider>
           <BuyerSessionProvider>
