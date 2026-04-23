@@ -49,8 +49,6 @@ const RegisterReady = () => {
         funnelDurationMs,
       });
     })();
-
-    })();
   }, [guardPassed]);
 
   if (!guardPassed) return null;
