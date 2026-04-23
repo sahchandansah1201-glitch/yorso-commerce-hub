@@ -3,7 +3,8 @@
  *
  * Two independent buyer-initiated request flows live here:
  *   1. Access request — a registered buyer asks for full procurement access.
- *      Stored as a boolean pending flag (no auto-qualification).
+ *      Stored as a structured object (not just a flag) so the review team
+ *      can see what was requested. No auto-qualification.
  *   2. Product request — empty-state structured procurement request.
  *      Stored as a list of submitted requests for the current tab.
  *
@@ -13,9 +14,17 @@
  */
 import { useEffect, useState } from "react";
 
-const ACCESS_PENDING_KEY = "yorso_access_request_pending";
+const ACCESS_REQUEST_KEY = "yorso_access_request";
 const PRODUCT_REQUESTS_KEY = "yorso_product_requests";
 const EVENT = "yorso:catalog-requests-change";
+
+export type AccessRequestScope = "prices" | "suppliers" | "intelligence";
+
+export type AccessRequest = {
+  scopes: AccessRequestScope[];
+  note?: string;
+  submittedAt: string;
+};
 
 export type ProductRequest = {
   id: string;
@@ -51,15 +60,28 @@ const safeSet = (key: string, value: string | null) => {
   window.dispatchEvent(new CustomEvent(EVENT));
 };
 
-export const isAccessRequestPending = (): boolean =>
-  safeGet(ACCESS_PENDING_KEY) === "1";
+export const readAccessRequest = (): AccessRequest | null => {
+  const raw = safeGet(ACCESS_REQUEST_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as AccessRequest;
+    if (!parsed || !Array.isArray(parsed.scopes)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
 
-export const submitAccessRequest = () => {
-  safeSet(ACCESS_PENDING_KEY, "1");
+export const isAccessRequestPending = (): boolean => readAccessRequest() !== null;
+
+export const submitAccessRequest = (req: Omit<AccessRequest, "submittedAt">): AccessRequest => {
+  const full: AccessRequest = { ...req, submittedAt: new Date().toISOString() };
+  safeSet(ACCESS_REQUEST_KEY, JSON.stringify(full));
+  return full;
 };
 
 export const clearAccessRequest = () => {
-  safeSet(ACCESS_PENDING_KEY, null);
+  safeSet(ACCESS_REQUEST_KEY, null);
 };
 
 export const readProductRequests = (): ProductRequest[] => {
@@ -84,12 +106,24 @@ export const submitProductRequest = (req: Omit<ProductRequest, "id" | "submitted
   return full;
 };
 
-export const useAccessRequestPending = (): boolean => {
-  const [pending, setPending] = useState<boolean>(() => isAccessRequestPending());
+export const useAccessRequest = (): AccessRequest | null => {
+  const [req, setReq] = useState<AccessRequest | null>(() => readAccessRequest());
   useEffect(() => {
-    const onChange = () => setPending(isAccessRequestPending());
+    const onChange = () => setReq(readAccessRequest());
     window.addEventListener(EVENT, onChange);
     return () => window.removeEventListener(EVENT, onChange);
   }, []);
-  return pending;
+  return req;
+};
+
+export const useAccessRequestPending = (): boolean => useAccessRequest() !== null;
+
+export const useProductRequests = (): ProductRequest[] => {
+  const [list, setList] = useState<ProductRequest[]>(() => readProductRequests());
+  useEffect(() => {
+    const onChange = () => setList(readProductRequests());
+    window.addEventListener(EVENT, onChange);
+    return () => window.removeEventListener(EVENT, onChange);
+  }, []);
+  return list;
 };
