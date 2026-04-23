@@ -152,11 +152,12 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
   );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-lg border border-border bg-card p-5 sm:p-6"
-      data-testid="catalog-request-form"
-    >
+    <div className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-lg border border-border bg-card p-5 sm:p-6"
+        data-testid="catalog-request-form"
+      >
       <div className="mb-4">
         <h3 className="font-heading text-base font-bold text-foreground">{t.catalog_reqForm_title}</h3>
         <p className="mt-0.5 text-xs text-muted-foreground">{t.catalog_reqForm_subtitle}</p>
