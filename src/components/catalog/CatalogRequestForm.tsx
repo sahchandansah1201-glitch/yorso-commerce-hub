@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { submitProductRequest } from "@/lib/catalog-requests";
+import { submitProductRequest, useProductRequests } from "@/lib/catalog-requests";
 import analytics from "@/lib/analytics";
 
 type Props = {
