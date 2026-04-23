@@ -12,8 +12,22 @@ import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
 import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
-import confetti from "canvas-confetti";
 import { useLanguage } from "@/i18n/LanguageContext";
+
+// Defensive dynamic loader for canvas-confetti.
+// Keeps the build resilient if the package or its types are unavailable,
+// and lets the completion screen degrade gracefully instead of crashing.
+type ConfettiFn = (opts: Record<string, unknown>) => void;
+const loadConfetti = async (): Promise<ConfettiFn | null> => {
+  try {
+    const mod: { default?: ConfettiFn } = await import(
+      /* @vite-ignore */ "canvas-confetti"
+    );
+    return typeof mod.default === "function" ? mod.default : null;
+  } catch {
+    return null;
+  }
+};
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
