@@ -4,16 +4,16 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Cookies = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_cookies_title} updated="January 2026">
-      <p>YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.</p>
+    <InfoPageLayout title={t.info_cookies_title} updated={t.info_updated_january2026}>
+      <p>{t.info_cookies_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_cookies_essential}</h2>
-      <p>Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.</p>
+      <p>{t.info_cookies_essentialBody}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_cookies_analytics}</h2>
-      <p>Help us understand how users interact with YORSO. We use this data to improve features and user experience. Data is anonymized and never sold.</p>
+      <p>{t.info_cookies_analyticsBody}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_cookies_managing}</h2>
-      <p>You can control cookies through your browser settings. Disabling essential cookies may affect platform functionality.</p>
+      <p>{t.info_cookies_managingBody}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_cookies_contact}</h2>
-      <p>Questions about our cookie practices? Contact <a href="mailto:privacy@yorso.com" className="text-primary hover:underline">privacy@yorso.com</a>.</p>
+      <p>{t.info_cookies_contactBody1}<a href="mailto:privacy@yorso.com" className="text-primary hover:underline">privacy@yorso.com</a>{t.info_cookies_contactBody2}</p>
     </InfoPageLayout>
   );
 };
