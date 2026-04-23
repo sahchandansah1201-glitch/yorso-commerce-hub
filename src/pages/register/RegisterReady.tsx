@@ -12,8 +12,22 @@ import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
 import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
-import confetti from "canvas-confetti";
 import { useLanguage } from "@/i18n/LanguageContext";
+
+// Defensive dynamic loader for canvas-confetti.
+// Keeps the build resilient if the package or its types are unavailable,
+// and lets the completion screen degrade gracefully instead of crashing.
+type ConfettiFn = (opts: Record<string, unknown>) => void;
+const loadConfetti = async (): Promise<ConfettiFn | null> => {
+  try {
+    const mod: { default?: ConfettiFn } = await import(
+      /* @vite-ignore */ "canvas-confetti"
+    );
+    return typeof mod.default === "function" ? mod.default : null;
+  } catch {
+    return null;
+  }
+};
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
@@ -51,13 +65,20 @@ const RegisterReady = () => {
       });
     })();
 
-    const end = Date.now() + 1500;
-    const frame = () => {
-      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-      if (Date.now() < end) requestAnimationFrame(frame);
+    let cancelled = false;
+    loadConfetti().then((confetti) => {
+      if (cancelled || !confetti) return;
+      const end = Date.now() + 1500;
+      const frame = () => {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    });
+    return () => {
+      cancelled = true;
     };
-    frame();
   }, [guardPassed]);
 
   if (!guardPassed) return null;
