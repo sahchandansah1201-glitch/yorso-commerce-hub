@@ -713,11 +713,23 @@ type TranslationKeys = {
   catalog_panel_summary_origin: string;
   catalog_panel_summary_supplier: string;
   catalog_panel_summary_basis: string;
+  catalog_panel_summary_format: string;
+  catalog_panel_price_title: string;
+  catalog_panel_price_offerIndex: string;
+  catalog_panel_price_vsBenchmark: string;
   catalog_panel_news_title: string;
   catalog_panel_news_subtitle: string;
   catalog_panel_news_primary: string;
+  catalog_panel_news_reason_price: string;
+  catalog_panel_news_reason_availability: string;
+  catalog_panel_news_reason_logistics: string;
+  catalog_panel_news_reason_compliance: string;
+  catalog_panel_news_reason_supplier_risk: string;
   catalog_panel_docs_title: string;
   catalog_panel_docs_disclaimer: string;
+  catalog_panel_docs_status_verified: string;
+  catalog_panel_docs_status_pending: string;
+  catalog_panel_docs_status_supplier: string;
   catalog_panel_doc_health: string;
   catalog_panel_doc_haccp: string;
   catalog_panel_doc_catch: string;
@@ -730,6 +742,49 @@ type TranslationKeys = {
   catalog_panel_supplier_unverified: string;
   catalog_panel_supplier_response: string;
   catalog_panel_supplier_since: string;
+  catalog_panel_supplier_docReadiness: string;
+  catalog_panel_supplier_countryRisk: string;
+  catalog_panel_supplier_risk_low: string;
+  catalog_panel_supplier_risk_medium: string;
+  catalog_panel_supplier_risk_elevated: string;
+  catalog_panel_landed_title: string;
+  catalog_panel_landed_estimateBadge: string;
+  catalog_panel_landed_perKg: string;
+  catalog_panel_landed_unit: string;
+  catalog_panel_landed_freight: string;
+  catalog_panel_landed_duty: string;
+  catalog_panel_landed_handling: string;
+  catalog_panel_landed_disclaimer: string;
+
+  // Procurement workspace — row toggle (compare)
+  catalog_row_compareToggle_add: string;
+  catalog_row_compareToggle_remove: string;
+
+  // Procurement workspace — compare tray
+  catalog_compare_trayTitle: string;
+  catalog_compare_remove: string;
+  catalog_compare_clear: string;
+  catalog_compare_open: string;
+  catalog_compare_sheetTitle: string;
+  catalog_compare_sheetSubtitle: string;
+  catalog_compare_col_attribute: string;
+  catalog_compare_row_origin: string;
+  catalog_compare_row_supplierCountry: string;
+  catalog_compare_row_format: string;
+  catalog_compare_row_price: string;
+  catalog_compare_row_moq: string;
+  catalog_compare_row_logistics: string;
+  catalog_compare_row_payment: string;
+  catalog_compare_row_certifications: string;
+  catalog_compare_row_docs: string;
+  catalog_compare_docsReady: string;
+  catalog_compare_row_move30: string;
+  catalog_compare_row_landed: string;
+  catalog_compare_row_access: string;
+  catalog_compare_accessFull: string;
+  catalog_compare_accessPartial: string;
+  catalog_compare_accessRestricted: string;
+  catalog_compare_disclaimer: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1507,11 +1562,23 @@ const en: TranslationKeys = {
   catalog_panel_summary_origin: "Origin",
   catalog_panel_summary_supplier: "Supplier country",
   catalog_panel_summary_basis: "Logistics",
+  catalog_panel_summary_format: "Format / cut",
+  catalog_panel_price_title: "Offer-specific price",
+  catalog_panel_price_offerIndex: "Offer index",
+  catalog_panel_price_vsBenchmark: "vs category benchmark",
   catalog_panel_news_title: "Country news affecting this offer",
   catalog_panel_news_subtitle: "Prioritised for {origin} (origin) and {supplier} (supplier).",
   catalog_panel_news_primary: "Direct",
+  catalog_panel_news_reason_price: "Affects price",
+  catalog_panel_news_reason_availability: "Affects availability",
+  catalog_panel_news_reason_logistics: "Affects logistics",
+  catalog_panel_news_reason_compliance: "Affects compliance",
+  catalog_panel_news_reason_supplier_risk: "Affects supplier risk",
   catalog_panel_docs_title: "Document readiness",
-  catalog_panel_docs_disclaimer: "Mock readiness — confirm with supplier before contract.",
+  catalog_panel_docs_disclaimer: "Preview — confirm document scans with supplier before contract.",
+  catalog_panel_docs_status_verified: "Verified",
+  catalog_panel_docs_status_pending: "Pending verification",
+  catalog_panel_docs_status_supplier: "Supplier-provided",
   catalog_panel_doc_health: "Health certificate",
   catalog_panel_doc_haccp: "HACCP",
   catalog_panel_doc_catch: "Catch / IUU certificate",
@@ -1521,9 +1588,50 @@ const en: TranslationKeys = {
   catalog_panel_supplier_title: "Supplier trust summary",
   catalog_panel_supplier_verification: "Verification",
   catalog_panel_supplier_verified: "Verified",
-  catalog_panel_supplier_unverified: "Pending",
+  catalog_panel_supplier_unverified: "Pending verification",
   catalog_panel_supplier_response: "Response time",
   catalog_panel_supplier_since: "In business since",
+  catalog_panel_supplier_docReadiness: "Document readiness",
+  catalog_panel_supplier_countryRisk: "Country risk",
+  catalog_panel_supplier_risk_low: "Low",
+  catalog_panel_supplier_risk_medium: "Medium",
+  catalog_panel_supplier_risk_elevated: "Elevated",
+  catalog_panel_landed_title: "Landed cost",
+  catalog_panel_landed_estimateBadge: "Estimate",
+  catalog_panel_landed_perKg: "per kg",
+  catalog_panel_landed_unit: "Product",
+  catalog_panel_landed_freight: "Freight",
+  catalog_panel_landed_duty: "Duty",
+  catalog_panel_landed_handling: "Handling + insurance",
+  catalog_panel_landed_disclaimer: "Estimate uses indicative freight and duty placeholders. Confirm with broker before commitment.",
+
+  catalog_row_compareToggle_add: "Add to compare",
+  catalog_row_compareToggle_remove: "Remove from compare",
+
+  catalog_compare_trayTitle: "{count}/{max} selected for comparison",
+  catalog_compare_remove: "Remove from comparison",
+  catalog_compare_clear: "Clear",
+  catalog_compare_open: "Compare",
+  catalog_compare_sheetTitle: "Compare offers",
+  catalog_compare_sheetSubtitle: "Side-by-side procurement view across the offers you picked.",
+  catalog_compare_col_attribute: "Attribute",
+  catalog_compare_row_origin: "Origin",
+  catalog_compare_row_supplierCountry: "Supplier country",
+  catalog_compare_row_format: "Format / cut",
+  catalog_compare_row_price: "Price",
+  catalog_compare_row_moq: "MOQ",
+  catalog_compare_row_logistics: "Logistics",
+  catalog_compare_row_payment: "Payment terms",
+  catalog_compare_row_certifications: "Certifications",
+  catalog_compare_row_docs: "Document readiness",
+  catalog_compare_docsReady: "ready",
+  catalog_compare_row_move30: "30-day move",
+  catalog_compare_row_landed: "Landed cost",
+  catalog_compare_row_access: "Your access",
+  catalog_compare_accessFull: "Full access",
+  catalog_compare_accessPartial: "Partial — request supplier access",
+  catalog_compare_accessRestricted: "Sign up to unlock prices",
+  catalog_compare_disclaimer: "Landed cost figures are estimates with placeholder freight, duty and handling. Confirm with supplier and broker before contract.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -2288,11 +2396,23 @@ const ru: TranslationKeys = {
   catalog_panel_summary_origin: "Происхождение",
   catalog_panel_summary_supplier: "Страна поставщика",
   catalog_panel_summary_basis: "Логистика",
+  catalog_panel_summary_format: "Формат / разделка",
+  catalog_panel_price_title: "Цена для этого предложения",
+  catalog_panel_price_offerIndex: "Индекс предложения",
+  catalog_panel_price_vsBenchmark: "к категорийному бенчмарку",
   catalog_panel_news_title: "Новости стран, влияющие на это предложение",
   catalog_panel_news_subtitle: "Приоритет: {origin} (происхождение) и {supplier} (поставщик).",
   catalog_panel_news_primary: "Прямое",
+  catalog_panel_news_reason_price: "Влияет на цену",
+  catalog_panel_news_reason_availability: "Влияет на доступность",
+  catalog_panel_news_reason_logistics: "Влияет на логистику",
+  catalog_panel_news_reason_compliance: "Влияет на комплаенс",
+  catalog_panel_news_reason_supplier_risk: "Влияет на риски поставщика",
   catalog_panel_docs_title: "Готовность документов",
-  catalog_panel_docs_disclaimer: "Мок-данные — подтвердите у поставщика перед контрактом.",
+  catalog_panel_docs_disclaimer: "Превью — подтвердите сканы документов у поставщика перед контрактом.",
+  catalog_panel_docs_status_verified: "Подтверждено",
+  catalog_panel_docs_status_pending: "Ожидает проверки",
+  catalog_panel_docs_status_supplier: "Предоставлено поставщиком",
   catalog_panel_doc_health: "Ветеринарный сертификат",
   catalog_panel_doc_haccp: "HACCP",
   catalog_panel_doc_catch: "Сертификат вылова / IUU",
@@ -2302,9 +2422,50 @@ const ru: TranslationKeys = {
   catalog_panel_supplier_title: "Доверие к поставщику",
   catalog_panel_supplier_verification: "Верификация",
   catalog_panel_supplier_verified: "Подтверждён",
-  catalog_panel_supplier_unverified: "В процессе",
+  catalog_panel_supplier_unverified: "Ожидает проверки",
   catalog_panel_supplier_response: "Время ответа",
   catalog_panel_supplier_since: "В бизнесе с",
+  catalog_panel_supplier_docReadiness: "Готовность документов",
+  catalog_panel_supplier_countryRisk: "Страновой риск",
+  catalog_panel_supplier_risk_low: "Низкий",
+  catalog_panel_supplier_risk_medium: "Средний",
+  catalog_panel_supplier_risk_elevated: "Повышенный",
+  catalog_panel_landed_title: "Полная себестоимость",
+  catalog_panel_landed_estimateBadge: "Оценка",
+  catalog_panel_landed_perKg: "за кг",
+  catalog_panel_landed_unit: "Продукт",
+  catalog_panel_landed_freight: "Фрахт",
+  catalog_panel_landed_duty: "Пошлина",
+  catalog_panel_landed_handling: "Обработка + страховка",
+  catalog_panel_landed_disclaimer: "Оценка использует индикативные значения фрахта и пошлины. Уточните у брокера перед сделкой.",
+
+  catalog_row_compareToggle_add: "Добавить к сравнению",
+  catalog_row_compareToggle_remove: "Убрать из сравнения",
+
+  catalog_compare_trayTitle: "Выбрано {count}/{max} для сравнения",
+  catalog_compare_remove: "Убрать из сравнения",
+  catalog_compare_clear: "Очистить",
+  catalog_compare_open: "Сравнить",
+  catalog_compare_sheetTitle: "Сравнение предложений",
+  catalog_compare_sheetSubtitle: "Закупочный обзор бок о бок по выбранным предложениям.",
+  catalog_compare_col_attribute: "Параметр",
+  catalog_compare_row_origin: "Происхождение",
+  catalog_compare_row_supplierCountry: "Страна поставщика",
+  catalog_compare_row_format: "Формат / разделка",
+  catalog_compare_row_price: "Цена",
+  catalog_compare_row_moq: "MOQ",
+  catalog_compare_row_logistics: "Логистика",
+  catalog_compare_row_payment: "Условия оплаты",
+  catalog_compare_row_certifications: "Сертификации",
+  catalog_compare_row_docs: "Готовность документов",
+  catalog_compare_docsReady: "готовы",
+  catalog_compare_row_move30: "Изменение за 30д",
+  catalog_compare_row_landed: "Полная себестоимость",
+  catalog_compare_row_access: "Ваш доступ",
+  catalog_compare_accessFull: "Полный доступ",
+  catalog_compare_accessPartial: "Частичный — запросите доступ к поставщику",
+  catalog_compare_accessRestricted: "Зарегистрируйтесь, чтобы открыть цены",
+  catalog_compare_disclaimer: "Полная себестоимость — оценка с индикативными значениями фрахта, пошлины и обработки. Уточните у поставщика и брокера перед контрактом.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -3069,11 +3230,23 @@ const es: TranslationKeys = {
   catalog_panel_summary_origin: "Origen",
   catalog_panel_summary_supplier: "País del proveedor",
   catalog_panel_summary_basis: "Logística",
+  catalog_panel_summary_format: "Formato / corte",
+  catalog_panel_price_title: "Precio específico de la oferta",
+  catalog_panel_price_offerIndex: "Índice de la oferta",
+  catalog_panel_price_vsBenchmark: "vs benchmark de categoría",
   catalog_panel_news_title: "Noticias de países que afectan a esta oferta",
   catalog_panel_news_subtitle: "Priorizado para {origin} (origen) y {supplier} (proveedor).",
   catalog_panel_news_primary: "Directo",
+  catalog_panel_news_reason_price: "Afecta al precio",
+  catalog_panel_news_reason_availability: "Afecta a la disponibilidad",
+  catalog_panel_news_reason_logistics: "Afecta a la logística",
+  catalog_panel_news_reason_compliance: "Afecta al cumplimiento",
+  catalog_panel_news_reason_supplier_risk: "Afecta al riesgo del proveedor",
   catalog_panel_docs_title: "Preparación documental",
-  catalog_panel_docs_disclaimer: "Datos simulados — confirma con el proveedor antes del contrato.",
+  catalog_panel_docs_disclaimer: "Vista previa — confirma los documentos con el proveedor antes del contrato.",
+  catalog_panel_docs_status_verified: "Verificado",
+  catalog_panel_docs_status_pending: "Pendiente de verificación",
+  catalog_panel_docs_status_supplier: "Proporcionado por el proveedor",
   catalog_panel_doc_health: "Certificado sanitario",
   catalog_panel_doc_haccp: "HACCP",
   catalog_panel_doc_catch: "Certificado de captura / IUU",
@@ -3083,9 +3256,50 @@ const es: TranslationKeys = {
   catalog_panel_supplier_title: "Confianza del proveedor",
   catalog_panel_supplier_verification: "Verificación",
   catalog_panel_supplier_verified: "Verificado",
-  catalog_panel_supplier_unverified: "Pendiente",
+  catalog_panel_supplier_unverified: "Pendiente de verificación",
   catalog_panel_supplier_response: "Tiempo de respuesta",
   catalog_panel_supplier_since: "En activo desde",
+  catalog_panel_supplier_docReadiness: "Preparación documental",
+  catalog_panel_supplier_countryRisk: "Riesgo país",
+  catalog_panel_supplier_risk_low: "Bajo",
+  catalog_panel_supplier_risk_medium: "Medio",
+  catalog_panel_supplier_risk_elevated: "Elevado",
+  catalog_panel_landed_title: "Coste total puesto en destino",
+  catalog_panel_landed_estimateBadge: "Estimación",
+  catalog_panel_landed_perKg: "por kg",
+  catalog_panel_landed_unit: "Producto",
+  catalog_panel_landed_freight: "Flete",
+  catalog_panel_landed_duty: "Aranceles",
+  catalog_panel_landed_handling: "Manejo + seguro",
+  catalog_panel_landed_disclaimer: "Estimación con valores indicativos de flete y aranceles. Confirma con el agente antes de comprometerte.",
+
+  catalog_row_compareToggle_add: "Añadir a comparar",
+  catalog_row_compareToggle_remove: "Quitar de comparar",
+
+  catalog_compare_trayTitle: "{count}/{max} seleccionadas para comparar",
+  catalog_compare_remove: "Quitar de la comparación",
+  catalog_compare_clear: "Limpiar",
+  catalog_compare_open: "Comparar",
+  catalog_compare_sheetTitle: "Comparar ofertas",
+  catalog_compare_sheetSubtitle: "Vista de compras lado a lado de las ofertas seleccionadas.",
+  catalog_compare_col_attribute: "Atributo",
+  catalog_compare_row_origin: "Origen",
+  catalog_compare_row_supplierCountry: "País del proveedor",
+  catalog_compare_row_format: "Formato / corte",
+  catalog_compare_row_price: "Precio",
+  catalog_compare_row_moq: "MOQ",
+  catalog_compare_row_logistics: "Logística",
+  catalog_compare_row_payment: "Términos de pago",
+  catalog_compare_row_certifications: "Certificaciones",
+  catalog_compare_row_docs: "Preparación documental",
+  catalog_compare_docsReady: "listos",
+  catalog_compare_row_move30: "Cambio en 30 días",
+  catalog_compare_row_landed: "Coste total",
+  catalog_compare_row_access: "Tu acceso",
+  catalog_compare_accessFull: "Acceso completo",
+  catalog_compare_accessPartial: "Parcial — solicita acceso al proveedor",
+  catalog_compare_accessRestricted: "Regístrate para desbloquear precios",
+  catalog_compare_disclaimer: "Las cifras de coste total son estimaciones con valores indicativos de flete, aranceles y manejo. Confirma con el proveedor y el agente antes del contrato.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };

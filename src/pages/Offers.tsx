@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
+import { ArrowLeft, ChevronRight, Activity, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
@@ -11,6 +11,10 @@ import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
+import CompareTray from "@/components/catalog/CompareTray";
+import { cn } from "@/lib/utils";
+
+const COMPARE_MAX = 5;
 
 const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
   if (f.q) {
@@ -44,6 +48,7 @@ const Offers = () => {
   const { t } = useLanguage();
   const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -67,7 +72,6 @@ const Offers = () => {
 
   const visible = useMemo(() => mockOffers.filter((o) => matches(o, filters)), [filters]);
 
-  // Auto-select first visible offer when current selection becomes invalid.
   useEffect(() => {
     if (visible.length === 0) {
       setSelectedOfferId(null);
@@ -83,6 +87,11 @@ const Offers = () => {
     [visible, selectedOfferId],
   );
 
+  const compareOffers = useMemo(
+    () => compareIds.map((id) => mockOffers.find((o) => o.id === id)).filter(Boolean) as SeafoodOffer[],
+    [compareIds],
+  );
+
   const handleSelectOffer = (offerId: string) => {
     setSelectedOfferId(offerId);
     const o = mockOffers.find((x) => x.id === offerId);
@@ -94,6 +103,14 @@ const Offers = () => {
         supplierCountry: o.supplier.country,
       });
     }
+  };
+
+  const toggleCompare = (offerId: string) => {
+    setCompareIds((prev) => {
+      if (prev.includes(offerId)) return prev.filter((x) => x !== offerId);
+      if (prev.length >= COMPARE_MAX) return prev;
+      return [...prev, offerId];
+    });
   };
 
   return (
@@ -118,8 +135,7 @@ const Offers = () => {
         </div>
       </header>
 
-      <main className="container py-6 md:py-8">
-        {/* Breadcrumbs */}
+      <main className={cn("container py-6 md:py-8", compareIds.length > 0 && "pb-24")}>
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}
@@ -128,16 +144,12 @@ const Offers = () => {
           <span className="font-medium text-foreground">{t.catalog_breadcrumbCatalog}</span>
         </nav>
 
-        {/* Title + market status */}
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               {t.catalog_pageTitle}
             </h1>
-            <p
-              className="mt-1 text-sm text-muted-foreground"
-              data-testid="catalog-result-count"
-            >
+            <p className="mt-1 text-sm text-muted-foreground" data-testid="catalog-result-count">
               {t.catalog_resultCount.replace("{count}", String(visible.length))}
             </p>
           </div>
@@ -151,7 +163,6 @@ const Offers = () => {
           </div>
         </div>
 
-        {/* Quick category chips */}
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
@@ -182,14 +193,11 @@ const Offers = () => {
           ))}
         </div>
 
-        {/* Capability-led value strip */}
         <div className="mt-4">
           <CatalogValueStrip />
         </div>
 
-        {/* 3-pane procurement workspace */}
         <div className="mt-5 grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-          {/* LEFT: sticky filters */}
           <aside
             className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1"
             aria-label={t.catalog_filters_title}
@@ -197,7 +205,6 @@ const Offers = () => {
             <CatalogFilters value={filters} onChange={setFilters} options={options} />
           </aside>
 
-          {/* CENTER: horizontal offer rows */}
           <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
@@ -217,30 +224,57 @@ const Offers = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {visible.map((offer) => (
-                  <CatalogOfferRow
-                    key={offer.id}
-                    offer={offer}
-                    isSelected={offer.id === selectedOfferId}
-                    onSelect={handleSelectOffer}
-                  />
-                ))}
+                {visible.map((offer) => {
+                  const isCompared = compareIds.includes(offer.id);
+                  const compareDisabled = !isCompared && compareIds.length >= COMPARE_MAX;
+                  return (
+                    <div key={offer.id} className="relative">
+                      <CatalogOfferRow
+                        offer={offer}
+                        isSelected={offer.id === selectedOfferId}
+                        onSelect={handleSelectOffer}
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!compareDisabled) toggleCompare(offer.id);
+                        }}
+                        disabled={compareDisabled}
+                        aria-pressed={isCompared}
+                        aria-label={
+                          isCompared
+                            ? t.catalog_row_compareToggle_remove
+                            : t.catalog_row_compareToggle_add
+                        }
+                        className={cn(
+                          "absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors",
+                          isCompared
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background/95 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                          compareDisabled && "cursor-not-allowed opacity-50",
+                        )}
+                        data-testid="catalog-row-compare-toggle"
+                      >
+                        <Scale className="h-3 w-3" aria-hidden />
+                        {isCompared ? t.catalog_row_compareToggle_remove : t.catalog_row_compareToggle_add}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
 
-          {/* RIGHT: persistent intelligence panel */}
           <div className="xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel offer={selectedOffer} />
           </div>
         </div>
 
-        {/* Related buyer requests */}
         <div className="mt-8">
           <RelatedRequests category={filters.category} />
         </div>
 
-        {/* Lower recovery / signup */}
         <div className="mt-10 rounded-lg border border-border bg-card p-6 text-center">
           <h2 className="font-heading text-lg font-bold text-foreground">{t.catalog_recovery_title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.catalog_recovery_body}</p>
@@ -256,6 +290,13 @@ const Offers = () => {
           </div>
         </div>
       </main>
+
+      <CompareTray
+        offers={compareOffers}
+        onRemove={toggleCompare}
+        onClear={() => setCompareIds([])}
+        max={COMPARE_MAX}
+      />
     </div>
   );
 };
