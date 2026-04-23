@@ -583,6 +583,46 @@ type TranslationKeys = {
   catalog_value_cap_intelligence: string;
   catalog_value_ctaSignup: string;
   catalog_value_ctaQualify: string;
+  // Access request (registered user, frontend mock)
+  catalog_access_request_title: string;
+  catalog_access_request_subtitle: string;
+  catalog_access_request_scope_label: string;
+  catalog_access_request_scope_prices: string;
+  catalog_access_request_scope_suppliers: string;
+  catalog_access_request_scope_intelligence: string;
+  catalog_access_request_note_label: string;
+  catalog_access_request_note_placeholder: string;
+  catalog_access_request_submit: string;
+  catalog_access_request_cancel: string;
+  catalog_access_request_pending_title: string;
+  catalog_access_request_pending_body: string;
+  catalog_access_request_toast: string;
+  // Empty-state product request form
+  catalog_reqForm_title: string;
+  catalog_reqForm_subtitle: string;
+  catalog_reqForm_product: string;
+  catalog_reqForm_productPh: string;
+  catalog_reqForm_latin: string;
+  catalog_reqForm_latinPh: string;
+  catalog_reqForm_format: string;
+  catalog_reqForm_formatPh: string;
+  catalog_reqForm_origin: string;
+  catalog_reqForm_originPh: string;
+  catalog_reqForm_supplierCountry: string;
+  catalog_reqForm_supplierCountryPh: string;
+  catalog_reqForm_volume: string;
+  catalog_reqForm_volumePh: string;
+  catalog_reqForm_destination: string;
+  catalog_reqForm_destinationPh: string;
+  catalog_reqForm_timing: string;
+  catalog_reqForm_timingPh: string;
+  catalog_reqForm_notes: string;
+  catalog_reqForm_notesPh: string;
+  catalog_reqForm_submit: string;
+  catalog_reqForm_optional: string;
+  catalog_reqForm_success_title: string;
+  catalog_reqForm_success_body: string;
+  catalog_reqForm_success_new: string;
 
   // Card / gating
   catalog_card_priceRange: string;
