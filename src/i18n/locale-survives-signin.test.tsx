@@ -31,7 +31,6 @@ import { translations, type Language } from "@/i18n/translations";
 
 import SignIn from "@/pages/SignIn";
 import Offers from "@/pages/Offers";
-import WorkspaceDashboard from "@/pages/workspace/WorkspaceDashboard";
 
 const STORAGE_KEY = "yorso-lang";
 
