@@ -2009,6 +2009,12 @@ const ru: TranslationKeys = {
   catalog_access_devSwitcher_qual: "Квалифицирован",
   catalog_access_devSwitcher_note: "Демо-контрол, не часть реальной авторизации",
 
+  catalog_value_cap_prices: "Открыть точные цены",
+  catalog_value_cap_suppliers: "Доступ к данным поставщиков",
+  catalog_value_cap_intelligence: "Динамика цен и новости стран",
+  catalog_value_ctaSignup: "Создать аккаунт покупателя",
+  catalog_value_ctaQualify: "Запросить полный доступ",
+
   catalog_card_priceRange: "Диапазон цены",
   catalog_card_priceLocked: "Точная цена скрыта",
   catalog_card_priceLockedHint: "Зарегистрируйтесь, чтобы видеть точную цену",
