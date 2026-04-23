@@ -405,67 +405,130 @@ type TranslationKeys = {
 
   // Info / legal pages — shared
   info_backToHome: string;
+  info_lastUpdated: string;
+  info_updated_january2026: string;
+  info_footer_rights: string;
 
   // About
   info_about_title: string;
+  info_about_intro: string;
   info_about_mission: string;
+  info_about_missionBody: string;
   info_about_whatWeDo: string;
+  info_about_whatWeDoBody: string;
   info_about_keyFacts: string;
+  info_about_facts: string[];
 
   // Contact
   info_contact_title: string;
+  info_contact_intro: string;
   info_contact_general: string;
   info_contact_buyer: string;
   info_contact_supplier: string;
   info_contact_office: string;
+  info_contact_emailLabel: string;
+  info_contact_officeAddress: string;
+  info_contact_kvk: string;
 
   // Cookies
   info_cookies_title: string;
+  info_cookies_intro: string;
   info_cookies_essential: string;
+  info_cookies_essentialBody: string;
   info_cookies_analytics: string;
+  info_cookies_analyticsBody: string;
   info_cookies_managing: string;
+  info_cookies_managingBody: string;
   info_cookies_contact: string;
+  info_cookies_contactBody1: string;
+  info_cookies_contactBody2: string;
 
   // GDPR
   info_gdpr_title: string;
+  info_gdpr_intro: string;
   info_gdpr_commitment: string;
+  info_gdpr_commitmentList: string[];
   info_gdpr_rights: string;
+  info_gdpr_rightsList: { term: string; desc: string }[];
   info_gdpr_dpo: string;
+  info_gdpr_dpoBody: string;
   info_gdpr_authority: string;
+  info_gdpr_authorityBody: string;
 
   // Anti-fraud
   info_antifraud_title: string;
+  info_antifraud_intro: string;
   info_antifraud_supplierVerification: string;
+  info_antifraud_supplierVerificationBody: string;
   info_antifraud_ongoingMonitoring: string;
+  info_antifraud_ongoingMonitoringBody: string;
   info_antifraud_reportingConcerns: string;
+  info_antifraud_reportingConcernsBody1: string;
+  info_antifraud_reportingConcernsBody2: string;
   info_antifraud_sanctions: string;
+  info_antifraud_sanctionsBody: string;
 
   // Careers
   info_careers_title: string;
+  info_careers_intro: string;
   info_careers_why: string;
+  info_careers_whyList: string[];
   info_careers_openPositions: string;
+  info_careers_openPositionsBody1: string;
+  info_careers_openPositionsBody2: string;
 
   // Press
   info_press_title: string;
+  info_press_intro: string;
   info_press_contact: string;
+  info_press_emailLabel: string;
   info_press_about: string;
+  info_press_aboutBody: string;
   info_press_brand: string;
+  info_press_brandBody1: string;
+  info_press_brandBody2: string;
 
   // Partners
   info_partners_title: string;
+  info_partners_intro: string;
   info_partners_types: string;
+  info_partners_typesList: { term: string; desc: string }[];
   info_partners_contact: string;
+  info_partners_contactBody1: string;
+  info_partners_contactBody2: string;
 
   // Terms
   info_terms_title: string;
+  info_terms_intro: string;
+  info_terms_h1: string;
+  info_terms_p1: string;
+  info_terms_h2: string;
+  info_terms_p2: string;
+  info_terms_h3: string;
+  info_terms_p3: string;
+  info_terms_h4: string;
+  info_terms_p4: string;
+  info_terms_h5: string;
+  info_terms_p5: string;
+  info_terms_h6: string;
+  info_terms_p6: string;
+  info_terms_h7: string;
+  info_terms_p7: string;
 
   // Privacy
   info_privacy_title: string;
+  info_privacy_intro: string;
   info_privacy_dataCollect: string;
+  info_privacy_dataCollectList: string[];
   info_privacy_use: string;
+  info_privacy_useBody: string;
   info_privacy_storage: string;
+  info_privacy_storageBody: string;
   info_privacy_rights: string;
+  info_privacy_rightsBody1: string;
+  info_privacy_rightsBody2: string;
   info_privacy_contact: string;
+  info_privacy_contactBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -920,57 +983,155 @@ const en: TranslationKeys = {
   workspace_activity_message: "New reply from",
 
   info_backToHome: "Back to homepage",
+  info_lastUpdated: "Last updated",
+  info_updated_january2026: "January 2026",
+  info_footer_rights: "All rights reserved",
 
   info_about_title: "About YORSO",
+  info_about_intro: "YORSO is the global B2B seafood marketplace, headquartered in Amsterdam, Netherlands. We connect professional buyers with verified suppliers across 48 countries — with transparent pricing, direct contacts, and zero commissions.",
   info_about_mission: "Our Mission",
+  info_about_missionBody: "To make international seafood trade transparent, efficient, and trustworthy. We believe that every buyer deserves access to verified suppliers, real prices, and direct contacts — without paying middleman fees or relying on outdated sourcing methods.",
   info_about_whatWeDo: "What We Do",
+  info_about_whatWeDoBody: "YORSO provides a curated marketplace where seafood suppliers are verified through a rigorous multi-step process. Buyers can search, compare, and contact suppliers directly — with full transparency on pricing, certifications, and company credentials.",
   info_about_keyFacts: "Key Facts",
+  info_about_facts: [
+    "380+ verified suppliers from 48 countries",
+    "2,100+ active professional buyers",
+    "0% commission on all transactions",
+    "GDPR-compliant, EU-based infrastructure",
+    "Multi-language platform (EN, RU, ES)",
+  ],
 
   info_contact_title: "Contact Us",
+  info_contact_intro: "We'd love to hear from you. Whether you're a buyer looking for sourcing support, a supplier interested in joining, or a partner exploring collaboration — reach out and we'll respond within one business day.",
   info_contact_general: "General Inquiries",
   info_contact_buyer: "Buyer Support",
   info_contact_supplier: "Supplier Onboarding",
   info_contact_office: "Office",
+  info_contact_emailLabel: "Email",
+  info_contact_officeAddress: "YORSO B.V., Amsterdam, Netherlands",
+  info_contact_kvk: "KVK: 12345678",
 
   info_cookies_title: "Cookie Policy",
+  info_cookies_intro: "YORSO uses cookies and similar technologies to provide, protect, and improve the platform experience.",
   info_cookies_essential: "Essential Cookies",
+  info_cookies_essentialBody: "Required for the platform to function. These include session management, authentication tokens, and language preferences. Cannot be disabled.",
   info_cookies_analytics: "Analytics Cookies",
+  info_cookies_analyticsBody: "Help us understand how users interact with YORSO. We use this data to improve features and user experience. Data is anonymized and never sold.",
   info_cookies_managing: "Managing Cookies",
+  info_cookies_managingBody: "You can control cookies through your browser settings. Disabling essential cookies may affect platform functionality.",
   info_cookies_contact: "Contact",
+  info_cookies_contactBody1: "Questions about our cookie practices? Contact ",
+  info_cookies_contactBody2: ".",
 
   info_gdpr_title: "GDPR Compliance",
+  info_gdpr_intro: "YORSO B.V. is fully committed to compliance with the General Data Protection Regulation (EU) 2016/679.",
   info_gdpr_commitment: "Our Commitment",
+  info_gdpr_commitmentList: [
+    "Data minimization: we collect only what's necessary to provide our services",
+    "Purpose limitation: data is used only for stated purposes",
+    "Storage limitation: data is retained only as long as necessary",
+    "EU-based infrastructure: all data stored within the European Union",
+    "Encryption: all data encrypted in transit and at rest",
+    "Regular audits: independent security assessments conducted annually",
+  ],
   info_gdpr_rights: "Your Rights Under GDPR",
+  info_gdpr_rightsList: [
+    { term: "Right to Access", desc: "request a copy of your personal data" },
+    { term: "Right to Rectification", desc: "correct inaccurate data" },
+    { term: "Right to Erasure", desc: "request deletion of your data" },
+    { term: "Right to Portability", desc: "receive your data in a structured format" },
+    { term: "Right to Object", desc: "object to processing of your data" },
+    { term: "Right to Restrict", desc: "limit how we process your data" },
+  ],
   info_gdpr_dpo: "Data Protection Officer",
+  info_gdpr_dpoBody: "Contact: ",
   info_gdpr_authority: "Supervisory Authority",
+  info_gdpr_authorityBody: "You have the right to lodge a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).",
 
   info_antifraud_title: "Anti-Fraud Policy",
+  info_antifraud_intro: "YORSO takes fraud prevention seriously. Our platform is designed to protect both buyers and suppliers from fraudulent activity.",
   info_antifraud_supplierVerification: "Supplier Verification",
+  info_antifraud_supplierVerificationBody: "Every supplier undergoes multi-step verification before receiving a verified badge. This includes business registration checks, export license verification, facility certification review (HACCP, BRC, MSC), and trade reference validation.",
   info_antifraud_ongoingMonitoring: "Ongoing Monitoring",
+  info_antifraud_ongoingMonitoringBody: "Verified suppliers are re-assessed annually. Badges can be suspended or revoked based on quality complaints, failed re-verification, or platform rule violations.",
   info_antifraud_reportingConcerns: "Reporting Concerns",
+  info_antifraud_reportingConcernsBody1: "If you suspect fraudulent activity on the platform, contact us immediately at ",
+  info_antifraud_reportingConcernsBody2: ". All reports are investigated within 48 hours.",
   info_antifraud_sanctions: "Sanctions Screening",
+  info_antifraud_sanctionsBody: "YORSO conducts trade sanctions screening as part of the supplier verification process, in compliance with EU and international trade regulations.",
 
   info_careers_title: "Careers at YORSO",
+  info_careers_intro: "We're building the future of B2B seafood trade. YORSO is a growing team based in Amsterdam, working to make international seafood sourcing transparent, efficient, and trustworthy.",
   info_careers_why: "Why YORSO?",
+  info_careers_whyList: [
+    "Meaningful impact: transforming a $150B+ industry",
+    "International team with deep industry expertise",
+    "Remote-friendly culture with Amsterdam HQ",
+    "Competitive compensation and equity participation",
+  ],
   info_careers_openPositions: "Open Positions",
+  info_careers_openPositionsBody1: "We're always looking for talented people in product, engineering, sales, and operations. Send your CV and a brief intro to ",
+  info_careers_openPositionsBody2: ".",
 
   info_press_title: "Press & Media",
+  info_press_intro: "For media inquiries, interview requests, or press materials, please contact our communications team.",
   info_press_contact: "Press Contact",
+  info_press_emailLabel: "Email",
   info_press_about: "About YORSO",
+  info_press_aboutBody: "YORSO is a B2B seafood marketplace connecting professional buyers with 380+ verified suppliers across 48 countries. Headquartered in Amsterdam, the platform offers transparent pricing, direct supplier contacts, and zero commission — serving over 2,100 active buyers worldwide.",
   info_press_brand: "Brand Assets",
+  info_press_brandBody1: "Logo files, brand guidelines, and product screenshots are available upon request. Contact ",
+  info_press_brandBody2: ".",
 
   info_partners_title: "Partner Program",
+  info_partners_intro: "YORSO partners with industry organizations, trade associations, logistics providers, and technology companies to strengthen the global seafood supply chain.",
   info_partners_types: "Partnership Types",
+  info_partners_typesList: [
+    { term: "Trade Associations", desc: "co-promotion, member benefits, industry data sharing" },
+    { term: "Logistics Partners", desc: "integrated shipping and cold chain solutions" },
+    { term: "Technology Partners", desc: "API integrations, traceability solutions" },
+    { term: "Certification Bodies", desc: "streamlined verification for certified suppliers" },
+  ],
   info_partners_contact: "Get in Touch",
+  info_partners_contactBody1: "Interested in partnering with YORSO? Contact ",
+  info_partners_contactBody2: ".",
 
   info_terms_title: "Terms of Service",
+  info_terms_intro: "These Terms of Service (\"Terms\") govern your access to and use of the YORSO platform operated by YORSO B.V., a company registered in the Netherlands (KVK 12345678).",
+  info_terms_h1: "Acceptance of Terms",
+  info_terms_p1: "By accessing or using YORSO, you agree to be bound by these Terms. If you do not agree, you may not use the platform.",
+  info_terms_h2: "Platform Description",
+  info_terms_p2: "YORSO is a B2B marketplace that connects seafood buyers with verified suppliers. The platform facilitates discovery, comparison, and direct communication between parties. YORSO does not take ownership of goods, handle payments between buyers and suppliers, or guarantee transaction outcomes.",
+  info_terms_h3: "User Accounts",
+  info_terms_p3: "You must provide accurate and complete registration information. You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.",
+  info_terms_h4: "Commission Policy",
+  info_terms_p4: "YORSO charges 0% commission on deals between buyers and suppliers. Revenue is generated through optional premium services available to suppliers.",
+  info_terms_h5: "Supplier Verification",
+  info_terms_p5: "YORSO conducts due diligence on suppliers seeking verified status. Verification does not constitute a warranty or guarantee of supplier performance, product quality, or transaction outcomes.",
+  info_terms_h6: "Limitation of Liability",
+  info_terms_p6: "YORSO is not liable for disputes between buyers and suppliers, product quality issues, shipping delays, or financial losses arising from transactions arranged through the platform.",
+  info_terms_h7: "Governing Law",
+  info_terms_p7: "These Terms are governed by the laws of the Netherlands. Any disputes shall be submitted to the competent courts of Amsterdam.",
 
   info_privacy_title: "Privacy Policy",
+  info_privacy_intro: "YORSO B.V. (\"YORSO\", \"we\", \"us\") respects your privacy and is committed to protecting your personal data in accordance with the General Data Protection Regulation (GDPR) and applicable Dutch privacy laws.",
   info_privacy_dataCollect: "Data We Collect",
+  info_privacy_dataCollectList: [
+    "Account information: name, email, company name, role",
+    "Usage data: pages visited, features used, search queries",
+    "Communication data: messages sent through the platform",
+    "Technical data: IP address, browser type, device information",
+  ],
   info_privacy_use: "How We Use Your Data",
+  info_privacy_useBody: "We use your data to provide and improve our services, facilitate buyer-supplier connections, ensure platform security, and communicate relevant updates. We do not sell your data to third parties.",
   info_privacy_storage: "Data Storage & Security",
+  info_privacy_storageBody: "All data is stored in EU-based infrastructure. We use encryption in transit (TLS) and at rest. Regular security audits are conducted to maintain data integrity.",
   info_privacy_rights: "Your Rights",
+  info_privacy_rightsBody1: "Under GDPR, you have the right to access, rectify, delete, or export your personal data. Contact ",
+  info_privacy_rightsBody2: " to exercise your rights.",
   info_privacy_contact: "Contact",
+  info_privacy_contactBody: "Data Protection Officer: ",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -1412,57 +1573,155 @@ const ru: TranslationKeys = {
   workspace_activity_message: "Новый ответ от",
 
   info_backToHome: "На главную",
+  info_lastUpdated: "Последнее обновление",
+  info_updated_january2026: "Январь 2026",
+  info_footer_rights: "Все права защищены",
 
   info_about_title: "О компании YORSO",
+  info_about_intro: "YORSO — глобальный B2B-маркетплейс морепродуктов со штаб-квартирой в Амстердаме (Нидерланды). Мы соединяем профессиональных покупателей с проверенными поставщиками из 48 стран — с прозрачными ценами, прямыми контактами и нулевой комиссией.",
   info_about_mission: "Наша миссия",
+  info_about_missionBody: "Сделать международную торговлю морепродуктами прозрачной, эффективной и заслуживающей доверия. Мы убеждены, что каждый покупатель заслуживает доступа к проверенным поставщикам, реальным ценам и прямым контактам — без посреднических комиссий и устаревших методов закупок.",
   info_about_whatWeDo: "Что мы делаем",
+  info_about_whatWeDoBody: "YORSO — кураторский маркетплейс, где поставщики морепродуктов проходят строгую многоступенчатую проверку. Покупатели могут искать, сравнивать и связываться с поставщиками напрямую — с полной прозрачностью по ценам, сертификатам и реквизитам компании.",
   info_about_keyFacts: "Ключевые факты",
+  info_about_facts: [
+    "380+ проверенных поставщиков из 48 стран",
+    "2 100+ активных профессиональных покупателей",
+    "0% комиссии на всех сделках",
+    "Соответствие GDPR, инфраструктура в ЕС",
+    "Многоязычная платформа (EN, RU, ES)",
+  ],
 
   info_contact_title: "Связаться с нами",
+  info_contact_intro: "Будем рады услышать вас. Покупаете ли вы морепродукты, хотите стать поставщиком или рассматриваете партнёрство — напишите нам, и мы ответим в течение одного рабочего дня.",
   info_contact_general: "Общие вопросы",
   info_contact_buyer: "Поддержка покупателей",
   info_contact_supplier: "Подключение поставщиков",
   info_contact_office: "Офис",
+  info_contact_emailLabel: "Email",
+  info_contact_officeAddress: "YORSO B.V., Амстердам, Нидерланды",
+  info_contact_kvk: "KVK: 12345678",
 
   info_cookies_title: "Политика использования файлов cookie",
+  info_cookies_intro: "YORSO использует файлы cookie и аналогичные технологии для предоставления, защиты и улучшения работы платформы.",
   info_cookies_essential: "Обязательные cookie",
+  info_cookies_essentialBody: "Необходимы для работы платформы. Включают управление сессиями, токены аутентификации и языковые настройки. Не могут быть отключены.",
   info_cookies_analytics: "Аналитические cookie",
+  info_cookies_analyticsBody: "Помогают понять, как пользователи взаимодействуют с YORSO. Мы используем эти данные для улучшения функций и удобства. Данные обезличены и никогда не продаются.",
   info_cookies_managing: "Управление cookie",
+  info_cookies_managingBody: "Вы можете управлять cookie через настройки браузера. Отключение обязательных cookie может повлиять на работу платформы.",
   info_cookies_contact: "Контакты",
+  info_cookies_contactBody1: "Вопросы о нашей работе с cookie? Напишите на ",
+  info_cookies_contactBody2: ".",
 
   info_gdpr_title: "Соответствие GDPR",
+  info_gdpr_intro: "YORSO B.V. полностью соблюдает Общий регламент по защите данных (ЕС) 2016/679.",
   info_gdpr_commitment: "Наши обязательства",
+  info_gdpr_commitmentList: [
+    "Минимизация данных: собираем только то, что необходимо для оказания услуг",
+    "Ограничение цели: данные используются только в заявленных целях",
+    "Ограничение хранения: данные хранятся только столько, сколько необходимо",
+    "Инфраструктура в ЕС: все данные хранятся в Европейском союзе",
+    "Шифрование: все данные шифруются при передаче и хранении",
+    "Регулярные аудиты: независимые проверки безопасности проводятся ежегодно",
+  ],
   info_gdpr_rights: "Ваши права по GDPR",
+  info_gdpr_rightsList: [
+    { term: "Право на доступ", desc: "запросить копию ваших персональных данных" },
+    { term: "Право на исправление", desc: "исправить неточные данные" },
+    { term: "Право на удаление", desc: "запросить удаление ваших данных" },
+    { term: "Право на переносимость", desc: "получить ваши данные в структурированном формате" },
+    { term: "Право на возражение", desc: "возразить против обработки ваших данных" },
+    { term: "Право на ограничение", desc: "ограничить способ обработки ваших данных" },
+  ],
   info_gdpr_dpo: "Сотрудник по защите данных",
+  info_gdpr_dpoBody: "Контакт: ",
   info_gdpr_authority: "Надзорный орган",
+  info_gdpr_authorityBody: "Вы вправе подать жалобу в Управление по защите данных Нидерландов (Autoriteit Persoonsgegevens).",
 
   info_antifraud_title: "Политика противодействия мошенничеству",
+  info_antifraud_intro: "YORSO серьёзно относится к предотвращению мошенничества. Платформа спроектирована для защиты как покупателей, так и поставщиков от недобросовестных действий.",
   info_antifraud_supplierVerification: "Проверка поставщиков",
+  info_antifraud_supplierVerificationBody: "Каждый поставщик проходит многоступенчатую проверку перед получением статуса «проверенный». Сюда входит проверка регистрации бизнеса, экспортных лицензий, сертификатов производства (HACCP, BRC, MSC) и торговых рекомендаций.",
   info_antifraud_ongoingMonitoring: "Постоянный мониторинг",
+  info_antifraud_ongoingMonitoringBody: "Проверенные поставщики проходят повторную оценку ежегодно. Бейдж может быть приостановлен или отозван по жалобам на качество, провалу повторной проверки или нарушению правил платформы.",
   info_antifraud_reportingConcerns: "Сообщить о нарушении",
+  info_antifraud_reportingConcernsBody1: "Если вы подозреваете мошенничество на платформе, незамедлительно напишите нам на ",
+  info_antifraud_reportingConcernsBody2: ". Все обращения рассматриваются в течение 48 часов.",
   info_antifraud_sanctions: "Проверка санкционных списков",
+  info_antifraud_sanctionsBody: "YORSO проводит проверку торговых санкций в рамках верификации поставщиков в соответствии с требованиями ЕС и международного торгового регулирования.",
 
   info_careers_title: "Карьера в YORSO",
+  info_careers_intro: "Мы строим будущее B2B-торговли морепродуктами. YORSO — растущая команда в Амстердаме, делающая международные закупки морепродуктов прозрачными, эффективными и заслуживающими доверия.",
   info_careers_why: "Почему YORSO?",
+  info_careers_whyList: [
+    "Значимое влияние: трансформация индустрии объёмом более $150 млрд",
+    "Международная команда с глубокой отраслевой экспертизой",
+    "Удалённая работа с офисом в Амстердаме",
+    "Конкурентная компенсация и опцион",
+  ],
   info_careers_openPositions: "Открытые вакансии",
+  info_careers_openPositionsBody1: "Мы всегда ищем талантливых людей в продукт, инжиниринг, продажи и операции. Присылайте резюме и краткое представление на ",
+  info_careers_openPositionsBody2: ".",
 
   info_press_title: "Пресса и СМИ",
+  info_press_intro: "По вопросам прессы, интервью или пресс-материалов, пожалуйста, свяжитесь с нашей командой коммуникаций.",
   info_press_contact: "Контакты для прессы",
+  info_press_emailLabel: "Email",
   info_press_about: "О компании YORSO",
+  info_press_aboutBody: "YORSO — B2B-маркетплейс морепродуктов, соединяющий профессиональных покупателей с 380+ проверенными поставщиками из 48 стран. Платформа со штаб-квартирой в Амстердаме предлагает прозрачные цены, прямые контакты с поставщиками и нулевую комиссию — обслуживая более 2 100 активных покупателей по всему миру.",
   info_press_brand: "Бренд-материалы",
+  info_press_brandBody1: "Файлы логотипа, бренд-гайдлайны и скриншоты продукта доступны по запросу. Напишите на ",
+  info_press_brandBody2: ".",
 
   info_partners_title: "Партнёрская программа",
+  info_partners_intro: "YORSO сотрудничает с отраслевыми организациями, торговыми ассоциациями, логистическими и технологическими компаниями для укрепления глобальной цепочки поставок морепродуктов.",
   info_partners_types: "Типы партнёрства",
+  info_partners_typesList: [
+    { term: "Торговые ассоциации", desc: "совместное продвижение, бенефиты для участников, обмен отраслевыми данными" },
+    { term: "Логистические партнёры", desc: "интегрированные решения по доставке и холодовой цепи" },
+    { term: "Технологические партнёры", desc: "API-интеграции, решения по прослеживаемости" },
+    { term: "Сертифицирующие органы", desc: "упрощённая верификация для сертифицированных поставщиков" },
+  ],
   info_partners_contact: "Связаться с нами",
+  info_partners_contactBody1: "Заинтересованы в партнёрстве с YORSO? Напишите на ",
+  info_partners_contactBody2: ".",
 
   info_terms_title: "Условия использования",
+  info_terms_intro: "Настоящие Условия использования («Условия») регулируют ваш доступ к платформе YORSO и её использование. Платформа управляется компанией YORSO B.V., зарегистрированной в Нидерландах (KVK 12345678).",
+  info_terms_h1: "Принятие условий",
+  info_terms_p1: "Используя YORSO, вы соглашаетесь соблюдать настоящие Условия. Если вы не согласны, вы не вправе пользоваться платформой.",
+  info_terms_h2: "Описание платформы",
+  info_terms_p2: "YORSO — это B2B-маркетплейс, соединяющий покупателей морепродуктов с проверенными поставщиками. Платформа обеспечивает поиск, сравнение и прямую коммуникацию между сторонами. YORSO не становится владельцем товаров, не обрабатывает платежи между покупателями и поставщиками и не гарантирует исход сделок.",
+  info_terms_h3: "Учётные записи пользователей",
+  info_terms_p3: "Вы обязаны предоставлять точную и полную информацию при регистрации. Вы несёте ответственность за конфиденциальность учётных данных и за все действия, совершаемые в вашей учётной записи.",
+  info_terms_h4: "Политика комиссий",
+  info_terms_p4: "YORSO взимает 0% комиссии со сделок между покупателями и поставщиками. Доход формируется за счёт опциональных премиум-сервисов для поставщиков.",
+  info_terms_h5: "Проверка поставщиков",
+  info_terms_p5: "YORSO проводит проверку поставщиков, претендующих на статус «проверенный». Верификация не является гарантией исполнения обязательств, качества продукции или результата сделки.",
+  info_terms_h6: "Ограничение ответственности",
+  info_terms_p6: "YORSO не несёт ответственности за споры между покупателями и поставщиками, проблемы качества продукции, задержки доставки или финансовые потери, возникающие в связи со сделками, организованными через платформу.",
+  info_terms_h7: "Применимое право",
+  info_terms_p7: "Настоящие Условия регулируются законодательством Нидерландов. Любые споры подлежат рассмотрению в компетентных судах Амстердама.",
 
   info_privacy_title: "Политика конфиденциальности",
+  info_privacy_intro: "YORSO B.V. («YORSO», «мы», «нас») уважает вашу конфиденциальность и обязуется защищать ваши персональные данные в соответствии с Общим регламентом по защите данных (GDPR) и применимым законодательством Нидерландов.",
   info_privacy_dataCollect: "Какие данные мы собираем",
+  info_privacy_dataCollectList: [
+    "Информация об аккаунте: имя, email, название компании, роль",
+    "Данные использования: посещённые страницы, использованные функции, поисковые запросы",
+    "Данные коммуникаций: сообщения, отправленные через платформу",
+    "Технические данные: IP-адрес, тип браузера, информация об устройстве",
+  ],
   info_privacy_use: "Как мы используем ваши данные",
+  info_privacy_useBody: "Мы используем ваши данные для предоставления и улучшения сервиса, упрощения связи между покупателями и поставщиками, обеспечения безопасности и информирования об актуальных обновлениях. Мы не продаём ваши данные третьим лицам.",
   info_privacy_storage: "Хранение и безопасность данных",
+  info_privacy_storageBody: "Все данные хранятся в инфраструктуре на территории ЕС. Мы используем шифрование при передаче (TLS) и хранении. Регулярные аудиты безопасности обеспечивают целостность данных.",
   info_privacy_rights: "Ваши права",
+  info_privacy_rightsBody1: "Согласно GDPR, вы имеете право на доступ, исправление, удаление или экспорт ваших персональных данных. Чтобы воспользоваться правами, напишите на ",
+  info_privacy_rightsBody2: ".",
   info_privacy_contact: "Контакты",
+  info_privacy_contactBody: "Сотрудник по защите данных: ",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -1904,57 +2163,155 @@ const es: TranslationKeys = {
   workspace_activity_message: "Nueva respuesta de",
 
   info_backToHome: "Volver al inicio",
+  info_lastUpdated: "Última actualización",
+  info_updated_january2026: "Enero de 2026",
+  info_footer_rights: "Todos los derechos reservados",
 
   info_about_title: "Acerca de YORSO",
+  info_about_intro: "YORSO es el marketplace global B2B de productos del mar, con sede en Ámsterdam, Países Bajos. Conectamos a compradores profesionales con proveedores verificados en 48 países — con precios transparentes, contactos directos y cero comisiones.",
   info_about_mission: "Nuestra Misión",
+  info_about_missionBody: "Hacer que el comercio internacional de productos del mar sea transparente, eficiente y confiable. Creemos que cada comprador merece acceso a proveedores verificados, precios reales y contactos directos — sin pagar comisiones de intermediarios ni depender de métodos de compra obsoletos.",
   info_about_whatWeDo: "Qué Hacemos",
+  info_about_whatWeDoBody: "YORSO ofrece un marketplace curado donde los proveedores de productos del mar son verificados mediante un riguroso proceso multifásico. Los compradores pueden buscar, comparar y contactar proveedores directamente — con total transparencia en precios, certificaciones y credenciales de la empresa.",
   info_about_keyFacts: "Datos Clave",
+  info_about_facts: [
+    "380+ proveedores verificados de 48 países",
+    "2.100+ compradores profesionales activos",
+    "0% de comisión en todas las transacciones",
+    "Cumplimiento del GDPR, infraestructura en la UE",
+    "Plataforma multilingüe (EN, RU, ES)",
+  ],
 
   info_contact_title: "Contáctanos",
+  info_contact_intro: "Nos encantaría saber de ti. Tanto si eres un comprador buscando soporte de aprovisionamiento, un proveedor interesado en unirse, o un socio explorando una colaboración — escríbenos y responderemos en un día hábil.",
   info_contact_general: "Consultas Generales",
   info_contact_buyer: "Soporte para Compradores",
   info_contact_supplier: "Alta de Proveedores",
   info_contact_office: "Oficina",
+  info_contact_emailLabel: "Email",
+  info_contact_officeAddress: "YORSO B.V., Ámsterdam, Países Bajos",
+  info_contact_kvk: "KVK: 12345678",
 
   info_cookies_title: "Política de Cookies",
+  info_cookies_intro: "YORSO utiliza cookies y tecnologías similares para proporcionar, proteger y mejorar la experiencia en la plataforma.",
   info_cookies_essential: "Cookies Esenciales",
+  info_cookies_essentialBody: "Necesarias para el funcionamiento de la plataforma. Incluyen gestión de sesiones, tokens de autenticación y preferencias de idioma. No se pueden desactivar.",
   info_cookies_analytics: "Cookies de Analítica",
+  info_cookies_analyticsBody: "Nos ayudan a entender cómo los usuarios interactúan con YORSO. Usamos estos datos para mejorar funciones y experiencia. Los datos son anónimos y nunca se venden.",
   info_cookies_managing: "Gestión de Cookies",
+  info_cookies_managingBody: "Puedes controlar las cookies a través de la configuración de tu navegador. Desactivar las cookies esenciales puede afectar el funcionamiento de la plataforma.",
   info_cookies_contact: "Contacto",
+  info_cookies_contactBody1: "¿Preguntas sobre nuestras prácticas con cookies? Contacta ",
+  info_cookies_contactBody2: ".",
 
   info_gdpr_title: "Cumplimiento del GDPR",
+  info_gdpr_intro: "YORSO B.V. está plenamente comprometida con el cumplimiento del Reglamento General de Protección de Datos (UE) 2016/679.",
   info_gdpr_commitment: "Nuestro Compromiso",
+  info_gdpr_commitmentList: [
+    "Minimización de datos: solo recopilamos lo necesario para prestar nuestros servicios",
+    "Limitación de finalidad: los datos se usan solo para los fines declarados",
+    "Limitación de almacenamiento: los datos se conservan solo el tiempo necesario",
+    "Infraestructura en la UE: todos los datos se almacenan dentro de la Unión Europea",
+    "Cifrado: todos los datos se cifran en tránsito y en reposo",
+    "Auditorías regulares: evaluaciones de seguridad independientes anuales",
+  ],
   info_gdpr_rights: "Tus Derechos Bajo el GDPR",
+  info_gdpr_rightsList: [
+    { term: "Derecho de Acceso", desc: "solicitar una copia de tus datos personales" },
+    { term: "Derecho de Rectificación", desc: "corregir datos inexactos" },
+    { term: "Derecho de Supresión", desc: "solicitar la eliminación de tus datos" },
+    { term: "Derecho de Portabilidad", desc: "recibir tus datos en un formato estructurado" },
+    { term: "Derecho de Oposición", desc: "oponerte al tratamiento de tus datos" },
+    { term: "Derecho de Limitación", desc: "limitar cómo procesamos tus datos" },
+  ],
   info_gdpr_dpo: "Delegado de Protección de Datos",
+  info_gdpr_dpoBody: "Contacto: ",
   info_gdpr_authority: "Autoridad de Control",
+  info_gdpr_authorityBody: "Tienes derecho a presentar una reclamación ante la Autoridad Holandesa de Protección de Datos (Autoriteit Persoonsgegevens).",
 
   info_antifraud_title: "Política Antifraude",
+  info_antifraud_intro: "YORSO se toma en serio la prevención del fraude. Nuestra plataforma está diseñada para proteger tanto a compradores como a proveedores de actividades fraudulentas.",
   info_antifraud_supplierVerification: "Verificación de Proveedores",
+  info_antifraud_supplierVerificationBody: "Cada proveedor pasa por una verificación multifásica antes de recibir el distintivo de verificado. Esto incluye verificación de registro mercantil, licencias de exportación, certificaciones de instalaciones (HACCP, BRC, MSC) y validación de referencias comerciales.",
   info_antifraud_ongoingMonitoring: "Monitoreo Continuo",
+  info_antifraud_ongoingMonitoringBody: "Los proveedores verificados son reevaluados anualmente. Los distintivos pueden suspenderse o revocarse por reclamaciones de calidad, fallos en la reverificación o violaciones de las reglas de la plataforma.",
   info_antifraud_reportingConcerns: "Reportar Inquietudes",
+  info_antifraud_reportingConcernsBody1: "Si sospechas actividad fraudulenta en la plataforma, contáctanos de inmediato en ",
+  info_antifraud_reportingConcernsBody2: ". Todos los reportes se investigan en 48 horas.",
   info_antifraud_sanctions: "Revisión de Sanciones",
+  info_antifraud_sanctionsBody: "YORSO realiza una revisión de sanciones comerciales como parte del proceso de verificación de proveedores, en cumplimiento de las regulaciones comerciales de la UE e internacionales.",
 
   info_careers_title: "Carreras en YORSO",
+  info_careers_intro: "Estamos construyendo el futuro del comercio B2B de productos del mar. YORSO es un equipo en crecimiento con sede en Ámsterdam, trabajando para hacer el aprovisionamiento internacional transparente, eficiente y confiable.",
   info_careers_why: "¿Por qué YORSO?",
+  info_careers_whyList: [
+    "Impacto significativo: transformando una industria de más de $150B",
+    "Equipo internacional con profunda experiencia sectorial",
+    "Cultura remote-friendly con sede en Ámsterdam",
+    "Compensación competitiva y participación en equity",
+  ],
   info_careers_openPositions: "Vacantes Abiertas",
+  info_careers_openPositionsBody1: "Siempre buscamos personas talentosas en producto, ingeniería, ventas y operaciones. Envía tu CV y una breve presentación a ",
+  info_careers_openPositionsBody2: ".",
 
   info_press_title: "Prensa y Medios",
+  info_press_intro: "Para consultas de prensa, solicitudes de entrevistas o materiales de prensa, contacta a nuestro equipo de comunicaciones.",
   info_press_contact: "Contacto de Prensa",
+  info_press_emailLabel: "Email",
   info_press_about: "Acerca de YORSO",
+  info_press_aboutBody: "YORSO es un marketplace B2B de productos del mar que conecta a compradores profesionales con más de 380 proveedores verificados en 48 países. Con sede en Ámsterdam, la plataforma ofrece precios transparentes, contactos directos con proveedores y cero comisiones — atendiendo a más de 2.100 compradores activos en todo el mundo.",
   info_press_brand: "Recursos de Marca",
+  info_press_brandBody1: "Archivos de logo, guías de marca y capturas del producto disponibles bajo solicitud. Contacta ",
+  info_press_brandBody2: ".",
 
   info_partners_title: "Programa de Socios",
+  info_partners_intro: "YORSO se asocia con organizaciones del sector, asociaciones comerciales, proveedores logísticos y empresas tecnológicas para fortalecer la cadena global de suministro de productos del mar.",
   info_partners_types: "Tipos de Asociación",
+  info_partners_typesList: [
+    { term: "Asociaciones Comerciales", desc: "co-promoción, beneficios para miembros, intercambio de datos sectoriales" },
+    { term: "Socios Logísticos", desc: "soluciones integradas de envío y cadena de frío" },
+    { term: "Socios Tecnológicos", desc: "integraciones API, soluciones de trazabilidad" },
+    { term: "Organismos Certificadores", desc: "verificación simplificada para proveedores certificados" },
+  ],
   info_partners_contact: "Ponte en Contacto",
+  info_partners_contactBody1: "¿Interesado en asociarte con YORSO? Contacta ",
+  info_partners_contactBody2: ".",
 
   info_terms_title: "Términos de Servicio",
+  info_terms_intro: "Estos Términos de Servicio (\"Términos\") rigen tu acceso y uso de la plataforma YORSO operada por YORSO B.V., una sociedad registrada en los Países Bajos (KVK 12345678).",
+  info_terms_h1: "Aceptación de los Términos",
+  info_terms_p1: "Al acceder o usar YORSO, aceptas quedar vinculado por estos Términos. Si no estás de acuerdo, no puedes usar la plataforma.",
+  info_terms_h2: "Descripción de la Plataforma",
+  info_terms_p2: "YORSO es un marketplace B2B que conecta a compradores de productos del mar con proveedores verificados. La plataforma facilita el descubrimiento, la comparación y la comunicación directa entre las partes. YORSO no toma propiedad de las mercancías, no gestiona pagos entre compradores y proveedores, ni garantiza los resultados de las transacciones.",
+  info_terms_h3: "Cuentas de Usuario",
+  info_terms_p3: "Debes proporcionar información precisa y completa al registrarte. Eres responsable de mantener la confidencialidad de tus credenciales y de todas las actividades realizadas con tu cuenta.",
+  info_terms_h4: "Política de Comisiones",
+  info_terms_p4: "YORSO cobra 0% de comisión en las operaciones entre compradores y proveedores. Los ingresos provienen de servicios premium opcionales para proveedores.",
+  info_terms_h5: "Verificación de Proveedores",
+  info_terms_p5: "YORSO realiza la debida diligencia sobre los proveedores que solicitan el estado verificado. La verificación no constituye una garantía sobre el desempeño del proveedor, la calidad del producto o el resultado de las transacciones.",
+  info_terms_h6: "Limitación de Responsabilidad",
+  info_terms_p6: "YORSO no es responsable de disputas entre compradores y proveedores, problemas de calidad de productos, retrasos de envío o pérdidas financieras derivadas de transacciones organizadas a través de la plataforma.",
+  info_terms_h7: "Ley Aplicable",
+  info_terms_p7: "Estos Términos se rigen por las leyes de los Países Bajos. Cualquier disputa será sometida a los tribunales competentes de Ámsterdam.",
 
   info_privacy_title: "Política de Privacidad",
+  info_privacy_intro: "YORSO B.V. (\"YORSO\", \"nosotros\") respeta tu privacidad y se compromete a proteger tus datos personales conforme al Reglamento General de Protección de Datos (GDPR) y la legislación holandesa aplicable.",
   info_privacy_dataCollect: "Datos Que Recopilamos",
+  info_privacy_dataCollectList: [
+    "Información de cuenta: nombre, email, nombre de la empresa, rol",
+    "Datos de uso: páginas visitadas, funciones utilizadas, búsquedas",
+    "Datos de comunicación: mensajes enviados a través de la plataforma",
+    "Datos técnicos: dirección IP, tipo de navegador, información del dispositivo",
+  ],
   info_privacy_use: "Cómo Usamos tus Datos",
+  info_privacy_useBody: "Usamos tus datos para prestar y mejorar nuestros servicios, facilitar conexiones comprador-proveedor, garantizar la seguridad de la plataforma y comunicar actualizaciones relevantes. No vendemos tus datos a terceros.",
   info_privacy_storage: "Almacenamiento y Seguridad",
+  info_privacy_storageBody: "Todos los datos se almacenan en infraestructura ubicada en la UE. Usamos cifrado en tránsito (TLS) y en reposo. Se realizan auditorías de seguridad regulares para mantener la integridad de los datos.",
   info_privacy_rights: "Tus Derechos",
+  info_privacy_rightsBody1: "Bajo el GDPR, tienes derecho a acceder, rectificar, eliminar o exportar tus datos personales. Contacta ",
+  info_privacy_rightsBody2: " para ejercer tus derechos.",
   info_privacy_contact: "Contacto",
+  info_privacy_contactBody: "Delegado de Protección de Datos: ",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
