@@ -6,8 +6,8 @@ import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
-import CatalogOfferCard from "@/components/catalog/CatalogOfferCard";
-import IntelligenceRail from "@/components/catalog/IntelligenceRail";
+import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
+import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
@@ -43,6 +43,7 @@ const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
 const Offers = () => {
   const { t } = useLanguage();
   const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -65,6 +66,35 @@ const Offers = () => {
   }, []);
 
   const visible = useMemo(() => mockOffers.filter((o) => matches(o, filters)), [filters]);
+
+  // Auto-select first visible offer when current selection becomes invalid.
+  useEffect(() => {
+    if (visible.length === 0) {
+      setSelectedOfferId(null);
+      return;
+    }
+    if (!selectedOfferId || !visible.some((o) => o.id === selectedOfferId)) {
+      setSelectedOfferId(visible[0].id);
+    }
+  }, [visible, selectedOfferId]);
+
+  const selectedOffer = useMemo(
+    () => visible.find((o) => o.id === selectedOfferId) ?? null,
+    [visible, selectedOfferId],
+  );
+
+  const handleSelectOffer = (offerId: string) => {
+    setSelectedOfferId(offerId);
+    const o = mockOffers.find((x) => x.id === offerId);
+    if (o) {
+      analytics.track("catalog_offer_select", {
+        offerId,
+        category: o.category,
+        origin: o.origin,
+        supplierCountry: o.supplier.country,
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -121,7 +151,7 @@ const Offers = () => {
           </div>
         </div>
 
-        {/* Quick procurement filters row — species shortcuts (preserved from current catalog) */}
+        {/* Quick category chips */}
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
@@ -152,18 +182,22 @@ const Offers = () => {
           ))}
         </div>
 
-        {/* Capability-led value strip (hidden once buyer is fully qualified) */}
+        {/* Capability-led value strip */}
         <div className="mt-4">
           <CatalogValueStrip />
         </div>
 
-        {/* Filters (full width) */}
-        <div className="mt-5">
-          <CatalogFilters value={filters} onChange={setFilters} options={options} />
-        </div>
+        {/* 3-pane procurement workspace */}
+        <div className="mt-5 grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
+          {/* LEFT: sticky filters */}
+          <aside
+            className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1"
+            aria-label={t.catalog_filters_title}
+          >
+            <CatalogFilters value={filters} onChange={setFilters} options={options} />
+          </aside>
 
-        {/* Workspace: results + intelligence rail */}
-        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+          {/* CENTER: horizontal offer rows */}
           <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
@@ -182,16 +216,22 @@ const Offers = () => {
                 <CatalogRequestForm initialProduct={filters.q ?? ""} />
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">
+              <div className="flex flex-col gap-3">
                 {visible.map((offer) => (
-                  <CatalogOfferCard key={offer.id} offer={offer} />
+                  <CatalogOfferRow
+                    key={offer.id}
+                    offer={offer}
+                    isSelected={offer.id === selectedOfferId}
+                    onSelect={handleSelectOffer}
+                  />
                 ))}
               </div>
             )}
           </section>
 
+          {/* RIGHT: persistent intelligence panel */}
           <div className="xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
-            <IntelligenceRail category={filters.category} />
+            <SelectedOfferPanel offer={selectedOffer} />
           </div>
         </div>
 

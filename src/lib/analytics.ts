@@ -68,6 +68,7 @@ export interface EventPayloadMap {
   offer_detail_view: { offerId: string; product: string };
   catalog_access_request_submit: { scopes: string[]; hasNote: boolean };
   catalog_product_request_submit: { product: string; hasOrigin: boolean; hasDestination: boolean };
+  catalog_offer_select: { offerId: string; category: string; origin: string; supplierCountry: string };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and
