@@ -165,7 +165,15 @@ const ActionsCell = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel
   );
 };
 
-export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Props) => {
+export const CatalogOfferRow = ({
+  offer,
+  isSelected,
+  onSelect,
+  isCompared = false,
+  onToggleCompare,
+  compareDisabled = false,
+  forceLevel,
+}: Props) => {
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
