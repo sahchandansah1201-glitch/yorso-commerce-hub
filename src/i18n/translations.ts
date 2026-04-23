@@ -1410,6 +1410,59 @@ const ru: TranslationKeys = {
   workspace_activity_offer_view: "Просмотр оффера",
   workspace_activity_price_request: "Запрос цены по",
   workspace_activity_message: "Новый ответ от",
+
+  info_backToHome: "На главную",
+
+  info_about_title: "О компании YORSO",
+  info_about_mission: "Наша миссия",
+  info_about_whatWeDo: "Что мы делаем",
+  info_about_keyFacts: "Ключевые факты",
+
+  info_contact_title: "Связаться с нами",
+  info_contact_general: "Общие вопросы",
+  info_contact_buyer: "Поддержка покупателей",
+  info_contact_supplier: "Подключение поставщиков",
+  info_contact_office: "Офис",
+
+  info_cookies_title: "Политика использования файлов cookie",
+  info_cookies_essential: "Обязательные cookie",
+  info_cookies_analytics: "Аналитические cookie",
+  info_cookies_managing: "Управление cookie",
+  info_cookies_contact: "Контакты",
+
+  info_gdpr_title: "Соответствие GDPR",
+  info_gdpr_commitment: "Наши обязательства",
+  info_gdpr_rights: "Ваши права по GDPR",
+  info_gdpr_dpo: "Сотрудник по защите данных",
+  info_gdpr_authority: "Надзорный орган",
+
+  info_antifraud_title: "Политика противодействия мошенничеству",
+  info_antifraud_supplierVerification: "Проверка поставщиков",
+  info_antifraud_ongoingMonitoring: "Постоянный мониторинг",
+  info_antifraud_reportingConcerns: "Сообщить о нарушении",
+  info_antifraud_sanctions: "Проверка санкционных списков",
+
+  info_careers_title: "Карьера в YORSO",
+  info_careers_why: "Почему YORSO?",
+  info_careers_openPositions: "Открытые вакансии",
+
+  info_press_title: "Пресса и СМИ",
+  info_press_contact: "Контакты для прессы",
+  info_press_about: "О компании YORSO",
+  info_press_brand: "Бренд-материалы",
+
+  info_partners_title: "Партнёрская программа",
+  info_partners_types: "Типы партнёрства",
+  info_partners_contact: "Связаться с нами",
+
+  info_terms_title: "Условия использования",
+
+  info_privacy_title: "Политика конфиденциальности",
+  info_privacy_dataCollect: "Какие данные мы собираем",
+  info_privacy_use: "Как мы используем ваши данные",
+  info_privacy_storage: "Хранение и безопасность данных",
+  info_privacy_rights: "Ваши права",
+  info_privacy_contact: "Контакты",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -1849,6 +1902,59 @@ const es: TranslationKeys = {
   workspace_activity_offer_view: "Vista de oferta",
   workspace_activity_price_request: "Solicitud de precio para",
   workspace_activity_message: "Nueva respuesta de",
+
+  info_backToHome: "Volver al inicio",
+
+  info_about_title: "Acerca de YORSO",
+  info_about_mission: "Nuestra Misión",
+  info_about_whatWeDo: "Qué Hacemos",
+  info_about_keyFacts: "Datos Clave",
+
+  info_contact_title: "Contáctanos",
+  info_contact_general: "Consultas Generales",
+  info_contact_buyer: "Soporte para Compradores",
+  info_contact_supplier: "Alta de Proveedores",
+  info_contact_office: "Oficina",
+
+  info_cookies_title: "Política de Cookies",
+  info_cookies_essential: "Cookies Esenciales",
+  info_cookies_analytics: "Cookies de Analítica",
+  info_cookies_managing: "Gestión de Cookies",
+  info_cookies_contact: "Contacto",
+
+  info_gdpr_title: "Cumplimiento del GDPR",
+  info_gdpr_commitment: "Nuestro Compromiso",
+  info_gdpr_rights: "Tus Derechos Bajo el GDPR",
+  info_gdpr_dpo: "Delegado de Protección de Datos",
+  info_gdpr_authority: "Autoridad de Control",
+
+  info_antifraud_title: "Política Antifraude",
+  info_antifraud_supplierVerification: "Verificación de Proveedores",
+  info_antifraud_ongoingMonitoring: "Monitoreo Continuo",
+  info_antifraud_reportingConcerns: "Reportar Inquietudes",
+  info_antifraud_sanctions: "Revisión de Sanciones",
+
+  info_careers_title: "Carreras en YORSO",
+  info_careers_why: "¿Por qué YORSO?",
+  info_careers_openPositions: "Vacantes Abiertas",
+
+  info_press_title: "Prensa y Medios",
+  info_press_contact: "Contacto de Prensa",
+  info_press_about: "Acerca de YORSO",
+  info_press_brand: "Recursos de Marca",
+
+  info_partners_title: "Programa de Socios",
+  info_partners_types: "Tipos de Asociación",
+  info_partners_contact: "Ponte en Contacto",
+
+  info_terms_title: "Términos de Servicio",
+
+  info_privacy_title: "Política de Privacidad",
+  info_privacy_dataCollect: "Datos Que Recopilamos",
+  info_privacy_use: "Cómo Usamos tus Datos",
+  info_privacy_storage: "Almacenamiento y Seguridad",
+  info_privacy_rights: "Tus Derechos",
+  info_privacy_contact: "Contacto",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
