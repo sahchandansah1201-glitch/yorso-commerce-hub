@@ -17,8 +17,8 @@ interface Props {
 }
 
 const dirIcon = (d: TrendDirection) => {
-  if (d === "up") return <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />;
-  if (d === "down") return <TrendingDown className="h-3.5 w-3.5 text-red-600" />;
+  if (d === "up") return <TrendingUp className="h-3.5 w-3.5 text-primary" />;
+  if (d === "down") return <TrendingDown className="h-3.5 w-3.5 text-destructive" />;
   return <Minus className="h-3.5 w-3.5 text-muted-foreground" />;
 };
 
@@ -209,9 +209,9 @@ export const IntelligenceRail = ({ category }: Props) => {
             {signals.slice(0, isAnon ? 2 : signals.length).map((s) => (
               <li key={s.id} className="flex items-start gap-2 text-xs">
                 {s.severity === "alert" ? (
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-600" aria-hidden />
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
                 ) : s.severity === "watch" ? (
-                  <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+                  <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
                 ) : (
                   <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
                 )}
