@@ -9,8 +9,7 @@ import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/
 import CatalogOfferCard from "@/components/catalog/CatalogOfferCard";
 import IntelligenceRail from "@/components/catalog/IntelligenceRail";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
-import AccessLevelBanner from "@/components/catalog/AccessLevelBanner";
-import AccessLevelSwitcher from "@/components/catalog/AccessLevelSwitcher";
+import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 
 const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
   if (f.q) {
@@ -165,10 +164,9 @@ const Offers = () => {
           </Link>
         </div>
 
-        {/* Access banner + dev switcher */}
-        <div className="mt-4 grid gap-3">
-          <AccessLevelBanner />
-          <AccessLevelSwitcher />
+        {/* Capability-led value strip (hidden once buyer is fully qualified) */}
+        <div className="mt-4">
+          <CatalogValueStrip />
         </div>
 
         {/* Filters (full width) */}
