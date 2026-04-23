@@ -40,7 +40,10 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStart.current === null) return;
     const diff = e.changedTouches[0].clientX - touchStart.current;
-    if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goPrev();
+      else goNext();
+    }
     touchStart.current = null;
   };
 
@@ -98,7 +101,10 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
     if (zoom > 1) return; // don't swipe when zoomed
     if (touchStart.current === null) return;
     const diff = e.changedTouches[0].clientX - touchStart.current;
-    if (Math.abs(diff) > 50) { diff > 0 ? goPrev() : goNext(); }
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goPrev();
+      else goNext();
+    }
     touchStart.current = null;
   };
 

@@ -340,7 +340,7 @@ const FALLBACK_ISSUER: Record<Language, string> = {
 };
 
 export function getCertificationInfo(code: string, lang: Language): CertificationInfo {
-  const key = code.toUpperCase().replace(/[\s.\-]/g, "");
+  const key = code.toUpperCase().replace(/[\s.-]/g, "");
   const def = CERTIFICATIONS[key];
   if (!def) {
     return {
