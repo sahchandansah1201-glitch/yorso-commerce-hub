@@ -50,20 +50,7 @@ const RegisterReady = () => {
       });
     })();
 
-    let cancelled = false;
-    loadConfetti().then((confetti) => {
-      if (cancelled || !confetti) return;
-      const end = Date.now() + 1500;
-      const frame = () => {
-        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors: ["#F97316", "#1E3A5F", "#22C55E", "#FBBF24"] });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      };
-      frame();
-    });
-    return () => {
-      cancelled = true;
-    };
+    })();
   }, [guardPassed]);
 
   if (!guardPassed) return null;
