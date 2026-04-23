@@ -402,6 +402,70 @@ type TranslationKeys = {
   workspace_activity_offer_view: string;
   workspace_activity_price_request: string;
   workspace_activity_message: string;
+
+  // Info / legal pages — shared
+  info_backToHome: string;
+
+  // About
+  info_about_title: string;
+  info_about_mission: string;
+  info_about_whatWeDo: string;
+  info_about_keyFacts: string;
+
+  // Contact
+  info_contact_title: string;
+  info_contact_general: string;
+  info_contact_buyer: string;
+  info_contact_supplier: string;
+  info_contact_office: string;
+
+  // Cookies
+  info_cookies_title: string;
+  info_cookies_essential: string;
+  info_cookies_analytics: string;
+  info_cookies_managing: string;
+  info_cookies_contact: string;
+
+  // GDPR
+  info_gdpr_title: string;
+  info_gdpr_commitment: string;
+  info_gdpr_rights: string;
+  info_gdpr_dpo: string;
+  info_gdpr_authority: string;
+
+  // Anti-fraud
+  info_antifraud_title: string;
+  info_antifraud_supplierVerification: string;
+  info_antifraud_ongoingMonitoring: string;
+  info_antifraud_reportingConcerns: string;
+  info_antifraud_sanctions: string;
+
+  // Careers
+  info_careers_title: string;
+  info_careers_why: string;
+  info_careers_openPositions: string;
+
+  // Press
+  info_press_title: string;
+  info_press_contact: string;
+  info_press_about: string;
+  info_press_brand: string;
+
+  // Partners
+  info_partners_title: string;
+  info_partners_types: string;
+  info_partners_contact: string;
+
+  // Terms
+  info_terms_title: string;
+
+  // Privacy
+  info_privacy_title: string;
+  info_privacy_dataCollect: string;
+  info_privacy_use: string;
+  info_privacy_storage: string;
+  info_privacy_rights: string;
+  info_privacy_contact: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
