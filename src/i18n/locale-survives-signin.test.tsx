@@ -54,7 +54,7 @@ const LangProbe = () => {
 
 const renderApp = (onReady: (s: (l: Language) => void) => void) =>
   render(
-    <MemoryRouter initialEntries={["/signin"]}>
+    <MemoryRouter initialEntries={["/signin?redirect=/offers"]}>
       <LanguageProvider>
         <ExposeSetter onReady={onReady} />
         <LangProbe />
