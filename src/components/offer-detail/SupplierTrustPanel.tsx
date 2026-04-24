@@ -143,8 +143,9 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
         {isQualified ? (
           <>
             <Button className="w-full gap-2 font-semibold" size="lg"
-              onClick={() => analytics.track("offer_contact_supplier", { offerId: offer.id })}>
+              onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id })}>
               Contact Supplier <ArrowRight className="h-4 w-4" />
+            </Button>
             </Button>
             <Button variant="outline" className="w-full gap-2" size="sm">
               <Bookmark className="h-4 w-4" /> Save to Shortlist
