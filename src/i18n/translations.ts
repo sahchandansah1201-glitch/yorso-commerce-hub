@@ -48,6 +48,8 @@ type TranslationKeys = {
   offers_priceUnit_perKg: string;
   offers_qtyUnit_kg: string;
   offers_moqLabel: string;
+  /** Tooltip explaining how the per-unit price is calculated. */
+  priceUnit_tooltip: string;
 
   // Offer Card
   card_verified: string;
@@ -855,6 +857,7 @@ const en: TranslationKeys = {
   offers_priceUnit_perKg: "per kg",
   offers_qtyUnit_kg: "kg",
   offers_moqLabel: "MOQ",
+  priceUnit_tooltip: "Price per kilogram of net product weight, excluding glaze and packaging. Final invoice may vary based on incoterms and selected volume tier.",
 
   // Offer Card
   card_verified: "Verified",
@@ -1725,6 +1728,7 @@ const ru: TranslationKeys = {
   offers_priceUnit_perKg: "за кг",
   offers_qtyUnit_kg: "кг",
   offers_moqLabel: "Мин. партия",
+  priceUnit_tooltip: "Цена за килограмм нетто без глазури и упаковки. Итоговая сумма зависит от условий поставки (incoterms) и выбранного объёмного тира.",
 
   card_verified: "Проверен",
   card_viewOffer: "Смотреть",
@@ -2585,6 +2589,7 @@ const es: TranslationKeys = {
   offers_priceUnit_perKg: "por kg",
   offers_qtyUnit_kg: "kg",
   offers_moqLabel: "Pedido mínimo",
+  priceUnit_tooltip: "Precio por kilogramo de peso neto, sin glaseado ni embalaje. El total final depende de los incoterms y del tramo de volumen elegido.",
 
   card_verified: "Verificado",
   card_viewOffer: "Ver oferta",

@@ -13,8 +13,10 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
@@ -25,6 +27,37 @@ import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
+
+/**
+ * Renders the price unit (e.g. "$/kg") with a tooltip explaining how the
+ * per-unit price is calculated. See CatalogOfferCard for the full rationale.
+ */
+const PriceUnit = ({ unit }: { unit: string }) => {
+  const { t } = useLanguage();
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
+            aria-label={`${unit} — ${t.priceUnit_tooltip}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            {unit}
+            <Info className="h-2.5 w-2.5 opacity-60" aria-hidden />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+          {t.priceUnit_tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 interface Props {
   offer: SeafoodOffer;
@@ -159,7 +192,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <span className="font-heading text-lg font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
-          <span className="text-[11px] text-muted-foreground">{unit}</span>
+          <PriceUnit unit={unit} />
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
@@ -197,7 +230,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-1.5">
         <span className="font-heading text-base font-bold text-foreground">{range}</span>
-        <span className="text-[11px] text-muted-foreground">{unit}</span>
+        <PriceUnit unit={unit} />
       </div>
       {MoqLine}
       {moqSummary && hasVolumeBreaks && (
