@@ -280,7 +280,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[200px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[290px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -374,9 +374,6 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
             <p className="text-foreground leading-tight">{offer.commercial.paymentTerms}</p>
           </div>
         </div>
-        <span className="text-foreground">
-          {t.offers_moqLabel}: <span className="font-semibold">{offer.moq}</span>
-        </span>
       </div>
 
       {/* 4. Price + supplier/access */}
