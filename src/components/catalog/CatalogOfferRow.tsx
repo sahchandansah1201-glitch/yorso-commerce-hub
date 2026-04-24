@@ -13,20 +13,17 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import { formatPriceRange } from "@/lib/format";
-import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
+import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
 
 /**
  * Renders the price unit (e.g. "$/kg") with a tooltip explaining how the
