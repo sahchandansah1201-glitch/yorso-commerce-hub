@@ -72,8 +72,8 @@ const OfferDetail = () => {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]">
           <PhotoGallery gallery={offer.gallery} productName={offer.productName} photoSourceLabel={offer.photoSourceLabel} />
-          <OfferSummary offer={offer} />
-          <div className="lg:sticky lg:top-20 lg:self-start"><SupplierTrustPanel offer={offer} /></div>
+          <OfferSummary offer={offer} accessLevel={level} />
+          <div className="lg:sticky lg:top-20 lg:self-start"><SupplierTrustPanel offer={offer} accessLevel={level} /></div>
         </div>
 
         <TrustSection offer={offer} />
