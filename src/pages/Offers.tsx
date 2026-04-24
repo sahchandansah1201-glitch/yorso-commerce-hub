@@ -280,6 +280,7 @@ const Offers = () => {
                     key={offer.id}
                     offer={offer}
                     isSelected={offer.id === selectedOfferId}
+                    isHighlighted={offer.id === highlightOfferId}
                     onSelect={handleSelectOffer}
                   />
                 ))}
