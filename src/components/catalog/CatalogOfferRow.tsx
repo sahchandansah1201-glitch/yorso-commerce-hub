@@ -286,16 +286,41 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
 
       {/* 3. Deal terms */}
       <div className="flex min-w-0 flex-col gap-2 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <Truck className="h-3.5 w-3.5" aria-hidden />
-          <span className="text-foreground">
-            {offer.commercial.incoterm} · {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <CreditCard className="h-3.5 w-3.5" aria-hidden />
-          {offer.commercial.paymentTerms.split(",")[0]}
-        </span>
+        <div className="flex items-start gap-1.5">
+          <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+              {t.catalog_row_basisLabel}
+            </p>
+            <ul className="mt-0.5 space-y-0.5 text-foreground">
+              {(offer.deliveryBasisOptions ?? []).slice(0, 3).map((b) => (
+                <li key={b.code} className="leading-tight">
+                  <span className="font-semibold">{b.code}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {b.shipmentPort?.split(",")[0]} · {b.leadTime}
+                  </span>
+                </li>
+              ))}
+              {(!offer.deliveryBasisOptions || offer.deliveryBasisOptions.length === 0) && (
+                <li className="leading-tight">
+                  <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+        <div className="flex items-start gap-1.5">
+          <CreditCard className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+              {t.catalog_row_paymentLabel}
+            </p>
+            <p className="text-foreground leading-tight">{offer.commercial.paymentTerms}</p>
+          </div>
+        </div>
         <span className="text-foreground">
           {t.offers_moqLabel}: <span className="font-semibold">{offer.moq}</span>
         </span>
