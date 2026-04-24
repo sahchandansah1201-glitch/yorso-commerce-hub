@@ -13,6 +13,7 @@ import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
+import Header from "@/components/landing/Header";
 
 const COMPARE_MAX = 5;
 
