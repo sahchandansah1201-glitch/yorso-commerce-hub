@@ -748,6 +748,12 @@ type TranslationKeys = {
   // Procurement workspace — compare tray
   catalog_compare_addLabel: string;
   catalog_compare_removeLabel: string;
+  // Row v2 — supplier visibility & access CTAs
+  catalog_row_supplierLocked_anon: string;
+  catalog_row_supplierLocked_reg: string;
+  catalog_row_priceCta_anon: string;
+  catalog_row_priceCta_reg: string;
+  catalog_row_viewDetails: string;
   catalog_compare_trayTitle: string;
   catalog_compare_trayHint: string;
   catalog_compare_open: string;
