@@ -7,10 +7,6 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import WorkspaceDashboard from "./pages/workspace/WorkspaceDashboard.tsx";
-import WorkspaceSaved from "./pages/workspace/WorkspaceSaved.tsx";
-import WorkspacePriceRequests from "./pages/workspace/WorkspacePriceRequests.tsx";
-import WorkspaceMessages from "./pages/workspace/WorkspaceMessages.tsx";
 import RegisterChoose from "./pages/register/RegisterChoose.tsx";
 import RegisterEmail from "./pages/register/RegisterEmail.tsx";
 import RegisterVerify from "./pages/register/RegisterVerify.tsx";
@@ -58,10 +54,6 @@ const App = () => (
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/offers/:id" element={<OfferDetail />} />
-                <Route path="/workspace" element={<WorkspaceDashboard />} />
-                <Route path="/workspace/saved" element={<WorkspaceSaved />} />
-                <Route path="/workspace/price-requests" element={<WorkspacePriceRequests />} />
-                <Route path="/workspace/messages" element={<WorkspaceMessages />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Terms />} />

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
@@ -13,6 +13,7 @@ import analytics from "@/lib/analytics";
 import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
@@ -24,6 +25,8 @@ const RegisterReady = () => {
   const { data, setField } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/ready");
   const { t } = useLanguage();
+  const { signIn, isSignedIn } = useBuyerSession();
+  const navigate = useNavigate();
   const isSupplier = data.role === "supplier";
   const firstName = data.fullName?.split(" ")[0] || "there";
 
@@ -48,10 +51,24 @@ const RegisterReady = () => {
         countries: data.countries.length,
         funnelDurationMs,
       });
+
+      // Buyers came here to find products fast — sign them in and route to /offers.
+      if (data.role === "buyer" && data.email && !isSignedIn) {
+        signIn({ identifier: data.email, method: "email" });
+        analytics.track("workspace_session_started", { method: "email" });
+      }
     })();
     // One-shot completion analytics; re-running on data changes would double-fire.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guardPassed]);
+
+  // Auto-redirect verified buyers to the procurement workspace after a brief success beat.
+  useEffect(() => {
+    if (!guardPassed) return;
+    if (data.role !== "buyer") return;
+    const id = window.setTimeout(() => navigate("/offers"), 2200);
+    return () => window.clearTimeout(id);
+  }, [guardPassed, data.role, navigate]);
 
   if (!guardPassed) return null;
 
