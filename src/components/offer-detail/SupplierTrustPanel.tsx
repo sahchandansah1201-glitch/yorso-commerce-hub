@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight, ShieldCheck, ShieldAlert, Building2, Timer, BadgeCheck,
-  Bookmark, GitCompareArrows, Info,
+  Bookmark, GitCompareArrows, Info, Lock,
 } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
+import type { AccessLevel } from "@/lib/access-level";
 import analytics from "@/lib/analytics";
 import { useState } from "react";
 import CertificationBadges from "@/components/CertificationBadges";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
@@ -19,10 +21,23 @@ const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string
   </div>
 );
 
-const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
+interface Props {
+  offer: SeafoodOffer;
+  accessLevel?: AccessLevel;
+}
+
+const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
+  const { t } = useLanguage();
   const s = offer.supplier;
   const yearsInBusiness = new Date().getFullYear() - s.inBusinessSince;
   const [showScope, setShowScope] = useState(false);
+
+  const isQualified = accessLevel === "qualified_unlocked";
+  const isAnonymous = accessLevel === "anonymous_locked";
+
+  // Mask supplier identity for non-qualified states.
+  const displayName = isQualified ? s.name : t.offerDetail_supplierMasked_name;
+  const initial = isQualified ? s.name.charAt(0) : "?";
 
   return (
     <div className="space-y-4">
@@ -30,22 +45,29 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-heading font-bold text-foreground">
-            {s.name.charAt(0)}
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-heading font-semibold text-foreground truncate">{s.name}</span>
+              <span className="font-heading font-semibold text-foreground truncate">{displayName}</span>
               {s.isVerified ? (
                 <ShieldCheck className="h-4 w-4 shrink-0 text-success" />
               ) : (
                 <ShieldAlert className="h-4 w-4 shrink-0 text-orange-500" />
               )}
+              {!isQualified && <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />}
             </div>
             <p className="text-xs text-muted-foreground">{s.countryFlag} {s.country}</p>
           </div>
         </div>
 
-        {/* Verification status */}
+        {!isQualified && (
+          <p className="text-xs text-muted-foreground rounded-lg bg-muted/50 p-3 leading-relaxed">
+            {t.offerDetail_supplierMasked_hint}
+          </p>
+        )}
+
+        {/* Verification status — always shown (non-identifying) */}
         <div className={`rounded-lg p-3 text-xs leading-relaxed ${
           s.isVerified
             ? "bg-success/5 border border-success/20 text-foreground"
@@ -92,7 +114,7 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
           </div>
         )}
 
-        {s.documentsReviewed.length > 0 && (
+        {isQualified && s.documentsReviewed.length > 0 && (
           <div>
             <p className="text-xs font-medium text-muted-foreground mb-1.5">Reviewed documents</p>
             <ul className="space-y-1">
@@ -105,28 +127,49 @@ const SupplierTrustPanel = ({ offer }: { offer: SeafoodOffer }) => {
           </div>
         )}
 
-        <Button variant="outline" size="sm" className="w-full text-xs">
-          View Supplier Profile
-        </Button>
+        {isQualified ? (
+          <Button variant="outline" size="sm" className="w-full text-xs">
+            View Supplier Profile
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" disabled>
+            <Lock className="h-3 w-3" /> {t.offerDetail_supplierProfileLocked}
+          </Button>
+        )}
       </div>
 
-      {/* CTA stack */}
+      {/* CTA stack — gated by access */}
       <div className="space-y-2.5">
-        <Link to="/register" className="block">
-          <Button className="w-full gap-2 font-semibold" size="lg"
-            onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id })}>
-            Register to Contact Supplier <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
-        <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
-          Registration unlocks direct messaging, quote requests, sample orders, and full supplier contact details. Free forever.
-        </p>
-        <Button variant="outline" className="w-full gap-2" size="sm">
-          <Bookmark className="h-4 w-4" /> Save to Shortlist
-        </Button>
-        <Button variant="ghost" className="w-full gap-2 text-muted-foreground" size="sm">
-          <GitCompareArrows className="h-4 w-4" /> Compare Similar Offers
-        </Button>
+        {isQualified ? (
+          <>
+            <Button className="w-full gap-2 font-semibold" size="lg"
+              onClick={() => analytics.track("offer_contact_supplier", { offerId: offer.id })}>
+              Contact Supplier <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" className="w-full gap-2" size="sm">
+              <Bookmark className="h-4 w-4" /> Save to Shortlist
+            </Button>
+            <Button variant="ghost" className="w-full gap-2 text-muted-foreground" size="sm">
+              <GitCompareArrows className="h-4 w-4" /> Compare Similar Offers
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link to="/register" className="block">
+              <Button className="w-full gap-2 font-semibold" size="lg"
+                onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id, accessLevel })}>
+                {isAnonymous ? t.offerDetail_priceLocked_anonCta : t.offerDetail_requestAccessCta}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
+              {isAnonymous ? t.offerDetail_accessLocked_body : t.offerDetail_accessLimited_body}
+            </p>
+            <Button variant="outline" className="w-full gap-2" size="sm" disabled>
+              <Lock className="h-4 w-4" /> {t.offerDetail_supplierContactLocked}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
