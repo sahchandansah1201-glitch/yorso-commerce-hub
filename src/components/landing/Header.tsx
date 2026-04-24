@@ -29,7 +29,7 @@ const Header = () => {
     setAccountOpen(false);
     setMobileOpen(false);
     signOut();
-    analytics.track("header_signout_click");
+    analytics.track("header_signout_click", {});
   };
 
   return (
