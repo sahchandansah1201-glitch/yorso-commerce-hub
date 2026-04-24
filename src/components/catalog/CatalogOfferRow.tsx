@@ -286,14 +286,13 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="font-heading text-base font-bold text-foreground">{range}</span>
         <PriceUnit unit={unit} />
       </div>
-      {MoqLine}
-      {moqSummary && hasVolumeBreaks && (
-        <p
-          className="text-[10px] text-muted-foreground"
-          data-testid="catalog-row-moq-summary"
-        >
-          {t.offers_moqLabel}: <span className="font-medium text-foreground">{moqSummary}</span>
+      {hasVolumeBreaks && moqSummary ? (
+        <p className="text-[11px] text-muted-foreground" data-testid="catalog-row-moq-summary">
+          <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
+          <span className="font-semibold text-foreground">{moqSummary}</span>
         </p>
+      ) : (
+        MoqLine
       )}
       {hasAdditionalBreaks && (
         <div>
