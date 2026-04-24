@@ -154,7 +154,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 1,000 kg",
     freshness: "Updated 2h ago",
     image: "/offers/salmon.webp",
-    images: ["/offers/salmon.webp", "/offers/cod.webp"],
+    images: ["/offers/salmon.webp", "/offers/cod.webp", "/offers/crab.webp"],
     gallery: [
       { src: "/offers/salmon.webp", alt: "Atlantic Salmon Fillet — top view", caption: "Fillet skin-on, pin bone out, vacuum packed", sourceLabel: "Supplier-provided" },
       { src: "/assets/salmon-vertical.jpg", alt: "Whole salmon on ice — vertical inspection", caption: "Fresh whole fish before processing", sourceLabel: "Supplier-provided" },
@@ -235,7 +235,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 5,000 kg",
     freshness: "Listed today",
     image: "/offers/shrimp.webp",
-    images: ["/offers/shrimp.webp"],
+    images: ["/offers/shrimp.webp", "/offers/crab.webp", "/offers/pangasius.webp"],
     gallery: [
       { src: "/offers/shrimp.webp", alt: "Vannamei Shrimp HOSO", caption: "Head-on shell-on, block frozen", sourceLabel: "Supplier-provided" },
     ],
@@ -306,7 +306,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 2,000 kg",
     freshness: "Updated 5h ago",
     image: "/offers/cod.webp",
-    images: ["/offers/cod.webp"],
+    images: ["/offers/cod.webp", "/offers/tuna.webp", "/offers/squid.webp"],
     gallery: [
       { src: "/offers/cod.webp", alt: "Cod Loin Center Cut", caption: "Skinless boneless center cut loin", sourceLabel: "Supplier-provided" },
     ],
@@ -373,7 +373,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 500 kg",
     freshness: "Updated 1d ago",
     image: "/offers/tuna.webp",
-    images: ["/offers/tuna.webp"],
+    images: ["/offers/tuna.webp", "/offers/shrimp.webp", "/offers/mahi.webp"],
     gallery: [
       { src: "/offers/tuna.webp", alt: "Yellowfin Tuna Loin", caption: "Grade A sashimi-quality loin", sourceLabel: "Supplier-provided" },
     ],
@@ -436,7 +436,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 200 kg",
     freshness: "Listed today",
     image: "/offers/crab.webp",
-    images: ["/offers/crab.webp"],
+    images: ["/offers/crab.webp", "/offers/squid.webp", "/offers/salmon.webp"],
     gallery: [
       { src: "/offers/crab.webp", alt: "King Crab Clusters", caption: "Frozen clusters, 10 kg carton", sourceLabel: "Supplier-provided" },
     ],
@@ -495,7 +495,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 10,000 kg",
     freshness: "Updated 8h ago",
     image: "/offers/squid.webp",
-    images: ["/offers/squid.webp"],
+    images: ["/offers/squid.webp", "/offers/mahi.webp", "/offers/cod.webp"],
     gallery: [
       { src: "/offers/squid.webp", alt: "Squid Tube & Tentacle", caption: "Cleaned tubes and tentacles, block frozen", sourceLabel: "Supplier-provided" },
     ],
@@ -557,7 +557,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 3,000 kg",
     freshness: "Updated 3h ago",
     image: "/offers/mahi.webp",
-    images: ["/offers/mahi.webp"],
+    images: ["/offers/mahi.webp", "/offers/pangasius.webp", "/offers/tuna.webp"],
     gallery: [
       { src: "/offers/mahi.webp", alt: "Mahi Mahi Portion", caption: "6oz IQF portion", sourceLabel: "Supplier-provided" },
     ],
@@ -615,7 +615,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 20,000 kg",
     freshness: "Updated 1h ago",
     image: "/offers/pangasius.webp",
-    images: ["/offers/pangasius.webp"],
+    images: ["/offers/pangasius.webp", "/offers/salmon.webp", "/offers/shrimp.webp"],
     gallery: [
       { src: "/offers/pangasius.webp", alt: "Pangasius Fillet", caption: "Well-trimmed, IVP packed", sourceLabel: "Supplier-provided" },
     ],
@@ -682,7 +682,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 1,500 kg",
     freshness: "Updated 4h ago",
     image: "/offers/salmon.webp",
-    images: ["/offers/salmon.webp"],
+    images: ["/offers/salmon.webp", "/offers/cod.webp", "/offers/crab.webp"],
     gallery: [
       { src: "/offers/salmon.webp", alt: "Sea Bass Fillet Skin-On", caption: "Fresh fillet, skin-on", sourceLabel: "Supplier-provided" },
     ],
@@ -747,7 +747,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 5,000 kg",
     freshness: "Listed today",
     image: "/offers/squid.webp",
-    images: ["/offers/squid.webp"],
+    images: ["/offers/squid.webp", "/offers/mahi.webp", "/offers/cod.webp"],
     gallery: [
       { src: "/offers/squid.webp", alt: "Octopus Whole Cleaned", caption: "T4 size, cleaned and frozen", sourceLabel: "Supplier-provided" },
     ],
@@ -807,7 +807,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 25,000 kg",
     freshness: "Updated 6h ago",
     image: "/offers/cod.webp",
-    images: ["/offers/cod.webp"],
+    images: ["/offers/cod.webp", "/offers/tuna.webp", "/offers/squid.webp"],
     gallery: [
       { src: "/offers/cod.webp", alt: "Mackerel HG", caption: "Headed & gutted, 300-500g", sourceLabel: "Supplier-provided" },
     ],
@@ -867,7 +867,7 @@ export const mockOffers: SeafoodOffer[] = [
     moq: "MOQ: 3,000 kg",
     freshness: "Updated 2h ago",
     image: "/offers/shrimp.webp",
-    images: ["/offers/shrimp.webp"],
+    images: ["/offers/shrimp.webp", "/offers/crab.webp", "/offers/pangasius.webp"],
     gallery: [
       { src: "/offers/shrimp.webp", alt: "Black Tiger Shrimp HLSO", caption: "Headless shell-on, IQF", sourceLabel: "Supplier-provided" },
     ],
