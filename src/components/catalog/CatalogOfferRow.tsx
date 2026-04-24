@@ -11,6 +11,8 @@ import {
   FileCheck2,
   ArrowRight,
   Check,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -34,12 +36,12 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
   const { t } = useLanguage();
   if (level === "qualified_unlocked") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs text-foreground">
-        <span className="font-semibold">{offer.supplier.name}</span>
+      <div className="flex flex-col gap-0.5 text-[11px]">
+        <span className="font-semibold text-foreground">{offer.supplier.name}</span>
         <span className="text-muted-foreground">
-          · {offer.supplier.countryFlag} {offer.supplier.country}
+          {offer.supplier.countryFlag} {offer.supplier.country}
         </span>
-      </span>
+      </div>
     );
   }
   const msg =
@@ -47,10 +49,77 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
       ? t.catalog_row_supplierLocked_reg
       : t.catalog_row_supplierLocked_anon;
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-      <Lock className="h-3.5 w-3.5" aria-hidden />
-      {msg} · {offer.supplier.countryFlag} {offer.supplier.country}
-    </span>
+    <div className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+      <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+      <span>
+        {msg} · {offer.supplier.countryFlag} {offer.supplier.country}
+      </span>
+    </div>
+  );
+};
+
+const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
+  const images =
+    offer.images && offer.images.length > 0 ? offer.images : [offer.image];
+  const [idx, setIdx] = useState(0);
+  const total = images.length;
+  const hasMultiple = total > 1;
+
+  const go = (delta: number) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIdx((prev) => (prev + delta + total) % total);
+  };
+
+  return (
+    <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+      <img
+        src={images[idx]}
+        alt={offer.productName}
+        loading="lazy"
+        className="h-full w-full object-cover"
+        onError={(e) => {
+          const target = e.currentTarget;
+          target.onerror = null;
+          target.src = "/placeholder.svg";
+        }}
+      />
+      <div className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
+        <span aria-hidden>{offer.originFlag}</span>
+        {offer.origin}
+      </div>
+      {hasMultiple && (
+        <>
+          <button
+            type="button"
+            onClick={go(-1)}
+            aria-label="Previous image"
+            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={go(1)}
+            aria-label="Next image"
+            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+          <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-1">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full transition-colors",
+                  i === idx ? "bg-foreground" : "bg-background/70",
+                )}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
@@ -83,18 +152,10 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     );
   }
 
-  // Locked states: single, clear access message + one action.
   const accessMsg =
     level === "registered_locked"
       ? t.catalog_row_priceAccess_reg
       : t.catalog_row_priceAccess_anon;
-
-  const ctaLabel =
-    level === "registered_locked"
-      ? accessPending
-        ? t.catalog_row_priceCta_reg_sent
-        : t.catalog_row_priceCta_reg
-      : t.catalog_row_priceCta_anon;
 
   return (
     <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
@@ -106,33 +167,32 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <Lock className="h-3 w-3" aria-hidden />
         {accessMsg}
       </p>
-      {level === "registered_locked" ? (
+      {level === "registered_locked" && (
         <>
-          <Button
+          <button
             type="button"
-            size="sm"
-            variant="outline"
             disabled={accessPending}
             onClick={(e) => {
               e.stopPropagation();
               setDialogOpen(true);
             }}
-            className="h-7 self-start px-2.5 text-[11px] font-semibold"
+            className="inline-flex items-center gap-1 self-start text-[11px] font-semibold text-link-hover hover:underline disabled:text-muted-foreground disabled:no-underline"
             data-testid="catalog-row-request-access"
           >
-            {accessPending ? <Check className="h-3 w-3" /> : null}
-            {ctaLabel}
-            {!accessPending && <ArrowRight className="h-3 w-3" />}
-          </Button>
+            {accessPending ? (
+              <>
+                <Check className="h-3 w-3" />
+                {t.catalog_row_priceCta_reg_sent}
+              </>
+            ) : (
+              <>
+                {t.catalog_row_priceCta_reg}
+                <ArrowRight className="h-3 w-3" />
+              </>
+            )}
+          </button>
           <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
         </>
-      ) : (
-        <Link to="/register" className="self-start" onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="outline" className="h-7 px-2.5 text-[11px] font-semibold">
-            {ctaLabel}
-            <ArrowRight className="h-3 w-3" />
-          </Button>
-        </Link>
       )}
     </div>
   );
@@ -167,30 +227,14 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[140px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,200px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[200px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
       )}
     >
       {/* 1. Media */}
-      <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
-        <img
-          src={offer.image}
-          alt={offer.productName}
-          loading="lazy"
-          className="h-full w-full object-cover"
-          onError={(e) => {
-            const target = e.currentTarget;
-            target.onerror = null;
-            target.src = "/placeholder.svg";
-          }}
-        />
-        <div className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
-          <span aria-hidden>{offer.originFlag}</span>
-          {offer.origin}
-        </div>
-      </div>
+      <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
       <div className="flex min-w-0 flex-col gap-2">
@@ -209,8 +253,6 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
         </div>
-
-        <SupplierLine offer={offer} level={level} />
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
@@ -259,9 +301,12 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         </span>
       </div>
 
-      {/* 4. Price + access */}
+      {/* 4. Price + supplier/access */}
       <div className="flex flex-col items-stretch gap-3">
         <PriceBlock offer={offer} level={level} />
+        <div className="border-t border-border pt-2">
+          <SupplierLine offer={offer} level={level} />
+        </div>
       </div>
     </article>
   );
