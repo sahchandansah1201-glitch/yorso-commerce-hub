@@ -47,15 +47,7 @@ const OfferDetail = () => {
 
   return (
     <div className="min-h-screen bg-background font-body">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
-        <div className="container flex h-14 items-center justify-between">
-          <Link to="/" className="font-heading text-xl font-bold tracking-tight text-foreground">YORSO</Link>
-          <div className="flex items-center gap-2">
-            <Link to="/signin"><Button variant="ghost" size="sm">{t.nav_signIn}</Button></Link>
-            <Link to="/register"><Button size="sm" className="font-semibold">{t.nav_registerFree}</Button></Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="container py-6 md:py-10">
         {isLocked && (
