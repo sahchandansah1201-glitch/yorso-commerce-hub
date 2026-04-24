@@ -11,6 +11,7 @@ import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import Header from "@/components/landing/Header";
 
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
