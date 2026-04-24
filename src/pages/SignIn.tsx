@@ -21,8 +21,8 @@ type View = "login" | "forgot";
  * paths, and anything that doesn't start with a single "/".
  */
 const sanitizeRedirect = (raw: string | null): string => {
-  if (!raw) return "/workspace";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/workspace";
+  if (!raw) return "/offers";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/offers";
   return raw;
 };
 
