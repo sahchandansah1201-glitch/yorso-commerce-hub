@@ -25,36 +25,8 @@ import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
 import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
 
-/**
- * Renders the price unit (e.g. "$/kg") with a tooltip explaining how the
- * per-unit price is calculated. See CatalogOfferCard for the full rationale.
- */
-const PriceUnit = ({ unit }: { unit: string }) => {
-  const { t } = useLanguage();
-  return (
-    <TooltipProvider delayDuration={150}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
-            aria-label={`${unit} — ${t.priceUnit_tooltip}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            {unit}
-            <Info className="h-2.5 w-2.5 opacity-60" aria-hidden />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-          {t.priceUnit_tooltip}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
+// Локальный PriceUnit удалён — переехал в @/components/catalog/PriceUnit и
+// инкапсулирован внутри OfferPriceMoq.
 
 interface Props {
   offer: SeafoodOffer;
