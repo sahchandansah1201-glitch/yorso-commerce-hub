@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -66,6 +66,9 @@ const App = () => (
                 <Route path="/partners" element={<Partners />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
+                {/* Legacy buyer workspace was removed — keep old links working by redirecting to the catalog. */}
+                <Route path="/workspace" element={<Navigate to="/offers" replace />} />
+                <Route path="/workspace/*" element={<Navigate to="/offers" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </RegistrationProvider>
