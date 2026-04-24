@@ -126,147 +126,53 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
   );
 };
 
+/**
+ * Тонкая обёртка над общим OfferPriceMoq: содержит специфичный для строки
+ * каталога CTA «Request access» и диалог запроса доступа. Сама логика
+ * формата цены/MOQ/тиров живёт в OfferPriceMoq, чтобы не расходиться с
+ * CatalogOfferCard.
+ */
 const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const accessPending = useAccessRequestPending();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const hasNumeric = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
-  const range = hasNumeric
-    ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
-    : offer.priceRange;
-  const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
-  const volumeBreaks = offer.volumeBreaks ?? [];
-  const hasVolumeBreaks = volumeBreaks.length > 0;
-  // First volume break is the minimum order quantity tier — surface it next to
-  // the price so buyers see "from-to + MOQ" together. Remaining tiers stay in
-  // the secondary "volume pricing" list below.
-  const primaryMoqRaw = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq;
-  const primaryMoq = normalizeMoq(primaryMoqRaw, lang).display;
-  const additionalBreaks = volumeBreaks.slice(1);
-  const hasAdditionalBreaks = additionalBreaks.length > 0;
-
-  const MoqLine = (
-    <p className="text-[11px] text-muted-foreground">
-      <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-      <span className="font-semibold text-foreground">{primaryMoq}</span>
-    </p>
-  );
-
-  if (level === "qualified_unlocked" && hasNumeric) {
-    const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
-    return (
-      <div data-testid="catalog-row-price" className="flex flex-col gap-1">
-        <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-lg font-bold text-foreground">
-            {offer.currency ?? "USD"} {exact}
-          </span>
-          <PriceUnit unit={unit} />
-        </div>
-        {MoqLine}
-        {hasAdditionalBreaks && (
-          <div className="mt-1">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-              {t.catalog_row_volumePricingLabel}
-            </p>
-            <ul className="mt-0.5 space-y-0.5 text-[11px]">
-              {additionalBreaks.map((vb, i) => (
-                <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                  <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
-                  <span className="font-semibold text-foreground">{vb.priceRange}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  const accessMsg =
-    level === "registered_locked"
-      ? t.catalog_row_priceAccess_reg
-      : t.catalog_row_priceAccess_anon;
-
-  // Surface a summarized MOQ range so locked-price buyers can still gauge
-  // minimum order scale (e.g. "1,000 – 20,000+ kg") without registration.
-  const moqSummary = summarizeMoqRange(
-    hasVolumeBreaks ? volumeBreaks.map((vb) => vb.minQty) : [offer.moq],
-    lang,
-  );
+  const lockedFooter =
+    level === "registered_locked" ? (
+      <>
+        <button
+          type="button"
+          disabled={accessPending}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDialogOpen(true);
+          }}
+          className="inline-flex items-center gap-1 self-start text-[11px] font-semibold text-link-hover hover:underline disabled:text-muted-foreground disabled:no-underline"
+          data-testid="catalog-row-request-access"
+        >
+          {accessPending ? (
+            <>
+              <Check className="h-3 w-3" />
+              {t.catalog_row_priceCta_reg_sent}
+            </>
+          ) : (
+            <>
+              {t.catalog_row_priceCta_reg}
+              <ArrowRight className="h-3 w-3" />
+            </>
+          )}
+        </button>
+        <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      </>
+    ) : null;
 
   return (
-    <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
-      <div className="flex items-baseline gap-1.5">
-        <span className="font-heading text-base font-bold text-foreground">{range}</span>
-        <PriceUnit unit={unit} />
-      </div>
-      {MoqLine}
-      {moqSummary && hasVolumeBreaks && (
-        <p
-          className="text-[10px] text-muted-foreground"
-          data-testid="catalog-row-moq-summary"
-        >
-          {t.offers_moqLabel}: <span className="font-medium text-foreground">{moqSummary}</span>
-        </p>
-      )}
-      {hasAdditionalBreaks && (
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-            {t.catalog_row_volumePricingLabel}
-          </p>
-          <ul className="mt-0.5 space-y-0.5 text-[11px]">
-            {additionalBreaks.map((vb, i) => (
-              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
-                <span
-                  className={cn(
-                    "font-semibold",
-                    level === "qualified_unlocked"
-                      ? "text-foreground"
-                      : "text-muted-foreground blur-[3px] select-none",
-                  )}
-                  aria-hidden={level !== "qualified_unlocked"}
-                >
-                  {vb.priceRange}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-        <Lock className="h-3 w-3" aria-hidden />
-        {accessMsg}
-      </p>
-      {level === "registered_locked" && (
-        <>
-          <button
-            type="button"
-            disabled={accessPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              setDialogOpen(true);
-            }}
-            className="inline-flex items-center gap-1 self-start text-[11px] font-semibold text-link-hover hover:underline disabled:text-muted-foreground disabled:no-underline"
-            data-testid="catalog-row-request-access"
-          >
-            {accessPending ? (
-              <>
-                <Check className="h-3 w-3" />
-                {t.catalog_row_priceCta_reg_sent}
-              </>
-            ) : (
-              <>
-                {t.catalog_row_priceCta_reg}
-                <ArrowRight className="h-3 w-3" />
-              </>
-            )}
-          </button>
-          <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-        </>
-      )}
-    </div>
+    <OfferPriceMoq
+      offer={offer}
+      level={level}
+      variant="row"
+      lockedFooter={lockedFooter}
+    />
   );
 };
 
