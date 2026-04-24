@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
+import { normalizeMoq } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
@@ -138,7 +139,8 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   // First volume break is the minimum order quantity tier — surface it next to
   // the price so buyers see "from-to + MOQ" together. Remaining tiers stay in
   // the secondary "volume pricing" list below.
-  const primaryMoq = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq.replace(/^MOQ:\s*/i, "");
+  const primaryMoqRaw = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq;
+  const primaryMoq = normalizeMoq(primaryMoqRaw, lang).display;
   const additionalBreaks = volumeBreaks.slice(1);
   const hasAdditionalBreaks = additionalBreaks.length > 0;
 
@@ -168,7 +170,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             <ul className="mt-0.5 space-y-0.5 text-[11px]">
               {additionalBreaks.map((vb, i) => (
                 <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                  <span className="text-muted-foreground">{vb.minQty}</span>
+                  <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
                   <span className="font-semibold text-foreground">{vb.priceRange}</span>
                 </li>
               ))}
@@ -199,7 +201,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <ul className="mt-0.5 space-y-0.5 text-[11px]">
             {additionalBreaks.map((vb, i) => (
               <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                <span className="text-muted-foreground">{vb.minQty}</span>
+                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
                 <span
                   className={cn(
                     "font-semibold",

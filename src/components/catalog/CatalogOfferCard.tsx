@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
+import { normalizeMoq } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 
@@ -55,9 +56,8 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   // Remaining tiers go to a compact secondary list.
   const volumeBreaks = offer.volumeBreaks ?? [];
   const hasVolumeBreaks = volumeBreaks.length > 0;
-  const primaryMoq = hasVolumeBreaks
-    ? volumeBreaks[0].minQty
-    : offer.moq.replace(/^MOQ:\s*/i, "");
+  const primaryMoqRaw = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq;
+  const primaryMoq = normalizeMoq(primaryMoqRaw, lang).display;
   const additionalBreaks = volumeBreaks.slice(1);
 
   const MoqLine = (
@@ -75,7 +75,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       <ul className="mt-0.5 space-y-0.5 text-[11px]">
         {additionalBreaks.map((vb, i) => (
           <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-            <span className="text-muted-foreground">{vb.minQty}</span>
+            <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
             <span
               className={
                 level === "qualified_unlocked"
