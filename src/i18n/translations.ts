@@ -1601,6 +1601,11 @@ const en: TranslationKeys = {
 
   catalog_compare_addLabel: "Add to compare",
   catalog_compare_removeLabel: "Remove from compare",
+  catalog_row_supplierLocked_anon: "Supplier details available after price access",
+  catalog_row_supplierLocked_reg: "Unlock price access to view supplier",
+  catalog_row_priceCta_anon: "Create buyer account",
+  catalog_row_priceCta_reg: "Request price access",
+  catalog_row_viewDetails: "View offer details",
   catalog_compare_trayTitle: "Compare offers",
   catalog_compare_trayHint: "Select 2–5 offers to compare side by side.",
   catalog_compare_open: "Open comparison",
