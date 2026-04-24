@@ -264,7 +264,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             </ul>
           </div>
         )}
-        {DealTerms}
       </div>
     );
   }
@@ -352,7 +351,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
         </>
       )}
-      {DealTerms}
     </div>
   );
 };
