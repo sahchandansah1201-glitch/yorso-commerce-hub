@@ -157,7 +157,7 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
           <>
             <Link to="/register" className="block">
               <Button className="w-full gap-2 font-semibold" size="lg"
-                onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id, accessLevel })}>
+                onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id })}>
                 {isAnonymous ? t.offerDetail_priceLocked_anonCta : t.offerDetail_requestAccessCta}
                 <ArrowRight className="h-4 w-4" />
               </Button>
