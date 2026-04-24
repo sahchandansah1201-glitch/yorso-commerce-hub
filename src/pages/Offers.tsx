@@ -60,6 +60,26 @@ const Offers = () => {
     analytics.track("offers_list_view");
   }, []);
 
+  // Restore scroll position + highlight when returning from offer detail.
+  useEffect(() => {
+    const ctx = readCatalogReturnState(location);
+    if (!ctx?.offerId) return;
+    setSelectedOfferId(ctx.offerId);
+    setHighlightOfferId(ctx.offerId);
+    const scrollY = ctx.scrollY;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY, behavior: "auto" });
+      const el = document.querySelector(`[data-offer-id="${ctx.offerId}"]`);
+      if (el && Math.abs(window.scrollY - scrollY) > 200) {
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+      }
+    });
+    navigate(location.pathname + location.search, { replace: true, state: null });
+    const timer = window.setTimeout(() => setHighlightOfferId(null), 3500);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const options = useMemo(() => {
     const uniq = (arr: string[]) => Array.from(new Set(arr.filter(Boolean))).sort();
     return {
@@ -243,6 +263,7 @@ const Offers = () => {
                     key={offer.id}
                     offer={offer}
                     isSelected={offer.id === selectedOfferId}
+                    isHighlighted={offer.id === highlightOfferId}
                     onSelect={handleSelectOffer}
                   />
                 ))}
