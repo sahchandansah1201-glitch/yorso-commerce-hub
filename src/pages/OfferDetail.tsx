@@ -58,6 +58,21 @@ const OfferDetail = () => {
       </header>
 
       <main className="container py-6 md:py-10">
+        {isLocked && (
+          <div className="mb-5 flex flex-wrap items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <Lock className="h-4 w-4 mt-0.5 text-primary shrink-0" aria-hidden />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">{lockTitle}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{lockBody}</p>
+            </div>
+            <Link to="/register">
+              <Button size="sm" className="font-semibold">
+                {level === "anonymous_locked" ? t.nav_registerFree : t.offerDetail_requestAccessCta}
+              </Button>
+            </Link>
+          </div>
+        )}
+
         <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
             <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
