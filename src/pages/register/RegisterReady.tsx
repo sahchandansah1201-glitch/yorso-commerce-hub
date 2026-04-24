@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import { useRegistrationGuard } from "@/hooks/use-registration-guard";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
@@ -13,6 +13,7 @@ import analytics from "@/lib/analytics";
 import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
