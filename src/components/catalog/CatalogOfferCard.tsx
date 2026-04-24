@@ -50,6 +50,48 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     : offer.priceRange;
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
+  // First volume break is the MOQ tier — surface it next to the price so
+  // buyers see "from-to + MOQ" together (e.g. "8.50 – 9.20 $/kg, MOQ 1,000 – 4,999 kg").
+  // Remaining tiers go to a compact secondary list.
+  const volumeBreaks = offer.volumeBreaks ?? [];
+  const hasVolumeBreaks = volumeBreaks.length > 0;
+  const primaryMoq = hasVolumeBreaks
+    ? volumeBreaks[0].minQty
+    : offer.moq.replace(/^MOQ:\s*/i, "");
+  const additionalBreaks = volumeBreaks.slice(1);
+
+  const MoqLine = (
+    <p className="mt-0.5 text-[11px] text-muted-foreground">
+      <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
+      <span className="font-semibold text-foreground">{primaryMoq}</span>
+    </p>
+  );
+
+  const AdditionalBreaks = additionalBreaks.length > 0 && (
+    <div className="mt-1">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+        {t.catalog_row_volumePricingLabel}
+      </p>
+      <ul className="mt-0.5 space-y-0.5 text-[11px]">
+        {additionalBreaks.map((vb, i) => (
+          <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+            <span className="text-muted-foreground">{vb.minQty}</span>
+            <span
+              className={
+                level === "qualified_unlocked"
+                  ? "font-semibold text-foreground"
+                  : "font-semibold text-muted-foreground blur-[3px] select-none"
+              }
+              aria-hidden={level !== "qualified_unlocked"}
+            >
+              {vb.priceRange}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
     return (
@@ -58,11 +100,8 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <span className="font-heading text-base font-bold text-foreground">{offer.currency ?? "USD"} {exact}</span>
           <span className="text-xs text-muted-foreground">{unit}</span>
         </div>
-        {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
-          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-primary">
-            {t.catalog_card_volumeBreaks}: {offer.volumeBreaks.length}
-          </p>
-        )}
+        {MoqLine}
+        {AdditionalBreaks}
       </div>
     );
   }
@@ -77,7 +116,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="font-heading text-sm font-bold text-foreground">{range}</span>
         <span className="text-[11px] text-muted-foreground">{unit}</span>
       </div>
-      <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+      {MoqLine}
+      {AdditionalBreaks}
+      <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
         {level === "anonymous_locked" ? t.catalog_card_priceLockedHint : t.catalog_card_priceLocked}
       </p>
