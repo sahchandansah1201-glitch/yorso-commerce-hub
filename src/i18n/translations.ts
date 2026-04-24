@@ -774,6 +774,18 @@ type TranslationKeys = {
   offerDetail_accessLimited_title: string;
   offerDetail_accessLimited_body: string;
   offerDetail_requestAccessCta: string;
+  offerDetail_priceLocked_label: string;
+  offerDetail_priceLocked_anonCta: string;
+  offerDetail_priceLocked_regCta: string;
+  offerDetail_termsLocked_label: string;
+  offerDetail_termsLocked_hint: string;
+  offerDetail_volumeLocked_label: string;
+  offerDetail_supplierMasked_name: string;
+  offerDetail_supplierMasked_hint: string;
+  offerDetail_supplierContactLocked: string;
+  offerDetail_supplierProfileLocked: string;
+  offerDetail_basisCountAvailable: string;
+  offerDetail_indicativePrice: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1607,6 +1619,18 @@ const en: TranslationKeys = {
   offerDetail_accessLimited_title: "Request access to unlock full details",
   offerDetail_accessLimited_body: "Your account sees the offer summary and indicative pricing. Request access to see exact pricing, supplier contact and full commercial terms.",
   offerDetail_requestAccessCta: "Request access",
+  offerDetail_priceLocked_label: "Pricing available after sign up",
+  offerDetail_priceLocked_anonCta: "Sign up to view exact prices",
+  offerDetail_priceLocked_regCta: "Request price access",
+  offerDetail_termsLocked_label: "Commercial terms",
+  offerDetail_termsLocked_hint: "MOQ, payment terms, lead time and shipment port unlock with access.",
+  offerDetail_volumeLocked_label: "Volume pricing available after access is granted.",
+  offerDetail_supplierMasked_name: "Verified supplier",
+  offerDetail_supplierMasked_hint: "Supplier identity is revealed after your buyer profile is approved.",
+  offerDetail_supplierContactLocked: "Unlock supplier contact",
+  offerDetail_supplierProfileLocked: "Unlock supplier profile",
+  offerDetail_basisCountAvailable: "{n} delivery bases available",
+  offerDetail_indicativePrice: "Indicative range",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -2427,6 +2451,18 @@ const ru: TranslationKeys = {
   offerDetail_accessLimited_title: "Запросите доступ, чтобы увидеть полные детали",
   offerDetail_accessLimited_body: "Ваш аккаунт видит сводку предложения и ориентировочную цену. Запросите доступ, чтобы увидеть точную цену, контакты поставщика и полные коммерческие условия.",
   offerDetail_requestAccessCta: "Запросить доступ",
+  offerDetail_priceLocked_label: "Цена доступна после регистрации",
+  offerDetail_priceLocked_anonCta: "Зарегистрироваться, чтобы увидеть цены",
+  offerDetail_priceLocked_regCta: "Запросить доступ к цене",
+  offerDetail_termsLocked_label: "Коммерческие условия",
+  offerDetail_termsLocked_hint: "MOQ, условия оплаты, срок поставки и порт отгрузки открываются после получения доступа.",
+  offerDetail_volumeLocked_label: "Объёмное ценообразование станет доступно после получения доступа.",
+  offerDetail_supplierMasked_name: "Проверенный поставщик",
+  offerDetail_supplierMasked_hint: "Идентичность поставщика раскрывается после одобрения вашего профиля покупателя.",
+  offerDetail_supplierContactLocked: "Открыть контакты поставщика",
+  offerDetail_supplierProfileLocked: "Открыть профиль поставщика",
+  offerDetail_basisCountAvailable: "Доступно базисов поставки: {n}",
+  offerDetail_indicativePrice: "Ориентировочный диапазон",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -3247,6 +3283,18 @@ const es: TranslationKeys = {
   offerDetail_accessLimited_title: "Solicita acceso para ver el detalle completo",
   offerDetail_accessLimited_body: "Tu cuenta ve el resumen y el precio orientativo. Solicita acceso para ver el precio exacto, los contactos del proveedor y los términos comerciales completos.",
   offerDetail_requestAccessCta: "Solicitar acceso",
+  offerDetail_priceLocked_label: "Precio disponible tras registrarte",
+  offerDetail_priceLocked_anonCta: "Regístrate para ver precios exactos",
+  offerDetail_priceLocked_regCta: "Solicitar acceso al precio",
+  offerDetail_termsLocked_label: "Condiciones comerciales",
+  offerDetail_termsLocked_hint: "MOQ, condiciones de pago, plazo de entrega y puerto de embarque se desbloquean con el acceso.",
+  offerDetail_volumeLocked_label: "Los precios por volumen estarán disponibles tras conceder el acceso.",
+  offerDetail_supplierMasked_name: "Proveedor verificado",
+  offerDetail_supplierMasked_hint: "La identidad del proveedor se revela tras aprobar tu perfil de comprador.",
+  offerDetail_supplierContactLocked: "Desbloquear contacto del proveedor",
+  offerDetail_supplierProfileLocked: "Desbloquear perfil del proveedor",
+  offerDetail_basisCountAvailable: "Bases de entrega disponibles: {n}",
+  offerDetail_indicativePrice: "Rango orientativo",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
