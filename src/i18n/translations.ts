@@ -1568,6 +1568,45 @@ const en: TranslationKeys = {
   catalog_panel_supplier_unverified: "Pending",
   catalog_panel_supplier_response: "Response time",
   catalog_panel_supplier_since: "In business since",
+
+  catalog_time_today: "today",
+  catalog_time_dayAgo: "{n} day ago",
+  catalog_time_daysAgo: "{n} days ago",
+  catalog_time_weekAgo: "{n} week ago",
+  catalog_time_weeksAgo: "{n} weeks ago",
+
+  catalog_news_reason_price: "Affects price",
+  catalog_news_reason_availability: "Affects availability",
+  catalog_news_reason_logistics: "Affects logistics",
+  catalog_news_reason_compliance: "Affects compliance",
+  catalog_news_reason_supplier_risk: "Affects supplier risk",
+
+  catalog_compare_addLabel: "Add to compare",
+  catalog_compare_removeLabel: "Remove from compare",
+  catalog_compare_trayTitle: "Compare offers",
+  catalog_compare_trayHint: "Select 2–5 offers to compare side by side.",
+  catalog_compare_open: "Open comparison",
+  catalog_compare_clear: "Clear",
+  catalog_compare_max: "Maximum 5 offers selected",
+  catalog_compare_emptyHint: "No offers selected yet",
+  catalog_compare_dialogTitle: "Side-by-side comparison",
+  catalog_compare_col_offer: "Offer",
+  catalog_compare_col_price: "Price",
+  catalog_compare_col_origin: "Origin",
+  catalog_compare_col_supplierCountry: "Supplier country",
+  catalog_compare_col_basis: "Logistics basis",
+  catalog_compare_col_moq: "MOQ",
+  catalog_compare_col_certifications: "Certifications",
+
+  catalog_filtersBar_title: "Procurement filters",
+  catalog_filtersBar_collapse: "Hide filters",
+  catalog_filtersBar_expand: "Show filters",
+
+  offerDetail_accessLocked_title: "Sign up to view supplier and price details",
+  offerDetail_accessLocked_body: "Free registration unlocks indicative pricing, supplier identity preview and direct messaging requests.",
+  offerDetail_accessLimited_title: "Request access to unlock full details",
+  offerDetail_accessLimited_body: "Your account sees the offer summary and indicative pricing. Request access to see exact pricing, supplier contact and full commercial terms.",
+  offerDetail_requestAccessCta: "Request access",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
