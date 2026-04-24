@@ -2844,6 +2844,7 @@ const es: TranslationKeys = {
   signin_back: "Atrás",
   signin_resetPassword: "Restablecer contraseña",
   signin_resetSubtitle: "Ingrese el email con el que se registró. Enviaremos un enlace para restablecer su contraseña.",
+  signin_resetDemoHint: "Modo demo: el restablecimiento de contraseña solo funciona para la cuenta de prueba dm@yorso.com.",
   signin_sendResetLink: "Enviar enlace",
   signin_emailSent: "Email enviado",
   signin_checkEmailInstructions: "y siga las instrucciones del email.",
