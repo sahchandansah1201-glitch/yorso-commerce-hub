@@ -93,11 +93,16 @@ export default {
           from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "pulse-once": {
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(var(--primary) / 0)" },
+          "50%": { boxShadow: "0 0 0 6px hsl(var(--primary) / 0.25)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
+        "pulse-once": "pulse-once 1.6s ease-out 2",
       },
     },
   },
