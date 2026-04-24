@@ -277,6 +277,7 @@ type TranslationKeys = {
   reg_whatsNext: string;
   reg_exploreOffers: string;
   reg_createFirstOffer: string;
+  reg_buyerAutoRedirect: string;
   // Registration layout
   reg_alreadyHaveAccount: string;
   reg_signIn: string;
