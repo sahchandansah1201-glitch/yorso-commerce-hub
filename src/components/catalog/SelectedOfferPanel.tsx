@@ -220,7 +220,7 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
               </div>
               {(isReg || isQual) && (
                 <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                  {trend.explanation}
+                  {getIntelText(lang, `intel_trend_${trend.category}_explanation`, trend.explanation)}
                 </p>
               )}
             </section>
@@ -243,7 +243,7 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
                     n.countryName === offer.origin || n.countryName === offer.supplier.country;
                   return (
                     <li key={n.id} className="text-xs">
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
                         <span aria-hidden>{n.countryFlag}</span>
                         <span className="font-semibold text-foreground">{n.countryName}</span>
                         {isPrimary && (
@@ -251,14 +251,17 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
                             {t.catalog_panel_news_primary}
                           </span>
                         )}
-                        <span>· {n.publishedAt}</span>
+                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-foreground">
+                          {reasonLabel(t, n.relevanceReason)}
+                        </span>
+                        <span>· {formatDaysAgo(lang, n.daysAgo)}</span>
                       </div>
                       <p className="mt-0.5 font-medium leading-snug text-foreground">
-                        {n.headline}
+                        {getIntelText(lang, `intel_news_${n.id}_headline`, n.headline)}
                       </p>
                       {(isReg || isQual) && (
                         <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                          {n.summary}
+                          {getIntelText(lang, `intel_news_${n.id}_summary`, n.summary)}
                         </p>
                       )}
                       {isQual && (
