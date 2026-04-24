@@ -730,6 +730,50 @@ type TranslationKeys = {
   catalog_panel_supplier_unverified: string;
   catalog_panel_supplier_response: string;
   catalog_panel_supplier_since: string;
+
+  // Procurement workspace — relative time
+  catalog_time_today: string;
+  catalog_time_dayAgo: string;
+  catalog_time_daysAgo: string;
+  catalog_time_weekAgo: string;
+  catalog_time_weeksAgo: string;
+
+  // Procurement workspace — news relevance reasons
+  catalog_news_reason_price: string;
+  catalog_news_reason_availability: string;
+  catalog_news_reason_logistics: string;
+  catalog_news_reason_compliance: string;
+  catalog_news_reason_supplier_risk: string;
+
+  // Procurement workspace — compare tray
+  catalog_compare_addLabel: string;
+  catalog_compare_removeLabel: string;
+  catalog_compare_trayTitle: string;
+  catalog_compare_trayHint: string;
+  catalog_compare_open: string;
+  catalog_compare_clear: string;
+  catalog_compare_max: string;
+  catalog_compare_emptyHint: string;
+  catalog_compare_dialogTitle: string;
+  catalog_compare_col_offer: string;
+  catalog_compare_col_price: string;
+  catalog_compare_col_origin: string;
+  catalog_compare_col_supplierCountry: string;
+  catalog_compare_col_basis: string;
+  catalog_compare_col_moq: string;
+  catalog_compare_col_certifications: string;
+
+  // Filters bar above workspace
+  catalog_filtersBar_title: string;
+  catalog_filtersBar_collapse: string;
+  catalog_filtersBar_expand: string;
+
+  // OfferDetail access gating
+  offerDetail_accessLocked_title: string;
+  offerDetail_accessLocked_body: string;
+  offerDetail_accessLimited_title: string;
+  offerDetail_accessLimited_body: string;
+  offerDetail_requestAccessCta: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
