@@ -756,6 +756,9 @@ type TranslationKeys = {
   catalog_row_priceCta_reg_sent: string;
   catalog_row_priceAccess_anon: string;
   catalog_row_priceAccess_reg: string;
+  catalog_row_basisLabel: string;
+  catalog_row_paymentLabel: string;
+  catalog_row_volumePricingLabel: string;
   catalog_panel_compare_add: string;
   catalog_panel_compare_remove: string;
   catalog_row_viewDetails: string;
@@ -1613,6 +1616,9 @@ const en: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Request sent",
   catalog_row_priceAccess_anon: "Exact price available after buyer account",
   catalog_row_priceAccess_reg: "Request access to exact price",
+  catalog_row_basisLabel: "Delivery basis",
+  catalog_row_paymentLabel: "Payment",
+  catalog_row_volumePricingLabel: "Volume pricing",
   catalog_panel_compare_add: "Add to compare",
   catalog_panel_compare_remove: "Remove from compare",
   catalog_row_viewDetails: "View offer details",
@@ -2455,6 +2461,9 @@ const ru: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Запрос отправлен",
   catalog_row_priceAccess_anon: "Точная цена доступна после создания аккаунта покупателя",
   catalog_row_priceAccess_reg: "Запросите доступ к точной цене",
+  catalog_row_basisLabel: "Базис поставки",
+  catalog_row_paymentLabel: "Оплата",
+  catalog_row_volumePricingLabel: "Цены по объёму",
   catalog_panel_compare_add: "В сравнение",
   catalog_panel_compare_remove: "Убрать",
   catalog_row_viewDetails: "Открыть детали предложения",
@@ -3297,6 +3306,9 @@ const es: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Solicitud enviada",
   catalog_row_priceAccess_anon: "Precio exacto disponible tras crear cuenta de comprador",
   catalog_row_priceAccess_reg: "Solicita acceso al precio exacto",
+  catalog_row_basisLabel: "Base de entrega",
+  catalog_row_paymentLabel: "Pago",
+  catalog_row_volumePricingLabel: "Precios por volumen",
   catalog_panel_compare_add: "Añadir a comparar",
   catalog_panel_compare_remove: "Quitar",
   catalog_row_viewDetails: "Ver detalles de la oferta",

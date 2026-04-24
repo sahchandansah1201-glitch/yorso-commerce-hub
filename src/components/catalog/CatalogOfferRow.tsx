@@ -133,20 +133,33 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     : offer.priceRange;
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
+  const volumeBreaks = offer.volumeBreaks ?? [];
+  const hasVolumeBreaks = volumeBreaks.length > 0;
+
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
     return (
-      <div data-testid="catalog-row-price" className="flex flex-col gap-0.5">
+      <div data-testid="catalog-row-price" className="flex flex-col gap-1">
         <div className="flex items-baseline gap-1.5">
           <span className="font-heading text-lg font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
           <span className="text-[11px] text-muted-foreground">{unit}</span>
         </div>
-        {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
-          <p className="text-[10px] uppercase tracking-wide text-primary">
-            {t.catalog_card_volumeBreaks}: {offer.volumeBreaks.length}
-          </p>
+        {hasVolumeBreaks && (
+          <div className="mt-1">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+              {t.catalog_row_volumePricingLabel}
+            </p>
+            <ul className="mt-0.5 space-y-0.5 text-[11px]">
+              {volumeBreaks.map((vb, i) => (
+                <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+                  <span className="text-muted-foreground">{vb.minQty}</span>
+                  <span className="font-semibold text-foreground">{vb.priceRange}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     );
@@ -163,6 +176,31 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="font-heading text-base font-bold text-foreground">{range}</span>
         <span className="text-[11px] text-muted-foreground">{unit}</span>
       </div>
+      {hasVolumeBreaks && (
+        <div>
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+            {t.catalog_row_volumePricingLabel}
+          </p>
+          <ul className="mt-0.5 space-y-0.5 text-[11px]">
+            {volumeBreaks.map((vb, i) => (
+              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+                <span className="text-muted-foreground">{vb.minQty}</span>
+                <span
+                  className={cn(
+                    "font-semibold",
+                    level === "qualified_unlocked"
+                      ? "text-foreground"
+                      : "text-muted-foreground blur-[3px] select-none",
+                  )}
+                  aria-hidden={level !== "qualified_unlocked"}
+                >
+                  {vb.priceRange}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
         {accessMsg}
@@ -286,16 +324,41 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
 
       {/* 3. Deal terms */}
       <div className="flex min-w-0 flex-col gap-2 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <Truck className="h-3.5 w-3.5" aria-hidden />
-          <span className="text-foreground">
-            {offer.commercial.incoterm} · {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <CreditCard className="h-3.5 w-3.5" aria-hidden />
-          {offer.commercial.paymentTerms.split(",")[0]}
-        </span>
+        <div className="flex items-start gap-1.5">
+          <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+              {t.catalog_row_basisLabel}
+            </p>
+            <ul className="mt-0.5 space-y-0.5 text-foreground">
+              {(offer.deliveryBasisOptions ?? []).slice(0, 3).map((b) => (
+                <li key={b.code} className="leading-tight">
+                  <span className="font-semibold">{b.code}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {b.shipmentPort?.split(",")[0]} · {b.leadTime}
+                  </span>
+                </li>
+              ))}
+              {(!offer.deliveryBasisOptions || offer.deliveryBasisOptions.length === 0) && (
+                <li className="leading-tight">
+                  <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
+                  <span className="text-muted-foreground">
+                    {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+        <div className="flex items-start gap-1.5">
+          <CreditCard className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+              {t.catalog_row_paymentLabel}
+            </p>
+            <p className="text-foreground leading-tight">{offer.commercial.paymentTerms}</p>
+          </div>
+        </div>
         <span className="text-foreground">
           {t.offers_moqLabel}: <span className="font-semibold">{offer.moq}</span>
         </span>
