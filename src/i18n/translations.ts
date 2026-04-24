@@ -3275,6 +3275,11 @@ const es: TranslationKeys = {
 
   catalog_compare_addLabel: "Añadir a comparar",
   catalog_compare_removeLabel: "Quitar de comparar",
+  catalog_row_supplierLocked_anon: "Datos del proveedor disponibles tras el acceso al precio",
+  catalog_row_supplierLocked_reg: "Solicita acceso al precio para ver al proveedor",
+  catalog_row_priceCta_anon: "Crear cuenta de comprador",
+  catalog_row_priceCta_reg: "Solicitar acceso al precio",
+  catalog_row_viewDetails: "Ver detalles de la oferta",
   catalog_compare_trayTitle: "Comparar ofertas",
   catalog_compare_trayHint: "Selecciona 2–5 ofertas para compararlas lado a lado.",
   catalog_compare_open: "Abrir comparación",
