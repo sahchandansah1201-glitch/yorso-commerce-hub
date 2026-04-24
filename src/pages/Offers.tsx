@@ -142,17 +142,7 @@ const Offers = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="font-heading text-2xl font-bold tracking-tight text-foreground">
-            YORSO
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/signin"><Button variant="ghost" size="sm">{t.nav_signIn}</Button></Link>
-            <Link to="/register"><Button size="sm" className="font-semibold">{t.nav_registerFree}</Button></Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="container py-6 md:py-8 pb-32">
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
