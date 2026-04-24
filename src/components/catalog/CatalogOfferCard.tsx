@@ -75,7 +75,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       <ul className="mt-0.5 space-y-0.5 text-[11px]">
         {additionalBreaks.map((vb, i) => (
           <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-            <span className="text-muted-foreground">{vb.minQty}</span>
+            <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
             <span
               className={
                 level === "qualified_unlocked"
