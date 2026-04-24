@@ -169,6 +169,12 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     : offer.priceRange;
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
+  // Deal terms surfaced directly under price: in B2B procurement, Incoterm
+  // and payment terms are part of the same commercial decision as the price.
+  const basisOptions = offer.deliveryBasisOptions ?? [];
+  const primaryBasis = basisOptions[0];
+  const altBasisCount = Math.max(0, basisOptions.length - 1);
+
   const volumeBreaks = offer.volumeBreaks ?? [];
   const hasVolumeBreaks = volumeBreaks.length > 0;
   // First volume break is the minimum order quantity tier — surface it next to
@@ -184,6 +190,40 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
       <span className="font-semibold text-foreground">{primaryMoq}</span>
     </p>
+  );
+
+  const DealTerms = (
+    <div className="mt-1 space-y-1 border-t border-border/60 pt-2 text-[11px] leading-snug">
+      <div className="flex items-start gap-1.5">
+        <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">
+          {primaryBasis ? (
+            <>
+              <span className="font-semibold">{primaryBasis.code}</span>{" "}
+              <span className="text-muted-foreground">
+                {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
+              </span>
+              {altBasisCount > 0 && (
+                <span className="ml-1 text-muted-foreground">
+                  (+{altBasisCount} {t.catalog_row_basisAltSuffix})
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
+              <span className="text-muted-foreground">
+                {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
+              </span>
+            </>
+          )}
+        </p>
+      </div>
+      <div className="flex items-start gap-1.5">
+        <CreditCard className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">{offer.commercial.paymentTerms}</p>
+      </div>
+    </div>
   );
 
   if (level === "qualified_unlocked" && hasNumeric) {
@@ -212,6 +252,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             </ul>
           </div>
         )}
+        {DealTerms}
       </div>
     );
   }
@@ -299,6 +340,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
         </>
       )}
+      {DealTerms}
     </div>
   );
 };
@@ -333,7 +375,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[290px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.4fr)_minmax(0,260px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -392,46 +434,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         </div>
       </div>
 
-      {/* 3. Deal terms */}
-      <div className="flex min-w-0 flex-col gap-2 text-[11px] text-muted-foreground">
-        <div className="flex items-start gap-1.5">
-          <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-              {t.catalog_row_basisLabel}
-            </p>
-            <ul className="mt-0.5 space-y-0.5 text-foreground">
-              {(offer.deliveryBasisOptions ?? []).slice(0, 3).map((b) => (
-                <li key={b.code} className="leading-tight">
-                  <span className="font-semibold">{b.code}</span>{" "}
-                  <span className="text-muted-foreground">
-                    {b.shipmentPort?.split(",")[0]} · {b.leadTime}
-                  </span>
-                </li>
-              ))}
-              {(!offer.deliveryBasisOptions || offer.deliveryBasisOptions.length === 0) && (
-                <li className="leading-tight">
-                  <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
-                  <span className="text-muted-foreground">
-                    {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
-                  </span>
-                </li>
-              )}
-            </ul>
-          </div>
-        </div>
-        <div className="flex items-start gap-1.5">
-          <CreditCard className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-              {t.catalog_row_paymentLabel}
-            </p>
-            <p className="text-foreground leading-tight">{offer.commercial.paymentTerms}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Price + supplier/access */}
+      {/* 3. Price + supplier/access (deal terms moved into PriceBlock for tighter scanning) */}
       <div className="flex flex-col items-stretch gap-3">
         <PriceBlock offer={offer} level={level} />
         <div className="border-t border-border pt-2">
