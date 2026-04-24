@@ -756,6 +756,9 @@ type TranslationKeys = {
   catalog_row_priceCta_reg_sent: string;
   catalog_row_priceAccess_anon: string;
   catalog_row_priceAccess_reg: string;
+  catalog_row_basisLabel: string;
+  catalog_row_paymentLabel: string;
+  catalog_row_volumePricingLabel: string;
   catalog_panel_compare_add: string;
   catalog_panel_compare_remove: string;
   catalog_row_viewDetails: string;
