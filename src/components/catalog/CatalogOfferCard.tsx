@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
