@@ -335,6 +335,8 @@ type TranslationKeys = {
   offerDetail_offers: string;
   offerDetail_registerToContact: string;
   offerDetail_freeRegistration: string;
+  offerDetail_backToCatalog: string;
+  offerDetail_backToCatalogShort: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
