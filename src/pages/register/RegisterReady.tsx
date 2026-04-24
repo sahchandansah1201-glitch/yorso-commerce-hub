@@ -209,6 +209,21 @@ const RegisterReady = () => {
           </div>
         </motion.div>
 
+        {!isSupplier && (
+          <motion.div
+            {...anim(0.6)}
+            role="status"
+            aria-live="polite"
+            className="mt-4 flex items-center gap-2.5 rounded-xl border border-primary/20 bg-primary/5 p-3 text-left text-sm text-foreground"
+          >
+            <span
+              aria-hidden
+              className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary"
+            />
+            <span>{t.reg_buyerAutoRedirect}</span>
+          </motion.div>
+        )}
+
         <motion.div {...anim(0.65)} className="mt-6">
           <Link to="/offers">
             <Button size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
