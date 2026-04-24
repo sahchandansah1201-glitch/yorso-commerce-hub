@@ -56,8 +56,10 @@ export const useAccessLevel = (): {
   const location = useLocation();
   const [qualified, setQualifiedState] = useState<boolean>(() => readQualified());
 
-  // Allow URL flag to opt-in / opt-out for demo and testing.
+  // Dev-only URL override. In production builds, the `?qualified` flag is
+  // ignored so ordinary users cannot self-upgrade their access level via URL.
   useEffect(() => {
+    if (!import.meta.env.DEV) return;
     const params = new URLSearchParams(location.search);
     const flag = params.get("qualified");
     if (flag === "1" && !readQualified()) {
