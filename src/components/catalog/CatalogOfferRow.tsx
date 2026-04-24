@@ -250,19 +250,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
-          <div className="mt-1">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-              {t.catalog_row_volumePricingLabel}
-            </p>
-            <ul className="mt-0.5 space-y-0.5 text-[11px]">
-              {additionalBreaks.map((vb, i) => (
-                <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                  <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
-                  <span className="font-semibold text-foreground">{vb.priceRange}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="mt-1 space-y-0.5 text-[11px]">
+            {additionalBreaks.map((vb, i) => (
+              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+                <span className="font-semibold text-foreground">{vb.priceRange}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     );
@@ -295,29 +290,24 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         MoqLine
       )}
       {hasAdditionalBreaks && (
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
-            {t.catalog_row_volumePricingLabel}
-          </p>
-          <ul className="mt-0.5 space-y-0.5 text-[11px]">
-            {additionalBreaks.map((vb, i) => (
-              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
-                <span
-                  className={cn(
-                    "font-semibold",
-                    level === "qualified_unlocked"
-                      ? "text-foreground"
-                      : "text-muted-foreground blur-[3px] select-none",
-                  )}
-                  aria-hidden={level !== "qualified_unlocked"}
-                >
-                  {vb.priceRange}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className="space-y-0.5 text-[11px]">
+          {additionalBreaks.map((vb, i) => (
+            <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+              <span
+                className={cn(
+                  "font-semibold",
+                  level === "qualified_unlocked"
+                    ? "text-foreground"
+                    : "text-muted-foreground blur-[3px] select-none",
+                )}
+                aria-hidden={level !== "qualified_unlocked"}
+              >
+                {vb.priceRange}
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
       <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
