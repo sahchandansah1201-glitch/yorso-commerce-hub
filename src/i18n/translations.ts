@@ -1152,6 +1152,7 @@ const en: TranslationKeys = {
   signin_back: "Back",
   signin_resetPassword: "Reset password",
   signin_resetSubtitle: "Enter the email you used to register. We'll send a link to reset your password.",
+  signin_resetDemoHint: "Demo mode: password reset only works for the test account dm@yorso.com.",
   signin_sendResetLink: "Send reset link",
   signin_emailSent: "Email sent",
   signin_checkEmailInstructions: "and follow the instructions in the email.",
