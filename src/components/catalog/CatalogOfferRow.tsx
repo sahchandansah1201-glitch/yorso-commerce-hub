@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
 import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
+import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 
 // Локальный PriceUnit удалён — переехал в @/components/catalog/PriceUnit и
 // инкапсулирован внутри OfferPriceMoq.
@@ -31,6 +32,8 @@ import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
 interface Props {
   offer: SeafoodOffer;
   isSelected: boolean;
+  /** Подсветка возврата с детальной страницы (короткое кольцо). */
+  isHighlighted?: boolean;
   onSelect: (offerId: string) => void;
   forceLevel?: AccessLevel;
 }
@@ -182,7 +185,7 @@ const dirIcon = (dir: "up" | "down" | "flat") => {
   return <Minus className="h-3 w-3 text-muted-foreground" aria-hidden />;
 };
 
-export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Props) => {
+export const CatalogOfferRow = ({ offer, isSelected, isHighlighted, onSelect, forceLevel }: Props) => {
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
@@ -201,14 +204,17 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
   return (
     <article
       data-testid="catalog-offer-row"
+      data-offer-id={offer.id}
       data-access-level={level}
       data-selected={isSelected ? "true" : "false"}
+      data-highlighted={isHighlighted ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
         "group relative grid cursor-pointer grid-cols-[290px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
+        isHighlighted && "ring-4 ring-primary/50 ring-offset-2 ring-offset-background animate-pulse",
       )}
     >
       {/* 1. Media */}
@@ -219,6 +225,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         <div>
           <Link
             to={`/offers/${offer.id}`}
+            state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
             className="block"

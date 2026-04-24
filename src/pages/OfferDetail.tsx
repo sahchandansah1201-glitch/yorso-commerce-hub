@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { ArrowRight, ChevronRight, Lock } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { mockOffers } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
@@ -20,9 +21,11 @@ import Header from "@/components/landing/Header";
 
 const OfferDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { t } = useLanguage();
   const { level } = useAccessLevel();
   const offer = mockOffers.find((o) => o.id === id);
+  const returnCtx = readCatalogReturnState(location);
   const isLocked = level !== "qualified_unlocked";
   const lockTitle = level === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
@@ -66,11 +69,26 @@ const OfferDetail = () => {
           </div>
         )}
 
+        {/* Заметная кнопка возврата к ровно тому месту панели закупок,
+            откуда buyer пришёл. При прямом заходе (нет state) ведёт на
+            /offers без восстановления скролла — honest fallback. */}
+        <div className="mb-4">
+          <Link
+            to={returnCtx?.pathname ?? "/offers"}
+            state={returnCtx ?? undefined}
+            data-testid="offer-detail-back-to-catalog"
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+            {returnCtx ? t.offerDetail_backToOffer : t.offerDetail_backToCatalog}
+          </Link>
+        </div>
+
         <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
             <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link to="/offers" className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
+            <li><Link to={returnCtx?.pathname ?? "/offers"} state={returnCtx ?? undefined} className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li><Link to={`/offers?category=${encodeURIComponent(offer.category)}`} className="hover:text-foreground transition-colors">{offer.category}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>

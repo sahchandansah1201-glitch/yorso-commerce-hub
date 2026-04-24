@@ -7,6 +7,7 @@ import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
+import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 
 interface Props {
   offer: SeafoodOffer;
@@ -55,7 +56,7 @@ const Actions = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) 
         <Button size="sm" variant="outline" className="text-xs font-semibold">
           <MessageSquare className="h-3.5 w-3.5" /> {t.catalog_card_action_contactSupplier}
         </Button>
-        <Link to={`/offers/${offer.id}`} className="col-span-2">
+        <Link to={`/offers/${offer.id}`} state={buildCatalogReturnState(offer.id)} className="col-span-2">
           <Button size="sm" variant="ghost" className="w-full text-xs">
             <Eye className="h-3.5 w-3.5" /> {t.catalog_card_action_view}
           </Button>
@@ -78,7 +79,7 @@ const Actions = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) 
         <Button size="sm" variant="outline" className="text-xs font-semibold">
           <Users className="h-3.5 w-3.5" /> {t.catalog_card_action_followSupplier}
         </Button>
-        <Link to={`/offers/${offer.id}`} className="col-span-2">
+        <Link to={`/offers/${offer.id}`} state={buildCatalogReturnState(offer.id)} className="col-span-2">
           <Button size="sm" className="w-full text-xs font-semibold">
             <Eye className="h-3.5 w-3.5" /> {t.catalog_card_action_view}
           </Button>
@@ -94,7 +95,7 @@ const Actions = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) 
           {t.catalog_card_action_signupForPrice}
         </Button>
       </Link>
-      <Link to={`/offers/${offer.id}`}>
+      <Link to={`/offers/${offer.id}`} state={buildCatalogReturnState(offer.id)}>
         <Button size="sm" variant="outline" className="w-full text-xs font-semibold">
           <Eye className="h-3.5 w-3.5" /> {t.catalog_card_action_view}
         </Button>
