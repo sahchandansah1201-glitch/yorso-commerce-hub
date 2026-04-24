@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
-import { normalizeMoq } from "@/lib/moq";
+import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 
@@ -107,6 +107,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   }
 
   // Anonymous + Registered: range only with explanation.
+  // Surface a summarized MOQ range (e.g. "1,000 – 20,000+ kg") so buyers can
+  // gauge minimum order scale without registering. The detailed per-tier MOQ
+  // values stay visible in MoqLine + AdditionalBreaks; this is just the
+  // at-a-glance summary placed near the locked price.
+  const moqSummary = summarizeMoqRange(
+    hasVolumeBreaks ? volumeBreaks.map((vb) => vb.minQty) : [offer.moq],
+    lang,
+  );
   return (
     <div data-testid="catalog-card-price">
       <div className="flex items-center gap-1.5">
@@ -117,6 +125,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="text-[11px] text-muted-foreground">{unit}</span>
       </div>
       {MoqLine}
+      {moqSummary && hasVolumeBreaks && (
+        <p
+          className="mt-0.5 text-[10px] text-muted-foreground"
+          data-testid="catalog-card-moq-summary"
+        >
+          {t.offers_moqLabel} {t.catalog_card_priceRange.toLowerCase()}: <span className="font-medium text-foreground">{moqSummary}</span>
+        </p>
+      )}
       {AdditionalBreaks}
       <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
