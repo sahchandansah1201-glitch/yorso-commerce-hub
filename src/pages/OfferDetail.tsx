@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Lock } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { mockOffers } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useAccessLevel } from "@/lib/access-level";
 
 import PhotoGallery from "@/components/offer-detail/PhotoGallery";
 import OfferSummary from "@/components/offer-detail/OfferSummary";
@@ -19,7 +20,15 @@ import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 const OfferDetail = () => {
   const { id } = useParams();
   const { t } = useLanguage();
+  const { level } = useAccessLevel();
   const offer = mockOffers.find((o) => o.id === id);
+  const isLocked = level !== "qualified_unlocked";
+  const lockTitle = level === "anonymous_locked"
+    ? t.offerDetail_accessLocked_title
+    : t.offerDetail_accessLimited_title;
+  const lockBody = level === "anonymous_locked"
+    ? t.offerDetail_accessLocked_body
+    : t.offerDetail_accessLimited_body;
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
