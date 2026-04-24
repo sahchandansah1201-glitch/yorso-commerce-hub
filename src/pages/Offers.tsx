@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
@@ -46,8 +47,11 @@ const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: 
 const Offers = () => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
+  const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
 
   const allowSupplierName = level === "qualified_unlocked";
