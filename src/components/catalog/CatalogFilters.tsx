@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
-import { ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,7 @@ interface Props {
     categories: string[];
     origins: string[];
     supplierCountries: string[];
+    /** Empty array hides the supplier-name selector (used to prevent enumeration before access). */
     suppliers: string[];
     bases: string[];
     certifications: string[];
@@ -49,6 +50,8 @@ interface Props {
     cutTypes: string[];
     currencies: string[];
   };
+  /** Optional layout hint: "horizontal" renders a compact bar (used above the workspace). */
+  layout?: "horizontal" | "stacked";
 }
 
 const Select = ({
@@ -57,19 +60,22 @@ const Select = ({
   options,
   onChange,
   anyLabel,
+  testId,
 }: {
   label: string;
   value: string | null;
   options: string[];
   onChange: (v: string | null) => void;
   anyLabel: string;
+  testId?: string;
 }) => (
-  <label className="flex flex-col gap-1">
+  <label className="flex min-w-0 flex-col gap-1">
     <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
     <select
-      className="h-9 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      className="h-9 min-w-0 rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       value={value ?? ""}
       onChange={(e) => onChange(e.target.value || null)}
+      data-testid={testId}
     >
       <option value="">{anyLabel}</option>
       {options.map((opt) => (
@@ -81,7 +87,7 @@ const Select = ({
   </label>
 );
 
-export const CatalogFilters = ({ value, onChange, options }: Props) => {
+export const CatalogFilters = ({ value, onChange, options, layout = "stacked" }: Props) => {
   const { t } = useLanguage();
   const [advanced, setAdvanced] = useState(false);
 
@@ -92,10 +98,20 @@ export const CatalogFilters = ({ value, onChange, options }: Props) => {
     if (typeof v === "string" && v) activeChips.push({ key: k, label: v });
   });
 
+  // Primary controls always visible. Advanced controls collapse.
+  // Supplier selector is conditionally hidden when the supplier list is empty
+  // (catalog hides exact supplier names before the user is qualified).
+  const showSupplierFilter = options.suppliers.length > 0;
+
+  const isHorizontal = layout === "horizontal";
+
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-heading text-sm font-semibold text-foreground">{t.catalog_filters_title}</h2>
+    <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <h2 className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-foreground">
+          <SlidersHorizontal className="h-3.5 w-3.5 text-primary" aria-hidden />
+          {t.catalog_filtersBar_title}
+        </h2>
         {activeChips.length > 0 && (
           <button
             type="button"
@@ -108,23 +124,58 @@ export const CatalogFilters = ({ value, onChange, options }: Props) => {
         )}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-        <Input
-          value={value.q}
-          onChange={(e) => update({ q: e.target.value })}
-          placeholder={t.catalog_filters_searchPlaceholder}
-          className="pl-10"
-          aria-label={t.catalog_filters_search}
-          data-testid="catalog-filters-search"
+      {/* Primary row: search + 4 most-used controls */}
+      <div
+        className={
+          isHorizontal
+            ? "grid gap-2.5 md:grid-cols-2 lg:grid-cols-[minmax(220px,1.4fr)_repeat(4,minmax(140px,1fr))]"
+            : "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        }
+      >
+        <label className="flex min-w-0 flex-col gap-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.catalog_filters_search}
+          </span>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input
+              value={value.q}
+              onChange={(e) => update({ q: e.target.value })}
+              placeholder={t.catalog_filters_searchPlaceholder}
+              className="h-9 pl-10"
+              aria-label={t.catalog_filters_search}
+              data-testid="catalog-filters-search"
+            />
+          </div>
+        </label>
+        <Select
+          label={t.catalog_filters_species}
+          value={value.category}
+          options={options.categories}
+          onChange={(v) => update({ category: v })}
+          anyLabel={t.catalog_filters_all}
         />
-      </div>
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <Select label={t.catalog_filters_species} value={value.category} options={options.categories} onChange={(v) => update({ category: v })} anyLabel={t.catalog_filters_all} />
-        <Select label={t.catalog_filters_origin} value={value.origin} options={options.origins} onChange={(v) => update({ origin: v })} anyLabel={t.catalog_filters_any} />
-        <Select label={t.catalog_filters_supplierCountry} value={value.supplierCountry} options={options.supplierCountries} onChange={(v) => update({ supplierCountry: v })} anyLabel={t.catalog_filters_any} />
-        <Select label={t.catalog_filters_state} value={value.state} options={options.states} onChange={(v) => update({ state: v })} anyLabel={t.catalog_filters_any} />
+        <Select
+          label={t.catalog_filters_origin}
+          value={value.origin}
+          options={options.origins}
+          onChange={(v) => update({ origin: v })}
+          anyLabel={t.catalog_filters_any}
+        />
+        <Select
+          label={t.catalog_filters_supplierCountry}
+          value={value.supplierCountry}
+          options={options.supplierCountries}
+          onChange={(v) => update({ supplierCountry: v })}
+          anyLabel={t.catalog_filters_any}
+        />
+        <Select
+          label={t.catalog_filters_state}
+          value={value.state}
+          options={options.states}
+          onChange={(v) => update({ state: v })}
+          anyLabel={t.catalog_filters_any}
+        />
       </div>
 
       <button
@@ -139,8 +190,23 @@ export const CatalogFilters = ({ value, onChange, options }: Props) => {
       </button>
 
       {advanced && (
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <Select label={t.catalog_filters_supplier} value={value.supplier} options={options.suppliers} onChange={(v) => update({ supplier: v })} anyLabel={t.catalog_filters_any} />
+        <div
+          className={
+            isHorizontal
+              ? "mt-3 grid gap-2.5 md:grid-cols-3 lg:grid-cols-6"
+              : "mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          }
+        >
+          {showSupplierFilter && (
+            <Select
+              label={t.catalog_filters_supplier}
+              value={value.supplier}
+              options={options.suppliers}
+              onChange={(v) => update({ supplier: v })}
+              anyLabel={t.catalog_filters_any}
+              testId="catalog-filters-supplier"
+            />
+          )}
           <Select label={t.catalog_filters_logisticsBasis} value={value.basis} options={options.bases} onChange={(v) => update({ basis: v })} anyLabel={t.catalog_filters_any} />
           <Select label={t.catalog_filters_certification} value={value.certification} options={options.certifications} onChange={(v) => update({ certification: v })} anyLabel={t.catalog_filters_any} />
           <Select label={t.catalog_filters_paymentTerms} value={value.paymentTerms} options={options.paymentTermsList} onChange={(v) => update({ paymentTerms: v })} anyLabel={t.catalog_filters_any} />
