@@ -2451,6 +2451,18 @@ const ru: TranslationKeys = {
   offerDetail_accessLimited_title: "Запросите доступ, чтобы увидеть полные детали",
   offerDetail_accessLimited_body: "Ваш аккаунт видит сводку предложения и ориентировочную цену. Запросите доступ, чтобы увидеть точную цену, контакты поставщика и полные коммерческие условия.",
   offerDetail_requestAccessCta: "Запросить доступ",
+  offerDetail_priceLocked_label: "Цена доступна после регистрации",
+  offerDetail_priceLocked_anonCta: "Зарегистрироваться, чтобы увидеть цены",
+  offerDetail_priceLocked_regCta: "Запросить доступ к цене",
+  offerDetail_termsLocked_label: "Коммерческие условия",
+  offerDetail_termsLocked_hint: "MOQ, условия оплаты, срок поставки и порт отгрузки открываются после получения доступа.",
+  offerDetail_volumeLocked_label: "Объёмное ценообразование станет доступно после получения доступа.",
+  offerDetail_supplierMasked_name: "Проверенный поставщик",
+  offerDetail_supplierMasked_hint: "Идентичность поставщика раскрывается после одобрения вашего профиля покупателя.",
+  offerDetail_supplierContactLocked: "Открыть контакты поставщика",
+  offerDetail_supplierProfileLocked: "Открыть профиль поставщика",
+  offerDetail_basisCountAvailable: "Доступно базисов поставки: {n}",
+  offerDetail_indicativePrice: "Ориентировочный диапазон",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
