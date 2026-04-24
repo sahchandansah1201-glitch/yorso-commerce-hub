@@ -252,6 +252,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             </ul>
           </div>
         )}
+        {DealTerms}
       </div>
     );
   }
