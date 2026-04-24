@@ -169,6 +169,12 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     : offer.priceRange;
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
+  // Deal terms surfaced directly under price: in B2B procurement, Incoterm
+  // and payment terms are part of the same commercial decision as the price.
+  const basisOptions = offer.deliveryBasisOptions ?? [];
+  const primaryBasis = basisOptions[0];
+  const altBasisCount = Math.max(0, basisOptions.length - 1);
+
   const volumeBreaks = offer.volumeBreaks ?? [];
   const hasVolumeBreaks = volumeBreaks.length > 0;
   // First volume break is the minimum order quantity tier — surface it next to
