@@ -134,7 +134,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       <div data-testid="catalog-card-price">
         <div className="flex items-baseline gap-1.5">
           <span className="font-heading text-base font-bold text-foreground">{offer.currency ?? "USD"} {exact}</span>
-          <span className="text-xs text-muted-foreground">{unit}</span>
+          <PriceUnit unit={unit} className="text-xs text-muted-foreground" />
         </div>
         {MoqLine}
         {AdditionalBreaks}
@@ -158,7 +158,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       </div>
       <div className="flex items-baseline gap-1.5">
         <span className="font-heading text-sm font-bold text-foreground">{range}</span>
-        <span className="text-[11px] text-muted-foreground">{unit}</span>
+        <PriceUnit unit={unit} className="text-[11px] text-muted-foreground" />
       </div>
       {MoqLine}
       {moqSummary && hasVolumeBreaks && (
