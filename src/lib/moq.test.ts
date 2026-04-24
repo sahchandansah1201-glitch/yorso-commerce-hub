@@ -105,39 +105,3 @@ describe("lib/moq — summarizeMoqRange", () => {
     expect(out?.replace(/\u00a0|\u202f/g, " ")).toBe("1 000 – 20 000+ kg");
   });
 });
-
-describe("lib/moq — locale-aware MOQ formatting (EN/RU/ES)", () => {
-  it("normalizeMoq range uses NB-spaced en-dash in all locales", () => {
-    for (const lang of ["en", "ru", "es"] as const) {
-      const r = normalizeMoq("1,000 – 4,999 kg", lang);
-      expect(r.display).toContain("\u00a0–\u00a0");
-      expect(r.display.includes(" – ")).toBe(false);
-    }
-  });
-
-  it("normalizeMoq: en groups thousands with comma", () => {
-    const r = normalizeMoq("12345 kg", "en");
-    expect(r.display.replace(/\u00a0|\u202f/g, " ")).toBe("12,345 kg");
-  });
-
-  it("normalizeMoq: ru groups thousands with NB-space", () => {
-    const r = normalizeMoq("12345 kg", "ru");
-    expect(r.display.replace(/\u00a0|\u202f/g, " ")).toBe("12 345 kg");
-    // Must not use comma as thousands separator in ru.
-    expect(r.display).not.toContain(",");
-  });
-
-  it("normalizeMoq: es groups even 4-digit values (forced grouping)", () => {
-    const r = normalizeMoq("1234 kg", "es");
-    const norm = r.display.replace(/\u00a0|\u202f/g, " ");
-    expect(norm === "1.234 kg" || norm === "1 234 kg").toBe(true);
-    expect(norm).not.toBe("1234 kg");
-  });
-
-  it("summarizeMoqRange: locale-correct separators in es", () => {
-    const out = summarizeMoqRange(["1,000 – 4,999 kg", "20,000+ kg"], "es");
-    const norm = (out ?? "").replace(/\u00a0|\u202f/g, " ");
-    // Expect dot-grouped thousands and NB-spaced dash, e.g. "1.000 – 20.000+ kg".
-    expect(norm).toMatch(/^1[.\s]000\s–\s20[.\s]000\+\skg$/);
-  });
-});

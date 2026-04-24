@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
@@ -14,7 +15,6 @@ import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
-import { readCatalogReturnState } from "@/lib/return-to-catalog";
 
 const COMPARE_MAX = 5;
 
@@ -51,11 +51,8 @@ const Offers = () => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
-  const [compareIds, setCompareIds] = useState<string[]>([]);
-  /** ID оффера, к которому надо проскроллить и подсветить после возврата
-   *  с детальной страницы. Очищается через ~1.5 сек, чтобы кольцо погасло. */
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
-  const restoredRef = useRef(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   const allowSupplierName = level === "qualified_unlocked";
 
@@ -63,39 +60,25 @@ const Offers = () => {
     analytics.track("offers_list_view");
   }, []);
 
-  // Восстановление контекста после возврата с /offers/:id.
-  // Делается один раз за mount: выбираем оффер, скроллим, подсвечиваем,
-  // и очищаем history.state, чтобы при дальнейшей навигации не сработало
-  // повторно.
+  // Restore scroll position + highlight when returning from offer detail.
   useEffect(() => {
-    if (restoredRef.current) return;
     const ctx = readCatalogReturnState(location);
-    if (!ctx || !ctx.offerId) return;
-    restoredRef.current = true;
+    if (!ctx?.offerId) return;
     setSelectedOfferId(ctx.offerId);
     setHighlightOfferId(ctx.offerId);
-    // Сначала восстановим scrollY (быстро и предсказуемо), затем —
-    // resilient scrollIntoView к строке на следующем кадре, чтобы
-    // переехать к ней даже если изменились высоты или порядок.
+    const scrollY = ctx.scrollY;
     requestAnimationFrame(() => {
-      window.scrollTo({ top: ctx.scrollY, behavior: "auto" });
-      requestAnimationFrame(() => {
-        const el = document.querySelector<HTMLElement>(
-          `[data-offer-id="${ctx.offerId}"]`,
-        );
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-          if (!inView) el.scrollIntoView({ block: "center", behavior: "auto" });
-        }
-      });
+      window.scrollTo({ top: scrollY, behavior: "auto" });
+      const el = document.querySelector(`[data-offer-id="${ctx.offerId}"]`);
+      if (el && Math.abs(window.scrollY - scrollY) > 200) {
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+      }
     });
-    // Гасим кольцо через 1.6с.
-    const timer = window.setTimeout(() => setHighlightOfferId(null), 1600);
-    // Очищаем state в history, чтобы перезагрузка не «прилипла».
     navigate(location.pathname + location.search, { replace: true, state: null });
+    const timer = window.setTimeout(() => setHighlightOfferId(null), 3500);
     return () => window.clearTimeout(timer);
-  }, [location, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const options = useMemo(() => {
     const uniq = (arr: string[]) => Array.from(new Set(arr.filter(Boolean))).sort();

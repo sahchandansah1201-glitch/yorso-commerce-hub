@@ -20,9 +20,6 @@ type TranslationKeys = {
   nav_faq: string;
   nav_signIn: string;
   nav_registerFree: string;
-  nav_account: string;
-  nav_signOut: string;
-  nav_myAccount: string;
 
   // Hero
   hero_title1: string;
@@ -336,12 +333,10 @@ type TranslationKeys = {
   offerDetail_browseAll: string;
   offerDetail_home: string;
   offerDetail_offers: string;
-  /** «← Back to procurement workspace» — kontextual return link on offer detail. */
-  offerDetail_backToCatalog: string;
-  /** Suffix shown when we know the original offer in the workspace. */
-  offerDetail_backToOffer: string;
   offerDetail_registerToContact: string;
   offerDetail_freeRegistration: string;
+  offerDetail_backToCatalog: string;
+  offerDetail_backToCatalogShort: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
@@ -836,9 +831,6 @@ const en: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Sign In",
   nav_registerFree: "Register Free",
-  nav_account: "Account",
-  nav_signOut: "Sign out",
-  nav_myAccount: "My account",
 
   // Hero
   hero_title1: "Verified Suppliers. Transparent Prices.",
@@ -1209,10 +1201,10 @@ const en: TranslationKeys = {
   offerDetail_browseAll: "Browse all offers",
   offerDetail_home: "Home",
   offerDetail_offers: "Offers",
-  offerDetail_backToCatalog: "Back to procurement workspace",
-  offerDetail_backToOffer: "Back to this offer in the workspace",
   offerDetail_registerToContact: "Register to Contact Supplier",
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
+  offerDetail_backToCatalog: "Back to procurement workspace",
+  offerDetail_backToCatalogShort: "Back to workspace",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -1714,9 +1706,6 @@ const ru: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Войти",
   nav_registerFree: "Регистрация",
-  nav_account: "Аккаунт",
-  nav_signOut: "Выйти",
-  nav_myAccount: "Мой аккаунт",
 
   hero_title1: "Проверенные поставщики. Прозрачные цены.",
   hero_title2: "Полный контроль закупок.",
@@ -2075,10 +2064,10 @@ const ru: TranslationKeys = {
   offerDetail_browseAll: "Смотреть все предложения",
   offerDetail_home: "Главная",
   offerDetail_offers: "Предложения",
-  offerDetail_backToCatalog: "Назад в панель закупок",
-  offerDetail_backToOffer: "Назад в панель закупок",
   offerDetail_registerToContact: "Зарегистрируйтесь для связи с поставщиком",
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
+  offerDetail_backToCatalog: "Назад в панель закупок",
+  offerDetail_backToCatalogShort: "В панель закупок",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2580,9 +2569,6 @@ const es: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Iniciar sesión",
   nav_registerFree: "Registro gratis",
-  nav_account: "Cuenta",
-  nav_signOut: "Cerrar sesión",
-  nav_myAccount: "Mi cuenta",
 
   hero_title1: "Proveedores verificados. Precios transparentes.",
   hero_title2: "Control total de sus compras.",
@@ -2941,10 +2927,10 @@ const es: TranslationKeys = {
   offerDetail_browseAll: "Ver todas las ofertas",
   offerDetail_home: "Inicio",
   offerDetail_offers: "Ofertas",
-  offerDetail_backToCatalog: "Volver al panel de compras",
-  offerDetail_backToOffer: "Volver a esta oferta en el panel",
   offerDetail_registerToContact: "Regístrese para contactar al proveedor",
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
+  offerDetail_backToCatalog: "Volver al panel de compras",
+  offerDetail_backToCatalogShort: "Volver al panel",
 
   // 404 / Not Found
   notFound_title: "404",

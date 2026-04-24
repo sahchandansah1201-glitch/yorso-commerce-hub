@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { mockOffers } from "@/data/mockOffers";
@@ -21,12 +21,22 @@ import Header from "@/components/landing/Header";
 
 const OfferDetail = () => {
   const { id } = useParams();
-  const location = useLocation();
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const location = useLocation();
+  const navigate = useNavigate();
   const offer = mockOffers.find((o) => o.id === id);
-  const returnCtx = readCatalogReturnState(location);
   const isLocked = level !== "qualified_unlocked";
+  const returnCtx = readCatalogReturnState(location);
+  const handleBack = () => {
+    if (returnCtx) {
+      // navigate(-1) preserves the location.state we attached on outbound link,
+      // which Offers.tsx reads to restore scroll + highlight.
+      navigate(-1);
+    } else {
+      navigate("/offers");
+    }
+  };
   const lockTitle = level === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
     : t.offerDetail_accessLimited_title;
@@ -54,6 +64,20 @@ const OfferDetail = () => {
       <Header />
 
       <main className="container py-6 md:py-10">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleBack}
+          data-testid="offer-detail-back-to-catalog"
+          aria-label={t.offerDetail_backToCatalog}
+          className="mb-3 -ml-2 inline-flex max-w-full items-center gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground sm:gap-2 sm:px-3 sm:text-sm"
+        >
+          <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="hidden truncate sm:inline md:hidden">{t.offerDetail_backToCatalogShort}</span>
+          <span className="hidden truncate md:inline">{t.offerDetail_backToCatalog}</span>
+        </Button>
+
         {isLocked && (
           <div className="mb-5 flex flex-wrap items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
             <Lock className="h-4 w-4 mt-0.5 text-primary shrink-0" aria-hidden />
@@ -69,26 +93,11 @@ const OfferDetail = () => {
           </div>
         )}
 
-        {/* Заметная кнопка возврата к ровно тому месту панели закупок,
-            откуда buyer пришёл. При прямом заходе (нет state) ведёт на
-            /offers без восстановления скролла — honest fallback. */}
-        <div className="mb-4">
-          <Link
-            to={returnCtx?.pathname ?? "/offers"}
-            state={returnCtx ?? undefined}
-            data-testid="offer-detail-back-to-catalog"
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            {returnCtx ? t.offerDetail_backToOffer : t.offerDetail_backToCatalog}
-          </Link>
-        </div>
-
         <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
             <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link to={returnCtx?.pathname ?? "/offers"} state={returnCtx ?? undefined} className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
+            <li><Link to="/offers" className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li><Link to={`/offers?category=${encodeURIComponent(offer.category)}`} className="hover:text-foreground transition-colors">{offer.category}</Link></li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>

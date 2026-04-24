@@ -1,13 +1,50 @@
 import { Link } from "react-router-dom";
-import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart } from "lucide-react";
+import { buildCatalogReturnState } from "@/lib/return-to-catalog";
+import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
+import { formatPriceRange } from "@/lib/format";
+import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
-import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
-import { buildCatalogReturnState } from "@/lib/return-to-catalog";
+
+/**
+ * Renders the price unit (e.g. "$/kg", "per kg") with a tooltip explaining
+ * how the per-unit price is calculated. Buyers often miss whether the price
+ * is for net weight, gross weight, or includes glaze — surfacing this on
+ * hover/focus prevents costly misreadings without cluttering the card.
+ */
+const PriceUnit = ({ unit, className }: { unit: string; className?: string }) => {
+  const { t } = useLanguage();
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className={`inline-flex items-center gap-0.5 ${className ?? "text-xs text-muted-foreground"} cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded`}
+            aria-label={`${unit} — ${t.priceUnit_tooltip}`}
+            onClick={(e) => {
+              // Prevent navigating to the offer detail when the trigger sits
+              // inside a link area; tooltip is a passive disclosure.
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            {unit}
+            <Info className="h-2.5 w-2.5 opacity-60" aria-hidden />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
+          {t.priceUnit_tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 interface Props {
   offer: SeafoodOffer;
@@ -42,8 +79,105 @@ const SupplierBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLev
   );
 };
 
-// Цена, единица, MOQ, тиры, замок и summary вынесены в общий
-// `OfferPriceMoq` (variant="card"). Здесь больше нет дублирующейся логики.
+const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
+  const { t, lang } = useLanguage();
+
+  const hasNumeric = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
+  const range = hasNumeric
+    ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
+    : offer.priceRange;
+  const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
+
+  // First volume break is the MOQ tier — surface it next to the price so
+  // buyers see "from-to + MOQ" together (e.g. "8.50 – 9.20 $/kg, MOQ 1,000 – 4,999 kg").
+  // Remaining tiers go to a compact secondary list.
+  const volumeBreaks = offer.volumeBreaks ?? [];
+  const hasVolumeBreaks = volumeBreaks.length > 0;
+  const primaryMoqRaw = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq;
+  const primaryMoq = normalizeMoq(primaryMoqRaw, lang).display;
+  const additionalBreaks = volumeBreaks.slice(1);
+
+  const MoqLine = (
+    <p className="mt-0.5 text-[11px] text-muted-foreground">
+      <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
+      <span className="font-semibold text-foreground">{primaryMoq}</span>
+    </p>
+  );
+
+  const AdditionalBreaks = additionalBreaks.length > 0 && (
+    <div className="mt-1">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
+        {t.catalog_row_volumePricingLabel}
+      </p>
+      <ul className="mt-0.5 space-y-0.5 text-[11px]">
+        {additionalBreaks.map((vb, i) => (
+          <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+            <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+            <span
+              className={
+                level === "qualified_unlocked"
+                  ? "font-semibold text-foreground"
+                  : "font-semibold text-muted-foreground blur-[3px] select-none"
+              }
+              aria-hidden={level !== "qualified_unlocked"}
+            >
+              {vb.priceRange}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  if (level === "qualified_unlocked" && hasNumeric) {
+    const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
+    return (
+      <div data-testid="catalog-card-price">
+        <div className="flex items-baseline gap-1.5">
+          <span className="font-heading text-base font-bold text-foreground">{offer.currency ?? "USD"} {exact}</span>
+          <PriceUnit unit={unit} className="text-xs text-muted-foreground" />
+        </div>
+        {MoqLine}
+        {AdditionalBreaks}
+      </div>
+    );
+  }
+
+  // Anonymous + Registered: range only with explanation.
+  // Surface a summarized MOQ range (e.g. "1,000 – 20,000+ kg") so buyers can
+  // gauge minimum order scale without registering. The detailed per-tier MOQ
+  // values stay visible in MoqLine + AdditionalBreaks; this is just the
+  // at-a-glance summary placed near the locked price.
+  const moqSummary = summarizeMoqRange(
+    hasVolumeBreaks ? volumeBreaks.map((vb) => vb.minQty) : [offer.moq],
+    lang,
+  );
+  return (
+    <div data-testid="catalog-card-price">
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.catalog_card_priceRange}</span>
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className="font-heading text-sm font-bold text-foreground">{range}</span>
+        <PriceUnit unit={unit} className="text-[11px] text-muted-foreground" />
+      </div>
+      {MoqLine}
+      {moqSummary && hasVolumeBreaks && (
+        <p
+          className="mt-0.5 text-[10px] text-muted-foreground"
+          data-testid="catalog-card-moq-summary"
+        >
+          {t.offers_moqLabel} {t.catalog_card_priceRange.toLowerCase()}: <span className="font-medium text-foreground">{moqSummary}</span>
+        </p>
+      )}
+      {AdditionalBreaks}
+      <p className="mt-1 inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+        <Lock className="h-3 w-3" aria-hidden />
+        {level === "anonymous_locked" ? t.catalog_card_priceLockedHint : t.catalog_card_priceLocked}
+      </p>
+    </div>
+  );
+};
 
 const Actions = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
   const { t } = useLanguage();
@@ -163,7 +297,7 @@ export const CatalogOfferCard = ({ offer, forceLevel }: Props) => {
         </div>
 
         <div className="mt-auto pt-3">
-          <OfferPriceMoq offer={offer} level={level} variant="card" />
+          <PriceBlock offer={offer} level={level} />
         </div>
 
         <Actions offer={offer} level={level} />

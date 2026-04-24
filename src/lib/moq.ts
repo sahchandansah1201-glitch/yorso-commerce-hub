@@ -23,7 +23,7 @@
  * чем потерять информацию.
  */
 import type { Language } from "@/i18n/translations";
-import { formatNumber, RANGE_SEPARATOR } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 
 export interface NormalizedMoq {
   /** Готовая к показу строка, например "1 000 – 4 999 кг" или "20 000+ kg". */
@@ -127,7 +127,7 @@ export const normalizeMoq = (
       const unit = tail.length > 0 ? tail : fallbackUnit;
       if (min !== undefined && max !== undefined) {
         return {
-          display: `${formatNumber(min, lang)}${RANGE_SEPARATOR}${formatNumber(max, lang)} ${unit}`,
+          display: `${formatNumber(min, lang)} – ${formatNumber(max, lang)} ${unit}`,
           min,
           max,
           unit,
@@ -190,5 +190,5 @@ export const summarizeMoqRange = (
     return `${formatNumber(lowest, lang)} ${unit}`;
   }
   const upper = openEnded ? `${formatNumber(highest, lang)}+` : formatNumber(highest, lang);
-  return `${formatNumber(lowest, lang)}${RANGE_SEPARATOR}${upper} ${unit}`;
+  return `${formatNumber(lowest, lang)} – ${upper} ${unit}`;
 };
