@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
+import Header from "@/components/landing/Header";
 
 interface Props {
   title: string;
@@ -14,13 +15,7 @@ const InfoPageLayout = ({ title, children, updated }: Props) => {
   const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center gap-4">
-          <Link to="/">
-            <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
-          </Link>
-        </div>
-      </header>
+      <Header />
       <main className="container max-w-3xl py-12 md:py-16">
         <Link to="/">
           <Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
