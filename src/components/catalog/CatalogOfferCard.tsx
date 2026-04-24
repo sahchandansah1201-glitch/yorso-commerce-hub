@@ -1,49 +1,12 @@
 import { Link } from "react-router-dom";
-import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart, Info } from "lucide-react";
+import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import { formatPriceRange } from "@/lib/format";
-import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
-
-/**
- * Renders the price unit (e.g. "$/kg", "per kg") with a tooltip explaining
- * how the per-unit price is calculated. Buyers often miss whether the price
- * is for net weight, gross weight, or includes glaze — surfacing this on
- * hover/focus prevents costly misreadings without cluttering the card.
- */
-const PriceUnit = ({ unit, className }: { unit: string; className?: string }) => {
-  const { t } = useLanguage();
-  return (
-    <TooltipProvider delayDuration={150}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            className={`inline-flex items-center gap-0.5 ${className ?? "text-xs text-muted-foreground"} cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded`}
-            aria-label={`${unit} — ${t.priceUnit_tooltip}`}
-            onClick={(e) => {
-              // Prevent navigating to the offer detail when the trigger sits
-              // inside a link area; tooltip is a passive disclosure.
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            {unit}
-            <Info className="h-2.5 w-2.5 opacity-60" aria-hidden />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
-          {t.priceUnit_tooltip}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
+import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
 
 interface Props {
   offer: SeafoodOffer;
