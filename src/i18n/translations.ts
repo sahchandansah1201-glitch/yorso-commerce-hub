@@ -3283,6 +3283,18 @@ const es: TranslationKeys = {
   offerDetail_accessLimited_title: "Solicita acceso para ver el detalle completo",
   offerDetail_accessLimited_body: "Tu cuenta ve el resumen y el precio orientativo. Solicita acceso para ver el precio exacto, los contactos del proveedor y los términos comerciales completos.",
   offerDetail_requestAccessCta: "Solicitar acceso",
+  offerDetail_priceLocked_label: "Precio disponible tras registrarte",
+  offerDetail_priceLocked_anonCta: "Regístrate para ver precios exactos",
+  offerDetail_priceLocked_regCta: "Solicitar acceso al precio",
+  offerDetail_termsLocked_label: "Condiciones comerciales",
+  offerDetail_termsLocked_hint: "MOQ, condiciones de pago, plazo de entrega y puerto de embarque se desbloquean con el acceso.",
+  offerDetail_volumeLocked_label: "Los precios por volumen estarán disponibles tras conceder el acceso.",
+  offerDetail_supplierMasked_name: "Proveedor verificado",
+  offerDetail_supplierMasked_hint: "La identidad del proveedor se revela tras aprobar tu perfil de comprador.",
+  offerDetail_supplierContactLocked: "Desbloquear contacto del proveedor",
+  offerDetail_supplierProfileLocked: "Desbloquear perfil del proveedor",
+  offerDetail_basisCountAvailable: "Bases de entrega disponibles: {n}",
+  offerDetail_indicativePrice: "Rango orientativo",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
