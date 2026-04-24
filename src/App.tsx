@@ -30,6 +30,7 @@ import Press from "./pages/Press.tsx";
 import Partners from "./pages/Partners.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
+import { legacyRedirects } from "./lib/legacy-redirects.ts";
 
 const queryClient = new QueryClient();
 
@@ -66,9 +67,11 @@ const App = () => (
                 <Route path="/partners" element={<Partners />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
-                {/* Legacy buyer workspace was removed — keep old links working by redirecting to the catalog. */}
-                <Route path="/workspace" element={<Navigate to="/offers" replace />} />
-                <Route path="/workspace/*" element={<Navigate to="/offers" replace />} />
+                {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
+                {legacyRedirects.flatMap(({ from, to }) => [
+                  <Route key={from} path={from} element={<Navigate to={to} replace />} />,
+                  <Route key={`${from}/*`} path={`${from}/*`} element={<Navigate to={to} replace />} />,
+                ])}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </RegistrationProvider>
