@@ -192,6 +192,40 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     </p>
   );
 
+  const DealTerms = (
+    <div className="mt-1 space-y-1 border-t border-border/60 pt-2 text-[11px] leading-snug">
+      <div className="flex items-start gap-1.5">
+        <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">
+          {primaryBasis ? (
+            <>
+              <span className="font-semibold">{primaryBasis.code}</span>{" "}
+              <span className="text-muted-foreground">
+                {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
+              </span>
+              {altBasisCount > 0 && (
+                <span className="ml-1 text-muted-foreground">
+                  (+{altBasisCount} {t.catalog_row_basisAltSuffix})
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
+              <span className="text-muted-foreground">
+                {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
+              </span>
+            </>
+          )}
+        </p>
+      </div>
+      <div className="flex items-start gap-1.5">
+        <CreditCard className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">{offer.commercial.paymentTerms}</p>
+      </div>
+    </div>
+  );
+
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
     return (
