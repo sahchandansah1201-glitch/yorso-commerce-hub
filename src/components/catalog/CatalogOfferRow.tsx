@@ -15,6 +15,7 @@ import {
   Minus,
   Newspaper,
   FileCheck2,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -29,6 +30,11 @@ interface Props {
   offer: SeafoodOffer;
   isSelected: boolean;
   onSelect: (offerId: string) => void;
+  /** Compare state controlled by the parent. */
+  isCompared: boolean;
+  onCompareToggle: (offerId: string) => void;
+  /** Disable adding more offers to compare (e.g. max reached). */
+  compareDisabled?: boolean;
   forceLevel?: AccessLevel;
 }
 
@@ -133,14 +139,9 @@ const ActionsCell = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel
         <Button size="sm" className="text-xs font-semibold">
           <BellRing className="h-3.5 w-3.5" /> {t.catalog_card_action_notifyPrice}
         </Button>
-        <div className="grid grid-cols-2 gap-1.5">
-          <Button size="sm" variant="outline" className="text-[11px] font-semibold">
-            <Bookmark className="h-3 w-3" /> {t.catalog_card_action_save}
-          </Button>
-          <Button size="sm" variant="outline" className="text-[11px] font-semibold">
-            <Scale className="h-3 w-3" /> {t.catalog_card_action_compare}
-          </Button>
-        </div>
+        <Button size="sm" variant="outline" className="text-[11px] font-semibold">
+          <Bookmark className="h-3 w-3" /> {t.catalog_card_action_save}
+        </Button>
         <Link to={`/offers/${offer.id}`}>
           <Button size="sm" variant="ghost" className="w-full text-xs">
             <Eye className="h-3.5 w-3.5" /> {t.catalog_card_action_view}
@@ -165,50 +166,53 @@ const ActionsCell = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel
   );
 };
 
-export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Props) => {
+export const CatalogOfferRow = ({
+  offer,
+  isSelected,
+  onSelect,
+  isCompared,
+  onCompareToggle,
+  compareDisabled,
+  forceLevel,
+}: Props) => {
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
 
-  // Lightweight scannable signals (mock, derived from category + countries).
   const trend = getPriceTrend(offer.category);
   const offerCountries = new Set([offer.origin, offer.supplier.country]);
   const newsCount = countryNews.filter(
-    (n) => n.category === offer.category && offerCountries.has(n.countryName),
+    (n) => offerCountries.has(n.countryName),
   ).length;
   const docsReady = (offer.certifications?.length ?? 0) >= 2;
 
-  const handleActivate = () => onSelect(offer.id);
-
   return (
     <article
-      role="button"
-      tabIndex={0}
-      onClick={handleActivate}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleActivate();
-        }
-      }}
       data-testid="catalog-offer-row"
       data-access-level={level}
       data-selected={isSelected ? "true" : "false"}
-      aria-pressed={isSelected}
       className={cn(
-        "group grid cursor-pointer grid-cols-[120px_minmax(0,1fr)_180px_180px] gap-4 rounded-lg border bg-card p-3 shadow-sm transition-all hover:border-primary/40 hover:shadow-md md:grid-cols-[140px_minmax(0,1.4fr)_minmax(0,1fr)_200px]",
-        isSelected
-          ? "border-primary ring-2 ring-primary/30"
-          : "border-border",
+        "group relative grid grid-cols-[120px_minmax(0,1fr)_180px_180px] gap-4 rounded-lg border bg-card p-3 shadow-sm transition-colors md:grid-cols-[140px_minmax(0,1.4fr)_minmax(0,1fr)_200px]",
+        isSelected ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/40",
       )}
     >
+      {/* Invisible "select offer" button covers the non-interactive content area only. */}
+      <button
+        type="button"
+        aria-label={`${t.catalog_card_action_view}: ${offer.productName}`}
+        aria-pressed={isSelected}
+        onClick={() => onSelect(offer.id)}
+        data-testid="catalog-offer-row-select"
+        className="absolute inset-0 z-0 cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+
       {/* 1. Media */}
-      <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+      <div className="pointer-events-none relative z-10 aspect-square overflow-hidden rounded-md bg-muted">
         <img
           src={offer.image}
           alt={offer.productName}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+          className="h-full w-full object-cover"
           onError={(e) => {
             const target = e.currentTarget;
             target.onerror = null;
@@ -222,7 +226,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       </div>
 
       {/* 2. Identity + supplier + signals */}
-      <div className="flex min-w-0 flex-col">
+      <div className="pointer-events-none relative z-10 flex min-w-0 flex-col">
         <div className="flex items-start gap-2">
           <h3 className="font-heading text-sm font-semibold leading-tight text-foreground line-clamp-2">
             {offer.productName}
@@ -244,7 +248,6 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
           limit={3}
           className="mt-1.5"
         />
-        {/* Fast intelligence signals */}
         <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-[10px] text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
@@ -253,9 +256,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
                 {trend.d30.pct > 0 ? "+" : ""}
                 {trend.d30.pct.toFixed(1)}%
               </span>
-              <span className="uppercase tracking-wide">
-                {t.catalog_intel_priceTrend_d30}
-              </span>
+              <span className="uppercase tracking-wide">{t.catalog_intel_priceTrend_d30}</span>
             </span>
           )}
           {newsCount > 0 && (
@@ -276,7 +277,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       </div>
 
       {/* 3. Deal terms */}
-      <div className="flex min-w-0 flex-col gap-1.5 text-[11px] text-muted-foreground">
+      <div className="pointer-events-none relative z-10 flex min-w-0 flex-col gap-1.5 text-[11px] text-muted-foreground">
         <PriceCell offer={offer} level={level} />
         <span className="inline-flex items-center gap-1">
           <Truck className="h-3 w-3" aria-hidden />
@@ -291,9 +292,23 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         </span>
       </div>
 
-      {/* 4. Actions — stop click bubbling so action buttons don't trigger row select */}
-      <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      {/* 4. Actions */}
+      <div className="relative z-10 flex flex-col gap-1.5">
         <ActionsCell offer={offer} level={level} />
+        <Button
+          type="button"
+          size="sm"
+          variant={isCompared ? "default" : "outline"}
+          aria-pressed={isCompared}
+          aria-label={isCompared ? t.catalog_compare_removeLabel : t.catalog_compare_addLabel}
+          disabled={!isCompared && compareDisabled}
+          onClick={() => onCompareToggle(offer.id)}
+          className="text-[11px] font-semibold"
+          data-testid="catalog-offer-compare-toggle"
+        >
+          {isCompared ? <Check className="h-3 w-3" /> : <Scale className="h-3 w-3" />}
+          {isCompared ? t.catalog_compare_removeLabel : t.catalog_card_action_compare}
+        </Button>
       </div>
     </article>
   );
