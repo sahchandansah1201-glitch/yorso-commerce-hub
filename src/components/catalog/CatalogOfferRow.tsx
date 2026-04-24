@@ -192,7 +192,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <span className="font-heading text-lg font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
-          <span className="text-[11px] text-muted-foreground">{unit}</span>
+          <PriceUnit unit={unit} />
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
@@ -230,7 +230,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-1.5">
         <span className="font-heading text-base font-bold text-foreground">{range}</span>
-        <span className="text-[11px] text-muted-foreground">{unit}</span>
+        <PriceUnit unit={unit} />
       </div>
       {MoqLine}
       {moqSummary && hasVolumeBreaks && (
