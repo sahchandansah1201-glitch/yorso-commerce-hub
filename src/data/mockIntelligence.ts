@@ -34,6 +34,13 @@ export interface PriceTrend {
   series: PriceTrendPoint[];
 }
 
+export type NewsRelevanceReason =
+  | "price"
+  | "availability"
+  | "logistics"
+  | "compliance"
+  | "supplier_risk";
+
 export interface CountryNewsItem {
   id: string;
   countryCode: string;
@@ -44,9 +51,14 @@ export interface CountryNewsItem {
   category: string;
   headline: string;
   source: string;
+  /** @deprecated kept for legacy callers — use `daysAgo` for localized rendering. */
   publishedAt: string;
+  /** Days since publication; `formatDaysAgo(lang, daysAgo)` renders the visible label. */
+  daysAgo: number;
   /** Short 1-line summary */
   summary: string;
+  /** Why this news matters for procurement decisions on this offer. */
+  relevanceReason: NewsRelevanceReason;
 }
 
 export interface CountryImpact {
