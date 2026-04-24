@@ -68,6 +68,52 @@ interface Props {
   isHighlighted?: boolean;
 }
 
+/**
+ * Compact deal-terms strip (Incoterm + payment) rendered under the
+ * certifications block. Keeps commercial context close to product identity
+ * while freeing the right column for price/MOQ/access scanning.
+ */
+const DealTermsStrip = ({ offer }: { offer: SeafoodOffer }) => {
+  const { t } = useLanguage();
+  const basisOptions = offer.deliveryBasisOptions ?? [];
+  const primaryBasis = basisOptions[0];
+  const altBasisCount = Math.max(0, basisOptions.length - 1);
+
+  return (
+    <div className="space-y-1 text-[11px] leading-snug">
+      <div className="flex items-start gap-1.5">
+        <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">
+          {primaryBasis ? (
+            <>
+              <span className="font-semibold">{primaryBasis.code}</span>{" "}
+              <span className="text-muted-foreground">
+                {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
+              </span>
+              {altBasisCount > 0 && (
+                <span className="ml-1 text-muted-foreground">
+                  (+{altBasisCount} {t.catalog_row_basisAltSuffix})
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
+              <span className="text-muted-foreground">
+                {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
+              </span>
+            </>
+          )}
+        </p>
+      </div>
+      <div className="flex items-start gap-1.5">
+        <CreditCard className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
+        <p className="min-w-0 flex-1 text-foreground">{offer.commercial.paymentTerms}</p>
+      </div>
+    </div>
+  );
+};
+
 const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
   const { t } = useLanguage();
   if (level === "qualified_unlocked") {
@@ -192,40 +238,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     </p>
   );
 
-  const DealTerms = (
-    <div className="mt-1 space-y-1 border-t border-border/60 pt-2 text-[11px] leading-snug">
-      <div className="flex items-start gap-1.5">
-        <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
-        <p className="min-w-0 flex-1 text-foreground">
-          {primaryBasis ? (
-            <>
-              <span className="font-semibold">{primaryBasis.code}</span>{" "}
-              <span className="text-muted-foreground">
-                {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
-              </span>
-              {altBasisCount > 0 && (
-                <span className="ml-1 text-muted-foreground">
-                  (+{altBasisCount} {t.catalog_row_basisAltSuffix})
-                </span>
-              )}
-            </>
-          ) : (
-            <>
-              <span className="font-semibold">{offer.commercial.incoterm}</span>{" "}
-              <span className="text-muted-foreground">
-                {offer.commercial.shipmentPort?.split(",")[0] ?? "—"}
-              </span>
-            </>
-          )}
-        </p>
-      </div>
-      <div className="flex items-start gap-1.5">
-        <CreditCard className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
-        <p className="min-w-0 flex-1 text-foreground">{offer.commercial.paymentTerms}</p>
-      </div>
-    </div>
-  );
-
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
     return (
@@ -252,7 +264,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             </ul>
           </div>
         )}
-        {DealTerms}
       </div>
     );
   }
@@ -340,7 +351,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
         </>
       )}
-      {DealTerms}
     </div>
   );
 };
@@ -405,6 +415,10 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         </div>
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
+
+        <div className="border-t border-border/60 pt-2">
+          <DealTermsStrip offer={offer} />
+        </div>
 
         <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[10px] text-muted-foreground">
           {trend && (
