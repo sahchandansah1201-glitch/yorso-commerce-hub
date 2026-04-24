@@ -301,6 +301,7 @@ type TranslationKeys = {
   signin_back: string;
   signin_resetPassword: string;
   signin_resetSubtitle: string;
+  signin_resetDemoHint: string;
   signin_sendResetLink: string;
   signin_emailSent: string;
   signin_checkEmailInstructions: string;
