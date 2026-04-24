@@ -202,7 +202,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
             data-testid="catalog-row-view-details"
             className="block"
           >
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-sky-500 hover:underline underline-offset-2 decoration-sky-500/60">
+            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
               {offer.productName}
             </h3>
           </Link>
