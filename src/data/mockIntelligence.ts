@@ -34,6 +34,13 @@ export interface PriceTrend {
   series: PriceTrendPoint[];
 }
 
+export type NewsRelevanceReason =
+  | "price"
+  | "availability"
+  | "logistics"
+  | "compliance"
+  | "supplier_risk";
+
 export interface CountryNewsItem {
   id: string;
   countryCode: string;
@@ -44,9 +51,14 @@ export interface CountryNewsItem {
   category: string;
   headline: string;
   source: string;
+  /** @deprecated kept for legacy callers — use `daysAgo` for localized rendering. */
   publishedAt: string;
+  /** Days since publication; `formatDaysAgo(lang, daysAgo)` renders the visible label. */
+  daysAgo: number;
   /** Short 1-line summary */
   summary: string;
+  /** Why this news matters for procurement decisions on this offer. */
+  relevanceReason: NewsRelevanceReason;
 }
 
 export interface CountryImpact {
@@ -191,7 +203,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Norwegian salmon exports rise 6% in volume but margins tighten on resource rent tax",
     source: "Norwegian Seafood Council",
     publishedAt: "2 days ago",
+    daysAgo: 2,
     summary: "Export value up year-on-year; producers signal tighter Q2 spot offers.",
+    relevanceReason: "price",
   },
   {
     id: "n2",
@@ -203,7 +217,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Chilean salmon harvest accelerates ahead of US Lent demand",
     source: "Salmonexpert",
     publishedAt: "5 days ago",
+    daysAgo: 5,
     summary: "Higher harvest pace expected to soften prices for North American buyers in 4–6 weeks.",
+    relevanceReason: "availability",
   },
   {
     id: "n3",
@@ -215,7 +231,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Ecuador shrimp pond yields strong as energy costs ease",
     source: "Undercurrent News",
     publishedAt: "1 day ago",
+    daysAgo: 1,
     summary: "Lower input costs translate into stable FOB pricing through Q2.",
+    relevanceReason: "price",
   },
   {
     id: "n4",
@@ -227,7 +245,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Indian shrimp exporters await USDOC antidumping review outcome",
     source: "SeafoodSource",
     publishedAt: "4 days ago",
+    daysAgo: 4,
     summary: "Pending review keeps US-bound contracts cautious; EU and MEA inflows continue normally.",
+    relevanceReason: "compliance",
   },
   {
     id: "n5",
@@ -239,7 +259,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Russia revises 2025 cod and haddock quotas downward",
     source: "Federal Agency for Fishery",
     publishedAt: "1 week ago",
+    daysAgo: 7,
     summary: "Quota cut continues to support firm whitefish prices into Q3.",
+    relevanceReason: "availability",
   },
   {
     id: "n6",
@@ -251,7 +273,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Iceland fresh cod auction prices stable as winter quota fills",
     source: "Fiskistofa",
     publishedAt: "3 days ago",
+    daysAgo: 3,
     summary: "Steady auction results keep European fresh cod offers predictable.",
+    relevanceReason: "price",
   },
   {
     id: "n7",
@@ -263,7 +287,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Sea of Okhotsk king crab quota tightens further for 2025",
     source: "TASS",
     publishedAt: "1 week ago",
+    daysAgo: 7,
     summary: "Stricter quotas push spot prices upward, especially for Asian export lanes.",
+    relevanceReason: "availability",
   },
   {
     id: "n8",
@@ -275,7 +301,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Philippine yellowfin landings rise on improving weather window",
     source: "BFAR",
     publishedAt: "2 days ago",
+    daysAgo: 2,
     summary: "Better weather increases handline catch availability through April.",
+    relevanceReason: "logistics",
   },
   {
     id: "n9",
@@ -287,7 +315,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Argentine illex season nearing close, exporters prioritize EU contracts",
     source: "Pescare",
     publishedAt: "6 days ago",
+    daysAgo: 6,
     summary: "Late-season inventory directed to long-standing European customers.",
+    relevanceReason: "supplier_risk",
   },
   {
     id: "n10",
@@ -299,7 +329,9 @@ export const countryNews: CountryNewsItem[] = [
     headline: "Morocco maintains octopus moratorium periods, supply remains tight",
     source: "INRH",
     publishedAt: "1 week ago",
+    daysAgo: 7,
     summary: "Conservation-driven closures sustain elevated Iberian landed prices.",
+    relevanceReason: "compliance",
   },
 ];
 

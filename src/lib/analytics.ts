@@ -69,6 +69,33 @@ export interface EventPayloadMap {
   catalog_access_request_submit: { scopes: string[]; hasNote: boolean };
   catalog_product_request_submit: { product: string; hasOrigin: boolean; hasDestination: boolean };
   catalog_offer_select: { offerId: string; category: string; origin: string; supplierCountry: string };
+  catalog_offer_compare_add: {
+    offerId: string;
+    category: string;
+    origin: string;
+    supplierCountry: string;
+    accessLevel: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    selectedCount: number;
+  };
+  catalog_offer_compare_remove: {
+    offerId: string;
+    category: string;
+    origin: string;
+    supplierCountry: string;
+    accessLevel: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    selectedCount: number;
+  };
+  catalog_compare_open: {
+    offerCount: number;
+    accessLevel: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+  };
+  catalog_landed_cost_view: {
+    offerId: string;
+    category: string;
+    origin: string;
+    supplierCountry: string;
+    accessLevel: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+  };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and
