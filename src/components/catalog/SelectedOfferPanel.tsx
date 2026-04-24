@@ -9,7 +9,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
 import {
@@ -18,10 +18,13 @@ import {
   getMarketSignals,
   getPriceTrend,
   type CountryNewsItem,
+  type NewsRelevanceReason,
   type TrendDirection,
 } from "@/data/mockIntelligence";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { cn } from "@/lib/utils";
+import { formatDaysAgo, getIntelText } from "@/i18n/translations";
+import analytics from "@/lib/analytics";
 
 interface Props {
   offer: SeafoodOffer | null;
