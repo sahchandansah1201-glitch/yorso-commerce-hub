@@ -2076,7 +2076,7 @@ const ru: TranslationKeys = {
   offerDetail_home: "Главная",
   offerDetail_offers: "Предложения",
   offerDetail_backToCatalog: "Назад в панель закупок",
-  offerDetail_backToOffer: "Назад к этому предложению в панели закупок",
+  offerDetail_backToOffer: "Назад в панель закупок",
   offerDetail_registerToContact: "Зарегистрируйтесь для связи с поставщиком",
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
 
