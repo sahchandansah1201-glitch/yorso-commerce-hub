@@ -88,8 +88,21 @@ const NeutralState = () => {
   );
 };
 
+const reasonLabel = (
+  t: ReturnType<typeof useLanguage>["t"],
+  reason: NewsRelevanceReason,
+): string => {
+  switch (reason) {
+    case "price": return t.catalog_news_reason_price;
+    case "availability": return t.catalog_news_reason_availability;
+    case "logistics": return t.catalog_news_reason_logistics;
+    case "compliance": return t.catalog_news_reason_compliance;
+    case "supplier_risk": return t.catalog_news_reason_supplier_risk;
+  }
+};
+
 export const SelectedOfferPanel = ({ offer }: Props) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { level } = useAccessLevel();
 
   const trend = offer ? getPriceTrend(offer.category) : null;
@@ -112,6 +125,22 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
   const isAnon = level === "anonymous_locked";
   const isReg = level === "registered_locked";
   const isQual = level === "qualified_unlocked";
+
+  // Emit landed-cost view event once per offer mount/change.
+  // Backend-readiness: replace with a real landed-cost lookup when API exists.
+  const lastTrackedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!offer) return;
+    if (lastTrackedRef.current === offer.id) return;
+    lastTrackedRef.current = offer.id;
+    analytics.track("catalog_landed_cost_view", {
+      offerId: offer.id,
+      category: offer.category,
+      origin: offer.origin,
+      supplierCountry: offer.supplier.country,
+      accessLevel: level,
+    });
+  }, [offer, level]);
 
   return (
     <aside
