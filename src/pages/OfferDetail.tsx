@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { ArrowRight, ChevronRight, Lock } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { mockOffers } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
@@ -20,9 +21,11 @@ import Header from "@/components/landing/Header";
 
 const OfferDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { t } = useLanguage();
   const { level } = useAccessLevel();
   const offer = mockOffers.find((o) => o.id === id);
+  const returnCtx = readCatalogReturnState(location);
   const isLocked = level !== "qualified_unlocked";
   const lockTitle = level === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
