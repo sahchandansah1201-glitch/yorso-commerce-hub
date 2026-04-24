@@ -333,6 +333,10 @@ type TranslationKeys = {
   offerDetail_browseAll: string;
   offerDetail_home: string;
   offerDetail_offers: string;
+  /** «← Back to procurement workspace» — kontextual return link on offer detail. */
+  offerDetail_backToCatalog: string;
+  /** Suffix shown when we know the original offer in the workspace. */
+  offerDetail_backToOffer: string;
   offerDetail_registerToContact: string;
   offerDetail_freeRegistration: string;
 
@@ -1199,6 +1203,8 @@ const en: TranslationKeys = {
   offerDetail_browseAll: "Browse all offers",
   offerDetail_home: "Home",
   offerDetail_offers: "Offers",
+  offerDetail_backToCatalog: "Back to procurement workspace",
+  offerDetail_backToOffer: "Back to this offer in the workspace",
   offerDetail_registerToContact: "Register to Contact Supplier",
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
 
@@ -2060,6 +2066,8 @@ const ru: TranslationKeys = {
   offerDetail_browseAll: "Смотреть все предложения",
   offerDetail_home: "Главная",
   offerDetail_offers: "Предложения",
+  offerDetail_backToCatalog: "Назад в панель закупок",
+  offerDetail_backToOffer: "Назад к этому предложению в панели закупок",
   offerDetail_registerToContact: "Зарегистрируйтесь для связи с поставщиком",
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
 
@@ -2921,6 +2929,8 @@ const es: TranslationKeys = {
   offerDetail_browseAll: "Ver todas las ofertas",
   offerDetail_home: "Inicio",
   offerDetail_offers: "Ofertas",
+  offerDetail_backToCatalog: "Volver al panel de compras",
+  offerDetail_backToOffer: "Volver a esta oferta en el panel",
   offerDetail_registerToContact: "Regístrese para contactar al proveedor",
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
 
