@@ -153,3 +153,42 @@ export const normalizeMoq = (
   // Honest fallback: возвращаем как есть (без префикса MOQ:).
   return { display: stripped };
 };
+
+/**
+ * Сводит набор тиров MOQ (или одиночный MOQ) к читаемому диапазону вида
+ * "1,000 – 20,000+ kg". Используется чтобы показать покупателю масштаб
+ * минимальной партии даже когда цена скрыта (anonymous_locked /
+ * registered_locked).
+ *
+ * Правила:
+ *   - Берём min нижнего тира и max верхнего тира.
+ *   - Если верхний тир open-ended ("20,000+ kg") — добавляем "+".
+ *   - Если все тиры свелись к одному значению — возвращаем его одиночным.
+ *   - Единица берётся из первого распознанного тира; fallback — параметр.
+ *   - Если ничего распознать не удалось — возвращаем undefined, чтобы
+ *     вызывающая сторона могла скрыть строку, а не показать мусор.
+ */
+export const summarizeMoqRange = (
+  tiers: ReadonlyArray<string | number | null | undefined>,
+  lang: Language,
+  fallbackUnit = "kg",
+): string | undefined => {
+  const parsed = tiers
+    .map((t) => normalizeMoq(t, lang, fallbackUnit))
+    .filter((m) => m.min !== undefined);
+  if (parsed.length === 0) return undefined;
+
+  const mins = parsed.map((m) => m.min as number);
+  const maxes = parsed.map((m) => m.max ?? (m.min as number));
+  const lowest = Math.min(...mins);
+  const highest = Math.max(...maxes);
+  const unit = parsed[0].unit ?? fallbackUnit;
+  // Open-ended если хотя бы один тир — open-ended и его min == highest.
+  const openEnded = parsed.some((m) => m.openEnded && (m.min ?? -Infinity) >= highest);
+
+  if (lowest === highest && !openEnded) {
+    return `${formatNumber(lowest, lang)} ${unit}`;
+  }
+  const upper = openEnded ? `${formatNumber(highest, lang)}+` : formatNumber(highest, lang);
+  return `${formatNumber(lowest, lang)} – ${upper} ${unit}`;
+};

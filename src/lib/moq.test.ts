@@ -72,3 +72,36 @@ describe("lib/moq — normalizeMoq", () => {
     expect(r.display).toBe("ask supplier");
   });
 });
+
+import { summarizeMoqRange } from "@/lib/moq";
+
+describe("lib/moq — summarizeMoqRange", () => {
+  it("collapses single tier to one value", () => {
+    expect(summarizeMoqRange(["1,000 kg"], "en")).toBe("1,000 kg");
+  });
+
+  it("returns lowest min – highest max across tiers", () => {
+    const out = summarizeMoqRange(
+      ["1,000 – 4,999 kg", "5,000 – 19,999 kg"],
+      "en",
+    );
+    expect(out?.replace(/\u00a0|\u202f/g, " ")).toBe("1,000 – 19,999 kg");
+  });
+
+  it("preserves open-ended marker on the upper bound", () => {
+    const out = summarizeMoqRange(
+      ["1,000 – 4,999 kg", "5,000 – 19,999 kg", "20,000+ kg"],
+      "en",
+    );
+    expect(out?.replace(/\u00a0|\u202f/g, " ")).toBe("1,000 – 20,000+ kg");
+  });
+
+  it("returns undefined when no tier is parseable", () => {
+    expect(summarizeMoqRange(["ask supplier", null, ""], "en")).toBeUndefined();
+  });
+
+  it("localizes thousands separators (ru)", () => {
+    const out = summarizeMoqRange(["1,000 – 4,999 kg", "20,000+ kg"], "ru");
+    expect(out?.replace(/\u00a0|\u202f/g, " ")).toBe("1 000 – 20 000+ kg");
+  });
+});
