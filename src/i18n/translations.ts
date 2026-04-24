@@ -2388,6 +2388,45 @@ const ru: TranslationKeys = {
   catalog_panel_supplier_unverified: "В процессе",
   catalog_panel_supplier_response: "Время ответа",
   catalog_panel_supplier_since: "В бизнесе с",
+
+  catalog_time_today: "сегодня",
+  catalog_time_dayAgo: "{n} день назад",
+  catalog_time_daysAgo: "{n} дн. назад",
+  catalog_time_weekAgo: "{n} нед. назад",
+  catalog_time_weeksAgo: "{n} нед. назад",
+
+  catalog_news_reason_price: "Влияет на цену",
+  catalog_news_reason_availability: "Влияет на доступность",
+  catalog_news_reason_logistics: "Влияет на логистику",
+  catalog_news_reason_compliance: "Влияет на соответствие",
+  catalog_news_reason_supplier_risk: "Влияет на риск поставщика",
+
+  catalog_compare_addLabel: "В сравнение",
+  catalog_compare_removeLabel: "Убрать из сравнения",
+  catalog_compare_trayTitle: "Сравнение предложений",
+  catalog_compare_trayHint: "Выберите 2–5 предложений, чтобы сравнить их рядом.",
+  catalog_compare_open: "Открыть сравнение",
+  catalog_compare_clear: "Очистить",
+  catalog_compare_max: "Можно выбрать максимум 5 предложений",
+  catalog_compare_emptyHint: "Пока ни одно предложение не выбрано",
+  catalog_compare_dialogTitle: "Сравнение предложений",
+  catalog_compare_col_offer: "Предложение",
+  catalog_compare_col_price: "Цена",
+  catalog_compare_col_origin: "Происхождение",
+  catalog_compare_col_supplierCountry: "Страна поставщика",
+  catalog_compare_col_basis: "Базис поставки",
+  catalog_compare_col_moq: "MOQ",
+  catalog_compare_col_certifications: "Сертификации",
+
+  catalog_filtersBar_title: "Закупочные фильтры",
+  catalog_filtersBar_collapse: "Скрыть фильтры",
+  catalog_filtersBar_expand: "Показать фильтры",
+
+  offerDetail_accessLocked_title: "Зарегистрируйтесь, чтобы увидеть детали поставщика и цены",
+  offerDetail_accessLocked_body: "Бесплатная регистрация открывает ориентировочную цену, превью идентичности поставщика и запрос прямой связи.",
+  offerDetail_accessLimited_title: "Запросите доступ, чтобы увидеть полные детали",
+  offerDetail_accessLimited_body: "Ваш аккаунт видит сводку предложения и ориентировочную цену. Запросите доступ, чтобы увидеть точную цену, контакты поставщика и полные коммерческие условия.",
+  offerDetail_requestAccessCta: "Запросить доступ",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
