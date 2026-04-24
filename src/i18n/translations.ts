@@ -301,6 +301,7 @@ type TranslationKeys = {
   signin_back: string;
   signin_resetPassword: string;
   signin_resetSubtitle: string;
+  signin_resetDemoHint: string;
   signin_sendResetLink: string;
   signin_emailSent: string;
   signin_checkEmailInstructions: string;
@@ -1151,6 +1152,7 @@ const en: TranslationKeys = {
   signin_back: "Back",
   signin_resetPassword: "Reset password",
   signin_resetSubtitle: "Enter the email you used to register. We'll send a link to reset your password.",
+  signin_resetDemoHint: "Demo mode: password reset only works for the test account dm@yorso.com.",
   signin_sendResetLink: "Send reset link",
   signin_emailSent: "Email sent",
   signin_checkEmailInstructions: "and follow the instructions in the email.",
@@ -1996,6 +1998,7 @@ const ru: TranslationKeys = {
   signin_back: "Назад",
   signin_resetPassword: "Сброс пароля",
   signin_resetSubtitle: "Введите email, с которым регистрировались. Мы отправим ссылку для сброса пароля.",
+  signin_resetDemoHint: "Демо-режим: сброс пароля работает только для тестового аккаунта dm@yorso.com.",
   signin_sendResetLink: "Отправить ссылку",
   signin_emailSent: "Письмо отправлено",
   signin_checkEmailInstructions: "и следуйте инструкциям в письме.",
@@ -2841,6 +2844,7 @@ const es: TranslationKeys = {
   signin_back: "Atrás",
   signin_resetPassword: "Restablecer contraseña",
   signin_resetSubtitle: "Ingrese el email con el que se registró. Enviaremos un enlace para restablecer su contraseña.",
+  signin_resetDemoHint: "Modo demo: el restablecimiento de contraseña solo funciona para la cuenta de prueba dm@yorso.com.",
   signin_sendResetLink: "Enviar enlace",
   signin_emailSent: "Email enviado",
   signin_checkEmailInstructions: "y siga las instrucciones del email.",
