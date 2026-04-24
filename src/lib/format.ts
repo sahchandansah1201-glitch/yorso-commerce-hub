@@ -22,6 +22,22 @@ const LOCALE_MAP: Record<Language, string> = {
 
 export const localeFor = (lang: Language): string => LOCALE_MAP[lang] ?? "en-US";
 
+/**
+ * Внутренний хелпер: возвращает базовые опции с принудительной группировкой
+ * тысяч во ВСЕХ локалях, включая es-ES.
+ *
+ * Зачем: ICU es-ES по умолчанию НЕ группирует 4-значные числа
+ * ("1234" вместо "1.234"), что плохо читается в B2B-каталоге, где MOQ
+ * и цены в районе 1000–9999 — типичный случай. `minimumGroupingDigits: 1`
+ * заставляет группировать любое число ≥ 1000.
+ */
+const groupingOpts = (): Intl.NumberFormatOptions => ({
+  useGrouping: true,
+  // @ts-expect-error — minimumGroupingDigits поддерживается V8/Node 14+, но
+  // ещё не во всех TS-libs. Безопасно: ICU игнорирует неизвестные опции.
+  minimumGroupingDigits: 1,
+});
+
 export const formatNumber = (
   value: number,
   lang: Language,
@@ -29,6 +45,7 @@ export const formatNumber = (
 ): string =>
   new Intl.NumberFormat(localeFor(lang), {
     maximumFractionDigits: 0,
+    ...groupingOpts(),
     ...options,
   }).format(value);
 
@@ -42,7 +59,16 @@ export const formatPrice = (
     currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+    ...groupingOpts(),
   }).format(value);
+
+/**
+ * Разделитель диапазона: en-dash, обёрнутый неразрывными пробелами, чтобы
+ * строка вида "8,50 $ – 9,20 $" не переносилась посередине ни в EN, ни в RU,
+ * ни в ES. NBSP (\u00a0) поддерживается всеми браузерами, читалками и при
+ * копировании сохраняет визуальную целостность диапазона.
+ */
+export const RANGE_SEPARATOR = "\u00a0–\u00a0";
 
 /**
  * Форматирует диапазон цен типа "8.50 – 9.20" → en: "$8.50 – $9.20",
@@ -59,7 +85,7 @@ export const formatPriceRange = (
   currency = "USD",
 ): string => {
   if (min === max) return formatPrice(min, lang, currency);
-  return `${formatPrice(min, lang, currency)} – ${formatPrice(max, lang, currency)}`;
+  return `${formatPrice(min, lang, currency)}${RANGE_SEPARATOR}${formatPrice(max, lang, currency)}`;
 };
 
 /**
