@@ -20,6 +20,9 @@ type TranslationKeys = {
   nav_faq: string;
   nav_signIn: string;
   nav_registerFree: string;
+  nav_account: string;
+  nav_signOut: string;
+  nav_myAccount: string;
 
   // Hero
   hero_title1: string;
@@ -833,6 +836,9 @@ const en: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Sign In",
   nav_registerFree: "Register Free",
+  nav_account: "Account",
+  nav_signOut: "Sign out",
+  nav_myAccount: "My account",
 
   // Hero
   hero_title1: "Verified Suppliers. Transparent Prices.",
@@ -1708,6 +1714,9 @@ const ru: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Войти",
   nav_registerFree: "Регистрация",
+  nav_account: "Аккаунт",
+  nav_signOut: "Выйти",
+  nav_myAccount: "Мой аккаунт",
 
   hero_title1: "Проверенные поставщики. Прозрачные цены.",
   hero_title2: "Полный контроль закупок.",
@@ -2571,6 +2580,9 @@ const es: TranslationKeys = {
   nav_faq: "FAQ",
   nav_signIn: "Iniciar sesión",
   nav_registerFree: "Registro gratis",
+  nav_account: "Cuenta",
+  nav_signOut: "Cerrar sesión",
+  nav_myAccount: "Mi cuenta",
 
   hero_title1: "Proveedores verificados. Precios transparentes.",
   hero_title2: "Control total de sus compras.",
