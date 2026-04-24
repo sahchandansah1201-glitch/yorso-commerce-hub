@@ -774,6 +774,18 @@ type TranslationKeys = {
   offerDetail_accessLimited_title: string;
   offerDetail_accessLimited_body: string;
   offerDetail_requestAccessCta: string;
+  offerDetail_priceLocked_label: string;
+  offerDetail_priceLocked_anonCta: string;
+  offerDetail_priceLocked_regCta: string;
+  offerDetail_termsLocked_label: string;
+  offerDetail_termsLocked_hint: string;
+  offerDetail_volumeLocked_label: string;
+  offerDetail_supplierMasked_name: string;
+  offerDetail_supplierMasked_hint: string;
+  offerDetail_supplierContactLocked: string;
+  offerDetail_supplierProfileLocked: string;
+  offerDetail_basisCountAvailable: string;
+  offerDetail_indicativePrice: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
