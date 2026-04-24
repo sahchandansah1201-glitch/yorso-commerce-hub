@@ -51,10 +51,24 @@ const RegisterReady = () => {
         countries: data.countries.length,
         funnelDurationMs,
       });
+
+      // Buyers came here to find products fast — sign them in and route to /offers.
+      if (data.role === "buyer" && data.email && !isSignedIn) {
+        signIn({ identifier: data.email, method: "email" });
+        analytics.track("workspace_session_started", { method: "email" });
+      }
     })();
     // One-shot completion analytics; re-running on data changes would double-fire.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guardPassed]);
+
+  // Auto-redirect verified buyers to the procurement workspace after a brief success beat.
+  useEffect(() => {
+    if (!guardPassed) return;
+    if (data.role !== "buyer") return;
+    const id = window.setTimeout(() => navigate("/offers"), 2200);
+    return () => window.clearTimeout(id);
+  }, [guardPassed, data.role, navigate]);
 
   if (!guardPassed) return null;
 
