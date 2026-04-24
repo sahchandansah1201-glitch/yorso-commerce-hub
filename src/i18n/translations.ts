@@ -2438,6 +2438,11 @@ const ru: TranslationKeys = {
 
   catalog_compare_addLabel: "В сравнение",
   catalog_compare_removeLabel: "Убрать из сравнения",
+  catalog_row_supplierLocked_anon: "Данные поставщика — после доступа к цене",
+  catalog_row_supplierLocked_reg: "Откройте доступ к цене, чтобы увидеть поставщика",
+  catalog_row_priceCta_anon: "Создать аккаунт покупателя",
+  catalog_row_priceCta_reg: "Запросить доступ к цене",
+  catalog_row_viewDetails: "Открыть детали предложения",
   catalog_compare_trayTitle: "Сравнение предложений",
   catalog_compare_trayHint: "Выберите 2–5 предложений, чтобы сравнить их рядом.",
   catalog_compare_open: "Открыть сравнение",
