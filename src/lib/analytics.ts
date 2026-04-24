@@ -295,6 +295,18 @@ export interface EventPayloadMap {
   // Buyer Workspace ─────────────────────────────────────────────
   workspace_session_started: { method: "email" | "phone" | "whatsapp" };
   workspace_session_ended: Empty;
+
+  // Post-registration auto-redirect (buyer → /offers) ──────────
+  buyer_auto_redirect_banner_shown: {
+    sessionId: string;
+    countdownSeconds: number;
+  };
+  buyer_auto_redirect_fired: {
+    sessionId: string;
+    destination: string;
+    trigger: "timeout" | "manual";
+    waitMs: number;
+  };
   workspace_view: {
     section: "dashboard" | "saved" | "price_requests" | "messages";
   };
