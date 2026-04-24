@@ -293,7 +293,6 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <ul className="space-y-0.5 text-[11px]">
           {additionalBreaks.map((vb, i) => (
             <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
-              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
               <span
                 className={cn(
                   "font-semibold",
@@ -305,6 +304,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
               >
                 {vb.priceRange}
               </span>
+              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
             </li>
           ))}
         </ul>
