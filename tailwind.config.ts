@@ -61,6 +61,7 @@ export default {
           foreground: "hsl(var(--success-foreground))",
         },
         "orange-glow": "hsl(var(--orange-glow))",
+        "link-hover": "hsl(var(--link-hover))",
         "warm-bg": "hsl(var(--warm-bg))",
         "cool-gray": "hsl(var(--cool-gray))",
         sidebar: {
