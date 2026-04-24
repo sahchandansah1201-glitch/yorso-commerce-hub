@@ -11,6 +11,7 @@ import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import Header from "@/components/landing/Header";
 
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
@@ -119,11 +120,7 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border/60 bg-background/95">
-        <div className="container flex h-16 items-center">
-          <Link to="/" className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</Link>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
         <div className="w-full max-w-md">
