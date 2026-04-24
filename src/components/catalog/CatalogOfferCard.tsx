@@ -162,7 +162,7 @@ export const CatalogOfferCard = ({ offer, forceLevel }: Props) => {
         </div>
 
         <div className="mt-auto pt-3">
-          <PriceBlock offer={offer} level={level} />
+          <OfferPriceMoq offer={offer} level={level} variant="card" />
         </div>
 
         <Actions offer={offer} level={level} />
