@@ -196,28 +196,19 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       {/* 2. Product identity */}
       <div className="flex min-w-0 flex-col gap-2">
         <div>
-          <div className="flex items-start gap-2">
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2">
+          <Link
+            to={`/offers/${offer.id}`}
+            onClick={(e) => e.stopPropagation()}
+            data-testid="catalog-row-view-details"
+            className="block"
+          >
+            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-sky-500 hover:underline underline-offset-2 decoration-sky-500/60">
               {offer.productName}
             </h3>
-            {offer.isVerified && (
-              <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                <ShieldCheck className="h-3 w-3" aria-hidden /> {t.catalog_card_supplierStub}
-              </span>
-            )}
-          </div>
+          </Link>
           <p className="mt-1 text-[11px] italic text-muted-foreground line-clamp-1">
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
-          <Link
-            to={`/offers/${offer.id}`}
-            className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
-            onClick={(e) => e.stopPropagation()}
-            data-testid="catalog-row-view-details"
-          >
-            {t.catalog_row_viewDetails}
-            <ArrowRight className="h-3 w-3" />
-          </Link>
         </div>
 
         <SupplierLine offer={offer} level={level} />
