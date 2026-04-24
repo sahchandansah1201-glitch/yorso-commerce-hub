@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
 import { OfferPriceMoq } from "@/components/catalog/OfferPriceMoq";
+import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 
 // Локальный PriceUnit удалён — переехал в @/components/catalog/PriceUnit и
 // инкапсулирован внутри OfferPriceMoq.
@@ -219,6 +220,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         <div>
           <Link
             to={`/offers/${offer.id}`}
+            state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
             className="block"
