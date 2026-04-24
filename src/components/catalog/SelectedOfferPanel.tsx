@@ -5,11 +5,14 @@ import {
   FileX2,
   Lock,
   Minus,
+  Scale,
   ShieldCheck,
   TrendingDown,
   TrendingUp,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
 import {
@@ -28,6 +31,9 @@ import analytics from "@/lib/analytics";
 
 interface Props {
   offer: SeafoodOffer | null;
+  isCompared?: boolean;
+  onCompareToggle?: (offerId: string) => void;
+  compareDisabled?: boolean;
 }
 
 const dirIcon = (d: TrendDirection) => {
@@ -101,7 +107,12 @@ const reasonLabel = (
   }
 };
 
-export const SelectedOfferPanel = ({ offer }: Props) => {
+export const SelectedOfferPanel = ({
+  offer,
+  isCompared = false,
+  onCompareToggle,
+  compareDisabled = false,
+}: Props) => {
   const { t, lang } = useLanguage();
   const { level } = useAccessLevel();
 
@@ -155,9 +166,26 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
         <>
           {/* 1. Offer summary */}
           <section className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              {t.catalog_panel_summary_title}
-            </p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t.catalog_panel_summary_title}
+              </p>
+              {onCompareToggle && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={isCompared ? "default" : "outline"}
+                  aria-pressed={isCompared}
+                  disabled={!isCompared && compareDisabled}
+                  onClick={() => onCompareToggle(offer.id)}
+                  className="h-6 shrink-0 px-2 text-[10px] font-semibold"
+                  data-testid="catalog-panel-compare-toggle"
+                >
+                  {isCompared ? <X className="h-3 w-3" /> : <Scale className="h-3 w-3" />}
+                  {isCompared ? t.catalog_panel_compare_remove : t.catalog_panel_compare_add}
+                </Button>
+              )}
+            </div>
             <h3 className="mt-1 font-heading text-sm font-bold leading-tight text-foreground">
               {offer.productName}
             </h3>

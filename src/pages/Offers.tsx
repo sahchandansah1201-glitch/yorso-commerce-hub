@@ -249,9 +249,6 @@ const Offers = () => {
                     offer={offer}
                     isSelected={offer.id === selectedOfferId}
                     onSelect={handleSelectOffer}
-                    isCompared={compareIds.includes(offer.id)}
-                    onCompareToggle={handleCompareToggle}
-                    compareDisabled={compareIds.length >= COMPARE_MAX}
                   />
                 ))}
               </div>
@@ -259,7 +256,12 @@ const Offers = () => {
           </section>
 
           <div className="xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
-            <SelectedOfferPanel offer={selectedOffer} />
+            <SelectedOfferPanel
+              offer={selectedOffer}
+              isCompared={selectedOffer ? compareIds.includes(selectedOffer.id) : false}
+              onCompareToggle={handleCompareToggle}
+              compareDisabled={compareIds.length >= COMPARE_MAX}
+            />
           </div>
         </div>
 

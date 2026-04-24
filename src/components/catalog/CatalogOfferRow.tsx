@@ -1,17 +1,17 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Lock,
   ShieldCheck,
   Truck,
   CreditCard,
-  Scale,
   TrendingUp,
   TrendingDown,
   Minus,
   Newspaper,
   FileCheck2,
-  Check,
   ArrowRight,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -21,14 +21,13 @@ import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
+import { useAccessRequestPending } from "@/lib/catalog-requests";
+import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
 
 interface Props {
   offer: SeafoodOffer;
   isSelected: boolean;
   onSelect: (offerId: string) => void;
-  isCompared: boolean;
-  onCompareToggle: (offerId: string) => void;
-  compareDisabled?: boolean;
   forceLevel?: AccessLevel;
 }
 
@@ -58,6 +57,8 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
 
 const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
   const { t, lang } = useLanguage();
+  const accessPending = useAccessRequestPending();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const hasNumeric = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
   const range = hasNumeric
     ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
@@ -83,9 +84,18 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     );
   }
 
+  // Locked states: single, clear access message + one action.
+  const accessMsg =
+    level === "registered_locked"
+      ? t.catalog_row_priceAccess_reg
+      : t.catalog_row_priceAccess_anon;
+
   const ctaLabel =
-    level === "registered_locked" ? t.catalog_row_priceCta_reg : t.catalog_row_priceCta_anon;
-  const ctaTo = level === "registered_locked" ? "/offers" : "/register";
+    level === "registered_locked"
+      ? accessPending
+        ? t.catalog_row_priceCta_reg_sent
+        : t.catalog_row_priceCta_reg
+      : t.catalog_row_priceCta_anon;
 
   return (
     <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
@@ -95,14 +105,36 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       </div>
       <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
-        {level === "anonymous_locked" ? t.catalog_card_priceLockedHint : t.catalog_card_priceLocked}
+        {accessMsg}
       </p>
-      <Link to={ctaTo} className="self-start" onClick={(e) => e.stopPropagation()}>
-        <Button size="sm" variant="outline" className="h-7 px-2.5 text-[11px] font-semibold">
-          {ctaLabel}
-          <ArrowRight className="h-3 w-3" />
-        </Button>
-      </Link>
+      {level === "registered_locked" ? (
+        <>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={accessPending}
+            onClick={(e) => {
+              e.stopPropagation();
+              setDialogOpen(true);
+            }}
+            className="h-7 self-start px-2.5 text-[11px] font-semibold"
+            data-testid="catalog-row-request-access"
+          >
+            {accessPending ? <Check className="h-3 w-3" /> : null}
+            {ctaLabel}
+            {!accessPending && <ArrowRight className="h-3 w-3" />}
+          </Button>
+          <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+        </>
+      ) : (
+        <Link to="/register" className="self-start" onClick={(e) => e.stopPropagation()}>
+          <Button size="sm" variant="outline" className="h-7 px-2.5 text-[11px] font-semibold">
+            {ctaLabel}
+            <ArrowRight className="h-3 w-3" />
+          </Button>
+        </Link>
+      )}
     </div>
   );
 };
@@ -113,15 +145,7 @@ const dirIcon = (dir: "up" | "down" | "flat") => {
   return <Minus className="h-3 w-3 text-muted-foreground" aria-hidden />;
 };
 
-export const CatalogOfferRow = ({
-  offer,
-  isSelected,
-  onSelect,
-  isCompared,
-  onCompareToggle,
-  compareDisabled,
-  forceLevel,
-}: Props) => {
+export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Props) => {
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
@@ -132,7 +156,6 @@ export const CatalogOfferRow = ({
   const docsReady = (offer.certifications?.length ?? 0) >= 2;
 
   const handleRowClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Ignore clicks that originated on interactive children (links/buttons).
     const target = e.target as HTMLElement;
     if (target.closest("a, button")) return;
     onSelect(offer.id);
@@ -246,26 +269,9 @@ export const CatalogOfferRow = ({
         </span>
       </div>
 
-      {/* 4. Price + access + compare */}
+      {/* 4. Price + access */}
       <div className="flex flex-col items-stretch gap-3">
         <PriceBlock offer={offer} level={level} />
-        <Button
-          type="button"
-          size="sm"
-          variant={isCompared ? "default" : "ghost"}
-          aria-pressed={isCompared}
-          aria-label={isCompared ? t.catalog_compare_removeLabel : t.catalog_compare_addLabel}
-          disabled={!isCompared && compareDisabled}
-          onClick={(e) => {
-            e.stopPropagation();
-            onCompareToggle(offer.id);
-          }}
-          className="h-7 self-start px-2 text-[11px] font-medium"
-          data-testid="catalog-offer-compare-toggle"
-        >
-          {isCompared ? <Check className="h-3 w-3" /> : <Scale className="h-3 w-3" />}
-          {isCompared ? t.catalog_compare_removeLabel : t.catalog_card_action_compare}
-        </Button>
       </div>
     </article>
   );
