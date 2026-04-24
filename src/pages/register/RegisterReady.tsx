@@ -25,6 +25,8 @@ const RegisterReady = () => {
   const { data, setField } = useRegistration();
   const guardPassed = useRegistrationGuard("/register/ready");
   const { t } = useLanguage();
+  const { signIn, isSignedIn } = useBuyerSession();
+  const navigate = useNavigate();
   const isSupplier = data.role === "supplier";
   const firstName = data.fullName?.split(" ")[0] || "there";
 
