@@ -344,6 +344,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         <div>
           <Link
             to={`/offers/${offer.id}`}
+            state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
             className="block"
