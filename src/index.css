@@ -46,6 +46,7 @@
     --cool-gray: 220 15% 96%;
     --success: 152 60% 42%;
     --success-foreground: 0 0% 100%;
+    --link-hover: 199 89% 48%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -93,6 +94,7 @@
     --cool-gray: 216 30% 14%;
     --success: 152 60% 42%;
     --success-foreground: 0 0% 100%;
+    --link-hover: 199 89% 58%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
