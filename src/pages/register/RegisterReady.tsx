@@ -11,7 +11,7 @@ import {
 import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
 import { authApi, isApiError } from "@/lib/api-contracts";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
@@ -30,8 +30,17 @@ const RegisterReady = () => {
   const isSupplier = data.role === "supplier";
   const firstName = data.fullName?.split(" ")[0] || "there";
 
+  // Returning buyers (already signed in on a repeat visit) skip the celebratory
+  // animations entirely and jump straight to the catalog — no flicker, no rerun.
+  const isReturningBuyer = guardPassed && data.role === "buyer" && isSignedIn && data.completed === true;
+  const REDIRECT_SECONDS = 5;
+  const [secondsLeft, setSecondsLeft] = useState(REDIRECT_SECONDS);
+  const completionRan = useRef(false);
+
   useEffect(() => {
     if (!guardPassed) return;
+    if (completionRan.current) return;
+    completionRan.current = true;
 
     // Finalize registration through the contract.
     (async () => {
@@ -62,15 +71,28 @@ const RegisterReady = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [guardPassed]);
 
-  // Auto-redirect verified buyers to the procurement workspace after a brief success beat.
+  // Returning buyers go straight to the catalog without showing the success screen again.
+  useEffect(() => {
+    if (isReturningBuyer) navigate("/offers", { replace: true });
+  }, [isReturningBuyer, navigate]);
+
+  // Auto-redirect verified buyers to the procurement workspace with a visible countdown.
   useEffect(() => {
     if (!guardPassed) return;
     if (data.role !== "buyer") return;
-    const id = window.setTimeout(() => navigate("/offers"), 2200);
-    return () => window.clearTimeout(id);
-  }, [guardPassed, data.role, navigate]);
+    if (isReturningBuyer) return;
+    const tick = window.setInterval(() => {
+      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    const redirect = window.setTimeout(() => navigate("/offers"), REDIRECT_SECONDS * 1000);
+    return () => {
+      window.clearInterval(tick);
+      window.clearTimeout(redirect);
+    };
+  }, [guardPassed, data.role, isReturningBuyer, navigate]);
 
   if (!guardPassed) return null;
+  if (isReturningBuyer) return null;
 
   const categoriesCount = data.categories.length;
   const countriesCount = data.countries.length;
@@ -220,7 +242,7 @@ const RegisterReady = () => {
               aria-hidden
               className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary"
             />
-            <span>{t.reg_buyerAutoRedirect}</span>
+            <span>{t.reg_buyerAutoRedirect.replace("{seconds}", String(secondsLeft))}</span>
           </motion.div>
         )}
 
