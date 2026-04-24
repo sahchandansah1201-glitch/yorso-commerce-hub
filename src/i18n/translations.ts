@@ -3250,3 +3250,186 @@ const es: TranslationKeys = {
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
+
+/**
+ * Loose-typed dictionary for procurement-intelligence content (news headlines,
+ * country impact reasons, market signals, price-trend explanations). The keys
+ * mirror ids/category names from `mockIntelligence.ts`. Components call
+ * `getIntelText(lang, key, fallbackEn)` and gracefully fall back to the EN
+ * source string when the localized version is not provided.
+ *
+ * Backend-readiness: when real intelligence is server-side, drop this map and
+ * have the API return localized content directly.
+ */
+export const intelI18n: Record<Language, Record<string, string>> = {
+  en: {},
+  ru: {
+    // News
+    intel_news_n1_headline: "Норвежский экспорт лосося вырос на 6% по объёму, но маржа сжимается из-за налога на ренту",
+    intel_news_n1_summary: "Стоимость экспорта выросла год к году; производители сигналят более жёсткие спот-офферы Q2.",
+    intel_news_n2_headline: "Чилийский урожай лосося ускоряется перед спросом на Великий пост в США",
+    intel_news_n2_summary: "Высокий темп вылова смягчит цены для покупателей Северной Америки через 4–6 недель.",
+    intel_news_n3_headline: "Урожай эквадорских прудов креветки сильный на фоне снижения энергозатрат",
+    intel_news_n3_summary: "Снижение себестоимости выливается в стабильную FOB-цену во II квартале.",
+    intel_news_n4_headline: "Индийские экспортёры креветки ждут итогов антидемпингового пересмотра USDOC",
+    intel_news_n4_summary: "Ожидание решения сдерживает контракты в США; поставки в ЕС и MEA идут нормально.",
+    intel_news_n5_headline: "Россия пересматривает квоты на треску и пикшу 2025 года в сторону снижения",
+    intel_news_n5_summary: "Сокращение квоты продолжает поддерживать высокие цены на белую рыбу до III квартала.",
+    intel_news_n6_headline: "Аукционные цены на свежую треску в Исландии стабильны по мере выбора зимней квоты",
+    intel_news_n6_summary: "Стабильные результаты аукционов делают европейские офферы по свежей треске предсказуемыми.",
+    intel_news_n7_headline: "Квота на королевского краба в Охотском море ужесточается на 2025 год",
+    intel_news_n7_summary: "Жёсткие квоты толкают спот-цены вверх, особенно на азиатских направлениях.",
+    intel_news_n8_headline: "Уловы жёлтого тунца на Филиппинах растут на фоне улучшения погодного окна",
+    intel_news_n8_summary: "Лучшая погода увеличивает доступность уловов на удочки до апреля.",
+    intel_news_n9_headline: "Сезон аргентинского кальмара illex заканчивается, экспортёры приоритизируют контракты ЕС",
+    intel_news_n9_summary: "Конец сезона направляет остатки давним европейским покупателям.",
+    intel_news_n10_headline: "Марокко сохраняет периоды моратория на осьминога, поставки остаются ограниченными",
+    intel_news_n10_summary: "Закрытия по соображениям сохранения поддерживают высокие иберийские цены.",
+    // Trend explanations
+    intel_trend_Salmon_explanation: "Норвежские объёмы экспорта сжимаются из-за биологических ограничений роста; чилийские поставки компенсируют долгосрочно, но с лагом 2–3 недели.",
+    intel_trend_Shrimp_explanation: "Пик урожайного цикла Эквадора давит на цену ваннамей; запасы Индии и Вьетнама стабильны.",
+    intel_trend_Whitefish_explanation: "Снижение квот на треску в Баренцевом море 2025 года продолжает толкать цены трески и пикши вверх.",
+    intel_trend_Tuna_explanation: "Уловы в Западной Пацифике стабильны; премиум за сашими-грейд сужается после окончания сезона в Японии.",
+    intel_trend_Crab_explanation: "Сокращение квот в Охотском море и сложности с санкциями ужесточают доступность королевского краба.",
+    "intel_trend_Squid & Octopus_explanation": "Сезон аргентинского illex заканчивается; квота на марокканского осьминога недавно пересмотрена, замедляя иберийские поставки.",
+    // Market signals
+    intel_signal_s1_text: "Норвегия: вес уловов ниже 5-летнего среднего на 11-й неделе",
+    intel_signal_s2_text: "ЕС-ритейл усиливает промо к пасхальному окну",
+    intel_signal_s3_text: "Авиафрахт Осло–США: ёмкость в норме",
+    intel_signal_s4_text: "Эквадор: пруды стабильны; крупные размеры хорошо обеспечены",
+    intel_signal_s5_text: "Антидемпинговый пересмотр USDOC по индийской креветке ожидается",
+    intel_signal_s6_text: "Квота на баренцевоморскую треску снова снижена; рекомендуется план замещения",
+    intel_signal_s7_text: "Авиафрахт Исландия–ЕС надёжен до апреля",
+    intel_signal_s8_text: "Уловы Западной Пацифики улучшаются с погодой",
+    intel_signal_s9_text: "Спрос Японии после сезона смягчается",
+    intel_signal_s10_text: "Сокращение квоты на Дальнем Востоке РФ: обеспечивайте форвард заблаговременно",
+    intel_signal_s11_text: "Сложность санкций сохраняется для отдельных направлений",
+    intel_signal_s12_text: "Сезон illex закрывается; ожидайте форвардных дефицитов",
+    intel_signal_s13_text: "Опубликованы даты марокканского моратория на следующий квартал",
+    // Impact reasons (Salmon)
+    intel_impact_Salmon_NO_reason: "Крупнейший производитель фермерского атлантического лосося; задаёт спот-бенчмарк.",
+    intel_impact_Salmon_CL_reason: "Основная альтернативная поставка для североамериканских покупателей.",
+    intel_impact_Salmon_FO_reason: "Меньший объём, но премиум-бенчмарк качества.",
+    intel_impact_Salmon_US_reason: "Крупнейший импортный рынок; колебания спроса двигают мировой FOB.",
+    intel_impact_Salmon_FR_reason: "Крупнейший европейский ритейл-спрос; сезон копчёного лосося подтягивает объёмы.",
+    // Shrimp
+    intel_impact_Shrimp_EC_reason: "Крупнейший экспортёр ваннамей; цикл вылова задаёт мировой бенчмарк.",
+    intel_impact_Shrimp_IN_reason: "Крупный поставщик HOSO и PD; торговые меры США двигают цены.",
+    intel_impact_Shrimp_VN_reason: "Хаб переработки добавленной стоимости; абсорбирует сырьё соседей.",
+    intel_impact_Shrimp_CN_reason: "Переработка и спрос вместе; крупнейший swing-байер.",
+    intel_impact_Shrimp_US_reason: "Тарифы и антидемпинговые пересмотры напрямую влияют на landed-цену.",
+    // Whitefish
+    intel_impact_Whitefish_RU_reason: "Крупнейший держатель квоты на треску и минтай в Северной Пацифике и Баренцевом море.",
+    intel_impact_Whitefish_NO_reason: "Соуправляет квотой на баренцевоморскую треску; норвежские аукционы задают эталон ЕС.",
+    intel_impact_Whitefish_IS_reason: "Премиум-бенчмарк свежей трески; аукционные цены отслеживаются плотно.",
+    intel_impact_Whitefish_CN_reason: "Крупный переработчик российской и тихоокеанской трески для глобальной перепродажи.",
+    intel_impact_Whitefish_GB_reason: "Высокий структурный спрос на треску и пикшу для fish-and-chips.",
+    // Tuna
+    intel_impact_Tuna_PH_reason: "Крупный флот по жёлтому тунцу: сашими-фокус.",
+    intel_impact_Tuna_ID_reason: "Ключевой поставщик для рынков ЕС и Японии.",
+    intel_impact_Tuna_VN_reason: "Сильные мощности по переработке филе для ЕС.",
+    intel_impact_Tuna_JP_reason: "Премиум-спрос на сашими задаёт эталон высоких сортов.",
+    intel_impact_Tuna_ES_reason: "Крупнейший переработчик и конечный покупатель тунца в ЕС.",
+    // Crab
+    intel_impact_Crab_RU_reason: "Доминирующий поставщик красного королевского краба; сокращения квоты напрямую двигают цену.",
+    intel_impact_Crab_US_reason: "Аляскинский королевский краб; малый объём, но премиум-эталон цены.",
+    intel_impact_Crab_KR_reason: "Крупнейший импортный рынок живого и замороженного королевского краба.",
+    intel_impact_Crab_CN_reason: "Праздничные циклы спроса вызывают резкие краткосрочные движения цены.",
+    // Squid & Octopus
+    "intel_impact_Squid & Octopus_AR_reason": "Сезон Illex argentinus задаёт мировой бенчмарк по кальмару.",
+    "intel_impact_Squid & Octopus_MA_reason": "Квота и мораторий на обыкновенного осьминога напрямую задают landed-цену.",
+    "intel_impact_Squid & Octopus_MR_reason": "Альтернативный источник осьминога во время марокканских закрытий.",
+    "intel_impact_Squid & Octopus_ES_reason": "Крупнейший потребитель цефалопод в ЕС.",
+    "intel_impact_Squid & Octopus_JP_reason": "Стабильный премиум-спрос на сорт для суши.",
+  },
+  es: {
+    intel_news_n1_headline: "Las exportaciones noruegas de salmón suben un 6% en volumen pero los márgenes se ajustan por el impuesto a la renta",
+    intel_news_n1_summary: "Valor de exportación al alza interanual; los productores anticipan ofertas spot Q2 más ajustadas.",
+    intel_news_n2_headline: "La cosecha chilena de salmón se acelera ante la demanda de Cuaresma en EE. UU.",
+    intel_news_n2_summary: "Mayor ritmo de cosecha suavizará precios para compradores norteamericanos en 4–6 semanas.",
+    intel_news_n3_headline: "Los rendimientos del langostino ecuatoriano se mantienen sólidos al bajar costes energéticos",
+    intel_news_n3_summary: "Menores costes se traducen en precios FOB estables durante el Q2.",
+    intel_news_n4_headline: "Exportadores indios de langostino esperan resultado del antidumping del USDOC",
+    intel_news_n4_summary: "La revisión pendiente mantiene cautelosos los contratos a EE. UU.; UE y MEA siguen normales.",
+    intel_news_n5_headline: "Rusia revisa a la baja las cuotas de bacalao y eglefino 2025",
+    intel_news_n5_summary: "El recorte sostiene precios firmes de pescado blanco hasta el Q3.",
+    intel_news_n6_headline: "Precios de subasta de bacalao fresco en Islandia estables al cubrirse la cuota invernal",
+    intel_news_n6_summary: "Resultados estables de subasta hacen previsibles las ofertas europeas de bacalao fresco.",
+    intel_news_n7_headline: "La cuota de cangrejo rey en el Mar de Ojotsk se ajusta más para 2025",
+    intel_news_n7_summary: "Cuotas más estrictas empujan precios spot al alza, especialmente para rutas asiáticas.",
+    intel_news_n8_headline: "Desembarcos de atún aleta amarilla en Filipinas suben con mejor ventana climática",
+    intel_news_n8_summary: "Mejor tiempo aumenta la disponibilidad de capturas con caña hasta abril.",
+    intel_news_n9_headline: "La temporada del calamar Illex argentino se cierra, exportadores priorizan contratos UE",
+    intel_news_n9_summary: "El inventario de fin de temporada se dirige a clientes europeos consolidados.",
+    intel_news_n10_headline: "Marruecos mantiene los moratorios del pulpo, la oferta sigue ajustada",
+    intel_news_n10_summary: "Los cierres por conservación sostienen precios ibéricos elevados.",
+    intel_trend_Salmon_explanation: "Volúmenes de exportación noruegos se ajustan por límites biológicos; la oferta chilena compensa pero con 2–3 semanas de retraso.",
+    intel_trend_Shrimp_explanation: "El pico del ciclo ecuatoriano presiona el vannamei a la baja; existencias de India y Vietnam se mantienen estables.",
+    intel_trend_Whitefish_explanation: "Las cuotas más bajas de bacalao en el Mar de Barents 2025 siguen empujando precios al alza.",
+    intel_trend_Tuna_explanation: "Las capturas en el Pacífico Occidental son estables; el premio sashimi se reduce al bajar la demanda japonesa.",
+    intel_trend_Crab_explanation: "Recortes de cuota en Ojotsk y la complejidad de sanciones ajustan la oferta de cangrejo rey.",
+    "intel_trend_Squid & Octopus_explanation": "Cierra la temporada del Illex argentino; la cuota marroquí del pulpo se ha revisado, frenando flujos ibéricos.",
+    intel_signal_s1_text: "Noruega: pesos de cosecha por debajo del promedio quinquenal en la semana 11",
+    intel_signal_s2_text: "Promociones del retail de la UE intensifican de cara a Pascua",
+    intel_signal_s3_text: "Carga aérea Oslo–EE. UU.: capacidad normal",
+    intel_signal_s4_text: "Ecuador: rendimientos estables; tallas grandes bien abastecidas",
+    intel_signal_s5_text: "Pendiente revisión antidumping del USDOC al langostino indio",
+    intel_signal_s6_text: "Cuota de bacalao en Barents recortada de nuevo; recomendados planes de sustitución",
+    intel_signal_s7_text: "Carga aérea Islandia–UE fiable hasta abril",
+    intel_signal_s8_text: "Mejoran los desembarcos en el Pacífico Occidental",
+    intel_signal_s9_text: "Demanda de Japón post-temporada se modera",
+    intel_signal_s10_text: "Recorte de cuota en el Lejano Oriente ruso: cubrir forward pronto",
+    intel_signal_s11_text: "Persiste complejidad de sanciones para algunos destinos",
+    intel_signal_s12_text: "Cierra temporada del Illex; esperar escasez forward",
+    intel_signal_s13_text: "Publicadas fechas del moratorio marroquí para el próximo trimestre",
+    intel_impact_Salmon_NO_reason: "Mayor productor de salmón atlántico de cultivo; fija el referente spot.",
+    intel_impact_Salmon_CL_reason: "Principal oferta alternativa para compradores norteamericanos.",
+    intel_impact_Salmon_FO_reason: "Volumen menor, pero referente de calidad premium.",
+    intel_impact_Salmon_US_reason: "Mayor mercado importador; sus oscilaciones mueven el FOB global.",
+    intel_impact_Salmon_FR_reason: "Mayor demanda retail europea; la temporada de salmón ahumado tira del volumen.",
+    intel_impact_Shrimp_EC_reason: "Mayor exportador de vannamei; el ciclo de cosecha marca el referente global.",
+    intel_impact_Shrimp_IN_reason: "Gran proveedor HOSO y PD; las acciones comerciales de EE. UU. mueven precios.",
+    intel_impact_Shrimp_VN_reason: "Hub de procesado con valor añadido; absorbe materia prima de vecinos.",
+    intel_impact_Shrimp_CN_reason: "Reprocesado y demanda final combinados; mayor comprador swing.",
+    intel_impact_Shrimp_US_reason: "Aranceles y revisiones antidumping impactan el coste landed.",
+    intel_impact_Whitefish_RU_reason: "Mayor titular de cuota de bacalao y abadejo en Pacífico Norte y Barents.",
+    intel_impact_Whitefish_NO_reason: "Cogestor de la cuota Barents; las subastas noruegas marcan referente UE.",
+    intel_impact_Whitefish_IS_reason: "Referente premium de bacalao fresco; subastas seguidas de cerca.",
+    intel_impact_Whitefish_CN_reason: "Gran reprocesador de bacalao ruso y del Pacífico para reventa global.",
+    intel_impact_Whitefish_GB_reason: "Alta demanda estructural de bacalao y eglefino para fish-and-chips.",
+    intel_impact_Tuna_PH_reason: "Gran flota de aleta amarilla con caña y palangre; foco sashimi.",
+    intel_impact_Tuna_ID_reason: "Proveedor clave para mercados UE y japonés.",
+    intel_impact_Tuna_VN_reason: "Fuerte capacidad de procesado de lomos para la UE.",
+    intel_impact_Tuna_JP_reason: "Demanda premium de sashimi marca el referente de gama alta.",
+    intel_impact_Tuna_ES_reason: "Mayor procesador y comprador final de atún de la UE.",
+    intel_impact_Crab_RU_reason: "Proveedor dominante de cangrejo rey rojo; los recortes mueven precio directamente.",
+    intel_impact_Crab_US_reason: "Cangrejo rey de Alaska; volumen pequeño pero referente premium.",
+    intel_impact_Crab_KR_reason: "Mayor mercado importador de cangrejo rey vivo y congelado.",
+    intel_impact_Crab_CN_reason: "Ciclos festivos provocan movimientos cortos y bruscos de precio.",
+    "intel_impact_Squid & Octopus_AR_reason": "La temporada del Illex argentinus marca el referente global del calamar.",
+    "intel_impact_Squid & Octopus_MA_reason": "Cuota y moratorio del pulpo común marcan el precio landed.",
+    "intel_impact_Squid & Octopus_MR_reason": "Origen alternativo del pulpo durante los cierres marroquíes.",
+    "intel_impact_Squid & Octopus_ES_reason": "Mayor consumidor de cefalópodos de la UE.",
+    "intel_impact_Squid & Octopus_JP_reason": "Demanda premium estable para producto sushi.",
+  },
+};
+
+export const getIntelText = (lang: Language, key: string, fallback: string): string => {
+  return intelI18n[lang]?.[key] ?? fallback;
+};
+
+/**
+ * Format a relative-time integer (days) into a localized string.
+ * Backend-readiness: when API returns ISO timestamps, convert to days client-side.
+ */
+export const formatDaysAgo = (lang: Language, days: number): string => {
+  const t = translations[lang];
+  if (days <= 0) return t.catalog_time_today;
+  if (days < 7) {
+    const tpl = days === 1 ? t.catalog_time_dayAgo : t.catalog_time_daysAgo;
+    return tpl.replace("{n}", String(days));
+  }
+  const weeks = Math.round(days / 7);
+  const tpl = weeks === 1 ? t.catalog_time_weekAgo : t.catalog_time_weeksAgo;
+  return tpl.replace("{n}", String(weeks));
+};
