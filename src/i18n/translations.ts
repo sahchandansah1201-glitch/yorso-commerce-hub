@@ -748,6 +748,12 @@ type TranslationKeys = {
   // Procurement workspace — compare tray
   catalog_compare_addLabel: string;
   catalog_compare_removeLabel: string;
+  // Row v2 — supplier visibility & access CTAs
+  catalog_row_supplierLocked_anon: string;
+  catalog_row_supplierLocked_reg: string;
+  catalog_row_priceCta_anon: string;
+  catalog_row_priceCta_reg: string;
+  catalog_row_viewDetails: string;
   catalog_compare_trayTitle: string;
   catalog_compare_trayHint: string;
   catalog_compare_open: string;
@@ -1595,6 +1601,11 @@ const en: TranslationKeys = {
 
   catalog_compare_addLabel: "Add to compare",
   catalog_compare_removeLabel: "Remove from compare",
+  catalog_row_supplierLocked_anon: "Supplier details available after price access",
+  catalog_row_supplierLocked_reg: "Unlock price access to view supplier",
+  catalog_row_priceCta_anon: "Create buyer account",
+  catalog_row_priceCta_reg: "Request price access",
+  catalog_row_viewDetails: "View offer details",
   catalog_compare_trayTitle: "Compare offers",
   catalog_compare_trayHint: "Select 2–5 offers to compare side by side.",
   catalog_compare_open: "Open comparison",
@@ -2427,6 +2438,11 @@ const ru: TranslationKeys = {
 
   catalog_compare_addLabel: "В сравнение",
   catalog_compare_removeLabel: "Убрать из сравнения",
+  catalog_row_supplierLocked_anon: "Данные поставщика — после доступа к цене",
+  catalog_row_supplierLocked_reg: "Откройте доступ к цене, чтобы увидеть поставщика",
+  catalog_row_priceCta_anon: "Создать аккаунт покупателя",
+  catalog_row_priceCta_reg: "Запросить доступ к цене",
+  catalog_row_viewDetails: "Открыть детали предложения",
   catalog_compare_trayTitle: "Сравнение предложений",
   catalog_compare_trayHint: "Выберите 2–5 предложений, чтобы сравнить их рядом.",
   catalog_compare_open: "Открыть сравнение",
@@ -3259,6 +3275,11 @@ const es: TranslationKeys = {
 
   catalog_compare_addLabel: "Añadir a comparar",
   catalog_compare_removeLabel: "Quitar de comparar",
+  catalog_row_supplierLocked_anon: "Datos del proveedor disponibles tras el acceso al precio",
+  catalog_row_supplierLocked_reg: "Solicita acceso al precio para ver al proveedor",
+  catalog_row_priceCta_anon: "Crear cuenta de comprador",
+  catalog_row_priceCta_reg: "Solicitar acceso al precio",
+  catalog_row_viewDetails: "Ver detalles de la oferta",
   catalog_compare_trayTitle: "Comparar ofertas",
   catalog_compare_trayHint: "Selecciona 2–5 ofertas para compararlas lado a lado.",
   catalog_compare_open: "Abrir comparación",
