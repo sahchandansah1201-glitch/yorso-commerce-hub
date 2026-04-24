@@ -5,11 +5,14 @@ import {
   FileX2,
   Lock,
   Minus,
+  Scale,
   ShieldCheck,
   TrendingDown,
   TrendingUp,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
 import {
@@ -28,6 +31,9 @@ import analytics from "@/lib/analytics";
 
 interface Props {
   offer: SeafoodOffer | null;
+  isCompared?: boolean;
+  onCompareToggle?: (offerId: string) => void;
+  compareDisabled?: boolean;
 }
 
 const dirIcon = (d: TrendDirection) => {
@@ -101,7 +107,12 @@ const reasonLabel = (
   }
 };
 
-export const SelectedOfferPanel = ({ offer }: Props) => {
+export const SelectedOfferPanel = ({
+  offer,
+  isCompared = false,
+  onCompareToggle,
+  compareDisabled = false,
+}: Props) => {
   const { t, lang } = useLanguage();
   const { level } = useAccessLevel();
 
