@@ -65,6 +65,7 @@ interface Props {
   isSelected: boolean;
   onSelect: (offerId: string) => void;
   forceLevel?: AccessLevel;
+  isHighlighted?: boolean;
 }
 
 const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
@@ -308,7 +309,7 @@ const dirIcon = (dir: "up" | "down" | "flat") => {
   return <Minus className="h-3 w-3 text-muted-foreground" aria-hidden />;
 };
 
-export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Props) => {
+export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHighlighted }: Props) => {
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
@@ -327,6 +328,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
   return (
     <article
       data-testid="catalog-offer-row"
+      data-offer-id={offer.id}
       data-access-level={level}
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
@@ -335,6 +337,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
+        isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
     >
       {/* 1. Media */}
