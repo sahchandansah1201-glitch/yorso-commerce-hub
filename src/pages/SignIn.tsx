@@ -17,14 +17,12 @@ type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
 
 /**
- * Returns a safe in-app redirect path. Rejects external URLs, protocol-relative
- * paths, and anything that doesn't start with a single "/".
+ * Buyer sign-in always lands on the procurement workspace at /offers.
+ * The redirect query parameter is intentionally ignored in Phase 1 so that
+ * buyers reach the catalog as quickly as possible, regardless of how they
+ * arrived at the sign-in screen.
  */
-const sanitizeRedirect = (raw: string | null): string => {
-  if (!raw) return "/offers";
-  if (!raw.startsWith("/") || raw.startsWith("//")) return "/offers";
-  return raw;
-};
+const sanitizeRedirect = (_raw: string | null): string => "/offers";
 
 const SignIn = () => {
   const navigate = useNavigate();
