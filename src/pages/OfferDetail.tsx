@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { ArrowRight, ChevronRight, Lock } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { mockOffers } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
@@ -22,8 +23,20 @@ const OfferDetail = () => {
   const { id } = useParams();
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const location = useLocation();
+  const navigate = useNavigate();
   const offer = mockOffers.find((o) => o.id === id);
   const isLocked = level !== "qualified_unlocked";
+  const returnCtx = readCatalogReturnState(location);
+  const handleBack = () => {
+    if (returnCtx) {
+      // navigate(-1) preserves the location.state we attached on outbound link,
+      // which Offers.tsx reads to restore scroll + highlight.
+      navigate(-1);
+    } else {
+      navigate("/offers");
+    }
+  };
   const lockTitle = level === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
     : t.offerDetail_accessLimited_title;
