@@ -1203,6 +1203,8 @@ const en: TranslationKeys = {
   offerDetail_offers: "Offers",
   offerDetail_registerToContact: "Register to Contact Supplier",
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
+  offerDetail_backToCatalog: "Back to procurement workspace",
+  offerDetail_backToCatalogShort: "Back to workspace",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2064,6 +2066,8 @@ const ru: TranslationKeys = {
   offerDetail_offers: "Предложения",
   offerDetail_registerToContact: "Зарегистрируйтесь для связи с поставщиком",
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
+  offerDetail_backToCatalog: "Назад в панель закупок",
+  offerDetail_backToCatalogShort: "В панель закупок",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2925,6 +2929,8 @@ const es: TranslationKeys = {
   offerDetail_offers: "Ofertas",
   offerDetail_registerToContact: "Regístrese para contactar al proveedor",
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
+  offerDetail_backToCatalog: "Volver al panel de compras",
+  offerDetail_backToCatalogShort: "Volver al panel",
 
   // 404 / Not Found
   notFound_title: "404",
