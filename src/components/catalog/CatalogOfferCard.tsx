@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart } from "lucide-react";
+import { Lock, ShieldCheck, Users, Truck, CreditCard, Eye, Bookmark, BellRing, Scale, MessageSquare, ShoppingCart, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
