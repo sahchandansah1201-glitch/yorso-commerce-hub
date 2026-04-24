@@ -54,10 +54,6 @@ const App = () => (
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/offers/:id" element={<OfferDetail />} />
-                <Route path="/workspace" element={<WorkspaceDashboard />} />
-                <Route path="/workspace/saved" element={<WorkspaceSaved />} />
-                <Route path="/workspace/price-requests" element={<WorkspacePriceRequests />} />
-                <Route path="/workspace/messages" element={<WorkspaceMessages />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Terms />} />
