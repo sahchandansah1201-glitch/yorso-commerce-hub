@@ -311,7 +311,7 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
                         </div>
                         {(isReg || isQual) && (
                           <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground">
-                            {c.reason}
+                            {getIntelText(lang, `intel_impact_${offer.category}_${c.countryCode}_reason`, c.reason)}
                           </p>
                         )}
                       </li>
@@ -403,7 +403,7 @@ export const SelectedOfferPanel = ({ offer }: Props) => {
                       )}
                       aria-hidden
                     />
-                    <span className="leading-snug text-foreground">{s.text}</span>
+                    <span className="leading-snug text-foreground">{getIntelText(lang, `intel_signal_${s.id}_text`, s.text)}</span>
                   </li>
                 ))}
               </ul>
