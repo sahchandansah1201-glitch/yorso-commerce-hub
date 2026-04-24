@@ -81,15 +81,31 @@ const RegisterReady = () => {
     if (!guardPassed) return;
     if (data.role !== "buyer") return;
     if (isReturningBuyer) return;
+
+    // Banner shown — captures impression for conversion + time-to-catalog measurement.
+    const shownAt = Date.now();
+    analytics.track("buyer_auto_redirect_banner_shown", {
+      sessionId: data.sessionId,
+      countdownSeconds: REDIRECT_SECONDS,
+    });
+
     const tick = window.setInterval(() => {
       setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
-    const redirect = window.setTimeout(() => navigate("/offers"), REDIRECT_SECONDS * 1000);
+    const redirect = window.setTimeout(() => {
+      analytics.track("buyer_auto_redirect_fired", {
+        sessionId: data.sessionId,
+        destination: "/offers",
+        trigger: "timeout",
+        waitMs: Date.now() - shownAt,
+      });
+      navigate("/offers");
+    }, REDIRECT_SECONDS * 1000);
     return () => {
       window.clearInterval(tick);
       window.clearTimeout(redirect);
     };
-  }, [guardPassed, data.role, isReturningBuyer, navigate]);
+  }, [guardPassed, data.role, data.sessionId, isReturningBuyer, navigate]);
 
   if (!guardPassed) return null;
   if (isReturningBuyer) return null;
