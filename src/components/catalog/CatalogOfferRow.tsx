@@ -135,6 +135,19 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
 
   const volumeBreaks = offer.volumeBreaks ?? [];
   const hasVolumeBreaks = volumeBreaks.length > 0;
+  // First volume break is the minimum order quantity tier — surface it next to
+  // the price so buyers see "from-to + MOQ" together. Remaining tiers stay in
+  // the secondary "volume pricing" list below.
+  const primaryMoq = hasVolumeBreaks ? volumeBreaks[0].minQty : offer.moq.replace(/^MOQ:\s*/i, "");
+  const additionalBreaks = volumeBreaks.slice(1);
+  const hasAdditionalBreaks = additionalBreaks.length > 0;
+
+  const MoqLine = (
+    <p className="text-[11px] text-muted-foreground">
+      <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
+      <span className="font-semibold text-foreground">{primaryMoq}</span>
+    </p>
+  );
 
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
@@ -146,13 +159,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           </span>
           <span className="text-[11px] text-muted-foreground">{unit}</span>
         </div>
-        {hasVolumeBreaks && (
+        {MoqLine}
+        {hasAdditionalBreaks && (
           <div className="mt-1">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
               {t.catalog_row_volumePricingLabel}
             </p>
             <ul className="mt-0.5 space-y-0.5 text-[11px]">
-              {volumeBreaks.map((vb, i) => (
+              {additionalBreaks.map((vb, i) => (
                 <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
                   <span className="text-muted-foreground">{vb.minQty}</span>
                   <span className="font-semibold text-foreground">{vb.priceRange}</span>
@@ -176,13 +190,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="font-heading text-base font-bold text-foreground">{range}</span>
         <span className="text-[11px] text-muted-foreground">{unit}</span>
       </div>
-      {hasVolumeBreaks && (
+      {MoqLine}
+      {hasAdditionalBreaks && (
         <div>
           <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
             {t.catalog_row_volumePricingLabel}
           </p>
           <ul className="mt-0.5 space-y-0.5 text-[11px]">
-            {volumeBreaks.map((vb, i) => (
+            {additionalBreaks.map((vb, i) => (
               <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
                 <span className="text-muted-foreground">{vb.minQty}</span>
                 <span
@@ -265,7 +280,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[200px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[290px_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,220px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -359,9 +374,6 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel }: Pro
             <p className="text-foreground leading-tight">{offer.commercial.paymentTerms}</p>
           </div>
         </div>
-        <span className="text-foreground">
-          {t.offers_moqLabel}: <span className="font-semibold">{offer.moq}</span>
-        </span>
       </div>
 
       {/* 4. Price + supplier/access */}
