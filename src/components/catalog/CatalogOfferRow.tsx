@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
-import { normalizeMoq } from "@/lib/moq";
+import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
 import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
@@ -186,6 +186,13 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       ? t.catalog_row_priceAccess_reg
       : t.catalog_row_priceAccess_anon;
 
+  // Surface a summarized MOQ range so locked-price buyers can still gauge
+  // minimum order scale (e.g. "1,000 – 20,000+ kg") without registration.
+  const moqSummary = summarizeMoqRange(
+    hasVolumeBreaks ? volumeBreaks.map((vb) => vb.minQty) : [offer.moq],
+    lang,
+  );
+
   return (
     <div data-testid="catalog-row-price" className="flex flex-col gap-1.5">
       <div className="flex items-baseline gap-1.5">
@@ -193,6 +200,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <span className="text-[11px] text-muted-foreground">{unit}</span>
       </div>
       {MoqLine}
+      {moqSummary && hasVolumeBreaks && (
+        <p
+          className="text-[10px] text-muted-foreground"
+          data-testid="catalog-row-moq-summary"
+        >
+          {t.offers_moqLabel}: <span className="font-medium text-foreground">{moqSummary}</span>
+        </p>
+      )}
       {hasAdditionalBreaks && (
         <div>
           <p className="text-[10px] uppercase tracking-wide text-muted-foreground/80">
