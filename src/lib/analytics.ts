@@ -292,6 +292,13 @@ export interface EventPayloadMap {
   // API errors (used by upcoming useApiCall hook) ───────────────
   api_error: { endpoint: string; code: string; field?: string };
 
+  // Routing diagnostics ────────────────────────────────────────
+  page_not_found: {
+    path: string;
+    search: string;
+    referrer: string;
+  };
+
   // Buyer Workspace ─────────────────────────────────────────────
   workspace_session_started: { method: "email" | "phone" | "whatsapp" };
   workspace_session_ended: Empty;
