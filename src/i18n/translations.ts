@@ -1998,6 +1998,7 @@ const ru: TranslationKeys = {
   signin_back: "Назад",
   signin_resetPassword: "Сброс пароля",
   signin_resetSubtitle: "Введите email, с которым регистрировались. Мы отправим ссылку для сброса пароля.",
+  signin_resetDemoHint: "Демо-режим: сброс пароля работает только для тестового аккаунта dm@yorso.com.",
   signin_sendResetLink: "Отправить ссылку",
   signin_emailSent: "Письмо отправлено",
   signin_checkEmailInstructions: "и следуйте инструкциям в письме.",
