@@ -193,6 +193,10 @@ const SignIn = () => {
               <h1 className="font-heading text-2xl font-bold text-foreground">{t.signin_resetPassword}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{t.signin_resetSubtitle}</p>
 
+              <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-foreground">
+                {t.signin_resetDemoHint}
+              </div>
+
               {forgotSent ? (
                 <div className="mt-8 rounded-xl border border-border bg-muted/30 p-6 text-center space-y-3">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"><Mail className="h-6 w-6 text-primary" /></div>
