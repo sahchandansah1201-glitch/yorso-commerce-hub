@@ -416,6 +416,10 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
+        <div className="border-t border-border/60 pt-2">
+          <DealTermsStrip offer={offer} />
+        </div>
+
         <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[10px] text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
