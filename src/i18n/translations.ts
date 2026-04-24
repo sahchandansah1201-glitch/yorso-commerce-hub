@@ -1619,6 +1619,18 @@ const en: TranslationKeys = {
   offerDetail_accessLimited_title: "Request access to unlock full details",
   offerDetail_accessLimited_body: "Your account sees the offer summary and indicative pricing. Request access to see exact pricing, supplier contact and full commercial terms.",
   offerDetail_requestAccessCta: "Request access",
+  offerDetail_priceLocked_label: "Pricing available after sign up",
+  offerDetail_priceLocked_anonCta: "Sign up to view exact prices",
+  offerDetail_priceLocked_regCta: "Request price access",
+  offerDetail_termsLocked_label: "Commercial terms",
+  offerDetail_termsLocked_hint: "MOQ, payment terms, lead time and shipment port unlock with access.",
+  offerDetail_volumeLocked_label: "Volume pricing available after access is granted.",
+  offerDetail_supplierMasked_name: "Verified supplier",
+  offerDetail_supplierMasked_hint: "Supplier identity is revealed after your buyer profile is approved.",
+  offerDetail_supplierContactLocked: "Unlock supplier contact",
+  offerDetail_supplierProfileLocked: "Unlock supplier profile",
+  offerDetail_basisCountAvailable: "{n} delivery bases available",
+  offerDetail_indicativePrice: "Indicative range",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
