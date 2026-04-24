@@ -3208,6 +3208,45 @@ const es: TranslationKeys = {
   catalog_panel_supplier_unverified: "Pendiente",
   catalog_panel_supplier_response: "Tiempo de respuesta",
   catalog_panel_supplier_since: "En activo desde",
+
+  catalog_time_today: "hoy",
+  catalog_time_dayAgo: "hace {n} día",
+  catalog_time_daysAgo: "hace {n} días",
+  catalog_time_weekAgo: "hace {n} semana",
+  catalog_time_weeksAgo: "hace {n} semanas",
+
+  catalog_news_reason_price: "Afecta al precio",
+  catalog_news_reason_availability: "Afecta a la disponibilidad",
+  catalog_news_reason_logistics: "Afecta a la logística",
+  catalog_news_reason_compliance: "Afecta al cumplimiento",
+  catalog_news_reason_supplier_risk: "Afecta al riesgo del proveedor",
+
+  catalog_compare_addLabel: "Añadir a comparar",
+  catalog_compare_removeLabel: "Quitar de comparar",
+  catalog_compare_trayTitle: "Comparar ofertas",
+  catalog_compare_trayHint: "Selecciona 2–5 ofertas para compararlas lado a lado.",
+  catalog_compare_open: "Abrir comparación",
+  catalog_compare_clear: "Vaciar",
+  catalog_compare_max: "Máximo 5 ofertas seleccionadas",
+  catalog_compare_emptyHint: "Aún no hay ofertas seleccionadas",
+  catalog_compare_dialogTitle: "Comparación lado a lado",
+  catalog_compare_col_offer: "Oferta",
+  catalog_compare_col_price: "Precio",
+  catalog_compare_col_origin: "Origen",
+  catalog_compare_col_supplierCountry: "País del proveedor",
+  catalog_compare_col_basis: "Base logística",
+  catalog_compare_col_moq: "MOQ",
+  catalog_compare_col_certifications: "Certificaciones",
+
+  catalog_filtersBar_title: "Filtros de aprovisionamiento",
+  catalog_filtersBar_collapse: "Ocultar filtros",
+  catalog_filtersBar_expand: "Mostrar filtros",
+
+  offerDetail_accessLocked_title: "Regístrate para ver datos del proveedor y precio",
+  offerDetail_accessLocked_body: "El registro gratuito desbloquea precio orientativo, vista previa del proveedor y solicitud de contacto directo.",
+  offerDetail_accessLimited_title: "Solicita acceso para ver el detalle completo",
+  offerDetail_accessLimited_body: "Tu cuenta ve el resumen y el precio orientativo. Solicita acceso para ver el precio exacto, los contactos del proveedor y los términos comerciales completos.",
+  offerDetail_requestAccessCta: "Solicitar acceso",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
