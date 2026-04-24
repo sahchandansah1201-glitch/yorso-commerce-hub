@@ -5,32 +5,34 @@ import { Button } from "@/components/ui/button";
 import { mockOffers, categories, type SeafoodOffer } from "@/data/mockOffers";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useAccessLevel } from "@/lib/access-level";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
+import CompareTray from "@/components/catalog/CompareTray";
 
-const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
+const COMPARE_MAX = 5;
+
+const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: boolean): boolean => {
   if (f.q) {
     const q = f.q.toLowerCase();
-    const hay = [
+    const fields = [
       offer.productName,
       offer.species,
       offer.latinName,
       offer.origin,
-      offer.supplier.name,
       offer.supplier.country,
-    ]
-      .join(" ")
-      .toLowerCase();
-    if (!hay.includes(q)) return false;
+    ];
+    if (allowSupplierName) fields.push(offer.supplier.name);
+    if (!fields.join(" ").toLowerCase().includes(q)) return false;
   }
   if (f.category && offer.category !== f.category) return false;
   if (f.origin && offer.origin !== f.origin) return false;
   if (f.supplierCountry && offer.supplier.country !== f.supplierCountry) return false;
-  if (f.supplier && offer.supplier.name !== f.supplier) return false;
+  if (f.supplier && allowSupplierName && offer.supplier.name !== f.supplier) return false;
   if (f.basis && !offer.deliveryBasisOptions.some((b) => b.code === f.basis)) return false;
   if (f.certification && !(offer.certifications ?? []).includes(f.certification)) return false;
   if (f.paymentTerms && !offer.commercial.paymentTerms.includes(f.paymentTerms)) return false;
@@ -42,8 +44,12 @@ const matches = (offer: SeafoodOffer, f: CatalogFilterState): boolean => {
 
 const Offers = () => {
   const { t } = useLanguage();
+  const { level } = useAccessLevel();
   const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  const allowSupplierName = level === "qualified_unlocked";
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -55,7 +61,8 @@ const Offers = () => {
       categories: uniq(mockOffers.map((o) => o.category)),
       origins: uniq(mockOffers.map((o) => o.origin)),
       supplierCountries: uniq(mockOffers.map((o) => o.supplier.country)),
-      suppliers: uniq(mockOffers.map((o) => o.supplier.name)),
+      // Hide exact supplier names from the filter selector unless qualified.
+      suppliers: allowSupplierName ? uniq(mockOffers.map((o) => o.supplier.name)) : [],
       bases: uniq(mockOffers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
       certifications: uniq(mockOffers.flatMap((o) => o.certifications ?? [])),
       paymentTermsList: uniq(mockOffers.map((o) => o.commercial.paymentTerms.split(",")[0].trim())),
@@ -63,11 +70,13 @@ const Offers = () => {
       cutTypes: uniq(mockOffers.map((o) => o.cutType.split(",")[0].trim())),
       currencies: uniq(mockOffers.map((o) => o.currency ?? "USD")),
     };
-  }, []);
+  }, [allowSupplierName]);
 
-  const visible = useMemo(() => mockOffers.filter((o) => matches(o, filters)), [filters]);
+  const visible = useMemo(
+    () => mockOffers.filter((o) => matches(o, filters, allowSupplierName)),
+    [filters, allowSupplierName],
+  );
 
-  // Auto-select first visible offer when current selection becomes invalid.
   useEffect(() => {
     if (visible.length === 0) {
       setSelectedOfferId(null);
@@ -83,6 +92,11 @@ const Offers = () => {
     [visible, selectedOfferId],
   );
 
+  const comparedOffers = useMemo(
+    () => compareIds.map((id) => mockOffers.find((o) => o.id === id)).filter(Boolean) as SeafoodOffer[],
+    [compareIds],
+  );
+
   const handleSelectOffer = (offerId: string) => {
     setSelectedOfferId(offerId);
     const o = mockOffers.find((x) => x.id === offerId);
@@ -96,6 +110,36 @@ const Offers = () => {
     }
   };
 
+  const handleCompareToggle = (offerId: string) => {
+    const o = mockOffers.find((x) => x.id === offerId);
+    if (!o) return;
+    setCompareIds((prev) => {
+      if (prev.includes(offerId)) {
+        const next = prev.filter((id) => id !== offerId);
+        analytics.track("catalog_offer_compare_remove", {
+          offerId,
+          category: o.category,
+          origin: o.origin,
+          supplierCountry: o.supplier.country,
+          accessLevel: level,
+          selectedCount: next.length,
+        });
+        return next;
+      }
+      if (prev.length >= COMPARE_MAX) return prev;
+      const next = [...prev, offerId];
+      analytics.track("catalog_offer_compare_add", {
+        offerId,
+        category: o.category,
+        origin: o.origin,
+        supplierCountry: o.supplier.country,
+        accessLevel: level,
+        selectedCount: next.length,
+      });
+      return next;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
@@ -104,22 +148,13 @@ const Offers = () => {
             YORSO
           </Link>
           <div className="flex items-center gap-3">
-            <Link to="/signin">
-              <Button variant="ghost" size="sm">
-                {t.nav_signIn}
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm" className="font-semibold">
-                {t.nav_registerFree}
-              </Button>
-            </Link>
+            <Link to="/signin"><Button variant="ghost" size="sm">{t.nav_signIn}</Button></Link>
+            <Link to="/register"><Button size="sm" className="font-semibold">{t.nav_registerFree}</Button></Link>
           </div>
         </div>
       </header>
 
-      <main className="container py-6 md:py-8">
-        {/* Breadcrumbs */}
+      <main className="container py-6 md:py-8 pb-32">
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}
@@ -128,16 +163,12 @@ const Offers = () => {
           <span className="font-medium text-foreground">{t.catalog_breadcrumbCatalog}</span>
         </nav>
 
-        {/* Title + market status */}
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               {t.catalog_pageTitle}
             </h1>
-            <p
-              className="mt-1 text-sm text-muted-foreground"
-              data-testid="catalog-result-count"
-            >
+            <p className="mt-1 text-sm text-muted-foreground" data-testid="catalog-result-count">
               {t.catalog_resultCount.replace("{count}", String(visible.length))}
             </p>
           </div>
@@ -182,22 +213,17 @@ const Offers = () => {
           ))}
         </div>
 
-        {/* Capability-led value strip */}
         <div className="mt-4">
           <CatalogValueStrip />
         </div>
 
-        {/* 3-pane procurement workspace */}
-        <div className="mt-5 grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-          {/* LEFT: sticky filters */}
-          <aside
-            className="xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1"
-            aria-label={t.catalog_filters_title}
-          >
-            <CatalogFilters value={filters} onChange={setFilters} options={options} />
-          </aside>
+        {/* Horizontal compact filter bar above the workspace */}
+        <div className="mt-4">
+          <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
+        </div>
 
-          {/* CENTER: horizontal offer rows */}
+        {/* 2-pane procurement workspace */}
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
@@ -223,39 +249,40 @@ const Offers = () => {
                     offer={offer}
                     isSelected={offer.id === selectedOfferId}
                     onSelect={handleSelectOffer}
+                    isCompared={compareIds.includes(offer.id)}
+                    onCompareToggle={handleCompareToggle}
+                    compareDisabled={compareIds.length >= COMPARE_MAX}
                   />
                 ))}
               </div>
             )}
           </section>
 
-          {/* RIGHT: persistent intelligence panel */}
           <div className="xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel offer={selectedOffer} />
           </div>
         </div>
 
-        {/* Related buyer requests */}
         <div className="mt-8">
           <RelatedRequests category={filters.category} />
         </div>
 
-        {/* Lower recovery / signup */}
         <div className="mt-10 rounded-lg border border-border bg-card p-6 text-center">
           <h2 className="font-heading text-lg font-bold text-foreground">{t.catalog_recovery_title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.catalog_recovery_body}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <Link to="/register">
-              <Button className="font-semibold">{t.catalog_recovery_signup}</Button>
-            </Link>
-            <Link to="/signin">
-              <Button variant="outline" className="font-semibold">
-                {t.catalog_recovery_signin}
-              </Button>
-            </Link>
+            <Link to="/register"><Button className="font-semibold">{t.catalog_recovery_signup}</Button></Link>
+            <Link to="/signin"><Button variant="outline" className="font-semibold">{t.catalog_recovery_signin}</Button></Link>
           </div>
         </div>
       </main>
+
+      <CompareTray
+        offers={comparedOffers}
+        onRemove={handleCompareToggle}
+        onClear={() => setCompareIds([])}
+        max={COMPARE_MAX}
+      />
     </div>
   );
 };
