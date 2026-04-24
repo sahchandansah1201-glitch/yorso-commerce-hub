@@ -467,7 +467,19 @@ export const authApi = {
     const id = payload.identifier.trim().toLowerCase();
     if (id === "locked@yorso.test") return err(ERROR_CODES.ACCOUNT_LOCKED);
     if (id === "missing@yorso.test") return err(ERROR_CODES.ACCOUNT_NOT_FOUND);
-    if (payload.password !== "Password1") return err(ERROR_CODES.INVALID_CREDENTIALS, "password");
+
+    // Demo whitelist: real-looking accounts that bypass the generic Password1 rule.
+    const demoAccounts: Record<string, string> = {
+      "dm@yorso.com": "123456789",
+    };
+    const expectedDemoPassword = demoAccounts[id];
+    if (expectedDemoPassword !== undefined) {
+      if (payload.password !== expectedDemoPassword) {
+        return err(ERROR_CODES.INVALID_CREDENTIALS, "password");
+      }
+    } else if (payload.password !== "Password1") {
+      return err(ERROR_CODES.INVALID_CREDENTIALS, "password");
+    }
 
     return {
       ok: true,
