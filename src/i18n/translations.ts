@@ -338,6 +338,19 @@ type TranslationKeys = {
   notFound_title: string;
   notFound_subtitle: string;
   notFound_returnHome: string;
+  notFound_attemptedPath: string;
+  notFound_suggestionsHeading: string;
+  notFound_suggestion_offers_title: string;
+  notFound_suggestion_offers_desc: string;
+  notFound_suggestion_register_title: string;
+  notFound_suggestion_register_desc: string;
+  notFound_suggestion_signin_title: string;
+  notFound_suggestion_signin_desc: string;
+  notFound_suggestion_home_title: string;
+  notFound_suggestion_home_desc: string;
+  notFound_referrerLabel: string;
+  notFound_referrerDirect: string;
+  notFound_reportHint: string;
 
   // ─── Document metadata ─────────────────────────────────────────
   meta_siteTitle: string;
@@ -1188,8 +1201,21 @@ const en: TranslationKeys = {
 
   // 404 / Not Found
   notFound_title: "404",
-  notFound_subtitle: "Oops! Page not found",
-  notFound_returnHome: "Return to Home",
+  notFound_subtitle: "We couldn't find that page",
+  notFound_returnHome: "Return to homepage",
+  notFound_attemptedPath: "You tried to open",
+  notFound_suggestionsHeading: "Try one of these instead",
+  notFound_suggestion_offers_title: "Browse the catalog",
+  notFound_suggestion_offers_desc: "Open active seafood offers from verified suppliers.",
+  notFound_suggestion_register_title: "Create a buyer account",
+  notFound_suggestion_register_desc: "Unlock prices, supplier names and price requests.",
+  notFound_suggestion_signin_title: "Sign in",
+  notFound_suggestion_signin_desc: "Already registered? Continue to your account.",
+  notFound_suggestion_home_title: "Go to homepage",
+  notFound_suggestion_home_desc: "Start over from the YORSO homepage.",
+  notFound_referrerLabel: "Came from",
+  notFound_referrerDirect: "direct or unknown",
+  notFound_reportHint: "If you reached this page from a YORSO link, please report it — the path above is logged for debugging.",
 
   // Document metadata
   meta_siteTitle: "YORSO — B2B Seafood Marketplace",
@@ -2035,8 +2061,21 @@ const ru: TranslationKeys = {
 
   // 404 / Not Found
   notFound_title: "404",
-  notFound_subtitle: "Упс! Страница не найдена",
+  notFound_subtitle: "Не нашли такую страницу",
   notFound_returnHome: "Вернуться на главную",
+  notFound_attemptedPath: "Вы пытались открыть",
+  notFound_suggestionsHeading: "Попробуйте одно из этого",
+  notFound_suggestion_offers_title: "Открыть каталог",
+  notFound_suggestion_offers_desc: "Активные предложения морепродуктов от проверенных поставщиков.",
+  notFound_suggestion_register_title: "Создать аккаунт покупателя",
+  notFound_suggestion_register_desc: "Откройте цены, названия поставщиков и запросы цены.",
+  notFound_suggestion_signin_title: "Войти",
+  notFound_suggestion_signin_desc: "Уже зарегистрированы? Перейдите в свой аккаунт.",
+  notFound_suggestion_home_title: "На главную",
+  notFound_suggestion_home_desc: "Начните с главной страницы YORSO.",
+  notFound_referrerLabel: "Откуда переход",
+  notFound_referrerDirect: "прямой или неизвестен",
+  notFound_reportHint: "Если вы попали сюда по ссылке с YORSO — сообщите нам. Путь выше залогирован для отладки.",
 
   // Document metadata
   meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
@@ -2882,8 +2921,21 @@ const es: TranslationKeys = {
 
   // 404 / Not Found
   notFound_title: "404",
-  notFound_subtitle: "¡Vaya! Página no encontrada",
+  notFound_subtitle: "No encontramos esa página",
   notFound_returnHome: "Volver al inicio",
+  notFound_attemptedPath: "Intentaste abrir",
+  notFound_suggestionsHeading: "Prueba una de estas opciones",
+  notFound_suggestion_offers_title: "Explorar el catálogo",
+  notFound_suggestion_offers_desc: "Ofertas activas de mariscos de proveedores verificados.",
+  notFound_suggestion_register_title: "Crear cuenta de comprador",
+  notFound_suggestion_register_desc: "Desbloquea precios, nombres de proveedores y solicitudes.",
+  notFound_suggestion_signin_title: "Iniciar sesión",
+  notFound_suggestion_signin_desc: "¿Ya tienes cuenta? Accede a tu panel.",
+  notFound_suggestion_home_title: "Ir al inicio",
+  notFound_suggestion_home_desc: "Empieza desde la página principal de YORSO.",
+  notFound_referrerLabel: "Procedente de",
+  notFound_referrerDirect: "directo o desconocido",
+  notFound_reportHint: "Si llegaste aquí desde un enlace de YORSO, repórtalo — la ruta de arriba queda registrada para depuración.",
 
   // Document metadata
   meta_siteTitle: "YORSO — Mercado B2B de mariscos",
