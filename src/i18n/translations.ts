@@ -776,6 +776,7 @@ type TranslationKeys = {
   catalog_row_priceAccess_anon: string;
   catalog_row_priceAccess_reg: string;
   catalog_row_basisLabel: string;
+  catalog_row_basisAltSuffix: string;
   catalog_row_paymentLabel: string;
   catalog_row_volumePricingLabel: string;
   catalog_panel_compare_add: string;
@@ -1654,6 +1655,7 @@ const en: TranslationKeys = {
   catalog_row_priceAccess_anon: "Exact price available after buyer account",
   catalog_row_priceAccess_reg: "Request access to exact price",
   catalog_row_basisLabel: "Delivery basis",
+  catalog_row_basisAltSuffix: "more",
   catalog_row_paymentLabel: "Payment",
   catalog_row_volumePricingLabel: "Volume pricing",
   catalog_panel_compare_add: "Add to compare",
@@ -2517,6 +2519,7 @@ const ru: TranslationKeys = {
   catalog_row_priceAccess_anon: "Точная цена доступна после создания аккаунта покупателя",
   catalog_row_priceAccess_reg: "Запросите доступ к точной цене",
   catalog_row_basisLabel: "Базис поставки",
+  catalog_row_basisAltSuffix: "ещё",
   catalog_row_paymentLabel: "Оплата",
   catalog_row_volumePricingLabel: "Цены по объёму",
   catalog_panel_compare_add: "В сравнение",
@@ -3380,6 +3383,7 @@ const es: TranslationKeys = {
   catalog_row_priceAccess_anon: "Precio exacto disponible tras crear cuenta de comprador",
   catalog_row_priceAccess_reg: "Solicita acceso al precio exacto",
   catalog_row_basisLabel: "Base de entrega",
+  catalog_row_basisAltSuffix: "más",
   catalog_row_paymentLabel: "Pago",
   catalog_row_volumePricingLabel: "Precios por volumen",
   catalog_panel_compare_add: "Añadir a comparar",
