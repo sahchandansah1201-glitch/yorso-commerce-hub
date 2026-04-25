@@ -615,6 +615,21 @@ type TranslationKeys = {
   catalog_value_cap_intelligence: string;
   catalog_value_ctaSignup: string;
   catalog_value_ctaQualify: string;
+  // Trust proof strip (above catalog workspace)
+  catalog_trust_title: string;
+  catalog_trust_subtitle: string;
+  catalog_trust_verification_label: string;
+  catalog_trust_verification_hint: string;
+  catalog_trust_activity_label: string;
+  catalog_trust_activity_hint: string;
+  catalog_trust_access_label: string;
+  catalog_trust_access_hint: string;
+  catalog_trust_signals_label: string;
+  catalog_trust_signals_hint: string;
+  catalog_trust_documents_label: string;
+  catalog_trust_documents_hint: string;
+  catalog_trust_recovery_label: string;
+  catalog_trust_recovery_hint: string;
   // Access request (registered user, frontend mock)
   catalog_access_request_title: string;
   catalog_access_request_subtitle: string;
@@ -1545,6 +1560,20 @@ const en: TranslationKeys = {
   catalog_value_cap_intelligence: "Track price signals & country news",
   catalog_value_ctaSignup: "Create buyer account",
   catalog_value_ctaQualify: "Request full access",
+  catalog_trust_title: "Trust",
+  catalog_trust_subtitle: "How YORSO protects every procurement step",
+  catalog_trust_verification_label: "Supplier verification",
+  catalog_trust_verification_hint: "Documents, audit & references reviewed before listing",
+  catalog_trust_activity_label: "Live market activity",
+  catalog_trust_activity_hint: "Real-time alerts on price moves and supply events",
+  catalog_trust_access_label: "Controlled access",
+  catalog_trust_access_hint: "Prices and supplier names unlock after review",
+  catalog_trust_signals_label: "Procurement intelligence",
+  catalog_trust_signals_hint: "Origin news and price signals tied to each offer",
+  catalog_trust_documents_label: "Document readiness",
+  catalog_trust_documents_hint: "Health, origin and traceability docs flagged per offer",
+  catalog_trust_recovery_label: "Buyer support",
+  catalog_trust_recovery_hint: "Help when an offer doesn't match your specification",
   catalog_access_request_title: "Request full procurement access",
   catalog_access_request_subtitle: "Tell us what you need to evaluate. Our verification team reviews requests before granting full supplier and price access.",
   catalog_access_request_scope_label: "What do you need access to?",
@@ -2448,6 +2477,20 @@ const ru: TranslationKeys = {
   catalog_value_cap_intelligence: "Динамика цен и новости стран",
   catalog_value_ctaSignup: "Создать аккаунт покупателя",
   catalog_value_ctaQualify: "Запросить полный доступ",
+  catalog_trust_title: "Доверие",
+  catalog_trust_subtitle: "Как YORSO защищает каждый шаг закупки",
+  catalog_trust_verification_label: "Верификация поставщиков",
+  catalog_trust_verification_hint: "Документы, аудит и рекомендации проверены до публикации",
+  catalog_trust_activity_label: "Активность рынка",
+  catalog_trust_activity_hint: "Оповещения о движении цен и событиях предложения в реальном времени",
+  catalog_trust_access_label: "Контролируемый доступ",
+  catalog_trust_access_hint: "Цены и имена поставщиков открываются после проверки",
+  catalog_trust_signals_label: "Закупочная аналитика",
+  catalog_trust_signals_hint: "Новости стран и сигналы цен по каждому предложению",
+  catalog_trust_documents_label: "Готовность документов",
+  catalog_trust_documents_hint: "Сертификаты, документы происхождения и прослеживаемости отмечены в каждой карточке",
+  catalog_trust_recovery_label: "Поддержка покупателя",
+  catalog_trust_recovery_hint: "Помощь, если ни одно предложение не соответствует ТЗ",
   catalog_access_request_title: "Запросить полный закупочный доступ",
   catalog_access_request_subtitle: "Опишите, что вам нужно оценить. Наша команда верификации рассматривает запросы перед открытием полного доступа к поставщикам и ценам.",
   catalog_access_request_scope_label: "К чему нужен доступ?",
@@ -3351,6 +3394,20 @@ const es: TranslationKeys = {
   catalog_value_cap_intelligence: "Señales de precio y noticias por país",
   catalog_value_ctaSignup: "Crear cuenta de comprador",
   catalog_value_ctaQualify: "Solicitar acceso completo",
+  catalog_trust_title: "Confianza",
+  catalog_trust_subtitle: "Cómo YORSO protege cada paso de la compra",
+  catalog_trust_verification_label: "Verificación de proveedores",
+  catalog_trust_verification_hint: "Documentos, auditoría y referencias revisados antes de publicar",
+  catalog_trust_activity_label: "Actividad del mercado",
+  catalog_trust_activity_hint: "Alertas en tiempo real sobre precios y eventos de oferta",
+  catalog_trust_access_label: "Acceso controlado",
+  catalog_trust_access_hint: "Precios y nombres de proveedor se desbloquean tras revisión",
+  catalog_trust_signals_label: "Inteligencia de compras",
+  catalog_trust_signals_hint: "Noticias de origen y señales de precio por oferta",
+  catalog_trust_documents_label: "Preparación documental",
+  catalog_trust_documents_hint: "Certificados, origen y trazabilidad marcados por oferta",
+  catalog_trust_recovery_label: "Soporte al comprador",
+  catalog_trust_recovery_hint: "Ayuda cuando ninguna oferta cumple tu especificación",
   catalog_access_request_title: "Solicitar acceso completo de compras",
   catalog_access_request_subtitle: "Cuéntanos qué necesitas evaluar. Nuestro equipo de verificación revisa las solicitudes antes de conceder acceso completo a proveedores y precios.",
   catalog_access_request_scope_label: "¿A qué necesitas acceso?",
