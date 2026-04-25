@@ -174,7 +174,7 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
           <button
             type="button"
             onClick={go(-1)}
-            aria-label="Previous image"
+            aria-label={t.aria_imgPrev}
             className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -182,7 +182,7 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
           <button
             type="button"
             onClick={go(1)}
-            aria-label="Next image"
+            aria-label={t.aria_imgNext}
             className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
           >
             <ChevronRight className="h-3.5 w-3.5" />
