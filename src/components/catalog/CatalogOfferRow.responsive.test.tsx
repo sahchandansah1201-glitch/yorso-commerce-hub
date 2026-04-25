@@ -66,8 +66,13 @@ describe("CatalogOfferRow — responsive layout contract", () => {
 
   it("price/supplier block spans full width below lg and becomes its own column at lg+", () => {
     renderRow();
-    const priceBlock = screen.getByTestId("catalog-row-price").closest("div.flex.flex-col");
-    expect(priceBlock).not.toBeNull();
+    // Walk up from the price testid until we find the outer column wrapper
+    // that owns the responsive grid placement classes.
+    let priceBlock: HTMLElement | null = screen.getByTestId("catalog-row-price");
+    while (priceBlock && !priceBlock.className.includes("sm:col-span-2")) {
+      priceBlock = priceBlock.parentElement;
+    }
+    expect(priceBlock, "expected to find ancestor with sm:col-span-2").not.toBeNull();
     const cls = (priceBlock as HTMLElement).className;
     // Spans both columns on tablet so it never gets squeezed into a narrow
     // sliver next to the content column.
