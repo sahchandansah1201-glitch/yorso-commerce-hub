@@ -325,7 +325,7 @@ const Offers = () => {
           <RelatedRequests category={filters.category} />
         </div>
 
-        <div id="catalog-anchor-recovery" className="mt-10 scroll-mt-24 rounded-lg border border-border bg-card p-6 text-center">
+        <div id="catalog-anchor-recovery" className="mt-10 scroll-mt-20 rounded-lg border border-border bg-card p-6 text-center">
           <h2 className="font-heading text-lg font-bold text-foreground">{t.catalog_recovery_title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.catalog_recovery_body}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
