@@ -1600,6 +1600,12 @@ const en: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Watch",
   catalog_intel_signal_severity_alert: "Alert",
+  catalog_intel_signal_drawer_context: "Context",
+  catalog_intel_signal_drawer_meaning: "What it means for this offer",
+  catalog_intel_signal_drawer_actions: "Suggested procurement actions",
+  catalog_intel_signal_drawer_published: "Published",
+  catalog_intel_signal_drawer_close: "Close",
+  catalog_intel_signal_drawer_openHint: "Tap for full context",
 
   catalog_relatedReq_title: "Related buyer requests",
   catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
