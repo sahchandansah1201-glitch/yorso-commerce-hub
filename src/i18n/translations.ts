@@ -705,6 +705,12 @@ type TranslationKeys = {
   catalog_intel_signal_severity_info: string;
   catalog_intel_signal_severity_watch: string;
   catalog_intel_signal_severity_alert: string;
+  catalog_intel_signal_drawer_context: string;
+  catalog_intel_signal_drawer_meaning: string;
+  catalog_intel_signal_drawer_actions: string;
+  catalog_intel_signal_drawer_published: string;
+  catalog_intel_signal_drawer_close: string;
+  catalog_intel_signal_drawer_openHint: string;
 
   // Related requests
   catalog_relatedReq_title: string;
@@ -1594,6 +1600,12 @@ const en: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Watch",
   catalog_intel_signal_severity_alert: "Alert",
+  catalog_intel_signal_drawer_context: "Context",
+  catalog_intel_signal_drawer_meaning: "What it means for this offer",
+  catalog_intel_signal_drawer_actions: "Suggested procurement actions",
+  catalog_intel_signal_drawer_published: "Published",
+  catalog_intel_signal_drawer_close: "Close",
+  catalog_intel_signal_drawer_openHint: "Tap for full context",
 
   catalog_relatedReq_title: "Related buyer requests",
   catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
@@ -2460,6 +2472,12 @@ const ru: TranslationKeys = {
   catalog_intel_signal_severity_info: "Инфо",
   catalog_intel_signal_severity_watch: "Внимание",
   catalog_intel_signal_severity_alert: "Сигнал",
+  catalog_intel_signal_drawer_context: "Контекст",
+  catalog_intel_signal_drawer_meaning: "Что это значит для этого предложения",
+  catalog_intel_signal_drawer_actions: "Рекомендуемые действия закупщика",
+  catalog_intel_signal_drawer_published: "Опубликовано",
+  catalog_intel_signal_drawer_close: "Закрыть",
+  catalog_intel_signal_drawer_openHint: "Нажмите для полного контекста",
 
   catalog_relatedReq_title: "Связанные запросы покупателей",
   catalog_relatedReq_subtitle: "Открытые запросы от проверенных покупателей по этой категории.",
@@ -3326,6 +3344,12 @@ const es: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Atención",
   catalog_intel_signal_severity_alert: "Alerta",
+  catalog_intel_signal_drawer_context: "Contexto",
+  catalog_intel_signal_drawer_meaning: "Qué significa para esta oferta",
+  catalog_intel_signal_drawer_actions: "Acciones de compra sugeridas",
+  catalog_intel_signal_drawer_published: "Publicado",
+  catalog_intel_signal_drawer_close: "Cerrar",
+  catalog_intel_signal_drawer_openHint: "Toca para ver el contexto completo",
 
   catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
   catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",

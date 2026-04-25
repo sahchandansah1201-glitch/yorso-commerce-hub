@@ -1,11 +1,20 @@
-import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity } from "lucide-react";
+import { useState } from "react";
+import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   getPriceTrend,
   getCountryNews,
   getCountryImpact,
   getMarketSignals,
+  type MarketSignal,
   type TrendDirection,
   type Volatility,
   type CountryRole,
@@ -56,9 +65,31 @@ const volatilityKey = (v: Volatility) =>
     high: "catalog_intel_priceTrend_vol_high",
   } as const)[v];
 
+const kindKey = (k: MarketSignal["kind"]) =>
+  ({
+    supply: "catalog_intel_signal_supply",
+    demand: "catalog_intel_signal_demand",
+    logistics: "catalog_intel_signal_logistics",
+    regulation: "catalog_intel_signal_regulation",
+  } as const)[k];
+
+const severityKey = (s: MarketSignal["severity"]) =>
+  ({
+    info: "catalog_intel_signal_severity_info",
+    watch: "catalog_intel_signal_severity_watch",
+    alert: "catalog_intel_signal_severity_alert",
+  } as const)[s];
+
+const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"]; className?: string }) => {
+  if (severity === "alert") return <AlertTriangle className={className} aria-hidden />;
+  if (severity === "watch") return <Eye className={className} aria-hidden />;
+  return <Activity className={className} aria-hidden />;
+};
+
 export const IntelligenceRail = ({ category }: Props) => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const [openSignal, setOpenSignal] = useState<MarketSignal | null>(null);
 
   // For "all", default to Salmon as feature category for the demo
   const effectiveCategory = category ?? "Salmon";
@@ -173,19 +204,39 @@ export const IntelligenceRail = ({ category }: Props) => {
           <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t.catalog_intel_signals_title}
           </h3>
-          <ul className="mt-3 space-y-2">
-            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => (
-              <li key={s.id} className="flex items-start gap-2 text-xs">
-                {s.severity === "alert" ? (
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
-                ) : s.severity === "watch" ? (
-                  <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-                ) : (
-                  <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                )}
-                <span className="leading-snug text-foreground">{s.text}</span>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-1">
+            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => {
+              const hasDetails = Boolean(s.context || s.meaning || (s.actions && s.actions.length > 0));
+              return (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => hasDetails && setOpenSignal(s)}
+                    disabled={!hasDetails}
+                    aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
+                    className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default disabled:hover:bg-transparent"
+                  >
+                    <SignalIcon
+                      severity={s.severity}
+                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
+                        s.severity === "alert"
+                          ? "text-destructive"
+                          : s.severity === "watch"
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                    <span className="flex-1 leading-snug text-foreground">{s.text}</span>
+                    {hasDetails && (
+                      <ChevronRight
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
@@ -222,6 +273,69 @@ export const IntelligenceRail = ({ category }: Props) => {
         </section>
       )}
 
+      <Sheet open={openSignal !== null} onOpenChange={(o) => !o && setOpenSignal(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+          {openSignal && (
+            <>
+              <SheetHeader className="text-left">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      openSignal.severity === "alert"
+                        ? "bg-destructive/10 text-destructive"
+                        : openSignal.severity === "watch"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <SignalIcon severity={openSignal.severity} className="h-3 w-3" />
+                    {t[severityKey(openSignal.severity)]}
+                  </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t[kindKey(openSignal.kind)]}
+                  </span>
+                  {openSignal.publishedAt && (
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                      · {t.catalog_intel_signal_drawer_published}: {openSignal.publishedAt}
+                    </span>
+                  )}
+                </div>
+                <SheetTitle className="font-heading text-base leading-snug">{openSignal.text}</SheetTitle>
+                {openSignal.context && (
+                  <SheetDescription className="text-sm leading-relaxed text-muted-foreground">
+                    {openSignal.context}
+                  </SheetDescription>
+                )}
+              </SheetHeader>
+
+              {openSignal.meaning && (
+                <section className="mt-6 rounded-lg border border-border bg-card p-4">
+                  <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t.catalog_intel_signal_drawer_meaning}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">{openSignal.meaning}</p>
+                </section>
+              )}
+
+              {openSignal.actions && openSignal.actions.length > 0 && (
+                <section className="mt-4 rounded-lg border border-border bg-card p-4">
+                  <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t.catalog_intel_signal_drawer_actions}
+                  </h3>
+                  <ul className="mt-2 space-y-2">
+                    {openSignal.actions.map((a, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm leading-relaxed text-foreground">
+                        <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+                        <span>{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </aside>
   );
 };

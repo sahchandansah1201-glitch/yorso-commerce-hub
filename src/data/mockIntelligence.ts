@@ -77,6 +77,11 @@ export interface MarketSignal {
   kind: "supply" | "demand" | "logistics" | "regulation";
   severity: "info" | "watch" | "alert";
   text: string;
+  /** Optional richer context shown in the click-to-open drawer. */
+  publishedAt?: string;
+  context?: string;
+  meaning?: string;
+  actions?: string[];
 }
 
 // ── Price trends per category ────────────────────────────────────────────────
@@ -383,29 +388,148 @@ export const countryImpact: Record<string, CountryImpact[]> = {
 // ── Short market signals (procurement-relevant, brief) ───────────────────────
 export const marketSignals: Record<string, MarketSignal[]> = {
   Salmon: [
-    { id: "s1", kind: "supply", severity: "watch", text: "Norway: harvest weights below 5-year average for week 11" },
-    { id: "s2", kind: "demand", severity: "info", text: "EU retail promotions ramping for Easter window" },
-    { id: "s3", kind: "logistics", severity: "info", text: "Air freight Oslo–USA capacity normal" },
+    {
+      id: "s1", kind: "supply", severity: "watch",
+      text: "Norway: harvest weights below 5-year average for week 11",
+      publishedAt: "2 days ago",
+      context: "Norwegian Seafood Council reports week 11 average harvest weights ~4.2 kg vs 5-year norm of 4.6 kg, driven by colder sea temperatures and tighter biological growth limits in regions PO3–PO5.",
+      meaning: "Lower average weights reduce availability of premium 4–5 kg+ size grades — the segment most relevant for portion-cut and fillet programs. Expect upward pressure on superior-grade prices over the next 2–4 weeks.",
+      actions: [
+        "Lock in volumes for premium size grades (4–6 kg) sooner rather than later",
+        "Consider Faroe Islands or Chilean fillet as a partial substitute for spot needs",
+        "Re-confirm size-grade tolerance with this supplier before committing",
+      ],
+    },
+    {
+      id: "s2", kind: "demand", severity: "info",
+      text: "EU retail promotions ramping for Easter window",
+      publishedAt: "5 days ago",
+      context: "Major EU retail chains (Germany, France, Benelux) have published Easter promotional calendars with elevated salmon volumes versus 2024.",
+      meaning: "Demand-side pull in EU retail typically tightens Norwegian fillet availability 2–3 weeks before Easter. This offer's price window may narrow as retail orders consolidate.",
+      actions: [
+        "If your Easter program is still open, request a firm price from this supplier this week",
+        "Avoid waiting for spot dips — promo windows historically remove that downside",
+      ],
+    },
+    {
+      id: "s3", kind: "logistics", severity: "info",
+      text: "Air freight Oslo–USA capacity normal",
+      publishedAt: "1 day ago",
+      context: "OSL cargo capacity for fresh salmon to JFK/MIA tracking at 5-year seasonal average; rates stable week-on-week.",
+      meaning: "Air freight is not a price-risk factor for this offer right now. Logistics cost projections in the supplier quote can be treated as reliable for the next 7–14 days.",
+      actions: [
+        "Use current freight quote as a stable input in your landed-cost model",
+      ],
+    },
   ],
   Shrimp: [
-    { id: "s4", kind: "supply", severity: "info", text: "Ecuador pond yields stable; large counts well supplied" },
-    { id: "s5", kind: "regulation", severity: "watch", text: "USDOC antidumping review on Indian shrimp pending" },
+    {
+      id: "s4", kind: "supply", severity: "info",
+      text: "Ecuador pond yields stable; large counts well supplied",
+      publishedAt: "3 days ago",
+      context: "Ecuadorian producer associations report normal pond cycles; 30/40 and 40/50 counts well covered through Q2.",
+      meaning: "Supply stability supports negotiating leverage on large-count programs. Limited urgency to commit forward beyond your normal coverage horizon.",
+      actions: [
+        "Negotiate against 2–3 Ecuadorian suppliers before committing",
+        "Hold on extending forward cover beyond 60 days",
+      ],
+    },
+    {
+      id: "s5", kind: "regulation", severity: "watch",
+      text: "USDOC antidumping review on Indian shrimp pending",
+      publishedAt: "1 week ago",
+      context: "US Department of Commerce administrative review on Indian shrimp imports underway; preliminary determination expected within 6–8 weeks.",
+      meaning: "If your downstream customer is US-bound, an adverse ruling could shift demand toward Ecuadorian and Vietnamese origin — tightening this offer's pricing window.",
+      actions: [
+        "Confirm origin requirements with end customer",
+        "Track preliminary determination date and re-evaluate cover before publication",
+      ],
+    },
   ],
   Whitefish: [
-    { id: "s6", kind: "supply", severity: "alert", text: "Barents cod quota down again; substitution plans recommended" },
-    { id: "s7", kind: "logistics", severity: "info", text: "Iceland–EU airfreight reliable through April" },
+    {
+      id: "s6", kind: "supply", severity: "alert",
+      text: "Barents cod quota down again; substitution plans recommended",
+      publishedAt: "1 week ago",
+      context: "ICES advice and Joint Russian-Norwegian Fisheries Commission set Barents cod TAC down ~20% YoY for 2025, the third consecutive cut.",
+      meaning: "Structural tightening of Atlantic cod supply will continue to push prices upward through 2025. Programs reliant on Atlantic cod loins/fillets should evaluate substitution.",
+      actions: [
+        "Evaluate Pacific cod and haddock as partial substitutes",
+        "Lock multi-month volumes early; spot exposure carries material price risk",
+        "Re-price downstream contracts that index to Atlantic cod",
+      ],
+    },
+    {
+      id: "s7", kind: "logistics", severity: "info",
+      text: "Iceland–EU airfreight reliable through April",
+      publishedAt: "4 days ago",
+      context: "KEF cargo schedules confirmed; no disruption from spring weather pattern.",
+      meaning: "Fresh whitefish flows from Iceland are operationally reliable for this offer's delivery window.",
+      actions: ["Treat lead times in supplier quote as firm"],
+    },
   ],
   Tuna: [
-    { id: "s8", kind: "supply", severity: "info", text: "Western Pacific landings improving with weather" },
-    { id: "s9", kind: "demand", severity: "info", text: "Japan post-season demand softening" },
+    {
+      id: "s8", kind: "supply", severity: "info",
+      text: "Western Pacific landings improving with weather",
+      publishedAt: "6 days ago",
+      context: "WCPFC reporting recovery in skipjack and yellowfin landings after Q1 weather disruptions.",
+      meaning: "Improved landings ease supply tightness on yellowfin loin programs. Slight downward pressure on raw material cost expected over 2–4 weeks.",
+      actions: ["Delay non-urgent forward cover to capture potential softening"],
+    },
+    {
+      id: "s9", kind: "demand", severity: "info",
+      text: "Japan post-season demand softening",
+      publishedAt: "1 week ago",
+      context: "Japanese sashimi-grade demand normalizing post-season; auction prices at Toyosu trending sideways to lower.",
+      meaning: "Reduced premium-segment competition supports negotiating leverage on this offer.",
+      actions: ["Push for an additional price concession in current quote"],
+    },
   ],
   Crab: [
-    { id: "s10", kind: "supply", severity: "alert", text: "Russian Far East quota cut: secure forward cover early" },
-    { id: "s11", kind: "regulation", severity: "watch", text: "Sanctions complexity remains for some destinations" },
+    {
+      id: "s10", kind: "supply", severity: "alert",
+      text: "Russian Far East quota cut: secure forward cover early",
+      publishedAt: "5 days ago",
+      context: "Russian Federal Fisheries Agency announced reduced TAC for snow crab in Far East zones; estimated 15% YoY cut.",
+      meaning: "Snow crab availability for export markets will tighten in H2. This offer's window may not be repeatable at current pricing for 2026 contracts.",
+      actions: [
+        "Secure forward cover for confirmed customer commitments now",
+        "Document all sanctions-screening for non-Russian destinations",
+      ],
+    },
+    {
+      id: "s11", kind: "regulation", severity: "watch",
+      text: "Sanctions complexity remains for some destinations",
+      publishedAt: "2 weeks ago",
+      context: "OFAC and EU sanctions guidance on Russian-origin crab products continues to evolve; destination-specific compliance required.",
+      meaning: "Compliance risk varies by destination market. This offer requires explicit sanctions-screening before commitment.",
+      actions: [
+        "Verify end-destination eligibility with compliance",
+        "Request supplier's sanctions-clearance documentation",
+      ],
+    },
   ],
   "Squid & Octopus": [
-    { id: "s12", kind: "supply", severity: "watch", text: "Illex season closing; expect forward shortages" },
-    { id: "s13", kind: "regulation", severity: "info", text: "Moroccan moratorium dates published for next quarter" },
+    {
+      id: "s12", kind: "supply", severity: "watch",
+      text: "Illex season closing; expect forward shortages",
+      publishedAt: "4 days ago",
+      context: "Argentine Illex squid season approaching seasonal close; landings tracking below 2024 by ~12%.",
+      meaning: "Forward Illex availability through Q3 will be limited. Programs relying on Illex tubes/rings should plan substitution to Loligo or Pacific squid.",
+      actions: [
+        "Lock confirmed Illex needs from current production",
+        "Qualify Loligo as substitute SKU before season-end shortage",
+      ],
+    },
+    {
+      id: "s13", kind: "regulation", severity: "info",
+      text: "Moroccan moratorium dates published for next quarter",
+      publishedAt: "1 week ago",
+      context: "Moroccan government published octopus fishery moratorium calendar; standard biological-rest periods confirmed.",
+      meaning: "No surprise risk on Moroccan octopus availability — moratorium periods can be planned around for this offer.",
+      actions: ["Align delivery schedule with published opening windows"],
+    },
   ],
 };
 
