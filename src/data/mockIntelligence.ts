@@ -415,6 +415,8 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         { id: "s1-u2", publishedAt: "2d ago", headline: "Premium 5–6 kg spot prices firm +3% week-on-week" },
       ],
     },
+    {
+      id: "s2", kind: "demand", severity: "info",
       text: "EU retail promotions ramping for Easter window",
       publishedAt: "5 days ago",
       context: "Major EU retail chains (Germany, France, Benelux) have published Easter promotional calendars with elevated salmon volumes versus 2024.",
