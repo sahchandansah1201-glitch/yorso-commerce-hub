@@ -375,7 +375,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.4fr)_minmax(0,260px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.61fr)_minmax(0,221px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
