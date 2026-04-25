@@ -711,6 +711,9 @@ type TranslationKeys = {
   catalog_intel_signal_drawer_published: string;
   catalog_intel_signal_drawer_close: string;
   catalog_intel_signal_drawer_openHint: string;
+  catalog_intel_signal_topLabel: string;
+  catalog_intel_signal_showAll: string;
+  catalog_intel_signal_showLess: string;
 
   // Related requests
   catalog_relatedReq_title: string;
@@ -1606,6 +1609,9 @@ const en: TranslationKeys = {
   catalog_intel_signal_drawer_published: "Published",
   catalog_intel_signal_drawer_close: "Close",
   catalog_intel_signal_drawer_openHint: "Tap for full context",
+  catalog_intel_signal_topLabel: "Top signal",
+  catalog_intel_signal_showAll: "Show all signals",
+  catalog_intel_signal_showLess: "Show less",
 
   catalog_relatedReq_title: "Related buyer requests",
   catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
@@ -2478,6 +2484,9 @@ const ru: TranslationKeys = {
   catalog_intel_signal_drawer_published: "Опубликовано",
   catalog_intel_signal_drawer_close: "Закрыть",
   catalog_intel_signal_drawer_openHint: "Нажмите для полного контекста",
+  catalog_intel_signal_topLabel: "Главный сигнал",
+  catalog_intel_signal_showAll: "Показать все сигналы",
+  catalog_intel_signal_showLess: "Свернуть",
 
   catalog_relatedReq_title: "Связанные запросы покупателей",
   catalog_relatedReq_subtitle: "Открытые запросы от проверенных покупателей по этой категории.",
@@ -3350,6 +3359,9 @@ const es: TranslationKeys = {
   catalog_intel_signal_drawer_published: "Publicado",
   catalog_intel_signal_drawer_close: "Cerrar",
   catalog_intel_signal_drawer_openHint: "Toca para ver el contexto completo",
+  catalog_intel_signal_topLabel: "Señal principal",
+  catalog_intel_signal_showAll: "Ver todas las señales",
+  catalog_intel_signal_showLess: "Mostrar menos",
 
   catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
   catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",
