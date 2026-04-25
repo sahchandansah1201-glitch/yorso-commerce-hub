@@ -27,7 +27,7 @@ const TrustProofStrip = () => {
       icon: ShieldCheck,
       label: t.catalog_trust_verification_label,
       hint: t.catalog_trust_verification_hint,
-      anchor: "catalog-anchor-results",
+      anchor: "catalog-anchor-access",
     },
     {
       id: "activity",
@@ -55,7 +55,7 @@ const TrustProofStrip = () => {
       icon: FileCheck,
       label: t.catalog_trust_documents_label,
       hint: t.catalog_trust_documents_hint,
-      anchor: "catalog-anchor-results",
+      anchor: "catalog-anchor-filters",
     },
     {
       id: "recovery",
