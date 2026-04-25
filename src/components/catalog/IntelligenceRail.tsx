@@ -1,11 +1,20 @@
-import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity } from "lucide-react";
+import { useState } from "react";
+import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   getPriceTrend,
   getCountryNews,
   getCountryImpact,
   getMarketSignals,
+  type MarketSignal,
   type TrendDirection,
   type Volatility,
   type CountryRole,
