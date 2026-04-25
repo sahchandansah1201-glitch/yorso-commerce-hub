@@ -462,7 +462,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
       {/* 3. Price + supplier/access. Below lg this block sits full-width
           under the identity column; from lg+ it becomes the third column. */}
-      <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
+      <div className="flex flex-col items-stretch gap-3 border-t border-border pt-3 sm:gap-4 sm:pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
         <PriceBlock offer={offer} level={level} />
         <div className="border-t border-border pt-3 lg:pt-4">
           <SupplierLine offer={offer} level={level} />
