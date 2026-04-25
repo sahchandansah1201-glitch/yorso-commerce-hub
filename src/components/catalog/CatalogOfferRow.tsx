@@ -375,7 +375,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.4fr)_minmax(0,260px)] gap-6 rounded-lg border bg-card p-5 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.4fr)_minmax(0,260px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -386,7 +386,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-5">
         <div>
           <Link
             to={`/offers/${offer.id}`}
@@ -399,18 +399,18 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
               {offer.productName}
             </h3>
           </Link>
-          <p className="mt-1 text-xs italic text-muted-foreground line-clamp-1">
+          <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
         </div>
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="border-t border-border/60 pt-3">
+        <div className="border-t border-border/60 pt-4">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
@@ -439,9 +439,9 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       </div>
 
       {/* 3. Price + supplier/access (deal terms moved into PriceBlock for tighter scanning) */}
-      <div className="flex flex-col items-stretch gap-3">
+      <div className="flex flex-col items-stretch gap-5">
         <PriceBlock offer={offer} level={level} />
-        <div className="border-t border-border pt-2">
+        <div className="border-t border-border pt-4">
           <SupplierLine offer={offer} level={level} />
         </div>
       </div>
