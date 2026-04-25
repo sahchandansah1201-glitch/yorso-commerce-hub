@@ -361,7 +361,15 @@ export interface EventPayloadMap {
   /** User marks all alerts as read. */
   alerts_mark_all_read: { count: number };
   /** User clicks an individual alert in the feed. */
-  alerts_item_click: { signalId: string; alertId: string };
+  alerts_item_click: {
+    signalId: string;
+    alertId: string;
+    surface: "header_bell" | "inline_panel";
+    /** Where the click navigates to (kept open for future destinations). */
+    destination: "catalog_category";
+  };
+  /** /offers detected a `fromAlert` query param after navigation from the bell. */
+  alerts_navigated_to_catalog: { alertId: string };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;

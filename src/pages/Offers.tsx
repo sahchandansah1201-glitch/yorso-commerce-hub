@@ -50,7 +50,14 @@ const Offers = () => {
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<CatalogFilterState>(emptyCatalogFilters);
+  const [filters, setFilters] = useState<CatalogFilterState>(() => {
+    // Hydrate filter state from URL query so deep-links from alerts (e.g.
+    // /offers?category=Salmon&fromAlert=...) immediately apply the filter
+    // without an extra render.
+    const params = new URLSearchParams(location.search);
+    const category = params.get("category");
+    return category ? { ...emptyCatalogFilters, category } : emptyCatalogFilters;
+  });
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -59,6 +66,30 @@ const Offers = () => {
 
   useEffect(() => {
     analytics.track("offers_list_view");
+  }, []);
+
+  // If the user lands here from an alert, scroll to the alerts strip and
+  // clean the `fromAlert` param so back-navigation doesn't re-trigger.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const fromAlert = params.get("fromAlert");
+    if (!fromAlert) return;
+    requestAnimationFrame(() => {
+      const el = document.querySelector('[data-testid="alerts-inline-panel"]');
+      if (el) {
+        el.scrollIntoView({ block: "start", behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+    analytics.track("alerts_navigated_to_catalog", { alertId: fromAlert });
+    params.delete("fromAlert");
+    const nextSearch = params.toString();
+    navigate(
+      { pathname: location.pathname, search: nextSearch ? `?${nextSearch}` : "" },
+      { replace: true },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Restore scroll position + highlight when returning from offer detail.
