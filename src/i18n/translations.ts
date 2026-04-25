@@ -711,6 +711,22 @@ type TranslationKeys = {
   catalog_intel_signal_drawer_published: string;
   catalog_intel_signal_drawer_close: string;
   catalog_intel_signal_drawer_openHint: string;
+  catalog_intel_signal_topLabel: string;
+  catalog_intel_signal_showAll: string;
+  catalog_intel_signal_showLess: string;
+  catalog_intel_signal_watch_action_follow: string;
+  catalog_intel_signal_watch_action_unfollow: string;
+  catalog_intel_signal_watch_aria_follow: string;
+  catalog_intel_signal_watch_aria_unfollow: string;
+  catalog_intel_signal_watch_following: string;
+  alerts_bell_aria: string;
+  alerts_panel_title: string;
+  alerts_panel_subtitle: string;
+  alerts_panel_empty_title: string;
+  alerts_panel_empty_body: string;
+  alerts_panel_markAllRead: string;
+  alerts_panel_viewSignal: string;
+  alerts_panel_unreadBadge: string;
 
   // Related requests
   catalog_relatedReq_title: string;
