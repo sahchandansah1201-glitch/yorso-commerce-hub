@@ -370,6 +370,8 @@ export interface EventPayloadMap {
   };
   /** /offers detected a `fromAlert` query param after navigation from the bell. */
   alerts_navigated_to_catalog: { alertId: string };
+  /** Buyer clicked an item in the /offers trust proof-strip to jump to its anchor. */
+  catalog_trust_proof_click: { itemId: string; anchor: string };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
