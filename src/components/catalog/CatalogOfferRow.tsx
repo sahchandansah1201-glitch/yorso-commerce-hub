@@ -428,11 +428,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="border-t border-border/60 pt-3 lg:pt-4">
+        <div className="border-t border-border/60 pt-2.5 sm:pt-3 lg:pt-4">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4 pt-2.5 sm:pt-3 lg:pt-4 text-[11px] sm:text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
