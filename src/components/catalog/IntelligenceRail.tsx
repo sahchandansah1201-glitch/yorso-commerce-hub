@@ -222,28 +222,6 @@ export const IntelligenceRail = ({ category }: Props) => {
         </section>
       )}
 
-      {/* Market signals */}
-      {signals.length > 0 && (
-        <section className="rounded-lg border border-border bg-card p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t.catalog_intel_signals_title}
-          </h3>
-          <ul className="mt-3 space-y-2">
-            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => (
-              <li key={s.id} className="flex items-start gap-2 text-xs">
-                {s.severity === "alert" ? (
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
-                ) : s.severity === "watch" ? (
-                  <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-                ) : (
-                  <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                )}
-                <span className="leading-snug text-foreground">{s.text}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </aside>
   );
 };
