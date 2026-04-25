@@ -230,6 +230,10 @@ const Offers = () => {
         </div>
 
         <div className="mt-4">
+          <AlertsInlinePanel />
+        </div>
+
+        <div className="mt-4">
           <CatalogValueStrip />
         </div>
 
