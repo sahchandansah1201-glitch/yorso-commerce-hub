@@ -72,6 +72,15 @@ export interface CountryImpact {
   reason: string;
 }
 
+export interface SignalUpdate {
+  id: string;
+  publishedAt: string;
+  /** Short headline for the alerts feed */
+  headline: string;
+  /** Optional short body shown in expanded alert */
+  body?: string;
+}
+
 export interface MarketSignal {
   id: string;
   kind: "supply" | "demand" | "logistics" | "regulation";
@@ -82,6 +91,8 @@ export interface MarketSignal {
   context?: string;
   meaning?: string;
   actions?: string[];
+  /** Mock updates surfaced in alerts when the user is subscribed. */
+  updates?: SignalUpdate[];
 }
 
 // ── Price trends per category ────────────────────────────────────────────────
@@ -399,6 +410,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Consider Faroe Islands or Chilean fillet as a partial substitute for spot needs",
         "Re-confirm size-grade tolerance with this supplier before committing",
       ],
+      updates: [
+        { id: "s1-u1", publishedAt: "6h ago", headline: "Week 12 weights still trailing 5-yr average by ~7%", body: "Norwegian Seafood Council preliminary data confirms continued size-grade tightness in PO3–PO5." },
+        { id: "s1-u2", publishedAt: "2d ago", headline: "Premium 5–6 kg spot prices firm +3% week-on-week" },
+      ],
     },
     {
       id: "s2", kind: "demand", severity: "info",
@@ -444,6 +459,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Confirm origin requirements with end customer",
         "Track preliminary determination date and re-evaluate cover before publication",
       ],
+      updates: [
+        { id: "s5-u1", publishedAt: "1d ago", headline: "USDOC publishes verification schedule for Indian exporters" },
+        { id: "s5-u2", publishedAt: "4d ago", headline: "Industry filings hint at higher preliminary margin range" },
+      ],
     },
   ],
   Whitefish: [
@@ -457,6 +476,11 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Evaluate Pacific cod and haddock as partial substitutes",
         "Lock multi-month volumes early; spot exposure carries material price risk",
         "Re-price downstream contracts that index to Atlantic cod",
+      ],
+      updates: [
+        { id: "s6-u1", publishedAt: "12h ago", headline: "Norwegian exporters lift cod loin offers another EUR 0.30/kg" },
+        { id: "s6-u2", publishedAt: "3d ago", headline: "Pacific cod fillet supply from Russia tightens further" },
+        { id: "s6-u3", publishedAt: "6d ago", headline: "Iceland confirms quota allocation aligned with TAC cut" },
       ],
     },
     {
@@ -497,6 +521,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Secure forward cover for confirmed customer commitments now",
         "Document all sanctions-screening for non-Russian destinations",
       ],
+      updates: [
+        { id: "s10-u1", publishedAt: "1d ago", headline: "Far East exporters report no spot availability for Q3 contracts" },
+        { id: "s10-u2", publishedAt: "5d ago", headline: "Norway king crab spot prices firm +6% on substitution demand" },
+      ],
     },
     {
       id: "s11", kind: "regulation", severity: "watch",
@@ -507,6 +535,9 @@ export const marketSignals: Record<string, MarketSignal[]> = {
       actions: [
         "Verify end-destination eligibility with compliance",
         "Request supplier's sanctions-clearance documentation",
+      ],
+      updates: [
+        { id: "s11-u1", publishedAt: "2d ago", headline: "EU updates guidance on Russian-origin processed crab products" },
       ],
     },
   ],
@@ -520,6 +551,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
       actions: [
         "Lock confirmed Illex needs from current production",
         "Qualify Loligo as substitute SKU before season-end shortage",
+      ],
+      updates: [
+        { id: "s12-u1", publishedAt: "1d ago", headline: "Argentine fleet 80% through season quota allocation" },
+        { id: "s12-u2", publishedAt: "4d ago", headline: "Loligo substitute pricing firm on early reformulation demand" },
       ],
     },
     {
@@ -561,3 +596,13 @@ export const getCountryImpact = (category: string) => countryImpact[category] ??
 export const getMarketSignals = (category: string) => marketSignals[category] ?? [];
 export const getRelatedRequests = (category?: string) =>
   category ? relatedRequests.filter((r) => r.category === category) : relatedRequests;
+
+/** Flat list of all market signals across categories with their owning category attached. */
+export const getAllMarketSignalsFlat = (): Array<MarketSignal & { category: string }> =>
+  Object.entries(marketSignals).flatMap(([category, list]) =>
+    list.map((s) => ({ ...s, category })),
+  );
+
+/** Look up a single signal by id. */
+export const findMarketSignalById = (id: string): (MarketSignal & { category: string }) | null =>
+  getAllMarketSignalsFlat().find((s) => s.id === id) ?? null;

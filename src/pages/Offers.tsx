@@ -15,6 +15,7 @@ import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
+import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
 
 const COMPARE_MAX = 5;
 
@@ -226,6 +227,10 @@ const Offers = () => {
               {cat.icon} {(t.cat_names as Record<string, string>)[cat.name] || cat.name} ({cat.count})
             </button>
           ))}
+        </div>
+
+        <div className="mt-4">
+          <AlertsInlinePanel />
         </div>
 
         <div className="mt-4">

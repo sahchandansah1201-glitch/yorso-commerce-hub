@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight } from "lucide-react";
+import {
+  TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight, Bell, BellOff,
+} from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
+import { useWatchedSignals } from "@/lib/watched-signals";
+import analytics from "@/lib/analytics";
 import {
   Sheet,
   SheetContent,
@@ -86,11 +90,25 @@ const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"
   return <Activity className={className} aria-hidden />;
 };
 
+/** Returns true for severities that support a follow toggle. */
+const isWatchable = (sev: MarketSignal["severity"]) => sev === "watch" || sev === "alert";
+
 export const IntelligenceRail = ({ category }: Props) => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const { isWatched, toggleWatch } = useWatchedSignals();
   const [openSignal, setOpenSignal] = useState<MarketSignal | null>(null);
-  const [signalsExpanded, setSignalsExpanded] = useState(false);
+
+  const handleToggleWatch = (s: MarketSignal, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const wasWatched = isWatched(s.id);
+    toggleWatch(s.id);
+    analytics.track(wasWatched ? "signal_unfollow" : "signal_follow", {
+      signalId: s.id,
+      severity: s.severity,
+      kind: s.kind,
+    });
+  };
 
   // For "all", default to Salmon as feature category for the demo
   const effectiveCategory = category ?? "Salmon";
@@ -200,140 +218,81 @@ export const IntelligenceRail = ({ category }: Props) => {
       )}
 
       {/* Market signals */}
-      {signals.length > 0 && (() => {
-        const visibleSignals = signals.slice(0, isAnon ? 2 : signals.length);
-        const sevRank = { alert: 3, watch: 2, info: 1 } as const;
-        const sortedBySeverity = [...visibleSignals].sort(
-          (a, b) => sevRank[b.severity] - sevRank[a.severity],
-        );
-        const topSignal = sortedBySeverity[0];
-        const restSignals = visibleSignals.filter((s) => s.id !== topSignal.id);
-        const topHasDetails = Boolean(
-          topSignal.context || topSignal.meaning || (topSignal.actions && topSignal.actions.length > 0),
-        );
-        const topSeverityClasses =
-          topSignal.severity === "alert"
-            ? "border-destructive/30 bg-destructive/5"
-            : topSignal.severity === "watch"
-            ? "border-primary/30 bg-primary/5"
-            : "border-border bg-muted/30";
-        const topIconClasses =
-          topSignal.severity === "alert"
-            ? "text-destructive"
-            : topSignal.severity === "watch"
-            ? "text-primary"
-            : "text-muted-foreground";
-        const topPillClasses =
-          topSignal.severity === "alert"
-            ? "bg-destructive/10 text-destructive"
-            : topSignal.severity === "watch"
-            ? "bg-primary/10 text-primary"
-            : "bg-muted text-muted-foreground";
-
-        return (
-          <section className="rounded-lg border border-border bg-card p-4">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {t.catalog_intel_signals_title}
-            </h3>
-
-            {/* Top signal — highlighted */}
-            <button
-              type="button"
-              onClick={() => topHasDetails && setOpenSignal(topSignal)}
-              disabled={!topHasDetails}
-              aria-label={
-                topHasDetails ? `${topSignal.text} — ${t.catalog_intel_signal_drawer_openHint}` : topSignal.text
-              }
-              className={`group mt-3 flex w-full items-start gap-2.5 rounded-lg border p-3 text-left transition-colors hover:brightness-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default ${topSeverityClasses}`}
-            >
-              <SignalIcon severity={topSignal.severity} className={`mt-0.5 h-4 w-4 shrink-0 ${topIconClasses}`} />
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  <span
-                    className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${topPillClasses}`}
-                  >
-                    {t.catalog_intel_signal_topLabel}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    · {t[kindKey(topSignal.kind)]}
-                  </span>
-                  {topSignal.publishedAt && (
-                    <span className="text-[10px] text-muted-foreground">· {topSignal.publishedAt}</span>
-                  )}
-                </div>
-                <p className="text-xs font-medium leading-snug text-foreground">{topSignal.text}</p>
-                {topSignal.meaning && (
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-                    {topSignal.meaning}
-                  </p>
-                )}
-              </div>
-              {topHasDetails && (
-                <ChevronRight
-                  className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
-                  aria-hidden
-                />
-              )}
-            </button>
-
-            {/* Remaining signals — collapsible */}
-            {restSignals.length > 0 && (
-              <>
-                {signalsExpanded && (
-                  <ul className="mt-2 space-y-1">
-                    {restSignals.map((s) => {
-                      const hasDetails = Boolean(
-                        s.context || s.meaning || (s.actions && s.actions.length > 0),
-                      );
-                      return (
-                        <li key={s.id}>
-                          <button
-                            type="button"
-                            onClick={() => hasDetails && setOpenSignal(s)}
-                            disabled={!hasDetails}
-                            aria-label={
-                              hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text
-                            }
-                            className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default disabled:hover:bg-transparent"
-                          >
-                            <SignalIcon
-                              severity={s.severity}
-                              className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
-                                s.severity === "alert"
-                                  ? "text-destructive"
-                                  : s.severity === "watch"
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
-                              }`}
-                            />
-                            <span className="flex-1 leading-snug text-foreground">{s.text}</span>
-                            {hasDetails && (
-                              <ChevronRight
-                                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
-                                aria-hidden
-                              />
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setSignalsExpanded((v) => !v)}
-                  className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
-                  aria-expanded={signalsExpanded}
+      {signals.length > 0 && (
+        <section className="rounded-lg border border-border bg-card p-4">
+          <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.catalog_intel_signals_title}
+          </h3>
+          <ul className="mt-3 space-y-1">
+            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => {
+              const hasDetails = Boolean(s.context || s.meaning || (s.actions && s.actions.length > 0));
+              const watchable = isWatchable(s.severity);
+              const watching = watchable && isWatched(s.id);
+              return (
+                <li
+                  key={s.id}
+                  className="group flex items-start gap-1 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/40"
                 >
-                  {signalsExpanded
-                    ? t.catalog_intel_signal_showLess
-                    : `${t.catalog_intel_signal_showAll} (${restSignals.length})`}
-                </button>
-              </>
-            )}
-          </section>
-        );
-      })()}
+                  <button
+                    type="button"
+                    onClick={() => hasDetails && setOpenSignal(s)}
+                    disabled={!hasDetails}
+                    aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
+                    className="flex flex-1 items-start gap-2 text-left text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm disabled:cursor-default"
+                  >
+                    <SignalIcon
+                      severity={s.severity}
+                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
+                        s.severity === "alert"
+                          ? "text-destructive"
+                          : s.severity === "watch"
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                    <span className="flex-1 leading-snug text-foreground">{s.text}</span>
+                    {hasDetails && (
+                      <ChevronRight
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                  {watchable && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleWatch(s, e)}
+                      aria-pressed={watching}
+                      aria-label={
+                        watching
+                          ? t.catalog_intel_signal_watch_aria_unfollow
+                          : t.catalog_intel_signal_watch_aria_follow
+                      }
+                      title={
+                        watching
+                          ? t.catalog_intel_signal_watch_action_unfollow
+                          : t.catalog_intel_signal_watch_action_follow
+                      }
+                      className={`shrink-0 inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        watching
+                          ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                          : "border-transparent text-muted-foreground hover:border-border hover:bg-card hover:text-foreground"
+                      }`}
+                    >
+                      {watching ? <Bell className="h-3 w-3" aria-hidden /> : <BellOff className="h-3 w-3" aria-hidden />}
+                      <span>
+                        {watching
+                          ? t.catalog_intel_signal_watch_action_unfollow
+                          : t.catalog_intel_signal_watch_action_follow}
+                      </span>
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {/* Countries affecting price */}
       {impact.length > 0 && (
@@ -399,6 +358,37 @@ export const IntelligenceRail = ({ category }: Props) => {
                   <SheetDescription className="text-sm leading-relaxed text-muted-foreground">
                     {openSignal.context}
                   </SheetDescription>
+                )}
+                {isWatchable(openSignal.severity) && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleWatch(openSignal)}
+                      aria-pressed={isWatched(openSignal.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isWatched(openSignal.id)
+                          ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                          : "border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {isWatched(openSignal.id) ? (
+                        <>
+                          <Bell className="h-3.5 w-3.5" aria-hidden />
+                          {t.catalog_intel_signal_watch_action_unfollow}
+                        </>
+                      ) : (
+                        <>
+                          <BellOff className="h-3.5 w-3.5" aria-hidden />
+                          {t.catalog_intel_signal_watch_action_follow}
+                        </>
+                      )}
+                    </button>
+                    {isWatched(openSignal.id) && (
+                      <p className="mt-1.5 text-[11px] text-muted-foreground">
+                        {t.catalog_intel_signal_watch_following}
+                      </p>
+                    )}
+                  </div>
                 )}
               </SheetHeader>
 

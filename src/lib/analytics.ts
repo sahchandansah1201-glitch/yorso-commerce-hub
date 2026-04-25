@@ -345,6 +345,24 @@ export interface EventPayloadMap {
     filter: string;
   };
 
+  /** User starts following a market signal (signal_follow / signal_unfollow). */
+  signal_follow: {
+    signalId: string;
+    severity: "info" | "watch" | "alert";
+    kind: "supply" | "demand" | "logistics" | "regulation";
+  };
+  signal_unfollow: {
+    signalId: string;
+    severity: "info" | "watch" | "alert";
+    kind: "supply" | "demand" | "logistics" | "regulation";
+  };
+  /** User opens the alerts surface (header bell or inline panel). */
+  alerts_open: { surface: "header_bell" | "inline_panel" };
+  /** User marks all alerts as read. */
+  alerts_mark_all_read: { count: number };
+  /** User clicks an individual alert in the feed. */
+  alerts_item_click: { signalId: string; alertId: string };
+
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
   registration_complete_mock: Empty;

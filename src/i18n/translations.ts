@@ -714,6 +714,19 @@ type TranslationKeys = {
   catalog_intel_signal_topLabel: string;
   catalog_intel_signal_showAll: string;
   catalog_intel_signal_showLess: string;
+  catalog_intel_signal_watch_action_follow: string;
+  catalog_intel_signal_watch_action_unfollow: string;
+  catalog_intel_signal_watch_aria_follow: string;
+  catalog_intel_signal_watch_aria_unfollow: string;
+  catalog_intel_signal_watch_following: string;
+  alerts_bell_aria: string;
+  alerts_panel_title: string;
+  alerts_panel_subtitle: string;
+  alerts_panel_empty_title: string;
+  alerts_panel_empty_body: string;
+  alerts_panel_markAllRead: string;
+  alerts_panel_viewSignal: string;
+  alerts_panel_unreadBadge: string;
 
   // Related requests
   catalog_relatedReq_title: string;
@@ -1612,6 +1625,19 @@ const en: TranslationKeys = {
   catalog_intel_signal_topLabel: "Top signal",
   catalog_intel_signal_showAll: "Show all signals",
   catalog_intel_signal_showLess: "Show less",
+  catalog_intel_signal_watch_action_follow: "Follow",
+  catalog_intel_signal_watch_action_unfollow: "Unfollow",
+  catalog_intel_signal_watch_aria_follow: "Follow this signal — receive updates in your alerts",
+  catalog_intel_signal_watch_aria_unfollow: "Stop following this signal",
+  catalog_intel_signal_watch_following: "Following — updates appear in your alerts",
+  alerts_bell_aria: "Open alerts",
+  alerts_panel_title: "Your alerts",
+  alerts_panel_subtitle: "Updates on signals you follow",
+  alerts_panel_empty_title: "No alerts yet",
+  alerts_panel_empty_body: "Follow a market signal to receive procurement-relevant updates here.",
+  alerts_panel_markAllRead: "Mark all as read",
+  alerts_panel_viewSignal: "View signal",
+  alerts_panel_unreadBadge: "New",
 
   catalog_relatedReq_title: "Related buyer requests",
   catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
@@ -2487,6 +2513,19 @@ const ru: TranslationKeys = {
   catalog_intel_signal_topLabel: "Главный сигнал",
   catalog_intel_signal_showAll: "Показать все сигналы",
   catalog_intel_signal_showLess: "Свернуть",
+  catalog_intel_signal_watch_action_follow: "Следить",
+  catalog_intel_signal_watch_action_unfollow: "Не следить",
+  catalog_intel_signal_watch_aria_follow: "Следить за сигналом — обновления появятся в ваших уведомлениях",
+  catalog_intel_signal_watch_aria_unfollow: "Перестать следить за сигналом",
+  catalog_intel_signal_watch_following: "Вы следите — обновления появятся в уведомлениях",
+  alerts_bell_aria: "Открыть уведомления",
+  alerts_panel_title: "Ваши уведомления",
+  alerts_panel_subtitle: "Обновления по сигналам, за которыми вы следите",
+  alerts_panel_empty_title: "Пока нет уведомлений",
+  alerts_panel_empty_body: "Подпишитесь на рыночный сигнал, чтобы получать здесь релевантные для закупок обновления.",
+  alerts_panel_markAllRead: "Отметить все как прочитанные",
+  alerts_panel_viewSignal: "Открыть сигнал",
+  alerts_panel_unreadBadge: "Новое",
 
   catalog_relatedReq_title: "Связанные запросы покупателей",
   catalog_relatedReq_subtitle: "Открытые запросы от проверенных покупателей по этой категории.",
@@ -3362,6 +3401,19 @@ const es: TranslationKeys = {
   catalog_intel_signal_topLabel: "Señal principal",
   catalog_intel_signal_showAll: "Ver todas las señales",
   catalog_intel_signal_showLess: "Mostrar menos",
+  catalog_intel_signal_watch_action_follow: "Seguir",
+  catalog_intel_signal_watch_action_unfollow: "Dejar de seguir",
+  catalog_intel_signal_watch_aria_follow: "Seguir esta señal — recibirás actualizaciones en tus alertas",
+  catalog_intel_signal_watch_aria_unfollow: "Dejar de seguir esta señal",
+  catalog_intel_signal_watch_following: "Siguiendo — las actualizaciones aparecerán en tus alertas",
+  alerts_bell_aria: "Abrir alertas",
+  alerts_panel_title: "Tus alertas",
+  alerts_panel_subtitle: "Actualizaciones de las señales que sigues",
+  alerts_panel_empty_title: "Aún no hay alertas",
+  alerts_panel_empty_body: "Sigue una señal de mercado para recibir aquí actualizaciones relevantes para compras.",
+  alerts_panel_markAllRead: "Marcar todo como leído",
+  alerts_panel_viewSignal: "Ver señal",
+  alerts_panel_unreadBadge: "Nuevo",
 
   catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
   catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",
