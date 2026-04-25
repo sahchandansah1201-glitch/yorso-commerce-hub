@@ -361,7 +361,13 @@ export interface EventPayloadMap {
   /** User marks all alerts as read. */
   alerts_mark_all_read: { count: number };
   /** User clicks an individual alert in the feed. */
-  alerts_item_click: { signalId: string; alertId: string };
+  alerts_item_click: {
+    signalId: string;
+    alertId: string;
+    surface: "header_bell" | "inline_panel";
+    /** Where the click navigates to (kept open for future destinations). */
+    destination: "catalog_category";
+  };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
