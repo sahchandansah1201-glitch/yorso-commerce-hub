@@ -82,6 +82,33 @@ const Header = () => {
               </div>
             )}
           </div>
+
+          <div ref={alertsRef} className="relative">
+            <button
+              type="button"
+              onClick={openAlerts}
+              aria-label={t.alerts_bell_aria}
+              aria-expanded={alertsOpen}
+              data-testid="header-alerts-bell"
+              className="relative flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <Bell className="h-4 w-4" aria-hidden />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -right-0.5 -top-0.5 inline-flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground"
+                  aria-label={`${unreadCount} ${t.alerts_panel_unreadBadge}`}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
+            {alertsOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1">
+                <AlertsPopover onClose={() => setAlertsOpen(false)} />
+              </div>
+            )}
+          </div>
+
           <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
             <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
           </Link>
