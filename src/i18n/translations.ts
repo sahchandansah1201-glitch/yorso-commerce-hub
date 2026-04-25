@@ -3359,6 +3359,9 @@ const es: TranslationKeys = {
   catalog_intel_signal_drawer_published: "Publicado",
   catalog_intel_signal_drawer_close: "Cerrar",
   catalog_intel_signal_drawer_openHint: "Toca para ver el contexto completo",
+  catalog_intel_signal_topLabel: "Señal principal",
+  catalog_intel_signal_showAll: "Ver todas las señales",
+  catalog_intel_signal_showLess: "Mostrar menos",
 
   catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
   catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",
