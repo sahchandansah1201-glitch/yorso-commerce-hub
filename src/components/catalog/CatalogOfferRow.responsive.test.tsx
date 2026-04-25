@@ -86,14 +86,23 @@ describe("CatalogOfferRow — responsive layout contract", () => {
     expect(cls).toContain("lg:border-t-0");
   });
 
-  it("product image uses 4:3 on mobile and square from sm+", () => {
+  it("product image stays compact across breakpoints (4:3 ≤md, square at lg, 5:4+max-height at xl)", () => {
     renderRow();
     // The PhotoGallery wrapper is the first .relative inside the row.
     const imgWrap = getRow().querySelector("div.relative");
     expect(imgWrap).not.toBeNull();
     const cls = (imgWrap as HTMLElement).className;
+    // Mobile + tablet (≤1023px): 4:3 keeps the image short relative to the
+    // identity column so the row scans horizontally instead of vertically.
     expect(cls).toContain("aspect-[4/3]");
-    expect(cls).toContain("sm:aspect-square");
+    expect(cls).toContain("sm:aspect-[4/3]");
+    // Desktop (1024–1279): square — the row is wide enough for a balanced
+    // photo-to-content ratio.
+    expect(cls).toContain("lg:aspect-square");
+    // XL (≥1280): switch to 5:4 and cap height so a 300px image column
+    // never produces a 300px tall hero that dominates the row.
+    expect(cls).toContain("xl:aspect-[5/4]");
+    expect(cls).toContain("xl:max-h-[260px]");
   });
 
   it("product title clamps to 3 lines on mobile, 2 from sm+, and breaks long words", () => {
