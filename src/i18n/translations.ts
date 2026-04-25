@@ -3344,6 +3344,12 @@ const es: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Atención",
   catalog_intel_signal_severity_alert: "Alerta",
+  catalog_intel_signal_drawer_context: "Contexto",
+  catalog_intel_signal_drawer_meaning: "Qué significa para esta oferta",
+  catalog_intel_signal_drawer_actions: "Acciones de compra sugeridas",
+  catalog_intel_signal_drawer_published: "Publicado",
+  catalog_intel_signal_drawer_close: "Cerrar",
+  catalog_intel_signal_drawer_openHint: "Toca para ver el contexto completo",
 
   catalog_relatedReq_title: "Solicitudes de compradores relacionadas",
   catalog_relatedReq_subtitle: "Solicitudes abiertas de compradores verificados — relevantes para esta categoría.",
