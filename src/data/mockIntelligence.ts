@@ -596,3 +596,13 @@ export const getCountryImpact = (category: string) => countryImpact[category] ??
 export const getMarketSignals = (category: string) => marketSignals[category] ?? [];
 export const getRelatedRequests = (category?: string) =>
   category ? relatedRequests.filter((r) => r.category === category) : relatedRequests;
+
+/** Flat list of all market signals across categories with their owning category attached. */
+export const getAllMarketSignalsFlat = (): Array<MarketSignal & { category: string }> =>
+  Object.entries(marketSignals).flatMap(([category, list]) =>
+    list.map((s) => ({ ...s, category })),
+  );
+
+/** Look up a single signal by id. */
+export const findMarketSignalById = (id: string): (MarketSignal & { category: string }) | null =>
+  getAllMarketSignalsFlat().find((s) => s.id === id) ?? null;
