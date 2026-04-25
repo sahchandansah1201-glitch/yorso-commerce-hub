@@ -263,10 +263,12 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     );
   }
 
+  // Combined price + supplier locked message — supplier visibility follows
+  // price access, so showing the rule once near the price avoids duplication.
   const accessMsg =
     level === "registered_locked"
-      ? t.catalog_row_priceAccess_reg
-      : t.catalog_row_priceAccess_anon;
+      ? t.catalog_row_priceSupplierLocked_reg
+      : t.catalog_row_priceSupplierLocked_anon;
 
   // Surface a summarized MOQ range so locked-price buyers can still gauge
   // minimum order scale (e.g. "1,000 – 20,000+ kg") without registration.
