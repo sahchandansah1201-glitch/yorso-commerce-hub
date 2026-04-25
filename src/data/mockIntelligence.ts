@@ -477,6 +477,11 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Lock multi-month volumes early; spot exposure carries material price risk",
         "Re-price downstream contracts that index to Atlantic cod",
       ],
+      updates: [
+        { id: "s6-u1", publishedAt: "12h ago", headline: "Norwegian exporters lift cod loin offers another EUR 0.30/kg" },
+        { id: "s6-u2", publishedAt: "3d ago", headline: "Pacific cod fillet supply from Russia tightens further" },
+        { id: "s6-u3", publishedAt: "6d ago", headline: "Iceland confirms quota allocation aligned with TAC cut" },
+      ],
     },
     {
       id: "s7", kind: "logistics", severity: "info",
