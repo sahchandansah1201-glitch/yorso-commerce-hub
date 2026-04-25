@@ -3388,6 +3388,8 @@ const es: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Solicitud enviada",
   catalog_row_priceAccess_anon: "Precio exacto disponible tras crear cuenta de comprador",
   catalog_row_priceAccess_reg: "Solicita acceso al precio exacto",
+  catalog_row_priceSupplierLocked_anon: "Precio exacto y datos del proveedor — tras crear cuenta de comprador",
+  catalog_row_priceSupplierLocked_reg: "Precio exacto y datos del proveedor se desbloquean con el acceso al precio",
   catalog_row_basisLabel: "Base de entrega",
   catalog_row_basisAltSuffix: "más",
   catalog_row_paymentLabel: "Pago",
