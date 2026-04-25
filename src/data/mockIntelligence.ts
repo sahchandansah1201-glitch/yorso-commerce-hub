@@ -410,9 +410,11 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Consider Faroe Islands or Chilean fillet as a partial substitute for spot needs",
         "Re-confirm size-grade tolerance with this supplier before committing",
       ],
+      updates: [
+        { id: "s1-u1", publishedAt: "6h ago", headline: "Week 12 weights still trailing 5-yr average by ~7%", body: "Norwegian Seafood Council preliminary data confirms continued size-grade tightness in PO3–PO5." },
+        { id: "s1-u2", publishedAt: "2d ago", headline: "Premium 5–6 kg spot prices firm +3% week-on-week" },
+      ],
     },
-    {
-      id: "s2", kind: "demand", severity: "info",
       text: "EU retail promotions ramping for Easter window",
       publishedAt: "5 days ago",
       context: "Major EU retail chains (Germany, France, Benelux) have published Easter promotional calendars with elevated salmon volumes versus 2024.",
