@@ -408,7 +408,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
+      <div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:gap-5">
         <div>
           <Link
             to={`/offers/${offer.id}`}
@@ -417,11 +417,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             data-testid="catalog-row-view-details"
             className="block"
           >
-            <h3 className="font-heading text-[17px] font-semibold leading-tight text-foreground line-clamp-3 sm:line-clamp-2 break-words transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
+            <h3 className="font-heading text-base sm:text-[17px] lg:text-[18px] font-semibold leading-snug text-foreground line-clamp-3 sm:line-clamp-2 break-words transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
               {offer.productName}
             </h3>
           </Link>
-          <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
+          <p className="mt-1 sm:mt-1.5 text-[11px] sm:text-xs italic text-muted-foreground line-clamp-1">
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
         </div>
