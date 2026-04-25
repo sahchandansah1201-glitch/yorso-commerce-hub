@@ -180,6 +180,18 @@ type TranslationKeys = {
   aria_goBack: string;
   aria_breadcrumb: string;
   aria_catalogResults: string;
+  aria_imgPrev: string;
+  aria_imgNext: string;
+  aria_close: string;
+  aria_removeFilter: string;
+  reg_phone_placeholder: string;
+  reg_step_role: string;
+  reg_step_email: string;
+  reg_step_verify: string;
+  reg_step_details: string;
+  reg_step_profile: string;
+  reg_step_markets: string;
+  reg_step_done: string;
   country_searchPlaceholder: string;
   country_noResults: string;
   signin_emailPlaceholder: string;
@@ -1080,6 +1092,18 @@ const en: TranslationKeys = {
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
   aria_catalogResults: "Catalog results",
+  aria_imgPrev: "Previous image",
+  aria_imgNext: "Next image",
+  aria_close: "Close",
+  aria_removeFilter: "Remove filter",
+  reg_phone_placeholder: "Phone number",
+  reg_step_role: "Role",
+  reg_step_email: "Email",
+  reg_step_verify: "Verify",
+  reg_step_details: "Details",
+  reg_step_profile: "Profile",
+  reg_step_markets: "Markets",
+  reg_step_done: "Done",
   country_searchPlaceholder: "Country or code",
   country_noResults: "No results found",
   signin_emailPlaceholder: "you@company.com",
@@ -1971,6 +1995,18 @@ const ru: TranslationKeys = {
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
   aria_catalogResults: "Результаты каталога",
+  aria_imgPrev: "Предыдущее изображение",
+  aria_imgNext: "Следующее изображение",
+  aria_close: "Закрыть",
+  aria_removeFilter: "Убрать фильтр",
+  reg_phone_placeholder: "Номер телефона",
+  reg_step_role: "Роль",
+  reg_step_email: "Email",
+  reg_step_verify: "Подтверждение",
+  reg_step_details: "Данные",
+  reg_step_profile: "Профиль",
+  reg_step_markets: "Рынки",
+  reg_step_done: "Готово",
   country_searchPlaceholder: "Страна или код",
   country_noResults: "Ничего не найдено",
   signin_emailPlaceholder: "name@company.com",
@@ -2862,6 +2898,18 @@ const es: TranslationKeys = {
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
   aria_catalogResults: "Resultados del catálogo",
+  aria_imgPrev: "Imagen anterior",
+  aria_imgNext: "Imagen siguiente",
+  aria_close: "Cerrar",
+  aria_removeFilter: "Quitar filtro",
+  reg_phone_placeholder: "Número de teléfono",
+  reg_step_role: "Rol",
+  reg_step_email: "Email",
+  reg_step_verify: "Verificar",
+  reg_step_details: "Datos",
+  reg_step_profile: "Perfil",
+  reg_step_markets: "Mercados",
+  reg_step_done: "Listo",
   country_searchPlaceholder: "País o código",
   country_noResults: "No se encontraron resultados",
   signin_emailPlaceholder: "nombre@empresa.com",

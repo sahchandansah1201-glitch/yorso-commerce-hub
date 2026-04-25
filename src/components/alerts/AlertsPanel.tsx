@@ -164,7 +164,7 @@ export const AlertsPopover = ({ onClose }: AlertsPopoverProps) => {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t.aria_close}
           className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <X className="h-4 w-4" aria-hidden />

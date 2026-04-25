@@ -226,7 +226,7 @@ export const CatalogFilters = ({ value, onChange, options, layout = "stacked" }:
                 size="icon"
                 className="h-4 w-4 rounded-full p-0"
                 onClick={() => update({ [chip.key]: chip.key === "q" ? "" : null } as Partial<CatalogFilterState>)}
-                aria-label="remove"
+                aria-label={t.aria_removeFilter}
               >
                 <X className="h-3 w-3" />
               </Button>
