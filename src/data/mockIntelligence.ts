@@ -536,6 +536,9 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Verify end-destination eligibility with compliance",
         "Request supplier's sanctions-clearance documentation",
       ],
+      updates: [
+        { id: "s11-u1", publishedAt: "2d ago", headline: "EU updates guidance on Russian-origin processed crab products" },
+      ],
     },
   ],
   "Squid & Octopus": [
