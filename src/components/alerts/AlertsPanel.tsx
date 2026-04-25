@@ -1,4 +1,5 @@
 import { Bell, AlertTriangle, Eye, Activity, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useSignalAlerts, type SignalAlert } from "@/lib/watched-signals";
 import analytics from "@/lib/analytics";
@@ -31,6 +32,7 @@ interface AlertsListProps {
  */
 export const AlertsList = ({ surface, onItemClick, limit }: AlertsListProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const { alerts, unreadCount, markAllRead, markRead } = useSignalAlerts();
 
   // Latest first by relying on the natural data order being chronological;
@@ -43,8 +45,22 @@ export const AlertsList = ({ surface, onItemClick, limit }: AlertsListProps) => 
   };
 
   const handleClick = (a: SignalAlert) => {
+    // Auto-mark read on click so the bell badge always reflects what the
+    // user has actually seen — no extra "mark as read" action needed.
     if (!a.isRead) markRead(a.alertId);
-    analytics.track("alerts_item_click", { signalId: a.signalId, alertId: a.alertId });
+    analytics.track("alerts_item_click", {
+      signalId: a.signalId,
+      alertId: a.alertId,
+      surface,
+      destination: "catalog_category",
+    });
+    // Route to the catalog filtered by the signal's category. The
+    // `fromAlert` param lets /offers scroll the user to the alerts strip
+    // and acknowledge where they came from.
+    const params = new URLSearchParams();
+    if (a.category) params.set("category", a.category);
+    params.set("fromAlert", a.alertId);
+    navigate(`/offers?${params.toString()}`);
     onItemClick?.(a);
   };
 
