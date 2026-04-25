@@ -347,6 +347,8 @@ export const IntelligenceRail = ({ category }: Props) => {
               <SheetHeader className="text-left">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span
+                    title={t[severityTooltipKey(openSignal.severity)]}
+                    aria-label={`${t[severityKey(openSignal.severity)]} — ${t[severityTooltipKey(openSignal.severity)]}`}
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                       openSignal.severity === "alert"
                         ? "bg-destructive/10 text-destructive"
