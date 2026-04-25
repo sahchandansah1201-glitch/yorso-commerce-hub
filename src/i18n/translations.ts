@@ -705,6 +705,9 @@ type TranslationKeys = {
   catalog_intel_signal_severity_info: string;
   catalog_intel_signal_severity_watch: string;
   catalog_intel_signal_severity_alert: string;
+  catalog_intel_signal_severity_info_tooltip: string;
+  catalog_intel_signal_severity_watch_tooltip: string;
+  catalog_intel_signal_severity_alert_tooltip: string;
   catalog_intel_signal_drawer_context: string;
   catalog_intel_signal_drawer_meaning: string;
   catalog_intel_signal_drawer_actions: string;
