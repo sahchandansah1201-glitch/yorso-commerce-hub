@@ -90,6 +90,13 @@ const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"
   return <Activity className={className} aria-hidden />;
 };
 
+const severityTooltipKey = (s: MarketSignal["severity"]) =>
+  ({
+    info: "catalog_intel_signal_severity_info_tooltip",
+    watch: "catalog_intel_signal_severity_watch_tooltip",
+    alert: "catalog_intel_signal_severity_alert_tooltip",
+  } as const)[s];
+
 /** Returns true for severities that support a follow toggle. */
 const isWatchable = (sev: MarketSignal["severity"]) => sev === "watch" || sev === "alert";
 
