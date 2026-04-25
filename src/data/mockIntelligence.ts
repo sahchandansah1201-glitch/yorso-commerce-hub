@@ -521,6 +521,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Secure forward cover for confirmed customer commitments now",
         "Document all sanctions-screening for non-Russian destinations",
       ],
+      updates: [
+        { id: "s10-u1", publishedAt: "1d ago", headline: "Far East exporters report no spot availability for Q3 contracts" },
+        { id: "s10-u2", publishedAt: "5d ago", headline: "Norway king crab spot prices firm +6% on substitution demand" },
+      ],
     },
     {
       id: "s11", kind: "regulation", severity: "watch",
