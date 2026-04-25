@@ -80,7 +80,7 @@ const DealTermsStrip = ({ offer }: { offer: SeafoodOffer }) => {
   const altBasisCount = Math.max(0, basisOptions.length - 1);
 
   return (
-    <div className="space-y-1 text-[11px] leading-snug">
+    <div className="space-y-2 text-[11px] leading-snug">
       <div className="flex items-start gap-1.5">
         <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
         <p className="min-w-0 flex-1 text-foreground">
@@ -385,7 +385,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 flex-col gap-4">
         <div>
           <Link
             to={`/offers/${offer.id}`}
@@ -405,11 +405,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="border-t border-border/60 pt-2">
+        <div className="border-t border-border/60 pt-3">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[10px] text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-[10px] text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
