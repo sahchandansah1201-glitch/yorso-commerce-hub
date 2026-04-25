@@ -90,6 +90,13 @@ const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"
   return <Activity className={className} aria-hidden />;
 };
 
+const severityTooltipKey = (s: MarketSignal["severity"]) =>
+  ({
+    info: "catalog_intel_signal_severity_info_tooltip",
+    watch: "catalog_intel_signal_severity_watch_tooltip",
+    alert: "catalog_intel_signal_severity_alert_tooltip",
+  } as const)[s];
+
 /** Returns true for severities that support a follow toggle. */
 const isWatchable = (sev: MarketSignal["severity"]) => sev === "watch" || sev === "alert";
 
@@ -240,16 +247,23 @@ export const IntelligenceRail = ({ category }: Props) => {
                     aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
                     className="flex flex-1 items-start gap-2 text-left text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm disabled:cursor-default"
                   >
-                    <SignalIcon
-                      severity={s.severity}
-                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
-                        s.severity === "alert"
-                          ? "text-destructive"
-                          : s.severity === "watch"
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      }`}
-                    />
+                    <span
+                      role="img"
+                      aria-label={`${t[severityKey(s.severity)]} — ${t[severityTooltipKey(s.severity)]}`}
+                      title={`${t[severityKey(s.severity)]} — ${t[severityTooltipKey(s.severity)]}`}
+                      className="mt-0.5 inline-flex shrink-0"
+                    >
+                      <SignalIcon
+                        severity={s.severity}
+                        className={`h-3.5 w-3.5 ${
+                          s.severity === "alert"
+                            ? "text-destructive"
+                            : s.severity === "watch"
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </span>
                     <span className="flex-1 leading-snug text-foreground">{s.text}</span>
                     {hasDetails && (
                       <ChevronRight
@@ -333,6 +347,8 @@ export const IntelligenceRail = ({ category }: Props) => {
               <SheetHeader className="text-left">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span
+                    title={t[severityTooltipKey(openSignal.severity)]}
+                    aria-label={`${t[severityKey(openSignal.severity)]} — ${t[severityTooltipKey(openSignal.severity)]}`}
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                       openSignal.severity === "alert"
                         ? "bg-destructive/10 text-destructive"

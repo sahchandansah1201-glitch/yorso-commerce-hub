@@ -705,6 +705,9 @@ type TranslationKeys = {
   catalog_intel_signal_severity_info: string;
   catalog_intel_signal_severity_watch: string;
   catalog_intel_signal_severity_alert: string;
+  catalog_intel_signal_severity_info_tooltip: string;
+  catalog_intel_signal_severity_watch_tooltip: string;
+  catalog_intel_signal_severity_alert_tooltip: string;
   catalog_intel_signal_drawer_context: string;
   catalog_intel_signal_drawer_meaning: string;
   catalog_intel_signal_drawer_actions: string;
@@ -1616,6 +1619,9 @@ const en: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Watch",
   catalog_intel_signal_severity_alert: "Alert",
+  catalog_intel_signal_severity_info_tooltip: "Info — context only, no action expected.",
+  catalog_intel_signal_severity_watch_tooltip: "Watch — emerging trend that may move price or supply. Consider following.",
+  catalog_intel_signal_severity_alert_tooltip: "Alert — material event likely affecting this offer. Review now.",
   catalog_intel_signal_drawer_context: "Context",
   catalog_intel_signal_drawer_meaning: "What it means for this offer",
   catalog_intel_signal_drawer_actions: "Suggested procurement actions",
@@ -2504,6 +2510,9 @@ const ru: TranslationKeys = {
   catalog_intel_signal_severity_info: "Инфо",
   catalog_intel_signal_severity_watch: "Внимание",
   catalog_intel_signal_severity_alert: "Сигнал",
+  catalog_intel_signal_severity_info_tooltip: "Инфо — справочный контекст, действий не требуется.",
+  catalog_intel_signal_severity_watch_tooltip: "Внимание — формирующийся тренд, способный повлиять на цену или поставку. Стоит подписаться.",
+  catalog_intel_signal_severity_alert_tooltip: "Сигнал — значимое событие, вероятно влияющее на это предложение. Изучите сейчас.",
   catalog_intel_signal_drawer_context: "Контекст",
   catalog_intel_signal_drawer_meaning: "Что это значит для этого предложения",
   catalog_intel_signal_drawer_actions: "Рекомендуемые действия закупщика",
@@ -3392,6 +3401,9 @@ const es: TranslationKeys = {
   catalog_intel_signal_severity_info: "Info",
   catalog_intel_signal_severity_watch: "Atención",
   catalog_intel_signal_severity_alert: "Alerta",
+  catalog_intel_signal_severity_info_tooltip: "Info — solo contexto, no requiere acción.",
+  catalog_intel_signal_severity_watch_tooltip: "Atención — tendencia emergente que puede afectar el precio o el suministro. Considera seguirla.",
+  catalog_intel_signal_severity_alert_tooltip: "Alerta — evento relevante que probablemente afecta a esta oferta. Revísalo ahora.",
   catalog_intel_signal_drawer_context: "Contexto",
   catalog_intel_signal_drawer_meaning: "Qué significa para esta oferta",
   catalog_intel_signal_drawer_actions: "Acciones de compra sugeridas",
