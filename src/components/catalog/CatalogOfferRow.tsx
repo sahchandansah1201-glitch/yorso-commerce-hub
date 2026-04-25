@@ -126,15 +126,15 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
       </div>
     );
   }
-  const msg =
-    level === "registered_locked"
-      ? t.catalog_row_supplierLocked_reg
-      : t.catalog_row_supplierLocked_anon;
+  // Supplier-locked text was merged into the price-access message to avoid
+  // duplicating the same access rule twice in one card. Here we keep only a
+  // minimal visual cue (lock + country) so the row still communicates that
+  // supplier identity is gated, without repeating the full sentence.
   return (
-    <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
-      <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <Lock className="h-3 w-3 shrink-0" aria-hidden />
       <span>
-        {msg} · {offer.supplier.countryFlag} {offer.supplier.country}
+        {offer.supplier.countryFlag} {offer.supplier.country}
       </span>
     </div>
   );
