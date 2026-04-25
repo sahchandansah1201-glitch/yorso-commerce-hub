@@ -775,6 +775,8 @@ type TranslationKeys = {
   catalog_row_priceCta_reg_sent: string;
   catalog_row_priceAccess_anon: string;
   catalog_row_priceAccess_reg: string;
+  catalog_row_priceSupplierLocked_anon: string;
+  catalog_row_priceSupplierLocked_reg: string;
   catalog_row_basisLabel: string;
   catalog_row_basisAltSuffix: string;
   catalog_row_paymentLabel: string;
@@ -1654,6 +1656,8 @@ const en: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Request sent",
   catalog_row_priceAccess_anon: "Exact price available after buyer account",
   catalog_row_priceAccess_reg: "Request access to exact price",
+  catalog_row_priceSupplierLocked_anon: "Exact price and supplier details available after creating a buyer account",
+  catalog_row_priceSupplierLocked_reg: "Exact price and supplier details unlock with price access",
   catalog_row_basisLabel: "Delivery basis",
   catalog_row_basisAltSuffix: "more",
   catalog_row_paymentLabel: "Payment",
@@ -2518,6 +2522,8 @@ const ru: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Запрос отправлен",
   catalog_row_priceAccess_anon: "Точная цена доступна после создания аккаунта покупателя",
   catalog_row_priceAccess_reg: "Запросите доступ к точной цене",
+  catalog_row_priceSupplierLocked_anon: "Точная цена и данные поставщика — после создания аккаунта покупателя",
+  catalog_row_priceSupplierLocked_reg: "Точная цена и данные поставщика откроются вместе с доступом к цене",
   catalog_row_basisLabel: "Базис поставки",
   catalog_row_basisAltSuffix: "ещё",
   catalog_row_paymentLabel: "Оплата",
@@ -3382,6 +3388,8 @@ const es: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Solicitud enviada",
   catalog_row_priceAccess_anon: "Precio exacto disponible tras crear cuenta de comprador",
   catalog_row_priceAccess_reg: "Solicita acceso al precio exacto",
+  catalog_row_priceSupplierLocked_anon: "Precio exacto y datos del proveedor — tras crear cuenta de comprador",
+  catalog_row_priceSupplierLocked_reg: "Precio exacto y datos del proveedor se desbloquean con el acceso al precio",
   catalog_row_basisLabel: "Base de entrega",
   catalog_row_basisAltSuffix: "más",
   catalog_row_paymentLabel: "Pago",
