@@ -2522,6 +2522,8 @@ const ru: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Запрос отправлен",
   catalog_row_priceAccess_anon: "Точная цена доступна после создания аккаунта покупателя",
   catalog_row_priceAccess_reg: "Запросите доступ к точной цене",
+  catalog_row_priceSupplierLocked_anon: "Точная цена и данные поставщика — после создания аккаунта покупателя",
+  catalog_row_priceSupplierLocked_reg: "Точная цена и данные поставщика откроются вместе с доступом к цене",
   catalog_row_basisLabel: "Базис поставки",
   catalog_row_basisAltSuffix: "ещё",
   catalog_row_paymentLabel: "Оплата",
