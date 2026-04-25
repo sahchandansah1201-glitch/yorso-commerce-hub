@@ -390,7 +390,6 @@ export const IntelligenceRail = ({ category }: Props) => {
                     )}
                   </div>
                 )}
-                )}
               </SheetHeader>
 
               {openSignal.meaning && (
