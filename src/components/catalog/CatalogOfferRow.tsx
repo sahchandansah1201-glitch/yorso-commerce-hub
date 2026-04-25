@@ -115,7 +115,6 @@ const DealTermsStrip = ({ offer }: { offer: SeafoodOffer }) => {
 };
 
 const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
-  const { t } = useLanguage();
   if (level === "qualified_unlocked") {
     return (
       <div className="flex flex-col gap-0.5 text-xs">
