@@ -1656,6 +1656,8 @@ const en: TranslationKeys = {
   catalog_row_priceCta_reg_sent: "Request sent",
   catalog_row_priceAccess_anon: "Exact price available after buyer account",
   catalog_row_priceAccess_reg: "Request access to exact price",
+  catalog_row_priceSupplierLocked_anon: "Exact price and supplier details available after creating a buyer account",
+  catalog_row_priceSupplierLocked_reg: "Exact price and supplier details unlock with price access",
   catalog_row_basisLabel: "Delivery basis",
   catalog_row_basisAltSuffix: "more",
   catalog_row_paymentLabel: "Payment",
