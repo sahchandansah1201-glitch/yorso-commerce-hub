@@ -16,8 +16,6 @@ import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
-import analytics from "@/lib/analytics";
-import { useEffect as useEffectAlertsTracking } from "react";
 
 const COMPARE_MAX = 5;
 
