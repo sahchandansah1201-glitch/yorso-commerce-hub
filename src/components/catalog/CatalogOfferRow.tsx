@@ -154,7 +154,7 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
   };
 
   return (
-    <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+    <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-muted">
       <img
         src={images[idx]}
         alt={offer.productName}
@@ -376,7 +376,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.61fr)_minmax(0,221px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
+        "group relative grid cursor-pointer gap-4 rounded-lg border bg-card p-4 shadow-sm transition-colors",
+        "grid-cols-1",
+        "sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-5 sm:p-5",
+        "lg:grid-cols-[260px_minmax(0,1.5fr)_minmax(0,220px)] lg:gap-6 lg:p-6",
+        "xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(0,230px)] xl:gap-8",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -387,7 +391,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
         <div>
           <Link
             to={`/offers/${offer.id}`}
@@ -407,11 +411,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="border-t border-border/60 pt-4">
+        <div className="border-t border-border/60 pt-3 lg:pt-4">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
@@ -439,10 +443,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         </div>
       </div>
 
-      {/* 3. Price + supplier/access (deal terms moved into PriceBlock for tighter scanning) */}
-      <div className="flex flex-col items-stretch gap-5">
+      {/* 3. Price + supplier/access. Below lg this block sits full-width
+          under the identity column; from lg+ it becomes the third column. */}
+      <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
         <PriceBlock offer={offer} level={level} />
-        <div className="border-t border-border pt-4">
+        <div className="border-t border-border pt-3 lg:pt-4">
           <SupplierLine offer={offer} level={level} />
         </div>
       </div>
