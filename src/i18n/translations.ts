@@ -705,6 +705,12 @@ type TranslationKeys = {
   catalog_intel_signal_severity_info: string;
   catalog_intel_signal_severity_watch: string;
   catalog_intel_signal_severity_alert: string;
+  catalog_intel_signal_drawer_context: string;
+  catalog_intel_signal_drawer_meaning: string;
+  catalog_intel_signal_drawer_actions: string;
+  catalog_intel_signal_drawer_published: string;
+  catalog_intel_signal_drawer_close: string;
+  catalog_intel_signal_drawer_openHint: string;
 
   // Related requests
   catalog_relatedReq_title: string;
