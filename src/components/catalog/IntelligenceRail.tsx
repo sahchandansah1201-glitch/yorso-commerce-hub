@@ -90,10 +90,25 @@ const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"
   return <Activity className={className} aria-hidden />;
 };
 
+/** Returns true for severities that support a follow toggle. */
+const isWatchable = (sev: MarketSignal["severity"]) => sev === "watch" || sev === "alert";
+
 export const IntelligenceRail = ({ category }: Props) => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
+  const { isWatched, toggleWatch } = useWatchedSignals();
   const [openSignal, setOpenSignal] = useState<MarketSignal | null>(null);
+
+  const handleToggleWatch = (s: MarketSignal, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const wasWatched = isWatched(s.id);
+    toggleWatch(s.id);
+    analytics.track(wasWatched ? "signal_unfollow" : "signal_follow", {
+      signalId: s.id,
+      severity: s.severity,
+      kind: s.kind,
+    });
+  };
 
   // For "all", default to Salmon as feature category for the demo
   const effectiveCategory = category ?? "Salmon";
