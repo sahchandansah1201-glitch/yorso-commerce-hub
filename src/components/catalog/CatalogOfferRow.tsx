@@ -140,6 +140,7 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
 };
 
 const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
+  const { t } = useLanguage();
   const images =
     offer.images && offer.images.length > 0 ? offer.images : [offer.image];
   const [idx, setIdx] = useState(0);

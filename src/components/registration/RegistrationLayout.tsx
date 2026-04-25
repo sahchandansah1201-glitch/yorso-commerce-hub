@@ -5,13 +5,13 @@ import { ArrowLeft, Lock, ShieldCheck, Users } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const STEPS = [
-  { path: "/register", label: "Role" },
-  { path: "/register/email", label: "Email" },
-  { path: "/register/verify", label: "Verify" },
-  { path: "/register/details", label: "Details" },
-  { path: "/register/onboarding", label: "Profile" },
-  { path: "/register/countries", label: "Markets" },
-  { path: "/register/ready", label: "Done" },
+  { path: "/register", labelKey: "reg_step_role" as const },
+  { path: "/register/email", labelKey: "reg_step_email" as const },
+  { path: "/register/verify", labelKey: "reg_step_verify" as const },
+  { path: "/register/details", labelKey: "reg_step_details" as const },
+  { path: "/register/onboarding", labelKey: "reg_step_profile" as const },
+  { path: "/register/countries", labelKey: "reg_step_markets" as const },
+  { path: "/register/ready", labelKey: "reg_step_done" as const },
 ];
 
 const TRUST_ICONS = [Lock, ShieldCheck, Users];
