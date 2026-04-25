@@ -368,6 +368,8 @@ export interface EventPayloadMap {
     /** Where the click navigates to (kept open for future destinations). */
     destination: "catalog_category";
   };
+  /** /offers detected a `fromAlert` query param after navigation from the bell. */
+  alerts_navigated_to_catalog: { alertId: string };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
