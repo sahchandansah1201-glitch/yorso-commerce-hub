@@ -395,7 +395,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             data-testid="catalog-row-view-details"
             className="block"
           >
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
+            <h3 className="font-heading text-[17px] font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
               {offer.productName}
             </h3>
           </Link>
