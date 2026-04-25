@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight } from "lucide-react";
+import {
+  TrendingUp, TrendingDown, Minus, Lock, ExternalLink, AlertTriangle, Eye, Activity, ChevronRight, Bell, BellOff,
+} from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
+import { useWatchedSignals } from "@/lib/watched-signals";
+import analytics from "@/lib/analytics";
 import {
   Sheet,
   SheetContent,
