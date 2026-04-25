@@ -242,7 +242,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     return (
       <div data-testid="catalog-row-price" className="flex flex-col gap-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-base font-bold text-foreground">
+          <span className="font-heading text-[17px] font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
           <PriceUnit unit={unit} />
@@ -279,7 +279,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   return (
     <div data-testid="catalog-row-price" className="flex flex-col gap-2.5">
       <div className="flex items-baseline gap-1.5">
-        <span className="font-heading text-base font-bold text-foreground">{range}</span>
+        <span className="font-heading text-[17px] font-bold text-foreground">{range}</span>
         <PriceUnit unit={unit} />
       </div>
       {hasVolumeBreaks && moqSummary ? (
@@ -375,7 +375,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.4fr)_minmax(0,260px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
+        "group relative grid cursor-pointer grid-cols-[320px_minmax(0,1.61fr)_minmax(0,221px)] gap-8 rounded-lg border bg-card p-6 shadow-sm transition-colors",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -395,7 +395,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             data-testid="catalog-row-view-details"
             className="block"
           >
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
+            <h3 className="font-heading text-[17px] font-semibold leading-tight text-foreground line-clamp-2 transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
               {offer.productName}
             </h3>
           </Link>
