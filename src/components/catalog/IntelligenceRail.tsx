@@ -247,16 +247,23 @@ export const IntelligenceRail = ({ category }: Props) => {
                     aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
                     className="flex flex-1 items-start gap-2 text-left text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm disabled:cursor-default"
                   >
-                    <SignalIcon
-                      severity={s.severity}
-                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
-                        s.severity === "alert"
-                          ? "text-destructive"
-                          : s.severity === "watch"
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      }`}
-                    />
+                    <span
+                      role="img"
+                      aria-label={`${t[severityKey(s.severity)]} — ${t[severityTooltipKey(s.severity)]}`}
+                      title={`${t[severityKey(s.severity)]} — ${t[severityTooltipKey(s.severity)]}`}
+                      className="mt-0.5 inline-flex shrink-0"
+                    >
+                      <SignalIcon
+                        severity={s.severity}
+                        className={`h-3.5 w-3.5 ${
+                          s.severity === "alert"
+                            ? "text-destructive"
+                            : s.severity === "watch"
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </span>
                     <span className="flex-1 leading-snug text-foreground">{s.text}</span>
                     {hasDetails && (
                       <ChevronRight
