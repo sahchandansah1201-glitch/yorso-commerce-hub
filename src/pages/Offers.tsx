@@ -261,24 +261,24 @@ const Offers = () => {
           ))}
         </div>
 
-        <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-24">
+        <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-20">
           <AlertsInlinePanel />
         </div>
 
-        <div id="catalog-anchor-access" className="mt-4 scroll-mt-24">
+        <div id="catalog-anchor-access" className="mt-4 scroll-mt-20">
           <CatalogValueStrip />
         </div>
 
-        <div className="mt-4">
+        <div id="catalog-anchor-verification" className="mt-4 scroll-mt-20">
           <TrustProofStrip />
         </div>
 
         {/* Horizontal compact filter bar above the workspace */}
-        <div className="mt-4">
+        <div id="catalog-anchor-filters" className="mt-4 scroll-mt-20">
           <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
         </div>
 
-        <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-24 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-20 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
