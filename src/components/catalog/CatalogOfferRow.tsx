@@ -250,10 +250,11 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
-          <ul className="mt-1 space-y-0.5 text-xs">
+          <ul className="mt-1 max-w-[260px] space-y-0.5 text-xs">
             {additionalBreaks.map((vb, i) => (
-              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+              <li key={i} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight">
                 <span className="font-semibold text-foreground">{vb.priceRange}</span>
+                <span aria-hidden className="text-muted-foreground/60">·</span>
                 <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
               </li>
             ))}
@@ -292,9 +293,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         MoqLine
       )}
       {hasAdditionalBreaks && (
-        <ul className="space-y-0.5 text-xs">
+        // Volume tiers must read as a tight left-aligned list. Earlier
+        // versions used `justify-between` which, when the price block spans
+        // the full card width on tablet (col-span-2), pushed MOQ values to
+        // the far right and broke the card's reading flow. Cap the list
+        // width and keep price + MOQ together with a compact separator.
+        <ul className="max-w-[260px] space-y-0.5 text-xs">
           {additionalBreaks.map((vb, i) => (
-            <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+            <li key={i} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight">
               <span
                 className={cn(
                   "font-semibold",
@@ -306,6 +312,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
               >
                 {vb.priceRange}
               </span>
+              <span aria-hidden className="text-muted-foreground/60">·</span>
               <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
             </li>
           ))}
