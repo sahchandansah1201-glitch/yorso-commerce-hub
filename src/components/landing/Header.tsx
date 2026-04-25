@@ -13,7 +13,35 @@ const langs: Language[] = ["en", "ru", "es"];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const alertsRef = useRef<HTMLDivElement | null>(null);
   const { lang, setLang, t } = useLanguage();
+  const { unreadCount } = useSignalAlerts();
+
+  // Close alerts popover on outside click / Esc.
+  useEffect(() => {
+    if (!alertsOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!alertsRef.current?.contains(e.target as Node)) setAlertsOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAlertsOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [alertsOpen]);
+
+  const openAlerts = () => {
+    setAlertsOpen((v) => {
+      const next = !v;
+      if (next) analytics.track("alerts_open", { surface: "header_bell" });
+      return next;
+    });
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
