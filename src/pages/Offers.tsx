@@ -311,7 +311,7 @@ const Offers = () => {
             )}
           </section>
 
-          <div id="catalog-anchor-intelligence" className="scroll-mt-24 xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
+          <div id="catalog-anchor-intelligence" className="scroll-mt-20 xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel
               offer={selectedOffer}
               isCompared={selectedOffer ? compareIds.includes(selectedOffer.id) : false}
