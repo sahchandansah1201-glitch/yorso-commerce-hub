@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Bell } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
+import { useSignalAlerts } from "@/lib/watched-signals";
+import { AlertsPopover } from "@/components/alerts/AlertsPanel";
 
 const langs: Language[] = ["en", "ru", "es"];
 
