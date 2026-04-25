@@ -775,6 +775,8 @@ type TranslationKeys = {
   catalog_row_priceCta_reg_sent: string;
   catalog_row_priceAccess_anon: string;
   catalog_row_priceAccess_reg: string;
+  catalog_row_priceSupplierLocked_anon: string;
+  catalog_row_priceSupplierLocked_reg: string;
   catalog_row_basisLabel: string;
   catalog_row_basisAltSuffix: string;
   catalog_row_paymentLabel: string;
