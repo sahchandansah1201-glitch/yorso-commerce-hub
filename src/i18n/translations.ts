@@ -1609,6 +1609,9 @@ const en: TranslationKeys = {
   catalog_intel_signal_drawer_published: "Published",
   catalog_intel_signal_drawer_close: "Close",
   catalog_intel_signal_drawer_openHint: "Tap for full context",
+  catalog_intel_signal_topLabel: "Top signal",
+  catalog_intel_signal_showAll: "Show all signals",
+  catalog_intel_signal_showLess: "Show less",
 
   catalog_relatedReq_title: "Related buyer requests",
   catalog_relatedReq_subtitle: "Open requests from verified buyers — relevant to this category.",
