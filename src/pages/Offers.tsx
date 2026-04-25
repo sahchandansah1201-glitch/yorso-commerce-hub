@@ -16,6 +16,7 @@ import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
+import TrustProofStrip from "@/components/catalog/TrustProofStrip";
 
 const COMPARE_MAX = 5;
 
@@ -260,12 +261,16 @@ const Offers = () => {
           ))}
         </div>
 
-        <div className="mt-4">
+        <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-24">
           <AlertsInlinePanel />
         </div>
 
-        <div className="mt-4">
+        <div id="catalog-anchor-access" className="mt-4 scroll-mt-24">
           <CatalogValueStrip />
+        </div>
+
+        <div className="mt-4">
+          <TrustProofStrip />
         </div>
 
         {/* Horizontal compact filter bar above the workspace */}
@@ -273,8 +278,7 @@ const Offers = () => {
           <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
         </div>
 
-        {/* 2-pane procurement workspace */}
-        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-24 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={t.aria_catalogResults}>
             {visible.length === 0 ? (
               <div className="space-y-5">
@@ -307,7 +311,7 @@ const Offers = () => {
             )}
           </section>
 
-          <div className="xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
+          <div id="catalog-anchor-intelligence" className="scroll-mt-24 xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel
               offer={selectedOffer}
               isCompared={selectedOffer ? compareIds.includes(selectedOffer.id) : false}
@@ -321,7 +325,7 @@ const Offers = () => {
           <RelatedRequests category={filters.category} />
         </div>
 
-        <div className="mt-10 rounded-lg border border-border bg-card p-6 text-center">
+        <div id="catalog-anchor-recovery" className="mt-10 scroll-mt-24 rounded-lg border border-border bg-card p-6 text-center">
           <h2 className="font-heading text-lg font-bold text-foreground">{t.catalog_recovery_title}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.catalog_recovery_body}</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
