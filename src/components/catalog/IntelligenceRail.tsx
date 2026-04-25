@@ -65,6 +65,27 @@ const volatilityKey = (v: Volatility) =>
     high: "catalog_intel_priceTrend_vol_high",
   } as const)[v];
 
+const kindKey = (k: MarketSignal["kind"]) =>
+  ({
+    supply: "catalog_intel_signal_supply",
+    demand: "catalog_intel_signal_demand",
+    logistics: "catalog_intel_signal_logistics",
+    regulation: "catalog_intel_signal_regulation",
+  } as const)[k];
+
+const severityKey = (s: MarketSignal["severity"]) =>
+  ({
+    info: "catalog_intel_signal_severity_info",
+    watch: "catalog_intel_signal_severity_watch",
+    alert: "catalog_intel_signal_severity_alert",
+  } as const)[s];
+
+const SignalIcon = ({ severity, className }: { severity: MarketSignal["severity"]; className?: string }) => {
+  if (severity === "alert") return <AlertTriangle className={className} aria-hidden />;
+  if (severity === "watch") return <Eye className={className} aria-hidden />;
+  return <Activity className={className} aria-hidden />;
+};
+
 export const IntelligenceRail = ({ category }: Props) => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
