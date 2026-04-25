@@ -552,6 +552,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Lock confirmed Illex needs from current production",
         "Qualify Loligo as substitute SKU before season-end shortage",
       ],
+      updates: [
+        { id: "s12-u1", publishedAt: "1d ago", headline: "Argentine fleet 80% through season quota allocation" },
+        { id: "s12-u2", publishedAt: "4d ago", headline: "Loligo substitute pricing firm on early reformulation demand" },
+      ],
     },
     {
       id: "s13", kind: "regulation", severity: "info",
