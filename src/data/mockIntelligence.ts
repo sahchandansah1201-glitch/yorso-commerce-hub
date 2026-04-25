@@ -77,6 +77,11 @@ export interface MarketSignal {
   kind: "supply" | "demand" | "logistics" | "regulation";
   severity: "info" | "watch" | "alert";
   text: string;
+  /** Optional richer context shown in the click-to-open drawer. */
+  publishedAt?: string;
+  context?: string;
+  meaning?: string;
+  actions?: string[];
 }
 
 // ── Price trends per category ────────────────────────────────────────────────
