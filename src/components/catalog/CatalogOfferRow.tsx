@@ -41,7 +41,7 @@ const PriceUnit = ({ unit }: { unit: string }) => {
         <TooltipTrigger asChild>
           <button
             type="button"
-            className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
+            className="inline-flex items-center gap-0.5 text-xs text-muted-foreground cursor-help underline decoration-dotted decoration-muted-foreground/40 underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
             aria-label={`${unit} — ${t.priceUnit_tooltip}`}
             onClick={(e) => {
               e.preventDefault();
@@ -49,7 +49,7 @@ const PriceUnit = ({ unit }: { unit: string }) => {
             }}
           >
             {unit}
-            <Info className="h-2.5 w-2.5 opacity-60" aria-hidden />
+            <Info className="h-3 w-3 opacity-60" aria-hidden />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs text-xs leading-snug">
@@ -80,7 +80,7 @@ const DealTermsStrip = ({ offer }: { offer: SeafoodOffer }) => {
   const altBasisCount = Math.max(0, basisOptions.length - 1);
 
   return (
-    <div className="space-y-2 text-[11px] leading-snug">
+    <div className="space-y-2 text-xs leading-snug">
       <div className="flex items-start gap-1.5">
         <Truck className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
         <p className="min-w-0 flex-1 text-foreground">
@@ -118,7 +118,7 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
   const { t } = useLanguage();
   if (level === "qualified_unlocked") {
     return (
-      <div className="flex flex-col gap-0.5 text-[11px]">
+      <div className="flex flex-col gap-0.5 text-xs">
         <span className="font-semibold text-foreground">{offer.supplier.name}</span>
         <span className="text-muted-foreground">
           {offer.supplier.countryFlag} {offer.supplier.country}
@@ -131,7 +131,7 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
       ? t.catalog_row_supplierLocked_reg
       : t.catalog_row_supplierLocked_anon;
   return (
-    <div className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+    <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
       <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
       <span>
         {msg} · {offer.supplier.countryFlag} {offer.supplier.country}
@@ -232,7 +232,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   const hasAdditionalBreaks = additionalBreaks.length > 0;
 
   const MoqLine = (
-    <p className="text-[11px] text-muted-foreground">
+    <p className="text-xs text-muted-foreground">
       <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
       <span className="font-semibold text-foreground">{primaryMoq}</span>
     </p>
@@ -243,14 +243,14 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     return (
       <div data-testid="catalog-row-price" className="flex flex-col gap-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-lg font-bold text-foreground">
+          <span className="font-heading text-base font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
           <PriceUnit unit={unit} />
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
-          <ul className="mt-1 space-y-0.5 text-[11px]">
+          <ul className="mt-1 space-y-0.5 text-xs">
             {additionalBreaks.map((vb, i) => (
               <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
                 <span className="font-semibold text-foreground">{vb.priceRange}</span>
@@ -282,7 +282,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         <PriceUnit unit={unit} />
       </div>
       {hasVolumeBreaks && moqSummary ? (
-        <p className="text-[11px] text-muted-foreground" data-testid="catalog-row-moq-summary">
+        <p className="text-xs text-muted-foreground" data-testid="catalog-row-moq-summary">
           <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
           <span className="font-semibold text-foreground">{moqSummary}</span>
         </p>
@@ -290,7 +290,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         MoqLine
       )}
       {hasAdditionalBreaks && (
-        <ul className="space-y-0.5 text-[11px]">
+        <ul className="space-y-0.5 text-xs">
           {additionalBreaks.map((vb, i) => (
             <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
               <span
@@ -309,7 +309,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           ))}
         </ul>
       )}
-      <p className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
+      <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
         <Lock className="h-3 w-3" aria-hidden />
         {accessMsg}
       </p>
@@ -322,7 +322,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
               e.stopPropagation();
               setDialogOpen(true);
             }}
-            className="inline-flex items-center gap-1 self-start text-[11px] font-semibold text-link-hover hover:underline disabled:text-muted-foreground disabled:no-underline"
+            className="inline-flex items-center gap-1 self-start text-xs font-semibold text-link-hover hover:underline disabled:text-muted-foreground disabled:no-underline"
             data-testid="catalog-row-request-access"
           >
             {accessPending ? (
@@ -398,7 +398,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
               {offer.productName}
             </h3>
           </Link>
-          <p className="mt-1 text-[11px] italic text-muted-foreground line-clamp-1">
+          <p className="mt-1 text-xs italic text-muted-foreground line-clamp-1">
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
         </div>
@@ -409,7 +409,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-[10px] text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
