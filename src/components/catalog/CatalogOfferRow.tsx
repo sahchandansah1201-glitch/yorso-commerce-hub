@@ -243,7 +243,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     return (
       <div data-testid="catalog-row-price" className="flex flex-col gap-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-[17px] font-bold text-foreground">
+          <span className="font-heading text-base sm:text-[17px] lg:text-[19px] font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
           <PriceUnit unit={unit} />
