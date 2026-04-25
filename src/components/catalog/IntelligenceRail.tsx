@@ -359,6 +359,38 @@ export const IntelligenceRail = ({ category }: Props) => {
                     {openSignal.context}
                   </SheetDescription>
                 )}
+                {isWatchable(openSignal.severity) && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleWatch(openSignal)}
+                      aria-pressed={isWatched(openSignal.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isWatched(openSignal.id)
+                          ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                          : "border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {isWatched(openSignal.id) ? (
+                        <>
+                          <Bell className="h-3.5 w-3.5" aria-hidden />
+                          {t.catalog_intel_signal_watch_action_unfollow}
+                        </>
+                      ) : (
+                        <>
+                          <BellOff className="h-3.5 w-3.5" aria-hidden />
+                          {t.catalog_intel_signal_watch_action_follow}
+                        </>
+                      )}
+                    </button>
+                    {isWatched(openSignal.id) && (
+                      <p className="mt-1.5 text-[11px] text-muted-foreground">
+                        {t.catalog_intel_signal_watch_following}
+                      </p>
+                    )}
+                  </div>
+                )}
+                )}
               </SheetHeader>
 
               {openSignal.meaning && (
