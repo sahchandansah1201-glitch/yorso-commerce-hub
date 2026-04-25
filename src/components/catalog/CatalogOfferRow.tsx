@@ -279,7 +279,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   return (
     <div data-testid="catalog-row-price" className="flex flex-col gap-2.5">
       <div className="flex items-baseline gap-1.5">
-        <span className="font-heading text-base font-bold text-foreground">{range}</span>
+        <span className="font-heading text-[17px] font-bold text-foreground">{range}</span>
         <PriceUnit unit={unit} />
       </div>
       {hasVolumeBreaks && moqSummary ? (
