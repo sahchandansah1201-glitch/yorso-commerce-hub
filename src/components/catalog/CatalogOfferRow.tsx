@@ -154,7 +154,7 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
   };
 
   return (
-    <div className="relative aspect-square overflow-hidden rounded-md bg-muted">
+    <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden rounded-md bg-muted">
       <img
         src={images[idx]}
         alt={offer.productName}
