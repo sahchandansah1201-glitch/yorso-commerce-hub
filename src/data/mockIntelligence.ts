@@ -72,6 +72,15 @@ export interface CountryImpact {
   reason: string;
 }
 
+export interface SignalUpdate {
+  id: string;
+  publishedAt: string;
+  /** Short headline for the alerts feed */
+  headline: string;
+  /** Optional short body shown in expanded alert */
+  body?: string;
+}
+
 export interface MarketSignal {
   id: string;
   kind: "supply" | "demand" | "logistics" | "regulation";
@@ -82,6 +91,8 @@ export interface MarketSignal {
   context?: string;
   meaning?: string;
   actions?: string[];
+  /** Mock updates surfaced in alerts when the user is subscribed. */
+  updates?: SignalUpdate[];
 }
 
 // ── Price trends per category ────────────────────────────────────────────────
