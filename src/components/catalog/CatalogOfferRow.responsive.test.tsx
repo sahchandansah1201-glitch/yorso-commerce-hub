@@ -52,16 +52,19 @@ describe("CatalogOfferRow — responsive layout contract", () => {
   it("switches to 2-column [image | content] at sm (tablet portrait, 640–1023px)", () => {
     renderRow();
     const row = getRow();
-    // Tablet (incl. 768px iPad portrait): image column ~180px, content fluid.
-    // The price/supplier block then spans both columns underneath.
-    expect(row.className).toContain("sm:grid-cols-[180px_minmax(0,1fr)]");
+    // Tablet (incl. 768px iPad portrait): image column flexes 160–200px so
+    // it stays readable on 640px landscape phones and doesn't dominate at
+    // 1023px. The price/supplier block then spans both columns underneath.
+    expect(row.className).toContain("sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)]");
   });
 
   it("becomes a 3-column workspace at lg+ (≥1024px) and refines at xl", () => {
     renderRow();
     const row = getRow();
-    expect(row.className).toContain("lg:grid-cols-[260px_minmax(0,1.5fr)_minmax(0,220px)]");
-    expect(row.className).toContain("xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(0,230px)]");
+    // lg gives the price column a min-width of 240px so locked-access copy
+    // and exact prices never wrap mid-line on 1024–1279 viewports.
+    expect(row.className).toContain("lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(240px,260px)]");
+    expect(row.className).toContain("xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(260px,290px)]");
   });
 
   it("price/supplier block spans full width below lg and becomes its own column at lg+", () => {
