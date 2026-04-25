@@ -459,6 +459,10 @@ export const marketSignals: Record<string, MarketSignal[]> = {
         "Confirm origin requirements with end customer",
         "Track preliminary determination date and re-evaluate cover before publication",
       ],
+      updates: [
+        { id: "s5-u1", publishedAt: "1d ago", headline: "USDOC publishes verification schedule for Indian exporters" },
+        { id: "s5-u2", publishedAt: "4d ago", headline: "Industry filings hint at higher preliminary margin range" },
+      ],
     },
   ],
   Whitefish: [
