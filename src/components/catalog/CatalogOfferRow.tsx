@@ -311,9 +311,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           ))}
         </ul>
       )}
-      <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-        <Lock className="h-3 w-3" aria-hidden />
-        {accessMsg}
+      <p className="flex items-start gap-1 text-xs text-muted-foreground">
+        <Lock className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
+        <span className="min-w-0 break-words">{accessMsg}</span>
       </p>
       {level === "registered_locked" && (
         <>
