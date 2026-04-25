@@ -226,14 +226,19 @@ export const IntelligenceRail = ({ category }: Props) => {
           <ul className="mt-3 space-y-1">
             {signals.slice(0, isAnon ? 2 : signals.length).map((s) => {
               const hasDetails = Boolean(s.context || s.meaning || (s.actions && s.actions.length > 0));
+              const watchable = isWatchable(s.severity);
+              const watching = watchable && isWatched(s.id);
               return (
-                <li key={s.id}>
+                <li
+                  key={s.id}
+                  className="group flex items-start gap-1 rounded-md px-2 py-1.5 transition-colors hover:bg-muted/40"
+                >
                   <button
                     type="button"
                     onClick={() => hasDetails && setOpenSignal(s)}
                     disabled={!hasDetails}
                     aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
-                    className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default disabled:hover:bg-transparent"
+                    className="flex flex-1 items-start gap-2 text-left text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm disabled:cursor-default"
                   >
                     <SignalIcon
                       severity={s.severity}
@@ -253,6 +258,35 @@ export const IntelligenceRail = ({ category }: Props) => {
                       />
                     )}
                   </button>
+                  {watchable && (
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleWatch(s, e)}
+                      aria-pressed={watching}
+                      aria-label={
+                        watching
+                          ? t.catalog_intel_signal_watch_aria_unfollow
+                          : t.catalog_intel_signal_watch_aria_follow
+                      }
+                      title={
+                        watching
+                          ? t.catalog_intel_signal_watch_action_unfollow
+                          : t.catalog_intel_signal_watch_action_follow
+                      }
+                      className={`shrink-0 inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        watching
+                          ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                          : "border-transparent text-muted-foreground hover:border-border hover:bg-card hover:text-foreground"
+                      }`}
+                    >
+                      {watching ? <Bell className="h-3 w-3" aria-hidden /> : <BellOff className="h-3 w-3" aria-hidden />}
+                      <span>
+                        {watching
+                          ? t.catalog_intel_signal_watch_action_unfollow
+                          : t.catalog_intel_signal_watch_action_follow}
+                      </span>
+                    </button>
+                  )}
                 </li>
               );
             })}
