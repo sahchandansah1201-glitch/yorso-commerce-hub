@@ -711,6 +711,9 @@ type TranslationKeys = {
   catalog_intel_signal_drawer_published: string;
   catalog_intel_signal_drawer_close: string;
   catalog_intel_signal_drawer_openHint: string;
+  catalog_intel_signal_topLabel: string;
+  catalog_intel_signal_showAll: string;
+  catalog_intel_signal_showLess: string;
 
   // Related requests
   catalog_relatedReq_title: string;
