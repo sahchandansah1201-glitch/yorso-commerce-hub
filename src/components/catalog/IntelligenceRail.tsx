@@ -273,6 +273,69 @@ export const IntelligenceRail = ({ category }: Props) => {
         </section>
       )}
 
+      <Sheet open={openSignal !== null} onOpenChange={(o) => !o && setOpenSignal(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+          {openSignal && (
+            <>
+              <SheetHeader className="text-left">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                      openSignal.severity === "alert"
+                        ? "bg-destructive/10 text-destructive"
+                        : openSignal.severity === "watch"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <SignalIcon severity={openSignal.severity} className="h-3 w-3" />
+                    {t[severityKey(openSignal.severity)]}
+                  </span>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t[kindKey(openSignal.kind)]}
+                  </span>
+                  {openSignal.publishedAt && (
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                      · {t.catalog_intel_signal_drawer_published}: {openSignal.publishedAt}
+                    </span>
+                  )}
+                </div>
+                <SheetTitle className="font-heading text-base leading-snug">{openSignal.text}</SheetTitle>
+                {openSignal.context && (
+                  <SheetDescription className="text-sm leading-relaxed text-muted-foreground">
+                    {openSignal.context}
+                  </SheetDescription>
+                )}
+              </SheetHeader>
+
+              {openSignal.meaning && (
+                <section className="mt-6 rounded-lg border border-border bg-card p-4">
+                  <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t.catalog_intel_signal_drawer_meaning}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">{openSignal.meaning}</p>
+                </section>
+              )}
+
+              {openSignal.actions && openSignal.actions.length > 0 && (
+                <section className="mt-4 rounded-lg border border-border bg-card p-4">
+                  <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t.catalog_intel_signal_drawer_actions}
+                  </h3>
+                  <ul className="mt-2 space-y-2">
+                    {openSignal.actions.map((a, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm leading-relaxed text-foreground">
+                        <span className="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+                        <span>{a}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </aside>
   );
 };
