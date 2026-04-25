@@ -204,19 +204,39 @@ export const IntelligenceRail = ({ category }: Props) => {
           <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t.catalog_intel_signals_title}
           </h3>
-          <ul className="mt-3 space-y-2">
-            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => (
-              <li key={s.id} className="flex items-start gap-2 text-xs">
-                {s.severity === "alert" ? (
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
-                ) : s.severity === "watch" ? (
-                  <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-                ) : (
-                  <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-                )}
-                <span className="leading-snug text-foreground">{s.text}</span>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-1">
+            {signals.slice(0, isAnon ? 2 : signals.length).map((s) => {
+              const hasDetails = Boolean(s.context || s.meaning || (s.actions && s.actions.length > 0));
+              return (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => hasDetails && setOpenSignal(s)}
+                    disabled={!hasDetails}
+                    aria-label={hasDetails ? `${s.text} — ${t.catalog_intel_signal_drawer_openHint}` : s.text}
+                    className="group flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-default disabled:hover:bg-transparent"
+                  >
+                    <SignalIcon
+                      severity={s.severity}
+                      className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${
+                        s.severity === "alert"
+                          ? "text-destructive"
+                          : s.severity === "watch"
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                    <span className="flex-1 leading-snug text-foreground">{s.text}</span>
+                    {hasDetails && (
+                      <ChevronRight
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
