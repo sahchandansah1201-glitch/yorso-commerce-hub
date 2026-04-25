@@ -377,10 +377,18 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       onClick={handleRowClick}
       className={cn(
         "group relative grid cursor-pointer gap-4 rounded-lg border bg-card p-4 shadow-sm transition-colors",
+        // Mobile (<640): single column, everything stacks.
         "grid-cols-1",
-        "sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-5 sm:p-5",
-        "lg:grid-cols-[260px_minmax(0,1.5fr)_minmax(0,220px)] lg:gap-6 lg:p-6",
-        "xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(0,230px)] xl:gap-8",
+        // Tablet (640–1023): image gets a fluid 160–200px column, content
+        // takes the rest. Price/supplier wraps full-width via col-span-2.
+        "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)] sm:gap-5 sm:p-5",
+        // Desktop (1024–1279): three columns. Price column needs a generous
+        // min-width so "Цена и поставщик — после регистрации" stays on ≤2
+        // lines and exact prices don't wrap mid-number.
+        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(240px,260px)] lg:gap-6 lg:p-6",
+        // XL (≥1280): give the image more room and widen the content column
+        // so long product names breathe instead of clamping.
+        "xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(260px,290px)] xl:gap-8",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
