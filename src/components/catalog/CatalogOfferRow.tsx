@@ -243,7 +243,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     return (
       <div data-testid="catalog-row-price" className="flex flex-col gap-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-[17px] font-bold text-foreground">
+          <span className="font-heading text-base sm:text-[17px] lg:text-[19px] font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
           <PriceUnit unit={unit} />
@@ -278,9 +278,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   );
 
   return (
-    <div data-testid="catalog-row-price" className="flex flex-col gap-2.5">
+    <div data-testid="catalog-row-price" className="flex flex-col gap-2 sm:gap-2.5">
       <div className="flex items-baseline gap-1.5">
-        <span className="font-heading text-[17px] font-bold text-foreground">{range}</span>
+        <span className="font-heading text-base sm:text-[17px] lg:text-[19px] font-bold text-foreground">{range}</span>
         <PriceUnit unit={unit} />
       </div>
       {hasVolumeBreaks && moqSummary ? (
@@ -376,19 +376,28 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       data-selected={isSelected ? "true" : "false"}
       onClick={handleRowClick}
       className={cn(
-        "group relative grid cursor-pointer gap-4 rounded-lg border bg-card p-4 shadow-sm transition-colors",
+        // Density tuned per breakpoint:
+        // - mobile: tighter padding so the card doesn't feel like a poster,
+        //   compact gap between stacked sections;
+        // - tablet: more breathing room around the image+content split;
+        // - desktop: full editorial spacing for the 3-column workspace.
+        "group relative grid cursor-pointer rounded-lg border bg-card shadow-sm transition-colors",
+        "gap-3 p-3",
+        "sm:gap-5 sm:p-5",
+        "lg:gap-6 lg:p-6",
+        "xl:gap-8",
         // Mobile (<640): single column, everything stacks.
         "grid-cols-1",
         // Tablet (640–1023): image gets a fluid 160–200px column, content
         // takes the rest. Price/supplier wraps full-width via col-span-2.
-        "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)] sm:gap-5 sm:p-5",
+        "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)]",
         // Desktop (1024–1279): three columns. Price column needs a generous
         // min-width so "Цена и поставщик — после регистрации" stays on ≤2
         // lines and exact prices don't wrap mid-number.
-        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(240px,260px)] lg:gap-6 lg:p-6",
+        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(240px,260px)]",
         // XL (≥1280): give the image more room and widen the content column
         // so long product names breathe instead of clamping.
-        "xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(260px,290px)] xl:gap-8",
+        "xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(260px,290px)]",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -399,7 +408,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <PhotoGallery offer={offer} />
 
       {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
+      <div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:gap-5">
         <div>
           <Link
             to={`/offers/${offer.id}`}
@@ -408,22 +417,22 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             data-testid="catalog-row-view-details"
             className="block"
           >
-            <h3 className="font-heading text-[17px] font-semibold leading-tight text-foreground line-clamp-3 sm:line-clamp-2 break-words transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
+            <h3 className="font-heading text-base sm:text-[17px] lg:text-[18px] font-semibold leading-snug text-foreground line-clamp-3 sm:line-clamp-2 break-words transition-colors hover:text-link-hover hover:underline underline-offset-2 decoration-link-hover/60">
               {offer.productName}
             </h3>
           </Link>
-          <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
+          <p className="mt-1 sm:mt-1.5 text-[11px] sm:text-xs italic text-muted-foreground line-clamp-1">
             {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
           </p>
         </div>
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="border-t border-border/60 pt-3 lg:pt-4">
+        <div className="border-t border-border/60 pt-2.5 sm:pt-3 lg:pt-4">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4 pt-2.5 sm:pt-3 lg:pt-4 text-[11px] sm:text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
@@ -453,7 +462,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
 
       {/* 3. Price + supplier/access. Below lg this block sits full-width
           under the identity column; from lg+ it becomes the third column. */}
-      <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
+      <div className="flex flex-col items-stretch gap-3 border-t border-border pt-3 sm:gap-4 sm:pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
         <PriceBlock offer={offer} level={level} />
         <div className="border-t border-border pt-3 lg:pt-4">
           <SupplierLine offer={offer} level={level} />
