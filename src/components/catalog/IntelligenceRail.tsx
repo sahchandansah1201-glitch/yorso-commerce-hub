@@ -90,6 +90,7 @@ export const IntelligenceRail = ({ category }: Props) => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
   const [openSignal, setOpenSignal] = useState<MarketSignal | null>(null);
+  const [signalsExpanded, setSignalsExpanded] = useState(false);
 
   // For "all", default to Salmon as feature category for the demo
   const effectiveCategory = category ?? "Salmon";
