@@ -96,13 +96,16 @@ describe("CatalogOfferRow — responsive layout contract", () => {
     expect(cls).toContain("sm:aspect-square");
   });
 
-  it("product title and Latin name remain visible and clamp instead of overflowing", () => {
+  it("product title clamps to 3 lines on mobile, 2 from sm+, and breaks long words", () => {
     renderRow();
     const offer = mockOffers[0];
     const heading = screen.getByRole("heading", { level: 3, name: offer.productName });
-    // Two-line clamp prevents the "Atlant Sal..." 1-word truncation that we
-    // saw when the right column was too narrow on tablet.
-    expect(heading.className).toContain("line-clamp-2");
+    // Mobile gets a 3-line clamp so single-column stacking can show the full
+    // species name; tablet/desktop tighten back to 2 lines. break-words
+    // prevents Latin binomials from forcing horizontal overflow.
+    expect(heading.className).toContain("line-clamp-3");
+    expect(heading.className).toContain("sm:line-clamp-2");
+    expect(heading.className).toContain("break-words");
     const latin = heading.parentElement?.parentElement?.querySelector("p");
     expect(latin?.className).toContain("line-clamp-1");
   });
