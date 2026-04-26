@@ -87,7 +87,7 @@ export const normalizeMoq = (
 
   if (typeof input === "number") {
     return {
-      display: `${formatNumber(input, lang)} ${fallbackUnit}`,
+      display: `${formatNumber(input, lang)}\u00a0${fallbackUnit}`,
       min: input,
       unit: fallbackUnit,
     };
@@ -103,7 +103,7 @@ export const normalizeMoq = (
     const unit = openMatch[2].trim() || fallbackUnit;
     if (min !== undefined) {
       return {
-        display: `${formatNumber(min, lang)}+ ${unit}`,
+        display: `${formatNumber(min, lang)}+\u00a0${unit}`,
         min,
         unit,
         openEnded: true,
@@ -120,14 +120,15 @@ export const normalizeMoq = (
     if (left && right) {
       const min = parseNumber(left);
       const max = parseNumber(right);
-      // Единица — хвост второй части после числа.
       const tail = parts[1]
         .slice((rightMatch?.index ?? 0) + right.length)
         .trim();
       const unit = tail.length > 0 ? tail : fallbackUnit;
       if (min !== undefined && max !== undefined) {
         return {
-          display: `${formatNumber(min, lang)} – ${formatNumber(max, lang)} ${unit}`,
+          // NBSP вокруг "–" и перед единицей: число+единица — единый
+          // неразрывный токен; диапазон не ломается по тире.
+          display: `${formatNumber(min, lang)}\u00a0–\u00a0${formatNumber(max, lang)}\u00a0${unit}`,
           min,
           max,
           unit,
@@ -143,14 +144,13 @@ export const normalizeMoq = (
     const unit = extractUnit(stripped, singleMatch[1]) ?? fallbackUnit;
     if (value !== undefined) {
       return {
-        display: `${formatNumber(value, lang)} ${unit}`,
+        display: `${formatNumber(value, lang)}\u00a0${unit}`,
         min: value,
         unit,
       };
     }
   }
 
-  // Honest fallback: возвращаем как есть (без префикса MOQ:).
   return { display: stripped };
 };
 
