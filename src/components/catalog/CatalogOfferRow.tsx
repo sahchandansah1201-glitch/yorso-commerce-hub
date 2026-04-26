@@ -234,7 +234,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   const MoqLine = (
     <p className="text-xs text-muted-foreground">
       <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-      <span className="font-semibold text-foreground">{primaryMoq}</span>
+      <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
+        {primaryMoq}
+      </span>
     </p>
   );
 
@@ -298,7 +300,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       {hasVolumeBreaks && moqSummary ? (
         <p className="text-xs text-muted-foreground" data-testid="catalog-row-moq-summary">
           <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-          <span className="font-semibold text-foreground">{moqSummary}</span>
+          <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
+            {moqSummary}
+          </span>
         </p>
       ) : (
         MoqLine
