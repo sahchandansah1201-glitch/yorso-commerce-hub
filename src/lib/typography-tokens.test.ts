@@ -49,9 +49,10 @@ describe("typography contract — semantic component classes", () => {
     expect(match, `expected .${cls} to be defined in index.css`).toBeTruthy();
     const block = match![0];
     for (const token of required) {
-      expect(block, `.${cls} should @apply ${token}`).toMatch(
-        new RegExp(`\\b${token.replace(/[[\]]/g, "\\$&")}\\b`),
-      );
+      expect(
+        block.includes(token),
+        `.${cls} should @apply ${token}; got: ${block}`,
+      ).toBe(true);
     }
   };
 
