@@ -1554,6 +1554,8 @@ const en: TranslationKeys = {
   catalog_access_reg_cta: "Request qualification",
   catalog_access_qual_title: "Full procurement access",
   catalog_access_qual_body: "You can see exact prices, supplier contacts and the full intelligence layer. Use it for live procurement decisions.",
+  catalog_access_granted_toast_title: "Price access granted",
+  catalog_access_granted_toast_body: "Supplier {company} has approved your request. Exact prices and contacts are now visible.",
   catalog_access_devSwitcher_label: "Demo access level",
   catalog_access_devSwitcher_anon: "Anonymous",
   catalog_access_devSwitcher_reg: "Registered",
