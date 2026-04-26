@@ -205,12 +205,40 @@ const Header = () => {
             ))}
           </div>
           <div className="mt-4 flex flex-col gap-3">
-            <Link to="/signin" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
-            </Link>
-            <Link to="/register" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
-            </Link>
+            {isSignedIn ? (
+              <div className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                    {initial}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full gap-2"
+                  onClick={() => {
+                    analytics.track("workspace_session_ended");
+                    signOut();
+                    setMobileOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {t.workspace_signOut}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/signin" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
+                </Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
