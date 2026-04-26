@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown, Bell } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Bell, LogOut } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
 import { useSignalAlerts } from "@/lib/watched-signals";
 import { AlertsPopover } from "@/components/alerts/AlertsPanel";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
 const langs: Language[] = ["en", "ru", "es"];
 
@@ -14,9 +15,13 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const alertsRef = useRef<HTMLDivElement | null>(null);
+  const accountRef = useRef<HTMLDivElement | null>(null);
   const { lang, setLang, t } = useLanguage();
   const { unreadCount } = useSignalAlerts();
+  const { session, isSignedIn, signOut } = useBuyerSession();
+  const initial = (session?.displayName || session?.identifier || "?").trim().charAt(0).toUpperCase();
 
   // Close alerts popover on outside click / Esc.
   useEffect(() => {
@@ -34,6 +39,23 @@ const Header = () => {
       document.removeEventListener("keydown", onKey);
     };
   }, [alertsOpen]);
+
+  // Close account menu on outside click / Esc.
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (!accountRef.current?.contains(e.target as Node)) setAccountOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [accountOpen]);
 
   const openAlerts = () => {
     setAlertsOpen((v) => {
@@ -109,12 +131,53 @@ const Header = () => {
             )}
           </div>
 
-          <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
-            <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
-          </Link>
-          <Link to="/register" onClick={() => analytics.track("header_register_click")}>
-            <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
-          </Link>
+          {isSignedIn ? (
+            <div ref={accountRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-expanded={accountOpen}
+                aria-label={session?.displayName || session?.identifier || ""}
+                data-testid="header-account-chip"
+                className="flex items-center gap-2 rounded-full border border-border bg-card pl-1 pr-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  {initial}
+                </span>
+                <span className="max-w-[140px] truncate">{session?.displayName || session?.identifier}</span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              </button>
+              {accountOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-card p-1 shadow-lg">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      analytics.track("workspace_session_ended");
+                      signOut();
+                      setAccountOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t.workspace_signOut}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
+                <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
+              </Link>
+              <Link to="/register" onClick={() => analytics.track("header_register_click")}>
+                <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t.aria_toggleMenu}>
@@ -142,12 +205,40 @@ const Header = () => {
             ))}
           </div>
           <div className="mt-4 flex flex-col gap-3">
-            <Link to="/signin" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
-            </Link>
-            <Link to="/register" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
-            </Link>
+            {isSignedIn ? (
+              <div className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                    {initial}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full gap-2"
+                  onClick={() => {
+                    analytics.track("workspace_session_ended");
+                    signOut();
+                    setMobileOpen(false);
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {t.workspace_signOut}
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/signin" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
+                </Link>
+                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
