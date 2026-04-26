@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,12 @@ export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
     intelligence: false,
   });
   const [note, setNote] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  // Reset success state when dialog re-opens for a new request.
+  useEffect(() => {
+    if (open) setSubmitted(false);
+  }, [open]);
 
   const toggle = (s: Scope) => setScopes((prev) => ({ ...prev, [s]: !prev[s] }));
 
@@ -46,8 +52,7 @@ export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
       scopes: selected,
       hasNote: note.trim().length > 0,
     });
-    toast.success(t.catalog_access_request_toast);
-    onOpenChange(false);
+    setSubmitted(true);
   };
 
   const scopeLabels: Record<Scope, string> = {
