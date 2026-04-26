@@ -156,7 +156,7 @@ const Header = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      analytics.track("workspace_session_ended", { method: session?.method });
+                      analytics.track("workspace_session_ended");
                       signOut();
                       setAccountOpen(false);
                     }}
