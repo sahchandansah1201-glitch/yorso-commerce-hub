@@ -260,9 +260,13 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
                 key={i}
                 className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight tabular-nums"
               >
-                <span className="font-semibold text-foreground">{vb.priceRange}</span>
+                <span className="whitespace-nowrap font-semibold text-foreground">
+                  {vb.priceRange}
+                </span>
                 <span aria-hidden className="text-muted-foreground/60">·</span>
-                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+                <span className="whitespace-nowrap text-muted-foreground">
+                  {normalizeMoq(vb.minQty, lang).display}
+                </span>
               </li>
             ))}
           </ul>
