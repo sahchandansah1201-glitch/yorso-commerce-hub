@@ -3398,6 +3398,8 @@ const es: TranslationKeys = {
   catalog_access_reg_cta: "Solicitar calificación",
   catalog_access_qual_title: "Acceso completo de aprovisionamiento",
   catalog_access_qual_body: "Tienes precios exactos, contactos de proveedores y la capa completa de inteligencia. Úsala para decisiones de compra reales.",
+  catalog_access_granted_toast_title: "Acceso a precios concedido",
+  catalog_access_granted_toast_body: "El proveedor {company} ha aprobado tu solicitud. Los precios exactos y contactos ya están disponibles.",
   catalog_access_devSwitcher_label: "Nivel de acceso demo",
   catalog_access_devSwitcher_anon: "Anónimo",
   catalog_access_devSwitcher_reg: "Registrado",
