@@ -15,9 +15,13 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const alertsRef = useRef<HTMLDivElement | null>(null);
+  const accountRef = useRef<HTMLDivElement | null>(null);
   const { lang, setLang, t } = useLanguage();
   const { unreadCount } = useSignalAlerts();
+  const { session, isSignedIn, signOut } = useBuyerSession();
+  const initial = (session?.displayName || session?.identifier || "?").trim().charAt(0).toUpperCase();
 
   // Close alerts popover on outside click / Esc.
   useEffect(() => {
