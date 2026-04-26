@@ -115,25 +115,27 @@ const DealTermsStrip = ({ offer }: { offer: SeafoodOffer }) => {
 };
 
 const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel }) => {
-  if (level === "qualified_unlocked") {
-    return (
-      <div className="flex flex-col gap-0.5 text-xs">
-        <span className="font-semibold text-foreground">{offer.supplier.name}</span>
-        <span className="text-muted-foreground">
+  const unlocked = level === "qualified_unlocked";
+  // Supplier name follows price-access. When locked we still render the real
+  // name but blur it (mirrors the price-blur treatment) so buyers see that
+  // supplier identity exists and unlocks together with the price.
+  return (
+    <div className="flex flex-col gap-0.5 text-xs">
+      <span
+        data-testid="catalog-row-supplier-name"
+        aria-hidden={!unlocked}
+        className={cn(
+          "font-semibold text-foreground",
+          !unlocked && "blur-[5px] select-none pointer-events-none",
+        )}
+      >
+        {offer.supplier.name}
+      </span>
+      <span className="flex items-center gap-1 text-muted-foreground">
+        {!unlocked && <Lock className="h-3 w-3 shrink-0" aria-hidden />}
+        <span>
           {offer.supplier.countryFlag} {offer.supplier.country}
         </span>
-      </div>
-    );
-  }
-  // Supplier-locked text was merged into the price-access message to avoid
-  // duplicating the same access rule twice in one card. Here we keep only a
-  // minimal visual cue (lock + country) so the row still communicates that
-  // supplier identity is gated, without repeating the full sentence.
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-      <Lock className="h-3 w-3 shrink-0" aria-hidden />
-      <span>
-        {offer.supplier.countryFlag} {offer.supplier.country}
       </span>
     </div>
   );
