@@ -647,6 +647,9 @@ type TranslationKeys = {
   catalog_access_request_pending_scopes: string;
   catalog_access_request_cancel_pending: string;
   catalog_access_request_canceled_toast: string;
+  catalog_access_request_success_title: string;
+  catalog_access_request_success_body: string;
+  catalog_access_request_success_cta: string;
   catalog_reqForm_submitted_title: string;
   catalog_reqForm_submitted_subtitle: string;
   catalog_reqForm_submitted_at: string;
