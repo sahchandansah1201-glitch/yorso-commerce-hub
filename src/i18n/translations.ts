@@ -647,6 +647,9 @@ type TranslationKeys = {
   catalog_access_request_pending_scopes: string;
   catalog_access_request_cancel_pending: string;
   catalog_access_request_canceled_toast: string;
+  catalog_access_request_success_title: string;
+  catalog_access_request_success_body: string;
+  catalog_access_request_success_cta: string;
   catalog_reqForm_submitted_title: string;
   catalog_reqForm_submitted_subtitle: string;
   catalog_reqForm_submitted_at: string;
@@ -1590,6 +1593,9 @@ const en: TranslationKeys = {
   catalog_access_request_pending_scopes: "Requested:",
   catalog_access_request_cancel_pending: "Cancel request",
   catalog_access_request_canceled_toast: "Access request canceled.",
+  catalog_access_request_success_title: "Request sent to supplier 🎉",
+  catalog_access_request_success_body: "The supplier will get back to you within 24 hours.",
+  catalog_access_request_success_cta: "Back to product",
   catalog_reqForm_submitted_title: "Your submitted requests",
   catalog_reqForm_submitted_subtitle: "Review your latest sourcing requests while suppliers respond.",
   catalog_reqForm_submitted_at: "Submitted",
@@ -2507,6 +2513,9 @@ const ru: TranslationKeys = {
   catalog_access_request_pending_scopes: "Запрошено:",
   catalog_access_request_cancel_pending: "Отменить запрос",
   catalog_access_request_canceled_toast: "Запрос на доступ отменён.",
+  catalog_access_request_success_title: "Запрос отправлен поставщику 🎉",
+  catalog_access_request_success_body: "Поставщик свяжется с вами в течение 24 часов.",
+  catalog_access_request_success_cta: "Вернуться к товару",
   catalog_reqForm_submitted_title: "Ваши отправленные запросы",
   catalog_reqForm_submitted_subtitle: "Отслеживайте недавние закупочные запросы, пока поставщики готовят ответ.",
   catalog_reqForm_submitted_at: "Отправлено",
@@ -3424,6 +3433,9 @@ const es: TranslationKeys = {
   catalog_access_request_pending_scopes: "Solicitado:",
   catalog_access_request_cancel_pending: "Cancelar solicitud",
   catalog_access_request_canceled_toast: "Solicitud de acceso cancelada.",
+  catalog_access_request_success_title: "Solicitud enviada al proveedor 🎉",
+  catalog_access_request_success_body: "El proveedor se pondrá en contacto contigo en un plazo de 24 horas.",
+  catalog_access_request_success_cta: "Volver al producto",
   catalog_reqForm_submitted_title: "Tus solicitudes enviadas",
   catalog_reqForm_submitted_subtitle: "Revisa tus últimas solicitudes de abastecimiento mientras los proveedores responden.",
   catalog_reqForm_submitted_at: "Enviado",
