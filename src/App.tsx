@@ -16,6 +16,7 @@ import RegisterCountries from "./pages/register/RegisterCountries.tsx";
 import RegisterReady from "./pages/register/RegisterReady.tsx";
 import { RegistrationProvider } from "./contexts/RegistrationContext.tsx";
 import SignIn from "./pages/SignIn.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import Offers from "./pages/Offers.tsx";
 import OfferDetail from "./pages/OfferDetail.tsx";
 import About from "./pages/About.tsx";
