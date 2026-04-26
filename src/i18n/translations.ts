@@ -2476,6 +2476,8 @@ const ru: TranslationKeys = {
   catalog_access_reg_cta: "Запросить квалификацию",
   catalog_access_qual_title: "Полный закупочный доступ",
   catalog_access_qual_body: "Доступны точные цены, контакты поставщиков и полный аналитический слой. Используйте для рабочих закупочных решений.",
+  catalog_access_granted_toast_title: "Предоставлен доступ к ценам",
+  catalog_access_granted_toast_body: "Поставщик {company} одобрил ваш запрос. Точные цены и контакты теперь доступны.",
   catalog_access_devSwitcher_label: "Демо-уровень доступа",
   catalog_access_devSwitcher_anon: "Аноним",
   catalog_access_devSwitcher_reg: "Зарегистрирован",
