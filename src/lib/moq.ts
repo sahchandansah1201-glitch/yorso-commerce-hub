@@ -187,8 +187,9 @@ export const summarizeMoqRange = (
   const openEnded = parsed.some((m) => m.openEnded && (m.min ?? -Infinity) >= highest);
 
   if (lowest === highest && !openEnded) {
-    return `${formatNumber(lowest, lang)} ${unit}`;
+    return `${formatNumber(lowest, lang)}\u00a0${unit}`;
   }
   const upper = openEnded ? `${formatNumber(highest, lang)}+` : formatNumber(highest, lang);
-  return `${formatNumber(lowest, lang)} – ${upper} ${unit}`;
+  // NBSP вокруг "–" и перед единицей: весь диапазон + единица — единый блок.
+  return `${formatNumber(lowest, lang)}\u00a0–\u00a0${upper}\u00a0${unit}`;
 };
