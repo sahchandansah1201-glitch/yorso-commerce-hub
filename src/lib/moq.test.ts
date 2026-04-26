@@ -89,7 +89,7 @@ import { summarizeMoqRange } from "@/lib/moq";
 
 describe("lib/moq — summarizeMoqRange", () => {
   it("collapses single tier to one value", () => {
-    expect(summarizeMoqRange(["1,000 kg"], "en")).toBe("1,000 kg");
+    expect(summarizeMoqRange(["1,000 kg"], "en")).toBe("1,000\u00a0kg");
   });
 
   it("returns lowest min – highest max across tiers", () => {
