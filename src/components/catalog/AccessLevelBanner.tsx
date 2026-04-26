@@ -5,33 +5,28 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
-import { mockOffers } from "@/data/mockOffers";
-
-// Mock: which supplier "approved" the price access. In real backend
-// this would come from the approval payload itself.
-const MOCK_APPROVING_COMPANY = mockOffers[0]?.supplierName ?? "Nordic Seafood AS";
+import { simulateSupplierApproval, resolveSupplierCompanyName } from "@/lib/supplier-approval";
 
 export const AccessLevelBanner = () => {
   const { t } = useLanguage();
-  const { level, setQualified } = useAccessLevel();
+  const { level, qualification } = useAccessLevel();
   const prevLevel = useRef(level);
 
   // Notify the buyer once when supplier access flips to qualified_unlocked.
+  // The supplier company name comes from the approval payload itself.
   useEffect(() => {
     if (
       prevLevel.current !== "qualified_unlocked" &&
       level === "qualified_unlocked"
     ) {
+      const company = qualification?.companyName?.trim() || resolveSupplierCompanyName();
       toast.success(t.catalog_access_granted_toast_title, {
-        description: t.catalog_access_granted_toast_body.replace(
-          "{company}",
-          MOCK_APPROVING_COMPANY,
-        ),
+        description: t.catalog_access_granted_toast_body.replace("{company}", company),
         duration: 6000,
       });
     }
     prevLevel.current = level;
-  }, [level, t]);
+  }, [level, qualification, t]);
 
   if (level === "qualified_unlocked") {
     return (
@@ -56,7 +51,7 @@ export const AccessLevelBanner = () => {
         <Button
           size="sm"
           className="font-semibold"
-          onClick={() => setQualified(true)}
+          onClick={() => simulateSupplierApproval({ delayMs: 0 })}
           data-testid="catalog-request-qualification"
         >
           {t.catalog_access_reg_cta}
