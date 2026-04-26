@@ -172,23 +172,42 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
       </div>
       {hasMultiple && (
         <>
+          {/*
+            Большие невидимые hit-зоны на левой и правой половине фото.
+            Покупатель листает «куда смотрит», а не «куда метится» — это
+            особенно важно на тач-устройствах и при беглом сканировании
+            каталога. Маленькие шевроны остаются как визуальные подсказки
+            внутри зон и появляются на hover/focus.
+          */}
           <button
             type="button"
             onClick={go(-1)}
             aria-label={t.aria_imgPrev}
-            className="absolute left-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
+            data-testid="catalog-row-img-prev"
+            className="group/nav absolute inset-y-0 left-0 z-10 flex w-1/2 items-center justify-start pl-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <span
+              aria-hidden
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-background/85 text-foreground opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100 group-hover/nav:opacity-100 group-focus-within/nav:opacity-100"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </span>
           </button>
           <button
             type="button"
             onClick={go(1)}
             aria-label={t.aria_imgNext}
-            className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-background/85 p-1 text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 focus-visible:opacity-100"
+            data-testid="catalog-row-img-next"
+            className="group/nav absolute inset-y-0 right-0 z-10 flex w-1/2 items-center justify-end pr-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
-            <ChevronRight className="h-3.5 w-3.5" />
+            <span
+              aria-hidden
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-background/85 text-foreground opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100 group-hover/nav:opacity-100 group-focus-within/nav:opacity-100"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </span>
           </button>
-          <div className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 gap-1">
+          <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1">
             {images.map((_, i) => (
               <span
                 key={i}
