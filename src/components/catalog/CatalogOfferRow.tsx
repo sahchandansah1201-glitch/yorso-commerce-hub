@@ -623,12 +623,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         // takes the rest. Price/supplier wraps full-width via col-span-2.
         "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)] sm:gap-5 sm:p-5",
         // Desktop (1024–1279): three columns. Middle column (product identity
-        // + deal terms) widened by another ~10% on top of the previous +20%;
-        // price column trimmed accordingly.
-        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1.32fr)_minmax(210px,228px)] lg:gap-6 lg:p-6",
+        // + deal terms) widened by another +10%; price column trimmed accordingly.
+        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1.32fr)_minmax(205px,222px)] lg:gap-6 lg:p-6",
         // XL (≥1280): give the image more room and widen the content column
         // so long product names breathe instead of clamping.
-        "xl:grid-cols-[300px_minmax(0,2.12fr)_minmax(228px,256px)] xl:gap-8",
+        "xl:grid-cols-[300px_minmax(0,2.12fr)_minmax(222px,250px)] xl:gap-8",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
@@ -638,15 +637,9 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       {/* 1. Media */}
       <PhotoGallery offer={offer} />
 
-      {/* 2. Product identity
-          Vertical rhythm: header block reserves ~2 lines so cards with a
-          short name align with cards whose title wraps. Certifications
-          row reserves 1 row of badge height so the deal-terms strip below
-          starts at the same Y-coordinate across the catalog. Signals are
-          pinned to the bottom via mt-auto. A single space-y replaces the
-          mix of gap + per-divider padding so vertical gaps are consistent. */}
-      <div className="flex min-w-0 flex-col">
-        <div className="min-h-[42px] sm:min-h-[44px]">
+      {/* 2. Product identity */}
+      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
+        <div>
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
@@ -663,15 +656,13 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           </p>
         </div>
 
-        <div className="mt-4 lg:mt-5 min-h-[28px]">
-          <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
-        </div>
+        <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
 
-        <div className="mt-4 lg:mt-5 border-t border-border/60 pt-4 lg:pt-5">
+        <div className="border-t border-border/60 pt-3 lg:pt-4">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 lg:pt-5 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
