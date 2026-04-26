@@ -250,10 +250,18 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         </div>
         {MoqLine}
         {hasAdditionalBreaks && (
-          <ul className="mt-1 space-y-0.5 text-xs">
+          <ul
+            dir="ltr"
+            data-testid="catalog-row-volume-tiers"
+            className="mt-1 max-w-[260px] space-y-0.5 text-xs"
+          >
             {additionalBreaks.map((vb, i) => (
-              <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+              <li
+                key={i}
+                className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight tabular-nums"
+              >
                 <span className="font-semibold text-foreground">{vb.priceRange}</span>
+                <span aria-hidden className="text-muted-foreground/60">·</span>
                 <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
               </li>
             ))}
@@ -292,9 +300,16 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
         MoqLine
       )}
       {hasAdditionalBreaks && (
-        <ul className="space-y-0.5 text-xs">
+        <ul
+          dir="ltr"
+          data-testid="catalog-row-volume-tiers"
+          className="max-w-[260px] space-y-0.5 text-xs"
+        >
           {additionalBreaks.map((vb, i) => (
-            <li key={i} className="flex items-baseline justify-between gap-2 leading-tight">
+            <li
+              key={i}
+              className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight tabular-nums"
+            >
               <span
                 className={cn(
                   "font-semibold",
@@ -306,6 +321,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
               >
                 {vb.priceRange}
               </span>
+              <span aria-hidden className="text-muted-foreground/60">·</span>
               <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
             </li>
           ))}
