@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import Header from "@/components/landing/Header";
+import { supabase } from "@/integrations/supabase/client";
 
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
