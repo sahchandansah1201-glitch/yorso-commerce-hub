@@ -435,7 +435,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       {hasVolumeBreaks && moqSummary ? (
         <p className="text-xs text-muted-foreground" data-testid="catalog-row-moq-summary">
           <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-          <span className="font-semibold text-foreground">{moqSummary}</span>
+          <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
+            {moqSummary}
+          </span>
         </p>
       ) : (
         MoqLine
@@ -453,7 +455,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             >
               <span
                 className={cn(
-                  "font-semibold",
+                  "whitespace-nowrap font-semibold",
                   level === "qualified_unlocked"
                     ? "text-foreground"
                     : "text-muted-foreground blur-[3px] select-none",
@@ -463,7 +465,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
                 {vb.priceRange}
               </span>
               <span aria-hidden className="text-muted-foreground/60">·</span>
-              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+              <span className="whitespace-nowrap text-muted-foreground">
+                {normalizeMoq(vb.minQty, lang).display}
+              </span>
             </li>
           ))}
         </ul>
