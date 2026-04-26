@@ -81,7 +81,6 @@ describe("CatalogOfferRow — volume tiers layout contract", () => {
         const items = within(list).getAllByRole("listitem");
         for (const li of items) {
           const spans = li.querySelectorAll("span");
-          // Chip 0 = price, chip 2 = MOQ. Both must be nowrap.
           expect(spans[0].className).toMatch(/\bwhitespace-nowrap\b/);
           expect(spans[2].className).toMatch(/\bwhitespace-nowrap\b/);
         }
@@ -94,9 +93,7 @@ describe("CatalogOfferRow — volume tiers layout contract", () => {
         for (const li of items) {
           const spans = li.querySelectorAll("span");
           const moqText = spans[2].textContent ?? "";
-          // Must contain NBSP (U+00A0) before the unit token.
           expect(moqText).toMatch(/\u00a0(kg|кг)/i);
-          // Must NOT contain a regular space immediately before the unit.
           expect(moqText).not.toMatch(/ (kg|кг)\b/i);
         }
       });

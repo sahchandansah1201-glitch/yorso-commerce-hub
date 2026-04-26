@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import {
@@ -147,19 +147,135 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
   const total = images.length;
   const hasMultiple = total > 1;
 
-  const go = (delta: number) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const go = (delta: number) => (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
     setIdx((prev) => (prev + delta + total) % total);
   };
 
+  /*
+   * Touch swipe support.
+   *
+   * Goal: horizontal swipe across the photo navigates between images,
+   * but a vertical drag must keep scrolling the page — never hijack it.
+   *
+   * Approach:
+   *   - On touchstart, record (x, y, time) and reset direction lock.
+   *   - On the first significant touchmove, decide direction:
+   *       * |dx| dominant AND > THRESHOLD_DETECT  → lock "h", call
+   *         preventDefault on every subsequent move so the browser
+   *         doesn't also try to scroll horizontally / trigger page swipe.
+   *       * otherwise → lock "v" and do nothing; the page keeps scrolling.
+   *   - On touchend, if locked "h" and |dx| > THRESHOLD_COMMIT (or it was
+   *     a fast flick), advance/retreat one image.
+   *
+   * touch-action: pan-y on the container tells the browser our element
+   * accepts vertical pans by default and only horizontal gestures are
+   * interactive — this makes Safari/Chrome give up the vertical axis to
+   * the page immediately, no fighting.
+   *
+   * preventDefault inside touchmove only works on a non-passive listener,
+   * so we attach via addEventListener({ passive: false }) in useEffect
+   * instead of using React's onTouchMove (which is passive).
+   */
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchState = useRef<{
+    x: number;
+    y: number;
+    t: number;
+    lock: "none" | "h" | "v";
+  } | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !hasMultiple) return;
+
+    const THRESHOLD_DETECT = 8; // px before we decide direction
+    const THRESHOLD_COMMIT = 40; // px to count as a swipe
+    const FLICK_MS = 250;
+    const FLICK_DIST = 20;
+
+    const onStart = (e: TouchEvent) => {
+      const tt = e.touches[0];
+      if (!tt) return;
+      touchState.current = { x: tt.clientX, y: tt.clientY, t: Date.now(), lock: "none" };
+    };
+
+    const onMove = (e: TouchEvent) => {
+      const s = touchState.current;
+      const tt = e.touches[0];
+      if (!s || !tt) return;
+      const dx = tt.clientX - s.x;
+      const dy = tt.clientY - s.y;
+
+      if (s.lock === "none") {
+        if (Math.abs(dx) < THRESHOLD_DETECT && Math.abs(dy) < THRESHOLD_DETECT) return;
+        // Decide direction. Require horizontal to clearly dominate
+        // (1.2x) so a slightly diagonal scroll still goes to the page.
+        if (Math.abs(dx) > Math.abs(dy) * 1.2) {
+          s.lock = "h";
+        } else {
+          s.lock = "v";
+        }
+      }
+
+      if (s.lock === "h") {
+        // Stop the browser from also scrolling horizontally and stop
+        // ancestor handlers (e.g. row click).
+        e.preventDefault();
+      }
+      // s.lock === "v" → do nothing, page scroll continues naturally.
+    };
+
+    const onEnd = (e: TouchEvent) => {
+      const s = touchState.current;
+      touchState.current = null;
+      if (!s || s.lock !== "h") return;
+      const tt = e.changedTouches[0];
+      if (!tt) return;
+      const dx = tt.clientX - s.x;
+      const dt = Date.now() - s.t;
+      const isFlick = dt < FLICK_MS && Math.abs(dx) > FLICK_DIST;
+      if (Math.abs(dx) > THRESHOLD_COMMIT || isFlick) {
+        // Swipe left (dx < 0) → next image, swipe right → previous.
+        setIdx((prev) => (prev + (dx < 0 ? 1 : -1) + total) % total);
+      }
+    };
+
+    const onCancel = () => {
+      touchState.current = null;
+    };
+
+    // passive:false on touchmove is required for preventDefault to take effect.
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchcancel", onCancel, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onCancel);
+    };
+  }, [hasMultiple, total]);
+
   return (
-    <div className="relative aspect-[4/3] sm:aspect-[4/3] lg:aspect-square xl:aspect-[5/4] xl:max-h-[260px] overflow-hidden rounded-md bg-muted">
+    <div
+      ref={containerRef}
+      data-testid="catalog-row-photo"
+      // touch-action: pan-y → browser owns the vertical axis (page scroll
+      // stays buttery). We only intercept horizontal gestures via the JS
+      // handlers above. Without this, mobile Safari sometimes pre-empts
+      // the gesture before our touchmove fires.
+      style={{ touchAction: "pan-y" }}
+      className="relative aspect-[4/3] sm:aspect-[4/3] lg:aspect-square xl:aspect-[5/4] xl:max-h-[260px] overflow-hidden rounded-md bg-muted select-none"
+    >
       <img
         src={images[idx]}
         alt={offer.productName}
         loading="lazy"
-        className="h-full w-full object-cover"
+        draggable={false}
+        className="h-full w-full object-cover pointer-events-none"
         onError={(e) => {
           const target = e.currentTarget;
           target.onerror = null;
@@ -173,11 +289,11 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
       {hasMultiple && (
         <>
           {/*
-            Большие невидимые hit-зоны на левой и правой половине фото.
-            Покупатель листает «куда смотрит», а не «куда метится» — это
-            особенно важно на тач-устройствах и при беглом сканировании
-            каталога. Маленькие шевроны остаются как визуальные подсказки
-            внутри зон и появляются на hover/focus.
+            Большие невидимые hit-зоны на левой и правой половине фото —
+            покупатель листает «куда смотрит», а не «куда метится». Шевроны
+            остаются как визуальные подсказки внутри зон и появляются на
+            hover/focus. На тач-устройствах работает свайп (см. useEffect
+            выше), а тап по половине = переключение.
           */}
           <button
             type="button"

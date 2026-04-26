@@ -120,7 +120,6 @@ export const normalizeMoq = (
     if (left && right) {
       const min = parseNumber(left);
       const max = parseNumber(right);
-      // Единица — хвост второй части после числа.
       const tail = parts[1]
         .slice((rightMatch?.index ?? 0) + right.length)
         .trim();
@@ -128,7 +127,7 @@ export const normalizeMoq = (
       if (min !== undefined && max !== undefined) {
         return {
           // NBSP вокруг "–" и перед единицей: число+единица — единый
-          // неразрывный токен, и сам диапазон не ломается по тире.
+          // неразрывный токен; диапазон не ломается по тире.
           display: `${formatNumber(min, lang)}\u00a0–\u00a0${formatNumber(max, lang)}\u00a0${unit}`,
           min,
           max,
@@ -152,7 +151,6 @@ export const normalizeMoq = (
     }
   }
 
-  // Honest fallback: возвращаем как есть (без префикса MOQ:).
   return { display: stripped };
 };
 
@@ -192,7 +190,6 @@ export const summarizeMoqRange = (
     return `${formatNumber(lowest, lang)}\u00a0${unit}`;
   }
   const upper = openEnded ? `${formatNumber(highest, lang)}+` : formatNumber(highest, lang);
-  // NBSP вокруг "–" и перед единицей удерживают весь диапазон + единицу
-  // как один читаемый блок при сужении/локализации.
+  // NBSP вокруг "–" и перед единицей: весь диапазон + единица — единый блок.
   return `${formatNumber(lowest, lang)}\u00a0–\u00a0${upper}\u00a0${unit}`;
 };
