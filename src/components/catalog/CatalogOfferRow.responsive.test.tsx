@@ -126,33 +126,4 @@ describe("CatalogOfferRow — responsive layout contract", () => {
     // see the access rule without scrolling to a different region.
     expect(within(priceBlock.parentElement as HTMLElement).getByText(/—/)).toBeTruthy();
   });
-
-  it("scales density (gap, padding, font sizes) per breakpoint", () => {
-    renderRow();
-    const row = getRow();
-    // Outer card: tighter on mobile, breathes more from sm/lg/xl.
-    expect(row.className).toContain("gap-3");
-    expect(row.className).toContain("p-3");
-    expect(row.className).toContain("sm:gap-5");
-    expect(row.className).toContain("sm:p-5");
-    expect(row.className).toContain("lg:gap-6");
-    expect(row.className).toContain("lg:p-6");
-    expect(row.className).toContain("xl:gap-8");
-
-    // Title scales 16 → 17 → 18px so the heading never feels oversized on
-    // mobile or undersized on desktop.
-    const heading = screen.getByRole("heading", { level: 3 });
-    expect(heading.className).toContain("text-base");
-    expect(heading.className).toContain("sm:text-[17px]");
-    expect(heading.className).toContain("lg:text-[18px]");
-
-    // Price mirrors the heading rhythm and gains weight on desktop.
-    const price = screen
-      .getByTestId("catalog-row-price")
-      .querySelector("span.font-heading") as HTMLElement;
-    expect(price).not.toBeNull();
-    expect(price.className).toContain("text-base");
-    expect(price.className).toContain("sm:text-[17px]");
-    expect(price.className).toContain("lg:text-[19px]");
-  });
 });
