@@ -186,6 +186,62 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
     lock: "none" | "h" | "v";
   } | null>(null);
 
+  /*
+   * Pagination dots visibility.
+   *
+   * Buyers spend most of their time scanning the photo, not the dots.
+   * Permanent dots add visual noise to every catalog row, so we surface
+   * them only when there's a reason:
+   *   - user hovers the photo (desktop discovery)
+   *   - user focuses a nav button (keyboard discovery)
+   *   - photo just changed (swipe / tap / arrow click) — confirms which
+   *     image is now active
+   *
+   * Then we auto-hide after AUTO_HIDE_MS so the photo stays clean. We
+   * keep dots visible while focus stays inside (keyboard navigation) by
+   * gating the timer on document.activeElement.
+   */
+  const [dotsVisible, setDotsVisible] = useState(false);
+  const hideTimer = useRef<number | null>(null);
+  const AUTO_HIDE_MS = 1500;
+
+  const showDots = () => {
+    setDotsVisible(true);
+    if (hideTimer.current !== null) {
+      window.clearTimeout(hideTimer.current);
+    }
+    hideTimer.current = window.setTimeout(() => {
+      // If focus is still inside the photo, keep dots visible — keyboard
+      // user is mid-navigation. They'll naturally hide on blur.
+      const el = containerRef.current;
+      if (el && el.contains(document.activeElement)) return;
+      setDotsVisible(false);
+    }, AUTO_HIDE_MS);
+  };
+
+  const hideDotsImmediately = () => {
+    if (hideTimer.current !== null) {
+      window.clearTimeout(hideTimer.current);
+      hideTimer.current = null;
+    }
+    setDotsVisible(false);
+  };
+
+  // Show dots whenever the active image changes (swipe / tap / click /
+  // keyboard). Gives a brief "you're now on slide N" confirmation.
+  useEffect(() => {
+    if (!hasMultiple) return;
+    showDots();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, hasMultiple]);
+
+  // Cleanup timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
+    };
+  }, []);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !hasMultiple) return;
