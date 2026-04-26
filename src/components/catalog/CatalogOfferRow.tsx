@@ -324,6 +324,20 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
       // handlers above. Without this, mobile Safari sometimes pre-empts
       // the gesture before our touchmove fires.
       style={{ touchAction: "pan-y" }}
+      onMouseEnter={hasMultiple ? showDots : undefined}
+      onMouseLeave={hasMultiple ? hideDotsImmediately : undefined}
+      onFocusCapture={hasMultiple ? showDots : undefined}
+      onBlurCapture={
+        hasMultiple
+          ? (e) => {
+              // Only hide if focus is leaving the photo entirely, not
+              // moving between the two nav buttons inside it.
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                hideDotsImmediately();
+              }
+            }
+          : undefined
+      }
       className="relative aspect-[4/3] sm:aspect-[4/3] lg:aspect-square xl:aspect-[5/4] xl:max-h-[260px] overflow-hidden rounded-md bg-muted select-none"
     >
       <img
@@ -379,7 +393,14 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
               <ChevronRight className="h-4 w-4" />
             </span>
           </button>
-          <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1">
+          <div
+            data-testid="catalog-row-img-dots"
+            aria-hidden={!dotsVisible}
+            className={cn(
+              "pointer-events-none absolute bottom-1.5 left-1/2 z-10 flex -translate-x-1/2 gap-1 transition-opacity duration-300",
+              dotsVisible ? "opacity-100" : "opacity-0",
+            )}
+          >
             {images.map((_, i) => (
               <span
                 key={i}
