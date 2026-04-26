@@ -75,6 +75,29 @@ describe("CatalogOfferRow — volume tiers layout contract", () => {
         }
       });
 
+      it("marks price and MOQ chips whitespace-nowrap so each chip stays unbroken", () => {
+        renderRow(level);
+        const list = screen.getByTestId("catalog-row-volume-tiers");
+        const items = within(list).getAllByRole("listitem");
+        for (const li of items) {
+          const spans = li.querySelectorAll("span");
+          expect(spans[0].className).toMatch(/\bwhitespace-nowrap\b/);
+          expect(spans[2].className).toMatch(/\bwhitespace-nowrap\b/);
+        }
+      });
+
+      it("MOQ chip uses NBSP between number and unit (never splits across lines)", () => {
+        renderRow(level);
+        const list = screen.getByTestId("catalog-row-volume-tiers");
+        const items = within(list).getAllByRole("listitem");
+        for (const li of items) {
+          const spans = li.querySelectorAll("span");
+          const moqText = spans[2].textContent ?? "";
+          expect(moqText).toMatch(/\u00a0(kg|кг)/i);
+          expect(moqText).not.toMatch(/ (kg|кг)\b/i);
+        }
+      });
+
       it("constrains tier list to a bounded reading column", () => {
         renderRow(level);
         const list = screen.getByTestId("catalog-row-volume-tiers");
