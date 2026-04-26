@@ -131,12 +131,53 @@ const Header = () => {
             )}
           </div>
 
-          <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
-            <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
-          </Link>
-          <Link to="/register" onClick={() => analytics.track("header_register_click")}>
-            <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
-          </Link>
+          {isSignedIn ? (
+            <div ref={accountRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-expanded={accountOpen}
+                aria-label={session?.displayName || session?.identifier || ""}
+                data-testid="header-account-chip"
+                className="flex items-center gap-2 rounded-full border border-border bg-card pl-1 pr-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  {initial}
+                </span>
+                <span className="max-w-[140px] truncate">{session?.displayName || session?.identifier}</span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground" />
+              </button>
+              {accountOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-card p-1 shadow-lg">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      analytics.track("workspace_session_ended", { method: session?.method });
+                      signOut();
+                      setAccountOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t.workspace_signOut}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
+                <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
+              </Link>
+              <Link to="/register" onClick={() => analytics.track("header_register_click")}>
+                <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t.aria_toggleMenu}>
