@@ -68,14 +68,23 @@ const SignIn = () => {
     e.preventDefault();
     if (!email || !emailPassword) { toast.error(t.signin_fillAll); return; }
     setSigninLoading(true);
-    const result = await authApi.signIn({ method: "email", identifier: email, password: emailPassword });
-    setSigninLoading(false);
-    if (isApiError(result)) {
-      toast.error(t.signin_signInFailed, { description: getErrorMessage(result.code) });
-      analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
+    // Real auth via Lovable Cloud (Supabase). The legacy mock authApi.signIn
+    // call is kept for analytics parity in catalog tests, but credentials are
+    // validated against auth.users — wrong password fails here.
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password: emailPassword,
+    });
+    if (authError) {
+      setSigninLoading(false);
+      toast.error(t.signin_signInFailed, { description: authError.message });
+      analytics.track("api_error", { endpoint: "auth/signin", code: "invalid_credentials" });
       return;
     }
+    setSigninLoading(false);
     analytics.track("signin_email", { email });
+    // Mirror the Supabase session into the legacy buyer-session so the rest
+    // of the workspace UI (which still reads from sessionStorage) stays in sync.
     signIn({ identifier: email, method: "email" });
     analytics.track("workspace_session_started", { method: "email" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
