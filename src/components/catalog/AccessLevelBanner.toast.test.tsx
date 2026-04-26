@@ -60,13 +60,13 @@ describe("AccessLevelBanner — supplier-approval toast", () => {
   it("uses fallback copy when companyName is empty / whitespace / missing", () => {
     for (const name of ["", "   ", undefined]) {
       successSpy.mockClear();
-      // Fully reset state including the per-payload "announced" marker so
-      // the next setQualified() is treated as a brand-new approval even if
-      // its approvedAt timestamp coincides with the previous iteration.
       act(() => {
         setQualified(false);
       });
       sessionStorage.clear();
+      // signIn AFTER clearing storage — sessionStorage.clear() removed the
+      // buyer-session entry too, so re-establish it before re-qualifying.
+      buyerSession.signIn({ identifier: "buyer@example.com", method: "email" });
       act(() => {
         setQualified(true, name);
       });
@@ -74,7 +74,6 @@ describe("AccessLevelBanner — supplier-approval toast", () => {
       expect(successSpy, `name=${JSON.stringify(name)}`).toHaveBeenCalledTimes(1);
       const description = String(successSpy.mock.calls[0]?.[1]?.description ?? "");
       expect(description).not.toContain("{company}");
-      // Fallback copy explicitly omits a supplier name.
       expect(description.toLowerCase()).not.toContain("nordic");
       unmount();
     }
