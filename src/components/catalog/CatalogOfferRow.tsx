@@ -234,7 +234,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   const MoqLine = (
     <p className="text-xs text-muted-foreground">
       <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-      <span className="font-semibold text-foreground">{primaryMoq}</span>
+      <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
+        {primaryMoq}
+      </span>
     </p>
   );
 
@@ -260,9 +262,13 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
                 key={i}
                 className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 leading-tight tabular-nums"
               >
-                <span className="font-semibold text-foreground">{vb.priceRange}</span>
+                <span className="whitespace-nowrap font-semibold text-foreground">
+                  {vb.priceRange}
+                </span>
                 <span aria-hidden className="text-muted-foreground/60">·</span>
-                <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+                <span className="whitespace-nowrap text-muted-foreground">
+                  {normalizeMoq(vb.minQty, lang).display}
+                </span>
               </li>
             ))}
           </ul>
@@ -294,7 +300,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       {hasVolumeBreaks && moqSummary ? (
         <p className="text-xs text-muted-foreground" data-testid="catalog-row-moq-summary">
           <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
-          <span className="font-semibold text-foreground">{moqSummary}</span>
+          <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
+            {moqSummary}
+          </span>
         </p>
       ) : (
         MoqLine
@@ -312,7 +320,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             >
               <span
                 className={cn(
-                  "font-semibold",
+                  "whitespace-nowrap font-semibold",
                   level === "qualified_unlocked"
                     ? "text-foreground"
                     : "text-muted-foreground blur-[3px] select-none",
@@ -322,7 +330,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
                 {vb.priceRange}
               </span>
               <span aria-hidden className="text-muted-foreground/60">·</span>
-              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+              <span className="whitespace-nowrap text-muted-foreground">
+                {normalizeMoq(vb.minQty, lang).display}
+              </span>
             </li>
           ))}
         </ul>

@@ -71,13 +71,25 @@ describe("lib/moq — normalizeMoq", () => {
     const r = normalizeMoq("MOQ: ask supplier", "en");
     expect(r.display).toBe("ask supplier");
   });
+
+  it("uses NBSP between number and unit so they never split across lines", () => {
+    expect(normalizeMoq("1,000 kg", "en").display).toBe("1,000\u00a0kg");
+    expect(normalizeMoq(2500, "en").display).toBe("2,500\u00a0kg");
+    expect(normalizeMoq("20,000+ kg", "en").display).toBe("20,000+\u00a0kg");
+  });
+
+  it("uses NBSP around the en-dash in ranges", () => {
+    expect(normalizeMoq("1,000 – 4,999 kg", "en").display).toBe(
+      "1,000\u00a0–\u00a04,999\u00a0kg",
+    );
+  });
 });
 
 import { summarizeMoqRange } from "@/lib/moq";
 
 describe("lib/moq — summarizeMoqRange", () => {
   it("collapses single tier to one value", () => {
-    expect(summarizeMoqRange(["1,000 kg"], "en")).toBe("1,000 kg");
+    expect(summarizeMoqRange(["1,000 kg"], "en")).toBe("1,000\u00a0kg");
   });
 
   it("returns lowest min – highest max across tiers", () => {
@@ -103,5 +115,10 @@ describe("lib/moq — summarizeMoqRange", () => {
   it("localizes thousands separators (ru)", () => {
     const out = summarizeMoqRange(["1,000 – 4,999 kg", "20,000+ kg"], "ru");
     expect(out?.replace(/\u00a0|\u202f/g, " ")).toBe("1 000 – 20 000+ kg");
+  });
+
+  it("uses NBSP around dash and before unit so the range stays a single block", () => {
+    const out = summarizeMoqRange(["1,000 – 4,999 kg", "20,000+ kg"], "en");
+    expect(out).toBe("1,000\u00a0–\u00a020,000+\u00a0kg");
   });
 });
