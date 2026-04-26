@@ -1,12 +1,37 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Lock, ShieldCheck, KeyRound } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
+import { mockOffers } from "@/data/mockOffers";
+
+// Mock: which supplier "approved" the price access. In real backend
+// this would come from the approval payload itself.
+const MOCK_APPROVING_COMPANY = mockOffers[0]?.supplierName ?? "Nordic Seafood AS";
 
 export const AccessLevelBanner = () => {
   const { t } = useLanguage();
   const { level, setQualified } = useAccessLevel();
+  const prevLevel = useRef(level);
+
+  // Notify the buyer once when supplier access flips to qualified_unlocked.
+  useEffect(() => {
+    if (
+      prevLevel.current !== "qualified_unlocked" &&
+      level === "qualified_unlocked"
+    ) {
+      toast.success(t.catalog_access_granted_toast_title, {
+        description: t.catalog_access_granted_toast_body.replace(
+          "{company}",
+          MOCK_APPROVING_COMPANY,
+        ),
+        duration: 6000,
+      });
+    }
+    prevLevel.current = level;
+  }, [level, t]);
 
   if (level === "qualified_unlocked") {
     return (
