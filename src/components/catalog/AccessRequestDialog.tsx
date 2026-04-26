@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { submitAccessRequest, type AccessRequestScope } from "@/lib/catalog-requests";
+import { simulateSupplierApproval } from "@/lib/supplier-approval";
 import analytics from "@/lib/analytics";
 
 type Props = {
