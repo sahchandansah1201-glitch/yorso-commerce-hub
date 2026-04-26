@@ -316,7 +316,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
             >
               <span
                 className={cn(
-                  "font-semibold",
+                  "whitespace-nowrap font-semibold",
                   level === "qualified_unlocked"
                     ? "text-foreground"
                     : "text-muted-foreground blur-[3px] select-none",
@@ -326,7 +326,9 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
                 {vb.priceRange}
               </span>
               <span aria-hidden className="text-muted-foreground/60">·</span>
-              <span className="text-muted-foreground">{normalizeMoq(vb.minQty, lang).display}</span>
+              <span className="whitespace-nowrap text-muted-foreground">
+                {normalizeMoq(vb.minQty, lang).display}
+              </span>
             </li>
           ))}
         </ul>
