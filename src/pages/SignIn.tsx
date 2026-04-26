@@ -114,11 +114,13 @@ const SignIn = () => {
     e.preventDefault();
     if (!forgotEmail) { toast.error(t.signin_enterEmail); return; }
     setForgotLoading(true);
-    const result = await authApi.requestPasswordReset({ email: forgotEmail });
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
     setForgotLoading(false);
-    if (isApiError(result)) {
-      toast.error(t.signin_couldNotSendLink, { description: getErrorMessage(result.code) });
-      analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
+    if (error) {
+      toast.error(t.signin_couldNotSendLink, { description: error.message });
+      analytics.track("api_error", { endpoint: "auth/password/reset", code: "reset_failed" });
       return;
     }
     analytics.track("forgot_password", { email: forgotEmail });
