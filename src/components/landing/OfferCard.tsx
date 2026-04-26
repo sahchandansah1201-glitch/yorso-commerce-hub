@@ -38,24 +38,35 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   return (
     <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+        {/* Blurred backdrop fills the frame so vertical and horizontal photos
+            both look presentable. The same image is rendered twice: once
+            blown up + blurred behind, once contained in the foreground. */}
+        <img
+          src={offer.image}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
+        />
+        <div className="absolute inset-0 bg-background/20" aria-hidden="true" />
         <img
           src={offer.image}
           alt={offer.productName}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          className="relative h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
           onError={(e) => {
             const target = e.currentTarget;
             target.onerror = null;
             target.src = "/placeholder.svg";
           }}
         />
-        <div className="absolute left-2 top-2">
+        <div className="absolute left-2 top-2 z-10">
           <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
             <Clock className="h-3 w-3 text-primary" />
             {translateFreshness(offer.freshness, t)}
           </span>
         </div>
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-2 top-2 z-10">
           <span className="inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-[10px] font-semibold text-foreground backdrop-blur-sm">
             <span>{offer.originFlag}</span>
             {offer.origin}
