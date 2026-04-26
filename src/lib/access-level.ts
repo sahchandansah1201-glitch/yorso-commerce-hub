@@ -4,16 +4,22 @@
  * Three explicit UI-visible access states. No backend yet:
  *   anonymous_locked   — no buyer session
  *   registered_locked  — buyer session exists, not yet qualified
- *   qualified_unlocked — buyer session + mock-qualified flag
+ *   qualified_unlocked — buyer session + supplier-approved access
  *
- * Mock qualification:
- *   - URL flag `?qualified=1` qualifies the current session for the visit
- *   - Stored in sessionStorage under `yorso_buyer_qualified` (per-tab, mock-only)
- *   - Dev override via AccessLevelSwitcher writes the same key
+ * Approval payload (mock):
+ *   When a supplier approves price access, we persist a small payload
+ *   describing WHO approved it. Today this is mocked client-side; when
+ *   the real API exists, the same shape will arrive from the backend.
  *
- * Backend-readiness: when real qualification API exists, replace the body
- * of `useAccessLevel` and `setQualified` with API-driven state. The
- * surface contract (3 string states) does not need to change.
+ *   {
+ *     companyName: string;   // supplier company name from supplier profile
+ *     approvedAt: string;    // ISO timestamp
+ *   }
+ *
+ * Storage:
+ *   - sessionStorage key `yorso_buyer_qualification` holds the payload
+ *   - URL flag `?qualified=1` (DEV only) writes a stub payload
+ *   - Dev override via AccessLevelSwitcher writes a stub payload
  */
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -21,63 +27,112 @@ import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
 export type AccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
 
-const QUALIFIED_KEY = "yorso_buyer_qualified";
+export interface QualificationPayload {
+  companyName: string;
+  approvedAt: string;
+}
 
-const readQualified = (): boolean => {
-  if (typeof window === "undefined") return false;
+const QUALIFICATION_KEY = "yorso_buyer_qualification";
+// Legacy boolean flag — read for backwards compatibility, but never written.
+const LEGACY_KEY = "yorso_buyer_qualified";
+const EVENT = "yorso:qualified-change";
+
+const readQualification = (): QualificationPayload | null => {
+  if (typeof window === "undefined") return null;
   try {
-    return sessionStorage.getItem(QUALIFIED_KEY) === "1";
+    const raw = sessionStorage.getItem(QUALIFICATION_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as QualificationPayload;
+      if (parsed && typeof parsed.companyName === "string") return parsed;
+    }
+    // Legacy boolean — upgrade to a stub payload so existing tabs keep working.
+    if (sessionStorage.getItem(LEGACY_KEY) === "1") {
+      return { companyName: "", approvedAt: new Date().toISOString() };
+    }
+    return null;
   } catch {
-    return false;
+    return null;
   }
 };
 
-const writeQualified = (value: boolean) => {
+const writeQualification = (payload: QualificationPayload | null) => {
   if (typeof window === "undefined") return;
   try {
-    if (value) sessionStorage.setItem(QUALIFIED_KEY, "1");
-    else sessionStorage.removeItem(QUALIFIED_KEY);
+    if (payload) {
+      sessionStorage.setItem(QUALIFICATION_KEY, JSON.stringify(payload));
+    } else {
+      sessionStorage.removeItem(QUALIFICATION_KEY);
+      sessionStorage.removeItem(LEGACY_KEY);
+    }
   } catch {
     /* ignore */
   }
-  window.dispatchEvent(new CustomEvent("yorso:qualified-change"));
+  window.dispatchEvent(new CustomEvent(EVENT));
 };
 
-export const setQualified = (value: boolean) => writeQualified(value);
-export const isQualifiedMock = (): boolean => readQualified();
+/**
+ * Imperative setter (non-hook). When `companyName` is omitted, an empty
+ * string is stored — the UI should treat that as "approved, supplier name
+ * not provided" and fall back to a generic message.
+ */
+export const setQualified = (
+  value: boolean,
+  companyName?: string,
+) => {
+  if (!value) {
+    writeQualification(null);
+    return;
+  }
+  writeQualification({
+    companyName: companyName ?? "",
+    approvedAt: new Date().toISOString(),
+  });
+};
+
+export const isQualifiedMock = (): boolean => readQualification() !== null;
+export const readQualificationPayload = (): QualificationPayload | null =>
+  readQualification();
 
 export const useAccessLevel = (): {
   level: AccessLevel;
   isSignedIn: boolean;
   isQualified: boolean;
-  setQualified: (v: boolean) => void;
+  qualification: QualificationPayload | null;
+  setQualified: (v: boolean, companyName?: string) => void;
 } => {
   const { isSignedIn } = useBuyerSession();
   const location = useLocation();
-  const [qualified, setQualifiedState] = useState<boolean>(() => readQualified());
+  const [qualification, setQualificationState] = useState<QualificationPayload | null>(
+    () => readQualification(),
+  );
 
-  // Dev-only URL override. In production builds, the `?qualified` flag is
-  // ignored so ordinary users cannot self-upgrade their access level via URL.
+  // Dev-only URL override. In production builds the `?qualified` flag is
+  // ignored so ordinary users cannot self-upgrade their access via URL.
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const params = new URLSearchParams(location.search);
     const flag = params.get("qualified");
-    if (flag === "1" && !readQualified()) {
-      writeQualified(true);
-      setQualifiedState(true);
-    } else if (flag === "0" && readQualified()) {
-      writeQualified(false);
-      setQualifiedState(false);
+    if (flag === "1" && !readQualification()) {
+      const payload: QualificationPayload = {
+        companyName: params.get("supplier") ?? "",
+        approvedAt: new Date().toISOString(),
+      };
+      writeQualification(payload);
+      setQualificationState(payload);
+    } else if (flag === "0" && readQualification()) {
+      writeQualification(null);
+      setQualificationState(null);
     }
   }, [location.search]);
 
-  // Subscribe to in-tab changes from the dev switcher.
+  // Subscribe to in-tab changes (dev switcher, other components).
   useEffect(() => {
-    const onChange = () => setQualifiedState(readQualified());
-    window.addEventListener("yorso:qualified-change", onChange);
-    return () => window.removeEventListener("yorso:qualified-change", onChange);
+    const onChange = () => setQualificationState(readQualification());
+    window.addEventListener(EVENT, onChange);
+    return () => window.removeEventListener(EVENT, onChange);
   }, []);
 
+  const qualified = qualification !== null;
   let level: AccessLevel = "anonymous_locked";
   if (isSignedIn && qualified) level = "qualified_unlocked";
   else if (isSignedIn) level = "registered_locked";
@@ -86,9 +141,10 @@ export const useAccessLevel = (): {
     level,
     isSignedIn,
     isQualified: qualified,
-    setQualified: (v) => {
-      writeQualified(v);
-      setQualifiedState(v);
+    qualification,
+    setQualified: (v, companyName) => {
+      setQualified(v, companyName);
+      setQualificationState(readQualification());
     },
   };
 };
