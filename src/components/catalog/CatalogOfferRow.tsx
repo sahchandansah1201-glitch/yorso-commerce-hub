@@ -623,11 +623,12 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         // takes the rest. Price/supplier wraps full-width via col-span-2.
         "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)] sm:gap-5 sm:p-5",
         // Desktop (1024–1279): three columns. Middle column (product identity
-        // + deal terms) gets ~20% more room; price column trimmed accordingly.
-        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1.2fr)_minmax(220px,240px)] lg:gap-6 lg:p-6",
+        // + deal terms) widened by another ~10% on top of the previous +20%;
+        // price column trimmed accordingly.
+        "lg:grid-cols-[minmax(220px,260px)_minmax(0,1.32fr)_minmax(210px,228px)] lg:gap-6 lg:p-6",
         // XL (≥1280): give the image more room and widen the content column
         // so long product names breathe instead of clamping.
-        "xl:grid-cols-[300px_minmax(0,1.93fr)_minmax(240px,270px)] xl:gap-8",
+        "xl:grid-cols-[300px_minmax(0,2.12fr)_minmax(228px,256px)] xl:gap-8",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "border-border hover:border-primary/40",
