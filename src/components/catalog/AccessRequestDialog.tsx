@@ -53,6 +53,10 @@ export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
       scopes: selected,
       hasNote: note.trim().length > 0,
     });
+    // Mock-only: simulate the supplier approving the request shortly
+    // after. When the real backend exists, the approval payload will
+    // arrive via webhook/realtime and call applySupplierApproval directly.
+    simulateSupplierApproval({ delayMs: 2500 });
     setSubmitted(true);
   };
 
