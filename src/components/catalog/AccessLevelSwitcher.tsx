@@ -1,6 +1,7 @@
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import { resolveSupplierCompanyName } from "@/lib/supplier-approval";
 
 /**
  * Demo control to switch through the 3 access levels without going through
@@ -21,7 +22,7 @@ export const AccessLevelSwitcher = () => {
   };
   const setQual = () => {
     if (!isSignedIn) signIn({ identifier: "demo@yorso.test", method: "email" });
-    setQualified(true);
+    setQualified(true, resolveSupplierCompanyName());
   };
 
   const baseBtn = "rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors";

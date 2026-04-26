@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { submitAccessRequest, type AccessRequestScope } from "@/lib/catalog-requests";
+import { simulateSupplierApproval } from "@/lib/supplier-approval";
 import analytics from "@/lib/analytics";
 
 type Props = {
@@ -52,6 +53,10 @@ export const AccessRequestDialog = ({ open, onOpenChange }: Props) => {
       scopes: selected,
       hasNote: note.trim().length > 0,
     });
+    // Mock-only: simulate the supplier approving the request shortly
+    // after. When the real backend exists, the approval payload will
+    // arrive via webhook/realtime and call applySupplierApproval directly.
+    simulateSupplierApproval({ delayMs: 2500 });
     setSubmitted(true);
   };
 
