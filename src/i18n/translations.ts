@@ -603,6 +603,8 @@ type TranslationKeys = {
   catalog_access_reg_cta: string;
   catalog_access_qual_title: string;
   catalog_access_qual_body: string;
+  catalog_access_granted_toast_title: string;
+  catalog_access_granted_toast_body: string;
   catalog_access_devSwitcher_label: string;
   catalog_access_devSwitcher_anon: string;
   catalog_access_devSwitcher_reg: string;
