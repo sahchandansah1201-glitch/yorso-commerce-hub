@@ -122,10 +122,101 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    /*
+     * Body baseline = 14px (text-sm). Matches the catalog workspace
+     * (CatalogOfferRow uses text-sm / text-xs as the dominant flow text)
+     * so every page inherits the same dense, professional B2B feel
+     * instead of the looser 16px default.
+     */
+    @apply text-sm leading-relaxed;
   }
 
+  /*
+   * Global heading scale — the contract from the procurement workspace,
+   * applied site-wide. Pages can still override per-element with Tailwind
+   * size utilities (utilities always win over base via @layer order).
+   *
+   * Scale (mobile → desktop):
+   *   h1  text-3xl  → text-4xl     (page title)
+   *   h2  text-2xl  → text-[28px]  (section title)
+   *   h3  text-lg   → text-xl      (subsection / card title)
+   *   h4  text-base → text-[17px]  (small heading)
+   *   h5  text-sm                  (label heading)
+   *   h6  text-xs uppercase
+   */
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply text-foreground;
+  }
+  h1 {
+    @apply font-heading text-3xl md:text-4xl font-bold leading-tight tracking-tight;
+  }
+  h2 {
+    @apply font-heading text-2xl md:text-[28px] font-semibold leading-tight tracking-tight;
+  }
+  h3 {
+    @apply font-heading text-lg md:text-xl font-semibold leading-snug;
+  }
+  h4 {
+    @apply font-heading text-base md:text-[17px] font-semibold leading-snug;
+  }
+  h5 {
+    @apply font-heading text-sm font-semibold leading-snug;
+  }
+  h6 {
+    @apply font-heading text-xs font-semibold uppercase tracking-wide leading-snug;
+  }
+
+  p {
+    @apply text-sm leading-relaxed;
+  }
+  small {
+    @apply text-xs text-muted-foreground;
+  }
+}
+
+@layer components {
+  /*
+   * Semantic typography tokens — use these in new code instead of
+   * hard-coded text-[17px] / text-[19px] etc. They mirror the catalog
+   * workspace contract so the whole site reads as one product.
+   *
+   *   .text-display       — landing hero / very large numbers
+   *   .text-page-title    — h1 inside main content
+   *   .text-section-title — h2 inside a page section
+   *   .text-card-title    — h3 inside a card / row
+   *   .text-body          — default paragraph (14px)
+   *   .text-body-lg       — slightly larger reading body (15-16px)
+   *   .text-meta          — secondary metadata (12px muted)
+   *   .text-micro         — micro labels / signal chips (11→12px)
+   *   .text-numeric       — prominent numeric value (price, kpi)
+   */
+  .text-display {
+    @apply font-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight;
+  }
+  .text-page-title {
+    @apply font-heading text-3xl md:text-4xl font-bold leading-tight tracking-tight;
+  }
+  .text-section-title {
+    @apply font-heading text-2xl md:text-[28px] font-semibold leading-tight tracking-tight;
+  }
+  .text-card-title {
+    @apply font-heading text-base sm:text-[17px] lg:text-[18px] font-semibold leading-tight;
+  }
+  .text-body {
+    @apply text-sm leading-relaxed;
+  }
+  .text-body-lg {
+    @apply text-[15px] md:text-base leading-relaxed;
+  }
+  .text-meta {
+    @apply text-xs text-muted-foreground leading-snug;
+  }
+  .text-micro {
+    @apply text-[11px] sm:text-xs leading-snug;
+  }
+  .text-numeric {
+    @apply font-heading text-base sm:text-[17px] lg:text-[19px] font-bold tabular-nums;
   }
 }
 
