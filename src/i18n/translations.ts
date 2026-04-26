@@ -603,6 +603,8 @@ type TranslationKeys = {
   catalog_access_reg_cta: string;
   catalog_access_qual_title: string;
   catalog_access_qual_body: string;
+  catalog_access_granted_toast_title: string;
+  catalog_access_granted_toast_body: string;
   catalog_access_devSwitcher_label: string;
   catalog_access_devSwitcher_anon: string;
   catalog_access_devSwitcher_reg: string;
@@ -1552,6 +1554,8 @@ const en: TranslationKeys = {
   catalog_access_reg_cta: "Request qualification",
   catalog_access_qual_title: "Full procurement access",
   catalog_access_qual_body: "You can see exact prices, supplier contacts and the full intelligence layer. Use it for live procurement decisions.",
+  catalog_access_granted_toast_title: "Price access granted",
+  catalog_access_granted_toast_body: "Supplier {company} has approved your request. Exact prices and contacts are now visible.",
   catalog_access_devSwitcher_label: "Demo access level",
   catalog_access_devSwitcher_anon: "Anonymous",
   catalog_access_devSwitcher_reg: "Registered",
@@ -2472,6 +2476,8 @@ const ru: TranslationKeys = {
   catalog_access_reg_cta: "Запросить квалификацию",
   catalog_access_qual_title: "Полный закупочный доступ",
   catalog_access_qual_body: "Доступны точные цены, контакты поставщиков и полный аналитический слой. Используйте для рабочих закупочных решений.",
+  catalog_access_granted_toast_title: "Предоставлен доступ к ценам",
+  catalog_access_granted_toast_body: "Поставщик {company} одобрил ваш запрос. Точные цены и контакты теперь доступны.",
   catalog_access_devSwitcher_label: "Демо-уровень доступа",
   catalog_access_devSwitcher_anon: "Аноним",
   catalog_access_devSwitcher_reg: "Зарегистрирован",
@@ -3392,6 +3398,8 @@ const es: TranslationKeys = {
   catalog_access_reg_cta: "Solicitar calificación",
   catalog_access_qual_title: "Acceso completo de aprovisionamiento",
   catalog_access_qual_body: "Tienes precios exactos, contactos de proveedores y la capa completa de inteligencia. Úsala para decisiones de compra reales.",
+  catalog_access_granted_toast_title: "Acceso a precios concedido",
+  catalog_access_granted_toast_body: "El proveedor {company} ha aprobado tu solicitud. Los precios exactos y contactos ya están disponibles.",
   catalog_access_devSwitcher_label: "Nivel de acceso demo",
   catalog_access_devSwitcher_anon: "Anónimo",
   catalog_access_devSwitcher_reg: "Registrado",
