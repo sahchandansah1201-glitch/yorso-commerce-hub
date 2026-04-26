@@ -16,6 +16,7 @@ import RegisterCountries from "./pages/register/RegisterCountries.tsx";
 import RegisterReady from "./pages/register/RegisterReady.tsx";
 import { RegistrationProvider } from "./contexts/RegistrationContext.tsx";
 import SignIn from "./pages/SignIn.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import Offers from "./pages/Offers.tsx";
 import OfferDetail from "./pages/OfferDetail.tsx";
 import About from "./pages/About.tsx";
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/register/countries" element={<RegisterCountries />} />
                 <Route path="/register/ready" element={<RegisterReady />} />
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/offers/:id" element={<OfferDetail />} />
                 <Route path="/about" element={<About />} />
