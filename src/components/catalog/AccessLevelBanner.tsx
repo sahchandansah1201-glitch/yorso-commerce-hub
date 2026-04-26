@@ -5,27 +5,62 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
-import { simulateSupplierApproval, resolveSupplierCompanyName } from "@/lib/supplier-approval";
+import { simulateSupplierApproval } from "@/lib/supplier-approval";
+
+// Per-tab dedup: remember which approval payload (by approvedAt) we've
+// already announced so re-mounts and duplicate webhook deliveries don't
+// re-fire the toast.
+const ANNOUNCED_KEY = "yorso_qualification_announced_at";
+
+const wasAnnounced = (approvedAt: string): boolean => {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(ANNOUNCED_KEY) === approvedAt;
+  } catch {
+    return false;
+  }
+};
+
+const markAnnounced = (approvedAt: string) => {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(ANNOUNCED_KEY, approvedAt);
+  } catch {
+    /* ignore */
+  }
+};
 
 export const AccessLevelBanner = () => {
   const { t } = useLanguage();
   const { level, qualification } = useAccessLevel();
-  const prevLevel = useRef(level);
+  const announcedRef = useRef<string | null>(null);
 
-  // Notify the buyer once when supplier access flips to qualified_unlocked.
-  // The supplier company name comes from the approval payload itself.
+  // Notify the buyer when supplier access flips to qualified_unlocked.
+  // Dedup logic:
+  //   - Skip if this exact approval payload (same approvedAt) was already
+  //     announced in this tab — handles re-mounts and re-deliveries.
+  //   - Skip if we already announced this payload during the current
+  //     component lifetime — handles rapid state thrashing.
   useEffect(() => {
-    if (
-      prevLevel.current !== "qualified_unlocked" &&
-      level === "qualified_unlocked"
-    ) {
-      const company = qualification?.companyName?.trim() || resolveSupplierCompanyName();
-      toast.success(t.catalog_access_granted_toast_title, {
-        description: t.catalog_access_granted_toast_body.replace("{company}", company),
-        duration: 6000,
-      });
+    if (level !== "qualified_unlocked" || !qualification) return;
+    const { approvedAt, companyName } = qualification;
+    if (announcedRef.current === approvedAt) return;
+    if (wasAnnounced(approvedAt)) {
+      announcedRef.current = approvedAt;
+      return;
     }
-    prevLevel.current = level;
+
+    const trimmed = companyName?.trim();
+    const description = trimmed
+      ? t.catalog_access_granted_toast_body.replace("{company}", trimmed)
+      : t.catalog_access_granted_toast_body_fallback;
+
+    toast.success(t.catalog_access_granted_toast_title, {
+      description,
+      duration: 6000,
+    });
+    markAnnounced(approvedAt);
+    announcedRef.current = approvedAt;
   }, [level, qualification, t]);
 
   if (level === "qualified_unlocked") {

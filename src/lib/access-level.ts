@@ -63,6 +63,8 @@ const writeQualification = (payload: QualificationPayload | null) => {
     } else {
       sessionStorage.removeItem(QUALIFICATION_KEY);
       sessionStorage.removeItem(LEGACY_KEY);
+      // Clear the toast-announced marker so the next approval announces.
+      sessionStorage.removeItem("yorso_qualification_announced_at");
     }
   } catch {
     /* ignore */
