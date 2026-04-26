@@ -637,9 +637,15 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       {/* 1. Media */}
       <PhotoGallery offer={offer} />
 
-      {/* 2. Product identity */}
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-5">
-        <div>
+      {/* 2. Product identity
+          Vertical rhythm: header block reserves ~2 lines so cards with a
+          short name align with cards whose title wraps. Certifications
+          row reserves 1 row of badge height so the deal-terms strip below
+          starts at the same Y-coordinate across the catalog. Signals are
+          pinned to the bottom via mt-auto. A single space-y replaces the
+          mix of gap + per-divider padding so vertical gaps are consistent. */}
+      <div className="flex min-w-0 flex-col">
+        <div className="min-h-[42px] sm:min-h-[44px]">
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
@@ -656,13 +662,15 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           </p>
         </div>
 
-        <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
+        <div className="mt-4 lg:mt-5 min-h-[28px]">
+          <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
+        </div>
 
-        <div className="border-t border-border/60 pt-3 lg:pt-4">
+        <div className="mt-4 lg:mt-5 border-t border-border/60 pt-4 lg:pt-5">
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 lg:pt-5 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
