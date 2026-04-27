@@ -295,7 +295,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       <Sheet open={allOpen} onOpenChange={setAllOpen}>
         <SheetContent
           side="bottom"
-          className="flex h-[90vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
+          className="flex h-[90vh] flex-col gap-0 rounded-t-2xl p-0 transform-gpu will-change-transform ease-out data-[state=open]:duration-300 data-[state=closed]:duration-200 [&>button]:hidden"
           data-testid="catalog-pill-all-sheet"
         >
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-border px-3 py-3">
