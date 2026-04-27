@@ -606,4 +606,8 @@ const MobileOfferCard = ({
   );
 };
 
-export default MobileOfferCard;
+// Memoize to skip re-renders when the parent re-renders but this offer's
+// props are unchanged (e.g. another row gets selected). The default shallow
+// compare is enough since `offer` is a stable reference from mock data and
+// callbacks come from a parent useCallback.
+export default memo(MobileOfferCard);
