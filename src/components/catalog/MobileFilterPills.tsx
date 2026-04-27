@@ -117,8 +117,8 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
   return (
     <>
       {/* Top bar: square icon (search/all-filters) + scrolling pills + Filters button */}
-      <div className="flex items-start gap-2">
-        <div className="flex flex-1 items-center gap-2 min-w-0">
+      <div className="flex w-full min-w-0 items-start gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           <button
             type="button"
             onClick={() => setAllOpen(true)}
@@ -129,7 +129,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
             <Search className="h-4 w-4" />
           </button>
           <div
-            className="-mr-4 flex flex-1 gap-2 overflow-x-auto pr-4 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="flex min-w-0 flex-1 gap-2 overflow-x-auto scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             role="tablist"
             aria-label={t.catalog_filtersBar_title}
             data-testid="catalog-mobile-filter-pills"
