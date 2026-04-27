@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
@@ -59,25 +59,55 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   //   360–479 px        10 %    reference design (iPhone 12/13/14, Pixel 5)
   //   480–639 px        12 %    large phones / phablets / split tablet panes
   //   ≥ 640 px          14 %    tablet portrait, single-column wide layouts
-  const [containerW, setContainerW] = useState(0);
-  useEffect(() => {
+  // `null` until we've measured the scroller. Using `null` (not `0`) is
+  // important: a 0 would silently fall into the smallest breakpoint and
+  // render with the wrong slide width on the very first paint, then jump
+  // when the real width arrives. While `null`, we render a height-stable
+  // placeholder (no slides) and skip snap math entirely.
+  const [containerW, setContainerW] = useState<number | null>(null);
+
+  // useLayoutEffect: measure synchronously after DOM mount, before paint.
+  // This avoids a one-frame flash with the wrong slide width that a plain
+  // useEffect would cause.
+  useLayoutEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
-    setContainerW(el.clientWidth);
+    setContainerW(el.clientWidth || null);
     const ro = new ResizeObserver((entries) => {
-      const w = entries[0]?.contentRect.width ?? el.clientWidth;
-      setContainerW(Math.round(w));
+      const w = Math.round(entries[0]?.contentRect.width ?? el.clientWidth);
+      // Ignore intermediate 0-width reports (e.g. element temporarily
+      // hidden in a collapsed parent) — keep the last good value so the
+      // gallery doesn't collapse and re-expand.
+      if (w > 0) setContainerW(w);
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const peekFraction =
-    containerW >= 640 ? 0.14
-    : containerW >= 480 ? 0.12
-    : containerW >= 360 ? 0.10
+
+  const measured = containerW !== null && containerW > 0;
+  const peekFraction = !measured
+    ? 0.10 // safe default for snap math; only used after measurement anyway
+    : containerW! >= 640 ? 0.14
+    : containerW! >= 480 ? 0.12
+    : containerW! >= 360 ? 0.10
     : 0.08;
-  const slideFraction = 1 - peekFraction; // 0.92 / 0.90 / 0.88 / 0.86
+  const slideFraction = 1 - peekFraction;
   const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
+
+  // When the breakpoint changes (e.g. user rotates device, layout reflows),
+  // re-anchor the scroll position to the currently-active slide so the
+  // active photo stays active and the peek lines up with the new fraction.
+  useLayoutEffect(() => {
+    const el = scrollerRef.current;
+    if (!el || !measured || !hasMultiple) return;
+    const target = activeIdx * el.clientWidth * slideFraction;
+    if (Math.abs(el.scrollLeft - target) > 1) {
+      el.scrollTo({ left: target, behavior: "auto" });
+    }
+    // We intentionally exclude `activeIdx` — this effect only fires on
+    // breakpoint/width changes, not on every user swipe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slideFraction, measured, hasMultiple]);
 
   // Per-image orientation + load state. Lets the gallery pick a container
   // aspect ratio that fits ALL slides (4:5 if any portrait, otherwise 4:3),
@@ -104,7 +134,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
   useEffect(() => {
     const el = scrollerRef.current;
-    if (!el || !hasMultiple) return;
+    if (!el || !hasMultiple || !measured) return;
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
@@ -122,7 +152,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [hasMultiple, images.length, slideFraction]);
+  }, [hasMultiple, images.length, slideFraction, measured]);
 
   const trend = getPriceTrend(offer.category);
   const TrendIcon = trend
@@ -209,7 +239,11 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             return (
               <div
                 key={i}
-                style={hasMultiple ? { width: slideWidthPct } : undefined}
+                style={
+                  hasMultiple
+                    ? { width: slideWidthPct, transition: "width 120ms ease-out" }
+                    : undefined
+                }
                 className={cn(
                   // Snap target — width is `slideWidthPct` of the scroller
                   // (responsive, see peekFraction table above). The right
@@ -219,6 +253,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                   "relative shrink-0 snap-start",
                   !hasMultiple && "w-full",
                   hasMultiple && !isLast && "pr-[1.5%]",
+                  // Hide slides until we know the real container width so a
+                  // wrong-width first paint never flashes. Layout (height /
+                  // aspect ratio) is preserved, only paint is suppressed.
+                  hasMultiple && !measured && "invisible",
                 )}
               >
                 <div
