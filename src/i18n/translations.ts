@@ -1548,6 +1548,7 @@ const en: TranslationKeys = {
   catalog_filters_paymentTerms: "Payment terms",
   catalog_filters_state: "Product state",
   catalog_filters_cutType: "Cut type",
+  catalog_filters_latinName: "Latin name",
   catalog_filters_advanced: "Advanced filters",
   catalog_filters_any: "Any",
   catalog_filters_all: "All",
