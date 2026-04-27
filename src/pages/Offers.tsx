@@ -8,6 +8,7 @@ import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
+import MobileFilterPills from "@/components/catalog/MobileFilterPills";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 import MobileIntelDock from "@/components/catalog/MobileIntelDock";
