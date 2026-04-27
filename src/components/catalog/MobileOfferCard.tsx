@@ -170,17 +170,19 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
       <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
         {/* 2. Price first, with trend */}
-        <div className="flex items-baseline gap-2">
+        <div className="flex min-w-0 items-baseline gap-2">
           {exact ? (
-            <span className="font-heading text-lg font-bold text-foreground">
+            <span className="min-w-0 truncate font-heading text-lg font-bold text-foreground">
               {exact}
             </span>
           ) : (
-            <span className="font-heading text-lg font-bold text-foreground">{range}</span>
+            <span className="min-w-0 truncate font-heading text-lg font-bold text-foreground">
+              {range}
+            </span>
           )}
-          <span className="text-xs text-muted-foreground">{unit}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">{unit}</span>
           {TrendIcon && trend && (
-            <span className={cn("ml-auto inline-flex items-center gap-0.5 text-xs font-semibold", trendColor)}>
+            <span className={cn("ml-auto inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold", trendColor)}>
               <TrendIcon className="h-3.5 w-3.5" aria-hidden />
               {trend.d30.pct > 0 ? "+" : ""}
               {trend.d30.pct.toFixed(1)}%
