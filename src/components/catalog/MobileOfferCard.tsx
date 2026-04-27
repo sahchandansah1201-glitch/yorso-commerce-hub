@@ -107,13 +107,28 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   // When the breakpoint changes (e.g. user rotates device, layout reflows),
   // re-anchor the scroll position to the currently-active slide so the
   // active photo stays active and the peek lines up with the new fraction.
+  // We suppress the scroll listener for the duration of the programmatic
+  // jump so the dots indicator can't flicker through neighbouring indexes
+  // while the browser fires intermediate scroll events.
   useLayoutEffect(() => {
     const el = scrollerRef.current;
     if (!el || !measured || !hasMultiple) return;
-    const target = activeIdx * el.clientWidth * slideFraction;
-    if (Math.abs(el.scrollLeft - target) > 1) {
-      el.scrollTo({ left: target, behavior: "auto" });
-    }
+    const idx = activeIdxRef.current;
+    const target = idx * el.clientWidth * slideFraction;
+    if (Math.abs(el.scrollLeft - target) <= 1) return;
+
+    suppressIdxRef.current = true;
+    // behavior: "auto" (instant) — no animation means no intermediate scroll
+    // events the listener could mis-interpret.
+    el.scrollTo({ left: target, behavior: "auto" });
+    // Re-assert the active index in case React batched something stale,
+    // then release suppression on the next frame so legitimate user
+    // swipes are tracked normally again.
+    setActiveIdx(idx);
+    const raf = requestAnimationFrame(() => {
+      suppressIdxRef.current = false;
+    });
+    return () => cancelAnimationFrame(raf);
     // We intentionally exclude `activeIdx` — this effect only fires on
     // breakpoint/width changes, not on every user swipe.
     // eslint-disable-next-line react-hooks/exhaustive-deps
