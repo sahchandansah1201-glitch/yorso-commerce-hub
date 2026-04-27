@@ -149,28 +149,46 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
           )}
           style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
         >
-          {images.map((src, i) => (
-            <div
-              key={i}
-              className={cn(
-                "relative aspect-[4/3] shrink-0 snap-start bg-muted rounded-md overflow-hidden",
-                hasMultiple ? "w-[82%]" : "w-full",
-              )}
-            >
-              <img
-                src={src}
-                alt={offer.productName}
-                loading="lazy"
-                draggable={false}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-            </div>
-          ))}
+          {images.map((src, i) => {
+            const fitClass = isMixed ? "object-contain" : "object-cover";
+            const isLoaded = loaded[i] === true;
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "relative shrink-0 snap-start bg-muted rounded-md overflow-hidden",
+                  aspectClass,
+                  hasMultiple ? "w-[82%]" : "w-full",
+                )}
+              >
+                {!isLoaded && (
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
+                  />
+                )}
+                <img
+                  src={src}
+                  alt={offer.productName}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  draggable={false}
+                  onLoad={handleImgLoad(i)}
+                  className={cn(
+                    "h-full w-full transition-opacity duration-200",
+                    fitClass,
+                    isLoaded ? "opacity-100" : "opacity-0",
+                  )}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = "/placeholder.svg";
+                    setLoaded((prev) => ({ ...prev, [i]: true }));
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Origin badge */}
