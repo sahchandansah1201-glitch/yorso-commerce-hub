@@ -11,12 +11,57 @@ import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
 
+/**
+ * Peek profile presets — control how much of the next photo stays visible
+ * after a snap, broken down by container width breakpoint.
+ *
+ * Use this prop to quickly switch the visual rhythm for different card
+ * types or A/B experiments without touching the gallery internals.
+ *
+ *   profile      <360   360–479   480–639   ≥640    use case
+ *   ─────────    ─────  ───────   ───────   ─────   ──────────────────────
+ *   "tight"       6%      8%       10%      12%    info-dense rows, list view
+ *   "default"     8%     10%       12%      14%    standard procurement card
+ *   "loose"      10%     12%       14%      16%    hero / featured offers
+ *   "showcase"   12%     14%       16%      18%    marketing-heavy cards
+ */
+export type PeekProfile = "tight" | "default" | "loose" | "showcase";
+
+export type PeekBreakpoints = {
+  /** container width < 360 px */
+  xs: number;
+  /** 360–479 px */
+  sm: number;
+  /** 480–639 px */
+  md: number;
+  /** ≥ 640 px */
+  lg: number;
+};
+
+const PEEK_PROFILES: Record<PeekProfile, PeekBreakpoints> = {
+  tight:    { xs: 0.06, sm: 0.08, md: 0.10, lg: 0.12 },
+  default:  { xs: 0.08, sm: 0.10, md: 0.12, lg: 0.14 },
+  loose:    { xs: 0.10, sm: 0.12, md: 0.14, lg: 0.16 },
+  showcase: { xs: 0.12, sm: 0.14, md: 0.16, lg: 0.18 },
+};
+
 interface Props {
   offer: SeafoodOffer;
   isSelected: boolean;
   onSelect: (offerId: string) => void;
   forceLevel?: AccessLevel;
   isHighlighted?: boolean;
+  /**
+   * Named peek preset for the photo gallery. Defaults to "default".
+   * Use {@link peekBreakpoints} for a fully custom curve.
+   */
+  peekProfile?: PeekProfile;
+  /**
+   * Custom peek-fraction-per-breakpoint. Overrides {@link peekProfile}.
+   * Each value is a fraction in [0, 1) — e.g. 0.10 = 10% of the next slide
+   * visible after snap.
+   */
+  peekBreakpoints?: Partial<PeekBreakpoints>;
 }
 
 /**
