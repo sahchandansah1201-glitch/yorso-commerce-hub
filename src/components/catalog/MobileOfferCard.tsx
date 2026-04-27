@@ -47,6 +47,38 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Responsive peek: the % of the next photo that stays visible after a snap.
+  // We tune it per *container* width (not viewport) so it stays correct when
+  // the card lives in a narrower column. The goal is a constant visual rhythm
+  // — the peek strip should feel like ~32–48px on every device, not a random
+  // fraction of the screen.
+  //
+  //   container width   peek    rationale
+  //   ─────────────     ────    ──────────────────────────────────────────
+  //   < 360 px          8 %     keep the active photo dominant on tiny phones
+  //   360–479 px        10 %    reference design (iPhone 12/13/14, Pixel 5)
+  //   480–639 px        12 %    large phones / phablets / split tablet panes
+  //   ≥ 640 px          14 %    tablet portrait, single-column wide layouts
+  const [containerW, setContainerW] = useState(0);
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setContainerW(el.clientWidth);
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? el.clientWidth;
+      setContainerW(Math.round(w));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const peekFraction =
+    containerW >= 640 ? 0.14
+    : containerW >= 480 ? 0.12
+    : containerW >= 360 ? 0.10
+    : 0.08;
+  const slideFraction = 1 - peekFraction; // 0.92 / 0.90 / 0.88 / 0.86
+  const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
+
   // Per-image orientation + load state. Lets the gallery pick a container
   // aspect ratio that fits ALL slides (4:5 if any portrait, otherwise 4:3),
   // and show a skeleton until each slide actually loads — so card height
@@ -77,10 +109,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Slide width = 90% of container, no gap, no scroll-padding.
-        // → scrollLeft of slide N = N · 0.9 · clientWidth.
+        // scrollLeft of slide N = N · slideFraction · clientWidth.
         // Same formula on every device, no DPI/font drift.
-        const slideWidth = el.clientWidth * 0.9;
+        const slideWidth = el.clientWidth * slideFraction;
         if (slideWidth <= 0) return;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
@@ -91,7 +122,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [hasMultiple, images.length]);
+  }, [hasMultiple, images.length, slideFraction]);
 
   const trend = getPriceTrend(offer.category);
   const TrendIcon = trend
@@ -141,18 +172,18 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
     >
-      {/* 1. Photo with exact 10% peek-of-next.
+      {/* 1. Photo with responsive peek-of-next.
           Math model (resolution-independent):
             - container width = W
-            - each slide      = 0.9 · W   (className w-[90%])
+            - each slide      = slideFraction · W   (inline width %)
             - gap             = 0
             - scroll-padding  = 0
             - snap-align      = start
-          → after a snap, the active slide fills 90% of W and the next
-          slide's leading 10% is always visible on the right, regardless
-          of screen width, DPI, browser zoom, or font-size. We avoid px
-          gaps/paddings on purpose because they translate to a different
-          fraction of W on every device. */}
+          → after a snap, the active slide fills `slideFraction · W` and
+          the next slide's leading `peekFraction · W` is always visible.
+          peekFraction comes from the container-width breakpoints above
+          (8/10/12/14%) so the visual rhythm of the peek strip stays
+          comparable across phones, phablets and split tablet panes. */}
       <div className="relative pt-3">
         <div
           ref={scrollerRef}
@@ -178,14 +209,15 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             return (
               <div
                 key={i}
+                style={hasMultiple ? { width: slideWidthPct } : undefined}
                 className={cn(
-                  // Snap target — width is exactly 90% of the scroller.
-                  // The optional right padding is a *visual* gutter between
-                  // photos and is INSIDE the snap box, so it doesn't shift
-                  // the snap math. Last slide gets no gutter so it can sit
-                  // flush against the right edge after snap.
+                  // Snap target — width is `slideWidthPct` of the scroller
+                  // (responsive, see peekFraction table above). The right
+                  // padding is a *visual* gutter INSIDE the snap box, so it
+                  // doesn't shift the snap math. Last slide gets no gutter
+                  // so it can sit flush against the right edge.
                   "relative shrink-0 snap-start",
-                  hasMultiple ? "w-[90%]" : "w-full",
+                  !hasMultiple && "w-full",
                   hasMultiple && !isLast && "pr-[1.5%]",
                 )}
               >
