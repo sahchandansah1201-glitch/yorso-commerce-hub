@@ -195,35 +195,6 @@ export const IntelligenceRail = ({ category }: Props) => {
         </section>
       )}
 
-      {/* Country news */}
-      {news.length > 0 && (
-        <section className="rounded-lg border border-border bg-card p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t.catalog_intel_news_title}
-          </h3>
-          <ul className="mt-3 space-y-3">
-            {news.slice(0, isAnon ? 1 : isReg ? 2 : 5).map((n) => (
-              <li key={n.id} className="text-xs">
-                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <span aria-hidden>{n.countryFlag}</span>
-                  <span className="font-semibold text-foreground">{n.countryName}</span>
-                  <span>· {n.publishedAt}</span>
-                </div>
-                <p className="mt-0.5 font-medium leading-snug text-foreground">{n.headline}</p>
-                {(isReg || isQual) && (
-                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{n.summary}</p>
-                )}
-                {isQual && (
-                  <p className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-primary">
-                    <ExternalLink className="h-3 w-3" /> {n.source}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {/* Market signals */}
       {signals.length > 0 && (
         <section className="rounded-lg border border-border bg-card p-4">
@@ -304,6 +275,35 @@ export const IntelligenceRail = ({ category }: Props) => {
                 </li>
               );
             })}
+          </ul>
+        </section>
+      )}
+
+      {/* Country news */}
+      {news.length > 0 && (
+        <section className="rounded-lg border border-border bg-card p-4">
+          <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t.catalog_intel_news_title}
+          </h3>
+          <ul className="mt-3 space-y-3">
+            {news.slice(0, isAnon ? 1 : isReg ? 2 : 5).map((n) => (
+              <li key={n.id} className="text-xs">
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span aria-hidden>{n.countryFlag}</span>
+                  <span className="font-semibold text-foreground">{n.countryName}</span>
+                  <span>· {n.publishedAt}</span>
+                </div>
+                <p className="mt-0.5 font-medium leading-snug text-foreground">{n.headline}</p>
+                {(isReg || isQual) && (
+                  <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{n.summary}</p>
+                )}
+                {isQual && (
+                  <p className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-primary">
+                    <ExternalLink className="h-3 w-3" /> {n.source}
+                  </p>
+                )}
+              </li>
+            ))}
           </ul>
         </section>
       )}
