@@ -81,7 +81,35 @@ const fmtPct = (pct: number) => (pct > 0 ? `+${pct.toFixed(1)}%` : `${pct.toFixe
  */
 const MobileIntelDock = ({ offer }: Props) => {
   const { t, lang } = useLanguage();
-  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Initialise once from URL → localStorage → default. Lazy initialiser so we
+  // don't hit storage on every render.
+  const [state, setState] = useState<DockState>(() => readInitialState(location.search));
+  const open = state === "open";
+
+  // Persist to localStorage and reflect into URL (replaceState — no history
+  // entry per toggle). Skip URL update if value is already in sync to avoid
+  // redundant navigations during render-pass effects.
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, state);
+    } catch {
+      // ignore — storage may be disabled
+    }
+    const params = new URLSearchParams(location.search);
+    if (params.get(URL_PARAM) !== state) {
+      params.set(URL_PARAM, state);
+      navigate(
+        { pathname: location.pathname, search: `?${params.toString()}`, hash: location.hash },
+        { replace: true },
+      );
+    }
+    // We intentionally only react to `state` changes here; navigate/location
+    // are stable enough for our replaceState use-case.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   if (!offer) return null;
 
@@ -102,44 +130,57 @@ const MobileIntelDock = ({ offer }: Props) => {
       data-testid="catalog-mobile-intel-dock"
       className="sticky top-16 z-20 -mx-4 mb-3 border-y border-border bg-background/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:mx-0 sm:rounded-lg sm:border sm:px-3"
     >
-      {/* Mini-card header: which offer this analytics belongs to + toggle */}
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-          {offer.gallery?.[0]?.src ? (
-            <img
-              src={offer.gallery[0].src}
-              alt={offer.gallery[0].alt}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-          ) : null}
+      <Collapsible open={open} onOpenChange={(o) => setState(o ? "open" : "closed")}>
+        {/* Mini-card header: which offer this analytics belongs to + toggle */}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
+            {offer.gallery?.[0]?.src ? (
+              <img
+                src={offer.gallery[0].src}
+                alt={offer.gallery[0].alt}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : null}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[11px] font-semibold text-foreground">
+              {offer.productName}
+            </p>
+            <p className="truncate text-[10px] text-muted-foreground">
+              {offer.originFlag} {offer.origin} · {offer.commercial.incoterm}
+            </p>
+          </div>
+          <CollapsibleTrigger asChild>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              aria-controls="catalog-mobile-intel-body"
+              className="h-7 shrink-0 px-2 text-[11px] font-semibold transition-colors"
+              data-testid="catalog-mobile-intel-toggle"
+            >
+              {open ? t.catalog_panel_dock_hide : t.catalog_panel_dock_show}
+              <ChevronDown
+                className={cn(
+                  "ml-1 h-3 w-3 transition-transform duration-200",
+                  open ? "rotate-180" : "rotate-0",
+                )}
+                aria-hidden
+              />
+            </Button>
+          </CollapsibleTrigger>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-semibold text-foreground">
-            {offer.productName}
-          </p>
-          <p className="truncate text-[10px] text-muted-foreground">
-            {offer.originFlag} {offer.origin} · {offer.commercial.incoterm}
-          </p>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={() => setCollapsed((v) => !v)}
-          aria-expanded={!collapsed}
-          aria-controls="catalog-mobile-intel-body"
-          className="h-7 shrink-0 px-2 text-[11px] font-semibold"
-          data-testid="catalog-mobile-intel-toggle"
+
+        <CollapsibleContent
+          id="catalog-mobile-intel-body"
+          className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
         >
-          {collapsed ? t.catalog_panel_dock_show : t.catalog_panel_dock_hide}
-          {collapsed ? (
-            <ChevronDown className="ml-1 h-3 w-3" aria-hidden />
-          ) : (
-            <ChevronUp className="ml-1 h-3 w-3" aria-hidden />
-          )}
-        </Button>
-      </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            {/* sections rendered below remain unchanged */}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       {!collapsed && (
         <div
