@@ -177,109 +177,100 @@ const MobileIntelDock = ({ offer }: Props) => {
           className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
         >
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
-            {/* sections rendered below remain unchanged */}
+            {/* 1. Price trend */}
+            {trend && (
+              <section
+                className="rounded-md border border-border bg-card p-2"
+                data-testid="catalog-dock-price-trend"
+              >
+                <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t.catalog_intel_priceTrend_title}
+                </h3>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="font-heading text-base font-bold text-foreground">
+                    {trend.currentIndex}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
+                    {t.catalog_intel_priceTrend_index}
+                  </span>
+                </div>
+                <div className="mt-1.5 grid grid-cols-2 gap-1 text-[10px]">
+                  <div className="rounded bg-muted/40 p-1">
+                    <p className="text-muted-foreground">{t.catalog_intel_priceTrend_d7}</p>
+                    <p className="inline-flex items-center gap-0.5 font-semibold text-foreground">
+                      {dirIcon(trend.d7.dir)} {fmtPct(trend.d7.pct)}
+                    </p>
+                  </div>
+                  <div className="rounded bg-muted/40 p-1">
+                    <p className="text-muted-foreground">{t.catalog_intel_priceTrend_d30}</p>
+                    <p className="inline-flex items-center gap-0.5 font-semibold text-foreground">
+                      {dirIcon(trend.d30.dir)} {fmtPct(trend.d30.pct)}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* 2. Market signals */}
+            {signals.length > 0 && (
+              <section
+                className="rounded-md border border-border bg-card p-2"
+                data-testid="catalog-dock-market-signals"
+              >
+                <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t.catalog_intel_signals_title}
+                </h3>
+                <ul className="mt-1.5 space-y-1 text-[10px]">
+                  {signals.slice(0, 2).map((s) => (
+                    <li key={s.id} className="flex items-start gap-1.5">
+                      <span
+                        className={cn(
+                          "mt-1 h-1 w-1 shrink-0 rounded-full",
+                          s.severity === "alert"
+                            ? "bg-destructive"
+                            : s.severity === "watch"
+                              ? "bg-primary"
+                              : "bg-muted-foreground",
+                        )}
+                        aria-hidden
+                      />
+                      <span className="leading-snug text-foreground line-clamp-2">
+                        {getIntelText(lang, `intel_signal_${s.id}_text`, s.text)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* 3. News */}
+            {relevantNews.length > 0 && (
+              <section
+                className="rounded-md border border-border bg-card p-2"
+                data-testid="catalog-dock-news"
+              >
+                <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t.catalog_panel_news_title}
+                </h3>
+                <ul className="mt-1.5 space-y-1.5 text-[10px]">
+                  {relevantNews.slice(0, 2).map((n) => (
+                    <li key={n.id}>
+                      <div className="flex flex-wrap items-center gap-1 text-[9px] text-muted-foreground">
+                        <span aria-hidden>{n.countryFlag}</span>
+                        <span className="font-semibold text-foreground">{n.countryName}</span>
+                        <span>· {formatDaysAgo(lang, n.daysAgo)}</span>
+                      </div>
+                      <p className="mt-0.5 font-medium leading-snug text-foreground line-clamp-2">
+                        {getIntelText(lang, `intel_news_${n.id}_headline`, n.headline)}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
-
-      {!collapsed && (
-        <div
-          id="catalog-mobile-intel-body"
-          className="mt-2 grid gap-2 sm:grid-cols-3"
-        >
-          {/* 1. Price trend */}
-          {trend && (
-            <section
-              className="rounded-md border border-border bg-card p-2"
-              data-testid="catalog-dock-price-trend"
-            >
-              <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {t.catalog_intel_priceTrend_title}
-              </h3>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="font-heading text-base font-bold text-foreground">
-                  {trend.currentIndex}
-                </span>
-                <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                  {t.catalog_intel_priceTrend_index}
-                </span>
-              </div>
-              <div className="mt-1.5 grid grid-cols-2 gap-1 text-[10px]">
-                <div className="rounded bg-muted/40 p-1">
-                  <p className="text-muted-foreground">{t.catalog_intel_priceTrend_d7}</p>
-                  <p className="inline-flex items-center gap-0.5 font-semibold text-foreground">
-                    {dirIcon(trend.d7.dir)} {fmtPct(trend.d7.pct)}
-                  </p>
-                </div>
-                <div className="rounded bg-muted/40 p-1">
-                  <p className="text-muted-foreground">{t.catalog_intel_priceTrend_d30}</p>
-                  <p className="inline-flex items-center gap-0.5 font-semibold text-foreground">
-                    {dirIcon(trend.d30.dir)} {fmtPct(trend.d30.pct)}
-                  </p>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* 2. Market signals */}
-          {signals.length > 0 && (
-            <section
-              className="rounded-md border border-border bg-card p-2"
-              data-testid="catalog-dock-market-signals"
-            >
-              <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {t.catalog_intel_signals_title}
-              </h3>
-              <ul className="mt-1.5 space-y-1 text-[10px]">
-                {signals.slice(0, 2).map((s) => (
-                  <li key={s.id} className="flex items-start gap-1.5">
-                    <span
-                      className={cn(
-                        "mt-1 h-1 w-1 shrink-0 rounded-full",
-                        s.severity === "alert"
-                          ? "bg-destructive"
-                          : s.severity === "watch"
-                            ? "bg-primary"
-                            : "bg-muted-foreground",
-                      )}
-                      aria-hidden
-                    />
-                    <span className="leading-snug text-foreground line-clamp-2">
-                      {getIntelText(lang, `intel_signal_${s.id}_text`, s.text)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {/* 3. News */}
-          {relevantNews.length > 0 && (
-            <section
-              className="rounded-md border border-border bg-card p-2"
-              data-testid="catalog-dock-news"
-            >
-              <h3 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {t.catalog_panel_news_title}
-              </h3>
-              <ul className="mt-1.5 space-y-1.5 text-[10px]">
-                {relevantNews.slice(0, 2).map((n) => (
-                  <li key={n.id}>
-                    <div className="flex flex-wrap items-center gap-1 text-[9px] text-muted-foreground">
-                      <span aria-hidden>{n.countryFlag}</span>
-                      <span className="font-semibold text-foreground">{n.countryName}</span>
-                      <span>· {formatDaysAgo(lang, n.daysAgo)}</span>
-                    </div>
-                    <p className="mt-0.5 font-medium leading-snug text-foreground line-clamp-2">
-                      {getIntelText(lang, `intel_news_${n.id}_headline`, n.headline)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-      )}
     </aside>
   );
 };
