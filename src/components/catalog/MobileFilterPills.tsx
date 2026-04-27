@@ -325,7 +325,10 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
           <div className="border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <Button
               type="button"
-              onClick={() => setAllOpen(false)}
+              onClick={() => {
+                setAllOpen(false);
+                scrollToResults();
+              }}
               className="h-12 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90"
             >
               {t.catalog_filterPill_apply}
