@@ -157,6 +157,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             // so neither orientation gets cropped. In a uniform gallery we
             // keep cover for an edge-to-edge product look.
             const fitClass = isMixed ? "object-contain" : "object-cover";
+            const isLoaded = loaded[i] === true;
             return (
               <div
                 key={i}
@@ -166,17 +167,32 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                   hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
                 )}
               >
+                {/* Skeleton placeholder — visible until this slide's image
+                    has actually loaded. Keeps the gallery height + peek
+                    stable while orientation is being detected. */}
+                {!isLoaded && (
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
+                  />
+                )}
                 <img
                   src={src}
                   alt={offer.productName}
                   loading={i === 0 ? "eager" : "lazy"}
+                  decoding="async"
                   draggable={false}
                   onLoad={handleImgLoad(i)}
-                  className={cn("h-full w-full", fitClass)}
+                  className={cn(
+                    "h-full w-full transition-opacity duration-200",
+                    fitClass,
+                    isLoaded ? "opacity-100" : "opacity-0",
+                  )}
                   onError={(e) => {
                     const target = e.currentTarget;
                     target.onerror = null;
                     target.src = "/placeholder.svg";
+                    setLoaded((prev) => ({ ...prev, [i]: true }));
                   }}
                 />
               </div>
