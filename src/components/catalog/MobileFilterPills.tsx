@@ -193,7 +193,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       >
         <SheetContent
           side="bottom"
-          className="flex h-[66vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
+          className="flex h-[66vh] flex-col gap-0 rounded-t-2xl p-0 transform-gpu will-change-transform ease-out data-[state=open]:duration-300 data-[state=closed]:duration-200 [&>button]:hidden"
           data-testid="catalog-pill-sheet"
         >
           {/* Header: X (left) — Title (center) — Clear (right) */}
