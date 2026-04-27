@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
