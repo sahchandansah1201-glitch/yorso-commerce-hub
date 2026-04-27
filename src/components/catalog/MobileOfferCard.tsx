@@ -47,6 +47,18 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Detect orientation of the first image to pick the gallery aspect ratio.
+  // Portrait → 4:5 (Instagram-like), landscape/square → 4:3 (default product).
+  // This keeps cards in a row visually aligned (one ratio per card).
+  const [isPortrait, setIsPortrait] = useState(false);
+  const handleFirstImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth && img.naturalHeight) {
+      setIsPortrait(img.naturalHeight > img.naturalWidth);
+    }
+  };
+  const aspectClass = isPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
+
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || !hasMultiple) return;
