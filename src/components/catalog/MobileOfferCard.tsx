@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
-import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check } from "lucide-react";
+import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
@@ -47,14 +47,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Detect orientation of every image so the gallery picks one container
-  // aspect ratio that fits ALL slides without cropping or letterboxing
-  // surprises:
-  //  - all landscape/square → 4:3 (default product look)
-  //  - all portrait         → 4:5 (Instagram-like)
-  //  - mixed in same offer  → 4:5 + object-contain on portrait slides,
-  //    so a vertical photo is shown fully and a horizontal one stays
-  //    centered with soft padding (no awkward crops).
+  // Per-image orientation + load state. Lets the gallery pick a container
+  // aspect ratio that fits ALL slides (4:5 if any portrait, otherwise 4:3),
+  // and show a skeleton until each slide actually loads — so card height
+  // and the next-photo peek don't jump while images resolve.
   type Orient = "landscape" | "portrait";
   const [orients, setOrients] = useState<Record<number, Orient>>({});
   const [loaded, setLoaded] = useState<Record<number, boolean>>({});
@@ -70,10 +66,8 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const hasLandscape = orientValues.includes("landscape");
   const isMixed = hasPortrait && hasLandscape;
   const firstLoaded = loaded[0] === true;
-  // Until the first image reports its natural size we use 4:5 — it fits both
-  // landscape and portrait without cropping, so the card height never jumps
-  // when orientation finally resolves. After detection we may relax to 4:3
-  // for galleries that turn out to be all-landscape.
+  // Until first image reports its size, use 4:5 (fits both orientations)
+  // so the card height never jumps when orientation finally resolves.
   const aspectClass = !firstLoaded || hasPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
 
   useEffect(() => {
@@ -83,9 +77,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is ~85% of scroller width + 8px gap; pick the slide
-        // closest to the left edge.
-        const slideWidth = el.clientWidth * 0.85 + 8;
+        // Each slide is 82% of scroller width + 8px gap, with 12px scroll
+        // padding on the left so first/last align nicely.
+        const slideWidth = el.clientWidth * 0.82 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
@@ -146,30 +140,27 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       )}
     >
       {/* 1. Photo with peek-of-next */}
-      <div className="relative">
+      <div className="relative pt-3">
         <div
           ref={scrollerRef}
-          className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ touchAction: "pan-x pan-y" }}
+          className={cn(
+            "flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            hasMultiple ? "gap-2 px-3 scroll-px-3" : "px-3",
+          )}
+          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
         >
           {images.map((src, i) => {
-            // In a mixed-orientation gallery we use 4:5 container + contain
-            // so neither orientation gets cropped. In a uniform gallery we
-            // keep cover for an edge-to-edge product look.
             const fitClass = isMixed ? "object-contain" : "object-cover";
             const isLoaded = loaded[i] === true;
             return (
               <div
                 key={i}
                 className={cn(
-                  "relative shrink-0 snap-start bg-muted",
+                  "relative shrink-0 snap-start bg-muted rounded-md overflow-hidden",
                   aspectClass,
-                  hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
+                  hasMultiple ? "w-[82%]" : "w-full",
                 )}
               >
-                {/* Skeleton placeholder — visible until this slide's image
-                    has actually loaded. Keeps the gallery height + peek
-                    stable while orientation is being detected. */}
                 {!isLoaded && (
                   <div
                     aria-hidden
@@ -201,10 +192,26 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* Origin badge */}
-        <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
+        <div className="pointer-events-none absolute left-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
           <span aria-hidden>{offer.originFlag}</span>
           {offer.origin}
         </div>
+
+        {/* Mixed-orientation hint — appears only when the gallery contains
+            both portrait and landscape photos and therefore renders them
+            with object-contain (no cropping). Tells the buyer the soft
+            padding around photos is intentional, not a layout bug. */}
+        {isMixed && (
+          <div
+            role="note"
+            aria-label="Фото показаны полностью, без обрезки — в галерее смешаны вертикальные и горизонтальные кадры"
+            title="Без обрезки: смешанные ориентации фото"
+            className="pointer-events-auto absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm"
+          >
+            <Maximize2 className="h-3 w-3" aria-hidden />
+            <span>Без обрезки</span>
+          </div>
+        )}
 
         {hasMultiple && (
           <div className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
@@ -242,15 +249,22 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* 3. Product name + Latin name */}
-        <div>
+        <div className="min-w-0">
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
-            className="block"
+            className="block min-w-0"
           >
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 break-words hover:text-link-hover">
+            <h3
+              className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 hover:text-link-hover"
+              style={{
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
+                hyphens: "auto",
+              }}
+            >
               {offer.productName}
             </h3>
           </Link>
