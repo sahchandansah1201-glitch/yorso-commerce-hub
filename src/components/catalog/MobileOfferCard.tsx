@@ -172,7 +172,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                 className={cn(
                   "relative shrink-0 snap-start rounded-md overflow-hidden",
                   aspectClass,
-                  hasMultiple ? "w-[82%]" : "w-full",
+                  hasMultiple ? "w-[90%]" : "w-full",
                   // Solid muted only when image fills the slide (cover);
                   // for contain we use the radial blend above instead.
                   !isMixed && "bg-muted",
