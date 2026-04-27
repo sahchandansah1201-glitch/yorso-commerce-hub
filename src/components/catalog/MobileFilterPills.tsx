@@ -97,9 +97,9 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
   const clearDraft = () => setDraft(null);
 
   const scrollToResults = () => {
-    // Defer to next frame so the new filter state has a chance to render the
-    // updated card list before we scroll the user back to the top of it.
-    requestAnimationFrame(() => {
+    // Wait for the sheet's close animation (~220ms) to finish before starting
+    // smooth scroll — running both at once causes visible jank on mobile.
+    window.setTimeout(() => {
       const el =
         document.getElementById("catalog-anchor-filters") ??
         document.getElementById("catalog-anchor-results");
@@ -108,7 +108,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-    });
+    }, 240);
   };
 
   const applyDraft = () => {
@@ -193,7 +193,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       >
         <SheetContent
           side="bottom"
-          className="flex h-[66vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
+          className="flex h-[66vh] flex-col gap-0 rounded-t-2xl p-0 transform-gpu will-change-transform ease-out data-[state=open]:duration-300 data-[state=closed]:duration-200 [&>button]:hidden"
           data-testid="catalog-pill-sheet"
         >
           {/* Header: X (left) — Title (center) — Clear (right) */}
@@ -295,7 +295,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       <Sheet open={allOpen} onOpenChange={setAllOpen}>
         <SheetContent
           side="bottom"
-          className="flex h-[90vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
+          className="flex h-[90vh] flex-col gap-0 rounded-t-2xl p-0 transform-gpu will-change-transform ease-out data-[state=open]:duration-300 data-[state=closed]:duration-200 [&>button]:hidden"
           data-testid="catalog-pill-all-sheet"
         >
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-border px-3 py-3">
