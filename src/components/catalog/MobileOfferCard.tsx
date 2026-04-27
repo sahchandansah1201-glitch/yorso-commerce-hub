@@ -132,19 +132,49 @@ const MobileOfferCard = ({
   // useLayoutEffect: measure synchronously after DOM mount, before paint.
   // This avoids a one-frame flash with the wrong slide width that a plain
   // useEffect would cause.
+  //
+  // Performance notes:
+  //  - Coalesce ResizeObserver bursts via rAF: during a device rotation or
+  //    a parent layout reflow the browser can fire many entries within a
+  //    single frame; we only commit the *last* width per frame.
+  //  - Drop sub-pixel jitter (<1px deltas) entirely — these can come from
+  //    scrollbar gutter or zoom rounding and would otherwise re-render the
+  //    whole card while the user is mid-scroll.
+  //  - Use a functional updater so we can bail out of `setState` when the
+  //    rounded width is unchanged, which lets React skip the render pass.
   useLayoutEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
     setContainerW(el.clientWidth || null);
+
+    let rafId = 0;
+    let pendingW = 0;
+    const commit = () => {
+      rafId = 0;
+      const w = pendingW;
+      if (w <= 0) return;
+      setContainerW((prev) => {
+        // Skip if unchanged or sub-pixel jitter — saves a render and all
+        // downstream useMemo/useEffect work that depends on containerW.
+        if (prev !== null && Math.abs(prev - w) < 1) return prev;
+        return w;
+      });
+    };
+
     const ro = new ResizeObserver((entries) => {
       const w = Math.round(entries[0]?.contentRect.width ?? el.clientWidth);
       // Ignore intermediate 0-width reports (e.g. element temporarily
       // hidden in a collapsed parent) — keep the last good value so the
       // gallery doesn't collapse and re-expand.
-      if (w > 0) setContainerW(w);
+      if (w <= 0) return;
+      pendingW = w;
+      if (rafId === 0) rafId = requestAnimationFrame(commit);
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (rafId !== 0) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Resolve the active peek curve. `peekBreakpoints` overrides individual
