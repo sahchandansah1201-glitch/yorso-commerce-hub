@@ -20,6 +20,7 @@ import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
 import TrustProofStrip from "@/components/catalog/TrustProofStrip";
+import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
 
 const COMPARE_MAX = 5;
 
@@ -255,6 +256,10 @@ const Offers = () => {
         <div id="catalog-anchor-verification" className="mt-4 scroll-mt-20">
           <TrustProofStrip />
         </div>
+
+        {new URLSearchParams(location.search).get("devPhotos") === "1" && (
+          <PhotoOrientationDevPanel />
+        )}
 
         {/* Procurement filters: pill-bar on mobile/tablet (opens bottom sheet),
             compact horizontal CatalogFilters bar on desktop. Sticky while scrolling. */}
