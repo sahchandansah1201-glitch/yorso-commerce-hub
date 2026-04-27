@@ -54,9 +54,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is ~90% of scroller width; pick whichever slide is
+        // Each slide is ~85% of scroller width + 8px gap; pick the slide
         // closest to the left edge.
-        const slideWidth = el.clientWidth * 0.9;
+        const slideWidth = el.clientWidth * 0.85 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
@@ -111,7 +111,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       data-selected={isSelected ? "true" : "false"}
       onClick={handleCardClick}
       className={cn(
-        "group relative flex cursor-pointer flex-col gap-3 overflow-hidden rounded-lg border bg-card shadow-sm transition-colors",
+        "group relative flex w-full min-w-0 max-w-full cursor-pointer flex-col gap-3 overflow-hidden rounded-lg border bg-card shadow-sm transition-colors",
         isSelected ? "border-primary ring-2 ring-primary/30" : "border-border",
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
@@ -128,7 +128,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
               key={i}
               className={cn(
                 "relative aspect-[4/3] shrink-0 snap-start bg-muted",
-                hasMultiple ? "w-[90%]" : "w-full",
+                hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
               )}
             >
               <img
@@ -168,7 +168,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         )}
       </div>
 
-      <div className="flex flex-col gap-3 px-4 pb-4">
+      <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
         {/* 2. Price first, with trend */}
         <div className="flex items-baseline gap-2">
           {exact ? (
