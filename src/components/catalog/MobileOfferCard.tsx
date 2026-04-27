@@ -219,10 +219,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
         {/* 4. Delivery basis */}
         {primaryBasis && (
-          <div className="flex items-center gap-1.5 text-xs text-foreground">
+          <div className="flex min-w-0 items-center gap-1.5 text-xs text-foreground">
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-            <span className="font-semibold">{primaryBasis.code}</span>
-            <span className="truncate text-muted-foreground">
+            <span className="shrink-0 font-semibold">{primaryBasis.code}</span>
+            <span className="min-w-0 truncate text-muted-foreground">
               {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
             </span>
           </div>
