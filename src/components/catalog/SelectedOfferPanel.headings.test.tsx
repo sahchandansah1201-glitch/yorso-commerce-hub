@@ -113,7 +113,7 @@ describe("SelectedOfferPanel — heading sequence", () => {
   });
 
   it("preserves the order in Russian locale", () => {
-    window.localStorage.setItem("yorso_locale", "ru");
+    window.localStorage.setItem("yorso-lang", "ru");
     const { container } = renderPanel();
 
     const headings = Array.from(
