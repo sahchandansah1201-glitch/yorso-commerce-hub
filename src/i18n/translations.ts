@@ -865,6 +865,10 @@ type TranslationKeys = {
   catalog_filtersBar_title: string;
   catalog_filtersBar_collapse: string;
   catalog_filtersBar_expand: string;
+  catalog_filterPill_close: string;
+  catalog_filterPill_clear: string;
+  catalog_filterPill_apply: string;
+  catalog_filterPill_searchPlaceholder: string;
 
   // OfferDetail access gating
   offerDetail_accessLocked_title: string;
