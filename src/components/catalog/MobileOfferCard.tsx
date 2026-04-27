@@ -47,6 +47,29 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Per-image orientation + load state. Lets the gallery pick a container
+  // aspect ratio that fits ALL slides (4:5 if any portrait, otherwise 4:3),
+  // and show a skeleton until each slide actually loads — so card height
+  // and the next-photo peek don't jump while images resolve.
+  type Orient = "landscape" | "portrait";
+  const [orients, setOrients] = useState<Record<number, Orient>>({});
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
+  const handleImgLoad = (i: number) => (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    setLoaded((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    const o: Orient = img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
+    setOrients((prev) => (prev[i] === o ? prev : { ...prev, [i]: o }));
+  };
+  const orientValues = Object.values(orients);
+  const hasPortrait = orientValues.includes("portrait");
+  const hasLandscape = orientValues.includes("landscape");
+  const isMixed = hasPortrait && hasLandscape;
+  const firstLoaded = loaded[0] === true;
+  // Until first image reports its size, use 4:5 (fits both orientations)
+  // so the card height never jumps when orientation finally resolves.
+  const aspectClass = !firstLoaded || hasPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
+
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || !hasMultiple) return;
