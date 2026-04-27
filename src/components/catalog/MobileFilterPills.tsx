@@ -58,18 +58,11 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
   const [draft, setDraft] = useState<string | null>(null);
 
   const pills: PillDef[] = [
+    { key: "latinName", label: t.catalog_filters_latinName, options: options.latinNames ?? [] },
     { key: "category", label: t.catalog_filters_species, options: options.categories },
-    { key: "origin", label: t.catalog_filters_origin, options: options.origins },
-    { key: "supplierCountry", label: t.catalog_filters_supplierCountry, options: options.supplierCountries },
-    { key: "state", label: t.catalog_filters_state, options: options.states },
-    { key: "basis", label: t.catalog_filters_logisticsBasis, options: options.bases },
-    { key: "certification", label: t.catalog_filters_certification, options: options.certifications },
-    { key: "paymentTerms", label: t.catalog_filters_paymentTerms, options: options.paymentTermsList },
     { key: "cutType", label: t.catalog_filters_cutType, options: options.cutTypes },
+    { key: "origin", label: t.catalog_filters_origin, options: options.origins },
     { key: "currency", label: t.catalog_filters_currency, options: options.currencies },
-    ...(options.suppliers.length > 0
-      ? [{ key: "supplier" as StringKey, label: t.catalog_filters_supplier, options: options.suppliers }]
-      : []),
   ];
 
   const active = pills.find((p) => p.key === openKey) ?? null;
