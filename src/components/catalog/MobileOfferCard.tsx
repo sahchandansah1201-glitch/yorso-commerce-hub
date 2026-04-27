@@ -111,7 +111,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       data-selected={isSelected ? "true" : "false"}
       onClick={handleCardClick}
       className={cn(
-        "group relative flex cursor-pointer flex-col gap-3 overflow-hidden rounded-lg border bg-card shadow-sm transition-colors",
+        "group relative flex w-full min-w-0 max-w-full cursor-pointer flex-col gap-3 overflow-hidden rounded-lg border bg-card shadow-sm transition-colors",
         isSelected ? "border-primary ring-2 ring-primary/30" : "border-border",
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
