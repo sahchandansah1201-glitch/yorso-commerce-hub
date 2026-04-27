@@ -54,9 +54,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is ~85% of scroller width + 8px gap; pick the slide
-        // closest to the left edge.
-        const slideWidth = el.clientWidth * 0.85 + 8;
+        // Each slide is 82% of scroller width + 8px gap, with 12px scroll
+        // padding on the left so first/last align nicely.
+        const slideWidth = el.clientWidth * 0.82 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
@@ -117,18 +117,21 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       )}
     >
       {/* 1. Photo with peek-of-next */}
-      <div className="relative">
+      <div className="relative pt-3">
         <div
           ref={scrollerRef}
-          className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ touchAction: "pan-x pan-y" }}
+          className={cn(
+            "flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            hasMultiple ? "gap-2 px-3 scroll-px-3" : "px-3",
+          )}
+          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
         >
           {images.map((src, i) => (
             <div
               key={i}
               className={cn(
-                "relative aspect-[4/3] shrink-0 snap-start bg-muted",
-                hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
+                "relative aspect-[4/3] shrink-0 snap-start bg-muted rounded-md overflow-hidden",
+                hasMultiple ? "w-[82%]" : "w-full",
               )}
             >
               <img
@@ -148,7 +151,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* Origin badge */}
-        <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
+        <div className="pointer-events-none absolute left-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
           <span aria-hidden>{offer.originFlag}</span>
           {offer.origin}
         </div>
