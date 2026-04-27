@@ -189,15 +189,22 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* 3. Product name + Latin name */}
-        <div>
+        <div className="min-w-0">
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
-            className="block"
+            className="block min-w-0"
           >
-            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 break-words hover:text-link-hover">
+            <h3
+              className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 hover:text-link-hover"
+              style={{
+                overflowWrap: "anywhere",
+                wordBreak: "break-word",
+                hyphens: "auto",
+              }}
+            >
               {offer.productName}
             </h3>
           </Link>
