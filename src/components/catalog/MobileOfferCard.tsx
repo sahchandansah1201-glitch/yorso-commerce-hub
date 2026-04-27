@@ -46,6 +46,16 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   // there is more than one. We track active index for the dots indicator.
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  // Mirror activeIdx in a ref so re-anchor / suppression logic can read the
+  // latest value without re-creating effects on every swipe.
+  const activeIdxRef = useRef(0);
+  useEffect(() => {
+    activeIdxRef.current = activeIdx;
+  }, [activeIdx]);
+  // True while we're programmatically scrolling to re-align after a width
+  // change. Suppresses the scroll listener so dots can't flicker through
+  // intermediate indexes during the snap fix-up.
+  const suppressIdxRef = useRef(false);
 
   // Responsive peek: the % of the next photo that stays visible after a snap.
   // We tune it per *container* width (not viewport) so it stays correct when
