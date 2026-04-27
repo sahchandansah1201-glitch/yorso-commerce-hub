@@ -20,6 +20,7 @@ import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
 import TrustProofStrip from "@/components/catalog/TrustProofStrip";
+import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
 
 const COMPARE_MAX = 5;
 
