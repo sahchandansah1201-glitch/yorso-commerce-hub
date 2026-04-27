@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
