@@ -47,17 +47,27 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Detect orientation of the first image to pick the gallery aspect ratio.
-  // Portrait → 4:5 (Instagram-like), landscape/square → 4:3 (default product).
-  // This keeps cards in a row visually aligned (one ratio per card).
-  const [isPortrait, setIsPortrait] = useState(false);
-  const handleFirstImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  // Detect orientation of every image so the gallery picks one container
+  // aspect ratio that fits ALL slides without cropping or letterboxing
+  // surprises:
+  //  - all landscape/square → 4:3 (default product look)
+  //  - all portrait         → 4:5 (Instagram-like)
+  //  - mixed in same offer  → 4:5 + object-contain on portrait slides,
+  //    so a vertical photo is shown fully and a horizontal one stays
+  //    centered with soft padding (no awkward crops).
+  type Orient = "landscape" | "portrait";
+  const [orients, setOrients] = useState<Record<number, Orient>>({});
+  const handleImgLoad = (i: number) => (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      setIsPortrait(img.naturalHeight > img.naturalWidth);
-    }
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    const o: Orient = img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
+    setOrients((prev) => (prev[i] === o ? prev : { ...prev, [i]: o }));
   };
-  const aspectClass = isPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
+  const orientValues = Object.values(orients);
+  const hasPortrait = orientValues.includes("portrait");
+  const hasLandscape = orientValues.includes("landscape");
+  const isMixed = hasPortrait && hasLandscape;
+  const aspectClass = hasPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
 
   useEffect(() => {
     const el = scrollerRef.current;
