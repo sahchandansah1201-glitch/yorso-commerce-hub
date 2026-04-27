@@ -152,13 +152,29 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
           {images.map((src, i) => {
             const fitClass = isMixed ? "object-contain" : "object-cover";
             const isLoaded = loaded[i] === true;
+            // For object-contain (mixed orientations) the slide's background
+            // is visible around the photo. We blend a soft tint of --muted
+            // over --card so the padding reads as a natural "frame" of the
+            // card, not as a foreign block — works in both light and dark
+            // themes because both tokens follow the theme.
+            const slideBgStyle: React.CSSProperties = isMixed
+              ? {
+                  background:
+                    "radial-gradient(120% 90% at 50% 50%, hsl(var(--card)) 0%, hsl(var(--muted) / 0.55) 100%)",
+                  boxShadow: "inset 0 0 0 1px hsl(var(--border) / 0.4)",
+                }
+              : {};
             return (
               <div
                 key={i}
+                style={slideBgStyle}
                 className={cn(
-                  "relative shrink-0 snap-start bg-muted rounded-md overflow-hidden",
+                  "relative shrink-0 snap-start rounded-md overflow-hidden",
                   aspectClass,
                   hasMultiple ? "w-[82%]" : "w-full",
+                  // Solid muted only when image fills the slide (cover);
+                  // for contain we use the radial blend above instead.
+                  !isMixed && "bg-muted",
                 )}
               >
                 {!isLoaded && (
