@@ -51,6 +51,7 @@ interface Props {
     states: string[];
     cutTypes: string[];
     currencies: string[];
+    latinNames?: string[];
   };
   /** Optional layout hint: "horizontal" renders a compact bar (used above the workspace). */
   layout?: "horizontal" | "stacked";
