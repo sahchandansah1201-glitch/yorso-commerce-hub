@@ -209,14 +209,15 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             return (
               <div
                 key={i}
+                style={hasMultiple ? { width: slideWidthPct } : undefined}
                 className={cn(
-                  // Snap target — width is exactly 90% of the scroller.
-                  // The optional right padding is a *visual* gutter between
-                  // photos and is INSIDE the snap box, so it doesn't shift
-                  // the snap math. Last slide gets no gutter so it can sit
-                  // flush against the right edge after snap.
+                  // Snap target — width is `slideWidthPct` of the scroller
+                  // (responsive, see peekFraction table above). The right
+                  // padding is a *visual* gutter INSIDE the snap box, so it
+                  // doesn't shift the snap math. Last slide gets no gutter
+                  // so it can sit flush against the right edge.
                   "relative shrink-0 snap-start",
-                  hasMultiple ? "w-[90%]" : "w-full",
+                  !hasMultiple && "w-full",
                   hasMultiple && !isLast && "pr-[1.5%]",
                 )}
               >
