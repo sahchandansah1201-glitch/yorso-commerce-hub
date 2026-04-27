@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronUp, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
   countryNews,
@@ -12,6 +18,43 @@ import {
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { cn } from "@/lib/utils";
 import { formatDaysAgo, getIntelText } from "@/i18n/translations";
+
+/**
+ * Persistence contract for the dock open/closed state:
+ *
+ *  1. URL query param `intel=open|closed` — highest priority. Lets buyers
+ *     share a link with their preferred view, and lets us deep-link from
+ *     marketing/alerts to a specific catalog state.
+ *  2. localStorage key `yorso-catalog-intel-dock` — survives full reloads
+ *     and revisits on the same device.
+ *  3. Default — open (analytics is one tap away on mount).
+ *
+ * On user toggle we update BOTH localStorage and the URL (via replaceState
+ * so back-button history is not polluted).
+ */
+const STORAGE_KEY = "yorso-catalog-intel-dock";
+const URL_PARAM = "intel";
+
+type DockState = "open" | "closed";
+
+const readInitialState = (search: string): DockState => {
+  // URL wins
+  const params = new URLSearchParams(search);
+  const fromUrl = params.get(URL_PARAM);
+  if (fromUrl === "open" || fromUrl === "closed") return fromUrl;
+
+  // Then localStorage
+  if (typeof window !== "undefined") {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored === "open" || stored === "closed") return stored;
+    } catch {
+      // localStorage may be unavailable (private mode); fall through to default
+    }
+  }
+
+  return "open";
+};
 
 interface Props {
   offer: SeafoodOffer | null;
