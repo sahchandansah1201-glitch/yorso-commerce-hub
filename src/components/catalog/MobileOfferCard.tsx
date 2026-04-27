@@ -239,7 +239,11 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             return (
               <div
                 key={i}
-                style={hasMultiple ? { width: slideWidthPct } : undefined}
+                style={
+                  hasMultiple
+                    ? { width: slideWidthPct, transition: "width 120ms ease-out" }
+                    : undefined
+                }
                 className={cn(
                   // Snap target — width is `slideWidthPct` of the scroller
                   // (responsive, see peekFraction table above). The right
@@ -249,6 +253,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                   "relative shrink-0 snap-start",
                   !hasMultiple && "w-full",
                   hasMultiple && !isLast && "pr-[1.5%]",
+                  // Hide slides until we know the real container width so a
+                  // wrong-width first paint never flashes. Layout (height /
+                  // aspect ratio) is preserved, only paint is suppressed.
+                  hasMultiple && !measured && "invisible",
                 )}
               >
                 <div
