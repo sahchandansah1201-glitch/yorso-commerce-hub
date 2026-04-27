@@ -128,7 +128,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
               key={i}
               className={cn(
                 "relative aspect-[4/3] shrink-0 snap-start bg-muted",
-                hasMultiple ? "w-[90%]" : "w-full",
+                hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
               )}
             >
               <img
