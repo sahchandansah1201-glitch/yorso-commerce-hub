@@ -229,8 +229,8 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         )}
 
         {/* 5. Supplier — blurred name when locked, flag visible always */}
-        <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs">
-          <span aria-hidden className="text-base leading-none">
+        <div className="flex min-w-0 items-center gap-2 border-t border-border/60 pt-3 text-xs">
+          <span aria-hidden className="shrink-0 text-base leading-none">
             {offer.supplier.countryFlag}
           </span>
           <div className="flex min-w-0 flex-1 flex-col">
