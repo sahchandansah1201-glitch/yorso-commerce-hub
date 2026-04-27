@@ -146,6 +146,16 @@ const Offers = () => {
     }
   }, [visible, selectedOfferId]);
 
+  const freshOffersCount = useMemo(() => {
+    return mockOffers.filter((o) => {
+      const f = (o.freshness ?? "").toLowerCase();
+      if (f.includes("today")) return true;
+      const m = f.match(/(\d+)\s*h\s*ago/);
+      if (m && parseInt(m[1], 10) <= 24) return true;
+      return false;
+    }).length;
+  }, []);
+
   const selectedOffer = useMemo(
     () => visible.find((o) => o.id === selectedOfferId) ?? null,
     [visible, selectedOfferId],
@@ -221,13 +231,12 @@ const Offers = () => {
               {t.catalog_resultCount.replace("{count}", String(visible.length))}
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-            </span>
+          <div
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground"
+            data-testid="catalog-fresh-offers"
+          >
             <Activity className="h-3 w-3 text-primary" aria-hidden />
-            {t.catalog_marketStatus_live}
+            {t.catalog_freshOffers_24h.replace("{count}", String(freshOffersCount))}
           </div>
         </div>
 
