@@ -256,7 +256,7 @@ export const SelectedOfferPanel = ({
 
           {/* Market signals (moved up to sit right after Price trend) */}
           {signals.length > 0 && (
-            <section className="rounded-lg border border-border bg-card p-3">
+            <section className="rounded-lg border border-border bg-card p-3" data-testid="catalog-panel-market-signals">
               <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t.catalog_intel_signals_title}
               </h3>
