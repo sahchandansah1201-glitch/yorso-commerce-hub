@@ -97,9 +97,9 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
   const clearDraft = () => setDraft(null);
 
   const scrollToResults = () => {
-    // Defer to next frame so the new filter state has a chance to render the
-    // updated card list before we scroll the user back to the top of it.
-    requestAnimationFrame(() => {
+    // Wait for the sheet's close animation (~220ms) to finish before starting
+    // smooth scroll — running both at once causes visible jank on mobile.
+    window.setTimeout(() => {
       const el =
         document.getElementById("catalog-anchor-filters") ??
         document.getElementById("catalog-anchor-results");
@@ -108,7 +108,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-    });
+    }, 240);
   };
 
   const applyDraft = () => {
