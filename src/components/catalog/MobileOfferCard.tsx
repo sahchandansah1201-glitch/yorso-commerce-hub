@@ -172,18 +172,18 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
     >
-      {/* 1. Photo with exact 10% peek-of-next.
+      {/* 1. Photo with responsive peek-of-next.
           Math model (resolution-independent):
             - container width = W
-            - each slide      = 0.9 · W   (className w-[90%])
+            - each slide      = slideFraction · W   (inline width %)
             - gap             = 0
             - scroll-padding  = 0
             - snap-align      = start
-          → after a snap, the active slide fills 90% of W and the next
-          slide's leading 10% is always visible on the right, regardless
-          of screen width, DPI, browser zoom, or font-size. We avoid px
-          gaps/paddings on purpose because they translate to a different
-          fraction of W on every device. */}
+          → after a snap, the active slide fills `slideFraction · W` and
+          the next slide's leading `peekFraction · W` is always visible.
+          peekFraction comes from the container-width breakpoints above
+          (8/10/12/14%) so the visual rhythm of the peek strip stays
+          comparable across phones, phablets and split tablet panes. */}
       <div className="relative pt-3">
         <div
           ref={scrollerRef}
