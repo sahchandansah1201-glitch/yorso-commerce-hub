@@ -164,7 +164,8 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
         <button
           type="button"
           onClick={() => setAllOpen(true)}
-          className="relative inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-foreground hover:bg-muted"
+          aria-label={t.catalog_filtersBar_title}
+          className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-foreground hover:bg-muted"
           data-testid="catalog-pill-all-filters"
         >
           <SlidersHorizontal className="h-4 w-4" />
