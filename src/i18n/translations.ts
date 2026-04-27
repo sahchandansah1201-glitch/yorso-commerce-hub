@@ -586,6 +586,7 @@ type TranslationKeys = {
   catalog_filters_paymentTerms: string;
   catalog_filters_state: string;
   catalog_filters_cutType: string;
+  catalog_filters_latinName: string;
   catalog_filters_advanced: string;
   catalog_filters_any: string;
   catalog_filters_all: string;
