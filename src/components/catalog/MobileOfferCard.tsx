@@ -173,7 +173,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         <div className="flex items-baseline gap-2">
           {exact ? (
             <span className="font-heading text-lg font-bold text-foreground">
-              {t.catalog_row_priceFromPrefix ?? "от"} {exact}
+              {exact}
             </span>
           ) : (
             <span className="font-heading text-lg font-bold text-foreground">{range}</span>
