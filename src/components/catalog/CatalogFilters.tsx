@@ -18,6 +18,7 @@ export interface CatalogFilterState {
   state: string | null;
   cutType: string | null;
   currency: string | null;
+  latinName: string | null;
 }
 
 export const emptyCatalogFilters: CatalogFilterState = {
@@ -32,6 +33,7 @@ export const emptyCatalogFilters: CatalogFilterState = {
   state: null,
   cutType: null,
   currency: null,
+  latinName: null,
 };
 
 interface Props {
