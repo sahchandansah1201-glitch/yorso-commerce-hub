@@ -3672,6 +3672,10 @@ const es: TranslationKeys = {
   catalog_filtersBar_title: "Filtros de aprovisionamiento",
   catalog_filtersBar_collapse: "Ocultar filtros",
   catalog_filtersBar_expand: "Mostrar filtros",
+  catalog_filterPill_close: "Cerrar",
+  catalog_filterPill_clear: "Limpiar",
+  catalog_filterPill_apply: "Aplicar",
+  catalog_filterPill_searchPlaceholder: "Buscar…",
 
   offerDetail_accessLocked_title: "Regístrate para ver datos del proveedor y precio",
   offerDetail_accessLocked_body: "El registro gratuito desbloquea precio orientativo, vista previa del proveedor y solicitud de contacto directo.",
