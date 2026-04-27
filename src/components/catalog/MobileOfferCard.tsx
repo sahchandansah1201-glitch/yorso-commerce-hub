@@ -156,6 +156,22 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
           {offer.origin}
         </div>
 
+        {/* Mixed-orientation hint — appears only when the gallery contains
+            both portrait and landscape photos and therefore renders them
+            with object-contain (no cropping). Tells the buyer the soft
+            padding around photos is intentional, not a layout bug. */}
+        {isMixed && (
+          <div
+            role="note"
+            aria-label="Фото показаны полностью, без обрезки — в галерее смешаны вертикальные и горизонтальные кадры"
+            title="Без обрезки: смешанные ориентации фото"
+            className="pointer-events-auto absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm"
+          >
+            <Maximize2 className="h-3 w-3" aria-hidden />
+            <span>Без обрезки</span>
+          </div>
+        )}
+
         {hasMultiple && (
           <div className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
             {images.map((_, i) => (
