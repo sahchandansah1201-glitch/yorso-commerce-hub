@@ -3412,6 +3412,7 @@ const es: TranslationKeys = {
   catalog_filters_paymentTerms: "Condiciones de pago",
   catalog_filters_state: "Estado del producto",
   catalog_filters_cutType: "Tipo de corte",
+  catalog_filters_latinName: "Nombre latino",
   catalog_filters_advanced: "Filtros avanzados",
   catalog_filters_any: "Cualquiera",
   catalog_filters_all: "Todos",
