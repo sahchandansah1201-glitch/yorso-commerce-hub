@@ -179,20 +179,31 @@ const MobileOfferCard = ({
 
   // Resolve the active peek curve. `peekBreakpoints` overrides individual
   // values from the named profile, so callers can tweak just one breakpoint.
-  const resolvedPeek: PeekBreakpoints = {
-    ...PEEK_PROFILES[peekProfile],
-    ...peekBreakpoints,
-  };
+  // Memoized so identical profile/override props don't allocate a new object
+  // on every render and re-trigger the slideFraction useMemo below.
+  const resolvedPeek: PeekBreakpoints = useMemo(
+    () => ({ ...PEEK_PROFILES[peekProfile], ...peekBreakpoints }),
+    [peekProfile, peekBreakpoints],
+  );
 
   const measured = containerW !== null && containerW > 0;
-  const peekFraction = !measured
-    ? resolvedPeek.sm // safe default for snap math; only used after measurement anyway
-    : containerW! >= 640 ? resolvedPeek.lg
-    : containerW! >= 480 ? resolvedPeek.md
-    : containerW! >= 360 ? resolvedPeek.sm
-    : resolvedPeek.xs;
+
+  // Snap to discrete breakpoints so containerW jitter (sub-pixel + the 1px
+  // filter in ResizeObserver) within the same tier doesn't recompute the
+  // peek fraction or trigger the re-anchor effect below.
+  const breakpoint: keyof PeekBreakpoints = !measured
+    ? "sm"
+    : containerW! >= 640 ? "lg"
+    : containerW! >= 480 ? "md"
+    : containerW! >= 360 ? "sm"
+    : "xs";
+
+  const peekFraction = resolvedPeek[breakpoint];
   const slideFraction = 1 - peekFraction;
-  const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
+  const slideWidthPct = useMemo(
+    () => `${(slideFraction * 100).toFixed(2)}%`,
+    [slideFraction],
+  );
 
   // When the breakpoint changes (e.g. user rotates device, layout reflows),
   // re-anchor the scroll position to the currently-active slide so the
