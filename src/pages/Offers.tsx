@@ -257,6 +257,10 @@ const Offers = () => {
           <TrustProofStrip />
         </div>
 
+        {new URLSearchParams(location.search).get("devPhotos") === "1" && (
+          <PhotoOrientationDevPanel />
+        )}
+
         {/* Procurement filters: pill-bar on mobile/tablet (opens bottom sheet),
             compact horizontal CatalogFilters bar on desktop. Sticky while scrolling. */}
         <div
