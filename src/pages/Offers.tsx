@@ -287,8 +287,11 @@ const Offers = () => {
           <TrustProofStrip />
         </div>
 
-        {/* Horizontal compact filter bar above the workspace */}
-        <div id="catalog-anchor-filters" className="mt-4 scroll-mt-20">
+        {/* Horizontal compact filter bar above the workspace — sticky while scrolling the catalog */}
+        <div
+          id="catalog-anchor-filters"
+          className="sticky top-16 z-30 -mx-4 mt-4 scroll-mt-20 border-b border-border/60 bg-background/95 px-4 py-2 supports-[backdrop-filter]:bg-background/80 supports-[backdrop-filter]:backdrop-blur md:-mx-6 md:px-6"
+        >
           <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
         </div>
 
