@@ -240,11 +240,15 @@ const Offers = () => {
           </div>
         </div>
 
-        {/* Quick category chips */}
-        <div className="mt-4 flex flex-wrap gap-2">
+        {/* Quick category chips: horizontal scroll on mobile/tablet, wrap on desktop */}
+        <div
+          className="mt-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+          role="tablist"
+          aria-label={t.catalog_breadcrumbCatalog}
+        >
           <button
             type="button"
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               filters.category === null
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
@@ -258,7 +262,7 @@ const Offers = () => {
             <button
               key={cat.name}
               type="button"
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 filters.category === cat.name
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
@@ -283,8 +287,11 @@ const Offers = () => {
           <TrustProofStrip />
         </div>
 
-        {/* Horizontal compact filter bar above the workspace */}
-        <div id="catalog-anchor-filters" className="mt-4 scroll-mt-20">
+        {/* Horizontal compact filter bar above the workspace — sticky while scrolling the catalog */}
+        <div
+          id="catalog-anchor-filters"
+          className="sticky top-16 z-30 -mx-4 mt-4 scroll-mt-20 border-b border-border/60 bg-background/95 px-4 py-2 supports-[backdrop-filter]:bg-background/80 supports-[backdrop-filter]:backdrop-blur md:-mx-6 md:px-6"
+        >
           <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
         </div>
 
