@@ -47,6 +47,38 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Responsive peek: the % of the next photo that stays visible after a snap.
+  // We tune it per *container* width (not viewport) so it stays correct when
+  // the card lives in a narrower column. The goal is a constant visual rhythm
+  // — the peek strip should feel like ~32–48px on every device, not a random
+  // fraction of the screen.
+  //
+  //   container width   peek    rationale
+  //   ─────────────     ────    ──────────────────────────────────────────
+  //   < 360 px          8 %     keep the active photo dominant on tiny phones
+  //   360–479 px        10 %    reference design (iPhone 12/13/14, Pixel 5)
+  //   480–639 px        12 %    large phones / phablets / split tablet panes
+  //   ≥ 640 px          14 %    tablet portrait, single-column wide layouts
+  const [containerW, setContainerW] = useState(0);
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setContainerW(el.clientWidth);
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? el.clientWidth;
+      setContainerW(Math.round(w));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const peekFraction =
+    containerW >= 640 ? 0.14
+    : containerW >= 480 ? 0.12
+    : containerW >= 360 ? 0.10
+    : 0.08;
+  const slideFraction = 1 - peekFraction; // 0.92 / 0.90 / 0.88 / 0.86
+  const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
+
   // Per-image orientation + load state. Lets the gallery pick a container
   // aspect ratio that fits ALL slides (4:5 if any portrait, otherwise 4:3),
   // and show a skeleton until each slide actually loads — so card height
