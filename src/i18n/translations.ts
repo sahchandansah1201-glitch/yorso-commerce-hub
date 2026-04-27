@@ -865,6 +865,10 @@ type TranslationKeys = {
   catalog_filtersBar_title: string;
   catalog_filtersBar_collapse: string;
   catalog_filtersBar_expand: string;
+  catalog_filterPill_close: string;
+  catalog_filterPill_clear: string;
+  catalog_filterPill_apply: string;
+  catalog_filterPill_searchPlaceholder: string;
 
   // OfferDetail access gating
   offerDetail_accessLocked_title: string;
@@ -1806,6 +1810,10 @@ const en: TranslationKeys = {
   catalog_filtersBar_title: "Procurement filters",
   catalog_filtersBar_collapse: "Hide filters",
   catalog_filtersBar_expand: "Show filters",
+  catalog_filterPill_close: "Close",
+  catalog_filterPill_clear: "Clear",
+  catalog_filterPill_apply: "Apply",
+  catalog_filterPill_searchPlaceholder: "Search…",
 
   offerDetail_accessLocked_title: "Sign up to view supplier and price details",
   offerDetail_accessLocked_body: "Free registration unlocks indicative pricing, supplier identity preview and direct messaging requests.",
@@ -2733,6 +2741,10 @@ const ru: TranslationKeys = {
   catalog_filtersBar_title: "Закупочные фильтры",
   catalog_filtersBar_collapse: "Скрыть фильтры",
   catalog_filtersBar_expand: "Показать фильтры",
+  catalog_filterPill_close: "Закрыть",
+  catalog_filterPill_clear: "Очистить",
+  catalog_filterPill_apply: "Применить",
+  catalog_filterPill_searchPlaceholder: "Поиск…",
 
   offerDetail_accessLocked_title: "Зарегистрируйтесь, чтобы увидеть детали поставщика и цены",
   offerDetail_accessLocked_body: "Бесплатная регистрация открывает ориентировочную цену, превью идентичности поставщика и запрос прямой связи.",
@@ -3660,6 +3672,10 @@ const es: TranslationKeys = {
   catalog_filtersBar_title: "Filtros de aprovisionamiento",
   catalog_filtersBar_collapse: "Ocultar filtros",
   catalog_filtersBar_expand: "Mostrar filtros",
+  catalog_filterPill_close: "Cerrar",
+  catalog_filterPill_clear: "Limpiar",
+  catalog_filterPill_apply: "Aplicar",
+  catalog_filterPill_searchPlaceholder: "Buscar…",
 
   offerDetail_accessLocked_title: "Regístrate para ver datos del proveedor y precio",
   offerDetail_accessLocked_body: "El registro gratuito desbloquea precio orientativo, vista previa del proveedor y solicitud de contacto directo.",
