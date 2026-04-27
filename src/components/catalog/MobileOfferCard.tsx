@@ -77,10 +77,11 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is 90% of scroller width + 8px gap, with 12px scroll
-        // padding on the left so first/last align nicely. 90% leaves
-        // exactly ~10% of the next photo peeking on the right.
-        const slideWidth = el.clientWidth * 0.9 + 8;
+        // Slide width = 90% of container, no gap, no scroll-padding.
+        // → scrollLeft of slide N = N · 0.9 · clientWidth.
+        // Same formula on every device, no DPI/font drift.
+        const slideWidth = el.clientWidth * 0.9;
+        if (slideWidth <= 0) return;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
@@ -140,15 +141,23 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
     >
-      {/* 1. Photo with peek-of-next */}
+      {/* 1. Photo with exact 10% peek-of-next.
+          Math model (resolution-independent):
+            - container width = W
+            - each slide      = 0.9 · W   (className w-[90%])
+            - gap             = 0
+            - scroll-padding  = 0
+            - snap-align      = start
+          → after a snap, the active slide fills 90% of W and the next
+          slide's leading 10% is always visible on the right, regardless
+          of screen width, DPI, browser zoom, or font-size. We avoid px
+          gaps/paddings on purpose because they translate to a different
+          fraction of W on every device. */}
       <div className="relative pt-3">
         <div
           ref={scrollerRef}
-          className={cn(
-            "flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-            hasMultiple ? "gap-2 px-3 scroll-px-3" : "px-3",
-          )}
-          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
+          className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 0, scrollPaddingRight: 0 }}
         >
           {images.map((src, i) => {
             const fitClass = isMixed ? "object-contain" : "object-cover";
@@ -165,44 +174,55 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                   boxShadow: "inset 0 0 0 1px hsl(var(--border) / 0.4)",
                 }
               : {};
+            const isLast = i === images.length - 1;
             return (
               <div
                 key={i}
-                style={slideBgStyle}
                 className={cn(
-                  "relative shrink-0 snap-start rounded-md overflow-hidden",
-                  aspectClass,
+                  // Snap target — width is exactly 90% of the scroller.
+                  // The optional right padding is a *visual* gutter between
+                  // photos and is INSIDE the snap box, so it doesn't shift
+                  // the snap math. Last slide gets no gutter so it can sit
+                  // flush against the right edge after snap.
+                  "relative shrink-0 snap-start",
                   hasMultiple ? "w-[90%]" : "w-full",
-                  // Solid muted only when image fills the slide (cover);
-                  // for contain we use the radial blend above instead.
-                  !isMixed && "bg-muted",
+                  hasMultiple && !isLast && "pr-[1.5%]",
                 )}
               >
-                {!isLoaded && (
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
-                  />
-                )}
-                <img
-                  src={src}
-                  alt={offer.productName}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                  draggable={false}
-                  onLoad={handleImgLoad(i)}
+                <div
+                  style={slideBgStyle}
                   className={cn(
-                    "h-full w-full transition-opacity duration-200",
-                    fitClass,
-                    isLoaded ? "opacity-100" : "opacity-0",
+                    "relative w-full overflow-hidden rounded-md",
+                    aspectClass,
+                    !isMixed && "bg-muted",
                   )}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.onerror = null;
-                    target.src = "/placeholder.svg";
-                    setLoaded((prev) => ({ ...prev, [i]: true }));
-                  }}
-                />
+                >
+                  {!isLoaded && (
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
+                    />
+                  )}
+                  <img
+                    src={src}
+                    alt={offer.productName}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    draggable={false}
+                    onLoad={handleImgLoad(i)}
+                    className={cn(
+                      "h-full w-full transition-opacity duration-200",
+                      fitClass,
+                      isLoaded ? "opacity-100" : "opacity-0",
+                    )}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = "/placeholder.svg";
+                      setLoaded((prev) => ({ ...prev, [i]: true }));
+                    }}
+                  />
+                </div>
               </div>
             );
           })}
