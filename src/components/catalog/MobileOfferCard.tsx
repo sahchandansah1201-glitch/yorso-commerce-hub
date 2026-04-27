@@ -168,7 +168,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         )}
       </div>
 
-      <div className="flex flex-col gap-3 px-4 pb-4">
+      <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
         {/* 2. Price first, with trend */}
         <div className="flex items-baseline gap-2">
           {exact ? (
