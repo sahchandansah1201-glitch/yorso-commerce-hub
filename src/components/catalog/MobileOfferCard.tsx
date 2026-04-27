@@ -54,9 +54,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is ~90% of scroller width; pick whichever slide is
+        // Each slide is ~85% of scroller width + 8px gap; pick the slide
         // closest to the left edge.
-        const slideWidth = el.clientWidth * 0.9;
+        const slideWidth = el.clientWidth * 0.85 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
