@@ -10,6 +10,7 @@ import { useAccessLevel } from "@/lib/access-level";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
 import MobileFilterPills from "@/components/catalog/MobileFilterPills";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
+import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 import MobileIntelDock from "@/components/catalog/MobileIntelDock";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
@@ -295,13 +296,24 @@ const Offers = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {visible.map((offer) => (
-                  <CatalogOfferRow
-                    key={offer.id}
-                    offer={offer}
-                    isSelected={offer.id === selectedOfferId}
-                    isHighlighted={offer.id === highlightOfferId}
-                    onSelect={handleSelectOffer}
-                  />
+                  <>
+                    <div key={`m-${offer.id}`} className="sm:hidden">
+                      <MobileOfferCard
+                        offer={offer}
+                        isSelected={offer.id === selectedOfferId}
+                        isHighlighted={offer.id === highlightOfferId}
+                        onSelect={handleSelectOffer}
+                      />
+                    </div>
+                    <div key={`d-${offer.id}`} className="hidden sm:block">
+                      <CatalogOfferRow
+                        offer={offer}
+                        isSelected={offer.id === selectedOfferId}
+                        isHighlighted={offer.id === highlightOfferId}
+                        onSelect={handleSelectOffer}
+                      />
+                    </div>
+                  </>
                 ))}
               </div>
             )}
