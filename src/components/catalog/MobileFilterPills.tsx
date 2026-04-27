@@ -37,6 +37,7 @@ interface Props {
     states: string[];
     cutTypes: string[];
     currencies: string[];
+    latinNames?: string[];
   };
 }
 
