@@ -2480,6 +2480,7 @@ const ru: TranslationKeys = {
   catalog_filters_paymentTerms: "Условия оплаты",
   catalog_filters_state: "Состояние продукта",
   catalog_filters_cutType: "Тип разделки",
+  catalog_filters_latinName: "Латинское название",
   catalog_filters_advanced: "Расширенные фильтры",
   catalog_filters_any: "Любой",
   catalog_filters_all: "Все",
