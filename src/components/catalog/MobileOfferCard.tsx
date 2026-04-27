@@ -140,15 +140,23 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         isHighlighted && "animate-pulse-once ring-2 ring-primary/60 border-primary",
       )}
     >
-      {/* 1. Photo with peek-of-next */}
+      {/* 1. Photo with exact 10% peek-of-next.
+          Math model (resolution-independent):
+            - container width = W
+            - each slide      = 0.9 · W   (className w-[90%])
+            - gap             = 0
+            - scroll-padding  = 0
+            - snap-align      = start
+          → after a snap, the active slide fills 90% of W and the next
+          slide's leading 10% is always visible on the right, regardless
+          of screen width, DPI, browser zoom, or font-size. We avoid px
+          gaps/paddings on purpose because they translate to a different
+          fraction of W on every device. */}
       <div className="relative pt-3">
         <div
           ref={scrollerRef}
-          className={cn(
-            "flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-            hasMultiple ? "gap-2 px-3 scroll-px-3" : "px-3",
-          )}
-          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
+          className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 0, scrollPaddingRight: 0 }}
         >
           {images.map((src, i) => {
             const fitClass = isMixed ? "object-contain" : "object-cover";
