@@ -83,34 +83,37 @@ const PhotoOrientationDevPanel = () => {
   }, [seq, width]);
 
   // Find the gallery scroller inside the rendered card and measure the
-  // first slide's width relative to the scroller. peek = 1 - slideWidth/scrollerWidth.
+  // first slide's width relative to the scroller. peek = 1 - slideW / scrollerW.
+  // The expected peek is derived from the *actual* scroller width measured
+  // from the DOM, not from React state — that way Замерить-все isn't fooled
+  // by stale closures while React is still committing a width change.
   const measureCurrent = (): Measurement => {
     const wrap = cardWrapRef.current;
-    const expected = expectedPeekFraction(width);
-    const fallback: Measurement = {
-      width,
-      expectedPct: +(expected * 100).toFixed(2),
-      actualPct: null,
-      pass: null,
-    };
-    if (!wrap) return fallback;
-    // Scroller = first horizontally-scrollable flex container inside the card.
+    if (!wrap) {
+      const exp = expectedPeekFraction(width);
+      return {
+        width,
+        expectedPct: +(exp * 100).toFixed(2),
+        actualPct: null,
+        pass: null,
+      };
+    }
     const scroller = wrap.querySelector<HTMLElement>(
       ".overflow-x-auto.snap-x",
     );
     const firstSlide = scroller?.firstElementChild as HTMLElement | null;
-    if (!scroller || !firstSlide) return fallback;
-    const sw = scroller.clientWidth;
+    const sw = scroller?.clientWidth ?? 0;
+    const measuredW = Math.round(wrap.getBoundingClientRect().width);
+    const expected = expectedPeekFraction(sw || measuredW);
+    const expectedPct = +(expected * 100).toFixed(2);
+    if (!scroller || !firstSlide || sw <= 0) {
+      return { width: measuredW, expectedPct, actualPct: null, pass: null };
+    }
     const slideW = firstSlide.getBoundingClientRect().width;
-    if (sw <= 0) return fallback;
     const actual = 1 - slideW / sw;
+    const actualPct = +(actual * 100).toFixed(2);
     const pass = Math.abs(actual - expected) < 0.005; // <0.5 pp tolerance
-    return {
-      width,
-      expectedPct: +(expected * 100).toFixed(2),
-      actualPct: +(actual * 100).toFixed(2),
-      pass,
-    };
+    return { width: measuredW, expectedPct, actualPct, pass };
   };
 
   const handleMeasure = () => {
@@ -125,12 +128,12 @@ const PhotoOrientationDevPanel = () => {
     const results: Measurement[] = [];
     for (const w of WIDTHS) {
       setWidth(w);
-      // Two animation frames: one for React commit, one for ResizeObserver
-      // + the 120ms width transition + settle. 200ms is comfortable.
-      await new Promise((r) => setTimeout(r, 220));
+      // Wait long enough for: React commit + ResizeObserver fire + the
+      // 120ms width transition on slides + settle (90ms debounce).
+      await new Promise((r) => setTimeout(r, 350));
       results.push(measureCurrent());
     }
-    setMeasurements(results);
+    setMeasurements(results.sort((a, b) => a.width - b.width));
   };
 
   // Re-measure on width change so the live card always shows a current value.
