@@ -192,7 +192,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                 <div
                   style={slideBgStyle}
                   className={cn(
-                    "relative h-full w-full overflow-hidden rounded-md",
+                    "relative w-full overflow-hidden rounded-md",
                     aspectClass,
                     !isMixed && "bg-muted",
                   )}
