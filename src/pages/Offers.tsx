@@ -296,8 +296,8 @@ const Offers = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {visible.map((offer) => (
-                  <>
-                    <div key={`m-${offer.id}`} className="sm:hidden">
+                  <div key={offer.id}>
+                    <div className="sm:hidden">
                       <MobileOfferCard
                         offer={offer}
                         isSelected={offer.id === selectedOfferId}
@@ -305,7 +305,7 @@ const Offers = () => {
                         onSelect={handleSelectOffer}
                       />
                     </div>
-                    <div key={`d-${offer.id}`} className="hidden sm:block">
+                    <div className="hidden sm:block">
                       <CatalogOfferRow
                         offer={offer}
                         isSelected={offer.id === selectedOfferId}
@@ -313,7 +313,7 @@ const Offers = () => {
                         onSelect={handleSelectOffer}
                       />
                     </div>
-                  </>
+                  </div>
                 ))}
               </div>
             )}
