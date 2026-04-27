@@ -134,7 +134,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
   useEffect(() => {
     const el = scrollerRef.current;
-    if (!el || !hasMultiple) return;
+    if (!el || !hasMultiple || !measured) return;
     let frame = 0;
     const onScroll = () => {
       cancelAnimationFrame(frame);
