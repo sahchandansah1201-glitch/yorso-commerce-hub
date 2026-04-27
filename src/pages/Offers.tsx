@@ -257,6 +257,13 @@ const Offers = () => {
           <TrustProofStrip />
         </div>
 
+        {/* Visual dev harness — only when ?devPhotos=1 is in the URL.
+            Lets us validate mixed-orientation galleries (H→V→H, etc.) on
+            the mobile card without touching real catalog data. */}
+        {new URLSearchParams(location.search).get("devPhotos") === "1" && (
+          <PhotoOrientationDevPanel />
+        )}
+
         {/* Procurement filters: pill-bar on mobile/tablet (opens bottom sheet),
             compact horizontal CatalogFilters bar on desktop. Sticky while scrolling. */}
         <div
