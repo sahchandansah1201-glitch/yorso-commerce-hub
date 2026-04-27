@@ -1729,6 +1729,9 @@ const en: TranslationKeys = {
   catalog_row_signal_docsPending: "Docs pending",
 
   catalog_panel_aria: "Selected offer intelligence",
+  catalog_panel_dock_aria: "Selected offer analytics",
+  catalog_panel_dock_show: "Show analytics",
+  catalog_panel_dock_hide: "Hide analytics",
   catalog_panel_neutral_title: "Select an offer to view procurement intelligence",
   catalog_panel_neutral_body: "Pick any offer on the left to track price movement, country news, document readiness and supplier trust for that exact product.",
   catalog_panel_summary_title: "Selected offer",
@@ -2652,6 +2655,9 @@ const ru: TranslationKeys = {
   catalog_row_signal_docsPending: "Документы уточняются",
 
   catalog_panel_aria: "Аналитика выбранного предложения",
+  catalog_panel_dock_aria: "Аналитика по выбранному предложению",
+  catalog_panel_dock_show: "Показать аналитику",
+  catalog_panel_dock_hide: "Скрыть аналитику",
   catalog_panel_neutral_title: "Выберите предложение, чтобы открыть закупочную аналитику",
   catalog_panel_neutral_body: "Кликните по любому предложению слева, чтобы видеть динамику цен, страновые новости, готовность документов и доверие к поставщику для этого продукта.",
   catalog_panel_summary_title: "Выбранное предложение",
@@ -3575,6 +3581,9 @@ const es: TranslationKeys = {
   catalog_row_signal_docsPending: "Documentos pendientes",
 
   catalog_panel_aria: "Inteligencia de la oferta seleccionada",
+  catalog_panel_dock_aria: "Analítica de la oferta seleccionada",
+  catalog_panel_dock_show: "Mostrar analítica",
+  catalog_panel_dock_hide: "Ocultar analítica",
   catalog_panel_neutral_title: "Selecciona una oferta para ver la inteligencia de compra",
   catalog_panel_neutral_body: "Elige cualquier oferta a la izquierda para seguir el movimiento de precios, noticias por país, preparación documental y confianza del proveedor de ese producto.",
   catalog_panel_summary_title: "Oferta seleccionada",
