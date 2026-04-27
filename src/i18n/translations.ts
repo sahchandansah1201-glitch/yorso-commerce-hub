@@ -586,6 +586,7 @@ type TranslationKeys = {
   catalog_filters_paymentTerms: string;
   catalog_filters_state: string;
   catalog_filters_cutType: string;
+  catalog_filters_latinName: string;
   catalog_filters_advanced: string;
   catalog_filters_any: string;
   catalog_filters_all: string;
@@ -1547,6 +1548,7 @@ const en: TranslationKeys = {
   catalog_filters_paymentTerms: "Payment terms",
   catalog_filters_state: "Product state",
   catalog_filters_cutType: "Cut type",
+  catalog_filters_latinName: "Latin name",
   catalog_filters_advanced: "Advanced filters",
   catalog_filters_any: "Any",
   catalog_filters_all: "All",
@@ -2478,6 +2480,7 @@ const ru: TranslationKeys = {
   catalog_filters_paymentTerms: "Условия оплаты",
   catalog_filters_state: "Состояние продукта",
   catalog_filters_cutType: "Тип разделки",
+  catalog_filters_latinName: "Латинское название",
   catalog_filters_advanced: "Расширенные фильтры",
   catalog_filters_any: "Любой",
   catalog_filters_all: "Все",
@@ -3409,6 +3412,7 @@ const es: TranslationKeys = {
   catalog_filters_paymentTerms: "Condiciones de pago",
   catalog_filters_state: "Estado del producto",
   catalog_filters_cutType: "Tipo de corte",
+  catalog_filters_latinName: "Nombre latino",
   catalog_filters_advanced: "Filtros avanzados",
   catalog_filters_any: "Cualquiera",
   catalog_filters_all: "Todos",

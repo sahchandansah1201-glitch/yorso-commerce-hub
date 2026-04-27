@@ -18,6 +18,7 @@ export interface CatalogFilterState {
   state: string | null;
   cutType: string | null;
   currency: string | null;
+  latinName: string | null;
 }
 
 export const emptyCatalogFilters: CatalogFilterState = {
@@ -32,6 +33,7 @@ export const emptyCatalogFilters: CatalogFilterState = {
   state: null,
   cutType: null,
   currency: null,
+  latinName: null,
 };
 
 interface Props {
@@ -49,6 +51,7 @@ interface Props {
     states: string[];
     cutTypes: string[];
     currencies: string[];
+    latinNames?: string[];
   };
   /** Optional layout hint: "horizontal" renders a compact bar (used above the workspace). */
   layout?: "horizontal" | "stacked";
