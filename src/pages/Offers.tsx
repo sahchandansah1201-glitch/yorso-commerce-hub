@@ -271,7 +271,7 @@ const Offers = () => {
         </div>
 
         <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-20 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <section aria-label={t.aria_catalogResults}>
+          <section aria-label={t.aria_catalogResults} className="min-w-0">
             {/* Mobile/tablet: sticky intel dock above the list, tied to selected offer.
                 Hidden on xl+ where the right sticky panel covers this. */}
             <div className="xl:hidden">
@@ -296,7 +296,7 @@ const Offers = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {visible.map((offer) => (
-                  <div key={offer.id}>
+                  <div key={offer.id} className="min-w-0">
                     <div className="sm:hidden">
                       <MobileOfferCard
                         offer={offer}
