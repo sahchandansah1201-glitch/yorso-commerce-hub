@@ -96,10 +96,26 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
 
   const clearDraft = () => setDraft(null);
 
+  const scrollToResults = () => {
+    // Defer to next frame so the new filter state has a chance to render the
+    // updated card list before we scroll the user back to the top of it.
+    requestAnimationFrame(() => {
+      const el =
+        document.getElementById("catalog-anchor-filters") ??
+        document.getElementById("catalog-anchor-results");
+      if (el) {
+        el.scrollIntoView({ block: "start", behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  };
+
   const applyDraft = () => {
     if (!active) return;
     onChange({ ...value, [active.key]: draft });
     closeSheet();
+    scrollToResults();
   };
 
   const hasActive = Object.values(value).some((v) => typeof v === "string" && v);
