@@ -46,6 +46,16 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   // there is more than one. We track active index for the dots indicator.
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+  // Mirror activeIdx in a ref so re-anchor / suppression logic can read the
+  // latest value without re-creating effects on every swipe.
+  const activeIdxRef = useRef(0);
+  useEffect(() => {
+    activeIdxRef.current = activeIdx;
+  }, [activeIdx]);
+  // True while we're programmatically scrolling to re-align after a width
+  // change. Suppresses the scroll listener so dots can't flicker through
+  // intermediate indexes during the snap fix-up.
+  const suppressIdxRef = useRef(false);
 
   // Responsive peek: the % of the next photo that stays visible after a snap.
   // We tune it per *container* width (not viewport) so it stays correct when
@@ -97,13 +107,28 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   // When the breakpoint changes (e.g. user rotates device, layout reflows),
   // re-anchor the scroll position to the currently-active slide so the
   // active photo stays active and the peek lines up with the new fraction.
+  // We suppress the scroll listener for the duration of the programmatic
+  // jump so the dots indicator can't flicker through neighbouring indexes
+  // while the browser fires intermediate scroll events.
   useLayoutEffect(() => {
     const el = scrollerRef.current;
     if (!el || !measured || !hasMultiple) return;
-    const target = activeIdx * el.clientWidth * slideFraction;
-    if (Math.abs(el.scrollLeft - target) > 1) {
-      el.scrollTo({ left: target, behavior: "auto" });
-    }
+    const idx = activeIdxRef.current;
+    const target = idx * el.clientWidth * slideFraction;
+    if (Math.abs(el.scrollLeft - target) <= 1) return;
+
+    suppressIdxRef.current = true;
+    // behavior: "auto" (instant) — no animation means no intermediate scroll
+    // events the listener could mis-interpret.
+    el.scrollTo({ left: target, behavior: "auto" });
+    // Re-assert the active index in case React batched something stale,
+    // then release suppression on the next frame so legitimate user
+    // swipes are tracked normally again.
+    setActiveIdx(idx);
+    const raf = requestAnimationFrame(() => {
+      suppressIdxRef.current = false;
+    });
+    return () => cancelAnimationFrame(raf);
     // We intentionally exclude `activeIdx` — this effect only fires on
     // breakpoint/width changes, not on every user swipe.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,21 +161,53 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const el = scrollerRef.current;
     if (!el || !hasMultiple || !measured) return;
     let frame = 0;
+    let settleTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const computeIdx = () => {
+      const slideWidth = el.clientWidth * slideFraction;
+      if (slideWidth <= 0) return null;
+      const raw = Math.round(el.scrollLeft / slideWidth);
+      return Math.max(0, Math.min(images.length - 1, raw));
+    };
+
     const onScroll = () => {
+      // Programmatic re-anchor in progress — do not let intermediate
+      // scroll positions override the active index (no dot flicker).
+      if (suppressIdxRef.current) return;
+
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // scrollLeft of slide N = N · slideFraction · clientWidth.
-        // Same formula on every device, no DPI/font drift.
-        const slideWidth = el.clientWidth * slideFraction;
-        if (slideWidth <= 0) return;
-        const idx = Math.round(el.scrollLeft / slideWidth);
-        setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
+        const idx = computeIdx();
+        if (idx === null) return;
+
+        // Provisional update: only commit if it's a clean change to a
+        // neighbour. This prevents two-step jumps (0 → 2) when scrollLeft
+        // momentarily lands between slides during a fast swipe or
+        // breakpoint adjustment.
+        const current = activeIdxRef.current;
+        if (Math.abs(idx - current) <= 1 && idx !== current) {
+          setActiveIdx(idx);
+        }
+
+        // "Settled" pass: 90ms after the last scroll event we trust the
+        // final scrollLeft and snap the dot indicator to it. This is what
+        // keeps dots stable during ResizeObserver-driven layout changes
+        // — any transient scroll noise is collapsed into one final read.
+        if (settleTimer) clearTimeout(settleTimer);
+        settleTimer = setTimeout(() => {
+          const finalIdx = computeIdx();
+          if (finalIdx !== null && finalIdx !== activeIdxRef.current) {
+            setActiveIdx(finalIdx);
+          }
+        }, 90);
       });
     };
+
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
+      if (settleTimer) clearTimeout(settleTimer);
     };
   }, [hasMultiple, images.length, slideFraction, measured]);
 
