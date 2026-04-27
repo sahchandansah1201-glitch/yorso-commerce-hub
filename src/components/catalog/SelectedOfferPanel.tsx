@@ -208,7 +208,7 @@ export const SelectedOfferPanel = ({
 
           {/* 2. Price movement */}
           {trend && (
-            <section className="rounded-lg border border-border bg-card p-3">
+            <section className="rounded-lg border border-border bg-card p-3" data-testid="catalog-panel-price-trend">
               <div className="flex items-center justify-between">
                 <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {t.catalog_intel_priceTrend_title}
