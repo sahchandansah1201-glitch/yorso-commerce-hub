@@ -57,8 +57,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   //    centered with soft padding (no awkward crops).
   type Orient = "landscape" | "portrait";
   const [orients, setOrients] = useState<Record<number, Orient>>({});
+  const [loaded, setLoaded] = useState<Record<number, boolean>>({});
   const handleImgLoad = (i: number) => (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
+    setLoaded((prev) => (prev[i] ? prev : { ...prev, [i]: true }));
     if (!img.naturalWidth || !img.naturalHeight) return;
     const o: Orient = img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
     setOrients((prev) => (prev[i] === o ? prev : { ...prev, [i]: o }));
@@ -67,7 +69,12 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const hasPortrait = orientValues.includes("portrait");
   const hasLandscape = orientValues.includes("landscape");
   const isMixed = hasPortrait && hasLandscape;
-  const aspectClass = hasPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
+  const firstLoaded = loaded[0] === true;
+  // Until the first image reports its natural size we use 4:5 — it fits both
+  // landscape and portrait without cropping, so the card height never jumps
+  // when orientation finally resolves. After detection we may relax to 4:3
+  // for galleries that turn out to be all-landscape.
+  const aspectClass = !firstLoaded || hasPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
 
   useEffect(() => {
     const el = scrollerRef.current;
