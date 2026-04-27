@@ -122,7 +122,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [hasMultiple, images.length]);
+  }, [hasMultiple, images.length, slideFraction]);
 
   const trend = getPriceTrend(offer.category);
   const TrendIcon = trend
