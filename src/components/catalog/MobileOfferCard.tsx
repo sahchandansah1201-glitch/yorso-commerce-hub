@@ -109,10 +109,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Slide width = 90% of container, no gap, no scroll-padding.
-        // → scrollLeft of slide N = N · 0.9 · clientWidth.
+        // scrollLeft of slide N = N · slideFraction · clientWidth.
         // Same formula on every device, no DPI/font drift.
-        const slideWidth = el.clientWidth * 0.9;
+        const slideWidth = el.clientWidth * slideFraction;
         if (slideWidth <= 0) return;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
