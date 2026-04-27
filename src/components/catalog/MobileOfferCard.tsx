@@ -76,7 +76,15 @@ interface Props {
  *
  * The rest of the offer detail lives on /offers/:id.
  */
-const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighted }: Props) => {
+const MobileOfferCard = ({
+  offer,
+  isSelected,
+  onSelect,
+  forceLevel,
+  isHighlighted,
+  peekProfile = "default",
+  peekBreakpoints,
+}: Props) => {
   const { t, lang } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
