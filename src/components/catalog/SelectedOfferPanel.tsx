@@ -254,6 +254,33 @@ export const SelectedOfferPanel = ({
             </section>
           )}
 
+          {/* Market signals (moved up to sit right after Price trend) */}
+          {signals.length > 0 && (
+            <section className="rounded-lg border border-border bg-card p-3">
+              <h3 className="font-heading text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t.catalog_intel_signals_title}
+              </h3>
+              <ul className="mt-2 space-y-1.5 text-[11px]">
+                {signals.slice(0, isAnon ? 2 : signals.length).map((s) => (
+                  <li key={s.id} className="flex items-start gap-2">
+                    <span
+                      className={cn(
+                        "mt-1 h-1.5 w-1.5 shrink-0 rounded-full",
+                        s.severity === "alert"
+                          ? "bg-destructive"
+                          : s.severity === "watch"
+                            ? "bg-primary"
+                            : "bg-muted-foreground",
+                      )}
+                      aria-hidden
+                    />
+                    <span className="leading-snug text-foreground">{getIntelText(lang, `intel_signal_${s.id}_text`, s.text)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {/* 3. Product-relevant news (country-scoped) */}
           {relevantNews.length > 0 && (
             <section className="rounded-lg border border-border bg-card p-3">
