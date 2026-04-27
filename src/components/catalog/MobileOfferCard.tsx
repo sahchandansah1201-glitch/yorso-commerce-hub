@@ -137,13 +137,20 @@ const MobileOfferCard = ({
     return () => ro.disconnect();
   }, []);
 
+  // Resolve the active peek curve. `peekBreakpoints` overrides individual
+  // values from the named profile, so callers can tweak just one breakpoint.
+  const resolvedPeek: PeekBreakpoints = {
+    ...PEEK_PROFILES[peekProfile],
+    ...peekBreakpoints,
+  };
+
   const measured = containerW !== null && containerW > 0;
   const peekFraction = !measured
-    ? 0.10 // safe default for snap math; only used after measurement anyway
-    : containerW! >= 640 ? 0.14
-    : containerW! >= 480 ? 0.12
-    : containerW! >= 360 ? 0.10
-    : 0.08;
+    ? resolvedPeek.sm // safe default for snap math; only used after measurement anyway
+    : containerW! >= 640 ? resolvedPeek.lg
+    : containerW! >= 480 ? resolvedPeek.md
+    : containerW! >= 360 ? resolvedPeek.sm
+    : resolvedPeek.xs;
   const slideFraction = 1 - peekFraction;
   const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
 
