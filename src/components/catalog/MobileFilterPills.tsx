@@ -168,7 +168,6 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
           data-testid="catalog-pill-all-filters"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          <span>{t.catalog_filtersBar_title}</span>
           {hasActive && (
             <span
               className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-destructive"
