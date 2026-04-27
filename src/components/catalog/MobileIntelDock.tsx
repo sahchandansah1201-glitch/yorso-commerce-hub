@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronDown, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
