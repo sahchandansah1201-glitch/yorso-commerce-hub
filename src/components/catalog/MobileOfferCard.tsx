@@ -47,6 +47,18 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Detect orientation of the first image to pick the gallery aspect ratio.
+  // Portrait → 4:5 (Instagram-like), landscape/square → 4:3 (default product).
+  // This keeps cards in a row visually aligned (one ratio per card).
+  const [isPortrait, setIsPortrait] = useState(false);
+  const handleFirstImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.naturalWidth && img.naturalHeight) {
+      setIsPortrait(img.naturalHeight > img.naturalWidth);
+    }
+  };
+  const aspectClass = isPortrait ? "aspect-[4/5]" : "aspect-[4/3]";
+
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || !hasMultiple) return;
@@ -54,9 +66,9 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is 82% of scroller width + 8px gap, with 12px scroll
-        // padding on the left so first/last align nicely.
-        const slideWidth = el.clientWidth * 0.82 + 8;
+        // Each slide is ~85% of scroller width + 8px gap; pick the slide
+        // closest to the left edge.
+        const slideWidth = el.clientWidth * 0.85 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
@@ -117,28 +129,27 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
       )}
     >
       {/* 1. Photo with peek-of-next */}
-      <div className="relative pt-3">
+      <div className="relative">
         <div
           ref={scrollerRef}
-          className={cn(
-            "flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-            hasMultiple ? "gap-2 px-3 scroll-px-3" : "px-3",
-          )}
-          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 12 }}
+          className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ touchAction: "pan-x pan-y" }}
         >
           {images.map((src, i) => (
             <div
               key={i}
               className={cn(
-                "relative aspect-[4/3] shrink-0 snap-start bg-muted rounded-md overflow-hidden",
-                hasMultiple ? "w-[82%]" : "w-full",
+                "relative shrink-0 snap-start bg-muted",
+                aspectClass,
+                hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
               )}
             >
               <img
                 src={src}
                 alt={offer.productName}
-                loading="lazy"
+                loading={i === 0 ? "eager" : "lazy"}
                 draggable={false}
+                onLoad={i === 0 ? handleFirstImgLoad : undefined}
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   const target = e.currentTarget;
@@ -151,7 +162,7 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* Origin badge */}
-        <div className="pointer-events-none absolute left-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
+        <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur-sm">
           <span aria-hidden>{offer.originFlag}</span>
           {offer.origin}
         </div>
@@ -173,19 +184,17 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
       <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
         {/* 2. Price first, with trend */}
-        <div className="flex min-w-0 items-baseline gap-2">
+        <div className="flex items-baseline gap-2">
           {exact ? (
-            <span className="min-w-0 truncate font-heading text-lg font-bold text-foreground">
+            <span className="font-heading text-lg font-bold text-foreground">
               {exact}
             </span>
           ) : (
-            <span className="min-w-0 truncate font-heading text-lg font-bold text-foreground">
-              {range}
-            </span>
+            <span className="font-heading text-lg font-bold text-foreground">{range}</span>
           )}
-          <span className="shrink-0 text-xs text-muted-foreground">{unit}</span>
+          <span className="text-xs text-muted-foreground">{unit}</span>
           {TrendIcon && trend && (
-            <span className={cn("ml-auto inline-flex shrink-0 items-center gap-0.5 text-xs font-semibold", trendColor)}>
+            <span className={cn("ml-auto inline-flex items-center gap-0.5 text-xs font-semibold", trendColor)}>
               <TrendIcon className="h-3.5 w-3.5" aria-hidden />
               {trend.d30.pct > 0 ? "+" : ""}
               {trend.d30.pct.toFixed(1)}%
@@ -194,22 +203,15 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
         </div>
 
         {/* 3. Product name + Latin name */}
-        <div className="min-w-0">
+        <div>
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-view-details"
-            className="block min-w-0"
+            className="block"
           >
-            <h3
-              className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 hover:text-link-hover"
-              style={{
-                overflowWrap: "anywhere",
-                wordBreak: "break-word",
-                hyphens: "auto",
-              }}
-            >
+            <h3 className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 break-words hover:text-link-hover">
               {offer.productName}
             </h3>
           </Link>
@@ -222,18 +224,18 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
 
         {/* 4. Delivery basis */}
         {primaryBasis && (
-          <div className="flex min-w-0 items-center gap-1.5 text-xs text-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-foreground">
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-            <span className="shrink-0 font-semibold">{primaryBasis.code}</span>
-            <span className="min-w-0 truncate text-muted-foreground">
+            <span className="font-semibold">{primaryBasis.code}</span>
+            <span className="truncate text-muted-foreground">
               {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
             </span>
           </div>
         )}
 
         {/* 5. Supplier — blurred name when locked, flag visible always */}
-        <div className="flex min-w-0 items-center gap-2 border-t border-border/60 pt-3 text-xs">
-          <span aria-hidden className="shrink-0 text-base leading-none">
+        <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs">
+          <span aria-hidden className="text-base leading-none">
             {offer.supplier.countryFlag}
           </span>
           <div className="flex min-w-0 flex-1 flex-col">
