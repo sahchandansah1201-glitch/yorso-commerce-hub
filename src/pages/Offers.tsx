@@ -146,6 +146,16 @@ const Offers = () => {
     }
   }, [visible, selectedOfferId]);
 
+  const freshOffersCount = useMemo(() => {
+    return mockOffers.filter((o) => {
+      const f = (o.freshness ?? "").toLowerCase();
+      if (f.includes("today")) return true;
+      const m = f.match(/(\d+)\s*h\s*ago/);
+      if (m && parseInt(m[1], 10) <= 24) return true;
+      return false;
+    }).length;
+  }, []);
+
   const selectedOffer = useMemo(
     () => visible.find((o) => o.id === selectedOfferId) ?? null,
     [visible, selectedOfferId],
