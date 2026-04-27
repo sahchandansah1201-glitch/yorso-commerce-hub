@@ -2741,6 +2741,10 @@ const ru: TranslationKeys = {
   catalog_filtersBar_title: "Закупочные фильтры",
   catalog_filtersBar_collapse: "Скрыть фильтры",
   catalog_filtersBar_expand: "Показать фильтры",
+  catalog_filterPill_close: "Закрыть",
+  catalog_filterPill_clear: "Очистить",
+  catalog_filterPill_apply: "Применить",
+  catalog_filterPill_searchPlaceholder: "Поиск…",
 
   offerDetail_accessLocked_title: "Зарегистрируйтесь, чтобы увидеть детали поставщика и цены",
   offerDetail_accessLocked_body: "Бесплатная регистрация открывает ориентировочную цену, превью идентичности поставщика и запрос прямой связи.",
