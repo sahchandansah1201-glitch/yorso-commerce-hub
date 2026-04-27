@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
@@ -132,37 +132,78 @@ const MobileOfferCard = ({
   // useLayoutEffect: measure synchronously after DOM mount, before paint.
   // This avoids a one-frame flash with the wrong slide width that a plain
   // useEffect would cause.
+  //
+  // Performance notes:
+  //  - Coalesce ResizeObserver bursts via rAF: during a device rotation or
+  //    a parent layout reflow the browser can fire many entries within a
+  //    single frame; we only commit the *last* width per frame.
+  //  - Drop sub-pixel jitter (<1px deltas) entirely — these can come from
+  //    scrollbar gutter or zoom rounding and would otherwise re-render the
+  //    whole card while the user is mid-scroll.
+  //  - Use a functional updater so we can bail out of `setState` when the
+  //    rounded width is unchanged, which lets React skip the render pass.
   useLayoutEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
     setContainerW(el.clientWidth || null);
+
+    let rafId = 0;
+    let pendingW = 0;
+    const commit = () => {
+      rafId = 0;
+      const w = pendingW;
+      if (w <= 0) return;
+      setContainerW((prev) => {
+        // Skip if unchanged or sub-pixel jitter — saves a render and all
+        // downstream useMemo/useEffect work that depends on containerW.
+        if (prev !== null && Math.abs(prev - w) < 1) return prev;
+        return w;
+      });
+    };
+
     const ro = new ResizeObserver((entries) => {
       const w = Math.round(entries[0]?.contentRect.width ?? el.clientWidth);
       // Ignore intermediate 0-width reports (e.g. element temporarily
       // hidden in a collapsed parent) — keep the last good value so the
       // gallery doesn't collapse and re-expand.
-      if (w > 0) setContainerW(w);
+      if (w <= 0) return;
+      pendingW = w;
+      if (rafId === 0) rafId = requestAnimationFrame(commit);
     });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (rafId !== 0) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Resolve the active peek curve. `peekBreakpoints` overrides individual
   // values from the named profile, so callers can tweak just one breakpoint.
-  const resolvedPeek: PeekBreakpoints = {
-    ...PEEK_PROFILES[peekProfile],
-    ...peekBreakpoints,
-  };
+  // Memoized so identical profile/override props don't allocate a new object
+  // on every render and re-trigger the slideFraction useMemo below.
+  const resolvedPeek: PeekBreakpoints = useMemo(
+    () => ({ ...PEEK_PROFILES[peekProfile], ...peekBreakpoints }),
+    [peekProfile, peekBreakpoints],
+  );
 
   const measured = containerW !== null && containerW > 0;
-  const peekFraction = !measured
-    ? resolvedPeek.sm // safe default for snap math; only used after measurement anyway
-    : containerW! >= 640 ? resolvedPeek.lg
-    : containerW! >= 480 ? resolvedPeek.md
-    : containerW! >= 360 ? resolvedPeek.sm
-    : resolvedPeek.xs;
+
+  // Snap to discrete breakpoints so containerW jitter (sub-pixel + the 1px
+  // filter in ResizeObserver) within the same tier doesn't recompute the
+  // peek fraction or trigger the re-anchor effect below.
+  const breakpoint: keyof PeekBreakpoints = !measured
+    ? "sm"
+    : containerW! >= 640 ? "lg"
+    : containerW! >= 480 ? "md"
+    : containerW! >= 360 ? "sm"
+    : "xs";
+
+  const peekFraction = resolvedPeek[breakpoint];
   const slideFraction = 1 - peekFraction;
-  const slideWidthPct = `${(slideFraction * 100).toFixed(2)}%`;
+  const slideWidthPct = useMemo(
+    () => `${(slideFraction * 100).toFixed(2)}%`,
+    [slideFraction],
+  );
 
   // When the breakpoint changes (e.g. user rotates device, layout reflows),
   // re-anchor the scroll position to the currently-active slide so the
@@ -565,4 +606,8 @@ const MobileOfferCard = ({
   );
 };
 
-export default MobileOfferCard;
+// Memoize to skip re-renders when the parent re-renders but this offer's
+// props are unchanged (e.g. another row gets selected). The default shallow
+// compare is enough since `offer` is a stable reference from mock data and
+// callbacks come from a parent useCallback.
+export default memo(MobileOfferCard);
