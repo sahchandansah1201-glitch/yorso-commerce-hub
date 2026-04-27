@@ -10,6 +10,7 @@ import { useAccessLevel } from "@/lib/access-level";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
+import MobileIntelDock from "@/components/catalog/MobileIntelDock";
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
@@ -280,6 +281,11 @@ const Offers = () => {
 
         <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-20 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={t.aria_catalogResults}>
+            {/* Mobile/tablet: sticky intel dock above the list, tied to selected offer.
+                Hidden on xl+ where the right sticky panel covers this. */}
+            <div className="xl:hidden">
+              <MobileIntelDock offer={selectedOffer} />
+            </div>
             {visible.length === 0 ? (
               <div className="space-y-5">
                 <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
@@ -311,7 +317,10 @@ const Offers = () => {
             )}
           </section>
 
-          <div id="catalog-anchor-intelligence" className="scroll-mt-20 xl:sticky xl:top-20 xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
+          {/* Desktop-only sticky intelligence column. On <xl screens this would
+              fall to the bottom of the page (poor UX), so we hide it and rely
+              on MobileIntelDock above the list instead. */}
+          <div id="catalog-anchor-intelligence" className="hidden scroll-mt-20 xl:sticky xl:top-20 xl:block xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel
               offer={selectedOffer}
               isCompared={selectedOffer ? compareIds.includes(selectedOffer.id) : false}
