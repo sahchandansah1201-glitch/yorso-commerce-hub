@@ -784,6 +784,9 @@ type TranslationKeys = {
 
   // Procurement workspace — selected-offer panel
   catalog_panel_aria: string;
+  catalog_panel_dock_aria: string;
+  catalog_panel_dock_show: string;
+  catalog_panel_dock_hide: string;
   catalog_panel_neutral_title: string;
   catalog_panel_neutral_body: string;
   catalog_panel_summary_title: string;
