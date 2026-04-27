@@ -567,6 +567,7 @@ type TranslationKeys = {
   catalog_breadcrumbHome: string;
   catalog_breadcrumbCatalog: string;
   catalog_marketStatus_live: string;
+  catalog_freshOffers_24h: string;
   catalog_resultCount: string;
   catalog_quickRequest_title: string;
   catalog_quickRequest_subtitle: string;
@@ -1523,6 +1524,7 @@ const en: TranslationKeys = {
   catalog_breadcrumbHome: "Home",
   catalog_breadcrumbCatalog: "Catalog",
   catalog_marketStatus_live: "Marketplace live",
+  catalog_freshOffers_24h: "{count} new offers in 24h",
   catalog_resultCount: "{count} active offers",
   catalog_quickRequest_title: "Don't see exactly what you need?",
   catalog_quickRequest_subtitle: "Post a structured request and verified suppliers will respond directly.",
@@ -2449,6 +2451,7 @@ const ru: TranslationKeys = {
   catalog_breadcrumbHome: "Главная",
   catalog_breadcrumbCatalog: "Каталог",
   catalog_marketStatus_live: "Рынок активен",
+  catalog_freshOffers_24h: "{count} новых офферов за 24ч",
   catalog_resultCount: "{count} активных предложений",
   catalog_quickRequest_title: "Не нашли точно нужный товар?",
   catalog_quickRequest_subtitle: "Опубликуйте структурированный запрос — проверенные поставщики ответят напрямую.",
@@ -3375,6 +3378,7 @@ const es: TranslationKeys = {
   catalog_breadcrumbHome: "Inicio",
   catalog_breadcrumbCatalog: "Catálogo",
   catalog_marketStatus_live: "Mercado activo",
+  catalog_freshOffers_24h: "{count} ofertas nuevas en 24h",
   catalog_resultCount: "{count} ofertas activas",
   catalog_quickRequest_title: "¿No ves exactamente lo que necesitas?",
   catalog_quickRequest_subtitle: "Publica una solicitud estructurada y los proveedores verificados responderán directamente.",
