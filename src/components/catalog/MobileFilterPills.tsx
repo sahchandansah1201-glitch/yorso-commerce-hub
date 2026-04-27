@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
-import {
+import CatalogFilters, {
   type CatalogFilterState,
   emptyCatalogFilters,
 } from "@/components/catalog/CatalogFilters";
@@ -17,7 +18,7 @@ type StringKey = {
 }[keyof CatalogFilterState];
 
 interface PillDef {
-  key: StringKey; // value is string | null
+  key: StringKey;
   label: string;
   options: string[];
 }
@@ -40,14 +41,21 @@ interface Props {
 }
 
 /**
- * Mobile/tablet procurement filters as horizontally-scrollable pills.
- * Tapping a pill opens a bottom sheet (~2/3 viewport) with the option list,
- * a clear-action and an explicit close (X) control.
+ * Mobile/tablet procurement filter bar (Avito-style):
+ *  - Square dark search-icon button on the left
+ *  - Horizontally scrollable grey pills with chevron
+ *  - Top-right "Filters" button with red dot when any filter is active,
+ *    opens a full-size sheet with the complete CatalogFilters form
+ *  - Tapping a pill opens a bottom sheet (~2/3 viewport) with the option list,
+ *    centered title, X close (left) and "Clear" (right), sticky "Apply" button.
+ *  - Uses a draft state inside the sheet so changes are committed on Apply.
  */
 export const MobileFilterPills = ({ value, onChange, options }: Props) => {
   const { t } = useLanguage();
   const [openKey, setOpenKey] = useState<StringKey | null>(null);
+  const [allOpen, setAllOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [draft, setDraft] = useState<string | null>(null);
 
   const pills: PillDef[] = [
     { key: "category", label: t.catalog_filters_species, options: options.categories },
@@ -69,68 +77,98 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
     ? active.options.filter((o) => o.toLowerCase().includes(search.toLowerCase()))
     : [];
 
+  // Sync draft with current value when the sheet opens
+  useEffect(() => {
+    if (active) {
+      setDraft((value[active.key] as string | null) ?? null);
+      setSearch("");
+    }
+  }, [active, value]);
+
   const closeSheet = () => {
     setOpenKey(null);
     setSearch("");
   };
 
-  const handleSelect = (opt: string) => {
+  const toggleDraft = (opt: string) => {
+    setDraft((prev) => (prev === opt ? null : opt));
+  };
+
+  const clearDraft = () => setDraft(null);
+
+  const applyDraft = () => {
     if (!active) return;
-    const current = value[active.key];
-    onChange({ ...value, [active.key]: current === opt ? null : opt });
+    onChange({ ...value, [active.key]: draft });
     closeSheet();
   };
 
-  const clearActive = () => {
-    if (!active) return;
-    onChange({ ...value, [active.key]: null });
-  };
+  const hasActive = Object.values(value).some((v) => typeof v === "string" && v);
 
   return (
     <>
-      <div
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        role="tablist"
-        aria-label={t.catalog_filtersBar_title}
-        data-testid="catalog-mobile-filter-pills"
-      >
-        {pills.map((p) => {
-          const v = value[p.key];
-          const isActive = !!v;
-          return (
-            <button
-              key={p.key}
-              type="button"
-              onClick={() => setOpenKey(p.key)}
-              className={`shrink-0 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                isActive
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-card text-foreground hover:border-primary/40"
-              }`}
-              data-testid={`catalog-pill-${p.key}`}
-              aria-haspopup="dialog"
-              aria-expanded={openKey === p.key}
-            >
-              <span>{p.label}</span>
-              {isActive ? (
-                <span className="max-w-[120px] truncate text-primary/80">: {v}</span>
-              ) : null}
-              <ChevronDown className="h-3 w-3 opacity-60" aria-hidden />
-            </button>
-          );
-        })}
-        {Object.values(value).some((v) => typeof v === "string" && v) && (
+      {/* Top bar: square icon (search/all-filters) + scrolling pills + Filters button */}
+      <div className="flex items-start gap-2">
+        <div className="flex flex-1 items-center gap-2 min-w-0">
           <button
             type="button"
-            onClick={() => onChange(emptyCatalogFilters)}
-            className="shrink-0 whitespace-nowrap rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-            data-testid="catalog-pill-clear-all"
+            onClick={() => setAllOpen(true)}
+            aria-label={t.catalog_filtersBar_title}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background hover:bg-foreground/90"
+            data-testid="catalog-pill-search-square"
           >
-            {t.catalog_filters_clearAll}
+            <Search className="h-4 w-4" />
           </button>
-        )}
+          <div
+            className="-mr-4 flex flex-1 gap-2 overflow-x-auto pr-4 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            role="tablist"
+            aria-label={t.catalog_filtersBar_title}
+            data-testid="catalog-mobile-filter-pills"
+          >
+            {pills.map((p) => {
+              const v = value[p.key];
+              const isActive = !!v;
+              return (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => setOpenKey(p.key)}
+                  className={`shrink-0 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-foreground hover:bg-muted/80"
+                  }`}
+                  data-testid={`catalog-pill-${p.key}`}
+                  aria-haspopup="dialog"
+                  aria-expanded={openKey === p.key}
+                >
+                  <span className="truncate max-w-[140px]">
+                    {isActive ? v : p.label}
+                  </span>
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setAllOpen(true)}
+          className="relative inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-foreground hover:bg-muted"
+          data-testid="catalog-pill-all-filters"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          <span>{t.catalog_filtersBar_title}</span>
+          {hasActive && (
+            <span
+              className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-destructive"
+              aria-hidden
+            />
+          )}
+        </button>
       </div>
 
+      {/* Per-pill bottom sheet */}
       <Sheet
         open={!!openKey}
         onOpenChange={(o) => {
@@ -142,28 +180,29 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
           className="flex h-[66vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
           data-testid="catalog-pill-sheet"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <SheetTitle className="text-base font-semibold">{active?.label}</SheetTitle>
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={clearActive}
-                className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10"
-                data-testid="catalog-pill-sheet-clear"
-              >
-                {t.catalog_filterPill_clear}
-              </button>
-              <button
-                type="button"
-                onClick={closeSheet}
-                aria-label={t.catalog_filterPill_close}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                data-testid="catalog-pill-sheet-close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+          {/* Header: X (left) — Title (center) — Clear (right) */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-border px-3 py-3">
+            <button
+              type="button"
+              onClick={closeSheet}
+              aria-label={t.catalog_filterPill_close}
+              className="rounded-md p-1.5 text-foreground hover:bg-muted"
+              data-testid="catalog-pill-sheet-close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SheetTitle className="text-center text-base font-semibold">
+              {active?.label}
+            </SheetTitle>
+            <button
+              type="button"
+              onClick={clearDraft}
+              disabled={!draft}
+              className="rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-40"
+              data-testid="catalog-pill-sheet-clear"
+            >
+              {t.catalog_filterPill_clear}
+            </button>
           </div>
 
           {/* Search */}
@@ -182,35 +221,99 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
             </div>
           )}
 
-          {/* Options */}
+          {/* Options as checkbox rows (single-select bound to draft) */}
           <div className="flex-1 overflow-y-auto px-2 py-2">
             {filteredOptions.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-muted-foreground">—</div>
             ) : (
               <ul role="listbox" className="flex flex-col">
                 {filteredOptions.map((opt) => {
-                  const selected = active && value[active.key] === opt;
+                  const checked = draft === opt;
                   return (
                     <li key={opt}>
                       <button
                         type="button"
-                        onClick={() => handleSelect(opt)}
-                        className={`flex w-full items-center justify-between rounded-md px-3 py-3 text-left text-sm transition-colors ${
-                          selected
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-muted"
-                        }`}
+                        onClick={() => toggleDraft(opt)}
+                        className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left text-[15px] text-foreground hover:bg-muted"
                         role="option"
-                        aria-selected={!!selected}
+                        aria-selected={checked}
                       >
+                        <span
+                          className={`grid h-5 w-5 shrink-0 place-items-center rounded border transition-colors ${
+                            checked
+                              ? "border-foreground bg-foreground text-background"
+                              : "border-input bg-background"
+                          }`}
+                          aria-hidden
+                        >
+                          {checked && (
+                            <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 8.5l3.5 3.5L13 5" />
+                            </svg>
+                          )}
+                        </span>
                         <span className="truncate">{opt}</span>
-                        {selected && <Check className="h-4 w-4 shrink-0" aria-hidden />}
                       </button>
                     </li>
                   );
                 })}
               </ul>
             )}
+          </div>
+
+          {/* Sticky Apply */}
+          <div className="border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <Button
+              type="button"
+              onClick={applyDraft}
+              className="h-12 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90"
+              data-testid="catalog-pill-sheet-apply"
+            >
+              {t.catalog_filterPill_apply}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Full-form bottom sheet (all filters) */}
+      <Sheet open={allOpen} onOpenChange={setAllOpen}>
+        <SheetContent
+          side="bottom"
+          className="flex h-[90vh] flex-col gap-0 rounded-t-2xl p-0 [&>button]:hidden"
+          data-testid="catalog-pill-all-sheet"
+        >
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 border-b border-border px-3 py-3">
+            <button
+              type="button"
+              onClick={() => setAllOpen(false)}
+              aria-label={t.catalog_filterPill_close}
+              className="rounded-md p-1.5 text-foreground hover:bg-muted"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SheetTitle className="text-center text-base font-semibold">
+              {t.catalog_filtersBar_title}
+            </SheetTitle>
+            <button
+              type="button"
+              onClick={() => onChange(emptyCatalogFilters)}
+              disabled={!hasActive}
+              className="rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-40"
+            >
+              {t.catalog_filterPill_clear}
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3">
+            <CatalogFilters value={value} onChange={onChange} options={options} layout="stacked" />
+          </div>
+          <div className="border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <Button
+              type="button"
+              onClick={() => setAllOpen(false)}
+              className="h-12 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90"
+            >
+              {t.catalog_filterPill_apply}
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
