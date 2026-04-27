@@ -161,21 +161,6 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setAllOpen(true)}
-          aria-label={t.catalog_filtersBar_title}
-          className="relative inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-foreground hover:bg-muted"
-          data-testid="catalog-pill-all-filters"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
-          {hasActive && (
-            <span
-              className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-destructive"
-              aria-hidden
-            />
-          )}
-        </button>
       </div>
 
       {/* Per-pill bottom sheet */}
