@@ -241,41 +241,6 @@ const Offers = () => {
           </div>
         </div>
 
-        {/* Quick category chips: horizontal scroll on mobile/tablet, wrap on desktop */}
-        <div
-          className="mt-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
-          role="tablist"
-          aria-label={t.catalog_breadcrumbCatalog}
-        >
-          <button
-            type="button"
-            className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-              filters.category === null
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
-            }`}
-            onClick={() => setFilters({ ...filters, category: null })}
-            data-testid="catalog-quick-cat-all"
-          >
-            {t.catalog_filters_all}
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.name}
-              type="button"
-              className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                filters.category === cat.name
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
-              }`}
-              onClick={() => setFilters({ ...filters, category: cat.name })}
-              data-testid={`catalog-quick-cat-${cat.name}`}
-            >
-              {cat.icon} {(t.cat_names as Record<string, string>)[cat.name] || cat.name} ({cat.count})
-            </button>
-          ))}
-        </div>
-
         <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-20">
           <AlertsInlinePanel />
         </div>
@@ -288,12 +253,18 @@ const Offers = () => {
           <TrustProofStrip />
         </div>
 
-        {/* Horizontal compact filter bar above the workspace — sticky while scrolling the catalog */}
+        {/* Procurement filters: pill-bar on mobile/tablet (opens bottom sheet),
+            compact horizontal CatalogFilters bar on desktop. Sticky while scrolling. */}
         <div
           id="catalog-anchor-filters"
           className="sticky top-16 z-30 -mx-4 mt-4 scroll-mt-20 border-b border-border/60 bg-background/95 px-4 py-2 supports-[backdrop-filter]:bg-background/80 supports-[backdrop-filter]:backdrop-blur md:-mx-6 md:px-6"
         >
-          <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
+          <div className="lg:hidden">
+            <MobileFilterPills value={filters} onChange={setFilters} options={options} />
+          </div>
+          <div className="hidden lg:block">
+            <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
+          </div>
         </div>
 
         <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-20 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
