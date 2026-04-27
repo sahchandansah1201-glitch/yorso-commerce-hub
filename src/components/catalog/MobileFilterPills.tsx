@@ -71,13 +71,13 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
     ? active.options.filter((o) => o.toLowerCase().includes(search.toLowerCase()))
     : [];
 
-  // Sync draft with current value when the sheet opens
+  // Sync draft with current value only when the sheet opens (not on every parent re-render).
   useEffect(() => {
-    if (active) {
-      setDraft((value[active.key] as string | null) ?? null);
-      setSearch("");
-    }
-  }, [active, value]);
+    if (!openKey) return;
+    setDraft((value[openKey] as string | null) ?? null);
+    setSearch("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openKey]);
 
   const closeSheet = () => {
     setOpenKey(null);
