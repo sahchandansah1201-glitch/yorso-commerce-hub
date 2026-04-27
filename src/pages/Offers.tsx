@@ -296,7 +296,7 @@ const Offers = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {visible.map((offer) => (
-                  <div key={offer.id}>
+                  <div key={offer.id} className="min-w-0">
                     <div className="sm:hidden">
                       <MobileOfferCard
                         offer={offer}
