@@ -139,15 +139,17 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
             <div
               key={i}
               className={cn(
-                "relative aspect-[4/3] shrink-0 snap-start bg-muted",
+                "relative shrink-0 snap-start bg-muted",
+                aspectClass,
                 hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
               )}
             >
               <img
                 src={src}
                 alt={offer.productName}
-                loading="lazy"
+                loading={i === 0 ? "eager" : "lazy"}
                 draggable={false}
+                onLoad={i === 0 ? handleFirstImgLoad : undefined}
                 className="h-full w-full object-cover"
                 onError={(e) => {
                   const target = e.currentTarget;
