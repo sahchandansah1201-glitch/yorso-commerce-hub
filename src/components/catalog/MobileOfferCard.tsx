@@ -77,9 +77,10 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
     const onScroll = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        // Each slide is 82% of scroller width + 8px gap, with 12px scroll
-        // padding on the left so first/last align nicely.
-        const slideWidth = el.clientWidth * 0.82 + 8;
+        // Each slide is 90% of scroller width + 8px gap, with 12px scroll
+        // padding on the left so first/last align nicely. 90% leaves
+        // exactly ~10% of the next photo peeking on the right.
+        const slideWidth = el.clientWidth * 0.9 + 8;
         const idx = Math.round(el.scrollLeft / slideWidth);
         setActiveIdx(Math.max(0, Math.min(images.length - 1, idx)));
       });
