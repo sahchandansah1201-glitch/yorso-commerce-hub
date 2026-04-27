@@ -145,30 +145,36 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
           className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ touchAction: "pan-x pan-y" }}
         >
-          {images.map((src, i) => (
-            <div
-              key={i}
-              className={cn(
-                "relative shrink-0 snap-start bg-muted",
-                aspectClass,
-                hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
-              )}
-            >
-              <img
-                src={src}
-                alt={offer.productName}
-                loading={i === 0 ? "eager" : "lazy"}
-                draggable={false}
-                onLoad={i === 0 ? handleFirstImgLoad : undefined}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-            </div>
-          ))}
+          {images.map((src, i) => {
+            // In a mixed-orientation gallery we use 4:5 container + contain
+            // so neither orientation gets cropped. In a uniform gallery we
+            // keep cover for an edge-to-edge product look.
+            const fitClass = isMixed ? "object-contain" : "object-cover";
+            return (
+              <div
+                key={i}
+                className={cn(
+                  "relative shrink-0 snap-start bg-muted",
+                  aspectClass,
+                  hasMultiple ? "w-[85%] mr-2 first:ml-0 rounded-md overflow-hidden" : "w-full",
+                )}
+              >
+                <img
+                  src={src}
+                  alt={offer.productName}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  draggable={false}
+                  onLoad={handleImgLoad(i)}
+                  className={cn("h-full w-full", fitClass)}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = "/placeholder.svg";
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Origin badge */}
