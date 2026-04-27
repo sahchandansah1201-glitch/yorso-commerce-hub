@@ -1810,6 +1810,10 @@ const en: TranslationKeys = {
   catalog_filtersBar_title: "Procurement filters",
   catalog_filtersBar_collapse: "Hide filters",
   catalog_filtersBar_expand: "Show filters",
+  catalog_filterPill_close: "Close",
+  catalog_filterPill_clear: "Clear",
+  catalog_filterPill_apply: "Apply",
+  catalog_filterPill_searchPlaceholder: "Search…",
 
   offerDetail_accessLocked_title: "Sign up to view supplier and price details",
   offerDetail_accessLocked_body: "Free registration unlocks indicative pricing, supplier identity preview and direct messaging requests.",
