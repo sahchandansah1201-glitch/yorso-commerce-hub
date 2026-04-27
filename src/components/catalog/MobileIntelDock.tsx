@@ -62,10 +62,10 @@ const MobileIntelDock = ({ offer }: Props) => {
       {/* Mini-card header: which offer this analytics belongs to + toggle */}
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-          {offer.gallery?.[0]?.url ? (
+          {offer.gallery?.[0]?.src ? (
             <img
-              src={offer.gallery[0].url}
-              alt=""
+              src={offer.gallery[0].src}
+              alt={offer.gallery[0].alt}
               className="h-full w-full object-cover"
               loading="lazy"
             />
