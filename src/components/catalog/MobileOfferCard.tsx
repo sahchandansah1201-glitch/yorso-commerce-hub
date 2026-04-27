@@ -174,44 +174,55 @@ const MobileOfferCard = ({ offer, isSelected, onSelect, forceLevel, isHighlighte
                   boxShadow: "inset 0 0 0 1px hsl(var(--border) / 0.4)",
                 }
               : {};
+            const isLast = i === images.length - 1;
             return (
               <div
                 key={i}
-                style={slideBgStyle}
                 className={cn(
-                  "relative shrink-0 snap-start rounded-md overflow-hidden",
-                  aspectClass,
+                  // Snap target — width is exactly 90% of the scroller.
+                  // The optional right padding is a *visual* gutter between
+                  // photos and is INSIDE the snap box, so it doesn't shift
+                  // the snap math. Last slide gets no gutter so it can sit
+                  // flush against the right edge after snap.
+                  "relative shrink-0 snap-start",
                   hasMultiple ? "w-[90%]" : "w-full",
-                  // Solid muted only when image fills the slide (cover);
-                  // for contain we use the radial blend above instead.
-                  !isMixed && "bg-muted",
+                  hasMultiple && !isLast && "pr-[1.5%]",
                 )}
               >
-                {!isLoaded && (
-                  <div
-                    aria-hidden
-                    className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
-                  />
-                )}
-                <img
-                  src={src}
-                  alt={offer.productName}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                  draggable={false}
-                  onLoad={handleImgLoad(i)}
+                <div
+                  style={slideBgStyle}
                   className={cn(
-                    "h-full w-full transition-opacity duration-200",
-                    fitClass,
-                    isLoaded ? "opacity-100" : "opacity-0",
+                    "relative h-full w-full overflow-hidden rounded-md",
+                    aspectClass,
+                    !isMixed && "bg-muted",
                   )}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.onerror = null;
-                    target.src = "/placeholder.svg";
-                    setLoaded((prev) => ({ ...prev, [i]: true }));
-                  }}
-                />
+                >
+                  {!isLoaded && (
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted via-muted/70 to-muted"
+                    />
+                  )}
+                  <img
+                    src={src}
+                    alt={offer.productName}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    draggable={false}
+                    onLoad={handleImgLoad(i)}
+                    className={cn(
+                      "h-full w-full transition-opacity duration-200",
+                      fitClass,
+                      isLoaded ? "opacity-100" : "opacity-0",
+                    )}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = "/placeholder.svg";
+                      setLoaded((prev) => ({ ...prev, [i]: true }));
+                    }}
+                  />
+                </div>
               </div>
             );
           })}
