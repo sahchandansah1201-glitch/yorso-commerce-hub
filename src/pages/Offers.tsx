@@ -130,6 +130,7 @@ const Offers = () => {
       states: ["Frozen", "Fresh", "Chilled"],
       cutTypes: uniq(mockOffers.map((o) => o.cutType.split(",")[0].trim())),
       currencies: uniq(mockOffers.map((o) => o.currency ?? "USD")),
+      latinNames: uniq(mockOffers.map((o) => o.latinName)),
     };
   }, [allowSupplierName]);
 
