@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
-import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check } from "lucide-react";
+import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
