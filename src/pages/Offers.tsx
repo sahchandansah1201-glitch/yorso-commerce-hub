@@ -45,6 +45,7 @@ const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: 
   if (f.state && offer.format !== f.state) return false;
   if (f.cutType && !offer.cutType.toLowerCase().includes(f.cutType.toLowerCase())) return false;
   if (f.currency && (offer.currency ?? "USD") !== f.currency) return false;
+  if (f.latinName && offer.latinName !== f.latinName) return false;
   return true;
 };
 
