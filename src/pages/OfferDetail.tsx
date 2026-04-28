@@ -46,109 +46,16 @@ const OfferDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [offer, setOffer] = useState<SeafoodOffer | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
-  const [retryNonce, setRetryNonce] = useState(0);
-  const [retrying, setRetrying] = useState(false);
-  const offerRef = useRef<SeafoodOffer | null>(null);
-  offerRef.current = offer;
-
-  const extractErrorCode = (err: unknown): string => {
-    const e = err as { code?: string; status?: number; statusCode?: number; message?: string };
-    if (e?.code) return String(e.code);
-    const st = e?.status ?? e?.statusCode;
-    if (st) return `HTTP ${st}`;
-    const msg = e?.message ?? "";
-    const m = msg.match(/PGRST\d+/i);
-    if (m) return m[0].toUpperCase();
-    return "ERR";
-  };
-
-  useEffect(() => {
-    if (!id) return;
-    let cancelled = false;
-    let backgroundTimer: number | undefined;
-    const abort = new AbortController();
-
-    if (!offerRef.current) setLoading(true);
-    setError(null);
-    setRetrying(retryNonce > 0);
-
-    const scheduleBackgroundRetry = () => {
-      if (cancelled) return;
-      backgroundTimer = window.setTimeout(() => {
-        if (cancelled) return;
-        setRetrying(true);
-        fetchOfferById(id, level)
-          .then((res) => {
-            if (cancelled) return;
-            setOffer(res);
-            setUsingFallback(false);
-            setLastErrorCode(null);
-            analytics.track("offer_detail_background_recovered", {
-              offerId: id,
-              attempts: failedAttempts,
-            });
-          })
-          .catch((e) => {
-            if (cancelled) return;
-            const code = extractErrorCode(e);
-            setLastErrorCode(code);
-            setFailedAttempts((n) => n + 1);
-            scheduleBackgroundRetry();
-          })
-          .finally(() => {
-            if (!cancelled) setRetrying(false);
-          });
-      }, 12000);
-    };
-
-    fetchOfferById(id, level)
-      .then((res) => {
-        if (cancelled) return;
-        setOffer(res);
-        setUsingFallback(false);
-        setFailedAttempts(0);
-        setLastErrorCode(null);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        console.error("[OfferDetail] fetchOfferById failed", e);
-        const code = extractErrorCode(e);
-        setLastErrorCode(code);
-        setFailedAttempts((n) => n + 1);
-        const fallbackOffer = isRetriableCatalogError(e) ? findFallbackOfferById(id, level) : null;
-        if (fallbackOffer) {
-          setOffer(fallbackOffer);
-          setUsingFallback(true);
-          setError(null);
-          scheduleBackgroundRetry();
-          return;
-        }
-        setError("Не удалось загрузить оффер");
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-          setRetrying(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-      abort.abort();
-      if (backgroundTimer) window.clearTimeout(backgroundTimer);
-    };
-  }, [id, level, retryNonce]);
-
-  const handleManualRetry = () => {
-    analytics.track("offer_detail_manual_retry_click", { offerId: id, lastErrorCode });
-    setRetryNonce((n) => n + 1);
-  };
+  const {
+    data: offer,
+    loading,
+    error,
+    usingFallback,
+    failedAttempts,
+    lastErrorCode,
+    recovering: retrying,
+    retry: handleManualRetry,
+  } = useResilientOffer(id, level);
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
