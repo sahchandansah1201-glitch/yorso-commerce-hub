@@ -63,6 +63,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
   useEffect(() => {
     let cancelled = false;
     let softFallbackApplied = false;
+    let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
     setLoading(true);
@@ -75,7 +76,11 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
       setData(fallbackOffersForLevel(level));
       setLoading(false);
       setUsingFallback(true);
-      analytics.track("catalog_soft_fallback_applied", { level });
+      analytics.track("catalog_soft_fallback_applied", {
+        level,
+        lastErrorCode: lastErr.code,
+        httpStatus: lastErr.httpStatus,
+      });
     }, SOFT_FALLBACK_MS);
 
     let backgroundTimer: number | null = null;
@@ -83,6 +88,8 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
 
     const trackAttemptFail = (err: unknown, n: number) => {
       const code = extractCatalogErrorCode(err);
+      const httpStatus = extractHttpStatus(err);
+      lastErr = { code, httpStatus };
       if (!cancelled) {
         setFailedAttempts((p) => p + 1);
         setLastErrorCode(code);
@@ -91,6 +98,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
         level,
         attempt: n,
         code,
+        httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
       });
     };
@@ -111,12 +119,14 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
             setData(rows);
             setUsingFallback(false);
             setRecovering(false);
-            setLastErrorCode(null);
             analytics.track("catalog_background_recovered", {
               level,
               attempt: backgroundAttempt,
               durationMs: Date.now() - startedAt,
+              lastErrorCode: lastErr.code,
+              httpStatus: lastErr.httpStatus,
             });
+            setLastErrorCode(null);
           })
           .catch(() => {
             if (cancelled) return;
@@ -143,7 +153,11 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
             setData(fallbackOffersForLevel(level));
             setLoading(false);
             setUsingFallback(true);
-            analytics.track("catalog_soft_fallback_applied", { level });
+            analytics.track("catalog_soft_fallback_applied", {
+              level,
+              lastErrorCode: lastErr.code,
+              httpStatus: lastErr.httpStatus,
+            });
           }
           scheduleBackgroundRetry();
           return;
