@@ -101,6 +101,7 @@ export interface EventPayloadMap {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
     lastErrorCode?: string | null;
     httpStatus?: number | null;
+    correlationId?: string;
   };
   catalog_fetch_attempt_failed: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -109,6 +110,7 @@ export interface EventPayloadMap {
     status?: number;
     httpStatus?: number | null;
     message?: string;
+    correlationId?: string;
   };
   catalog_background_recovered: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -116,17 +118,21 @@ export interface EventPayloadMap {
     durationMs: number;
     lastErrorCode?: string | null;
     httpStatus?: number | null;
+    correlationId?: string;
   };
   catalog_manual_retry_click: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    correlationId?: string;
   };
   offer_detail_manual_retry_click: {
     offerId: string | undefined;
     lastErrorCode: string | null;
+    correlationId?: string;
   };
   offer_detail_background_recovered: {
     offerId: string | undefined;
     attempts: number;
+    correlationId?: string;
   };
 
   // Registration ────────────────────────────────────────────────

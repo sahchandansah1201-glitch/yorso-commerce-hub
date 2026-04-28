@@ -36,6 +36,21 @@ import analytics from "@/lib/analytics";
 const SOFT_FALLBACK_MS = 3500;
 const BACKGROUND_RETRY_MS = 12_000;
 
+/**
+ * Стабильный ID на жизненный цикл одного экрана/инстанса хука.
+ * Позволяет в аналитике связать цепочку:
+ *   catalog_fetch_attempt_failed → catalog_soft_fallback_applied →
+ *   catalog_background_recovered (или manual_retry_click).
+ *
+ * crypto.randomUUID есть во всех современных браузерах; fallback на Math.random
+ * нужен только для очень старых окружений и тестов без crypto.
+ */
+const newCorrelationId = (): string => {
+  const c = (globalThis as { crypto?: Crypto }).crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return `corr_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+};
+
 export interface ResilientState<T> {
   data: T;
   loading: boolean;
@@ -59,6 +74,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
   const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
   const [recovering, setRecovering] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const correlationIdRef = useRef<string>(newCorrelationId());
 
   useEffect(() => {
     let cancelled = false;
@@ -66,6 +82,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
     let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
+    const correlationId = correlationIdRef.current;
     setLoading(true);
     setError(null);
     setRecovering(false);
@@ -80,6 +97,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
         level,
         lastErrorCode: lastErr.code,
         httpStatus: lastErr.httpStatus,
+        correlationId,
       });
     }, SOFT_FALLBACK_MS);
 
@@ -100,6 +118,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
         code,
         httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
+        correlationId,
       });
     };
 
@@ -125,6 +144,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
               durationMs: Date.now() - startedAt,
               lastErrorCode: lastErr.code,
               httpStatus: lastErr.httpStatus,
+              correlationId,
             });
             setLastErrorCode(null);
           })
@@ -157,6 +177,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
               level,
               lastErrorCode: lastErr.code,
               httpStatus: lastErr.httpStatus,
+              correlationId,
             });
           }
           scheduleBackgroundRetry();
@@ -177,7 +198,9 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
   }, [level, reloadKey]);
 
   const retry = useCallback(() => {
-    analytics.track("catalog_manual_retry_click", { level });
+    // Новая «жизнь экрана» — новый correlationId, чтобы воронка retry была отдельной.
+    correlationIdRef.current = newCorrelationId();
+    analytics.track("catalog_manual_retry_click", { level, correlationId: correlationIdRef.current });
     setFailedAttempts(0);
     setLastErrorCode(null);
     setReloadKey((k) => k + 1);
@@ -203,6 +226,7 @@ export const useResilientOffer = (
   const [reloadKey, setReloadKey] = useState(0);
   const dataRef = useRef<SeafoodOffer | null>(null);
   dataRef.current = data;
+  const correlationIdRef = useRef<string>(newCorrelationId());
 
   useEffect(() => {
     if (!id) return;
@@ -212,6 +236,7 @@ export const useResilientOffer = (
     let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
+    const correlationId = correlationIdRef.current;
     if (!dataRef.current) setLoading(true);
     setError(null);
 
@@ -229,6 +254,7 @@ export const useResilientOffer = (
         code,
         httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
+        correlationId,
       });
     };
 
@@ -256,11 +282,13 @@ export const useResilientOffer = (
                 durationMs: Date.now() - startedAt,
                 lastErrorCode: lastErr.code,
                 httpStatus: lastErr.httpStatus,
+                correlationId,
               });
               // Офферо-специфичное событие — для воронки конкретного товара.
               analytics.track("offer_detail_background_recovered", {
                 offerId: id,
                 attempts: failedAttempts,
+                correlationId,
               });
             } else {
               scheduleBackgroundRetry();
@@ -297,6 +325,7 @@ export const useResilientOffer = (
             level,
             lastErrorCode: lastErr.code,
             httpStatus: lastErr.httpStatus,
+            correlationId,
           });
           scheduleBackgroundRetry();
           return;
@@ -317,7 +346,12 @@ export const useResilientOffer = (
   }, [id, level, reloadKey]);
 
   const retry = useCallback(() => {
-    analytics.track("offer_detail_manual_retry_click", { offerId: id, lastErrorCode });
+    correlationIdRef.current = newCorrelationId();
+    analytics.track("offer_detail_manual_retry_click", {
+      offerId: id,
+      lastErrorCode,
+      correlationId: correlationIdRef.current,
+    });
     setFailedAttempts(0);
     setLastErrorCode(null);
     setReloadKey((k) => k + 1);
