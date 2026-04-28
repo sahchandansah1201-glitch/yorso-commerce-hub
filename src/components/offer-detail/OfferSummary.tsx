@@ -86,24 +86,9 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           {!isQualified && <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />}
         </div>
 
-        {isAnonymous && (
-          <div className="p-5 space-y-3 text-center">
-            <p className="text-sm font-semibold text-foreground">{t.offerDetail_priceLocked_label}</p>
-            <p className="text-xs text-muted-foreground">{t.offerDetail_termsLocked_hint}</p>
-            <p className="text-xs text-muted-foreground">
-              {t.offerDetail_basisCountAvailable.replace("{n}", String(bases.length))}
-            </p>
-            <Link to="/register" className="block pt-1">
-              <Button className="w-full gap-2" size="sm">
-                {t.offerDetail_priceLocked_anonCta} <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        {isRegistered && (
+        {!isQualified && (
           <div className="p-4 space-y-4">
-            {/* Indicative range only — no exact basis-level price, no volume tiers, no port/lead/payment */}
+            {/* Indicative price range — visible to anonymous & registered */}
             <div>
               <p className="text-[11px] font-medium text-muted-foreground mb-1">{t.offerDetail_indicativePrice}</p>
               <div className="flex items-baseline gap-2">
@@ -112,15 +97,50 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               </div>
               <p className="mt-1 text-xs text-muted-foreground">{t.offerDetail_termsLocked_hint}</p>
             </div>
-            <div className="rounded-lg bg-muted/40 p-3 space-y-2">
-              <p className="text-xs font-medium text-foreground">{t.offerDetail_termsLocked_label}</p>
-              <p className="text-xs text-muted-foreground">
-                {t.offerDetail_basisCountAvailable.replace("{n}", String(bases.length))}
-              </p>
-              <Button size="sm" variant="outline" className="w-full gap-2" disabled>
+
+            {/* MOQ — real procurement signal, no price exposure */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="MOQ" value={offer.moq.replace("MOQ: ", "")} />
+              <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Delivery options" value={`${bases.length} basis`} />
+            </div>
+
+            {/* Volume thresholds — show real partition sizes, hide prices */}
+            {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
+              <div>
+                <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Объёмы партий</p>
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <table className="w-full text-xs">
+                    <tbody>
+                      {offer.volumeBreaks.map((vb, i) => (
+                        <tr key={i} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
+                          <td className="px-3 py-1.5 text-foreground font-medium">{vb.minQty}</td>
+                          <td className="px-3 py-1.5 text-muted-foreground text-right inline-flex items-center justify-end gap-1 w-full">
+                            <Lock className="h-3 w-3" aria-hidden /> Цена по запросу
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* CTA — differs by access state */}
+            {isAnonymous ? (
+              <Link to="/register" className="block">
+                <Button className="w-full gap-2" size="sm">
+                  {t.offerDetail_priceLocked_anonCta} <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                size="sm"
+                className="w-full gap-2"
+                onClick={() => setAccessDialogOpen(true)}
+              >
                 <Lock className="h-3.5 w-3.5" /> {t.offerDetail_priceLocked_regCta}
               </Button>
-            </div>
+            )}
           </div>
         )}
 
