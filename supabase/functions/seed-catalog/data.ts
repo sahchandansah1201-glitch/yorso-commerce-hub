@@ -803,4 +803,3 @@ export const mockOffers= [
   },
 ];
 
-export { mockOffers };
