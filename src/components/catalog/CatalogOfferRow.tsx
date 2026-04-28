@@ -603,6 +603,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
   const { t } = useLanguage();
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   const trend = getPriceTrend(offer.category);
   const offerCountries = new Set([offer.origin, offer.supplier.country]);
@@ -626,9 +627,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         "group relative grid cursor-pointer gap-4 rounded-lg border bg-card p-4 shadow-sm transition-colors",
         // Mobile (<640): single column, everything stacks.
         "grid-cols-1",
-        // Tablet (640–1023): image gets a fluid 160–200px column, content
-        // takes the rest. Price/supplier wraps full-width via col-span-2.
-        "sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)] sm:gap-5 sm:p-5",
+        // Tablet (640–1023): три колонки. Фото — узкая, идентификация — гибкая,
+        // цена/поставщик — компактная третья колонка. Это ускоряет
+        // сканирование «слева направо: что → как → почём» и убирает
+        // широкую «полосу» цены под идентификацией.
+        "sm:grid-cols-[minmax(140px,170px)_minmax(0,1fr)_minmax(190px,220px)] sm:gap-5 sm:p-5",
         // Desktop (1024–1279): three columns. Middle column (product identity
         // + deal terms) widened by another +10%; price column trimmed accordingly.
         "lg:grid-cols-[minmax(220px,260px)_minmax(0,1.32fr)_minmax(205px,222px)] lg:gap-6 lg:p-6",
@@ -669,7 +672,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           <DealTermsStrip offer={offer} />
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 lg:pt-4 text-xs text-muted-foreground">
           {trend && (
             <span className="inline-flex items-center gap-1">
               {dirIcon(trend.d30.dir)}
@@ -694,17 +697,54 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             />
             {docsReady ? t.catalog_row_signal_docsReady : t.catalog_row_signal_docsPending}
           </span>
+
+          {/* Аналитика — пиктограмма-кнопка, раскрывает встроенную панель
+              с трендом и рыночным контекстом по выбранному офферу. */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setAnalyticsOpen((v) => !v);
+            }}
+            aria-expanded={analyticsOpen}
+            aria-controls={`offer-analytics-${offer.id}`}
+            aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
+            title={analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}
+            data-testid="catalog-row-analytics-toggle"
+            className={cn(
+              "ml-auto inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-semibold transition-colors",
+              analyticsOpen
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-transparent text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
+            )}
+          >
+            <BarChart3 className="h-3.5 w-3.5" aria-hidden />
+            <span className="hidden sm:inline">Аналитика</span>
+          </button>
         </div>
       </div>
 
-      {/* 3. Price + supplier/access. Below lg this block sits full-width
-          under the identity column; from lg+ it becomes the third column. */}
-      <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 lg:border-t-0 lg:pt-0 sm:col-span-2 lg:col-span-1">
+      {/* 3. Price + supplier/access. На sm+ это третья колонка сетки,
+          на мобильном — обычный stacked-блок под идентификацией. */}
+      <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 sm:border-t-0 sm:pt-0">
         <PriceBlock offer={offer} level={level} />
         <div className="border-t border-border pt-3 lg:pt-4">
           <SupplierLine offer={offer} level={level} />
         </div>
       </div>
+
+      {/* Inline Analytics — full-width под сеткой, чтобы не ломать колонки. */}
+      <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen} className="col-span-full">
+        <CollapsibleContent
+          id={`offer-analytics-${offer.id}`}
+          data-testid="catalog-row-analytics-panel"
+          className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+        >
+          <div className="mt-2 border-t border-border pt-4">
+            <OfferAnalyticsPanel offer={offer} />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </article>
   );
 };
