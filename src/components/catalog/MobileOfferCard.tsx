@@ -563,7 +563,8 @@ const MobileOfferCard = ({
       </div>
 
       <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
-        {/* 2. Price first, with trend */}
+        <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
+        {/* 2. Price first, with trend (trend doubles as analytics trigger) */}
         <div className="flex items-baseline gap-2">
           {exact ? (
             <span className="font-heading text-lg font-bold text-foreground">
@@ -574,11 +575,26 @@ const MobileOfferCard = ({
           )}
           <span className="text-xs text-muted-foreground">{unit}</span>
           {TrendIcon && trend && (
-            <span className={cn("ml-auto inline-flex items-center gap-0.5 text-xs font-semibold", trendColor)}>
-              <TrendIcon className="h-3.5 w-3.5" aria-hidden />
-              {trend.d30.pct > 0 ? "+" : ""}
-              {trend.d30.pct.toFixed(1)}%
-            </span>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
+                aria-expanded={analyticsOpen}
+                title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
+                data-testid="catalog-row-trend-analytics-toggle"
+                className={cn(
+                  "ml-auto inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-xs font-semibold transition-all duration-200",
+                  analyticsOpen
+                    ? "border-primary bg-primary/10 text-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
+                    : cn("border-transparent hover:border-primary/40 hover:bg-primary/5", trendColor),
+                )}
+              >
+                <TrendIcon className="h-3.5 w-3.5" aria-hidden />
+                {trend.d30.pct > 0 ? "+" : ""}
+                {trend.d30.pct.toFixed(1)}%
+              </button>
+            </CollapsibleTrigger>
           )}
         </div>
 
