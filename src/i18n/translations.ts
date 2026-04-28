@@ -1525,7 +1525,7 @@ const en: TranslationKeys = {
   info_privacy_contactBody: "Data Protection Officer: ",
 
   // Catalog
-  catalog_pageTitle: "Seafood Procurement Catalog",
+  catalog_pageTitle: "Seafood Catalog",
   catalog_breadcrumbHome: "Home",
   catalog_breadcrumbCatalog: "Catalog",
   catalog_marketStatus_live: "Marketplace live",
