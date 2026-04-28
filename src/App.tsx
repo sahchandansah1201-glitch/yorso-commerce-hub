@@ -19,6 +19,7 @@ import SignIn from "./pages/SignIn.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Offers from "./pages/Offers.tsx";
 import OfferDetail from "./pages/OfferDetail.tsx";
+import LegacyOfferRedirect from "./components/routing/LegacyOfferRedirect.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
 import Terms from "./pages/Terms.tsx";
