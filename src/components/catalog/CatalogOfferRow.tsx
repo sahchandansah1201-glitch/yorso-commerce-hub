@@ -15,9 +15,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
@@ -28,6 +34,7 @@ import { getPriceTrend, countryNews } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
+import OfferAnalyticsPanel from "@/components/catalog/OfferAnalyticsPanel";
 
 /**
  * Renders the price unit (e.g. "$/kg") with a tooltip explaining how the
