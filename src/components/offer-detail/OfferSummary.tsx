@@ -227,6 +227,10 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           )}
         </div>
       )}
+
+      {isRegistered && (
+        <AccessRequestDialog open={accessDialogOpen} onOpenChange={setAccessDialogOpen} />
+      )}
     </div>
   );
 };
