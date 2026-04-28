@@ -97,6 +97,9 @@ export interface EventPayloadMap {
     supplierCountry: string;
     accessLevel: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   };
+  catalog_soft_fallback_applied: {
+    level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+  };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and

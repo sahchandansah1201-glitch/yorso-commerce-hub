@@ -108,26 +108,51 @@ const Offers = () => {
   // users get exact price/supplier; others see redacted public view).
   useEffect(() => {
     let cancelled = false;
+    let softFallbackApplied = false;
     setOffersLoading(true);
     setOffersError(null);
+
+    // Мягкий fallback: если бэкенд PostgREST холодит / отвечает 503 PGRST001/002,
+    // не держим пользователя на скелетонах. Через 3.5с показываем mockOffers,
+    // чтобы панель закупок сразу заполнилась. Когда настоящий ответ придёт —
+    // тихо заменим данные на реальные.
+    const softFallbackTimer = window.setTimeout(() => {
+      if (cancelled) return;
+      softFallbackApplied = true;
+      setOffers(fallbackOffersForLevel(level));
+      setOffersLoading(false);
+      analytics.track("catalog_soft_fallback_applied", { level });
+    }, 3500);
+
     fetchOffersWithRetry(level)
       .then((rows) => {
         if (cancelled) return;
+        window.clearTimeout(softFallbackTimer);
         setOffers(rows);
         setOffersLoading(false);
       })
       .catch((err) => {
         if (cancelled) return;
+        window.clearTimeout(softFallbackTimer);
         if (isRetriableCatalogError(err)) {
-          setOffers(fallbackOffersForLevel(level));
-          setOffersLoading(false);
+          // Если soft fallback уже сработал — оставляем mockOffers и не шумим.
+          if (!softFallbackApplied) {
+            setOffers(fallbackOffersForLevel(level));
+            setOffersLoading(false);
+          }
           return;
         }
-        setOffersError(err?.message ?? "Не удалось загрузить каталог");
-        setOffersLoading(false);
+        // Не-retriable ошибка: если у пользователя уже есть mock-данные
+        // от soft fallback — оставляем их, чтобы рабочая поверхность не
+        // схлопнулась в красное состояние.
+        if (!softFallbackApplied) {
+          setOffersError(err?.message ?? "Не удалось загрузить каталог");
+          setOffersLoading(false);
+        }
       });
     return () => {
       cancelled = true;
+      window.clearTimeout(softFallbackTimer);
     };
   }, [level]);
 
