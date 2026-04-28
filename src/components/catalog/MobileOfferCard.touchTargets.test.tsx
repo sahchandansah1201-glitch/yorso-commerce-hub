@@ -107,8 +107,16 @@ describe("MobileOfferCard · расширенные тач-области для
     // У базиса вертикальный padding чуть больше, чтобы добрать до ~44px.
     expect(cls).toMatch(/(^|\s)py-1\.5(\s|$)/);
     expect(cls).toContain("rounded-md");
-    expect(cls).toContain("active:bg-muted/70");
+
+    // Тот же набор active/focus откликов, что и у названия.
+    expect(cls).toContain("active:bg-muted");
+    expect(cls).toMatch(/active:scale-\[0\.99\]/);
     expect(cls).toContain("focus-visible:ring-2");
+    expect(cls).toContain("focus-visible:ring-primary");
+    expect(cls).toContain("focus-visible:ring-offset-2");
+    expect(cls).toContain("focus-visible:outline-none");
+    expect(cls).toContain("touch-manipulation");
+    expect(cls).toContain("[-webkit-tap-highlight-color:transparent]");
   });
 
   it("у ссылки базиса есть осмысленный aria-label с кодом, портом и сроком", () => {
