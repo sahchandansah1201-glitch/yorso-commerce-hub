@@ -226,6 +226,7 @@ export const useResilientOffer = (
   const [reloadKey, setReloadKey] = useState(0);
   const dataRef = useRef<SeafoodOffer | null>(null);
   dataRef.current = data;
+  const correlationIdRef = useRef<string>(newCorrelationId());
 
   useEffect(() => {
     if (!id) return;
@@ -235,6 +236,7 @@ export const useResilientOffer = (
     let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
+    const correlationId = correlationIdRef.current;
     if (!dataRef.current) setLoading(true);
     setError(null);
 
@@ -252,6 +254,7 @@ export const useResilientOffer = (
         code,
         httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
+        correlationId,
       });
     };
 
@@ -279,11 +282,13 @@ export const useResilientOffer = (
                 durationMs: Date.now() - startedAt,
                 lastErrorCode: lastErr.code,
                 httpStatus: lastErr.httpStatus,
+                correlationId,
               });
               // Офферо-специфичное событие — для воронки конкретного товара.
               analytics.track("offer_detail_background_recovered", {
                 offerId: id,
                 attempts: failedAttempts,
+                correlationId,
               });
             } else {
               scheduleBackgroundRetry();
@@ -320,6 +325,7 @@ export const useResilientOffer = (
             level,
             lastErrorCode: lastErr.code,
             httpStatus: lastErr.httpStatus,
+            correlationId,
           });
           scheduleBackgroundRetry();
           return;
