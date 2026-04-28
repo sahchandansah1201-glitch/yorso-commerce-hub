@@ -253,9 +253,11 @@ const Offers = () => {
           <CatalogValueStrip />
         </div>
 
-        <div id="catalog-anchor-verification" className="mt-4 scroll-mt-20">
-          <TrustProofStrip />
-        </div>
+        {level === "anonymous_locked" && (
+          <div id="catalog-anchor-verification" className="mt-4 scroll-mt-20">
+            <TrustProofStrip />
+          </div>
+        )}
 
         {new URLSearchParams(location.search).get("devPhotos") === "1" && (
           <PhotoOrientationDevPanel />
