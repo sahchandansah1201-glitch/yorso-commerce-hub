@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Clock, Snowflake, Leaf, Thermometer, Package, MapPin, Globe, Scale,
-  FileText, Truck, Anchor as AnchorIcon, Lock, ArrowRight,
+  FileText, FileCheck, Truck, Anchor as AnchorIcon, Lock, ArrowRight,
 } from "lucide-react";
 import type { SeafoodOffer, DeliveryBasisOption } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { AccessRequestDialog } from "@/components/catalog/AccessRequestDialog";
+import CertificationBadges from "@/components/CertificationBadges";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
@@ -78,6 +79,16 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Volume capacity" value={offer.commercial.availableVolume} />
         )}
       </div>
+
+      {/* Product certifications — public, помогают оценить соответствие до запроса доступа */}
+      {offer.certifications && offer.certifications.length > 0 && (
+        <div>
+          <p className="text-[11px] font-medium text-muted-foreground mb-1.5 inline-flex items-center gap-1">
+            <FileCheck className="h-3 w-3" /> Сертификаты соответствия
+          </p>
+          <CertificationBadges certifications={offer.certifications} size="sm" />
+        </div>
+      )}
 
       {/* Commercial Terms Card */}
       <div className="rounded-xl border border-border bg-card">
