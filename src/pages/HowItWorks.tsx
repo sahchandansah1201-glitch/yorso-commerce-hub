@@ -95,26 +95,11 @@ const systemBlocks = [
 ];
 
 const placeholderAnchors: { id: string; title: string; note: string }[] = [
-  // Note: #buyer-journey is now a real section (BuyerJourney.tsx).
-  {
-    id: "supplier-journey",
-    title: "Supplier journey",
-    note: "From verified profile to qualified buyer pipeline — detailed in the next prompt.",
-  },
-  {
-    id: "trust-layer",
-    title: "Trust layer",
-    note: "Verification, documents, evidence and qualification model — detailed in the next prompt.",
-  },
+  // #buyer-journey, #supplier-journey, #trust-layer and #outcomes are real sections now.
   {
     id: "access-levels",
     title: "Access levels",
     note: "How price and supplier visibility unlock across the three access states.",
-  },
-  {
-    id: "outcomes",
-    title: "Outcomes",
-    note: "Procurement and supplier outcomes Yorso is designed to produce.",
   },
   {
     id: "final-cta",
