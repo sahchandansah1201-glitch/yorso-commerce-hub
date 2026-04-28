@@ -417,6 +417,45 @@ const Offers = () => {
           </div>
         </div>
 
+        {usingFallback && (
+          <div
+            role="status"
+            data-testid="catalog-fallback-banner"
+            className="mt-4 flex flex-col gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <div className="space-y-0.5">
+                <p className="font-medium">
+                  Показаны демо-предложения, пока бэкенд восстанавливается
+                </p>
+                <p className="text-xs opacity-80">
+                  {recovering
+                    ? "Повторное подключение к каталогу…"
+                    : "Подключение к каталогу будет повторено автоматически."}
+                  {failedAttempts > 0 && (
+                    <>
+                      {" "}Неудачных попыток: {failedAttempts}
+                      {lastErrorCode ? ` · код ${lastErrorCode}` : ""}.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRetry}
+              disabled={recovering}
+              className="gap-1.5"
+              data-testid="catalog-fallback-retry"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${recovering ? "animate-spin" : ""}`} aria-hidden />
+              Повторить сейчас
+            </Button>
+          </div>
+        )}
+
         <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-20">
           <AlertsInlinePanel />
         </div>
