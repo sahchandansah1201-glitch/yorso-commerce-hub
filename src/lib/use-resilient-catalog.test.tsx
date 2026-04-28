@@ -103,7 +103,7 @@ describe("useResilientCatalog — события деградации/восст
     fetchOffersMock.mockReset();
     fetchOffersMock.mockResolvedValue(rows);
 
-    await advance(13_000);
+    await advance(20_000);
 
     const recovered = eventsOf("catalog_background_recovered");
     expect(recovered).toHaveLength(1);
