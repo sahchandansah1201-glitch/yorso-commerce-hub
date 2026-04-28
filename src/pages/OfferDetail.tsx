@@ -1,13 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, ChevronRight, Lock, RefreshCw } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { SeafoodOffer } from "@/data/mockOffers";
-import { fetchOfferById } from "@/lib/catalog-api";
-import { findFallbackOfferById } from "@/lib/catalog-fallback";
-import { isRetriableCatalogError } from "@/lib/fetch-offers-with-retry";
+import { useResilientOffer } from "@/lib/use-resilient-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
