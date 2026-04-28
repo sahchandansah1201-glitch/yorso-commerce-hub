@@ -3389,7 +3389,7 @@ const es: TranslationKeys = {
   info_privacy_contactBody: "Delegado de Protección de Datos: ",
 
   // Catalog
-  catalog_pageTitle: "Catálogo de aprovisionamiento de mariscos",
+  catalog_pageTitle: "Catálogo de mariscos",
   catalog_breadcrumbHome: "Inicio",
   catalog_breadcrumbCatalog: "Catálogo",
   catalog_marketStatus_live: "Mercado activo",
