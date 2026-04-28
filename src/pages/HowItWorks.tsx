@@ -90,11 +90,7 @@ const systemBlocks = [
 ];
 
 const placeholderAnchors: { id: string; title: string; note: string }[] = [
-  {
-    id: "buyer-journey",
-    title: "Buyer journey",
-    note: "From discovery to a defensible procurement decision — detailed in the next prompt.",
-  },
+  // Note: #buyer-journey is now a real section (BuyerJourney.tsx).
   {
     id: "supplier-journey",
     title: "Supplier journey",
