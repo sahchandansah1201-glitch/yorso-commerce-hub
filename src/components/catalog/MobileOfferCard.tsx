@@ -635,7 +635,7 @@ const MobileOfferCard = ({
             onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-basis"
             aria-label={`Базис поставки ${primaryBasis.code}, ${primaryBasis.shipmentPort?.split(",")[0]}, срок ${primaryBasis.leadTime}`}
-            className="-mx-2 -my-1 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground transition-colors active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="-mx-2 -my-1 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
           >
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{primaryBasis.code}</span>
