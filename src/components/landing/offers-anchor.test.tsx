@@ -7,6 +7,17 @@ import Header from "./Header";
 import Hero from "./Hero";
 import LiveOffers from "./LiveOffers";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { mockOffers } from "@/data/mockOffers";
+
+// Стабилизируем источник данных LiveOffers: тест проверяет только anchor/scroll,
+// сетевые вызовы тут только мешают. Имитируем успешный ответ Supabase.
+vi.mock("@/lib/useLandingOffers", () => ({
+  useLandingOffers: () => ({
+    offers: mockOffers,
+    source: "supabase" as const,
+    isLoading: false,
+  }),
+}));
 
 /**
  * Verifies that the #offers anchor lands BELOW the sticky header — i.e. the
