@@ -10,6 +10,7 @@ import {
   clearAccessRequest,
   type AccessRequestScope,
 } from "@/lib/catalog-requests";
+import { useCatalogRecoveryVisible } from "./catalog-recovery-visibility";
 import AccessRequestDialog from "./AccessRequestDialog";
 
 /**
@@ -24,22 +25,21 @@ import AccessRequestDialog from "./AccessRequestDialog";
  *    After submission, the strip switches to a pending state showing what
  *    was requested. It NEVER auto-qualifies the user.
  *  - qualified_unlocked: hidden
+ *
+ * Видимость управляется общим `useCatalogRecoveryVisible` —
+ * единым источником правды для всех recovery-CTA каталога
+ * (см. `catalog-recovery-visibility.tsx`).
  */
 export const CatalogValueStrip = () => {
   const { t } = useLanguage();
-  const { level, isSignedIn } = useAccessLevel();
+  const { level } = useAccessLevel();
   const accessRequest = useAccessRequest();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const visible = useCatalogRecoveryVisible();
 
-  // Раздел «Получите больше от каталога» — это онбординг-нудж только
-  // для НЕзарегистрированных посетителей. Любой авторизованный пользователь
-  // (registered_locked / qualified_unlocked, а также любой случай, когда
-  // buyer-сессия установлена) этот блок видеть не должен.
-  //
-  // Двойная защита: сначала по `isSignedIn` (быстрый и явный сигнал
-  // о наличии сессии), затем по уровню доступа — чтобы любая будущая
-  // комбинация состояний всё равно скрывала блок для зарегистрированных.
-  if (isSignedIn) return null;
+  if (!visible) return null;
+  // Доп. защита: pending-state ниже завязан на registered, а CTA — на anonymous.
+  // Если уровень не anonymous_locked, recovery-блок всё равно не показываем.
   if (level !== "anonymous_locked") return null;
 
   const isRegistered = false as boolean;
