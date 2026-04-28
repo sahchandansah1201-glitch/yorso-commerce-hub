@@ -148,13 +148,9 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
           </div>
         )}
 
-        {isQualified ? (
+        {isQualified && (
           <Button variant="outline" size="sm" className="w-full text-xs">
             View Supplier Profile
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" disabled>
-            <Lock className="h-3 w-3" /> {t.offerDetail_supplierProfileLocked}
           </Button>
         )}
       </div>
