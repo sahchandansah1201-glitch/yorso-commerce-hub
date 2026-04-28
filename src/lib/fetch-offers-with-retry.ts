@@ -46,8 +46,8 @@ export const fetchOffersWithRetry = async (
   level: AccessLevel,
   opts: RetryOptions = {},
 ): Promise<SeafoodOffer[]> => {
-  const maxAttempts = opts.maxAttempts ?? 3;
-  const delayMs = opts.delayMs ?? 600;
+  const maxAttempts = opts.maxAttempts ?? 6;
+  const delayMs = opts.delayMs ?? 800;
 
   let lastErr: unknown;
   for (let n = 1; n <= maxAttempts; n++) {
@@ -56,7 +56,9 @@ export const fetchOffersWithRetry = async (
     } catch (err) {
       lastErr = err;
       if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
-      await new Promise((r) => setTimeout(r, delayMs * n));
+      // Экспоненциальный бэк-офф с потолком 4с — покрывает cold-start Lovable Cloud.
+      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
+      await new Promise((r) => setTimeout(r, wait));
     }
   }
   throw lastErr;
