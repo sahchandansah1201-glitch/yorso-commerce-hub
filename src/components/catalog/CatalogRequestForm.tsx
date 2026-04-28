@@ -302,7 +302,8 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             value={form.notes}
             onChange={(e) => update("notes", e.target.value)}
             placeholder={t.catalog_reqForm_notesPh}
-            rows={3}
+            rows={2}
+            className="min-h-[60px]"
           />
         </div>
 
