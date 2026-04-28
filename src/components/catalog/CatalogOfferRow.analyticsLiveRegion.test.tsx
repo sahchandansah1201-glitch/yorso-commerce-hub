@@ -22,7 +22,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { mockOffers } from "@/data/mockOffers";
 
-const renderRow = () => {
+const renderRow = ({ open = true } = {}) => {
   const offer = mockOffers[0];
   render(
     <MemoryRouter>
@@ -38,6 +38,11 @@ const renderRow = () => {
       </LanguageProvider>
     </MemoryRouter>,
   );
+  if (open) {
+    // Radix Collapsible не рендерит детей в закрытом состоянии,
+    // поэтому открываем панель перед проверкой DOM-семантики.
+    fireEvent.click(screen.getByTestId("catalog-row-analytics-toggle"));
+  }
   return offer;
 };
 
