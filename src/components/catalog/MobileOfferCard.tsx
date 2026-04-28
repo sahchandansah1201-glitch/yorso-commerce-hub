@@ -600,11 +600,16 @@ const MobileOfferCard = ({
 
         {/* 3. Product name + Latin name — единая увеличенная тач-цель.
             Отрицательные внешние отступы + внутренние padding'и расширяют
-            кликабельную область до ~44px по высоте без визуального сдвига. */}
+            кликабельную область до ~44px по высоте без визуального сдвига.
+
+            stopPropagation НЕ нужен: handleCardClick сам отфильтровывает
+            клики по `a, button` через closest(), а гасить bubbling здесь
+            мешало бы делегированным слушателям (аналитика, outside-click
+            и т.п.) видеть переход. Навигация по <Link> идёт штатно через
+            React Router. */}
         <Link
           to={`/offers/${offer.id}`}
           state={buildCatalogReturnState(offer.id)}
-          onClick={(e) => e.stopPropagation()}
           data-testid="catalog-row-view-details"
           aria-label={`Открыть карточку: ${offer.productName}`}
           className="block min-w-0 -mx-2 -my-1 rounded-md px-2 py-1 touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
@@ -627,12 +632,12 @@ const MobileOfferCard = ({
         </Link>
 
         {/* 4. Delivery basis — кликабельная строка, ведёт на детали оффера.
-            Расширенная тач-цель за счёт -mx-2/-my-1 + py-1.5. */}
+            Расширенная тач-цель за счёт -mx-2/-my-1 + py-1.5.
+            stopPropagation не нужен — см. комментарий у блока названия. */}
         {primaryBasis && (
           <Link
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
-            onClick={(e) => e.stopPropagation()}
             data-testid="catalog-row-basis"
             aria-label={`Базис поставки ${primaryBasis.code}, ${primaryBasis.shipmentPort?.split(",")[0]}, срок ${primaryBasis.leadTime}`}
             className="-mx-2 -my-1 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"

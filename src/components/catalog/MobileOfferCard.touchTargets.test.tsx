@@ -130,12 +130,40 @@ describe("MobileOfferCard · расширенные тач-области для
     expect(label).toContain(primary!.leadTime);
   });
 
-  it("клик по названию/базису не вызывает onSelect карточки (stopPropagation)", () => {
+  it("клик по названию/базису не вызывает onSelect карточки — за счёт closest('a, button') в handleCardClick, без stopPropagation на ссылках", () => {
     const { getByTestId, onSelect } = renderCard();
 
+    // Реальный клик всплывает до <article>; карточка сама фильтрует
+    // цель через closest('a, button') и не зовёт onSelect.
     fireEvent.click(getByTestId("catalog-row-view-details"));
     fireEvent.click(getByTestId("catalog-row-basis"));
 
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("клик по фону карточки (вне ссылок/кнопок) всё ещё вызывает onSelect", () => {
+    const { getByTestId, onSelect } = renderCard();
+
+    const card = getByTestId("catalog-offer-row");
+    fireEvent.click(card);
+
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it("ссылки названия и базиса не гасят bubbling — событие click доходит до родителя", () => {
+    const { getByTestId, container } = renderCard();
+    const bubbled: string[] = [];
+
+    container.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      const link = t.closest("a[data-testid]");
+      if (link) bubbled.push(link.getAttribute("data-testid") ?? "");
+    });
+
+    fireEvent.click(getByTestId("catalog-row-view-details"));
+    fireEvent.click(getByTestId("catalog-row-basis"));
+
+    expect(bubbled).toContain("catalog-row-view-details");
+    expect(bubbled).toContain("catalog-row-basis");
   });
 });
