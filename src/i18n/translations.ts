@@ -2572,7 +2572,7 @@ const ru: TranslationKeys = {
   catalog_reqForm_supplierCountryPh: "Любая проверенная страна",
   catalog_reqForm_volume: "Требуемый объём",
   catalog_reqForm_volumePh: "напр. 20 т / месяц",
-  catalog_reqForm_destination: "Рынок поставки",
+  catalog_reqForm_destination: "Страна поставки",
   catalog_reqForm_destinationPh: "напр. ЕС, ОАЭ, Сингапур",
   catalog_reqForm_timing: "Целевые сроки",
   catalog_reqForm_timingPh: "напр. Q2 2026, как можно скорее",
