@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, FileText } from "lucide-react";
+import { CheckCircle2, FileText, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,10 +18,8 @@ type FormState = {
   latin: string;
   format: string;
   origin: string;
-  supplierCountry: string;
   volume: string;
   destination: string;
-  timing: string;
   notes: string;
 };
 
@@ -30,12 +28,12 @@ const empty: FormState = {
   latin: "",
   format: "",
   origin: "",
-  supplierCountry: "",
   volume: "",
   destination: "",
-  timing: "",
   notes: "",
 };
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 MB
 
 /**
  * Empty-state structured procurement request form.
@@ -46,6 +44,9 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
   const { t } = useLanguage();
   const [form, setForm] = useState<FormState>({ ...empty, product: initialProduct });
   const [submitted, setSubmitted] = useState(false);
+  const [photo, setPhoto] = useState<{ name: string; dataUrl: string } | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const submittedList = useProductRequests();
   const productDirtyRef = useRef(false);
 
@@ -63,6 +64,28 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_PHOTO_BYTES) {
+      setPhotoError(t.catalog_reqForm_photoTooLarge);
+      e.target.value = "";
+      return;
+    }
+    setPhotoError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhoto({ name: file.name, dataUrl: String(reader.result ?? "") });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    setPhoto(null);
+    setPhotoError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const canSubmit = form.product.trim().length > 1 && form.volume.trim().length > 0;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -73,10 +96,8 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
       latin: form.latin.trim() || undefined,
       format: form.format.trim() || undefined,
       origin: form.origin.trim() || undefined,
-      supplierCountry: form.supplierCountry.trim() || undefined,
       volume: form.volume.trim(),
       destination: form.destination.trim() || undefined,
-      timing: form.timing.trim() || undefined,
       notes: form.notes.trim() || undefined,
     });
     analytics.track("catalog_product_request_submit", {
@@ -103,7 +124,7 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
       </header>
       <ul className="space-y-2">
         {submittedList.map((r) => {
-          const meta = [r.format, r.origin, r.supplierCountry, r.destination, r.timing]
+          const meta = [r.format, r.origin, r.destination]
             .filter(Boolean)
             .join(" · ");
           return (
@@ -147,6 +168,8 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             onClick={() => {
               productDirtyRef.current = false;
               setForm({ ...empty, product: initialProduct });
+              setPhoto(null);
+              setPhotoError(null);
               setSubmitted(false);
             }}
           >
@@ -230,19 +253,6 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="rq-supplier-country" className="text-xs">
-            {t.catalog_reqForm_supplierCountry}
-            {optionalTag}
-          </Label>
-          <Input
-            id="rq-supplier-country"
-            value={form.supplierCountry}
-            onChange={(e) => update("supplierCountry", e.target.value)}
-            placeholder={t.catalog_reqForm_supplierCountryPh}
-          />
-        </div>
-
-        <div className="space-y-1.5">
           <Label htmlFor="rq-volume" className="text-xs">
             {t.catalog_reqForm_volume}
           </Label>
@@ -268,19 +278,6 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
           />
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="rq-timing" className="text-xs">
-            {t.catalog_reqForm_timing}
-            {optionalTag}
-          </Label>
-          <Input
-            id="rq-timing"
-            value={form.timing}
-            onChange={(e) => update("timing", e.target.value)}
-            placeholder={t.catalog_reqForm_timingPh}
-          />
-        </div>
-
         <div className="space-y-1.5 sm:col-span-2">
           <Label htmlFor="rq-notes" className="text-xs">
             {t.catalog_reqForm_notes}
@@ -293,6 +290,57 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             placeholder={t.catalog_reqForm_notesPh}
             rows={3}
           />
+        </div>
+
+        {/* Photo upload — frontend-only, helps suppliers understand the request */}
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="rq-photo" className="text-xs">
+            {t.catalog_reqForm_photo}
+            {optionalTag}
+          </Label>
+          <p className="text-[11px] text-muted-foreground">{t.catalog_reqForm_photoHint}</p>
+          <input
+            ref={fileInputRef}
+            id="rq-photo"
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={handlePhotoChange}
+          />
+          {photo ? (
+            <div className="flex items-center gap-3 rounded-md border border-border bg-background p-2">
+              <img
+                src={photo.dataUrl}
+                alt={photo.name}
+                className="h-16 w-16 shrink-0 rounded object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-medium text-foreground">{photo.name}</p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={removePhoto}
+                className="gap-1 text-xs text-muted-foreground"
+              >
+                <X className="h-3.5 w-3.5" /> {t.catalog_reqForm_photoRemove}
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4" /> {t.catalog_reqForm_photoAdd}
+            </Button>
+          )}
+          {photoError && (
+            <p className="text-[11px] text-destructive">{photoError}</p>
+          )}
         </div>
       </div>
 

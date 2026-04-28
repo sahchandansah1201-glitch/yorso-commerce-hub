@@ -679,6 +679,11 @@ type TranslationKeys = {
   catalog_reqForm_timingPh: string;
   catalog_reqForm_notes: string;
   catalog_reqForm_notesPh: string;
+  catalog_reqForm_photo: string;
+  catalog_reqForm_photoHint: string;
+  catalog_reqForm_photoAdd: string;
+  catalog_reqForm_photoRemove: string;
+  catalog_reqForm_photoTooLarge: string;
   catalog_reqForm_submit: string;
   catalog_reqForm_optional: string;
   catalog_reqForm_success_title: string;
@@ -1636,6 +1641,11 @@ const en: TranslationKeys = {
   catalog_reqForm_timingPh: "e.g. Q2 2026, ASAP",
   catalog_reqForm_notes: "Additional notes",
   catalog_reqForm_notesPh: "Specs, certifications, packaging, payment terms…",
+  catalog_reqForm_photo: "Product photo",
+  catalog_reqForm_photoHint: "Optional. Helps suppliers understand exactly what you need.",
+  catalog_reqForm_photoAdd: "Attach photo",
+  catalog_reqForm_photoRemove: "Remove photo",
+  catalog_reqForm_photoTooLarge: "Image is too large. Max 5 MB.",
   catalog_reqForm_submit: "Submit request",
   catalog_reqForm_optional: "Optional",
   catalog_reqForm_success_title: "Your request has been recorded",
@@ -2568,6 +2578,11 @@ const ru: TranslationKeys = {
   catalog_reqForm_timingPh: "напр. Q2 2026, как можно скорее",
   catalog_reqForm_notes: "Дополнительные комментарии",
   catalog_reqForm_notesPh: "Спецификации, сертификаты, упаковка, условия оплаты…",
+  catalog_reqForm_photo: "Фото продукции",
+  catalog_reqForm_photoHint: "Опционально. Помогает поставщику точнее понять, что именно вы ищете.",
+  catalog_reqForm_photoAdd: "Прикрепить фото",
+  catalog_reqForm_photoRemove: "Удалить фото",
+  catalog_reqForm_photoTooLarge: "Файл слишком большой. Макс. 5 МБ.",
   catalog_reqForm_submit: "Отправить запрос",
   catalog_reqForm_optional: "Опционально",
   catalog_reqForm_success_title: "Ваш запрос принят",
@@ -3500,6 +3515,11 @@ const es: TranslationKeys = {
   catalog_reqForm_timingPh: "p. ej. Q2 2026, lo antes posible",
   catalog_reqForm_notes: "Notas adicionales",
   catalog_reqForm_notesPh: "Especificaciones, certificaciones, embalaje, condiciones de pago…",
+  catalog_reqForm_photo: "Foto del producto",
+  catalog_reqForm_photoHint: "Opcional. Ayuda a los proveedores a entender mejor lo que necesitas.",
+  catalog_reqForm_photoAdd: "Adjuntar foto",
+  catalog_reqForm_photoRemove: "Eliminar foto",
+  catalog_reqForm_photoTooLarge: "La imagen es demasiado grande. Máx. 5 MB.",
   catalog_reqForm_submit: "Enviar solicitud",
   catalog_reqForm_optional: "Opcional",
   catalog_reqForm_success_title: "Tu solicitud ha sido registrada",
