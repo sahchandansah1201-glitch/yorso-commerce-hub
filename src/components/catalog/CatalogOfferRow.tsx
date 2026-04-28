@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Check,
   ChevronLeft,
+  ChevronDown,
   ChevronRight,
   Info,
   BarChart3,
