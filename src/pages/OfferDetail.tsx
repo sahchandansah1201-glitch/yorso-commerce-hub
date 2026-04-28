@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
-import { mockOffers } from "@/data/mockOffers";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { SeafoodOffer } from "@/data/mockOffers";
+import { fetchOfferById } from "@/lib/catalog-api";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -19,19 +21,85 @@ import RelatedArticles from "@/components/offer-detail/RelatedArticles";
 import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 import Header from "@/components/landing/Header";
 
+/**
+ * Старые mock id вида "1".."99" больше не существуют как primary key — после
+ * сидинга в Supabase демо-офферы получили детерминированные UUID
+ * `00000000-0000-0000-0000-00000000000N`. Чтобы не ломать внешние ссылки и
+ * историю, делаем 301-стиль редирект на новый UUID без изменения остального
+ * URL (query, hash сохраняются).
+ */
+const LEGACY_ID_PATTERN = /^\d{1,12}$/;
+const toLegacyUuid = (n: string) =>
+  `00000000-0000-0000-0000-${n.padStart(12, "0")}`;
+
+const DetailSkeleton = () => (
+  <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]" aria-hidden>
+    <Skeleton className="h-[420px] w-full rounded-lg" />
+    <div className="space-y-3">
+      <Skeleton className="h-8 w-3/4" />
+      <Skeleton className="h-5 w-1/2" />
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-10 w-40" />
+    </div>
+    <Skeleton className="h-[320px] w-full rounded-lg" />
+  </div>
+);
+
 const OfferDetail = () => {
   const { id } = useParams();
   const { t } = useLanguage();
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
-  const offer = mockOffers.find((o) => o.id === id);
+
+  const [offer, setOffer] = useState<SeafoodOffer | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const isLegacyId = !!id && LEGACY_ID_PATTERN.test(id);
+
+  useEffect(() => {
+    if (!id || isLegacyId) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchOfferById(id, level)
+      .then((res) => {
+        if (cancelled) return;
+        setOffer(res);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        console.error("[OfferDetail] fetchOfferById failed", e);
+        setError("Не удалось загрузить оффер");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [id, level, isLegacyId]);
+
+  useEffect(() => {
+    if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
+  }, [offer]);
+
+  // Redirect старых числовых id → новых UUID (сохраняем search/hash/state)
+  if (isLegacyId && id) {
+    return (
+      <Navigate
+        to={{ pathname: `/offers/${toLegacyUuid(id)}`, search: location.search, hash: location.hash }}
+        state={location.state}
+        replace
+      />
+    );
+  }
+
   const isLocked = level !== "qualified_unlocked";
   const returnCtx = readCatalogReturnState(location);
   const handleBack = () => {
     if (returnCtx) {
-      // navigate(-1) preserves the location.state we attached on outbound link,
-      // which Offers.tsx reads to restore scroll + highlight.
       navigate(-1);
     } else {
       navigate("/offers");
@@ -44,9 +112,33 @@ const OfferDetail = () => {
     ? t.offerDetail_accessLocked_body
     : t.offerDetail_accessLimited_body;
 
-  useEffect(() => {
-    if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
-  }, [offer]);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background font-body">
+        <Header />
+        <main className="container py-6 md:py-10" aria-busy="true" aria-live="polite">
+          <Skeleton className="h-8 w-32 mb-5" />
+          <DetailSkeleton />
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background font-body">
+        <Header />
+        <main className="container py-16 text-center">
+          <h1 className="font-heading text-2xl font-bold text-foreground">{error}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Попробуйте обновить страницу или вернитесь к каталогу.</p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Button variant="outline" onClick={() => window.location.reload()}>Повторить</Button>
+            <Link to="/offers"><Button>{t.offerDetail_browseAll}</Button></Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (!offer) {
     return (
