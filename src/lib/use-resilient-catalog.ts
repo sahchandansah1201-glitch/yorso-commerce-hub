@@ -25,6 +25,7 @@ import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import {
   extractCatalogErrorCode,
+  extractHttpStatus,
   fetchOffersWithRetry,
   fetchOfferByIdWithRetry,
   isRetriableCatalogError,
