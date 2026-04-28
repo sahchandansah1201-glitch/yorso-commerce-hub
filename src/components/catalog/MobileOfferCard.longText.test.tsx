@@ -81,7 +81,11 @@ describe("MobileOfferCard · long text wrapping", () => {
     // Иконка Truck (lucide) перед базисом
     const truck = container.querySelector(".lucide-truck");
     expect(truck).not.toBeNull();
-    expect(truck!.className.baseVal ?? truck!.className).toMatch(/shrink-0/);
+    const truckClass =
+      typeof truck!.className === "string"
+        ? truck!.className
+        : (truck!.className as unknown as { baseVal: string }).baseVal;
+    expect(truckClass).toMatch(/shrink-0/);
 
     // Длинный порт находится в span с truncate.
     const truncated = container.querySelector(
