@@ -684,14 +684,13 @@ const MobileOfferCard = ({
                 aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
                 aria-expanded={analyticsOpen}
                 data-testid="catalog-row-analytics-toggle"
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary"
+                title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
               >
-                <BarChart3 className="h-3.5 w-3.5" aria-hidden />
-                <span>Аналитика</span>
-                <ChevronDown
+                <BarChart3
                   className={cn(
-                    "h-3 w-3 transition-transform duration-200",
-                    analyticsOpen ? "rotate-180" : "rotate-0",
+                    "h-4 w-4 transition-transform duration-200",
+                    analyticsOpen ? "text-primary" : "",
                   )}
                   aria-hidden
                 />
