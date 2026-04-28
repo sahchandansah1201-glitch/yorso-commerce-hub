@@ -58,7 +58,7 @@ describe("MobileOfferCard · long text wrapping", () => {
     const h3 = container.querySelector("h3");
     expect(h3).not.toBeNull();
     expect(h3!.className).toMatch(/line-clamp-2/);
-    expect(h3!.className).toMatch(/leading-snug/);
+    expect(h3!.className).toMatch(/leading-6/);
     // overflow-wrap: anywhere выставлен через style — гарантирует
     // безопасный перенос даже у склеенных длинных слов.
     const style = (h3 as HTMLElement).style;
