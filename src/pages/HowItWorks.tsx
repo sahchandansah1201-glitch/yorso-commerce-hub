@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -25,6 +26,9 @@ import ProcurementDecisionProof from "@/components/how-it-works/ProcurementDecis
 import SupplierJourney from "@/components/how-it-works/SupplierJourney";
 import TrustStack from "@/components/how-it-works/TrustStack";
 import ValueGrids from "@/components/how-it-works/ValueGrids";
+import AccessLevels from "@/components/how-it-works/AccessLevels";
+import BusinessOutcomes from "@/components/how-it-works/BusinessOutcomes";
+import FinalCTA from "@/components/how-it-works/FinalCTA";
 
 /**
  * /how-it-works
@@ -94,21 +98,91 @@ const systemBlocks = [
   },
 ];
 
-const placeholderAnchors: { id: string; title: string; note: string }[] = [
-  // #buyer-journey, #supplier-journey, #trust-layer and #outcomes are real sections now.
-  {
-    id: "access-levels",
-    title: "Access levels",
-    note: "How price and supplier visibility unlock across the three access states.",
-  },
-  {
-    id: "final-cta",
-    title: "Get started",
-    note: "Final conversion section for buyers and suppliers.",
-  },
-];
+// All previously deferred anchors (#buyer-journey, #supplier-journey, #trust-layer,
+// #outcomes, #access-levels, #final-cta) are now implemented as real sections.
+
+const SEO_TITLE =
+  "How Yorso works — B2B seafood sourcing, verified suppliers, RFQ workflow";
+const SEO_DESCRIPTION =
+  "Yorso is a B2B seafood trade workflow: wholesale seafood sourcing, verified suppliers, RFQ and procurement comparison, price and market context, and a defensible procurement decision report.";
+
+const upsertMeta = (selector: string, attrs: Record<string, string>) => {
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+    document.head.appendChild(el);
+  } else {
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+  }
+};
+
+const upsertLink = (rel: string, href: string) => {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+};
 
 const HowItWorks = () => {
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = SEO_TITLE;
+
+    upsertMeta('meta[name="description"]', {
+      name: "description",
+      content: SEO_DESCRIPTION,
+    });
+    upsertMeta('meta[property="og:title"]', {
+      property: "og:title",
+      content: SEO_TITLE,
+    });
+    upsertMeta('meta[property="og:description"]', {
+      property: "og:description",
+      content: SEO_DESCRIPTION,
+    });
+    upsertMeta('meta[property="og:type"]', { property: "og:type", content: "website" });
+    upsertMeta('meta[name="twitter:card"]', {
+      name: "twitter:card",
+      content: "summary_large_image",
+    });
+
+    const canonical =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/how-it-works`
+        : "/how-it-works";
+    upsertLink("canonical", canonical);
+
+    // JSON-LD structured data
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.id = "ld-how-it-works";
+    ld.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: "How Yorso works — B2B seafood sourcing workflow",
+      description: SEO_DESCRIPTION,
+      step: [
+        { "@type": "HowToStep", name: "Search a product or post a request" },
+        { "@type": "HowToStep", name: "See available offers and market context" },
+        { "@type": "HowToStep", name: "Request access to exact price or supplier" },
+        { "@type": "HowToStep", name: "Compare suppliers, terms, documents and risk" },
+        { "@type": "HowToStep", name: "Send a structured RFQ or contact the supplier" },
+        { "@type": "HowToStep", name: "Build a decision-proof record for internal approval" },
+        { "@type": "HowToStep", name: "Move into order, documents, logistics and repeat trade" },
+      ],
+    });
+    document.head.appendChild(ld);
+
+    return () => {
+      document.title = prevTitle;
+      document.getElementById("ld-how-it-works")?.remove();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -351,41 +425,14 @@ const HowItWorks = () => {
         {/* ─────────────────────── VALUE GRIDS (buyer + supplier) ─────────────────────── */}
         <ValueGrids />
 
-        {/* ────────────── PLACEHOLDER ANCHORS (next prompts) ────────────── */}
-        <section className="bg-background py-16 md:py-20">
-          <div className="container max-w-6xl">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Coming next on this page
-              </span>
-              <h2 className="mt-3 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                The rest of the workflow.
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Reserved anchors for the detailed sections that follow in the next iterations.
-              </p>
-            </div>
+        {/* ─────────────────────── ACCESS LEVELS ─────────────────────── */}
+        <AccessLevels />
 
-            <div className="mt-10 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {placeholderAnchors.map((a) => (
-                <section
-                  key={a.id}
-                  id={a.id}
-                  aria-label={a.title}
-                  className="rounded-lg border border-dashed border-border bg-card/60 p-5"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-heading text-sm font-bold text-foreground">{a.title}</h3>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                      #{a.id}
-                    </code>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{a.note}</p>
-                </section>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* ─────────────────────── BUSINESS OUTCOMES ─────────────────────── */}
+        <BusinessOutcomes />
+
+        {/* ─────────────────────── FINAL CTA ─────────────────────── */}
+        <FinalCTA />
       </main>
       <Footer />
     </div>
