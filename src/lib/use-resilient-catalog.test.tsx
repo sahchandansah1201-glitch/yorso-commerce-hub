@@ -137,11 +137,10 @@ describe("useResilientOffer — события деградации/восста
     const { result, unmount } = renderHook(() =>
       useResilientOffer(knownId, "anonymous_locked"),
     );
-    await advance(8000);
+    // Первичный fetchOfferByIdWithRetry: до 6 попыток с экспонентой, ~10s суммарно.
+    await advance(15_000);
 
-    await waitFor(() => {
-      expect(result.current.usingFallback).toBe(true);
-    });
+    expect(result.current.usingFallback).toBe(true);
 
     const fallbacks = eventsOf("catalog_soft_fallback_applied");
     expect(fallbacks.length).toBeGreaterThanOrEqual(1);
@@ -160,13 +159,15 @@ describe("useResilientOffer — события деградации/восста
     fetchOfferByIdMock.mockRejectedValue(make503("PGRST001"));
 
     const { unmount } = renderHook(() => useResilientOffer(knownId, "anonymous_locked"));
-    await advance(8000);
+    // Первичный цикл с retry-цепочкой.
+    await advance(15_000);
     expect(eventsOf("catalog_background_recovered")).toHaveLength(0);
 
+    // Готовим успех для фонового ретрая (BACKGROUND_RETRY_MS=12s + ретраи внутри).
     fetchOfferByIdMock.mockReset();
     fetchOfferByIdMock.mockResolvedValue(mockOffers[0]);
 
-    await advance(13_000);
+    await advance(20_000);
 
     const recovered = eventsOf("catalog_background_recovered");
     expect(recovered).toHaveLength(1);
