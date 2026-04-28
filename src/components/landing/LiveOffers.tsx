@@ -10,6 +10,7 @@ import analytics from "@/lib/analytics";
 
 const LiveOffers = () => {
   const { t } = useLanguage();
+  const { offers, source } = useLandingOffers();
   const [expanded, setExpanded] = useState(false);
   const [highlightTick, setHighlightTick] = useState(0);
 
@@ -19,8 +20,8 @@ const LiveOffers = () => {
     return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
   }, []);
 
-  const visibleOffers = mockOffers.slice(0, 8);
-  const extraOffers = mockOffers.slice(8);
+  const visibleOffers = offers.slice(0, 8);
+  const extraOffers = offers.slice(8);
 
   const toggleExpanded = () => {
     const next = !expanded;
