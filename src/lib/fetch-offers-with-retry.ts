@@ -13,9 +13,21 @@
  *     это позволяет вызывающему коду писать аналитику / показывать
  *     диагностику пользователю.
  */
-import { fetchOffers } from "@/lib/catalog-api";
+import { fetchOffers, fetchOfferById } from "@/lib/catalog-api";
 import type { AccessLevel } from "@/lib/access-level";
 import type { SeafoodOffer } from "@/data/mockOffers";
+
+/** Извлекает компактный код ошибки для UI/аналитики (PGRST002, HTTP 503, и т.п.). */
+export const extractCatalogErrorCode = (err: unknown): string => {
+  const e = err as { code?: string; status?: number; statusCode?: number; message?: string };
+  if (e?.code) return String(e.code);
+  const st = e?.status ?? e?.statusCode;
+  if (st) return `HTTP ${st}`;
+  const msg = e?.message ?? "";
+  const m = msg.match(/PGRST\d+/i);
+  if (m) return m[0].toUpperCase();
+  return "ERR";
+};
 
 export const isRetriableCatalogError = (err: unknown): boolean => {
   const msg = (err as { message?: string })?.message ?? "";
@@ -66,6 +78,44 @@ export const fetchOffersWithRetry = async (
       if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
       const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
       // Прерываемое ожидание.
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => resolve(), wait);
+        if (opts.signal) {
+          const onAbort = () => {
+            clearTimeout(timer);
+            reject(new DOMException("Aborted", "AbortError"));
+          };
+          opts.signal.addEventListener("abort", onAbort, { once: true });
+        }
+      });
+    }
+  }
+  throw lastErr;
+};
+
+/**
+ * fetchOfferByIdWithRetry — то же что fetchOffersWithRetry, но для одного оффера.
+ * Используется страницей товара, чтобы при 503/PGRST холодного старта
+ * автоматически повторять запрос до успеха.
+ */
+export const fetchOfferByIdWithRetry = async (
+  id: string,
+  level: AccessLevel,
+  opts: RetryOptions = {},
+): Promise<SeafoodOffer | null> => {
+  const maxAttempts = opts.maxAttempts ?? 6;
+  const delayMs = opts.delayMs ?? 800;
+
+  let lastErr: unknown;
+  for (let n = 1; n <= maxAttempts; n++) {
+    if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    try {
+      return await fetchOfferById(id, level);
+    } catch (err) {
+      lastErr = err;
+      opts.onAttemptFail?.(err, n);
+      if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
+      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => resolve(), wait);
         if (opts.signal) {

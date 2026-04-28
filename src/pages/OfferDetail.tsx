@@ -1,13 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, ChevronRight, Lock, RefreshCw } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { SeafoodOffer } from "@/data/mockOffers";
-import { fetchOfferById } from "@/lib/catalog-api";
-import { findFallbackOfferById } from "@/lib/catalog-fallback";
-import { isRetriableCatalogError } from "@/lib/fetch-offers-with-retry";
+import { useResilientOffer } from "@/lib/use-resilient-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -49,72 +46,16 @@ const OfferDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [offer, setOffer] = useState<SeafoodOffer | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [usingFallback, setUsingFallback] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
-  const [retryNonce, setRetryNonce] = useState(0);
-  const [retrying, setRetrying] = useState(false);
-  const offerRef = useRef<SeafoodOffer | null>(null);
-  offerRef.current = offer;
-
-  const extractErrorCode = (err: unknown): string => {
-    const e = err as { code?: string; status?: number; statusCode?: number; message?: string };
-    if (e?.code) return String(e.code);
-    const st = e?.status ?? e?.statusCode;
-    if (st) return `HTTP ${st}`;
-    const msg = e?.message ?? "";
-    const m = msg.match(/PGRST\d+/i);
-    if (m) return m[0].toUpperCase();
-    return "ERR";
-  };
-
-  useEffect(() => {
-    if (!id) return;
-    let cancelled = false;
-    if (!offerRef.current) setLoading(true);
-    setError(null);
-    setRetrying(retryNonce > 0);
-    fetchOfferById(id, level)
-      .then((res) => {
-        if (cancelled) return;
-        setOffer(res);
-        setUsingFallback(false);
-        setFailedAttempts(0);
-        setLastErrorCode(null);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        console.error("[OfferDetail] fetchOfferById failed", e);
-        const code = extractErrorCode(e);
-        setLastErrorCode(code);
-        setFailedAttempts((n) => n + 1);
-        const fallbackOffer = isRetriableCatalogError(e) ? findFallbackOfferById(id, level) : null;
-        if (fallbackOffer) {
-          setOffer(fallbackOffer);
-          setUsingFallback(true);
-          setError(null);
-          return;
-        }
-        setError("Не удалось загрузить оффер");
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-          setRetrying(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [id, level, retryNonce]);
-
-  const handleManualRetry = () => {
-    analytics.track("offer_detail_manual_retry_click", { offerId: id, lastErrorCode });
-    setRetryNonce((n) => n + 1);
-  };
+  const {
+    data: offer,
+    loading,
+    error,
+    usingFallback,
+    failedAttempts,
+    lastErrorCode,
+    recovering: retrying,
+    retry: handleManualRetry,
+  } = useResilientOffer(id, level);
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
