@@ -58,7 +58,7 @@ describe("MobileOfferCard · long text wrapping", () => {
     const h3 = container.querySelector("h3");
     expect(h3).not.toBeNull();
     expect(h3!.className).toMatch(/line-clamp-2/);
-    expect(h3!.className).toMatch(/leading-snug/);
+    expect(h3!.className).toMatch(/leading-6/);
     // overflow-wrap: anywhere выставлен через style — гарантирует
     // безопасный перенос даже у склеенных длинных слов.
     const style = (h3 as HTMLElement).style;
@@ -67,12 +67,13 @@ describe("MobileOfferCard · long text wrapping", () => {
     expect(h3!.textContent).toBe(LONG_NAME);
   });
 
-  it("латинское имя имеет line-clamp-1 и mt-1.5 — отступ от заголовка", () => {
+  it("латинское имя имеет line-clamp-1, mt-1 и leading-5 — единый ритм", () => {
     const { container } = renderCard();
     const latin = container.querySelector("p.italic");
     expect(latin).not.toBeNull();
     expect(latin!.className).toMatch(/line-clamp-1/);
-    expect(latin!.className).toMatch(/mt-1\.5/);
+    expect(latin!.className).toMatch(/mt-1(?!\.)/);
+    expect(latin!.className).toMatch(/leading-5/);
     expect(latin!.textContent).toBe(LONG_LATIN);
   });
 
@@ -97,23 +98,21 @@ describe("MobileOfferCard · long text wrapping", () => {
     expect(portNode, "порт должен быть в truncate-обёртке").toBeDefined();
   });
 
-  it("вертикальный gap между блоками — gap-4 на инфо-контейнере", () => {
+  it("вертикальный ритм — gap-3 (12px, 4px-сетка) на инфо-контейнере", () => {
     const { container } = renderCard();
     const infoColumn = container.querySelector(
-      ".flex.min-w-0.flex-col.gap-4.px-4",
+      ".flex.min-w-0.flex-col.gap-3.px-4",
     );
     expect(
       infoColumn,
-      "контейнер должен использовать gap-4 для воздуха между блоками",
+      "контейнер должен использовать gap-3 для единого ритма блоков",
     ).not.toBeNull();
   });
 
   it("карточка целиком имеет min-w-0/overflow-hidden, ничего не выпирает", () => {
     const { container } = renderCard();
-    // Контейнер инфо-колонки и его потомки имеют min-w-0,
-    // что в flex-контексте предотвращает раздутие из-за длинного слова.
     const infoColumn = container.querySelector(
-      ".flex.min-w-0.flex-col.gap-4.px-4",
+      ".flex.min-w-0.flex-col.gap-3.px-4",
     );
     expect(infoColumn).not.toBeNull();
 

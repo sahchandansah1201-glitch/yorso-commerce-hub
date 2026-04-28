@@ -562,18 +562,18 @@ const MobileOfferCard = ({
         )}
       </div>
 
-      <div className="flex min-w-0 flex-col gap-4 px-4 pb-4 pt-1">
+      <div className="flex min-w-0 flex-col gap-3 px-4 pb-4 pt-2">
         <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
         {/* 2. Price first, with trend (trend doubles as analytics trigger) */}
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2 leading-6">
           {exact ? (
-            <span className="font-heading text-lg font-bold text-foreground">
+            <span className="font-heading text-lg font-bold leading-6 text-foreground">
               {exact}
             </span>
           ) : (
-            <span className="font-heading text-lg font-bold text-foreground">{range}</span>
+            <span className="font-heading text-lg font-bold leading-6 text-foreground">{range}</span>
           )}
-          <span className="text-xs text-muted-foreground">{unit}</span>
+          <span className="text-xs leading-5 text-muted-foreground">{unit}</span>
           {TrendIcon && trend && (
             <CollapsibleTrigger asChild>
               <button
@@ -584,7 +584,7 @@ const MobileOfferCard = ({
                 title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
                 data-testid="catalog-row-trend-analytics-toggle"
                 className={cn(
-                  "ml-auto inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-xs font-semibold transition-all duration-200",
+                  "ml-auto inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-xs font-semibold leading-5 transition-all duration-200",
                   analyticsOpen
                     ? "border-primary bg-primary/10 text-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
                     : cn("border-transparent hover:border-primary/40 hover:bg-primary/5", trendColor),
@@ -608,7 +608,7 @@ const MobileOfferCard = ({
             className="block min-w-0"
           >
             <h3
-              className="font-heading text-base font-semibold leading-snug text-foreground line-clamp-2 hover:text-link-hover"
+              className="font-heading text-base font-semibold leading-6 text-foreground line-clamp-2 hover:text-link-hover"
               style={{
                 overflowWrap: "anywhere",
                 wordBreak: "break-word",
@@ -619,7 +619,7 @@ const MobileOfferCard = ({
             </h3>
           </Link>
           {offer.latinName && (
-            <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
+            <p className="mt-1 text-xs leading-5 italic text-muted-foreground line-clamp-1">
               {offer.latinName}
             </p>
           )}
@@ -627,7 +627,7 @@ const MobileOfferCard = ({
 
         {/* 4. Delivery basis */}
         {primaryBasis && (
-          <div className="flex items-center gap-1.5 text-xs text-foreground">
+          <div className="flex items-center gap-1.5 text-xs leading-5 text-foreground">
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{primaryBasis.code}</span>
             <span className="truncate text-muted-foreground">
