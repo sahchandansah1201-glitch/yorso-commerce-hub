@@ -243,14 +243,22 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
                     </span>
                   </p>
 
+                  {/* Локед-доступ: первый диапазон цен виден, второй и последующие — заблюрены.
+                      Это даёт buyer'у понять, что объёмные скидки существуют, но точные значения
+                      раскрываются только после получения доступа от поставщика. */}
                   {offer.volumeBreaks.length > 1 && (
-                    <ul className="mt-2 space-y-0.5">
+                    <ul className="mt-2 space-y-0.5" aria-label="Объёмные цены (заблокированы)">
                       {offer.volumeBreaks.slice(1).map((vb, i) => (
                         <li
                           key={i}
                           className="flex items-baseline gap-2 text-sm text-foreground"
                         >
-                          <span className="font-semibold">{vb.priceRange}</span>
+                          <span
+                            className="font-semibold select-none blur-sm"
+                            aria-hidden
+                          >
+                            {vb.priceRange}
+                          </span>
                           <span className="text-muted-foreground">·</span>
                           <span className="text-muted-foreground">{vb.minQty}</span>
                         </li>
