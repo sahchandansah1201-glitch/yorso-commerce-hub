@@ -16,8 +16,17 @@ import { fetchOffers } from "@/lib/catalog-api";
 import type { AccessLevel } from "@/lib/access-level";
 import type { SeafoodOffer } from "@/data/mockOffers";
 
-export const isSchemaCacheError = (msg: string): boolean =>
-  /schema cache/i.test(msg) || /PGRST002/i.test(msg);
+export const isRetriableCatalogError = (err: unknown): boolean => {
+  const msg = (err as { message?: string })?.message ?? "";
+  const code = (err as { code?: string })?.code ?? "";
+  return (
+    /schema cache/i.test(msg) ||
+    /database client error/i.test(msg) ||
+    /retrying/i.test(msg) ||
+    /PGRST00[12]/i.test(code) ||
+    /PGRST00[12]/i.test(msg)
+  );
+};
 
 export interface RetryOptions {
   maxAttempts?: number;
@@ -38,8 +47,7 @@ export const fetchOffersWithRetry = async (
       return await fetchOffers(level);
     } catch (err) {
       lastErr = err;
-      const msg = (err as { message?: string })?.message ?? "";
-      if (!isSchemaCacheError(msg) || n === maxAttempts) throw err;
+      if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
       await new Promise((r) => setTimeout(r, delayMs * n));
     }
   }
