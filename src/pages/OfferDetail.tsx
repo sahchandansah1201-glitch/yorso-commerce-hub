@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronRight, Lock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, ArrowLeft, ArrowRight, ChevronRight, Lock, RefreshCw } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
@@ -52,35 +52,69 @@ const OfferDetail = () => {
   const [offer, setOffer] = useState<SeafoodOffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
+  const [retrying, setRetrying] = useState(false);
+  const offerRef = useRef<SeafoodOffer | null>(null);
+  offerRef.current = offer;
+
+  const extractErrorCode = (err: unknown): string => {
+    const e = err as { code?: string; status?: number; statusCode?: number; message?: string };
+    if (e?.code) return String(e.code);
+    const st = e?.status ?? e?.statusCode;
+    if (st) return `HTTP ${st}`;
+    const msg = e?.message ?? "";
+    const m = msg.match(/PGRST\d+/i);
+    if (m) return m[0].toUpperCase();
+    return "ERR";
+  };
 
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
-    setLoading(true);
+    if (!offerRef.current) setLoading(true);
     setError(null);
+    setRetrying(retryNonce > 0);
     fetchOfferById(id, level)
       .then((res) => {
         if (cancelled) return;
         setOffer(res);
+        setUsingFallback(false);
+        setFailedAttempts(0);
+        setLastErrorCode(null);
       })
       .catch((e) => {
         if (cancelled) return;
         console.error("[OfferDetail] fetchOfferById failed", e);
+        const code = extractErrorCode(e);
+        setLastErrorCode(code);
+        setFailedAttempts((n) => n + 1);
         const fallbackOffer = isRetriableCatalogError(e) ? findFallbackOfferById(id, level) : null;
         if (fallbackOffer) {
           setOffer(fallbackOffer);
+          setUsingFallback(true);
           setError(null);
           return;
         }
         setError("Не удалось загрузить оффер");
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setRetrying(false);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [id, level]);
+  }, [id, level, retryNonce]);
+
+  const handleManualRetry = () => {
+    analytics.track("offer_detail_manual_retry_click", { offerId: id, lastErrorCode });
+    setRetryNonce((n) => n + 1);
+  };
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
@@ -120,9 +154,21 @@ const OfferDetail = () => {
         <Header />
         <main className="container py-16 text-center">
           <h1 className="font-heading text-2xl font-bold text-foreground">{error}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Попробуйте обновить страницу или вернитесь к каталогу.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Сервис временно недоступен. Неудачных попыток: {failedAttempts}
+            {lastErrorCode ? ` · код ошибки: ${lastErrorCode}` : ""}.
+          </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Button variant="outline" onClick={() => window.location.reload()}>Повторить</Button>
+            <Button
+              variant="outline"
+              onClick={handleManualRetry}
+              disabled={retrying}
+              data-testid="offer-detail-error-retry"
+              className="gap-1.5"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
+              {retrying ? "Повтор…" : "Повторить сейчас"}
+            </Button>
             <Link to="/offers"><Button>{t.offerDetail_browseAll}</Button></Link>
           </div>
         </main>
@@ -171,6 +217,36 @@ const OfferDetail = () => {
                 {level === "anonymous_locked" ? t.nav_registerFree : t.offerDetail_requestAccessCta}
               </Button>
             </Link>
+          </div>
+        )}
+
+        {usingFallback && (
+          <div
+            data-testid="offer-detail-recovery-banner"
+            role="status"
+            aria-live="polite"
+            className="mb-5 flex flex-wrap items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-50 p-4 dark:bg-amber-950/20"
+          >
+            <AlertTriangle className="h-4 w-4 mt-0.5 text-amber-600 shrink-0" aria-hidden />
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <p className="text-sm font-semibold text-foreground">Показаны демо-данные товара</p>
+              <p className="text-xs text-muted-foreground">
+                Сервис временно недоступен. Неудачных попыток: {failedAttempts}
+                {lastErrorCode ? ` · код ошибки: ${lastErrorCode}` : ""}.
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleManualRetry}
+              disabled={retrying}
+              data-testid="offer-detail-recovery-retry"
+              className="gap-1.5"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
+              {retrying ? "Повтор…" : "Повторить сейчас"}
+            </Button>
           </div>
         )}
 
