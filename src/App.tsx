@@ -58,7 +58,7 @@ const App = () => (
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/offers" element={<Offers />} />
-                <Route path="/offers/:id" element={<OfferDetail />} />
+                <Route path="/offers/:id" element={<LegacyOfferRedirect><OfferDetail /></LegacyOfferRedirect>} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Terms />} />
