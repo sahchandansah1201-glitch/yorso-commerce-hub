@@ -679,6 +679,11 @@ type TranslationKeys = {
   catalog_reqForm_timingPh: string;
   catalog_reqForm_notes: string;
   catalog_reqForm_notesPh: string;
+  catalog_reqForm_photo: string;
+  catalog_reqForm_photoHint: string;
+  catalog_reqForm_photoAdd: string;
+  catalog_reqForm_photoRemove: string;
+  catalog_reqForm_photoTooLarge: string;
   catalog_reqForm_submit: string;
   catalog_reqForm_optional: string;
   catalog_reqForm_success_title: string;
