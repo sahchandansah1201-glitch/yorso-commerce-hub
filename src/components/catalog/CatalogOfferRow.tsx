@@ -746,10 +746,21 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
                 кнопка подсвечена primary-фоном — кольцо смещается наружу). */}
           <button
             type="button"
+            ref={analyticsToggleRef}
             id={`offer-analytics-${offer.id}-toggle`}
             onClick={(e) => {
               e.stopPropagation();
               setAnalyticsOpen((v) => !v);
+            }}
+            onKeyDown={(e) => {
+              // Enter / Space обрабатывает сама <button> — это нативное
+              // поведение и его трогать не нужно. Но если панель открыта,
+              // а фокус ещё на кнопке, Esc должен её закрыть тут же.
+              if (e.key === "Escape" && analyticsOpen) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeAnalyticsAndRefocus();
+              }
             }}
             aria-expanded={analyticsOpen}
             aria-controls={`offer-analytics-${offer.id}`}
