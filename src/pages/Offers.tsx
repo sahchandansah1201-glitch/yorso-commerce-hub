@@ -154,17 +154,17 @@ const Offers = () => {
       suppliers: allowSupplierName ? uniq(offers.map((o) => o.supplier.name)) : [],
       bases: uniq(offers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
       certifications: uniq(offers.flatMap((o) => o.certifications ?? [])),
-      paymentTermsList: uniq(offers.map((o) => o.commercial.paymentTerms.split(",")[0].trim())),
+      paymentTermsList: uniq(offers.map((o) => (o.commercial?.paymentTerms ?? "").split(",")[0].trim())),
       states: ["Frozen", "Fresh", "Chilled"],
       cutTypes: uniq(offers.map((o) => o.cutType.split(",")[0].trim())),
       currencies: uniq(offers.map((o) => o.currency ?? "USD")),
       latinNames: uniq(offers.map((o) => o.latinName)),
     };
-  }, [allowSupplierName]);
+  }, [allowSupplierName, offers]);
 
   const visible = useMemo(
     () => offers.filter((o) => matches(o, filters, allowSupplierName)),
-    [filters, allowSupplierName],
+    [filters, allowSupplierName, offers],
   );
 
   useEffect(() => {
