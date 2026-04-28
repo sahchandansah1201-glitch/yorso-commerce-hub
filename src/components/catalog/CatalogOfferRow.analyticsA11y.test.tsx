@@ -55,11 +55,16 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
     expect(panel.id).toBe(`offer-analytics-${offer.id}`);
     expect(panel.getAttribute("role")).toBe("region");
 
-    // Регион подписан скрытым h4 (а не кнопкой) — это даёт скринридерам
-    // понятное имя "Аналитика по офферу <название>" и корректную
-    // h3 → h4 → h5 иерархию.
+    // aria-labelledby ссылается на скрытый h4 внутри панели — даёт
+    // скринридерам имя "Аналитика по офферу <название>" и корректную
+    // h3 → h4 → h5 иерархию. Сам h4 рендерится только когда Radix
+    // открыл CollapsibleContent, поэтому открываем панель перед
+    // проверкой DOM-узла заголовка.
     const headingId = panel.getAttribute("aria-labelledby");
     expect(headingId).toBe(`offer-analytics-${offer.id}-heading`);
+
+    fireEvent.click(btn);
+
     const heading = document.getElementById(headingId!);
     expect(heading).not.toBeNull();
     expect(heading!.tagName).toBe("H4");
