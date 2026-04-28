@@ -12,7 +12,7 @@ import MobileFilterPills from "@/components/catalog/MobileFilterPills";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
-import MobileIntelDock from "@/components/catalog/MobileIntelDock";
+
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
@@ -279,11 +279,9 @@ const Offers = () => {
 
         <div id="catalog-anchor-results" className="mt-5 grid scroll-mt-20 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
           <section aria-label={t.aria_catalogResults} className="min-w-0">
-            {/* Mobile/tablet: sticky intel dock above the list, tied to selected offer.
-                Hidden on xl+ where the right sticky panel covers this. */}
-            <div className="xl:hidden">
-              <MobileIntelDock offer={selectedOffer} />
-            </div>
+            {/* Per-offer analytics now lives inside each card via a
+                collapsible pictogram, so the global mobile intel dock is
+                no longer rendered here. */}
             {visible.length === 0 ? (
               <div className="space-y-5">
                 <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">

@@ -1,7 +1,7 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { buildCatalogReturnState } from "@/lib/return-to-catalog";
-import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2 } from "lucide-react";
+import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2, BarChart3, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
@@ -10,6 +10,12 @@ import { getPriceTrend } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
 import { useAccessRequestPending } from "@/lib/catalog-requests";
 import AccessRequestDialog from "@/components/catalog/AccessRequestDialog";
+import OfferAnalyticsPanel from "@/components/catalog/OfferAnalyticsPanel";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 /**
  * Peek profile presets — control how much of the next photo stays visible
@@ -91,6 +97,7 @@ const MobileOfferCard = ({
   const unlocked = level === "qualified_unlocked";
   const accessPending = useAccessRequestPending();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   const images = offer.images && offer.images.length > 0 ? offer.images : [offer.image];
   const hasMultiple = images.length > 1;
@@ -613,7 +620,9 @@ const MobileOfferCard = ({
           </div>
         )}
 
-        {/* 5. Supplier — blurred name when locked, flag visible always */}
+        {/* 5. Supplier — blurred name when locked, flag visible always.
+            Right side hosts the Lock indicator (if locked) AND the
+            analytics toggle pictogram. */}
         <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs">
           <span aria-hidden className="text-base leading-none">
             {offer.supplier.countryFlag}
@@ -663,6 +672,40 @@ const MobileOfferCard = ({
             <AccessRequestDialog open={dialogOpen} onOpenChange={setDialogOpen} />
           </>
         )}
+
+        {/* Analytics — collapsible panel toggled by a pictogram in the
+            bottom-right corner of the card. Tied to this specific offer. */}
+        <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
+          <div className="flex items-center justify-end">
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
+                aria-expanded={analyticsOpen}
+                data-testid="catalog-row-analytics-toggle"
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-semibold text-foreground transition-colors hover:border-primary hover:text-primary"
+              >
+                <BarChart3 className="h-3.5 w-3.5" aria-hidden />
+                <span>Аналитика</span>
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 transition-transform duration-200",
+                    analyticsOpen ? "rotate-180" : "rotate-0",
+                  )}
+                  aria-hidden
+                />
+              </button>
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent
+            className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+          >
+            <div className="mt-2">
+              <OfferAnalyticsPanel offer={offer} />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </article>
   );
