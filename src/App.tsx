@@ -19,6 +19,7 @@ import SignIn from "./pages/SignIn.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Offers from "./pages/Offers.tsx";
 import OfferDetail from "./pages/OfferDetail.tsx";
+import LegacyOfferRedirect from "./components/routing/LegacyOfferRedirect.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
 import Terms from "./pages/Terms.tsx";
@@ -57,7 +58,7 @@ const App = () => (
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/offers" element={<Offers />} />
-                <Route path="/offers/:id" element={<OfferDetail />} />
+                <Route path="/offers/:id" element={<LegacyOfferRedirect><OfferDetail /></LegacyOfferRedirect>} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Terms />} />
