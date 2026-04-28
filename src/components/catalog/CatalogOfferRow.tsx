@@ -779,16 +779,49 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         </div>
       </div>
 
-      {/* Inline Analytics — full-width под сеткой, чтобы не ломать колонки. */}
+      {/* Inline Analytics — full-width под сеткой, чтобы не ломать колонки.
+
+          Контракт плавности и анти-мерцания (важно на планшетах ≥640px,
+          где CollapsibleContent измеряется в момент первого open):
+          - корневой контейнер всегда `overflow-hidden`, чтобы любая
+            промежуточная высота при измерении была физически обрезана
+            и контент не «выпрыгивал» из карточки;
+          - `data-[state=closed]:invisible` + `data-[state=closed]:h-0`
+            гарантируют, что в свёрнутом состоянии содержимое не
+            рендерится визуально и не получает фокус мышью/таб;
+          - анимация раскрытия использует keyframe `collapsible-down`,
+            который начинается с `opacity:0` → нет вспышки на первом
+            кадре до того, как высота измерена;
+          - `motion-reduce:transition-none` + `motion-reduce:animate-none`
+            честно отключают анимацию для пользователей с reduced motion;
+          - `will-change: height, opacity` подсказывает браузеру создать
+            композиционный слой и убирает дёрганье на iPad Safari;
+          - inner-обёртка использует `motion-safe:animate-fade-in` с
+            короткой задержкой, чтобы контент проявлялся уже внутри
+            раскрытого региона, а не «моргал» в момент 0px→full. */}
       <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen} className="col-span-full">
         <CollapsibleContent
           id={`offer-analytics-${offer.id}`}
           role="region"
           aria-labelledby={`offer-analytics-${offer.id}-toggle`}
           data-testid="catalog-row-analytics-panel"
-          className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+          style={{ willChange: "height, opacity" }}
+          className={cn(
+            "overflow-hidden",
+            "data-[state=closed]:invisible data-[state=closed]:h-0",
+            "data-[state=open]:animate-collapsible-down",
+            "data-[state=closed]:animate-collapsible-up",
+            "motion-reduce:animate-none motion-reduce:transition-none",
+          )}
         >
-          <div className="mt-2 border-t border-border pt-4">
+          <div
+            data-testid="catalog-row-analytics-panel-inner"
+            className={cn(
+              "mt-2 border-t border-border pt-4",
+              "motion-safe:animate-fade-in",
+              "motion-reduce:animate-none",
+            )}
+          >
             <OfferAnalyticsPanel offer={offer} />
           </div>
         </CollapsibleContent>
