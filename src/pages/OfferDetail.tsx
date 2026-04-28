@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { fetchOfferById } from "@/lib/catalog-api";
+import { findFallbackOfferById } from "@/lib/catalog-fallback";
+import { isRetriableCatalogError } from "@/lib/fetch-offers-with-retry";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -64,6 +66,12 @@ const OfferDetail = () => {
       .catch((e) => {
         if (cancelled) return;
         console.error("[OfferDetail] fetchOfferById failed", e);
+        const fallbackOffer = isRetriableCatalogError(e) ? findFallbackOfferById(id, level) : null;
+        if (fallbackOffer) {
+          setOffer(fallbackOffer);
+          setError(null);
+          return;
+        }
         setError("Не удалось загрузить оффер");
       })
       .finally(() => {
