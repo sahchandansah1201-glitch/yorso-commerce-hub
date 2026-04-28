@@ -1,14 +1,18 @@
 /**
  * /offers · видимость блока «Получите больше от каталога» (catalog_recovery_*).
  *
- * Контракт: нижний онбординг-блок с заголовком `catalog_recovery_title`
- * и кнопками `catalog_recovery_signup` / `catalog_recovery_signin`
+ * Контракт: нижний онбординг-блок — `<CatalogRecoveryCard />` с
+ * якорем `#catalog-anchor-recovery` и `data-testid="catalog-recovery-card"` —
  * показывается ТОЛЬКО незарегистрированным посетителям. При активной
  * buyer-сессии (isSignedIn=true) блок должен быть полностью скрыт —
  * на любой ширине экрана (desktop, tablet, mobile).
+ *
+ * Тест намеренно проверяет наличие/отсутствие контейнера по testid и id,
+ * а НЕ по строкам перевода — иначе любая косметическая правка копирайта
+ * ломала бы инвариант видимости.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, cleanup, within } from "@testing-library/react";
+import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,24 +20,22 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { buyerSession } from "@/lib/buyer-session";
 import Offers from "@/pages/Offers";
-import { translations } from "@/i18n/translations";
 
-const recoveryTitle = translations.en.catalog_recovery_title;
-const recoverySignup = translations.en.catalog_recovery_signup;
-const recoverySignin = translations.en.catalog_recovery_signin;
+const RECOVERY_TESTID = "catalog-recovery-card";
+const RECOVERY_ANCHOR_ID = "catalog-anchor-recovery";
 
 const setViewport = (width: number, height = 800) => {
   Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: width });
   Object.defineProperty(window, "innerHeight", { writable: true, configurable: true, value: height });
-  // jsdom matchMedia stub — пересобираем, чтобы min-width совпадал с шириной.
+  // jsdom matchMedia stub — пересобираем, чтобы min-/max-width совпадал с шириной.
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     configurable: true,
     value: (query: string) => {
-      const m = /\(min-width:\s*(\d+)px\)/.exec(query);
+      const min = /\(min-width:\s*(\d+)px\)/.exec(query);
       const max = /\(max-width:\s*(\d+)px\)/.exec(query);
       let matches = false;
-      if (m) matches = width >= Number(m[1]);
+      if (min) matches = width >= Number(min[1]);
       else if (max) matches = width <= Number(max[1]);
       return {
         matches,
@@ -67,16 +69,22 @@ const renderOffers = () => {
   );
 };
 
-const expectRecoveryBlock = (container: HTMLElement, present: boolean) => {
-  const anchor = container.querySelector("#catalog-anchor-recovery");
+const expectRecoveryBlock = (
+  result: ReturnType<typeof renderOffers>,
+  present: boolean,
+) => {
+  const byTestId = result.queryByTestId(RECOVERY_TESTID);
+  const byAnchor = result.container.querySelector(`#${RECOVERY_ANCHOR_ID}`);
+
   if (present) {
-    expect(anchor, "ожидался блок #catalog-anchor-recovery").not.toBeNull();
-    const scope = within(anchor as HTMLElement);
-    expect(scope.getByText(recoveryTitle)).toBeInTheDocument();
-    expect(scope.getByText(recoverySignup)).toBeInTheDocument();
-    expect(scope.getByText(recoverySignin)).toBeInTheDocument();
+    expect(byTestId, `ожидался data-testid="${RECOVERY_TESTID}"`).not.toBeNull();
+    expect(byAnchor, `ожидался якорь #${RECOVERY_ANCHOR_ID}`).not.toBeNull();
+    // Контейнер testid должен быть тем же узлом, что и якорь —
+    // защита от рассинхрона между ссылкой TrustProofStrip и реальным DOM.
+    expect(byTestId).toBe(byAnchor);
   } else {
-    expect(anchor, "блок #catalog-anchor-recovery должен быть скрыт").toBeNull();
+    expect(byTestId, `data-testid="${RECOVERY_TESTID}" должен быть скрыт`).toBeNull();
+    expect(byAnchor, `якорь #${RECOVERY_ANCHOR_ID} должен быть скрыт`).toBeNull();
   }
 };
 
@@ -104,15 +112,30 @@ describe("/offers · catalog_recovery_* скрыт для зарегистрир
   for (const vp of VIEWPORTS) {
     it(`анонимный посетитель ВИДИТ recovery-блок · ${vp.name}`, () => {
       setViewport(vp.width);
-      const { container } = renderOffers();
-      expectRecoveryBlock(container, true);
+      const result = renderOffers();
+      expectRecoveryBlock(result, true);
     });
 
     it(`зарегистрированный пользователь НЕ видит recovery-блок · ${vp.name}`, () => {
       setViewport(vp.width);
       buyerSession.signIn({ identifier: "buyer@example.com", method: "email" });
-      const { container } = renderOffers();
-      expectRecoveryBlock(container, false);
+      const result = renderOffers();
+      expectRecoveryBlock(result, false);
     });
   }
+
+  it("после signOut recovery-блок снова появляется (mobile 375)", () => {
+    setViewport(375);
+    buyerSession.signIn({ identifier: "buyer@example.com", method: "email" });
+    const result = renderOffers();
+    expectRecoveryBlock(result, false);
+
+    buyerSession.signOut();
+    // Перерендер с теми же провайдерами — buyerSession публикует событие,
+    // на которое подписан useAccessLevel, поэтому повторный render «с нуля»
+    // даёт честную проверку без зависимости от внутреннего ребиндинга.
+    cleanup();
+    const next = renderOffers();
+    expectRecoveryBlock(next, true);
+  });
 });
