@@ -94,8 +94,8 @@ describe("useResilientCatalog — события деградации/восст
     fetchOffersMock.mockRejectedValue(make503("PGRST001"));
 
     const { unmount } = renderHook(() => useResilientCatalog("anonymous_locked"));
-    // Первичный цикл + soft fallback.
-    await advance(8000);
+    // Первичный цикл fetchOffersWithRetry (6 попыток с экспонентой) + soft fallback.
+    await advance(20_000);
     expect(eventsOf("catalog_background_recovered")).toHaveLength(0);
     expect(eventsOf("catalog_soft_fallback_applied").length).toBeGreaterThan(0);
 
