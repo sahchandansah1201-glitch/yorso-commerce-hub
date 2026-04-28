@@ -425,41 +425,14 @@ const HowItWorks = () => {
         {/* ─────────────────────── VALUE GRIDS (buyer + supplier) ─────────────────────── */}
         <ValueGrids />
 
-        {/* ────────────── PLACEHOLDER ANCHORS (next prompts) ────────────── */}
-        <section className="bg-background py-16 md:py-20">
-          <div className="container max-w-6xl">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Coming next on this page
-              </span>
-              <h2 className="mt-3 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                The rest of the workflow.
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Reserved anchors for the detailed sections that follow in the next iterations.
-              </p>
-            </div>
+        {/* ─────────────────────── ACCESS LEVELS ─────────────────────── */}
+        <AccessLevels />
 
-            <div className="mt-10 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {placeholderAnchors.map((a) => (
-                <section
-                  key={a.id}
-                  id={a.id}
-                  aria-label={a.title}
-                  className="rounded-lg border border-dashed border-border bg-card/60 p-5"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-heading text-sm font-bold text-foreground">{a.title}</h3>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                      #{a.id}
-                    </code>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{a.note}</p>
-                </section>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* ─────────────────────── BUSINESS OUTCOMES ─────────────────────── */}
+        <BusinessOutcomes />
+
+        {/* ─────────────────────── FINAL CTA ─────────────────────── */}
+        <FinalCTA />
       </main>
       <Footer />
     </div>
