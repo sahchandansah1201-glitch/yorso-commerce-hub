@@ -26,6 +26,9 @@ import ProcurementDecisionProof from "@/components/how-it-works/ProcurementDecis
 import SupplierJourney from "@/components/how-it-works/SupplierJourney";
 import TrustStack from "@/components/how-it-works/TrustStack";
 import ValueGrids from "@/components/how-it-works/ValueGrids";
+import AccessLevels from "@/components/how-it-works/AccessLevels";
+import BusinessOutcomes from "@/components/how-it-works/BusinessOutcomes";
+import FinalCTA from "@/components/how-it-works/FinalCTA";
 
 /**
  * /how-it-works
