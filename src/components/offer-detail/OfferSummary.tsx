@@ -104,6 +104,34 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Delivery options" value={`${bases.length} basis`} />
             </div>
 
+            {/* Delivery basis list — buyers must see if a suitable basis exists.
+                Codes (CIF/FOB/…) and shipment ports are public; per-basis price,
+                lead time and payment terms remain hidden behind access. */}
+            <div>
+              <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Базисы поставки</p>
+              <ul className="rounded-lg border border-border overflow-hidden divide-y divide-border">
+                {bases.map((b) => (
+                  <li
+                    key={b.code + b.shipmentPort}
+                    className="flex items-center justify-between gap-3 px-3 py-2 text-xs bg-card"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="rounded-md bg-muted px-1.5 py-0.5 font-semibold text-foreground">
+                        {b.code}
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-muted-foreground truncate">
+                        <AnchorIcon className="h-3 w-3 shrink-0" aria-hidden />
+                        <span className="truncate">{b.shipmentPort}</span>
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-muted-foreground shrink-0">
+                      <Lock className="h-3 w-3" aria-hidden /> Цена и срок по запросу
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             {/* Volume thresholds — show real partition sizes, hide prices */}
             {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
               <div>
