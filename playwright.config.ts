@@ -26,7 +26,12 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { browserName: "chromium" },
+      use: {
+        browserName: "chromium",
+        // Используем системный chromium из sandbox-окружения,
+        // чтобы не тянуть deps для playwright-bundled bin.
+        launchOptions: { executablePath: "/bin/chromium" },
+      },
     },
   ],
 });
