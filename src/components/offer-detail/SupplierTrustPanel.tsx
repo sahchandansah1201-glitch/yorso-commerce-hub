@@ -183,9 +183,6 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
-              {isAnonymous ? t.offerDetail_accessLocked_body : t.offerDetail_accessLimited_body}
-            </p>
             <Button variant="outline" className="w-full gap-2" size="sm" disabled>
               <Lock className="h-4 w-4" /> {t.offerDetail_supplierContactLocked}
             </Button>
