@@ -30,7 +30,8 @@ export const isRetriableCatalogError = (err: unknown): boolean => {
     /retrying/i.test(msg) ||
     /no connection to the server/i.test(msg) ||
     /fetch failed/i.test(msg) ||
-    /network/i.test(msg) ||
+    /networkerror/i.test(msg) ||
+    /failed to fetch/i.test(msg) ||
     /PGRST00[12]/i.test(code) ||
     /PGRST00[12]/i.test(msg)
   );
