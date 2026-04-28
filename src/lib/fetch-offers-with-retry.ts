@@ -13,9 +13,21 @@
  *     это позволяет вызывающему коду писать аналитику / показывать
  *     диагностику пользователю.
  */
-import { fetchOffers } from "@/lib/catalog-api";
+import { fetchOffers, fetchOfferById } from "@/lib/catalog-api";
 import type { AccessLevel } from "@/lib/access-level";
 import type { SeafoodOffer } from "@/data/mockOffers";
+
+/** Извлекает компактный код ошибки для UI/аналитики (PGRST002, HTTP 503, и т.п.). */
+export const extractCatalogErrorCode = (err: unknown): string => {
+  const e = err as { code?: string; status?: number; statusCode?: number; message?: string };
+  if (e?.code) return String(e.code);
+  const st = e?.status ?? e?.statusCode;
+  if (st) return `HTTP ${st}`;
+  const msg = e?.message ?? "";
+  const m = msg.match(/PGRST\d+/i);
+  if (m) return m[0].toUpperCase();
+  return "ERR";
+};
 
 export const isRetriableCatalogError = (err: unknown): boolean => {
   const msg = (err as { message?: string })?.message ?? "";
