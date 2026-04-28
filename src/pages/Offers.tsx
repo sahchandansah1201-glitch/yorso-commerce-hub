@@ -86,16 +86,35 @@ const Offers = () => {
     let cancelled = false;
     setOffersLoading(true);
     setOffersError(null);
-    fetchOffers(level)
-      .then((rows) => {
-        if (!cancelled) setOffers(rows);
-      })
-      .catch((err) => {
-        if (!cancelled) setOffersError(err?.message ?? "Не удалось загрузить каталог");
-      })
-      .finally(() => {
-        if (!cancelled) setOffersLoading(false);
-      });
+
+    // Schema-cache lag после миграции: PostgREST иногда отвечает
+    // "Could not query the database for the schema cache" в первые секунды.
+    // Делаем тихий ретрай с экспоненциальным бэк-оффом — пользователь не
+    // должен видеть «Не удалось загрузить» из-за временного состояния.
+    const isSchemaCacheError = (msg: string) =>
+      /schema cache/i.test(msg) || /PGRST002/i.test(msg);
+    const MAX_ATTEMPTS = 3;
+
+    const attempt = (n: number) => {
+      fetchOffers(level)
+        .then((rows) => {
+          if (cancelled) return;
+          setOffers(rows);
+          setOffersLoading(false);
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          const msg = err?.message ?? "Не удалось загрузить каталог";
+          if (isSchemaCacheError(msg) && n < MAX_ATTEMPTS) {
+            setTimeout(() => !cancelled && attempt(n + 1), 600 * n);
+            return;
+          }
+          setOffersError(msg);
+          setOffersLoading(false);
+        });
+    };
+    attempt(1);
+
     return () => {
       cancelled = true;
     };
