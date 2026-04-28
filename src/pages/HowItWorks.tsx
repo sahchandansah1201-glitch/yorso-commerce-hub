@@ -348,6 +348,12 @@ const HowItWorks = () => {
           </div>
         </section>
 
+        {/* ─────────────────────── BUYER JOURNEY ─────────────────────── */}
+        <BuyerJourney />
+
+        {/* ─────────────── PROCUREMENT DECISION PROOF ─────────────── */}
+        <ProcurementDecisionProof />
+
         {/* ────────────── PLACEHOLDER ANCHORS (next prompts) ────────────── */}
         <section className="bg-background py-16 md:py-20">
           <div className="container max-w-6xl">
