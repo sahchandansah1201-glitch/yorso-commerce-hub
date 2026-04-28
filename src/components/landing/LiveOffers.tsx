@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OfferCard from "./OfferCard";
-import { mockOffers } from "@/data/mockOffers";
+import { useLandingOffers } from "@/lib/useLandingOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 
 const LiveOffers = () => {
   const { t } = useLanguage();
+  const { offers, source } = useLandingOffers();
   const [expanded, setExpanded] = useState(false);
   const [highlightTick, setHighlightTick] = useState(0);
 
@@ -19,8 +20,13 @@ const LiveOffers = () => {
     return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
   }, []);
 
-  const visibleOffers = mockOffers.slice(0, 8);
-  const extraOffers = mockOffers.slice(8);
+  useEffect(() => {
+    if (source === "loading") return;
+    analytics.track("live_offers_source_resolved", { source, count: offers.length });
+  }, [source, offers.length]);
+
+  const visibleOffers = offers.slice(0, 8);
+  const extraOffers = offers.slice(8);
 
   const toggleExpanded = () => {
     const next = !expanded;

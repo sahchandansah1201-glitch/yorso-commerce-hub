@@ -53,6 +53,7 @@ export interface EventPayloadMap {
   live_offer_card_click: { offerId: string; product: string; position?: number };
   live_offers_expand_toggle: { expanded: boolean };
   live_offers_view_all_click: Empty;
+  live_offers_source_resolved: { source: "supabase" | "mock-fallback"; count: number };
 
   register_cta_final_click: Empty;
   register_cta_midpage_click: { section: string };
