@@ -620,6 +620,20 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  // Ref на кнопку «Аналитика» — нужен, чтобы возвращать на неё фокус
+  // после программного закрытия панели по Esc. Без этого фокус
+  // «теряется» в body и пользователь клавиатуры выпадает из контекста
+  // карточки.
+  const analyticsToggleRef = useRef<HTMLButtonElement | null>(null);
+  // Закрытие по Esc должно вернуть фокус кнопке. requestAnimationFrame
+  // даёт React успеть применить data-state и классы перехода до того,
+  // как мы переустанавливаем фокус.
+  const closeAnalyticsAndRefocus = () => {
+    setAnalyticsOpen(false);
+    requestAnimationFrame(() => {
+      analyticsToggleRef.current?.focus();
+    });
+  };
 
   const trend = getPriceTrend(offer.category);
   const offerCountries = new Set([offer.origin, offer.supplier.country]);
