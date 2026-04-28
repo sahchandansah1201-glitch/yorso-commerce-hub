@@ -608,7 +608,7 @@ const MobileOfferCard = ({
             className="block min-w-0"
           >
             <h3
-              className="font-heading text-base font-semibold leading-tight text-foreground line-clamp-2 hover:text-link-hover"
+              className="font-heading text-base font-semibold leading-snug text-foreground line-clamp-2 hover:text-link-hover"
               style={{
                 overflowWrap: "anywhere",
                 wordBreak: "break-word",
@@ -619,7 +619,7 @@ const MobileOfferCard = ({
             </h3>
           </Link>
           {offer.latinName && (
-            <p className="mt-0.5 text-xs italic text-muted-foreground line-clamp-1">
+            <p className="mt-1.5 text-xs italic text-muted-foreground line-clamp-1">
               {offer.latinName}
             </p>
           )}
