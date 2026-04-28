@@ -121,64 +121,56 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               </div>
             )}
 
-            {/* Indicative price — bound to the selected basis */}
+            {/* Indicative price + volume tiers — compact layout per design.
+                Top: overall range. Then min-partition span. Then per-tier rows
+                "price · volume". Exact basis price stays gated. */}
             <div>
-              <p className="text-[11px] font-medium text-muted-foreground mb-1">
-                {t.offerDetail_indicativePrice} ({selectedBasis.code})
-              </p>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="font-heading text-2xl font-bold text-foreground">
                   {selectedBasis.priceRange || offer.priceRange}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-muted-foreground border-b border-dotted border-muted-foreground/50">
                   {selectedBasis.priceUnit || offer.priceUnit}
                 </span>
+                <span className="text-[11px] text-muted-foreground">({selectedBasis.code})</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1">
-                <AnchorIcon className="h-3 w-3" aria-hidden /> {selectedBasis.shipmentPort}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">{t.offerDetail_termsLocked_hint}</p>
-            </div>
 
-            {/* MOQ — real procurement signal, no price exposure */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-              <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="MOQ" value={offer.moq.replace("MOQ: ", "")} />
-              <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Базисов доступно" value={`${bases.length}`} />
-            </div>
+              {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
+                <>
+                  <p className="mt-3 text-sm font-semibold text-foreground">
+                    Мин. партия:{" "}
+                    <span className="font-bold">
+                      {offer.volumeBreaks[0].minQty}
+                      {offer.volumeBreaks.length > 1 && (
+                        <> – {offer.volumeBreaks[offer.volumeBreaks.length - 1].minQty}</>
+                      )}
+                    </span>
+                  </p>
 
-            {/* Volume → price — each tier shows its indicative price next to the volume.
-                Price comes from mock data (vb.priceRange); exact basis-level price still
-                requires access. */}
-            {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
-              <div>
-                <p className="text-[11px] font-medium text-muted-foreground mb-1.5">
-                  Цена по объёму партии
-                </p>
-                <div className="rounded-lg border border-border overflow-hidden">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="bg-muted/50 text-muted-foreground">
-                        <th className="px-3 py-1.5 text-left font-medium">Объём партии</th>
-                        <th className="px-3 py-1.5 text-right font-medium">Цена ({offer.priceUnit})</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {offer.volumeBreaks.map((vb, i) => (
-                        <tr key={i} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
-                          <td className="px-3 py-1.5 text-foreground font-medium">{vb.minQty}</td>
-                          <td className="px-3 py-1.5 text-foreground font-semibold text-right">
-                            {vb.priceRange}
-                          </td>
-                        </tr>
+                  {offer.volumeBreaks.length > 1 && (
+                    <ul className="mt-2 space-y-0.5">
+                      {offer.volumeBreaks.slice(1).map((vb, i) => (
+                        <li
+                          key={i}
+                          className="flex items-baseline gap-2 text-sm text-foreground"
+                        >
+                          <span className="font-semibold">{vb.priceRange}</span>
+                          <span className="text-muted-foreground">·</span>
+                          <span className="text-muted-foreground">{vb.minQty}</span>
+                        </li>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  Индикативные цены. Точная цена под ваш объём — после получения доступа.
-                </p>
-              </div>
-            )}
+                    </ul>
+                  )}
+                </>
+              )}
+
+              <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Lock className="h-3 w-3" aria-hidden />
+                {isAnonymous
+                  ? "Цена и поставщик — после регистрации"
+                  : "Точная цена и поставщик — после получения доступа"}
+              </p>
+            </div>
 
             {/* CTA — differs by access state */}
             {isAnonymous ? (
