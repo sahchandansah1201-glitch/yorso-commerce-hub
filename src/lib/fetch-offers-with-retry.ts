@@ -19,10 +19,18 @@ import type { SeafoodOffer } from "@/data/mockOffers";
 export const isRetriableCatalogError = (err: unknown): boolean => {
   const msg = (err as { message?: string })?.message ?? "";
   const code = (err as { code?: string })?.code ?? "";
+  const status = (err as { status?: number; statusCode?: number })?.status
+    ?? (err as { statusCode?: number })?.statusCode;
   return (
+    status === 503 ||
+    status === 502 ||
+    status === 504 ||
     /schema cache/i.test(msg) ||
     /database client error/i.test(msg) ||
     /retrying/i.test(msg) ||
+    /no connection to the server/i.test(msg) ||
+    /fetch failed/i.test(msg) ||
+    /network/i.test(msg) ||
     /PGRST00[12]/i.test(code) ||
     /PGRST00[12]/i.test(msg)
   );
