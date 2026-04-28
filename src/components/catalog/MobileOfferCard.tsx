@@ -598,42 +598,51 @@ const MobileOfferCard = ({
           )}
         </div>
 
-        {/* 3. Product name + Latin name */}
-        <div className="min-w-0">
-          <Link
-            to={`/offers/${offer.id}`}
-            state={buildCatalogReturnState(offer.id)}
-            onClick={(e) => e.stopPropagation()}
-            data-testid="catalog-row-view-details"
-            className="block min-w-0"
+        {/* 3. Product name + Latin name — единая увеличенная тач-цель.
+            Отрицательные внешние отступы + внутренние padding'и расширяют
+            кликабельную область до ~44px по высоте без визуального сдвига. */}
+        <Link
+          to={`/offers/${offer.id}`}
+          state={buildCatalogReturnState(offer.id)}
+          onClick={(e) => e.stopPropagation()}
+          data-testid="catalog-row-view-details"
+          aria-label={`Открыть карточку: ${offer.productName}`}
+          className="block min-w-0 -mx-2 -my-1 rounded-md px-2 py-1 transition-colors active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          <h3
+            className="font-heading text-base font-semibold leading-6 text-foreground line-clamp-2 group-hover:text-link-hover"
+            style={{
+              overflowWrap: "anywhere",
+              wordBreak: "break-word",
+              hyphens: "auto",
+            }}
           >
-            <h3
-              className="font-heading text-base font-semibold leading-6 text-foreground line-clamp-2 hover:text-link-hover"
-              style={{
-                overflowWrap: "anywhere",
-                wordBreak: "break-word",
-                hyphens: "auto",
-              }}
-            >
-              {offer.productName}
-            </h3>
-          </Link>
+            {offer.productName}
+          </h3>
           {offer.latinName && (
             <p className="mt-1 text-xs leading-5 italic text-muted-foreground line-clamp-1">
               {offer.latinName}
             </p>
           )}
-        </div>
+        </Link>
 
-        {/* 4. Delivery basis */}
+        {/* 4. Delivery basis — кликабельная строка, ведёт на детали оффера.
+            Расширенная тач-цель за счёт -mx-2/-my-1 + py-1.5. */}
         {primaryBasis && (
-          <div className="flex items-center gap-1.5 text-xs leading-5 text-foreground">
+          <Link
+            to={`/offers/${offer.id}`}
+            state={buildCatalogReturnState(offer.id)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid="catalog-row-basis"
+            aria-label={`Базис поставки ${primaryBasis.code}, ${primaryBasis.shipmentPort?.split(",")[0]}, срок ${primaryBasis.leadTime}`}
+            className="-mx-2 -my-1 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground transition-colors active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{primaryBasis.code}</span>
             <span className="truncate text-muted-foreground">
               {primaryBasis.shipmentPort?.split(",")[0]} · {primaryBasis.leadTime}
             </span>
-          </div>
+          </Link>
         )}
 
         {/* 5. Supplier — blurred name when locked, flag visible always.
