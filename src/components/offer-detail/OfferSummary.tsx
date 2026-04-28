@@ -8,6 +8,7 @@ import type { SeafoodOffer, DeliveryBasisOption } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { AccessRequestDialog } from "@/components/catalog/AccessRequestDialog";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
