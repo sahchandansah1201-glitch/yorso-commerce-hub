@@ -27,14 +27,20 @@ import AccessRequestDialog from "./AccessRequestDialog";
  */
 export const CatalogValueStrip = () => {
   const { t } = useLanguage();
-  const { level } = useAccessLevel();
+  const { level, isSignedIn } = useAccessLevel();
   const accessRequest = useAccessRequest();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Verified/registered buyers request price & supplier access per-offer from
-  // the product card itself, so the global value strip is hidden for them.
-  // Only anonymous visitors still see it as a signup nudge.
-  if (level === "qualified_unlocked" || level === "registered_locked") return null;
+  // Раздел «Получите больше от каталога» — это онбординг-нудж только
+  // для НЕзарегистрированных посетителей. Любой авторизованный пользователь
+  // (registered_locked / qualified_unlocked, а также любой случай, когда
+  // buyer-сессия установлена) этот блок видеть не должен.
+  //
+  // Двойная защита: сначала по `isSignedIn` (быстрый и явный сигнал
+  // о наличии сессии), затем по уровню доступа — чтобы любая будущая
+  // комбинация состояний всё равно скрывала блок для зарегистрированных.
+  if (isSignedIn) return null;
+  if (level !== "anonymous_locked") return null;
 
   const isRegistered = false as boolean;
 
