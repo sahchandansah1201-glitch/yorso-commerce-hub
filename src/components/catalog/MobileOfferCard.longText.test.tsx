@@ -67,12 +67,13 @@ describe("MobileOfferCard · long text wrapping", () => {
     expect(h3!.textContent).toBe(LONG_NAME);
   });
 
-  it("латинское имя имеет line-clamp-1 и mt-1.5 — отступ от заголовка", () => {
+  it("латинское имя имеет line-clamp-1, mt-1 и leading-5 — единый ритм", () => {
     const { container } = renderCard();
     const latin = container.querySelector("p.italic");
     expect(latin).not.toBeNull();
     expect(latin!.className).toMatch(/line-clamp-1/);
-    expect(latin!.className).toMatch(/mt-1\.5/);
+    expect(latin!.className).toMatch(/mt-1(?!\.)/);
+    expect(latin!.className).toMatch(/leading-5/);
     expect(latin!.textContent).toBe(LONG_LATIN);
   });
 
