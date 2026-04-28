@@ -49,15 +49,19 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
             {initial}
           </div>
           <div className="flex-1 min-w-0">
-            {/* 2. Название поставщика */}
-            <div className="flex items-center gap-1.5">
-              <span className="font-heading font-semibold text-foreground truncate">{displayName}</span>
-              {s.isVerified ? (
-                <ShieldCheck className="h-4 w-4 shrink-0 text-success" />
-              ) : (
-                <ShieldAlert className="h-4 w-4 shrink-0 text-orange-500" />
-              )}
-              {!isQualified && <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />}
+            {/* 2. Название поставщика — допускаем перенос на 2 строки для длинных юр. наименований */}
+            <div className="flex items-start gap-1.5">
+              <span className="font-heading font-semibold text-foreground leading-snug line-clamp-2 break-words">
+                {displayName}
+              </span>
+              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1">
+                {s.isVerified ? (
+                  <ShieldCheck className="h-4 w-4 text-success" />
+                ) : (
+                  <ShieldAlert className="h-4 w-4 text-orange-500" />
+                )}
+                {!isQualified && <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />}
+              </span>
             </div>
             {/* 4. Флаг + страна происхождения. Берём из offer.originFlag/origin,
                 чтобы поле всегда было заполнено (страна происхождения товара
