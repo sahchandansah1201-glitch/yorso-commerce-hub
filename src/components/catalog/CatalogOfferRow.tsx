@@ -620,6 +620,20 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
   const { level: ctxLevel } = useAccessLevel();
   const level = forceLevel ?? ctxLevel;
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  // Ref на кнопку «Аналитика» — нужен, чтобы возвращать на неё фокус
+  // после программного закрытия панели по Esc. Без этого фокус
+  // «теряется» в body и пользователь клавиатуры выпадает из контекста
+  // карточки.
+  const analyticsToggleRef = useRef<HTMLButtonElement | null>(null);
+  // Закрытие по Esc должно вернуть фокус кнопке. requestAnimationFrame
+  // даёт React успеть применить data-state и классы перехода до того,
+  // как мы переустанавливаем фокус.
+  const closeAnalyticsAndRefocus = () => {
+    setAnalyticsOpen(false);
+    requestAnimationFrame(() => {
+      analyticsToggleRef.current?.focus();
+    });
+  };
 
   const trend = getPriceTrend(offer.category);
   const offerCountries = new Set([offer.origin, offer.supplier.country]);
@@ -732,10 +746,21 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
                 кнопка подсвечена primary-фоном — кольцо смещается наружу). */}
           <button
             type="button"
+            ref={analyticsToggleRef}
             id={`offer-analytics-${offer.id}-toggle`}
             onClick={(e) => {
               e.stopPropagation();
               setAnalyticsOpen((v) => !v);
+            }}
+            onKeyDown={(e) => {
+              // Enter / Space обрабатывает сама <button> — это нативное
+              // поведение и его трогать не нужно. Но если панель открыта,
+              // а фокус ещё на кнопке, Esc должен её закрыть тут же.
+              if (e.key === "Escape" && analyticsOpen) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeAnalyticsAndRefocus();
+              }
             }}
             aria-expanded={analyticsOpen}
             aria-controls={`offer-analytics-${offer.id}`}
@@ -806,6 +831,17 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           aria-labelledby={`offer-analytics-${offer.id}-toggle`}
           data-testid="catalog-row-analytics-panel"
           style={{ willChange: "height, opacity" }}
+          // Esc закрывает панель, если фокус находится внутри региона
+          // (например, на одной из вложенных ссылок аналитики), и
+          // возвращает фокус на кнопку-триггер. preventDefault, чтобы
+          // не вызвать побочные «закрытия» родительских диалогов.
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && analyticsOpen) {
+              e.preventDefault();
+              e.stopPropagation();
+              closeAnalyticsAndRefocus();
+            }
+          }}
           className={cn(
             "overflow-hidden",
             "data-[state=closed]:invisible data-[state=closed]:h-0",
