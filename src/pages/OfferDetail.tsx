@@ -154,9 +154,21 @@ const OfferDetail = () => {
         <Header />
         <main className="container py-16 text-center">
           <h1 className="font-heading text-2xl font-bold text-foreground">{error}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Попробуйте обновить страницу или вернитесь к каталогу.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Сервис временно недоступен. Неудачных попыток: {failedAttempts}
+            {lastErrorCode ? ` · код ошибки: ${lastErrorCode}` : ""}.
+          </p>
           <div className="mt-6 flex justify-center gap-3">
-            <Button variant="outline" onClick={() => window.location.reload()}>Повторить</Button>
+            <Button
+              variant="outline"
+              onClick={handleManualRetry}
+              disabled={retrying}
+              data-testid="offer-detail-error-retry"
+              className="gap-1.5"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
+              {retrying ? "Повтор…" : "Повторить сейчас"}
+            </Button>
             <Link to="/offers"><Button>{t.offerDetail_browseAll}</Button></Link>
           </div>
         </main>
