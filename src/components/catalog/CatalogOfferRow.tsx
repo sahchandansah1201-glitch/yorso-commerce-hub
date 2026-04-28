@@ -729,70 +729,11 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             {docsReady ? t.catalog_row_signal_docsReady : t.catalog_row_signal_docsPending}
           </span>
 
-          {/* Аналитика — пиктограмма-кнопка, раскрывает встроенную панель
-              с трендом и рыночным контекстом по выбранному офферу.
-
-              A11y-контракт:
-              - aria-expanded отражает реальное состояние панели;
-              - aria-controls указывает на id раскрывающегося региона
-                (CollapsibleContent ниже), который сам имеет role="region"
-                и aria-labelledby на кнопку — это связь "контролёр ⇄ регион";
-              - aria-label даёт человекочитаемое действие ("Скрыть/Показать
-                аналитику цен и рынка для <название оффера>"), title — то же
-                для hover-подсказки;
-              - aria-describedby ссылается на скрытый текст-помощь, который
-                объясняет, что именно произойдёт по активации;
-              - focus-visible: явное кольцо primary-цвета и offset, чтобы
-                фокус был виден и в open-, и в closed-состоянии (в open
-                кнопка подсвечена primary-фоном — кольцо смещается наружу). */}
-          <button
-            type="button"
-            ref={analyticsToggleRef}
-            id={`offer-analytics-${offer.id}-toggle`}
-            onClick={(e) => {
-              e.stopPropagation();
-              setAnalyticsOpen((v) => !v);
-            }}
-            onKeyDown={(e) => {
-              // Enter / Space обрабатывает сама <button> — это нативное
-              // поведение и его трогать не нужно. Но если панель открыта,
-              // а фокус ещё на кнопке, Esc должен её закрыть тут же.
-              if (e.key === "Escape" && analyticsOpen) {
-                e.preventDefault();
-                e.stopPropagation();
-                closeAnalyticsAndRefocus();
-              }
-            }}
-            aria-expanded={analyticsOpen}
-            aria-controls={`offer-analytics-${offer.id}`}
-            aria-describedby={`offer-analytics-${offer.id}-hint`}
-            aria-label={
-              analyticsOpen
-                ? `Скрыть аналитику цен и рынка для ${offer.productName}`
-                : `Показать аналитику цен и рынка для ${offer.productName}`
-            }
-            title={analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}
-            data-testid="catalog-row-analytics-toggle"
-            data-state={analyticsOpen ? "open" : "closed"}
-            className={cn(
-              "ml-auto inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-semibold transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              "motion-safe:transition-shadow",
-              analyticsOpen
-                ? "border-primary bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.35)]"
-                : "border-transparent text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-primary",
-            )}
-          >
-            <BarChart3 className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">Аналитика</span>
-            {/* Скрытый помощник для скринридеров: уточняет действие
-                и тип контента панели — не дублирует aria-label. */}
-            <span id={`offer-analytics-${offer.id}-hint`} className="sr-only">
-              {analyticsOpen
-                ? "Сворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу."
-                : "Разворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу. Страница не перезагружается."}
-            </span>
-          </button>
+          {/* Триггер «Аналитика» вынесен из строки сигналов в третью
+              колонку (под блок цены/поставщика). Там он визуально не
+              сливается с muted-метаданными, а служит явным «развернуть»
+              контролом рядом с ценой и трендом — buyer cразу видит
+              CTA «понять, почему такая цена». См. ниже. */}
         </div>
       </div>
 
