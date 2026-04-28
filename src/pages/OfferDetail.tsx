@@ -22,15 +22,10 @@ import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 import Header from "@/components/landing/Header";
 
 /**
- * Старые mock id вида "1".."99" больше не существуют как primary key — после
- * сидинга в Supabase демо-офферы получили детерминированные UUID
- * `00000000-0000-0000-0000-00000000000N`. Чтобы не ломать внешние ссылки и
- * историю, делаем 301-стиль редирект на новый UUID без изменения остального
- * URL (query, hash сохраняются).
+ * Legacy-id редирект ("/offers/1" → "/offers/<uuid>") теперь обслуживается на
+ * уровне роутера через <LegacyOfferRedirect> в App.tsx, поэтому сюда такие id
+ * физически не доходят.
  */
-const LEGACY_ID_PATTERN = /^\d{1,12}$/;
-const toLegacyUuid = (n: string) =>
-  `00000000-0000-0000-0000-${n.padStart(12, "0")}`;
 
 const DetailSkeleton = () => (
   <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]" aria-hidden>
@@ -56,10 +51,8 @@ const OfferDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const isLegacyId = !!id && LEGACY_ID_PATTERN.test(id);
-
   useEffect(() => {
-    if (!id || isLegacyId) return;
+    if (!id) return;
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -79,22 +72,11 @@ const OfferDetail = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, level, isLegacyId]);
+  }, [id, level]);
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
   }, [offer]);
-
-  // Redirect старых числовых id → новых UUID (сохраняем search/hash/state)
-  if (isLegacyId && id) {
-    return (
-      <Navigate
-        to={{ pathname: `/offers/${toLegacyUuid(id)}`, search: location.search, hash: location.hash }}
-        state={location.state}
-        replace
-      />
-    );
-  }
 
   const isLocked = level !== "qualified_unlocked";
   const returnCtx = readCatalogReturnState(location);
