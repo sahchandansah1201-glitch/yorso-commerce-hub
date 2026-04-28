@@ -15,7 +15,7 @@
  *     отрисована, содержит ровно один h5 с непустым текстом.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, within, cleanup } from "@testing-library/react";
+import { render, screen, within, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import { LanguageProvider } from "@/i18n/LanguageContext";
