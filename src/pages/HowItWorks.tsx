@@ -20,6 +20,8 @@ import {
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import BuyerJourney from "@/components/how-it-works/BuyerJourney";
+import ProcurementDecisionProof from "@/components/how-it-works/ProcurementDecisionProof";
 
 /**
  * /how-it-works
@@ -90,11 +92,7 @@ const systemBlocks = [
 ];
 
 const placeholderAnchors: { id: string; title: string; note: string }[] = [
-  {
-    id: "buyer-journey",
-    title: "Buyer journey",
-    note: "From discovery to a defensible procurement decision — detailed in the next prompt.",
-  },
+  // Note: #buyer-journey is now a real section (BuyerJourney.tsx).
   {
     id: "supplier-journey",
     title: "Supplier journey",
@@ -349,6 +347,12 @@ const HowItWorks = () => {
             </div>
           </div>
         </section>
+
+        {/* ─────────────────────── BUYER JOURNEY ─────────────────────── */}
+        <BuyerJourney />
+
+        {/* ─────────────── PROCUREMENT DECISION PROOF ─────────────── */}
+        <ProcurementDecisionProof />
 
         {/* ────────────── PLACEHOLDER ANCHORS (next prompts) ────────────── */}
         <section className="bg-background py-16 md:py-20">
