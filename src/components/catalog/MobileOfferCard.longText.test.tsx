@@ -98,23 +98,21 @@ describe("MobileOfferCard · long text wrapping", () => {
     expect(portNode, "порт должен быть в truncate-обёртке").toBeDefined();
   });
 
-  it("вертикальный gap между блоками — gap-4 на инфо-контейнере", () => {
+  it("вертикальный ритм — gap-3 (12px, 4px-сетка) на инфо-контейнере", () => {
     const { container } = renderCard();
     const infoColumn = container.querySelector(
-      ".flex.min-w-0.flex-col.gap-4.px-4",
+      ".flex.min-w-0.flex-col.gap-3.px-4",
     );
     expect(
       infoColumn,
-      "контейнер должен использовать gap-4 для воздуха между блоками",
+      "контейнер должен использовать gap-3 для единого ритма блоков",
     ).not.toBeNull();
   });
 
   it("карточка целиком имеет min-w-0/overflow-hidden, ничего не выпирает", () => {
     const { container } = renderCard();
-    // Контейнер инфо-колонки и его потомки имеют min-w-0,
-    // что в flex-контексте предотвращает раздутие из-за длинного слова.
     const infoColumn = container.querySelector(
-      ".flex.min-w-0.flex-col.gap-4.px-4",
+      ".flex.min-w-0.flex-col.gap-3.px-4",
     );
     expect(infoColumn).not.toBeNull();
 
