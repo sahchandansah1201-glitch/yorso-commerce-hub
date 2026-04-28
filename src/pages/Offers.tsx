@@ -15,6 +15,7 @@ import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
 
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
+import CatalogRecoveryCard from "@/components/catalog/CatalogRecoveryCard";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
@@ -53,7 +54,7 @@ const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: 
 
 const Offers = () => {
   const { t } = useLanguage();
-  const { level, isSignedIn } = useAccessLevel();
+  const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
   const [filters, setFilters] = useState<CatalogFilterState>(() => {
