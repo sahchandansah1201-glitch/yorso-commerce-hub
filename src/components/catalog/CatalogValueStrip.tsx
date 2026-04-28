@@ -31,9 +31,12 @@ export const CatalogValueStrip = () => {
   const accessRequest = useAccessRequest();
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  if (level === "qualified_unlocked") return null;
+  // Verified/registered buyers request price & supplier access per-offer from
+  // the product card itself, so the global value strip is hidden for them.
+  // Only anonymous visitors still see it as a signup nudge.
+  if (level === "qualified_unlocked" || level === "registered_locked") return null;
 
-  const isRegistered = level === "registered_locked";
+  const isRegistered = false as boolean;
 
   const scopeLabel: Record<AccessRequestScope, string> = {
     prices: t.catalog_access_request_scope_prices,
