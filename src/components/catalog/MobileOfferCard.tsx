@@ -639,7 +639,6 @@ const MobileOfferCard = ({
         {/* 5. Supplier — blurred name when locked, flag visible always.
             Right side hosts the Lock indicator (if locked) AND the
             analytics toggle pictogram. */}
-        <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
         <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs">
           <span aria-hidden className="text-base leading-none">
             {offer.supplier.countryFlag}
