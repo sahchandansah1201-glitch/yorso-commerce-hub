@@ -52,9 +52,9 @@ const OfferAnalyticsPanel = ({ offer }: Props) => {
           className="rounded-md border border-border bg-card p-2"
           data-testid="catalog-row-price-trend"
         >
-          <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <h5 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {t.catalog_intel_priceTrend_title}
-          </h4>
+          </h5>
           <div className="mt-1 flex items-baseline gap-1.5">
             <span className="font-heading text-base font-bold text-foreground">
               {trend.currentIndex}
@@ -85,9 +85,9 @@ const OfferAnalyticsPanel = ({ offer }: Props) => {
           className="rounded-md border border-border bg-card p-2"
           data-testid="catalog-row-market-signals"
         >
-          <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <h5 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {t.catalog_intel_signals_title}
-          </h4>
+          </h5>
           <ul className="mt-1.5 space-y-1 text-[10px]">
             {signals.slice(0, 2).map((s) => (
               <li key={s.id} className="flex items-start gap-1.5">
@@ -116,9 +116,9 @@ const OfferAnalyticsPanel = ({ offer }: Props) => {
           className="rounded-md border border-border bg-card p-2"
           data-testid="catalog-row-news"
         >
-          <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <h5 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {t.catalog_panel_news_title}
-          </h4>
+          </h5>
           <ul className="mt-1.5 space-y-1.5 text-[10px]">
             {relevantNews.slice(0, 2).map((n) => (
               <li key={n.id}>

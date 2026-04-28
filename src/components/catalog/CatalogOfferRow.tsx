@@ -828,13 +828,13 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         <CollapsibleContent
           id={`offer-analytics-${offer.id}`}
           role="region"
-          aria-labelledby={`offer-analytics-${offer.id}-toggle`}
+          // Семантика заголовка региона: указываем на скрытый h4
+          // внутри панели, а не на кнопку-триггер. Так VoiceOver/NVDA
+          // объявляют регион именно как "Аналитика по офферу <название>",
+          // что соответствует визуальной иерархии H3 продукт → H4 регион.
+          aria-labelledby={`offer-analytics-${offer.id}-heading`}
           data-testid="catalog-row-analytics-panel"
           style={{ willChange: "height, opacity" }}
-          // Esc закрывает панель, если фокус находится внутри региона
-          // (например, на одной из вложенных ссылок аналитики), и
-          // возвращает фокус на кнопку-триггер. preventDefault, чтобы
-          // не вызвать побочные «закрытия» родительских диалогов.
           onKeyDown={(e) => {
             if (e.key === "Escape" && analyticsOpen) {
               e.preventDefault();
@@ -850,14 +850,33 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
             "motion-reduce:animate-none motion-reduce:transition-none",
           )}
         >
+          {/* aria-live на внутренней обёртке (а не на самом
+              CollapsibleContent), чтобы анимация show/hide не
+              провоцировала ложные объявления каждый раз — обновление
+              читается, только когда внутри уже отрисован свежий
+              контент панели. relevant=additions text — мы не хотим,
+              чтобы скринридер дублировал удаления. */}
           <div
             data-testid="catalog-row-analytics-panel-inner"
+            aria-live="polite"
+            aria-atomic="false"
+            aria-relevant="additions text"
             className={cn(
               "mt-2 border-t border-border pt-4",
               "motion-safe:animate-fade-in",
               "motion-reduce:animate-none",
             )}
           >
+            {/* Скрытый заголовок региона: даёт скринридерам понятный
+                контекст ("Аналитика по офферу <название>") и образует
+                корректную h3 → h4 → h5 иерархию вместе с подзаголовками
+                секций внутри OfferAnalyticsPanel. */}
+            <h4
+              id={`offer-analytics-${offer.id}-heading`}
+              className="sr-only"
+            >
+              Аналитика по офферу: {offer.productName}
+            </h4>
             <OfferAnalyticsPanel offer={offer} />
           </div>
         </CollapsibleContent>

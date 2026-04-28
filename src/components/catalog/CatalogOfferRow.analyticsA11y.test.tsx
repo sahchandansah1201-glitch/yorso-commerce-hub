@@ -44,7 +44,7 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
   beforeEach(() => cleanup());
   afterEach(() => cleanup());
 
-  it("кнопка имеет уникальный id и aria-controls указывает на раскрывающийся регион", () => {
+  it("кнопка имеет уникальный id и aria-controls указывает на раскрывающийся регион со скрытым h4-заголовком", () => {
     const offer = renderRow();
     const btn = screen.getByTestId("catalog-row-analytics-toggle");
 
@@ -54,7 +54,22 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
     const panel = screen.getByTestId("catalog-row-analytics-panel");
     expect(panel.id).toBe(`offer-analytics-${offer.id}`);
     expect(panel.getAttribute("role")).toBe("region");
-    expect(panel.getAttribute("aria-labelledby")).toBe(btn.id);
+
+    // aria-labelledby ссылается на скрытый h4 внутри панели — даёт
+    // скринридерам имя "Аналитика по офферу <название>" и корректную
+    // h3 → h4 → h5 иерархию. Сам h4 рендерится только когда Radix
+    // открыл CollapsibleContent, поэтому открываем панель перед
+    // проверкой DOM-узла заголовка.
+    const headingId = panel.getAttribute("aria-labelledby");
+    expect(headingId).toBe(`offer-analytics-${offer.id}-heading`);
+
+    fireEvent.click(btn);
+
+    const heading = document.getElementById(headingId!);
+    expect(heading).not.toBeNull();
+    expect(heading!.tagName).toBe("H4");
+    expect(heading!.className).toContain("sr-only");
+    expect(heading!.textContent).toContain(offer.productName);
   });
 
   it("aria-expanded и data-state синхронизированы и переключаются по клику", () => {
