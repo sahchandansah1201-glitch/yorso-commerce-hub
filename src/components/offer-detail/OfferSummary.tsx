@@ -13,18 +13,85 @@ import CertificationBadges from "@/components/CertificationBadges";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
+const STOCK_LABELS: Record<string, { label: string; cls: string; dot: string }> = {
+  "In Stock": {
+    label: "В наличии",
+    cls: "bg-success/10 text-success",
+    dot: "bg-success",
+  },
+  Limited: {
+    label: "Ограниченно",
+    cls: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+    dot: "bg-orange-500",
+  },
+  "Pre-order": {
+    label: "Под заказ",
+    cls: "bg-muted text-muted-foreground",
+    dot: "bg-muted-foreground",
+  },
+  "Out of Stock": {
+    label: "Нет в наличии",
+    cls: "bg-destructive/10 text-destructive",
+    dot: "bg-destructive",
+  },
+};
+
 const StockBadge = ({ status }: { status: string }) => {
-  const colors: Record<string, string> = {
-    "In Stock": "bg-success/10 text-success",
-    Limited: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    "Pre-order": "bg-muted text-muted-foreground",
-  };
+  const meta = STOCK_LABELS[status] || STOCK_LABELS["In Stock"];
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${colors[status] || colors["In Stock"]}`}>
-      {status}
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${meta.cls}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} aria-hidden />
+      {meta.label}
     </span>
   );
 };
+
+/**
+ * Схематический индикатор объёма партии на складе.
+ * Точные количества — конфиденциальная информация поставщика,
+ * поэтому показываем только уровень: low / medium / high.
+ */
+const CapacityMeter = ({ status }: { status: string }) => {
+  // Эвристика по статусу + текстовому описанию из mock-данных.
+  // Реальная интеграция должна возвращать enum 'low' | 'medium' | 'high'.
+  const level: 1 | 2 | 3 =
+    status === "Pre-order" || /small|limited/i.test(status)
+      ? 1
+      : /high|large/i.test(status)
+        ? 3
+        : 2;
+
+  const labels = { 1: "Малый объём", 2: "Средний объём", 3: "Большой объём" } as const;
+  const colors = {
+    1: "bg-orange-500",
+    2: "bg-primary",
+    3: "bg-success",
+  } as const;
+
+  return (
+    <div
+      className="inline-flex items-center gap-2"
+      role="img"
+      aria-label={`Уровень запасов: ${labels[level]}`}
+    >
+      <div className="flex items-end gap-0.5" aria-hidden>
+        {[1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={`w-1.5 rounded-sm transition-colors ${
+              i <= level ? colors[level] : "bg-muted"
+            }`}
+            style={{ height: `${6 + i * 4}px` }}
+          />
+        ))}
+      </div>
+      <span className="text-sm font-medium text-foreground">{labels[level]}</span>
+    </div>
+  );
+};
+
 
 const SpecRow = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 py-1">
@@ -64,7 +131,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" /> {offer.freshness}
           </span>
-          {isQualified && <StockBadge status={offer.commercial.stockStatus} />}
+          <StockBadge status={offer.commercial.stockStatus} />
         </div>
         <h1 className="font-heading text-xl font-bold text-foreground md:text-2xl leading-tight">{offer.productName}</h1>
         <p className="mt-1 text-sm italic text-muted-foreground">{offer.latinName}</p>
@@ -75,9 +142,26 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Cut type" value={offer.cutType} />
         <SpecRow icon={<MapPin className="h-3.5 w-3.5" />} label="Origin" value={`${offer.originFlag} ${offer.origin}`} />
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Packaging" value={offer.packaging} />
-        {isQualified && (
-          <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Volume capacity" value={offer.commercial.availableVolume} />
-        )}
+      </div>
+
+      {/* Уровень запасов — схематично, точные количества конфиденциальны */}
+      <div className="flex items-start gap-2">
+        <Scale className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+        <div>
+          <p className="text-[11px] text-muted-foreground">Уровень запасов</p>
+          <div className="mt-0.5">
+            <CapacityMeter
+              status={
+                isQualified
+                  ? offer.commercial.availableVolume
+                  : offer.commercial.stockStatus
+              }
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Точный объём — конфиденциальная информация поставщика
+          </p>
+        </div>
       </div>
 
       {/* Product certifications — public, помогают оценить соответствие до запроса доступа */}
