@@ -46,6 +46,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
   const bases = offer.deliveryBasisOptions;
   const defaultBasis = bases.find((b) => b.isDefault) || bases[0];
   const [selectedBasis, setSelectedBasis] = useState<DeliveryBasisOption>(defaultBasis);
+  const [accessDialogOpen, setAccessDialogOpen] = useState(false);
 
   const isAnonymous = accessLevel === "anonymous_locked";
   const isRegistered = accessLevel === "registered_locked";
