@@ -342,6 +342,15 @@ const HowItWorks = () => {
         {/* ─────────────── PROCUREMENT DECISION PROOF ─────────────── */}
         <ProcurementDecisionProof />
 
+        {/* ─────────────────────── SUPPLIER JOURNEY ─────────────────────── */}
+        <SupplierJourney />
+
+        {/* ─────────────────────── TRUST STACK ─────────────────────── */}
+        <TrustStack />
+
+        {/* ─────────────────────── VALUE GRIDS (buyer + supplier) ─────────────────────── */}
+        <ValueGrids />
+
         {/* ────────────── PLACEHOLDER ANCHORS (next prompts) ────────────── */}
         <section className="bg-background py-16 md:py-20">
           <div className="container max-w-6xl">
