@@ -562,7 +562,7 @@ const MobileOfferCard = ({
         )}
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3 px-4 pb-4">
+      <div className="flex min-w-0 flex-col gap-4 px-4 pb-4 pt-1">
         <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
         {/* 2. Price first, with trend (trend doubles as analytics trigger) */}
         <div className="flex items-baseline gap-2">
