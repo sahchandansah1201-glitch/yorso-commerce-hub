@@ -71,7 +71,7 @@ const OfferDetail = () => {
       .catch((e) => {
         if (cancelled) return;
         console.error("[OfferDetail] fetchOfferById failed", e);
-        setError(t.offerDetail_loadError ?? "Не удалось загрузить оффер");
+        setError("Не удалось загрузить оффер");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -79,7 +79,7 @@ const OfferDetail = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, level, isLegacyId, t.offerDetail_loadError]);
+  }, [id, level, isLegacyId]);
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
