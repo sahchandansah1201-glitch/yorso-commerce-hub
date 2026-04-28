@@ -607,7 +607,7 @@ const MobileOfferCard = ({
           onClick={(e) => e.stopPropagation()}
           data-testid="catalog-row-view-details"
           aria-label={`Открыть карточку: ${offer.productName}`}
-          className="block min-w-0 -mx-2 -my-1 rounded-md px-2 py-1 transition-colors active:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="block min-w-0 -mx-2 -my-1 rounded-md px-2 py-1 touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
         >
           <h3
             className="font-heading text-base font-semibold leading-6 text-foreground line-clamp-2 group-hover:text-link-hover"
