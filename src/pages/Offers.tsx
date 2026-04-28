@@ -309,7 +309,65 @@ const Offers = () => {
             {/* Per-offer analytics now lives inside each card via a
                 collapsible pictogram, so the global mobile intel dock is
                 no longer rendered here. */}
-            {visible.length === 0 ? (
+            {offersLoading ? (
+              <div
+                className="flex flex-col gap-3"
+                aria-busy="true"
+                aria-live="polite"
+                data-testid="catalog-loading"
+              >
+                <span className="sr-only">Загружаем каталог…</span>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex gap-4 rounded-lg border border-border/60 bg-card p-4"
+                  >
+                    <Skeleton className="h-24 w-24 shrink-0 rounded-md sm:h-28 sm:w-28" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-5 w-2/3" />
+                      <Skeleton className="h-4 w-1/3" />
+                      <div className="flex gap-2 pt-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-14" />
+                      </div>
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                    <div className="hidden w-32 flex-col items-end gap-2 sm:flex">
+                      <Skeleton className="h-6 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="mt-auto h-9 w-28" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : offersError ? (
+              <div
+                role="alert"
+                data-testid="catalog-error"
+                className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center"
+              >
+                <AlertCircle className="mx-auto h-8 w-8 text-destructive" aria-hidden />
+                <p className="mt-3 text-sm font-semibold text-foreground">
+                  Не удалось загрузить каталог
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {offersError}. Проверьте соединение или попробуйте ещё раз.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4 gap-2"
+                  onClick={() => {
+                    // повторная загрузка через смену ключа эффекта — проще всего перезагрузить страницу
+                    window.location.reload();
+                  }}
+                  data-testid="catalog-error-retry"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" aria-hidden /> Повторить попытку
+                </Button>
+              </div>
+            ) : visible.length === 0 ? (
               <div className="space-y-5">
                 <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center">
                   <p className="text-sm text-muted-foreground">{t.catalog_results_none}</p>
