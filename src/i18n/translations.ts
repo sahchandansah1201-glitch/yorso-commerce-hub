@@ -1727,10 +1727,10 @@ const en: TranslationKeys = {
   catalog_relatedReq_buyer: "Buyer",
   catalog_relatedReq_respond: "Respond",
 
-  catalog_recovery_title: "Get more out of the catalog",
-  catalog_recovery_body: "Sign up free to save offers, compare suppliers and request price access. Already have an account? Sign in to continue.",
-  catalog_recovery_signup: "Register free",
-  catalog_recovery_signin: "Sign in",
+  catalog_recovery_title: "Unlock prices and supplier names",
+  catalog_recovery_body: "Create a buyer account to see exact prices, contact verified suppliers, save offers and compare deals. Takes under a minute · no credit card.",
+  catalog_recovery_signup: "Open buyer account",
+  catalog_recovery_signin: "Sign in to continue",
 
   catalog_row_signal_news: "news",
   catalog_row_signal_docsReady: "Docs ready",
@@ -2659,10 +2659,10 @@ const ru: TranslationKeys = {
   catalog_relatedReq_buyer: "Покупатель",
   catalog_relatedReq_respond: "Ответить",
 
-  catalog_recovery_title: "Получите больше от каталога",
-  catalog_recovery_body: "Зарегистрируйтесь бесплатно, чтобы сохранять предложения, сравнивать поставщиков и запрашивать доступ к цене. Уже есть аккаунт? Войдите, чтобы продолжить.",
-  catalog_recovery_signup: "Бесплатная регистрация",
-  catalog_recovery_signin: "Войти",
+  catalog_recovery_title: "Откройте цены и имена поставщиков",
+  catalog_recovery_body: "Создайте кабинет покупателя, чтобы видеть точные цены, связываться с проверенными поставщиками, сохранять офферы и сравнивать сделки. Меньше минуты · без карты.",
+  catalog_recovery_signup: "Открыть кабинет покупателя",
+  catalog_recovery_signin: "Войти, чтобы продолжить",
 
   catalog_row_signal_news: "новости",
   catalog_row_signal_docsReady: "Документы готовы",
@@ -3591,10 +3591,10 @@ const es: TranslationKeys = {
   catalog_relatedReq_buyer: "Comprador",
   catalog_relatedReq_respond: "Responder",
 
-  catalog_recovery_title: "Saca más partido al catálogo",
-  catalog_recovery_body: "Regístrate gratis para guardar ofertas, comparar proveedores y solicitar acceso a precios. ¿Ya tienes cuenta? Inicia sesión para continuar.",
-  catalog_recovery_signup: "Registro gratis",
-  catalog_recovery_signin: "Iniciar sesión",
+  catalog_recovery_title: "Desbloquea precios y nombres de proveedores",
+  catalog_recovery_body: "Abre una cuenta de comprador para ver precios exactos, contactar con proveedores verificados, guardar ofertas y comparar acuerdos. Menos de un minuto · sin tarjeta.",
+  catalog_recovery_signup: "Abrir cuenta de comprador",
+  catalog_recovery_signin: "Iniciar sesión para continuar",
 
   catalog_row_signal_news: "noticias",
   catalog_row_signal_docsReady: "Documentos listos",
