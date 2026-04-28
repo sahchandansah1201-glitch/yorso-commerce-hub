@@ -46,6 +46,7 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
   const [submitted, setSubmitted] = useState(false);
   const [photo, setPhoto] = useState<{ name: string; dataUrl: string } | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submittedList = useProductRequests();
   const productDirtyRef = useRef(false);
