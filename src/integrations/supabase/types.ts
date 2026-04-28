@@ -408,11 +408,7 @@ export type Database = {
           packaging: string | null
           packaging_label: string | null
           photo_source_label: string | null
-          price_currency: string | null
-          price_max: number | null
-          price_min: number | null
           price_range_label: string | null
-          price_unit: string | null
           product_name: string | null
           published_at: string | null
           related_articles: Json | null
@@ -420,7 +416,6 @@ export type Database = {
           species: string | null
           specs: Json | null
           status: Database["public"]["Enums"]["offer_status"] | null
-          supplier_public_id: string | null
           traceability: string | null
           updated_at: string | null
           volume_breaks: Json | null
@@ -450,11 +445,7 @@ export type Database = {
           packaging?: string | null
           packaging_label?: string | null
           photo_source_label?: string | null
-          price_currency?: string | null
-          price_max?: number | null
-          price_min?: number | null
           price_range_label?: string | null
-          price_unit?: string | null
           product_name?: string | null
           published_at?: string | null
           related_articles?: Json | null
@@ -462,7 +453,6 @@ export type Database = {
           species?: string | null
           specs?: Json | null
           status?: Database["public"]["Enums"]["offer_status"] | null
-          supplier_public_id?: string | null
           traceability?: string | null
           updated_at?: string | null
           volume_breaks?: Json | null
@@ -492,11 +482,7 @@ export type Database = {
           packaging?: string | null
           packaging_label?: string | null
           photo_source_label?: string | null
-          price_currency?: string | null
-          price_max?: number | null
-          price_min?: number | null
           price_range_label?: string | null
-          price_unit?: string | null
           product_name?: string | null
           published_at?: string | null
           related_articles?: Json | null
@@ -504,7 +490,6 @@ export type Database = {
           species?: string | null
           specs?: Json | null
           status?: Database["public"]["Enums"]["offer_status"] | null
-          supplier_public_id?: string | null
           traceability?: string | null
           updated_at?: string | null
           volume_breaks?: Json | null
@@ -517,35 +502,18 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "offers_supplier_id_fkey"
-            columns: ["supplier_public_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offers_supplier_id_fkey"
-            columns: ["supplier_public_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       suppliers_public: {
         Row: {
           certifications: string[] | null
-          company_name: string | null
           country_code: string | null
           country_flag: string | null
           created_at: string | null
-          description: string | null
           documents_reviewed: string[] | null
           id: string | null
           in_business_since: number | null
           profile_slug: string | null
-          rating: number | null
           response_time: string | null
           updated_at: string | null
           verification_date: string | null
@@ -553,20 +521,16 @@ export type Database = {
           verification_status:
             | Database["public"]["Enums"]["supplier_verification_status"]
             | null
-          website: string | null
         }
         Insert: {
           certifications?: string[] | null
-          company_name?: string | null
           country_code?: string | null
           country_flag?: string | null
           created_at?: string | null
-          description?: string | null
           documents_reviewed?: string[] | null
           id?: string | null
           in_business_since?: number | null
           profile_slug?: string | null
-          rating?: number | null
           response_time?: string | null
           updated_at?: string | null
           verification_date?: string | null
@@ -574,20 +538,16 @@ export type Database = {
           verification_status?:
             | Database["public"]["Enums"]["supplier_verification_status"]
             | null
-          website?: string | null
         }
         Update: {
           certifications?: string[] | null
-          company_name?: string | null
           country_code?: string | null
           country_flag?: string | null
           created_at?: string | null
-          description?: string | null
           documents_reviewed?: string[] | null
           id?: string | null
           in_business_since?: number | null
           profile_slug?: string | null
-          rating?: number | null
           response_time?: string | null
           updated_at?: string | null
           verification_date?: string | null
@@ -595,12 +555,119 @@ export type Database = {
           verification_status?:
             | Database["public"]["Enums"]["supplier_verification_status"]
             | null
-          website?: string | null
         }
         Relationships: []
       }
     }
     Functions: {
+      get_qualified_offer: {
+        Args: { p_offer_id: string }
+        Returns: {
+          category_id: string
+          certifications: string[]
+          commercial_terms: Json
+          created_at: string
+          delivery_basis_options: Json
+          description: string
+          format: string
+          format_cut: string
+          freshness: string
+          gallery: Json
+          id: string
+          image: string
+          image_list: string[]
+          image_url: string
+          inspection_available: boolean
+          latin_name: string
+          moq_label: string
+          moq_unit: string
+          moq_value: number
+          origin_country_code: string
+          origin_flag: string
+          packaging: string
+          packaging_label: string
+          photo_source_label: string
+          price_currency: string
+          price_max: number
+          price_min: number
+          price_range_label: string
+          price_unit: string
+          product_name: string
+          published_at: string
+          related_articles: Json
+          sample_available: boolean
+          species: string
+          specs: Json
+          status: Database["public"]["Enums"]["offer_status"]
+          supplier_company_name: string
+          supplier_country_code: string
+          supplier_country_flag: string
+          supplier_id: string
+          supplier_in_business_since: number
+          supplier_profile_slug: string
+          supplier_rating: number
+          supplier_response_time: string
+          supplier_verification_status: Database["public"]["Enums"]["supplier_verification_status"]
+          supplier_website: string
+          traceability: string
+          updated_at: string
+          volume_breaks: Json
+        }[]
+      }
+      get_qualified_offers: {
+        Args: never
+        Returns: {
+          category_id: string
+          certifications: string[]
+          commercial_terms: Json
+          created_at: string
+          delivery_basis_options: Json
+          description: string
+          format: string
+          format_cut: string
+          freshness: string
+          gallery: Json
+          id: string
+          image: string
+          image_list: string[]
+          image_url: string
+          inspection_available: boolean
+          latin_name: string
+          moq_label: string
+          moq_unit: string
+          moq_value: number
+          origin_country_code: string
+          origin_flag: string
+          packaging: string
+          packaging_label: string
+          photo_source_label: string
+          price_currency: string
+          price_max: number
+          price_min: number
+          price_range_label: string
+          price_unit: string
+          product_name: string
+          published_at: string
+          related_articles: Json
+          sample_available: boolean
+          species: string
+          specs: Json
+          status: Database["public"]["Enums"]["offer_status"]
+          supplier_company_name: string
+          supplier_country_code: string
+          supplier_country_flag: string
+          supplier_id: string
+          supplier_in_business_since: number
+          supplier_profile_slug: string
+          supplier_rating: number
+          supplier_response_time: string
+          supplier_verification_status: Database["public"]["Enums"]["supplier_verification_status"]
+          supplier_website: string
+          traceability: string
+          updated_at: string
+          volume_breaks: Json
+        }[]
+      }
       has_price_access: {
         Args: { _offer_id: string; _user_id: string }
         Returns: boolean
