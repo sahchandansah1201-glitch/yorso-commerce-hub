@@ -98,21 +98,19 @@ const Offers = () => {
     const attempt = (n: number) => {
       fetchOffers(level)
         .then((rows) => {
-          if (!cancelled) setOffers(rows);
+          if (cancelled) return;
+          setOffers(rows);
+          setOffersLoading(false);
         })
         .catch((err) => {
+          if (cancelled) return;
           const msg = err?.message ?? "Не удалось загрузить каталог";
-          if (!cancelled && isSchemaCacheError(msg) && n < MAX_ATTEMPTS) {
+          if (isSchemaCacheError(msg) && n < MAX_ATTEMPTS) {
             setTimeout(() => !cancelled && attempt(n + 1), 600 * n);
             return;
           }
-          if (!cancelled) setOffersError(msg);
-        })
-        .finally(() => {
-          if (!cancelled && (n >= MAX_ATTEMPTS || true)) {
-            // оставим loading=true только пока идут ретраи
-            setOffersLoading(false);
-          }
+          setOffersError(msg);
+          setOffersLoading(false);
         });
     };
     attempt(1);
