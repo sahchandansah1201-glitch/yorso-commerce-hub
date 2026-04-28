@@ -88,48 +88,62 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
 
         {!isQualified && (
           <div className="p-4 space-y-4">
-            {/* Indicative price range — visible to anonymous & registered */}
-            <div>
-              <p className="text-[11px] font-medium text-muted-foreground mb-1">{t.offerDetail_indicativePrice}</p>
-              <div className="flex items-baseline gap-2">
-                <span className="font-heading text-2xl font-bold text-foreground">{offer.priceRange}</span>
-                <span className="text-sm text-muted-foreground">{offer.priceUnit}</span>
+            {/* Delivery basis selector — buyers must feel that price depends on basis.
+                Codes & ports are public; exact per-basis price stays hidden. */}
+            {bases.length > 1 && (
+              <div>
+                <p className="text-[11px] font-medium text-muted-foreground mb-2">Базис поставки</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {bases.map((b) => {
+                    const active =
+                      selectedBasis.code === b.code &&
+                      selectedBasis.shipmentPort === b.shipmentPort;
+                    return (
+                      <button
+                        key={b.code + b.shipmentPort}
+                        type="button"
+                        onClick={() => setSelectedBasis(b)}
+                        aria-pressed={active}
+                        className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors text-left ${
+                          active
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
+                        }`}
+                      >
+                        <span className="font-semibold">{b.code}</span>
+                        <span className="ml-1 text-[11px] opacity-70">
+                          {b.shipmentPort.split(",")[0]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+            )}
+
+            {/* Indicative price — bound to the selected basis */}
+            <div>
+              <p className="text-[11px] font-medium text-muted-foreground mb-1">
+                {t.offerDetail_indicativePrice} ({selectedBasis.code})
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-heading text-2xl font-bold text-foreground">
+                  {selectedBasis.priceRange || offer.priceRange}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {selectedBasis.priceUnit || offer.priceUnit}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1">
+                <AnchorIcon className="h-3 w-3" aria-hidden /> {selectedBasis.shipmentPort}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">{t.offerDetail_termsLocked_hint}</p>
             </div>
 
             {/* MOQ — real procurement signal, no price exposure */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-1">
               <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="MOQ" value={offer.moq.replace("MOQ: ", "")} />
-              <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Delivery options" value={`${bases.length} basis`} />
-            </div>
-
-            {/* Delivery basis list — buyers must see if a suitable basis exists.
-                Codes (CIF/FOB/…) and shipment ports are public; per-basis price,
-                lead time and payment terms remain hidden behind access. */}
-            <div>
-              <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Базисы поставки</p>
-              <ul className="rounded-lg border border-border overflow-hidden divide-y divide-border">
-                {bases.map((b) => (
-                  <li
-                    key={b.code + b.shipmentPort}
-                    className="flex items-center justify-between gap-3 px-3 py-2 text-xs bg-card"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="rounded-md bg-muted px-1.5 py-0.5 font-semibold text-foreground">
-                        {b.code}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-muted-foreground truncate">
-                        <AnchorIcon className="h-3 w-3 shrink-0" aria-hidden />
-                        <span className="truncate">{b.shipmentPort}</span>
-                      </span>
-                    </div>
-                    <span className="inline-flex items-center gap-1 text-muted-foreground shrink-0">
-                      <Lock className="h-3 w-3" aria-hidden /> Цена и срок по запросу
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Базисов доступно" value={`${bases.length}`} />
             </div>
 
             {/* Volume thresholds — show real partition sizes, hide prices */}
