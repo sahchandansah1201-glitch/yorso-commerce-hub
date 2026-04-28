@@ -92,3 +92,41 @@ export const fetchOffersWithRetry = async (
   }
   throw lastErr;
 };
+
+/**
+ * fetchOfferByIdWithRetry — то же что fetchOffersWithRetry, но для одного оффера.
+ * Используется страницей товара, чтобы при 503/PGRST холодного старта
+ * автоматически повторять запрос до успеха.
+ */
+export const fetchOfferByIdWithRetry = async (
+  id: string,
+  level: AccessLevel,
+  opts: RetryOptions = {},
+): Promise<SeafoodOffer | null> => {
+  const maxAttempts = opts.maxAttempts ?? 6;
+  const delayMs = opts.delayMs ?? 800;
+
+  let lastErr: unknown;
+  for (let n = 1; n <= maxAttempts; n++) {
+    if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    try {
+      return await fetchOfferById(id, level);
+    } catch (err) {
+      lastErr = err;
+      opts.onAttemptFail?.(err, n);
+      if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
+      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => resolve(), wait);
+        if (opts.signal) {
+          const onAbort = () => {
+            clearTimeout(timer);
+            reject(new DOMException("Aborted", "AbortError"));
+          };
+          opts.signal.addEventListener("abort", onAbort, { once: true });
+        }
+      });
+    }
+  }
+  throw lastErr;
+};
