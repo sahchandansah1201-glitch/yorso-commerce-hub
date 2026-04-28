@@ -193,6 +193,8 @@ export const useResilientOffer = (
     if (!id) return;
     let cancelled = false;
     let backgroundTimer: number | undefined;
+    let backgroundAttempt = 0;
+    const startedAt = Date.now();
     const abort = new AbortController();
     if (!dataRef.current) setLoading(true);
     setError(null);
@@ -215,6 +217,7 @@ export const useResilientOffer = (
       if (cancelled) return;
       backgroundTimer = window.setTimeout(() => {
         if (cancelled) return;
+        backgroundAttempt += 1;
         setRecovering(true);
         fetchOfferByIdWithRetry(id, level, {
           signal: abort.signal,
@@ -227,6 +230,13 @@ export const useResilientOffer = (
               setData(res);
               setUsingFallback(false);
               setLastErrorCode(null);
+              // Общая метрика восстановления каталога — для сводных дашбордов.
+              analytics.track("catalog_background_recovered", {
+                level,
+                attempt: backgroundAttempt,
+                durationMs: Date.now() - startedAt,
+              });
+              // Офферо-специфичное событие — для воронки конкретного товара.
               analytics.track("offer_detail_background_recovered", {
                 offerId: id,
                 attempts: failedAttempts,
@@ -261,6 +271,8 @@ export const useResilientOffer = (
           setData(fallback);
           setUsingFallback(true);
           setError(null);
+          // Симметрично каталогу: фиксируем сам факт включения демо-данных.
+          analytics.track("catalog_soft_fallback_applied", { level });
           scheduleBackgroundRetry();
           return;
         }
