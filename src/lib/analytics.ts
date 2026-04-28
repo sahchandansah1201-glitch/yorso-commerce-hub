@@ -115,6 +115,10 @@ export interface EventPayloadMap {
   catalog_manual_retry_click: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   };
+  offer_detail_manual_retry_click: {
+    offerId: string | undefined;
+    lastErrorCode: string | null;
+  };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and
