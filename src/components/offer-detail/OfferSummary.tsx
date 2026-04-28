@@ -142,9 +142,26 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Cut type" value={offer.cutType} />
         <SpecRow icon={<MapPin className="h-3.5 w-3.5" />} label="Origin" value={`${offer.originFlag} ${offer.origin}`} />
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Packaging" value={offer.packaging} />
-        {isQualified && (
-          <SpecRow icon={<Scale className="h-3.5 w-3.5" />} label="Volume capacity" value={offer.commercial.availableVolume} />
-        )}
+      </div>
+
+      {/* Уровень запасов — схематично, точные количества конфиденциальны */}
+      <div className="flex items-start gap-2">
+        <Scale className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+        <div>
+          <p className="text-[11px] text-muted-foreground">Уровень запасов</p>
+          <div className="mt-0.5">
+            <CapacityMeter
+              status={
+                isQualified
+                  ? offer.commercial.availableVolume
+                  : offer.commercial.stockStatus
+              }
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Точный объём — конфиденциальная информация поставщика
+          </p>
+        </div>
       </div>
 
       {/* Product certifications — public, помогают оценить соответствие до запроса доступа */}
