@@ -54,40 +54,45 @@ const StockBadge = ({ status }: { status: string }) => {
  * поэтому показываем только уровень: low / medium / high.
  */
 const CapacityMeter = ({ status }: { status: string }) => {
-  // Эвристика по статусу + текстовому описанию из mock-данных.
-  // Реальная интеграция должна возвращать enum 'low' | 'medium' | 'high'.
-  const level: 1 | 2 | 3 =
-    status === "Pre-order" || /small|limited/i.test(status)
+  // Эвристика по статусу/описанию из mock-данных. Шкала 1..5.
+  const level: 1 | 2 | 3 | 4 | 5 =
+    status === "Pre-order"
       ? 1
-      : /high|large/i.test(status)
-        ? 3
-        : 2;
+      : /small/i.test(status)
+        ? 2
+        : /limited/i.test(status)
+          ? 3
+          : /high|large/i.test(status)
+            ? 5
+            : 4;
 
-  const labels = { 1: "Малый объём", 2: "Средний объём", 3: "Большой объём" } as const;
-  const colors = {
-    1: "bg-orange-500",
-    2: "bg-primary",
-    3: "bg-success",
+  const labels = {
+    1: "Под заказ",
+    2: "Малый объём",
+    3: "Ограниченный объём",
+    4: "Средний объём",
+    5: "Большой объём",
   } as const;
+
+  const barColor =
+    level <= 2 ? "bg-orange-500" : level === 3 ? "bg-primary" : "bg-success";
 
   return (
     <div
-      className="inline-flex items-center gap-2"
+      className="inline-flex items-end gap-1"
       role="img"
       aria-label={`Уровень запасов: ${labels[level]}`}
     >
-      <div className="flex items-end gap-0.5" aria-hidden>
-        {[1, 2, 3].map((i) => (
-          <span
-            key={i}
-            className={`w-1.5 rounded-sm transition-colors ${
-              i <= level ? colors[level] : "bg-muted"
-            }`}
-            style={{ height: `${6 + i * 4}px` }}
-          />
-        ))}
-      </div>
-      <span className="text-sm font-medium text-foreground">{labels[level]}</span>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          aria-hidden
+          className={`w-1.5 rounded-sm transition-colors ${
+            i <= level ? barColor : "bg-muted"
+          }`}
+          style={{ height: `${6 + i * 3}px` }}
+        />
+      ))}
     </div>
   );
 };
@@ -137,26 +142,25 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
         <p className="mt-1 text-sm italic text-muted-foreground">{offer.latinName}</p>
       </div>
 
-      {/* Product specs grid — public */}
+      {/* Product specs grid — public. Уровень запасов размещён под Origin
+          (правая колонка), чтобы оставаться рядом со страновым контекстом. */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Cut type" value={offer.cutType} />
         <SpecRow icon={<MapPin className="h-3.5 w-3.5" />} label="Origin" value={`${offer.originFlag} ${offer.origin}`} />
         <SpecRow icon={<Package className="h-3.5 w-3.5" />} label="Packaging" value={offer.packaging} />
-      </div>
-
-      {/* Уровень запасов — схематично, точные количества конфиденциальны */}
-      <div className="flex items-start gap-2">
-        <Scale className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
-        <div>
-          <p className="text-[11px] text-muted-foreground">Уровень запасов</p>
-          <div className="mt-0.5">
-            <CapacityMeter
-              status={
-                isQualified
-                  ? offer.commercial.availableVolume
-                  : offer.commercial.stockStatus
-              }
-            />
+        <div className="flex items-start gap-2 py-1">
+          <Scale className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+          <div>
+            <p className="text-[11px] text-muted-foreground">Уровень запасов</p>
+            <div className="mt-1">
+              <CapacityMeter
+                status={
+                  isQualified
+                    ? offer.commercial.availableVolume
+                    : offer.commercial.stockStatus
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
