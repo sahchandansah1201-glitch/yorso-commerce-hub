@@ -209,6 +209,7 @@ export const useResilientOffer = (
     let cancelled = false;
     let backgroundTimer: number | undefined;
     let backgroundAttempt = 0;
+    let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
     if (!dataRef.current) setLoading(true);
@@ -216,6 +217,8 @@ export const useResilientOffer = (
 
     const trackAttemptFail = (err: unknown, n: number) => {
       const code = extractCatalogErrorCode(err);
+      const httpStatus = extractHttpStatus(err);
+      lastErr = { code, httpStatus };
       if (!cancelled) {
         setFailedAttempts((p) => p + 1);
         setLastErrorCode(code);
@@ -224,6 +227,7 @@ export const useResilientOffer = (
         level,
         attempt: n,
         code,
+        httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
       });
     };
@@ -250,6 +254,8 @@ export const useResilientOffer = (
                 level,
                 attempt: backgroundAttempt,
                 durationMs: Date.now() - startedAt,
+                lastErrorCode: lastErr.code,
+                httpStatus: lastErr.httpStatus,
               });
               // Офферо-специфичное событие — для воронки конкретного товара.
               analytics.track("offer_detail_background_recovered", {
@@ -287,7 +293,11 @@ export const useResilientOffer = (
           setUsingFallback(true);
           setError(null);
           // Симметрично каталогу: фиксируем сам факт включения демо-данных.
-          analytics.track("catalog_soft_fallback_applied", { level });
+          analytics.track("catalog_soft_fallback_applied", {
+            level,
+            lastErrorCode: lastErr.code,
+            httpStatus: lastErr.httpStatus,
+          });
           scheduleBackgroundRetry();
           return;
         }
