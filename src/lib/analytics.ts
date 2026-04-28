@@ -99,18 +99,23 @@ export interface EventPayloadMap {
   };
   catalog_soft_fallback_applied: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    lastErrorCode?: string | null;
+    httpStatus?: number | null;
   };
   catalog_fetch_attempt_failed: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
     attempt: number;
     code?: string;
     status?: number;
+    httpStatus?: number | null;
     message?: string;
   };
   catalog_background_recovered: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
     attempt: number;
     durationMs: number;
+    lastErrorCode?: string | null;
+    httpStatus?: number | null;
   };
   catalog_manual_retry_click: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
