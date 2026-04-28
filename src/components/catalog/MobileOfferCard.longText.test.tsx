@@ -1,0 +1,2 @@
+/**
+ * MobileOfferCard — проверка пере
