@@ -49,41 +49,34 @@ describe("CatalogOfferRow — responsive layout contract", () => {
     expect(row.className).toMatch(/(^|\s)grid-cols-1(\s|$)/);
   });
 
-  it("switches to 2-column [image | content] at sm (tablet portrait, 640–1023px)", () => {
+  it("becomes a 3-column workspace at sm (tablet portrait, 640–1023px) for fast scanning", () => {
     renderRow();
     const row = getRow();
-    // Tablet (incl. 768px iPad portrait): image column flexes 160–200px so
-    // it stays readable on 640px landscape phones and doesn't dominate at
-    // 1023px. The price/supplier block then spans both columns underneath.
-    expect(row.className).toContain("sm:grid-cols-[minmax(160px,200px)_minmax(0,1fr)]");
+    // Tablet (incl. 768px iPad portrait): три колонки [фото | идентификация |
+    // цена/поставщик]. Это даёт сканирование «слева направо» и убирает
+    // широкую полосу цены под идентификацией, на которую раньше уходил
+    // весь горизонтальный экстент карточки.
+    expect(row.className).toContain("sm:grid-cols-[minmax(140px,170px)_minmax(0,1fr)_minmax(190px,220px)]");
   });
 
-  it("becomes a 3-column workspace at lg+ (≥1024px) and refines at xl", () => {
+  it("keeps a 3-column workspace at lg+ (≥1024px) and refines at xl", () => {
     renderRow();
     const row = getRow();
-    // lg gives the price column a min-width of 240px so locked-access copy
-    // and exact prices never wrap mid-line on 1024–1279 viewports.
-    expect(row.className).toContain("lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)_minmax(240px,260px)]");
-    expect(row.className).toContain("xl:grid-cols-[300px_minmax(0,1.61fr)_minmax(260px,290px)]");
+    expect(row.className).toContain("lg:grid-cols-[minmax(220px,260px)_minmax(0,1.32fr)_minmax(205px,222px)]");
+    expect(row.className).toContain("xl:grid-cols-[300px_minmax(0,2.12fr)_minmax(222px,250px)]");
   });
 
-  it("price/supplier block spans full width below lg and becomes its own column at lg+", () => {
+  it("price/supplier block is its own grid column from sm+ (no full-width span)", () => {
     renderRow();
-    // Walk up from the price testid until we find the outer column wrapper
-    // that owns the responsive grid placement classes.
     let priceBlock: HTMLElement | null = screen.getByTestId("catalog-row-price");
-    while (priceBlock && !priceBlock.className.includes("sm:col-span-2")) {
+    while (priceBlock && !priceBlock.className.includes("flex-col items-stretch")) {
       priceBlock = priceBlock.parentElement;
     }
-    expect(priceBlock, "expected to find ancestor with sm:col-span-2").not.toBeNull();
+    expect(priceBlock, "expected to find price/supplier column wrapper").not.toBeNull();
     const cls = (priceBlock as HTMLElement).className;
-    // Spans both columns on tablet so it never gets squeezed into a narrow
-    // sliver next to the content column.
-    expect(cls).toContain("sm:col-span-2");
-    expect(cls).toContain("lg:col-span-1");
-    // Visual separator only below lg (where it sits under the content).
+    expect(cls).not.toContain("sm:col-span-2");
     expect(cls).toContain("border-t");
-    expect(cls).toContain("lg:border-t-0");
+    expect(cls).toContain("sm:border-t-0");
   });
 
   it("product image stays compact across breakpoints (4:3 ≤md, square at lg, 5:4+max-height at xl)", () => {
