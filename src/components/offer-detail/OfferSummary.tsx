@@ -146,24 +146,37 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               <SpecRow icon={<Globe className="h-3.5 w-3.5" />} label="Базисов доступно" value={`${bases.length}`} />
             </div>
 
-            {/* Volume thresholds — show real partition sizes, hide prices */}
+            {/* Volume → price — each tier shows its indicative price next to the volume.
+                Price comes from mock data (vb.priceRange); exact basis-level price still
+                requires access. */}
             {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
               <div>
-                <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Объёмы партий</p>
+                <p className="text-[11px] font-medium text-muted-foreground mb-1.5">
+                  Цена по объёму партии
+                </p>
                 <div className="rounded-lg border border-border overflow-hidden">
                   <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-muted/50 text-muted-foreground">
+                        <th className="px-3 py-1.5 text-left font-medium">Объём партии</th>
+                        <th className="px-3 py-1.5 text-right font-medium">Цена ({offer.priceUnit})</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {offer.volumeBreaks.map((vb, i) => (
                         <tr key={i} className={i % 2 === 0 ? "bg-card" : "bg-muted/30"}>
                           <td className="px-3 py-1.5 text-foreground font-medium">{vb.minQty}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground text-right inline-flex items-center justify-end gap-1 w-full">
-                            <Lock className="h-3 w-3" aria-hidden /> Цена по запросу
+                          <td className="px-3 py-1.5 text-foreground font-semibold text-right">
+                            {vb.priceRange}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  Индикативные цены. Точная цена под ваш объём — после получения доступа.
+                </p>
               </div>
             )}
 
