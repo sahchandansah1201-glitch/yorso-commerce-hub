@@ -313,7 +313,6 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
             {t.catalog_reqForm_photo}
             {optionalTag}
           </Label>
-          <p className="text-[11px] text-muted-foreground">{t.catalog_reqForm_photoHint}</p>
           <input
             ref={fileInputRef}
             id="rq-photo"
@@ -343,15 +342,36 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
               </Button>
             </div>
           ) : (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (!isDragging) setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-md border-2 border-dashed px-4 py-6 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-background hover:border-primary/60 hover:bg-primary/5"
+              }`}
             >
-              <ImagePlus className="h-4 w-4" /> {t.catalog_reqForm_photoAdd}
-            </Button>
+              <ImagePlus className="h-5 w-5 text-muted-foreground" aria-hidden />
+              <p className="text-xs font-medium text-foreground">
+                {t.catalog_reqForm_photoAdd}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {t.catalog_reqForm_photoHint}
+              </p>
+            </div>
           )}
           {photoError && (
             <p className="text-[11px] text-destructive">{photoError}</p>
