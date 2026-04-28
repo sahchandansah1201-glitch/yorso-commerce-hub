@@ -2457,7 +2457,7 @@ const ru: TranslationKeys = {
   info_privacy_contactBody: "Сотрудник по защите данных: ",
 
   // Catalog
-  catalog_pageTitle: "Каталог морепродуктов для закупок",
+  catalog_pageTitle: "Каталог морепродуктов",
   catalog_breadcrumbHome: "Главная",
   catalog_breadcrumbCatalog: "Каталог",
   catalog_marketStatus_live: "Рынок активен",
