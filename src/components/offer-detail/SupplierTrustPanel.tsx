@@ -35,9 +35,8 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
   const isQualified = accessLevel === "qualified_unlocked";
   const isAnonymous = accessLevel === "anonymous_locked";
 
-  // Mask supplier identity for non-qualified states.
-  const displayName = isQualified ? s.name : t.offerDetail_supplierMasked_name;
-  const initial = isQualified ? s.name.charAt(0) : "?";
+  // Mask supplier identity for non-qualified states — show real name blurred.
+  const initial = s.name.charAt(0);
 
   return (
     <div className="space-y-4">
@@ -45,14 +44,24 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-3">
           {/* 1. Логотип поставщика (плейсхолдер с инициалом, пока нет реальных логотипов) */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-heading text-lg font-bold text-foreground">
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-heading text-lg font-bold text-foreground ${
+              !isQualified ? "blur-sm select-none" : ""
+            }`}
+            aria-hidden={!isQualified}
+          >
             {initial}
           </div>
           <div className="flex-1 min-w-0">
             {/* 2. Название поставщика — допускаем перенос на 2 строки для длинных юр. наименований */}
             <div className="flex items-start gap-1.5">
-              <span className="font-heading font-semibold text-foreground leading-snug line-clamp-2 break-words">
-                {displayName}
+              <span
+                className={`font-heading font-semibold text-foreground leading-snug line-clamp-2 break-words ${
+                  !isQualified ? "blur-sm select-none" : ""
+                }`}
+                aria-label={isQualified ? s.name : t.offerDetail_supplierMasked_name}
+              >
+                {s.name}
               </span>
               <span className="mt-0.5 inline-flex shrink-0 items-center gap-1">
                 {s.isVerified ? (
