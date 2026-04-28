@@ -263,6 +263,12 @@ const MobileOfferCard = ({
     if (!el || !hasMultiple || !measured) return;
     let frame = 0;
     let settleTimer: ReturnType<typeof setTimeout> | null = null;
+    // Synchronous mirror of the *intended* active index. activeIdxRef only
+    // updates after React commits, which is too late during iOS momentum:
+    // 60+ scroll events can fire before the first commit and each would
+    // re-issue the same setState. We bump this synchronously inside the
+    // rAF callback so subsequent events in the same flight short-circuit.
+    let lastCommittedIdx = activeIdxRef.current;
 
     const computeIdx = () => {
       const slideWidth = el.clientWidth * slideFraction;
@@ -276,17 +282,42 @@ const MobileOfferCard = ({
       // scroll positions override the active index (no dot flicker).
       if (suppressIdxRef.current) return;
 
-      cancelAnimationFrame(frame);
+      // One commit per frame max: if a frame is already scheduled, drop
+      // this event entirely. iOS Safari fires scroll events at >60Hz
+      // during momentum; without this guard we'd schedule (and cancel)
+      // a rAF on every single one — wasted work even though only the
+      // last one ever runs.
+      if (frame !== 0) return;
+
       frame = requestAnimationFrame(() => {
+        frame = 0;
         const idx = computeIdx();
         if (idx === null) return;
+
+        // Skip entirely if the visible index hasn't changed. Saves
+        // setActiveIdx → React reconciliation → dot DOM update on every
+        // momentum frame where the user is still mid-slide.
+        if (idx === lastCommittedIdx) {
+          // Still arm the settle pass — when momentum stops on the same
+          // slide, we don't need to re-commit, but we also don't want a
+          // stale settle timer firing later with an outdated index.
+          if (settleTimer) clearTimeout(settleTimer);
+          settleTimer = setTimeout(() => {
+            const finalIdx = computeIdx();
+            if (finalIdx !== null && finalIdx !== lastCommittedIdx) {
+              lastCommittedIdx = finalIdx;
+              setActiveIdx(finalIdx);
+            }
+          }, 90);
+          return;
+        }
 
         // Provisional update: only commit if it's a clean change to a
         // neighbour. This prevents two-step jumps (0 → 2) when scrollLeft
         // momentarily lands between slides during a fast swipe or
         // breakpoint adjustment.
-        const current = activeIdxRef.current;
-        if (Math.abs(idx - current) <= 1 && idx !== current) {
+        if (Math.abs(idx - lastCommittedIdx) <= 1) {
+          lastCommittedIdx = idx;
           setActiveIdx(idx);
         }
 
@@ -297,7 +328,8 @@ const MobileOfferCard = ({
         if (settleTimer) clearTimeout(settleTimer);
         settleTimer = setTimeout(() => {
           const finalIdx = computeIdx();
-          if (finalIdx !== null && finalIdx !== activeIdxRef.current) {
+          if (finalIdx !== null && finalIdx !== lastCommittedIdx) {
+            lastCommittedIdx = finalIdx;
             setActiveIdx(finalIdx);
           }
         }, 90);
@@ -307,7 +339,7 @@ const MobileOfferCard = ({
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       el.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
+      if (frame !== 0) cancelAnimationFrame(frame);
       if (settleTimer) clearTimeout(settleTimer);
     };
   }, [hasMultiple, images.length, slideFraction, measured]);
