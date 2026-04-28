@@ -74,6 +74,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
   const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
   const [recovering, setRecovering] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const correlationIdRef = useRef<string>(newCorrelationId());
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +82,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
     let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
     const startedAt = Date.now();
     const abort = new AbortController();
+    const correlationId = correlationIdRef.current;
     setLoading(true);
     setError(null);
     setRecovering(false);
@@ -95,6 +97,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
         level,
         lastErrorCode: lastErr.code,
         httpStatus: lastErr.httpStatus,
+        correlationId,
       });
     }, SOFT_FALLBACK_MS);
 
@@ -115,6 +118,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
         code,
         httpStatus,
         message: (err as { message?: string })?.message?.slice(0, 200),
+        correlationId,
       });
     };
 
@@ -140,6 +144,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
               durationMs: Date.now() - startedAt,
               lastErrorCode: lastErr.code,
               httpStatus: lastErr.httpStatus,
+              correlationId,
             });
             setLastErrorCode(null);
           })
@@ -172,6 +177,7 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
               level,
               lastErrorCode: lastErr.code,
               httpStatus: lastErr.httpStatus,
+              correlationId,
             });
           }
           scheduleBackgroundRetry();
@@ -192,7 +198,9 @@ export const useResilientCatalog = (level: AccessLevel): ResilientState<SeafoodO
   }, [level, reloadKey]);
 
   const retry = useCallback(() => {
-    analytics.track("catalog_manual_retry_click", { level });
+    // Новая «жизнь экрана» — новый correlationId, чтобы воронка retry была отдельной.
+    correlationIdRef.current = newCorrelationId();
+    analytics.track("catalog_manual_retry_click", { level, correlationId: correlationIdRef.current });
     setFailedAttempts(0);
     setLastErrorCode(null);
     setReloadKey((k) => k + 1);
