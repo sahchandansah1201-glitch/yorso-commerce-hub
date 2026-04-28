@@ -39,6 +39,16 @@ const make503 = (code = "PGRST002") =>
 const eventsOf = (name: string) =>
   trackMock.mock.calls.filter(([n]) => n === name).map(([, p]) => p);
 
+/**
+ * Прокручиваем фейковые таймеры порциями, чтобы избежать бесконечного цикла
+ * фонового ретрая (scheduleBackgroundRetry → setTimeout → scheduleBackgroundRetry).
+ */
+const advance = async (ms: number) => {
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(ms);
+  });
+};
+
 describe("useResilientCatalog — события деградации/восстановления", () => {
   beforeEach(() => {
     fetchOffersMock.mockReset();
