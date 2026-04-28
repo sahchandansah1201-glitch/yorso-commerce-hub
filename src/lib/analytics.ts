@@ -100,6 +100,21 @@ export interface EventPayloadMap {
   catalog_soft_fallback_applied: {
     level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   };
+  catalog_fetch_attempt_failed: {
+    level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    attempt: number;
+    code?: string;
+    status?: number;
+    message?: string;
+  };
+  catalog_background_recovered: {
+    level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    attempt: number;
+    durationMs: number;
+  };
+  catalog_manual_retry_click: {
+    level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+  };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and

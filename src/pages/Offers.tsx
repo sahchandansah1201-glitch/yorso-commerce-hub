@@ -97,6 +97,12 @@ const Offers = () => {
   const [offers, setOffers] = useState<SeafoodOffer[]>([]);
   const [offersLoading, setOffersLoading] = useState(true);
   const [offersError, setOffersError] = useState<string | null>(null);
+  // Диагностика временной деградации Lovable Cloud.
+  const [usingFallback, setUsingFallback] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
+  const [recovering, setRecovering] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const allowSupplierName = level === "qualified_unlocked";
 
@@ -106,55 +112,139 @@ const Offers = () => {
 
   // Load catalog from Supabase whenever the access level changes (qualified
   // users get exact price/supplier; others see redacted public view).
+  // reloadKey увеличивается на ручной "Повторить" — форсит перезапуск эффекта.
   useEffect(() => {
     let cancelled = false;
     let softFallbackApplied = false;
+    const startedAt = Date.now();
+    const abort = new AbortController();
     setOffersLoading(true);
     setOffersError(null);
+    setRecovering(false);
 
-    // Мягкий fallback: если бэкенд PostgREST холодит / отвечает 503 PGRST001/002,
-    // не держим пользователя на скелетонах. Через 3.5с показываем mockOffers,
-    // чтобы панель закупок сразу заполнилась. Когда настоящий ответ придёт —
-    // тихо заменим данные на реальные.
+    const SOFT_FALLBACK_MS = 3500;
+    const BACKGROUND_RETRY_MS = 12_000;
+
+    // Мягкий fallback: если бэкенд PostgREST холодит / отвечает 503
+    // (PGRST001/PGRST002), не держим пользователя на скелетонах. Через 3.5с
+    // показываем mockOffers, чтобы рабочая поверхность была заполнена.
     const softFallbackTimer = window.setTimeout(() => {
       if (cancelled) return;
       softFallbackApplied = true;
       setOffers(fallbackOffersForLevel(level));
       setOffersLoading(false);
+      setUsingFallback(true);
       analytics.track("catalog_soft_fallback_applied", { level });
-    }, 3500);
+    }, SOFT_FALLBACK_MS);
 
-    fetchOffersWithRetry(level)
+    let backgroundTimer: number | null = null;
+    let backgroundAttempt = 0;
+
+    const scheduleBackgroundRetry = () => {
+      if (cancelled) return;
+      backgroundTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        backgroundAttempt += 1;
+        setRecovering(true);
+        fetchOffersWithRetry(level, {
+          signal: abort.signal,
+          maxAttempts: 3,
+          onAttemptFail: (err, n) => {
+            const code = (err as { code?: string })?.code
+              ?? (err as { status?: number })?.status?.toString()
+              ?? "unknown";
+            if (!cancelled) {
+              setFailedAttempts((prev) => prev + 1);
+              setLastErrorCode(code);
+            }
+            analytics.track("catalog_fetch_attempt_failed", {
+              level,
+              attempt: n,
+              code: typeof code === "string" ? code : undefined,
+              message: (err as { message?: string })?.message?.slice(0, 200),
+            });
+          },
+        })
+          .then((rows) => {
+            if (cancelled) return;
+            setOffers(rows);
+            setUsingFallback(false);
+            setRecovering(false);
+            setLastErrorCode(null);
+            analytics.track("catalog_background_recovered", {
+              level,
+              attempt: backgroundAttempt,
+              durationMs: Date.now() - startedAt,
+            });
+          })
+          .catch(() => {
+            if (cancelled) return;
+            setRecovering(false);
+            scheduleBackgroundRetry();
+          });
+      }, BACKGROUND_RETRY_MS);
+    };
+
+    fetchOffersWithRetry(level, {
+      signal: abort.signal,
+      onAttemptFail: (err, n) => {
+        const code = (err as { code?: string })?.code
+          ?? (err as { status?: number })?.status?.toString()
+          ?? "unknown";
+        if (!cancelled) {
+          setFailedAttempts((prev) => prev + 1);
+          setLastErrorCode(code);
+        }
+        analytics.track("catalog_fetch_attempt_failed", {
+          level,
+          attempt: n,
+          code: typeof code === "string" ? code : undefined,
+          message: (err as { message?: string })?.message?.slice(0, 200),
+        });
+      },
+    })
       .then((rows) => {
         if (cancelled) return;
         window.clearTimeout(softFallbackTimer);
         setOffers(rows);
         setOffersLoading(false);
+        setUsingFallback(false);
+        setLastErrorCode(null);
       })
       .catch((err) => {
         if (cancelled) return;
         window.clearTimeout(softFallbackTimer);
         if (isRetriableCatalogError(err)) {
-          // Если soft fallback уже сработал — оставляем mockOffers и не шумим.
           if (!softFallbackApplied) {
             setOffers(fallbackOffersForLevel(level));
             setOffersLoading(false);
+            setUsingFallback(true);
+            analytics.track("catalog_soft_fallback_applied", { level });
           }
+          // Запускаем фоновое восстановление до успеха.
+          scheduleBackgroundRetry();
           return;
         }
-        // Не-retriable ошибка: если у пользователя уже есть mock-данные
-        // от soft fallback — оставляем их, чтобы рабочая поверхность не
-        // схлопнулась в красное состояние.
         if (!softFallbackApplied) {
           setOffersError(err?.message ?? "Не удалось загрузить каталог");
           setOffersLoading(false);
         }
       });
+
     return () => {
       cancelled = true;
+      abort.abort();
       window.clearTimeout(softFallbackTimer);
+      if (backgroundTimer) window.clearTimeout(backgroundTimer);
     };
-  }, [level]);
+  }, [level, reloadKey]);
+
+  const handleManualRetry = () => {
+    analytics.track("catalog_manual_retry_click", { level });
+    setFailedAttempts(0);
+    setLastErrorCode(null);
+    setReloadKey((k) => k + 1);
+  };
 
   // If the user lands here from an alert, scroll to the alerts strip and
   // clean the `fromAlert` param so back-navigation doesn't re-trigger.
@@ -326,6 +416,45 @@ const Offers = () => {
             {t.catalog_freshOffers_24h.replace("{count}", String(freshOffersCount))}
           </div>
         </div>
+
+        {usingFallback && (
+          <div
+            role="status"
+            data-testid="catalog-fallback-banner"
+            className="mt-4 flex flex-col gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
+          >
+            <div className="flex items-start gap-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              <div className="space-y-0.5">
+                <p className="font-medium">
+                  Показаны демо-предложения, пока бэкенд восстанавливается
+                </p>
+                <p className="text-xs opacity-80">
+                  {recovering
+                    ? "Повторное подключение к каталогу…"
+                    : "Подключение к каталогу будет повторено автоматически."}
+                  {failedAttempts > 0 && (
+                    <>
+                      {" "}Неудачных попыток: {failedAttempts}
+                      {lastErrorCode ? ` · код ${lastErrorCode}` : ""}.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRetry}
+              disabled={recovering}
+              className="gap-1.5"
+              data-testid="catalog-fallback-retry"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${recovering ? "animate-spin" : ""}`} aria-hidden />
+              Повторить сейчас
+            </Button>
+          </div>
+        )}
 
         <div id="catalog-anchor-alerts" className="mt-4 scroll-mt-20">
           <AlertsInlinePanel />
