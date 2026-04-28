@@ -119,6 +119,10 @@ export interface EventPayloadMap {
     offerId: string | undefined;
     lastErrorCode: string | null;
   };
+  offer_detail_background_recovered: {
+    offerId: string | undefined;
+    attempts: number;
+  };
 
   // Registration ────────────────────────────────────────────────
   // Funnel events carry `step` (1..7) and `sessionId` so drop-off and
