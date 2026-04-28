@@ -80,6 +80,16 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
         )}
       </div>
 
+      {/* Product certifications — public, помогают оценить соответствие до запроса доступа */}
+      {offer.certifications && offer.certifications.length > 0 && (
+        <div>
+          <p className="text-[11px] font-medium text-muted-foreground mb-1.5 inline-flex items-center gap-1">
+            <FileCheck className="h-3 w-3" /> Сертификаты соответствия
+          </p>
+          <CertificationBadges certifications={offer.certifications} size="sm" />
+        </div>
+      )}
+
       {/* Commercial Terms Card */}
       <div className="rounded-xl border border-border bg-card">
         <div className="border-b border-border px-4 py-3 flex items-center justify-between">
