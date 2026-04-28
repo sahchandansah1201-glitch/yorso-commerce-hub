@@ -131,7 +131,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" /> {offer.freshness}
           </span>
-          {isQualified && <StockBadge status={offer.commercial.stockStatus} />}
+          <StockBadge status={offer.commercial.stockStatus} />
         </div>
         <h1 className="font-heading text-xl font-bold text-foreground md:text-2xl leading-tight">{offer.productName}</h1>
         <p className="mt-1 text-sm italic text-muted-foreground">{offer.latinName}</p>
