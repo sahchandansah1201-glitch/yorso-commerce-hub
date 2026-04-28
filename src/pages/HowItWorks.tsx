@@ -22,6 +22,9 @@ import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import BuyerJourney from "@/components/how-it-works/BuyerJourney";
 import ProcurementDecisionProof from "@/components/how-it-works/ProcurementDecisionProof";
+import SupplierJourney from "@/components/how-it-works/SupplierJourney";
+import TrustStack from "@/components/how-it-works/TrustStack";
+import ValueGrids from "@/components/how-it-works/ValueGrids";
 
 /**
  * /how-it-works
