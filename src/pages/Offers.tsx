@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
+import { type SeafoodOffer } from "@/data/mockOffers";
+import { fetchOffers } from "@/lib/catalog-api";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -68,12 +69,36 @@ const Offers = () => {
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [offers, setOffers] = useState<SeafoodOffer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(true);
+  const [offersError, setOffersError] = useState<string | null>(null);
 
   const allowSupplierName = level === "qualified_unlocked";
 
   useEffect(() => {
     analytics.track("offers_list_view");
   }, []);
+
+  // Load catalog from Supabase whenever the access level changes (qualified
+  // users get exact price/supplier; others see redacted public view).
+  useEffect(() => {
+    let cancelled = false;
+    setOffersLoading(true);
+    setOffersError(null);
+    fetchOffers(level)
+      .then((rows) => {
+        if (!cancelled) setOffers(rows);
+      })
+      .catch((err) => {
+        if (!cancelled) setOffersError(err?.message ?? "Не удалось загрузить каталог");
+      })
+      .finally(() => {
+        if (!cancelled) setOffersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [level]);
 
   // If the user lands here from an alert, scroll to the alerts strip and
   // clean the `fromAlert` param so back-navigation doesn't re-trigger.
@@ -122,24 +147,24 @@ const Offers = () => {
   const options = useMemo(() => {
     const uniq = (arr: string[]) => Array.from(new Set(arr.filter(Boolean))).sort();
     return {
-      categories: uniq(mockOffers.map((o) => o.category)),
-      origins: uniq(mockOffers.map((o) => o.origin)),
-      supplierCountries: uniq(mockOffers.map((o) => o.supplier.country)),
+      categories: uniq(offers.map((o) => o.category)),
+      origins: uniq(offers.map((o) => o.origin)),
+      supplierCountries: uniq(offers.map((o) => o.supplier.country)),
       // Hide exact supplier names from the filter selector unless qualified.
-      suppliers: allowSupplierName ? uniq(mockOffers.map((o) => o.supplier.name)) : [],
-      bases: uniq(mockOffers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
-      certifications: uniq(mockOffers.flatMap((o) => o.certifications ?? [])),
-      paymentTermsList: uniq(mockOffers.map((o) => o.commercial.paymentTerms.split(",")[0].trim())),
+      suppliers: allowSupplierName ? uniq(offers.map((o) => o.supplier.name)) : [],
+      bases: uniq(offers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
+      certifications: uniq(offers.flatMap((o) => o.certifications ?? [])),
+      paymentTermsList: uniq(offers.map((o) => (o.commercial?.paymentTerms ?? "").split(",")[0].trim())),
       states: ["Frozen", "Fresh", "Chilled"],
-      cutTypes: uniq(mockOffers.map((o) => o.cutType.split(",")[0].trim())),
-      currencies: uniq(mockOffers.map((o) => o.currency ?? "USD")),
-      latinNames: uniq(mockOffers.map((o) => o.latinName)),
+      cutTypes: uniq(offers.map((o) => o.cutType.split(",")[0].trim())),
+      currencies: uniq(offers.map((o) => o.currency ?? "USD")),
+      latinNames: uniq(offers.map((o) => o.latinName)),
     };
-  }, [allowSupplierName]);
+  }, [allowSupplierName, offers]);
 
   const visible = useMemo(
-    () => mockOffers.filter((o) => matches(o, filters, allowSupplierName)),
-    [filters, allowSupplierName],
+    () => offers.filter((o) => matches(o, filters, allowSupplierName)),
+    [filters, allowSupplierName, offers],
   );
 
   useEffect(() => {
@@ -153,7 +178,7 @@ const Offers = () => {
   }, [visible, selectedOfferId]);
 
   const freshOffersCount = useMemo(() => {
-    return mockOffers.filter((o) => {
+    return offers.filter((o) => {
       const f = (o.freshness ?? "").toLowerCase();
       if (f.includes("today")) return true;
       const m = f.match(/(\d+)\s*h\s*ago/);
@@ -168,13 +193,13 @@ const Offers = () => {
   );
 
   const comparedOffers = useMemo(
-    () => compareIds.map((id) => mockOffers.find((o) => o.id === id)).filter(Boolean) as SeafoodOffer[],
+    () => compareIds.map((id) => offers.find((o) => o.id === id)).filter(Boolean) as SeafoodOffer[],
     [compareIds],
   );
 
   const handleSelectOffer = (offerId: string) => {
     setSelectedOfferId(offerId);
-    const o = mockOffers.find((x) => x.id === offerId);
+    const o = offers.find((x) => x.id === offerId);
     if (o) {
       analytics.track("catalog_offer_select", {
         offerId,
@@ -186,7 +211,7 @@ const Offers = () => {
   };
 
   const handleCompareToggle = (offerId: string) => {
-    const o = mockOffers.find((x) => x.id === offerId);
+    const o = offers.find((x) => x.id === offerId);
     if (!o) return;
     setCompareIds((prev) => {
       if (prev.includes(offerId)) {
