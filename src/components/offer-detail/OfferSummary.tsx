@@ -9,6 +9,7 @@ import type { AccessLevel } from "@/lib/access-level";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { AccessRequestDialog } from "@/components/catalog/AccessRequestDialog";
+import CertificationBadges from "@/components/CertificationBadges";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
