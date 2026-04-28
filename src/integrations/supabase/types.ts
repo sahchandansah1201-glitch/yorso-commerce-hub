@@ -14,6 +14,198 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          category_id: string | null
+          certifications: string[]
+          created_at: string
+          description: string | null
+          format_cut: string | null
+          id: string
+          image_url: string | null
+          incoterms: string | null
+          latin_name: string | null
+          moq_unit: string | null
+          moq_value: number | null
+          origin_country_code: string
+          packaging: string | null
+          payment_terms: string | null
+          price_amount: number | null
+          price_currency: string
+          price_max: number | null
+          price_min: number | null
+          price_unit: string
+          product_name: string
+          published_at: string | null
+          status: Database["public"]["Enums"]["offer_status"]
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          certifications?: string[]
+          created_at?: string
+          description?: string | null
+          format_cut?: string | null
+          id?: string
+          image_url?: string | null
+          incoterms?: string | null
+          latin_name?: string | null
+          moq_unit?: string | null
+          moq_value?: number | null
+          origin_country_code: string
+          packaging?: string | null
+          payment_terms?: string | null
+          price_amount?: number | null
+          price_currency?: string
+          price_max?: number | null
+          price_min?: number | null
+          price_unit?: string
+          product_name: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          certifications?: string[]
+          created_at?: string
+          description?: string | null
+          format_cut?: string | null
+          id?: string
+          image_url?: string | null
+          incoterms?: string | null
+          latin_name?: string | null
+          moq_unit?: string | null
+          moq_value?: number | null
+          origin_country_code?: string
+          packaging?: string | null
+          payment_terms?: string | null
+          price_amount?: number | null
+          price_currency?: string
+          price_max?: number | null
+          price_min?: number | null
+          price_unit?: string
+          product_name?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_access_requests: {
+        Row: {
+          buyer_user_id: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          message: string | null
+          offer_id: string
+          status: Database["public"]["Enums"]["price_access_status"]
+          updated_at: string
+        }
+        Insert: {
+          buyer_user_id: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          offer_id: string
+          status?: Database["public"]["Enums"]["price_access_status"]
+          updated_at?: string
+        }
+        Update: {
+          buyer_user_id?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          offer_id?: string
+          status?: Database["public"]["Enums"]["price_access_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_access_requests_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_access_requests_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_name: string | null
@@ -41,6 +233,54 @@ export type Database = {
         }
         Relationships: []
       }
+      suppliers: {
+        Row: {
+          certifications: string[]
+          company_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          country_code: string
+          created_at: string
+          description: string | null
+          id: string
+          owner_user_id: string | null
+          rating: number | null
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["supplier_verification_status"]
+          website: string | null
+        }
+        Insert: {
+          certifications?: string[]
+          company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          country_code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_user_id?: string | null
+          rating?: number | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["supplier_verification_status"]
+          website?: string | null
+        }
+        Update: {
+          certifications?: string[]
+          company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          country_code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          owner_user_id?: string | null
+          rating?: number | null
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["supplier_verification_status"]
+          website?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -64,9 +304,83 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      offers_public: {
+        Row: {
+          category_id: string | null
+          certifications: string[] | null
+          created_at: string | null
+          description: string | null
+          format_cut: string | null
+          id: string | null
+          image_url: string | null
+          incoterms: string | null
+          latin_name: string | null
+          moq_unit: string | null
+          moq_value: number | null
+          origin_country_code: string | null
+          packaging: string | null
+          payment_terms: string | null
+          price_currency: string | null
+          price_max: number | null
+          price_min: number | null
+          price_unit: string | null
+          product_name: string | null
+          published_at: string | null
+          supplier_country_code: string | null
+          supplier_rating: number | null
+          supplier_verification_status:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers_public: {
+        Row: {
+          certifications: string[] | null
+          country_code: string | null
+          created_at: string | null
+          id: string | null
+          rating: number | null
+          verification_status:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          verification_status?:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+        }
+        Update: {
+          certifications?: string[] | null
+          country_code?: string | null
+          created_at?: string | null
+          id?: string | null
+          rating?: number | null
+          verification_status?:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      has_price_access: {
+        Args: { _offer_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -77,6 +391,9 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "buyer" | "supplier"
+      offer_status: "draft" | "published" | "archived"
+      price_access_status: "pending" | "approved" | "rejected" | "revoked"
+      supplier_verification_status: "unverified" | "pending" | "verified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -205,6 +522,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "buyer", "supplier"],
+      offer_status: ["draft", "published", "archived"],
+      price_access_status: ["pending", "approved", "rejected", "revoked"],
+      supplier_verification_status: ["unverified", "pending", "verified"],
     },
   },
 } as const
