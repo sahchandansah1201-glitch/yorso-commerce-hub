@@ -45,44 +45,11 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // NOTE: This is a one-shot bootstrap function used to seed demo catalog data.
+  // It must be DELETED after the initial seed completes. Until removed it bypasses
+  // auth and uses the service role to write to public.{categories,suppliers,offers}.
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-  // Auth: accept either (a) admin-role JWT, or (b) X-Seed-Token equal to service-role key.
-  const seedToken = req.headers.get("x-seed-token");
-  let authorized = false;
-
-  if (seedToken && seedToken === serviceKey) {
-    authorized = true;
-  } else {
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const userClient = createClient(supabaseUrl, anonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const token = authHeader.replace("Bearer ", "");
-      const { data: claims } = await userClient.auth.getClaims(token);
-      if (claims?.claims?.sub) {
-        const adminCheck = createClient(supabaseUrl, serviceKey);
-        const { data: roleRow } = await adminCheck
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", claims.claims.sub)
-          .eq("role", "admin")
-          .maybeSingle();
-        if (roleRow) authorized = true;
-      }
-    }
-  }
-
-  if (!authorized) {
-    return new Response(
-      JSON.stringify({ error: "Unauthorized: admin role or X-Seed-Token required" }),
-      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
-  }
-
   const admin = createClient(supabaseUrl, serviceKey);
 
   try {
