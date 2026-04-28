@@ -732,6 +732,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
                 кнопка подсвечена primary-фоном — кольцо смещается наружу). */}
           <button
             type="button"
+            id={`offer-analytics-${offer.id}-toggle`}
             onClick={(e) => {
               e.stopPropagation();
               setAnalyticsOpen((v) => !v);
@@ -782,6 +783,8 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen} className="col-span-full">
         <CollapsibleContent
           id={`offer-analytics-${offer.id}`}
+          role="region"
+          aria-labelledby={`offer-analytics-${offer.id}-toggle`}
           data-testid="catalog-row-analytics-panel"
           className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
         >
