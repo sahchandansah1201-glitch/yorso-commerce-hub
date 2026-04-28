@@ -418,7 +418,18 @@ const MobileOfferCard = ({
                 key={i}
                 style={
                   hasMultiple
-                    ? { width: slideWidthPct, transition: "width 120ms ease-out" }
+                    ? {
+                        width: slideWidthPct,
+                        // No CSS width transition: on iOS Safari, animating
+                        // the width of every slide simultaneously during a
+                        // ResizeObserver tick (rotate / split-pane) causes
+                        // the snap engine to chase a moving target — visible
+                        // as a stutter mid-swipe. We snap to the new width
+                        // instantly and re-anchor scrollLeft in JS instead.
+                        // Per-slide containment so a width change on one
+                        // slide doesn't invalidate layout for siblings.
+                        contain: "layout paint",
+                      }
                     : undefined
                 }
                 className={cn(
