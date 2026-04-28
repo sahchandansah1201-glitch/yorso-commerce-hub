@@ -97,6 +97,7 @@ const MobileOfferCard = ({
   const unlocked = level === "qualified_unlocked";
   const accessPending = useAccessRequestPending();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   const images = offer.images && offer.images.length > 0 ? offer.images : [offer.image];
   const hasMultiple = images.length > 1;
