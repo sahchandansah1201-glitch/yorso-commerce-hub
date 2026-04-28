@@ -87,11 +87,10 @@ const TrustProofStrip = () => {
         <div>
           <h2
             id="catalog-trust-title"
-            className="font-heading text-sm font-bold uppercase tracking-wide text-foreground"
+            className="font-heading text-base font-bold text-foreground"
           >
-            {t.catalog_trust_title}
+            {t.catalog_trust_subtitle}
           </h2>
-          <p className="text-xs text-muted-foreground">{t.catalog_trust_subtitle}</p>
         </div>
       </div>
 
