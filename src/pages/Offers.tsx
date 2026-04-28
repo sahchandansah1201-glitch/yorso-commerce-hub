@@ -69,12 +69,36 @@ const Offers = () => {
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [offers, setOffers] = useState<SeafoodOffer[]>([]);
+  const [offersLoading, setOffersLoading] = useState(true);
+  const [offersError, setOffersError] = useState<string | null>(null);
 
   const allowSupplierName = level === "qualified_unlocked";
 
   useEffect(() => {
     analytics.track("offers_list_view");
   }, []);
+
+  // Load catalog from Supabase whenever the access level changes (qualified
+  // users get exact price/supplier; others see redacted public view).
+  useEffect(() => {
+    let cancelled = false;
+    setOffersLoading(true);
+    setOffersError(null);
+    fetchOffers(level)
+      .then((rows) => {
+        if (!cancelled) setOffers(rows);
+      })
+      .catch((err) => {
+        if (!cancelled) setOffersError(err?.message ?? "Не удалось загрузить каталог");
+      })
+      .finally(() => {
+        if (!cancelled) setOffersLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [level]);
 
   // If the user lands here from an alert, scroll to the alerts strip and
   // clean the `fromAlert` param so back-navigation doesn't re-trigger.
