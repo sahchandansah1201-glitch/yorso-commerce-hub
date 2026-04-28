@@ -63,9 +63,22 @@ describe("MobileOfferCard · расширенные тач-области для
   it("ссылка названия даёт визуальный и a11y-отклик: active + focus ring + aria-label", () => {
     const { getByTestId, offer } = renderCard();
     const link = getByTestId("catalog-row-view-details");
+    const cls = link.className;
 
-    expect(link.className).toContain("active:bg-muted/70");
-    expect(link.className).toContain("focus-visible:ring-2");
+    // Active отклик: подсветка фона + лёгкий scale-down (тап «проседает»).
+    expect(cls).toContain("active:bg-muted");
+    expect(cls).toMatch(/active:scale-\[0\.99\]/);
+
+    // Focus-visible: видимый ring с offset для контраста на любом фоне.
+    expect(cls).toContain("focus-visible:ring-2");
+    expect(cls).toContain("focus-visible:ring-primary");
+    expect(cls).toContain("focus-visible:ring-offset-2");
+    expect(cls).toContain("focus-visible:outline-none");
+
+    // Тач-оптимизация: убираем 300ms задержку и серый flash на iOS.
+    expect(cls).toContain("touch-manipulation");
+    expect(cls).toContain("[-webkit-tap-highlight-color:transparent]");
+
     expect(link.getAttribute("aria-label") ?? "").toContain(offer.productName);
   });
 
