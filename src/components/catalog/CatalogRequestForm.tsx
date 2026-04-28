@@ -65,12 +65,14 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const acceptFile = (file: File | undefined | null) => {
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setPhotoError(t.catalog_reqForm_photoTooLarge);
+      return;
+    }
     if (file.size > MAX_PHOTO_BYTES) {
       setPhotoError(t.catalog_reqForm_photoTooLarge);
-      e.target.value = "";
       return;
     }
     setPhotoError(null);
@@ -79,6 +81,17 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
       setPhoto({ name: file.name, dataUrl: String(reader.result ?? "") });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    acceptFile(e.target.files?.[0]);
+    e.target.value = "";
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    acceptFile(e.dataTransfer.files?.[0]);
   };
 
   const removePhoto = () => {
