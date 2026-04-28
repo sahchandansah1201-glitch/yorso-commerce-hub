@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Clock, Snowflake, Leaf, Thermometer, Package, MapPin, Globe, Scale,
-  FileText, Truck, Anchor as AnchorIcon, Lock, ArrowRight,
+  FileText, FileCheck, Truck, Anchor as AnchorIcon, Lock, ArrowRight,
 } from "lucide-react";
 import type { SeafoodOffer, DeliveryBasisOption } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
