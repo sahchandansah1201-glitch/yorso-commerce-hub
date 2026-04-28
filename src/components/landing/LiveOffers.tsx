@@ -20,6 +20,11 @@ const LiveOffers = () => {
     return () => window.removeEventListener("yorso:highlight-offers", onHighlight);
   }, []);
 
+  useEffect(() => {
+    if (source === "loading") return;
+    analytics.track("live_offers_source_resolved", { source, count: offers.length });
+  }, [source, offers.length]);
+
   const visibleOffers = offers.slice(0, 8);
   const extraOffers = offers.slice(8);
 
