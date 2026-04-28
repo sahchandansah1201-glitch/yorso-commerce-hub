@@ -692,37 +692,13 @@ const MobileOfferCard = ({
           </>
         )}
 
-        {/* Analytics — collapsible panel toggled by a pictogram in the
-            bottom-right corner of the card. Tied to this specific offer. */}
-        <Collapsible open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
-          <div className="flex items-center justify-end">
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                onClick={(e) => e.stopPropagation()}
-                aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
-                aria-expanded={analyticsOpen}
-                data-testid="catalog-row-analytics-toggle"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-foreground transition-colors hover:border-primary hover:text-primary"
-                title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
-              >
-                <BarChart3
-                  className={cn(
-                    "h-4 w-4 transition-transform duration-200",
-                    analyticsOpen ? "text-primary" : "",
-                  )}
-                  aria-hidden
-                />
-              </button>
-            </CollapsibleTrigger>
+        <CollapsibleContent
+          className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+        >
+          <div className="mt-2">
+            <OfferAnalyticsPanel offer={offer} />
           </div>
-          <CollapsibleContent
-            className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
-          >
-            <div className="mt-2">
-              <OfferAnalyticsPanel offer={offer} />
-            </div>
-          </CollapsibleContent>
+        </CollapsibleContent>
         </Collapsible>
       </div>
     </article>
