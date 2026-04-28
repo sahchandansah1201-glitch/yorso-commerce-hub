@@ -74,9 +74,42 @@ const OfferDetail = () => {
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    let backgroundTimer: number | undefined;
+    const abort = new AbortController();
+
     if (!offerRef.current) setLoading(true);
     setError(null);
     setRetrying(retryNonce > 0);
+
+    const scheduleBackgroundRetry = () => {
+      if (cancelled) return;
+      backgroundTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        setRetrying(true);
+        fetchOfferById(id, level)
+          .then((res) => {
+            if (cancelled) return;
+            setOffer(res);
+            setUsingFallback(false);
+            setLastErrorCode(null);
+            analytics.track("offer_detail_background_recovered", {
+              offerId: id,
+              attempts: failedAttempts,
+            });
+          })
+          .catch((e) => {
+            if (cancelled) return;
+            const code = extractErrorCode(e);
+            setLastErrorCode(code);
+            setFailedAttempts((n) => n + 1);
+            scheduleBackgroundRetry();
+          })
+          .finally(() => {
+            if (!cancelled) setRetrying(false);
+          });
+      }, 12000);
+    };
+
     fetchOfferById(id, level)
       .then((res) => {
         if (cancelled) return;
@@ -96,6 +129,7 @@ const OfferDetail = () => {
           setOffer(fallbackOffer);
           setUsingFallback(true);
           setError(null);
+          scheduleBackgroundRetry();
           return;
         }
         setError("Не удалось загрузить оффер");
@@ -106,8 +140,11 @@ const OfferDetail = () => {
           setRetrying(false);
         }
       });
+
     return () => {
       cancelled = true;
+      abort.abort();
+      if (backgroundTimer) window.clearTimeout(backgroundTimer);
     };
   }, [id, level, retryNonce]);
 
