@@ -659,25 +659,6 @@ const MobileOfferCard = ({
           {!unlocked && (
             <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
           )}
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              onClick={(e) => e.stopPropagation()}
-              aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
-              aria-expanded={analyticsOpen}
-              data-pressed={analyticsOpen}
-              data-testid="catalog-row-analytics-toggle"
-              className={cn(
-                "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-all duration-200",
-                analyticsOpen
-                  ? "border-primary bg-primary text-primary-foreground shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]"
-                  : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
-              )}
-              title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику"}
-            >
-              <BarChart3 className="h-4 w-4" aria-hidden />
-            </button>
-          </CollapsibleTrigger>
         </div>
 
         {level === "registered_locked" && (
