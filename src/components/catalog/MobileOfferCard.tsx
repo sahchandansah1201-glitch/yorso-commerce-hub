@@ -376,7 +376,26 @@ const MobileOfferCard = ({
         <div
           ref={scrollerRef}
           className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          style={{ touchAction: "pan-x pan-y", scrollPaddingLeft: 0, scrollPaddingRight: 0 }}
+          style={{
+            // pan-x only: tells iOS Safari "this is a horizontal scroller",
+            // so the vertical page scroll stays on the document and we don't
+            // fight the gesture recognizer mid-swipe (a major source of jank
+            // on iOS when both axes are claimed).
+            touchAction: "pan-x",
+            scrollPaddingLeft: 0,
+            scrollPaddingRight: 0,
+            // Keep momentum scrolling inside the gallery — prevents the
+            // parent page from "rubber-banding" while the user is mid-swipe.
+            overscrollBehaviorX: "contain",
+            // Promote the scroller to its own GPU layer so iOS Safari can
+            // composite the swipe without repainting siblings on every frame.
+            // `paint` containment also short-circuits layout invalidation
+            // when slide widths change after a ResizeObserver tick.
+            transform: "translateZ(0)",
+            contain: "content",
+            // Smooth momentum-scroll on legacy iOS WebKit; harmless elsewhere.
+            WebkitOverflowScrolling: "touch",
+          } as React.CSSProperties}
         >
           {images.map((src, i) => {
             const fitClass = isMixed ? "object-contain" : "object-cover";
