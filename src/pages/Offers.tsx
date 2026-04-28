@@ -12,7 +12,7 @@ import MobileFilterPills from "@/components/catalog/MobileFilterPills";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import SelectedOfferPanel from "@/components/catalog/SelectedOfferPanel";
-import MobileIntelDock from "@/components/catalog/MobileIntelDock";
+
 import RelatedRequests from "@/components/catalog/RelatedRequests";
 import CatalogValueStrip from "@/components/catalog/CatalogValueStrip";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
