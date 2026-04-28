@@ -346,7 +346,12 @@ export const useResilientOffer = (
   }, [id, level, reloadKey]);
 
   const retry = useCallback(() => {
-    analytics.track("offer_detail_manual_retry_click", { offerId: id, lastErrorCode });
+    correlationIdRef.current = newCorrelationId();
+    analytics.track("offer_detail_manual_retry_click", {
+      offerId: id,
+      lastErrorCode,
+      correlationId: correlationIdRef.current,
+    });
     setFailedAttempts(0);
     setLastErrorCode(null);
     setReloadKey((k) => k + 1);
