@@ -158,9 +158,6 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               }
             />
           </div>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            Точный объём — конфиденциальная информация поставщика
-          </p>
         </div>
       </div>
 
