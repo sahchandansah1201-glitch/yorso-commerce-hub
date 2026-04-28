@@ -41,13 +41,15 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
 
   return (
     <div className="space-y-4">
-      {/* Supplier card */}
+      {/* Supplier card — must contain: 1) logo, 2) name, 3) In business / Response, 4) flag + country of origin */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-heading font-bold text-foreground">
+          {/* 1. Логотип поставщика (плейсхолдер с инициалом, пока нет реальных логотипов) */}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-heading text-lg font-bold text-foreground">
             {initial}
           </div>
           <div className="flex-1 min-w-0">
+            {/* 2. Название поставщика */}
             <div className="flex items-center gap-1.5">
               <span className="font-heading font-semibold text-foreground truncate">{displayName}</span>
               {s.isVerified ? (
@@ -57,7 +59,13 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
               )}
               {!isQualified && <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />}
             </div>
-            <p className="text-xs text-muted-foreground">{s.countryFlag} {s.country}</p>
+            {/* 4. Флаг + страна происхождения. Берём из offer.originFlag/origin,
+                чтобы поле всегда было заполнено (страна происхождения товара
+                публична даже когда идентичность поставщика скрыта). */}
+            <p className="mt-0.5 text-xs text-muted-foreground inline-flex items-center gap-1">
+              <span aria-hidden className="text-base leading-none">{offer.originFlag}</span>
+              <span>{offer.origin}</span>
+            </p>
           </div>
         </div>
 
