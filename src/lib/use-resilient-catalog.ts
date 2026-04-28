@@ -36,6 +36,21 @@ import analytics from "@/lib/analytics";
 const SOFT_FALLBACK_MS = 3500;
 const BACKGROUND_RETRY_MS = 12_000;
 
+/**
+ * Стабильный ID на жизненный цикл одного экрана/инстанса хука.
+ * Позволяет в аналитике связать цепочку:
+ *   catalog_fetch_attempt_failed → catalog_soft_fallback_applied →
+ *   catalog_background_recovered (или manual_retry_click).
+ *
+ * crypto.randomUUID есть во всех современных браузерах; fallback на Math.random
+ * нужен только для очень старых окружений и тестов без crypto.
+ */
+const newCorrelationId = (): string => {
+  const c = (globalThis as { crypto?: Crypto }).crypto;
+  if (c?.randomUUID) return c.randomUUID();
+  return `corr_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+};
+
 export interface ResilientState<T> {
   data: T;
   loading: boolean;
