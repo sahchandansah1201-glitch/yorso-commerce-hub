@@ -29,6 +29,15 @@ export const extractCatalogErrorCode = (err: unknown): string => {
   return "ERR";
 };
 
+/** Извлекает HTTP статус из ошибки PostgREST/fetch, если он доступен. */
+export const extractHttpStatus = (err: unknown): number | null => {
+  const e = err as { status?: number; statusCode?: number; message?: string };
+  const st = e?.status ?? e?.statusCode;
+  if (typeof st === "number") return st;
+  const m = (e?.message ?? "").match(/\b(4\d{2}|5\d{2})\b/);
+  return m ? Number(m[1]) : null;
+};
+
 export const isRetriableCatalogError = (err: unknown): boolean => {
   const msg = (err as { message?: string })?.message ?? "";
   const code = (err as { code?: string })?.code ?? "";
