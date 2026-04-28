@@ -5,7 +5,7 @@ import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucid
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type SeafoodOffer } from "@/data/mockOffers";
-import { fetchOffers } from "@/lib/catalog-api";
+import { fetchOffersWithRetry } from "@/lib/fetch-offers-with-retry";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
