@@ -127,7 +127,12 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
   // name but blur it (mirrors the price-blur treatment) so buyers see that
   // supplier identity exists and unlocks together with the price.
   return (
-    <div className="flex flex-col gap-0.5 text-xs">
+    <div
+      data-testid="catalog-row-supplier-line"
+      data-access-level={level}
+      data-supplier-unlocked={unlocked ? "true" : "false"}
+      className="flex flex-col gap-0.5 text-xs"
+    >
       <span
         data-testid="catalog-row-supplier-name"
         aria-hidden={!unlocked}
@@ -138,7 +143,10 @@ const SupplierLine = ({ offer, level }: { offer: SeafoodOffer; level: AccessLeve
       >
         {offer.supplier.name}
       </span>
-      <span className="flex items-center gap-1 text-muted-foreground">
+      <span
+        data-testid="catalog-row-supplier-country"
+        className="flex items-center gap-1 text-muted-foreground"
+      >
         {!unlocked && <Lock className="h-3 w-3 shrink-0" aria-hidden />}
         <span>
           {offer.supplier.countryFlag} {offer.supplier.country}
@@ -453,7 +461,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   const hasAdditionalBreaks = additionalBreaks.length > 0;
 
   const MoqLine = (
-    <p className="text-xs text-muted-foreground">
+    <p data-testid="catalog-row-moq" className="text-xs text-muted-foreground">
       <span className="font-medium text-foreground">{t.offers_moqLabel}:</span>{" "}
       <span className="whitespace-nowrap font-semibold text-foreground tabular-nums">
         {primaryMoq}
@@ -464,8 +472,12 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   if (level === "qualified_unlocked" && hasNumeric) {
     const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
     return (
-      <div data-testid="catalog-row-price" className="flex flex-col gap-1">
-        <div className="flex items-baseline gap-1.5">
+      <div
+        data-testid="catalog-row-price-block"
+        data-access-level={level}
+        className="flex flex-col gap-1"
+      >
+        <div data-testid="catalog-row-price" className="flex items-baseline gap-1.5">
           <span className="font-heading text-[17px] font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
@@ -513,8 +525,12 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   );
 
   return (
-    <div data-testid="catalog-row-price" className="flex flex-col gap-2.5">
-      <div className="flex items-baseline gap-1.5">
+    <div
+      data-testid="catalog-row-price-block"
+      data-access-level={level}
+      className="flex flex-col gap-2.5"
+    >
+      <div data-testid="catalog-row-price" className="flex items-baseline gap-1.5">
         <span className="font-heading text-[17px] font-bold text-foreground">{range}</span>
         <PriceUnit unit={unit} />
       </div>
