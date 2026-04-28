@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OfferCard from "./OfferCard";
-import { mockOffers } from "@/data/mockOffers";
+import { useLandingOffers } from "@/lib/useLandingOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 
