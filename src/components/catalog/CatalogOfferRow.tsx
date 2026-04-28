@@ -737,13 +737,76 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
         </div>
       </div>
 
-      {/* 3. Price + supplier/access. На sm+ это третья колонка сетки,
-          на мобильном — обычный stacked-блок под идентификацией. */}
+      {/* 3. Price + supplier/access + аналитика. На sm+ это третья
+          колонка сетки, на мобильном — обычный stacked-блок под
+          идентификацией. Триггер «Аналитика» здесь, а не в строке
+          сигналов: его видно сразу (полноширинная кнопка с акцентным
+          цветом и шевроном), он живёт прямо над раскрывающейся
+          панелью и трактуется как «развернуть подробности по этой
+          цене» — естественный CTA рядом с цифрами и трендом. */}
       <div className="flex flex-col items-stretch gap-4 border-t border-border pt-4 lg:gap-5 sm:border-t-0 sm:pt-0">
         <PriceBlock offer={offer} level={level} />
         <div className="border-t border-border pt-3 lg:pt-4">
           <SupplierLine offer={offer} level={level} />
         </div>
+
+        {/*
+          Триггер «Аналитика» — заметная вторичная кнопка во всю
+          ширину третьей колонки. Сохраняет прежний a11y-контракт
+          (id, ref, aria-controls/expanded/label/describedby,
+          data-testid и data-state), чтобы все unit/e2e тесты,
+          фиксирующие селектор `catalog-row-analytics-toggle`,
+          продолжали работать без изменений.
+        */}
+        <button
+          type="button"
+          ref={analyticsToggleRef}
+          id={`offer-analytics-${offer.id}-toggle`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setAnalyticsOpen((v) => !v);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && analyticsOpen) {
+              e.preventDefault();
+              e.stopPropagation();
+              closeAnalyticsAndRefocus();
+            }
+          }}
+          aria-expanded={analyticsOpen}
+          aria-controls={`offer-analytics-${offer.id}`}
+          aria-describedby={`offer-analytics-${offer.id}-hint`}
+          aria-label={
+            analyticsOpen
+              ? `Скрыть аналитику цен и рынка для ${offer.productName}`
+              : `Показать аналитику цен и рынка для ${offer.productName}`
+          }
+          title={analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}
+          data-testid="catalog-row-analytics-toggle"
+          data-state={analyticsOpen ? "open" : "closed"}
+          className={cn(
+            "mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            analyticsOpen
+              ? "border-primary bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.35)]"
+              : "border-primary/40 bg-primary/[0.04] text-primary hover:border-primary hover:bg-primary/10",
+          )}
+        >
+          <BarChart3 className="h-4 w-4" aria-hidden />
+          <span>{analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}</span>
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 shrink-0 transition-transform",
+              analyticsOpen ? "rotate-180" : "rotate-0",
+            )}
+            aria-hidden
+          />
+          <span id={`offer-analytics-${offer.id}-hint`} className="sr-only">
+            {analyticsOpen
+              ? "Сворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу."
+              : "Разворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу. Страница не перезагружается."}
+          </span>
+        </button>
       </div>
 
       {/* Inline Analytics — full-width под сеткой, чтобы не ломать колонки.
