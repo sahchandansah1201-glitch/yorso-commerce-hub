@@ -2566,7 +2566,7 @@ const ru: TranslationKeys = {
   catalog_reqForm_latinPh: "напр. Salmo salar",
   catalog_reqForm_format: "Формат / разделка",
   catalog_reqForm_formatPh: "напр. HOG, филе, порции",
-  catalog_reqForm_origin: "Предпочтительное происхождение",
+  catalog_reqForm_origin: "Страна производства",
   catalog_reqForm_originPh: "напр. Норвегия, Чили",
   catalog_reqForm_supplierCountry: "Страна поставщика",
   catalog_reqForm_supplierCountryPh: "Любая проверенная страна",
