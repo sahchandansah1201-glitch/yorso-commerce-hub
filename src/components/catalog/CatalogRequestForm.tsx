@@ -104,7 +104,6 @@ export const CatalogRequestForm = ({ initialProduct = "" }: Props) => {
       product: form.product.trim(),
       hasOrigin: !!form.origin,
       hasDestination: !!form.destination,
-      hasPhoto: !!photo,
     });
     setSubmitted(true);
   };
