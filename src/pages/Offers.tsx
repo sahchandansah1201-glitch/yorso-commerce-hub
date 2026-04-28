@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
-import { ArrowLeft, ChevronRight, Activity } from "lucide-react";
+import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { type SeafoodOffer } from "@/data/mockOffers";
 import { fetchOffers } from "@/lib/catalog-api";
 import analytics from "@/lib/analytics";
