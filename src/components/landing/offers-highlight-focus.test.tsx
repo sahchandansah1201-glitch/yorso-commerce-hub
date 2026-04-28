@@ -5,6 +5,17 @@ import Header from "./Header";
 import Hero from "./Hero";
 import LiveOffers from "./LiveOffers";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { mockOffers } from "@/data/mockOffers";
+
+// Тест проверяет focus-контракт; источник данных должен быть детерминирован.
+// Имитируем готовый ответ Supabase, чтобы хук не дёргал сеть.
+vi.mock("@/lib/useLandingOffers", () => ({
+  useLandingOffers: () => ({
+    offers: mockOffers,
+    source: "supabase" as const,
+    isLoading: false,
+  }),
+}));
 
 /**
  * Focus contract for the "Highlight Live Wholesale Offers" interaction:
