@@ -98,21 +98,91 @@ const systemBlocks = [
   },
 ];
 
-const placeholderAnchors: { id: string; title: string; note: string }[] = [
-  // #buyer-journey, #supplier-journey, #trust-layer and #outcomes are real sections now.
-  {
-    id: "access-levels",
-    title: "Access levels",
-    note: "How price and supplier visibility unlock across the three access states.",
-  },
-  {
-    id: "final-cta",
-    title: "Get started",
-    note: "Final conversion section for buyers and suppliers.",
-  },
-];
+// All previously deferred anchors (#buyer-journey, #supplier-journey, #trust-layer,
+// #outcomes, #access-levels, #final-cta) are now implemented as real sections.
+
+const SEO_TITLE =
+  "How Yorso works — B2B seafood sourcing, verified suppliers, RFQ workflow";
+const SEO_DESCRIPTION =
+  "Yorso is a B2B seafood trade workflow: wholesale seafood sourcing, verified suppliers, RFQ and procurement comparison, price and market context, and a defensible procurement decision report.";
+
+const upsertMeta = (selector: string, attrs: Record<string, string>) => {
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+    document.head.appendChild(el);
+  } else {
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+  }
+};
+
+const upsertLink = (rel: string, href: string) => {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+};
 
 const HowItWorks = () => {
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = SEO_TITLE;
+
+    upsertMeta('meta[name="description"]', {
+      name: "description",
+      content: SEO_DESCRIPTION,
+    });
+    upsertMeta('meta[property="og:title"]', {
+      property: "og:title",
+      content: SEO_TITLE,
+    });
+    upsertMeta('meta[property="og:description"]', {
+      property: "og:description",
+      content: SEO_DESCRIPTION,
+    });
+    upsertMeta('meta[property="og:type"]', { property: "og:type", content: "website" });
+    upsertMeta('meta[name="twitter:card"]', {
+      name: "twitter:card",
+      content: "summary_large_image",
+    });
+
+    const canonical =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/how-it-works`
+        : "/how-it-works";
+    upsertLink("canonical", canonical);
+
+    // JSON-LD structured data
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.id = "ld-how-it-works";
+    ld.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: "How Yorso works — B2B seafood sourcing workflow",
+      description: SEO_DESCRIPTION,
+      step: [
+        { "@type": "HowToStep", name: "Search a product or post a request" },
+        { "@type": "HowToStep", name: "See available offers and market context" },
+        { "@type": "HowToStep", name: "Request access to exact price or supplier" },
+        { "@type": "HowToStep", name: "Compare suppliers, terms, documents and risk" },
+        { "@type": "HowToStep", name: "Send a structured RFQ or contact the supplier" },
+        { "@type": "HowToStep", name: "Build a decision-proof record for internal approval" },
+        { "@type": "HowToStep", name: "Move into order, documents, logistics and repeat trade" },
+      ],
+    });
+    document.head.appendChild(ld);
+
+    return () => {
+      document.title = prevTitle;
+      document.getElementById("ld-how-it-works")?.remove();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
