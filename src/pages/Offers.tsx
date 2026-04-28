@@ -4,8 +4,9 @@ import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
+import type { SeafoodOffer } from "@/data/mockOffers";
 import { fetchOffersWithRetry, isRetriableCatalogError } from "@/lib/fetch-offers-with-retry";
+import { fallbackOffersForLevel } from "@/lib/catalog-fallback";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -26,30 +27,6 @@ import TrustProofStrip from "@/components/catalog/TrustProofStrip";
 import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
 
 const COMPARE_MAX = 5;
-const REDACTED_PRICE = "Цена по запросу";
-const REDACTED_SUPPLIER = "Имя поставщика скрыто";
-
-const fallbackOffersForLevel = (level: ReturnType<typeof useAccessLevel>["level"]): SeafoodOffer[] => {
-  if (level === "qualified_unlocked") return mockOffers;
-  return mockOffers.map((offer) => ({
-    ...offer,
-    supplierName: REDACTED_SUPPLIER,
-    isVerified: false,
-    priceRange: REDACTED_PRICE,
-    priceUnit: "",
-    priceMin: undefined,
-    priceMax: undefined,
-    currency: undefined,
-    supplier: {
-      ...offer.supplier,
-      name: REDACTED_SUPPLIER,
-      isVerified: false,
-      responseTime: "",
-      documentsReviewed: [],
-      profileSlug: "",
-    },
-  }));
-};
 
 const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: boolean): boolean => {
   if (f.q) {
