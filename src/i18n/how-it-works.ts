@@ -826,7 +826,7 @@ const ru: HowItWorksDict = {
     { value: "4", label: "Внутренних аудитории на одном документе", why: "Закупки, финансы, качество и руководство получают тот же документ, что и закупщик.", kind: "счётчик воркфлоу" },
   ],
 
-
+  problem_eyebrow: "Главный риск",
   problem_title: "Главный риск в закупках морепродуктов — неверное решение о закупке.",
   problem_subtitle:
     "Не тот поставщик, не та цена, не тот landed cost — всё это ложится на покупателя, не на продавца. Воркфлоу Yorso построен вокруг шести вещей, из-за которых это решение идёт не так.",
@@ -1362,7 +1362,7 @@ const es: HowItWorksDict = {
     { value: "4", label: "Audiencias internas servidas por un mismo registro", why: "Compras, finanzas, calidad y dirección reciben el mismo documento que usó el comprador.", kind: "recuento del flujo" },
   ],
 
-
+  problem_eyebrow: "El riesgo real",
   problem_title: "El principal riesgo en las compras de pescado y marisco es una decisión equivocada.",
   problem_subtitle:
     "Un proveedor equivocado, un precio equivocado, un coste en destino equivocado: todo eso recae sobre el comprador, no sobre el proveedor. El flujo de Yorso está construido para eliminar las seis cosas que hacen que esa decisión salga mal.",
