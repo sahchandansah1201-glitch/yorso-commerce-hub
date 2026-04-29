@@ -217,8 +217,9 @@ const en: HowItWorksDict = {
   hero_titleHighlight: "seafood procurement decision",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism — not the message.",
+    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism, not the message.",
   hero_ctaFind: "Find products and suppliers",
+  hero_ctaRequestAccess: "Request access to a supplier",
   hero_ctaSupplier: "I am a supplier",
   hero_ctaScroll: "See how it works ↓",
   hero_workflow_eyebrow: "End-to-end buyer workflow",
