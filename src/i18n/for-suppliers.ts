@@ -96,6 +96,9 @@ const en: ForSuppliersDict = {
   seo_title: "YORSO for Suppliers · Sell Seafood B2B Without Price Leaks",
   seo_description:
     "B2B sales workspace for seafood exporters: control who sees your prices, receive qualified buyer requests, manage documents and certifications in one card.",
+  seo_ogImageAlt:
+    "YORSO for Suppliers — controlled price access, qualified buyer requests, one supplier card with documents and certifications.",
+  seo_ogLocale: "en_US",
 
   hero_eyebrow: "For seafood suppliers, processors and exporters",
   hero_title: "Stop sending price lists to people who never buy.",
