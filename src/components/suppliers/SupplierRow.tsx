@@ -8,6 +8,9 @@ import {
   Star,
   Activity,
   ChevronRight,
+  CalendarDays,
+  Globe2,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -60,8 +63,8 @@ const supplierTypeLabel: Record<MockSupplier["supplierType"], string> = {
 
 const primaryCtaCopy = (level: AccessLevel) => {
   if (level === "anonymous_locked") return "Create buyer account";
-  if (level === "registered_locked") return "Request supplier details";
-  return "View supplier profile";
+  if (level === "registered_locked") return "Request supplier access";
+  return "Open supplier profile";
 };
 
 const SupplierRowImpl = ({
@@ -73,12 +76,25 @@ const SupplierRowImpl = ({
   onShortlist,
   onPrimaryAction,
 }: SupplierRowProps) => {
-  const isMasked = accessLevel !== "qualified_unlocked";
+  const isUnlocked = accessLevel === "qualified_unlocked";
+  const isMasked = !isUnlocked;
   const displayName = isMasked ? supplier.maskedName : supplier.companyName;
   const DocIcon = docsIcon(supplier.documentReadiness);
   const flag = countryCodeToFlag(supplier.countryCode);
-  const previews = supplier.productPreviewImages.slice(0, 3);
-  const primarySpecies = supplier.productFocus[0]?.species ?? "seafood";
+
+  const catalogPreview = supplier.productCatalogPreview.slice(0, 3);
+  const catalogRest = Math.max(
+    0,
+    supplier.totalProductsCount - catalogPreview.length,
+  );
+  const previewDeliveries = supplier.deliveryCountries.slice(0, 3);
+  const deliveryRest = Math.max(
+    0,
+    supplier.deliveryCountriesTotal - previewDeliveries.length,
+  );
+
+  // Two-line about teaser; full about only at qualified_unlocked.
+  const aboutTeaser = supplier.shortDescription;
 
   return (
     <li>
@@ -86,170 +102,239 @@ const SupplierRowImpl = ({
         data-testid="supplier-row"
         aria-label={`Supplier: ${displayName}`}
         className={cn(
-          "group relative rounded-lg border bg-card p-4 text-left shadow-sm transition md:p-5",
+          "group relative overflow-hidden rounded-lg border bg-card text-left shadow-sm transition",
           isSelected
             ? "border-primary/60 ring-1 ring-primary/30"
             : "border-border hover:border-foreground/20",
         )}
       >
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-5">
-          {/* Country / type column */}
-          <div className="flex shrink-0 items-start gap-3 md:w-44 md:flex-col md:items-start md:gap-2">
-            <div className="flex items-center gap-2">
-              <span
-                aria-hidden
-                className="text-xl leading-none"
-                title={supplier.country}
-              >
-                {flag || "🌐"}
-              </span>
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-foreground">
-                  {supplier.country}
-                </div>
-                <div className="text-xs text-muted-foreground">{supplier.city}</div>
+        <div className="flex flex-col gap-0 md:flex-row">
+          {/* Left: hero/media block */}
+          <div className="relative w-full shrink-0 md:w-[180px]">
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted md:aspect-auto md:h-full md:min-h-[220px]">
+              <img
+                src={supplier.heroImage}
+                alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                <span aria-hidden className="text-sm leading-none">
+                  {flag || "🌐"}
+                </span>
+                <span>{supplier.country}</span>
               </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5 md:mt-1">
-              <span className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80">
-                {supplierTypeLabel[supplier.supplierType]}
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                {supplier.yearsInBusiness}+ yrs
-              </span>
+              {supplier.verificationLevel === "documents_reviewed" && (
+                <div className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
+                  <BadgeCheck className="h-3 w-3" aria-hidden />
+                  Reviewed
+                </div>
+              )}
+              {supplier.logoImage && (
+                <div className="absolute right-2 bottom-2 h-9 w-9 overflow-hidden rounded-md border border-border bg-background shadow-sm">
+                  <img
+                    src={supplier.logoImage}
+                    alt=""
+                    aria-hidden
+                    className="h-full w-full object-contain p-0.5"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Identity + product focus — clickable area for selection */}
-          <button
-            type="button"
-            onClick={() => onSelect(supplier.id)}
-            aria-pressed={isSelected}
-            aria-label={`Select ${displayName} to review details`}
-            className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h3 className="font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
-                  {displayName}
-                </h3>
-                {isMasked && (
-                  <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                    <Lock className="h-3 w-3" aria-hidden />
-                    Supplier identity restricted
-                  </p>
-                )}
+          {/* Center + right content */}
+          <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 md:flex-row md:gap-5 md:p-5">
+            {/* Identity / about — clickable selection area */}
+            <button
+              type="button"
+              onClick={() => onSelect(supplier.id)}
+              aria-pressed={isSelected}
+              aria-label={`Select ${displayName} to review details`}
+              className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground/80">
+                  {supplier.city}, {supplier.country}
+                </span>
+                <span aria-hidden>·</span>
+                <span>{supplierTypeLabel[supplier.supplierType]}</span>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <CalendarDays className="h-3 w-3" aria-hidden />
+                  In business since {supplier.inBusinessSinceYear}
+                </span>
               </div>
-              {supplier.verificationLevel === "documents_reviewed" && (
-                <span className="hidden shrink-0 items-center gap-1 rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold text-primary md:inline-flex">
-                  <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
-                  Documents reviewed
-                </span>
+
+              <h3 className="mt-1 font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
+                {displayName}
+              </h3>
+              {isMasked && (
+                <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <Lock className="h-3 w-3" aria-hidden />
+                  Supplier identity restricted
+                </p>
               )}
-            </div>
 
-            {previews.length > 0 && (
-              <div className="mt-3 flex gap-1.5" aria-label="Product previews">
-                {previews.map((src, i) => {
-                  const species =
-                    supplier.productFocus[i]?.species ?? primarySpecies;
-                  return (
-                    <img
-                      key={`${src}-${i}`}
-                      src={src}
-                      alt={`${species} product preview from ${displayName}`}
-                      loading="lazy"
-                      className="h-14 w-14 shrink-0 rounded-md border border-border object-cover md:h-16 md:w-16"
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {supplier.productFocus.slice(0, 3).map((p) => (
-                <span
-                  key={p.species}
-                  className="rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground/85"
-                  title={p.forms}
-                >
-                  {p.species}
-                </span>
-              ))}
-              {supplier.productFocus.length > 3 && (
-                <span className="rounded px-1.5 py-0.5 text-xs text-muted-foreground">
-                  +{supplier.productFocus.length - 3} more
-                </span>
-              )}
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {supplier.certifications.slice(0, 4).map((c) => (
-                <span
-                  key={c}
-                  className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
-                >
-                  {c}
-                </span>
-              ))}
-              {supplier.certifications.length > 4 && (
-                <span className="text-[11px] text-muted-foreground">
-                  +{supplier.certifications.length - 4}
-                </span>
-              )}
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
-              <span className="inline-flex items-center gap-1 text-foreground/80">
-                <span className="font-semibold tabular-nums text-foreground">
-                  {supplier.activeOffersCount}
-                </span>
-                active offers
-              </span>
-              <span className="inline-flex items-center gap-1 text-foreground/80">
-                <DocIcon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-                {docsLabel[supplier.documentReadiness]}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1",
-                  responseTone[supplier.responseSignal],
-                )}
+              <p
+                className="mt-2 line-clamp-2 text-sm leading-relaxed text-foreground/85"
+                title={aboutTeaser}
               >
-                <Activity className="h-3.5 w-3.5" aria-hidden />
-                {responseLabel[supplier.responseSignal]}
-              </span>
-            </div>
-          </button>
+                {aboutTeaser}
+              </p>
 
-          {/* Actions column */}
-          <div className="flex shrink-0 flex-row items-center gap-2 md:w-48 md:flex-col md:items-stretch">
-            <Button
-              type="button"
-              size="sm"
-              className="gap-2"
-              onClick={() => onPrimaryAction(supplier)}
-            >
-              {primaryCtaCopy(accessLevel)}
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="gap-2"
-              onClick={() => onShortlist(supplier.id)}
-              aria-pressed={isShortlisted}
-            >
-              <Star
-                className={cn(
-                  "h-4 w-4",
-                  isShortlisted ? "fill-primary text-primary" : "text-muted-foreground",
-                )}
-                aria-hidden
-              />
-              {isShortlisted ? "Shortlisted" : "Shortlist"}
-            </Button>
+              {/* Certificate badge row */}
+              {supplier.certificationBadges.length > 0 && (
+                <div
+                  className="mt-3 flex flex-wrap gap-1.5"
+                  aria-label="Certifications"
+                >
+                  {supplier.certificationBadges.slice(0, 5).map((c) => (
+                    <span
+                      key={c.code}
+                      className="inline-flex items-center rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
+                      title={c.label}
+                    >
+                      {c.label}
+                    </span>
+                  ))}
+                  {supplier.certificationBadges.length > 5 && (
+                    <span className="text-[11px] text-muted-foreground">
+                      +{supplier.certificationBadges.length - 5}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Bottom signals */}
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+                <span className="inline-flex items-center gap-1 text-foreground/80">
+                  <span className="font-semibold tabular-nums text-foreground">
+                    {supplier.activeOffersCount}
+                  </span>
+                  active offers
+                </span>
+                <span className="inline-flex items-center gap-1 text-foreground/80">
+                  <DocIcon
+                    className="h-3.5 w-3.5 text-muted-foreground"
+                    aria-hidden
+                  />
+                  {docsLabel[supplier.documentReadiness]}
+                </span>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1",
+                    responseTone[supplier.responseSignal],
+                  )}
+                >
+                  <Activity className="h-3.5 w-3.5" aria-hidden />
+                  {responseLabel[supplier.responseSignal]}
+                </span>
+              </div>
+            </button>
+
+            {/* Right-middle: catalog + delivery + actions */}
+            <div className="flex shrink-0 flex-col gap-3 md:w-[260px]">
+              {/* Product catalog preview strip */}
+              {catalogPreview.length > 0 && (
+                <div>
+                  <div
+                    className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                    aria-hidden
+                  >
+                    <Package className="h-3 w-3" />
+                    Catalog
+                  </div>
+                  <div
+                    className="mt-1.5 flex items-center gap-1.5"
+                    aria-label="Product catalog preview"
+                  >
+                    {catalogPreview.map((item, i) => (
+                      <img
+                        key={`${item.image}-${i}`}
+                        src={item.image}
+                        alt={`${item.species} (${item.form}) product preview from ${displayName}`}
+                        loading="lazy"
+                        className="h-12 w-12 shrink-0 rounded-md border border-border object-cover"
+                        title={item.name}
+                      />
+                    ))}
+                    {catalogRest > 0 && (
+                      <span className="inline-flex h-12 min-w-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-1.5 text-[11px] font-semibold text-foreground/80">
+                        +{catalogRest} products
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery markets preview */}
+              {previewDeliveries.length > 0 && (
+                <div>
+                  <div
+                    className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                    aria-hidden
+                  >
+                    <Globe2 className="h-3 w-3" />
+                    Delivers to
+                  </div>
+                  <div
+                    className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs"
+                    aria-label="Delivery markets preview"
+                  >
+                    {previewDeliveries.map((d) => (
+                      <span
+                        key={d.code}
+                        className="inline-flex items-center gap-1 rounded border border-border bg-background px-1.5 py-0.5 text-foreground/85"
+                        title={d.name}
+                      >
+                        <span aria-hidden className="text-sm leading-none">
+                          {countryCodeToFlag(d.code) || "🌐"}
+                        </span>
+                        <span>{d.name}</span>
+                      </span>
+                    ))}
+                    {deliveryRest > 0 && (
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        +{deliveryRest} markets
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => onPrimaryAction(supplier)}
+                >
+                  {primaryCtaCopy(accessLevel)}
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => onShortlist(supplier.id)}
+                  aria-pressed={isShortlisted}
+                >
+                  <Star
+                    className={cn(
+                      "h-4 w-4",
+                      isShortlisted
+                        ? "fill-primary text-primary"
+                        : "text-muted-foreground",
+                    )}
+                    aria-hidden
+                  />
+                  {isShortlisted ? "Shortlisted" : "Shortlist"}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </article>
