@@ -246,7 +246,12 @@ const en: ForSuppliersDict = {
     {
       label: "Registered buyer",
       who: "Verified company and country",
-      sees: ["Everything above", "Offer context and terms", "Can request price access", "Exact price and supplier details — still hidden"],
+      sees: [
+        { text: "Everything above" },
+        { text: "Offer context and terms" },
+        { text: "Can request price access" },
+        { text: "Exact price and supplier details — still hidden", hidden: true },
+      ],
     },
     {
       label: "Access approved",
