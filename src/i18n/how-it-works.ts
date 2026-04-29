@@ -1593,14 +1593,14 @@ const es: HowItWorksDict = {
   al_legend_unavailable: "no disponible",
   al_cell_onRequest: "bajo solicitud",
 
-  bo_eyebrow: "Resultados de negocio",
-  bo_title: "Resultados que el flujo está diseñado para producir.",
+  bo_eyebrow: "Resultados",
+  bo_title: "Con qué debe quedarse el comprador.",
   bo_subtitle:
-    "Estos son los resultados operativos que Yorso está diseñado para entregar a lo largo de un ciclo de compra — no métricas de vanidad, no resultados fabricados, no garantías.",
-  bo_buyer_eyebrow: "Para compradores",
+    "Resultados operativos que Yorso busca entregar a lo largo de un ciclo de compra — primero el comprador, el proveedor como mecanismo de soporte. Sin métricas de vanidad, sin garantías.",
+  bo_buyer_eyebrow: "Resultados para el comprador",
   bo_buyer_title: "Menos riesgo por decisión de compra.",
-  bo_supplier_eyebrow: "Para proveedores",
-  bo_supplier_title: "Más demanda cualificada, menos ruido.",
+  bo_supplier_eyebrow: "Resultados para el proveedor (soporte)",
+  bo_supplier_title: "Por qué los proveedores cualificados se mantienen activos.",
   bo_buyer_items: [
     { title: "Menos tiempo perdido buscando proveedores", body: "Descubrimiento entrante y filtros estructurados sustituyen días de WhatsApp y PDF." },
     { title: "Menos conversaciones con proveedores poco fiables", body: "Shortlist por evidencia descarta a quien no puede respaldar sus afirmaciones." },
