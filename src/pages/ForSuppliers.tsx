@@ -357,14 +357,14 @@ const ForSuppliers = () => {
                   <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary md:h-auto md:w-auto md:bg-transparent">
                     <Icon className="h-5 w-5 md:mt-0.5" />
                   </span>
-                  <div>
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground break-words md:mt-2">
                       {item.today}
                     </p>
-                    <p className="mt-2.5 text-sm font-medium leading-relaxed text-foreground/80 md:mt-2">
+                    <p className="mt-2.5 text-sm font-medium leading-relaxed text-foreground/80 break-words md:mt-2">
                       {item.cost}
                     </p>
                   </div>
