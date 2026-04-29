@@ -2795,8 +2795,8 @@ const es: TranslationKeys = {
 
   hero_title1: "Proveedores verificados. Precios transparentes.",
   hero_title2: "Control total de sus compras.",
-  hero_subtitle: "Compre mariscos al por mayor de {suppliers} proveedores verificados en {countries} países — con contactos directos, precios reales y cero comisiones.",
-  hero_searchPlaceholder: "Buscar productos — ej. filete de salmón, camarón vannamei...",
+  hero_subtitle: "Compare ofertas, revise documentos del proveedor y solicite acceso a precios en un solo espacio de trabajo. Sin comisiones por operación.",
+  hero_searchPlaceholder: "Buscar productos: filete de salmón, camarón vannamei, lomo de bacalao...",
   hero_searchBtn: "Buscar",
   hero_popular: "Popular: Salmón Atlántico · Camarón Vannamei · Lomo de Bacalao · Cangrejo Rey",
   hero_registerFree: "Registro gratis",
