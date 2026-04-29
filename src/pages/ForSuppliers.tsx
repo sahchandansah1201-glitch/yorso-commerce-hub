@@ -393,14 +393,14 @@ const ForSuppliers = () => {
 
             {/* Mock offer card */}
             <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-              <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                <span>yorso.com / offer</span>
-                <span className="flex items-center gap-1 text-primary">
-                  <BadgeCheck className="h-3.5 w-3.5" /> Verified supplier
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border bg-muted/40 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="min-w-0 truncate">yorso.com / offer</span>
+                <span className="flex shrink-0 items-center gap-1 text-primary">
+                  <BadgeCheck className="h-3.5 w-3.5 shrink-0" /> Verified supplier
                 </span>
               </div>
               <div className="p-5">
-                <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                   {t.preview_product}
                 </h3>
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
