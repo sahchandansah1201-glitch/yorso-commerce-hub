@@ -77,16 +77,16 @@ const SupplierRowImpl = ({
   const displayName = isMasked ? supplier.maskedName : supplier.companyName;
   const DocIcon = docsIcon(supplier.documentReadiness);
   const flag = countryCodeToFlag(supplier.countryCode);
+  const previews = supplier.productPreviewImages.slice(0, 3);
+  const primarySpecies = supplier.productFocus[0]?.species ?? "seafood";
 
   return (
     <li>
-      <button
-        type="button"
-        onClick={() => onSelect(supplier.id)}
-        aria-pressed={isSelected}
+      <article
+        data-testid="supplier-row"
+        aria-label={`Supplier: ${displayName}`}
         className={cn(
-          "group block w-full rounded-lg border bg-card p-4 text-left shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          "md:p-5",
+          "group relative rounded-lg border bg-card p-4 text-left shadow-sm transition md:p-5",
           isSelected
             ? "border-primary/60 ring-1 ring-primary/30"
             : "border-border hover:border-foreground/20",
@@ -120,8 +120,14 @@ const SupplierRowImpl = ({
             </div>
           </div>
 
-          {/* Identity + product focus */}
-          <div className="min-w-0 flex-1">
+          {/* Identity + product focus — clickable area for selection */}
+          <button
+            type="button"
+            onClick={() => onSelect(supplier.id)}
+            aria-pressed={isSelected}
+            aria-label={`Select ${displayName} to review details`}
+            className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
@@ -141,6 +147,24 @@ const SupplierRowImpl = ({
                 </span>
               )}
             </div>
+
+            {previews.length > 0 && (
+              <div className="mt-3 flex gap-1.5" aria-label="Product previews">
+                {previews.map((src, i) => {
+                  const species =
+                    supplier.productFocus[i]?.species ?? primarySpecies;
+                  return (
+                    <img
+                      key={`${src}-${i}`}
+                      src={src}
+                      alt={`${species} product preview from ${displayName}`}
+                      loading="lazy"
+                      className="h-14 w-14 shrink-0 rounded-md border border-border object-cover md:h-16 md:w-16"
+                    />
+                  );
+                })}
+              </div>
+            )}
 
             <div className="mt-3 flex flex-wrap gap-1.5">
               {supplier.productFocus.slice(0, 3).map((p) => (
@@ -196,7 +220,7 @@ const SupplierRowImpl = ({
                 {responseLabel[supplier.responseSignal]}
               </span>
             </div>
-          </div>
+          </button>
 
           {/* Actions column */}
           <div className="flex shrink-0 flex-row items-center gap-2 md:w-48 md:flex-col md:items-stretch">
@@ -204,10 +228,7 @@ const SupplierRowImpl = ({
               type="button"
               size="sm"
               className="gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                onPrimaryAction(supplier);
-              }}
+              onClick={() => onPrimaryAction(supplier)}
             >
               {primaryCtaCopy(accessLevel)}
               <ChevronRight className="h-4 w-4" />
@@ -217,10 +238,7 @@ const SupplierRowImpl = ({
               size="sm"
               variant="outline"
               className="gap-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                onShortlist(supplier.id);
-              }}
+              onClick={() => onShortlist(supplier.id)}
               aria-pressed={isShortlisted}
             >
               <Star
@@ -234,7 +252,7 @@ const SupplierRowImpl = ({
             </Button>
           </div>
         </div>
-      </button>
+      </article>
     </li>
   );
 };
