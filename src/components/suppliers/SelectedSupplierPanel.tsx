@@ -84,10 +84,11 @@ export const SelectedSupplierPanel = ({
   const flag = countryCodeToFlag(supplier.countryCode);
 
   const previewDeliveries = supplier.deliveryCountries.slice(0, 6);
-  const deliveryRest = Math.max(
-    0,
-    supplier.deliveryCountriesTotal - previewDeliveries.length,
-  );
+  const deliveryRest = isUnlocked
+    ? Math.max(0, supplier.deliveryCountriesTotal - previewDeliveries.length)
+    : 0;
+  const showDeliveryTeaser =
+    !isUnlocked && supplier.deliveryCountriesTotal > previewDeliveries.length;
 
   // Catalog preview shown to all levels — items per level differ.
   const catalogVisible = isUnlocked
