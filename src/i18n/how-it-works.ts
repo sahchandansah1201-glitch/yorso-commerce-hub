@@ -246,18 +246,18 @@ const en: HowItWorksDict = {
   bds_cards: [
     {
       question: "Can I trust this supplier?",
-      yorso: "Structured supplier profiles with company registration, export licence, plant approval and certifications collected in one place.",
-      proof: "Verification status per item, document readiness flag and trade history on the platform, shown as submitted, not as a quality guarantee.",
+      yorso: "One supplier card with company registration number, export licence, plant approval code, certifications (MSC, ASC, BRC, IFS, HACCP) and trade history on Yorso.",
+      proof: "Each field is marked verified, submitted or missing, with the source document and last-checked date. Buyer sees what was checked, by whom and when, not a generic trust score.",
     },
     {
       question: "Is this price and offer reasonable?",
-      yorso: "Price ranges, market signals and benchmark context tied to the species, origin and Incoterms in front of the buyer.",
-      proof: "Price band (low / avg / high), offer comparison across shortlisted suppliers and a landed-cost view including freight and duties as estimates.",
+      yorso: "Price band tied to species, size, origin, format and Incoterms of the offer in front of the buyer, plus side-by-side view of shortlisted suppliers.",
+      proof: "Quoted price plotted against low / average / high for the same SKU and Incoterms, with sample size and date range. Landed cost adds freight, duties and lead time as labelled estimates the buyer can adjust.",
     },
     {
       question: "Can I defend this decision internally?",
-      yorso: "A Procurement Decision Proof file: shortlist, comparison, supplier evidence, risk summary, alternatives considered and an audit trail.",
-      proof: "An exportable record the buyer can send to finance, quality and leadership without rebuilding it from email and spreadsheets.",
+      yorso: "Procurement Decision Proof file: shortlist, comparison table, supplier evidence, risk summary, alternatives considered and an event log of every request, message and document.",
+      proof: "One PDF and CSV export with buyer name, decision date and offer ID. Finance, quality and leadership get the same record the buyer used, not a forwarded chat or screenshot.",
     },
   ],
 
