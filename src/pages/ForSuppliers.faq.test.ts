@@ -1,8 +1,21 @@
-import { describe, it, expect } from "vitest";
-import { forSuppliersTranslations } from "@/i18n/for-suppliers";
+import React from "react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { renderHook } from "@testing-library/react";
+import { LanguageProvider } from "@/i18n/LanguageContext";
+import { useForSuppliers } from "@/i18n/for-suppliers";
 import type { Language } from "@/i18n/translations";
 
+const STORAGE_KEY = "yorso-lang";
 const LOCALES = ["en", "ru", "es"] as const satisfies readonly Language[];
+
+const loadDict = (lang: Language) => {
+  localStorage.clear();
+  localStorage.setItem(STORAGE_KEY, lang);
+  const wrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(LanguageProvider, null, children);
+  const { result } = renderHook(() => useForSuppliers(), { wrapper });
+  return result.current;
+};
 
 // Intent keywords that the FAQ must cover for the supplier audience.
 // Each intent is a list of synonyms across EN/RU/ES (case-insensitive substring match).
