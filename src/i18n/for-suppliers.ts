@@ -523,7 +523,7 @@ const es: ForSuppliersDict = {
   seo_ogLocale: "es_ES",
 
   hero_eyebrow: "Para proveedores, procesadores y exportadores",
-  hero_title: "Deja de enviar precios a quien nunca compra.",
+  hero_title: "Vende mariscos B2B a compradores verificados — sin filtrar tu lista de precios.",
   hero_subtitle:
     "Un proveedor no necesita cientos de solicitudes al azar. Necesita compradores que entiendan el producto, el volumen, los documentos y las condiciones de entrega. YORSO muestra tu oferta a esos compradores — y abre el precio según tus reglas, no a cualquier visitante.",
   hero_ctaPrimary: "Registrarse como proveedor",
@@ -531,7 +531,7 @@ const es: ForSuppliersDict = {
   hero_note: "Registro gratuito. 0% de comisión sobre operaciones.",
 
   pain_eyebrow: "A dónde se va el tiempo del proveedor",
-  pain_title: "Cuatro cosas que silenciosamente queman el día de ventas",
+  pain_title: "Dónde el equipo de ventas de mariscos pierde el día",
   pain_subtitle:
     "No son abstracciones — así pasa el lunes un equipo real de ventas de mariscos.",
   pain_items: [
@@ -562,7 +562,7 @@ const es: ForSuppliersDict = {
   ],
 
   help_eyebrow: "Cómo ayuda YORSO",
-  help_title: "Visibilidad ante compradores cualificados, no tráfico al azar",
+  help_title: "Llega a compradores de mariscos verificados con acceso al precio controlado",
   help_subtitle:
     "YORSO ayuda a mostrar la oferta a quienes ya buscan pescado y mariscos para comprar. Los precios y los datos del proveedor se abren por reglas de acceso, no a cualquier visitante.",
   help_items: [
@@ -596,7 +596,7 @@ const es: ForSuppliersDict = {
   gets_eyebrow: "Qué recibe el proveedor por dentro",
   gets_today: "Hoy",
   gets_inYorso: "En YORSO",
-  gets_title: "Cinco superficies de trabajo, no diapositivas",
+  gets_title: "Qué obtiene un proveedor de mariscos en YORSO",
   gets_subtitle:
     "Cada superficie sustituye un trabajo que hoy se hace en WhatsApp, correo o Excel.",
   gets_items: [
@@ -628,7 +628,7 @@ const es: ForSuppliersDict = {
   ],
 
   flow_eyebrow: "Cómo trabaja el proveedor en YORSO",
-  flow_title: "Cuatro pasos, no un proyecto",
+  flow_title: "Cómo empezar a vender mariscos en YORSO",
   flow_subtitle: "El equipo de ventas pasa por la misma secuencia cada semana — solo que en un solo lugar.",
   flow_stepLabel: "Paso",
   flow_steps: [
@@ -639,7 +639,7 @@ const es: ForSuppliersDict = {
   ],
 
   preview_eyebrow: "Lo que ve el comprador",
-  preview_title: "Tu oferta vista desde el lado del comprador",
+  preview_title: "Cómo ven los compradores tu oferta de mariscos",
   preview_subtitle: "Datos públicos del producto a la vista. Precio exacto y datos del proveedor — solo tras tu aprobación.",
   preview_product: "Salmón atlántico, fileteado, sin piel, congelado",
   preview_origin: "Origen",
@@ -657,7 +657,7 @@ const es: ForSuppliersDict = {
   preview_caption: "Maqueta. Las ofertas reales se gestionan dentro del espacio del proveedor.",
 
   access_eyebrow: "Control de la visibilidad del precio",
-  access_title: "Tres niveles de acceso, una sola regla",
+  access_title: "Acceso al precio y al proveedor — tres niveles controlados",
   access_subtitle: "Los datos del proveedor siguen al acceso al precio. Sin precio aprobado — sin contacto del proveedor.",
   access_states: [
     {
@@ -700,7 +700,7 @@ const es: ForSuppliersDict = {
   ],
 
   noise_eyebrow: "Menos ruido para el equipo de ventas",
-  noise_title: "Antes y después en un día normal",
+  noise_title: "El proceso de ventas antes y después de YORSO",
   noise_subtitle: "El mismo equipo, el mismo lunes — distinta superficie de trabajo.",
   noise_beforeLabel: "Antes",
   noise_afterLabel: "Después",
@@ -717,7 +717,7 @@ const es: ForSuppliersDict = {
     "Cola de solicitudes de acceso al precio para aprobar",
   ],
 
-  cta_title: "Reúne el trabajo de ventas en una sola superficie",
+  cta_title: "Una sola plataforma B2B de ventas para proveedores de mariscos",
   cta_subtitle:
     "Registra la empresa, publica la tarjeta de proveedor y empieza a recibir solicitudes cualificadas en tu categoría.",
   cta_primary: "Registrarse como proveedor",
