@@ -524,7 +524,7 @@ const ForSuppliers = () => {
                             }`}
                             aria-hidden
                           />
-                          <span className={line.hidden ? "text-muted-foreground" : "text-foreground/85"}>
+                          <span className={`min-w-0 break-words ${line.hidden ? "text-muted-foreground" : "text-foreground/85"}`}>
                             {line.text}
                           </span>
                         </li>
