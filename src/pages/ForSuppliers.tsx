@@ -231,9 +231,9 @@ const ForSuppliers = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <Header />
-      <main id="main">
+      <main id="main" className="overflow-x-hidden">
 
       {/* Breadcrumbs */}
       <div className="border-b border-border bg-background">
