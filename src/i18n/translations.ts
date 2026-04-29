@@ -1855,6 +1855,7 @@ const ru: TranslationKeys = {
   nav_liveOffers: "Каталог",
   nav_categories: "Категории",
   nav_howItWorks: "Как это работает",
+  nav_forSuppliers: "Поставщикам",
   nav_faq: "FAQ",
   nav_signIn: "Войти",
   nav_registerFree: "Регистрация",
