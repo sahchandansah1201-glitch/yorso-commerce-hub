@@ -1215,7 +1215,7 @@ const es: HowItWorksDict = {
     {
       question: "¿Puedo confiar en este proveedor?",
       yorso: "Perfiles estructurados con registro mercantil, licencia de exportación, número de planta autorizada y certificaciones reunidos en un solo lugar.",
-      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma — mostrados como aportados, no como garantía de calidad.",
+      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma, mostrados como aportados, no como garantía de calidad.",
     },
     {
       question: "¿Son razonables el precio y la oferta?",
