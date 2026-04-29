@@ -258,10 +258,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
             </p>
-            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
+            <h1 className="mt-5 font-heading text-[34px] font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-[52px] md:leading-[1.05]">
               {t.hero_title}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+            <p className="mt-5 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-[17px] md:leading-[1.6]">
               {t.hero_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -295,10 +295,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.flow_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.flow_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.flow_subtitle}
             </p>
           </div>
@@ -313,7 +313,7 @@ const ForSuppliers = () => {
                     {t.flow_stepLabel}
                   </span>
                 </div>
-                <h3 className="font-heading text-base font-semibold leading-snug text-foreground">
+                <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground">
                   {step.title}
                 </h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
@@ -336,10 +336,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.pain_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.pain_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.pain_subtitle}
             </p>
           </div>
@@ -350,7 +350,7 @@ const ForSuppliers = () => {
                 <div key={item.title} className="flex gap-4 border-l-2 border-border pl-5">
                   <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                   <div>
-                    <h3 className="font-heading text-lg font-semibold text-foreground">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -375,10 +375,10 @@ const ForSuppliers = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 {t.preview_eyebrow}
               </p>
-              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
                 {t.preview_title}
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
                 {t.preview_subtitle}
               </p>
             </div>
@@ -392,7 +392,7 @@ const ForSuppliers = () => {
                 </span>
               </div>
               <div className="p-5">
-                <h3 className="font-heading text-lg font-semibold text-foreground">
+                <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                   {t.preview_product}
                 </h3>
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
@@ -475,10 +475,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.access_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.access_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.access_subtitle}
             </p>
           </div>
@@ -498,7 +498,7 @@ const ForSuppliers = () => {
                     >
                       {i + 1}
                     </span>
-                    <h3 className="font-heading text-base font-semibold text-foreground">
+                    <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground">
                       {state.label}
                     </h3>
                   </div>
@@ -554,10 +554,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.help_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.help_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.help_subtitle}
             </p>
           </div>
@@ -568,7 +568,7 @@ const ForSuppliers = () => {
                 <li key={item.title} className="grid gap-2 py-6 md:grid-cols-[280px_1fr] md:gap-10">
                   <div className="flex items-start gap-3">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <h3 className="font-heading text-lg font-semibold text-foreground">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
                     </h3>
                   </div>
@@ -589,10 +589,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.gets_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.gets_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.gets_subtitle}
             </p>
           </div>
@@ -608,7 +608,7 @@ const ForSuppliers = () => {
                     <Icon className="mt-2 h-5 w-5 text-muted-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-heading text-lg font-semibold text-foreground">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -629,10 +629,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.noise_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.noise_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.noise_subtitle}
             </p>
           </div>
@@ -685,10 +685,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.faq_eyebrow}
             </p>
-            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.faq_title}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.faq_subtitle}
             </p>
             <Accordion type="single" collapsible className="mt-10 w-full">
@@ -711,10 +711,10 @@ const ForSuppliers = () => {
       <section className="bg-warm-bg py-20 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-8 py-12 text-center shadow-sm md:px-12 md:py-14">
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.cta_title}
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-lg text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.cta_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
