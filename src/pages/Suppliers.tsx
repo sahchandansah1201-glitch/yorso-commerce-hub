@@ -78,7 +78,7 @@ const Suppliers = () => {
   const { level } = useAccessLevel();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(mockSuppliers[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shortlist, setShortlist] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
     try {
@@ -116,31 +116,34 @@ const Suppliers = () => {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const includeCompanyName = level === "qualified_unlocked";
     return mockSuppliers.filter((s) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
         if (f && !f.match(s)) return false;
       }
       if (!q) return true;
-      const haystack = [
-        s.companyName,
+      const fields = [
         s.maskedName,
         s.country,
         s.city,
         s.supplierType,
         ...s.productFocus.map((p) => `${p.species} ${p.forms}`),
         ...s.certifications,
-      ]
-        .join(" ")
-        .toLowerCase();
+      ];
+      if (includeCompanyName) fields.push(s.companyName);
+      const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, activeFilter]);
+  }, [query, activeFilter, level]);
 
-  const selected = useMemo(
-    () => filtered.find((s) => s.id === selectedId) ?? filtered[0] ?? null,
-    [filtered, selectedId],
-  );
+  // Neutral state stays visible until the user actively selects a supplier.
+  // Filtering away the selected supplier resets selection to null instead of
+  // silently auto-selecting the first remaining row.
+  const selected = useMemo(() => {
+    if (!selectedId) return null;
+    return filtered.find((s) => s.id === selectedId) ?? null;
+  }, [filtered, selectedId]);
 
   const handleShortlist = (id: string) => {
     const next = new Set(shortlist);
