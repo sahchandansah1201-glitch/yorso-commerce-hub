@@ -923,8 +923,8 @@ const en: TranslationKeys = {
 
   // Live Offers
   offers_liveMarketplace: "Live Marketplace",
-  offers_title: "Wholesale Offers",
-  offers_subtitle: "Fresh listings from verified suppliers worldwide — updated continuously",
+  offers_title: "Live wholesale offers buyers can compare today.",
+  offers_subtitle: "Real listings with origin, format, price range and MOQ. Open any card to inspect documents and request supplier access.",
   offers_viewAll: "View all offers",
   offers_viewAllMobile: "View All Offers",
   offers_showMore: "Show more offers",
