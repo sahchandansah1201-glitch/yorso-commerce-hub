@@ -441,21 +441,21 @@ const ForSuppliers = () => {
 
                 {/* Gated rows */}
                 <div className="mt-4 space-y-2.5">
-                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{t.preview_priceLocked}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 break-words font-medium text-foreground">{t.preview_priceLocked}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="min-w-0 break-words text-xs text-muted-foreground">
                       {t.preview_priceLockedHint}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{t.preview_supplierLocked}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <EyeOff className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 break-words font-medium text-foreground">{t.preview_supplierLocked}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="min-w-0 break-words text-xs text-muted-foreground">
                       {t.preview_supplierLockedHint}
                     </span>
                   </div>
