@@ -10,6 +10,8 @@ import type { Language } from "./translations";
 export interface ForSuppliersDict {
   seo_title: string;
   seo_description: string;
+  seo_ogImageAlt: string;
+  seo_ogLocale: string;
 
   // Hero
   hero_eyebrow: string;
