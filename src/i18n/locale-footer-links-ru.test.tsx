@@ -25,6 +25,7 @@ import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { translations, type Language } from "@/i18n/translations";
 
 import Index from "@/pages/Index";
@@ -65,7 +66,8 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
     <MemoryRouter initialEntries={[initialPath]}>
       <LanguageProvider>
         <TooltipProvider>
-          <RegistrationProvider>
+          <BuyerSessionProvider>
+            <RegistrationProvider>
             <Probe onReady={onReady} />
             <Routes>
               <Route path="/" element={<Index />} />
@@ -83,6 +85,7 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </RegistrationProvider>
+          </BuyerSessionProvider>
         </TooltipProvider>
       </LanguageProvider>
     </MemoryRouter>,
