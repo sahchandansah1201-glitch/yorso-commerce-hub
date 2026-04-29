@@ -38,6 +38,13 @@ export interface HowItWorksDict {
   bds_supplierNote: string;
   bds_cards: { question: string; yorso: string; proof: string }[]; // 3
 
+  // Proof by numbers
+  proof_eyebrow: string;
+  proof_title: string;
+  proof_subtitle: string;
+  proof_disclaimer: string;
+  proof_metrics: { value: string; label: string; why: string; kind: string }[]; // 8
+
   // Problem map
   problem_eyebrow: string;
   problem_title: string;
