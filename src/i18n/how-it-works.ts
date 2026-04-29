@@ -373,7 +373,7 @@ const en: HowItWorksDict = {
   bj_eyebrow: "Buyer journey",
   bj_title: "From a sourcing question to a defensible procurement decision.",
   bj_subtitle:
-    "Buyers do not just get a list of suppliers. They get enough information to make and defend a purchasing decision — internally, in front of finance, quality and leadership.",
+    "Seven numbered steps. Each one shows what the buyer does, what Yorso provides, and which risk drops before commitment.",
   bj_step: "Step",
   bj_buyerDoes: "Buyer does",
   bj_yorsoProvides: "Yorso provides",
@@ -519,7 +519,7 @@ const en: HowItWorksDict = {
   sj_eyebrow: "Supply trust mechanism",
   sj_title: "How Yorso turns suppliers into evidence-backed options for buyers.",
   sj_subtitle:
-    "Suppliers do not buy trust on Yorso. They provide evidence. Yorso structures it so buyers can decide. Paid visibility is shown — and labelled — separately from verification.",
+    "Seven evidence blocks suppliers provide. Yorso structures each one. Paid visibility stays labelled separately from verification.",
   sj_def_verified_label: "Verified",
   sj_def_verified_body: "Evidence on file — checkable, not a quality guarantee.",
   sj_def_featured_label: "Featured / Sponsored",
@@ -584,7 +584,7 @@ const en: HowItWorksDict = {
   ts_eyebrow: "Trust stack",
   ts_title: "Trust on Yorso is a stack of evidence, not a badge.",
   ts_subtitle:
-    "Each layer is shown honestly. Verified means evidence is on file. Missing items are labelled not provided yet. Paid placements are labelled promoted. Promoted suppliers are not safer — they are more visible.",
+    "Eight layers, one status each. Verified, not provided yet, or promoted. Promoted suppliers are more visible, not safer.",
   ts_layer: "Layer",
   ts_layers: [
     { title: "Company identity", body: "Legal entity, registration country, plant approval number, export licence reference.", evidence: "Verified — registration document and plant approval on file." },
@@ -607,7 +607,7 @@ const en: HowItWorksDict = {
   vg_eyebrow: "What buyers get",
   vg_title: "Built for the buyer side of the trade.",
   vg_subtitle:
-    "Buyers get the workspace and the evidence. Supply-side mechanisms exist so the buyer can check, compare and decide with less risk. Verified, Sponsored and Premium stay visually separate; paid placement is never sold as trust.",
+    "9 buyer capabilities, 7 supply-side mechanisms. Verified, Sponsored and Premium stay visually separate. Paid placement is never sold as trust.",
   vg_buyer_eyebrow: "Buyer capabilities",
   vg_buyer_title: "Procurement-grade decisions, defended internally.",
   vg_buyer_count: "9 capabilities · evidence-led",
@@ -715,7 +715,7 @@ const en: HowItWorksDict = {
   bo_eyebrow: "Outcomes",
   bo_title: "What the buyer should walk away with.",
   bo_subtitle:
-    "Operational outcomes Yorso is designed to deliver across a procurement cycle. Buyer first, supply side as the supporting mechanism. Not vanity metrics, not guarantees.",
+    "Operational outcomes per procurement cycle. Buyer first, supply side as supporting mechanism. Not vanity metrics, not guarantees.",
   bo_buyer_eyebrow: "Buyer outcomes",
   bo_buyer_title: "Less risk per purchasing decision.",
   bo_supplier_eyebrow: "Supplier outcomes (supporting)",
@@ -933,7 +933,7 @@ const ru: HowItWorksDict = {
   bj_eyebrow: "Путь покупателя",
   bj_title: "От вопроса о закупке до защищаемого решения о покупке.",
   bj_subtitle:
-    "Покупатель получает не просто список поставщиков. Он получает достаточно информации, чтобы принять и защитить решение о закупке внутри компании — перед финансами, качеством и руководством.",
+    "Семь нумерованных шагов. В каждом: что делает покупатель, что даёт Yorso и какой риск снижается до сделки.",
   bj_step: "Шаг",
   bj_buyerDoes: "Покупатель делает",
   bj_yorsoProvides: "Yorso даёт",
@@ -1079,7 +1079,7 @@ const ru: HowItWorksDict = {
   sj_eyebrow: "Механизм доверия к поставщику",
   sj_title: "Как Yorso превращает поставщиков в подкреплённые доказательствами варианты для покупателя.",
   sj_subtitle:
-    "Поставщики не покупают доверие на Yorso. Они предоставляют доказательства. Yorso структурирует их так, чтобы покупатель мог принять решение. Платная видимость показана и подписана отдельно от верификации.",
+    "Семь блоков доказательств от поставщика. Yorso структурирует каждый. Платная видимость подписана отдельно от верификации.",
   sj_def_verified_label: "Verified",
   sj_def_verified_body: "Доказательства в досье — проверяемо, не гарантия качества.",
   sj_def_featured_label: "Featured / Sponsored",
@@ -1144,7 +1144,7 @@ const ru: HowItWorksDict = {
   ts_eyebrow: "Стек доверия",
   ts_title: "Доверие на Yorso — это стек доказательств, а не бейдж.",
   ts_subtitle:
-    "Каждый слой показан честно. Verified означает, что доказательства в досье. Отсутствующие пункты помечены «ещё не предоставлено». Платные размещения помечены «promoted». Promoted-поставщики не безопаснее — они виднее.",
+    "Восемь слоёв, по одному статусу на каждый. Verified, ещё не предоставлено или promoted. Promoted-поставщики виднее, а не безопаснее.",
   ts_layer: "Слой",
   ts_layers: [
     { title: "Идентичность компании", body: "Юр. лицо, страна регистрации, номер одобрения предприятия, ссылка на экспортную лицензию.", evidence: "Verified — регистрационный документ и одобрение предприятия в досье." },
@@ -1167,7 +1167,7 @@ const ru: HowItWorksDict = {
   vg_eyebrow: "Что получает покупатель",
   vg_title: "Сделано для покупательской стороны сделки.",
   vg_subtitle:
-    "Покупатель получает рабочее пространство и доказательства. Механизмы со стороны поставщика существуют, чтобы решения покупателя были безопаснее, — а не как отдельный продукт. Verified, Sponsored и Premium визуально разделены; платное размещение никогда не продаётся как доверие.",
+    "9 возможностей покупателя, 7 механизмов со стороны поставщика. Verified, Sponsored и Premium визуально разделены. Платное размещение не продаётся как доверие.",
   vg_buyer_eyebrow: "Возможности покупателя",
   vg_buyer_title: "Решения уровня закупки, защищаемые внутри компании.",
   vg_buyer_count: "9 возможностей · по доказательствам",
@@ -1275,7 +1275,7 @@ const ru: HowItWorksDict = {
   bo_eyebrow: "Результаты",
   bo_title: "С чем должен уйти покупатель.",
   bo_subtitle:
-    "Операционные результаты, которые Yorso призван давать в цикле закупки — сначала покупатель, поставщик как поддерживающий механизм. Не «vanity»-метрики, не гарантии.",
+    "Операционные результаты на цикл закупки. Сначала покупатель, поставщик как поддерживающий механизм. Не vanity-метрики, не гарантии.",
   bo_buyer_eyebrow: "Результаты для покупателя",
   bo_buyer_title: "Меньше риска на каждое решение о закупке.",
   bo_supplier_eyebrow: "Результаты для поставщика (поддержка)",
@@ -1493,7 +1493,7 @@ const es: HowItWorksDict = {
   bj_eyebrow: "Recorrido del comprador",
   bj_title: "De una pregunta de abastecimiento a una decisión de compra defensible.",
   bj_subtitle:
-    "Los compradores no obtienen sólo una lista de proveedores. Obtienen información suficiente para tomar y defender una decisión de compra — internamente, ante finanzas, calidad y dirección.",
+    "Siete pasos numerados. En cada uno: qué hace el comprador, qué aporta Yorso y qué riesgo baja antes del compromiso.",
   bj_step: "Paso",
   bj_buyerDoes: "El comprador hace",
   bj_yorsoProvides: "Yorso aporta",
@@ -1639,7 +1639,7 @@ const es: HowItWorksDict = {
   sj_eyebrow: "Mecanismo de confianza del proveedor",
   sj_title: "Cómo Yorso convierte a los proveedores en opciones respaldadas por evidencia para el comprador.",
   sj_subtitle:
-    "Los proveedores no compran confianza en Yorso. Aportan evidencia. Yorso la estructura para que el comprador decida. La visibilidad pagada se muestra y se etiqueta de forma separada de la verificación.",
+    "Siete bloques de evidencia que aporta el proveedor. Yorso estructura cada uno. La visibilidad pagada se etiqueta aparte de la verificación.",
   sj_def_verified_label: "Verified",
   sj_def_verified_body: "Evidencia en archivo — comprobable, no garantía de calidad.",
   sj_def_featured_label: "Featured / Sponsored",
@@ -1704,7 +1704,7 @@ const es: HowItWorksDict = {
   ts_eyebrow: "Stack de confianza",
   ts_title: "La confianza en Yorso es un stack de evidencia, no una insignia.",
   ts_subtitle:
-    "Cada capa se muestra honestamente. Verified significa que la evidencia está en archivo. Los elementos faltantes se etiquetan «aún no proporcionado». Las colocaciones pagadas se etiquetan «promoted». Los proveedores promoted no son más seguros — son más visibles.",
+    "Ocho capas, un estado en cada una. Verified, aún no proporcionado o promoted. Los proveedores promoted son más visibles, no más seguros.",
   ts_layer: "Capa",
   ts_layers: [
     { title: "Identidad de la empresa", body: "Entidad legal, país de registro, número de aprobación de planta, referencia de licencia de exportación.", evidence: "Verified — documento de registro y aprobación de planta en archivo." },
@@ -1727,7 +1727,7 @@ const es: HowItWorksDict = {
   vg_eyebrow: "Lo que recibe el comprador",
   vg_title: "Hecho para el lado comprador de la operación.",
   vg_subtitle:
-    "El comprador obtiene el espacio de trabajo y la evidencia. Los mecanismos del lado del proveedor existen para que las decisiones del comprador sean más seguras — no se venden por separado. Verified, Sponsored y Premium se mantienen visualmente separados; la colocación pagada nunca se vende como confianza.",
+    "9 capacidades del comprador, 7 mecanismos del lado proveedor. Verified, Sponsored y Premium se mantienen separados. La colocación pagada no se vende como confianza.",
   vg_buyer_eyebrow: "Capacidades del comprador",
   vg_buyer_title: "Decisiones de grado de compra, defendidas internamente.",
   vg_buyer_count: "9 capacidades · basadas en evidencia",
@@ -1835,7 +1835,7 @@ const es: HowItWorksDict = {
   bo_eyebrow: "Resultados",
   bo_title: "Con qué debe quedarse el comprador.",
   bo_subtitle:
-    "Resultados operativos que Yorso busca entregar a lo largo de un ciclo de compra — primero el comprador, el proveedor como mecanismo de soporte. Sin métricas de vanidad, sin garantías.",
+    "Resultados operativos por ciclo de compra. Primero el comprador, el proveedor como mecanismo de soporte. Sin métricas de vanidad, sin garantías.",
   bo_buyer_eyebrow: "Resultados para el comprador",
   bo_buyer_title: "Menos riesgo por decisión de compra.",
   bo_supplier_eyebrow: "Resultados para el proveedor (soporte)",

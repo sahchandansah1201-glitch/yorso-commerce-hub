@@ -116,7 +116,7 @@ const BusinessOutcomes = () => {
               </h3>
             </header>
             <div className="grid gap-3 sm:grid-cols-2">
-              {buyer.map((o) => {
+              {buyer.map((o, idx) => {
                 const Icon = o.icon;
                 return (
                   <article
@@ -126,7 +126,10 @@ const BusinessOutcomes = () => {
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider tabular-nums text-primary/70">
+                        Outcome {String(idx + 1).padStart(2, "0")}
+                      </span>
                       <h4 className="font-heading text-sm font-bold leading-snug text-foreground">
                         {o.title}
                       </h4>

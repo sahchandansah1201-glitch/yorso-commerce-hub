@@ -51,7 +51,7 @@ const ValueGrids = () => {
             <span className="text-xs text-muted-foreground">{t.vg_buyer_count}</span>
           </header>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {buyerItems.map((it) => {
+            {buyerItems.map((it, idx) => {
               const Icon = it.icon;
               return (
                 <article
@@ -62,9 +62,14 @@ const ValueGrids = () => {
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
                       <Icon className="h-4.5 w-4.5" />
                     </div>
-                    <h4 className="font-heading text-sm font-bold leading-snug text-foreground">
-                      {it.title}
-                    </h4>
+                    <div className="min-w-0">
+                      <span className="block text-[10px] font-bold uppercase tracking-wider tabular-nums text-primary/70">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <h4 className="font-heading text-sm font-bold leading-snug text-foreground">
+                        {it.title}
+                      </h4>
+                    </div>
                   </div>
                   <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{it.body}</p>
                 </article>
