@@ -2,14 +2,14 @@ import {
   ShieldCheck,
   Package,
   FileCheck2,
-  TrendingUp,
+  Clock,
   MessageSquare,
+  AlertCircle,
   Megaphone,
-  Quote,
 } from "lucide-react";
 import { useHowItWorks } from "@/i18n/how-it-works";
 
-const ICONS = [ShieldCheck, Package, FileCheck2, TrendingUp, MessageSquare, Megaphone];
+const ICONS = [ShieldCheck, Package, FileCheck2, Clock, MessageSquare, AlertCircle, Megaphone];
 
 type ChipKind = "verified" | "promotion" | "neutral";
 const chipKind = (concept?: string): ChipKind => {
@@ -30,7 +30,7 @@ const SupplierJourney = () => {
   const chipLabel: Record<ChipKind, string> = {
     verified: t.sj_def_verified_label,
     promotion: t.sj_def_featured_label,
-    neutral: "Neutral",
+    neutral: "Context",
   };
 
   return (
@@ -73,7 +73,7 @@ const SupplierJourney = () => {
           </div>
         </div>
 
-        {/* Compact evidence grid */}
+        {/* Buyer-facing supply proof stack */}
         <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {t.sj_steps.map((step, idx) => {
             const Icon = ICONS[idx] ?? ShieldCheck;
@@ -85,7 +85,7 @@ const SupplierJourney = () => {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
-                    <Icon className="h-4.5 w-4.5" strokeWidth={2} />
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
                   </div>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${chipStyles[kind]}`}
@@ -114,25 +114,12 @@ const SupplierJourney = () => {
                     <dt className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
                       {t.sj_outcome}
                     </dt>
-                    <dd className="mt-1 leading-relaxed text-foreground/85">{step.outcome}</dd>
+                    <dd className="mt-1 leading-relaxed text-foreground">{step.outcome}</dd>
                   </div>
                 </dl>
               </article>
             );
           })}
-        </div>
-
-        {/* Closing principle */}
-        <div className="mx-auto mt-10 max-w-3xl rounded-xl border border-dashed border-border bg-card/60 p-5">
-          <div className="flex items-start gap-3">
-            <Quote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <p className="text-sm leading-relaxed text-foreground/85">
-              <span className="font-semibold text-foreground">
-                {t.sj_def_verified_label} · {t.sj_def_featured_label} · {t.sj_def_premium_label}
-              </span>{" "}
-              — {t.sj_subtitle}
-            </p>
-          </div>
         </div>
       </div>
     </section>
