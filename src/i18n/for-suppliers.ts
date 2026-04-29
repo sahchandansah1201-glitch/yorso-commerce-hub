@@ -518,6 +518,9 @@ const es: ForSuppliersDict = {
   seo_title: "YORSO para Proveedores · Vende Mariscos B2B Sin Filtrar Precios",
   seo_description:
     "Espacio B2B para exportadores de mariscos: controla quién ve tus precios, recibe solicitudes cualificadas y gestiona documentos y certificaciones en una sola ficha.",
+  seo_ogImageAlt:
+    "YORSO para proveedores — acceso controlado al precio, solicitudes cualificadas y una ficha de proveedor con documentos y certificaciones.",
+  seo_ogLocale: "es_ES",
 
   hero_eyebrow: "Para proveedores, procesadores y exportadores",
   hero_title: "Deja de enviar precios a quien nunca compra.",
