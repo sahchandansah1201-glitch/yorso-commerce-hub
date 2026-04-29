@@ -211,16 +211,16 @@ const en: HowItWorksDict = {
   seo_description:
     "Yorso is a B2B seafood trade workflow: wholesale seafood sourcing, verified suppliers, RFQ and procurement comparison, price and market context, and a defensible procurement decision report.",
 
-  hero_eyebrow: "How Yorso works",
-  hero_titlePrefix: "Yorso turns seafood sourcing into a controlled ",
-  hero_titleHighlight: "B2B trade workflow",
+  hero_eyebrow: "Built for buyers",
+  hero_titlePrefix: "Make and defend the right ",
+  hero_titleHighlight: "seafood procurement decision",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Find seafood products and suppliers, request access, compare offers, verify evidence, and move from inquiry to a defensible procurement decision — inside one operating system built for B2B seafood trade.",
-  hero_ctaFind: "Find seafood suppliers",
-  hero_ctaSupplier: "Become a verified supplier",
+    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism — not the message.",
+  hero_ctaFind: "Find products and suppliers",
+  hero_ctaSupplier: "I am a supplier",
   hero_ctaScroll: "See how it works ↓",
-  hero_workflow_eyebrow: "End-to-end trade workflow",
+  hero_workflow_eyebrow: "End-to-end buyer workflow",
   hero_workflow_caption: "Repeatable, evidence-based, documented",
   hero_workflow_step: "Step",
   hero_workflow_steps: [
@@ -230,6 +230,33 @@ const en: HowItWorksDict = {
     "RFQ / negotiation",
     "Order / documents",
     "Repeat trade",
+  ],
+
+  bds_eyebrow: "Buyer decision snapshot",
+  bds_title: "Three questions every buyer has to answer.",
+  bds_subtitle:
+    "Before any seafood deal is signed, a procurement manager has to defend it internally. Yorso is built around the three questions that decide whether the answer is yes.",
+  bds_question: "Buyer question",
+  bds_yorso: "What Yorso provides",
+  bds_proof: "Evidence the buyer gets",
+  bds_supplierNote:
+    "Supplier evidence is the mechanism that helps buyers trust the decision — not a separate marketing story.",
+  bds_cards: [
+    {
+      question: "Can I trust this supplier?",
+      yorso: "Structured supplier profiles with company registration, export licence, plant approval and certifications collected in one place.",
+      proof: "Verification status per item, document readiness flag and trade history on the platform — shown as submitted, not as a quality guarantee.",
+    },
+    {
+      question: "Is this price and offer reasonable?",
+      yorso: "Price ranges, market signals and benchmark context tied to the species, origin and Incoterms in front of the buyer.",
+      proof: "Price band (low / avg / high), offer comparison across shortlisted suppliers and a landed-cost view including freight and duties as estimates.",
+    },
+    {
+      question: "Can I defend this decision internally?",
+      yorso: "A Procurement Decision Proof file: shortlist, comparison, supplier evidence, risk summary, alternatives considered and an audit trail.",
+      proof: "An exportable record the buyer can send to finance, quality and leadership without rebuilding it from email and spreadsheets.",
+    },
   ],
 
   problem_eyebrow: "Problem map",
