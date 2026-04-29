@@ -98,6 +98,64 @@ const ForSuppliers = () => {
 
     upsertLink("canonical", canonical);
 
+    // JSON-LD structured data: Organization + WebPage + BreadcrumbList
+    const ldId = "ld-for-suppliers";
+    const existingLd = document.getElementById(ldId);
+    if (existingLd) existingLd.remove();
+
+    const ldGraph = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${origin}/#organization`,
+          name: "YORSO",
+          url: origin || "/",
+          logo: ogImageUrl,
+        },
+        {
+          "@type": "WebPage",
+          "@id": `${canonical}#webpage`,
+          url: canonical,
+          name: t.seo_title,
+          description: t.seo_description,
+          inLanguage: t.seo_ogLocale.replace("_", "-"),
+          isPartOf: { "@id": `${origin}/#organization` },
+          primaryImageOfPage: { "@type": "ImageObject", url: ogImageUrl },
+          breadcrumb: { "@id": `${canonical}#breadcrumbs` },
+          about: { "@id": `${origin}/#organization` },
+          audience: {
+            "@type": "BusinessAudience",
+            audienceType: tCommon.nav_forSuppliers,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${canonical}#breadcrumbs`,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: tCommon.catalog_breadcrumbHome,
+              item: origin || "/",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: tCommon.nav_forSuppliers,
+              item: canonical,
+            },
+          ],
+        },
+      ],
+    };
+
+    const ldScript = document.createElement("script");
+    ldScript.type = "application/ld+json";
+    ldScript.id = ldId;
+    ldScript.text = JSON.stringify(ldGraph);
+    document.head.appendChild(ldScript);
+
     analytics.track("supplier_page_view", { surface: "for_suppliers" });
 
     return () => {
@@ -110,8 +168,17 @@ const ForSuppliers = () => {
       upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
       upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: prevTitle });
       if (prevCanonical) upsertLink("canonical", prevCanonical);
+      document.getElementById(ldId)?.remove();
     };
-  }, [t.seo_title, t.seo_description, t.seo_ogImageAlt, t.seo_ogLocale, lang]);
+  }, [
+    t.seo_title,
+    t.seo_description,
+    t.seo_ogImageAlt,
+    t.seo_ogLocale,
+    tCommon.catalog_breadcrumbHome,
+    tCommon.nav_forSuppliers,
+    lang,
+  ]);
 
   return (
     <div className="min-h-screen bg-background">
