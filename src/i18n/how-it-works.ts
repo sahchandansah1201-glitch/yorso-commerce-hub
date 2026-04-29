@@ -27,6 +27,16 @@ export interface HowItWorksDict {
   hero_workflow_step: string;
   hero_workflow_steps: string[]; // 6
 
+  // Buyer Decision Snapshot (3 cards)
+  bds_eyebrow: string;
+  bds_title: string;
+  bds_subtitle: string;
+  bds_question: string;
+  bds_yorso: string;
+  bds_proof: string;
+  bds_supplierNote: string;
+  bds_cards: { question: string; yorso: string; proof: string }[]; // 3
+
   // Problem map
   problem_eyebrow: string;
   problem_title: string;
@@ -201,16 +211,16 @@ const en: HowItWorksDict = {
   seo_description:
     "Yorso is a B2B seafood trade workflow: wholesale seafood sourcing, verified suppliers, RFQ and procurement comparison, price and market context, and a defensible procurement decision report.",
 
-  hero_eyebrow: "How Yorso works",
-  hero_titlePrefix: "Yorso turns seafood sourcing into a controlled ",
-  hero_titleHighlight: "B2B trade workflow",
+  hero_eyebrow: "Built for buyers",
+  hero_titlePrefix: "Make and defend the right ",
+  hero_titleHighlight: "seafood procurement decision",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Find seafood products and suppliers, request access, compare offers, verify evidence, and move from inquiry to a defensible procurement decision — inside one operating system built for B2B seafood trade.",
-  hero_ctaFind: "Find seafood suppliers",
-  hero_ctaSupplier: "Become a verified supplier",
+    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism — not the message.",
+  hero_ctaFind: "Find products and suppliers",
+  hero_ctaSupplier: "I am a supplier",
   hero_ctaScroll: "See how it works ↓",
-  hero_workflow_eyebrow: "End-to-end trade workflow",
+  hero_workflow_eyebrow: "End-to-end buyer workflow",
   hero_workflow_caption: "Repeatable, evidence-based, documented",
   hero_workflow_step: "Step",
   hero_workflow_steps: [
@@ -220,6 +230,33 @@ const en: HowItWorksDict = {
     "RFQ / negotiation",
     "Order / documents",
     "Repeat trade",
+  ],
+
+  bds_eyebrow: "Buyer decision snapshot",
+  bds_title: "Three questions every buyer has to answer.",
+  bds_subtitle:
+    "Before any seafood deal is signed, a procurement manager has to defend it internally. Yorso is built around the three questions that decide whether the answer is yes.",
+  bds_question: "Buyer question",
+  bds_yorso: "What Yorso provides",
+  bds_proof: "Evidence the buyer gets",
+  bds_supplierNote:
+    "Supplier evidence is the mechanism that helps buyers trust the decision — not a separate marketing story.",
+  bds_cards: [
+    {
+      question: "Can I trust this supplier?",
+      yorso: "Structured supplier profiles with company registration, export licence, plant approval and certifications collected in one place.",
+      proof: "Verification status per item, document readiness flag and trade history on the platform — shown as submitted, not as a quality guarantee.",
+    },
+    {
+      question: "Is this price and offer reasonable?",
+      yorso: "Price ranges, market signals and benchmark context tied to the species, origin and Incoterms in front of the buyer.",
+      proof: "Price band (low / avg / high), offer comparison across shortlisted suppliers and a landed-cost view including freight and duties as estimates.",
+    },
+    {
+      question: "Can I defend this decision internally?",
+      yorso: "A Procurement Decision Proof file: shortlist, comparison, supplier evidence, risk summary, alternatives considered and an audit trail.",
+      proof: "An exportable record the buyer can send to finance, quality and leadership without rebuilding it from email and spreadsheets.",
+    },
   ],
 
   problem_eyebrow: "Problem map",
@@ -663,16 +700,16 @@ const ru: HowItWorksDict = {
   seo_description:
     "Yorso — это рабочий процесс B2B-торговли морепродуктами: поиск оптовых поставщиков, проверка, RFQ и сравнение оферт, рыночный контекст цен и защищаемое решение по закупке.",
 
-  hero_eyebrow: "Как работает Yorso",
-  hero_titlePrefix: "Yorso превращает закупку морепродуктов в управляемый ",
-  hero_titleHighlight: "B2B-процесс торговли",
+  hero_eyebrow: "Сделано для покупателей",
+  hero_titlePrefix: "Принимайте и защищайте правильное ",
+  hero_titleHighlight: "решение о закупке морепродуктов",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Находите продукты и поставщиков, запрашивайте доступ, сравнивайте оферты, проверяйте доказательства и переходите от запроса к защищаемому решению о закупке — внутри одной операционной системы для B2B-торговли морепродуктами.",
-  hero_ctaFind: "Найти поставщиков морепродуктов",
-  hero_ctaSupplier: "Стать проверенным поставщиком",
+    "Yorso помогает покупателю находить продукты, проверять поставщиков, сравнивать оферты и собирать внутреннее обоснование, которое выдержит вопросы финансов, качества и руководства. Доказательства поставщика — это механизм, а не маркетинговое сообщение.",
+  hero_ctaFind: "Найти продукты и поставщиков",
+  hero_ctaSupplier: "Я поставщик",
   hero_ctaScroll: "Как это работает ↓",
-  hero_workflow_eyebrow: "Сквозной торговый процесс",
+  hero_workflow_eyebrow: "Сквозной процесс покупателя",
   hero_workflow_caption: "Повторяемый, доказательный, документированный",
   hero_workflow_step: "Шаг",
   hero_workflow_steps: [
@@ -682,6 +719,33 @@ const ru: HowItWorksDict = {
     "RFQ / переговоры",
     "Заказ / документы",
     "Повторная сделка",
+  ],
+
+  bds_eyebrow: "Снимок решения покупателя",
+  bds_title: "Три вопроса, на которые покупателю нужно ответить.",
+  bds_subtitle:
+    "До любой сделки по морепродуктам менеджеру по закупкам нужно защитить её внутри компании. Yorso построен вокруг трёх вопросов, от которых зависит, будет ли ответ «да».",
+  bds_question: "Вопрос покупателя",
+  bds_yorso: "Что даёт Yorso",
+  bds_proof: "Какие доказательства получает покупатель",
+  bds_supplierNote:
+    "Доказательства поставщика — это механизм, который помогает покупателю доверять решению, а не отдельная маркетинговая история.",
+  bds_cards: [
+    {
+      question: "Можно ли доверять этому поставщику?",
+      yorso: "Структурированные профили: регистрация компании, экспортная лицензия, номер аттестации завода и сертификации собраны в одном месте.",
+      proof: "Статус проверки по каждому пункту, флаг готовности документов и история работы на платформе — в формате «как заявлено», без обещаний качества.",
+    },
+    {
+      question: "Адекватны ли цена и условия?",
+      yorso: "Ценовые диапазоны, рыночные сигналы и контекст бенчмарка, привязанные к виду, происхождению и Incoterms конкретной оферты.",
+      proof: "Полоса цены (низкая / средняя / высокая), сравнение шорт-листа поставщиков и расчёт landed cost с фрахтом и пошлинами как оценка.",
+    },
+    {
+      question: "Смогу ли я защитить это решение внутри компании?",
+      yorso: "Файл Procurement Decision Proof: шорт-лист, сравнение, доказательства поставщика, риски, рассмотренные альтернативы и журнал событий.",
+      proof: "Экспортируемый отчёт, который можно отправить финансам, качеству и руководству, не собирая его заново из почты и таблиц.",
+    },
   ],
 
   problem_eyebrow: "Карта проблем",
@@ -1125,16 +1189,16 @@ const es: HowItWorksDict = {
   seo_description:
     "Yorso es un flujo de trabajo de comercio B2B de pescado y marisco: abastecimiento mayorista, proveedores verificados, RFQ y comparación de compras, contexto de precios y mercado, y un informe defensible de decisión.",
 
-  hero_eyebrow: "Cómo funciona Yorso",
-  hero_titlePrefix: "Yorso convierte el abastecimiento de pescado y marisco en un ",
-  hero_titleHighlight: "flujo controlado de comercio B2B",
+  hero_eyebrow: "Hecho para compradores",
+  hero_titlePrefix: "Tome y defienda la decisión correcta de ",
+  hero_titleHighlight: "compra de pescado y marisco",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Encuentre productos y proveedores, solicite acceso, compare ofertas, verifique evidencia y pase de la consulta a una decisión de compra defensible — dentro de un solo sistema operativo para el comercio B2B de pescado y marisco.",
-  hero_ctaFind: "Encontrar proveedores",
-  hero_ctaSupplier: "Convertirse en proveedor verificado",
+    "Yorso ayuda al comprador a encontrar productos, comprobar proveedores, comparar ofertas y construir un expediente interno que se sostenga ante finanzas, calidad y dirección. La evidencia del proveedor es el mecanismo, no el mensaje.",
+  hero_ctaFind: "Encontrar productos y proveedores",
+  hero_ctaSupplier: "Soy proveedor",
   hero_ctaScroll: "Vea cómo funciona ↓",
-  hero_workflow_eyebrow: "Flujo de comercio integral",
+  hero_workflow_eyebrow: "Flujo integral del comprador",
   hero_workflow_caption: "Repetible, basado en evidencia, documentado",
   hero_workflow_step: "Paso",
   hero_workflow_steps: [
@@ -1144,6 +1208,33 @@ const es: HowItWorksDict = {
     "RFQ / negociación",
     "Pedido / documentos",
     "Comercio recurrente",
+  ],
+
+  bds_eyebrow: "Resumen de decisión del comprador",
+  bds_title: "Tres preguntas que todo comprador debe responder.",
+  bds_subtitle:
+    "Antes de firmar cualquier operación, el responsable de compras tiene que defenderla internamente. Yorso está construido alrededor de las tres preguntas que deciden si la respuesta es sí.",
+  bds_question: "Pregunta del comprador",
+  bds_yorso: "Lo que aporta Yorso",
+  bds_proof: "Evidencia que recibe el comprador",
+  bds_supplierNote:
+    "La evidencia del proveedor es el mecanismo que ayuda al comprador a confiar en la decisión, no una historia de marketing aparte.",
+  bds_cards: [
+    {
+      question: "¿Puedo confiar en este proveedor?",
+      yorso: "Perfiles estructurados con registro mercantil, licencia de exportación, número de planta autorizada y certificaciones reunidos en un solo lugar.",
+      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma — mostrados como aportados, no como garantía de calidad.",
+    },
+    {
+      question: "¿Son razonables el precio y la oferta?",
+      yorso: "Rangos de precio, señales de mercado y contexto de referencia ligados a la especie, el origen y los Incoterms de la oferta concreta.",
+      proof: "Banda de precio (bajo / medio / alto), comparación de ofertas preseleccionadas y vista de coste en destino con flete y aranceles como estimaciones.",
+    },
+    {
+      question: "¿Podré defender esta decisión internamente?",
+      yorso: "Un expediente Procurement Decision Proof: preselección, comparación, evidencia del proveedor, riesgos, alternativas consideradas y registro de auditoría.",
+      proof: "Un informe exportable que el comprador puede enviar a finanzas, calidad y dirección sin reconstruirlo a partir de correos y hojas de cálculo.",
+    },
   ],
 
   problem_eyebrow: "Mapa de problemas",

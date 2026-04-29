@@ -17,6 +17,9 @@ import {
   LineChart,
   PackageCheck,
   MessagesSquare,
+  Scale,
+  FileCheck2,
+  HelpCircle,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -117,7 +120,7 @@ const HowItWorks = () => {
                 {t.hero_subtitle}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
                 <Button asChild size="lg" className="font-semibold">
                   <Link to="/offers">
                     {t.hero_ctaFind}
@@ -125,7 +128,10 @@ const HowItWorks = () => {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold">
-                  <Link to="/register">{t.hero_ctaSupplier}</Link>
+                  <Link to="/offers#request">
+                    <FileCheck2 className="mr-1.5 h-4 w-4" />
+                    {t.fc_buyer_cta2}
+                  </Link>
                 </Button>
                 <a
                   href="#system-map"
@@ -133,6 +139,11 @@ const HowItWorks = () => {
                 >
                   {t.hero_ctaScroll}
                 </a>
+              </div>
+              <div className="mt-4 text-xs text-muted-foreground">
+                <Link to="/register" className="underline-offset-4 hover:text-primary hover:underline">
+                  {t.hero_ctaSupplier} →
+                </Link>
               </div>
             </div>
 
@@ -174,6 +185,67 @@ const HowItWorks = () => {
                 })}
               </ol>
             </div>
+          </div>
+        </section>
+
+        {/* BUYER DECISION SNAPSHOT */}
+        <section
+          id="buyer-decision-snapshot"
+          className="border-b border-border bg-background py-16 md:py-20"
+        >
+          <div className="container max-w-6xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                {t.bds_eyebrow}
+              </span>
+              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+                {t.bds_title}
+              </h2>
+              <p className="mt-3 text-muted-foreground">{t.bds_subtitle}</p>
+            </div>
+
+            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-3">
+              {t.bds_cards.map((card, idx) => {
+                const Icon = [ShieldCheck, Scale, FileCheck2][idx] ?? HelpCircle;
+                return (
+                  <article
+                    key={card.question}
+                    className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t.bds_question}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 font-heading text-lg font-bold leading-snug text-foreground">
+                      {card.question}
+                    </h3>
+
+                    <div className="mt-5 space-y-4 text-sm">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {t.bds_yorso}
+                        </p>
+                        <p className="mt-1.5 leading-relaxed text-foreground/85">{card.yorso}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
+                          {t.bds_proof}
+                        </p>
+                        <p className="mt-1.5 leading-relaxed text-foreground/85">{card.proof}</p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <p className="mx-auto mt-8 max-w-3xl text-center text-xs italic text-muted-foreground">
+              {t.bds_supplierNote}
+            </p>
           </div>
         </section>
 
