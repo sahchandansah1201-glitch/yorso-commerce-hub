@@ -604,16 +604,19 @@ const ForSuppliers = () => {
               {t.gets_subtitle}
             </p>
           </div>
-          <ol className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <ol className="mt-6 grid gap-3 md:mt-10 md:gap-x-10 md:gap-y-8 md:grid-cols-2">
             {t.gets_items.map((item, i) => {
               const Icon = getsIcons[i] ?? ListChecks;
               return (
-                <li key={item.title} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <span className="font-heading text-sm font-bold text-primary">
+                <li
+                  key={item.title}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+                >
+                  <div className="flex flex-col items-center gap-1 md:gap-0">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-primary-foreground md:h-auto md:w-auto md:rounded-none md:bg-transparent md:font-heading md:text-sm md:text-primary">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <Icon className="mt-2 h-5 w-5 text-muted-foreground" />
+                    <Icon className="h-4 w-4 text-muted-foreground md:mt-2 md:h-5 md:w-5" />
                   </div>
                   <div>
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
