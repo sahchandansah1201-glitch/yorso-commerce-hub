@@ -253,7 +253,7 @@ const ForSuppliers = () => {
 
       {/* Hero */}
       <section className="border-b border-border/60 bg-warm-bg">
-        <div className="container py-20 md:py-28">
+        <div className="container py-12 md:py-28">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
@@ -290,7 +290,7 @@ const ForSuppliers = () => {
 
       {/* Workflow: 4 steps */}
       <section className="border-b border-border/50">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.flow_eyebrow}
@@ -302,7 +302,7 @@ const ForSuppliers = () => {
               {t.flow_subtitle}
             </p>
           </div>
-          <ol className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
+          <ol className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
             {t.flow_steps.map((step, i) => (
               <li key={step.title} className="relative flex flex-col gap-3 bg-background p-5">
                 <div className="flex items-center gap-2">
@@ -331,7 +331,7 @@ const ForSuppliers = () => {
 
       {/* Pain map */}
       <section className="border-b border-border/50">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.pain_eyebrow}
@@ -343,7 +343,7 @@ const ForSuppliers = () => {
               {t.pain_subtitle}
             </p>
           </div>
-          <div className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-2">
+          <div className="mt-8 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
             {t.pain_items.map((item, i) => {
               const Icon = painIcons[i] ?? Inbox;
               return (
@@ -369,7 +369,7 @@ const ForSuppliers = () => {
 
       {/* What buyers see — UI mock preview */}
       <section className="border-b border-border/50 bg-cool-gray">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-16">
             <div className="max-w-xl">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -470,7 +470,7 @@ const ForSuppliers = () => {
 
       {/* Control over price visibility — 3 access states + flow */}
       <section className="border-b border-border/50">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.access_eyebrow}
@@ -483,7 +483,7 @@ const ForSuppliers = () => {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-3">
+          <div className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-3">
             {t.access_states.map((state, i) => {
               const isApproved = i === t.access_states.length - 1;
               return (
@@ -549,7 +549,7 @@ const ForSuppliers = () => {
 
       {/* How YORSO helps */}
       <section className="border-b border-border/50 bg-cool-gray">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.help_eyebrow}
@@ -561,7 +561,7 @@ const ForSuppliers = () => {
               {t.help_subtitle}
             </p>
           </div>
-          <ul className="mt-10 divide-y divide-border border-y border-border">
+          <ul className="mt-8 divide-y md:mt-10 divide-border border-y border-border">
             {t.help_items.map((item, i) => {
               const Icon = helpIcons[i] ?? Lock;
               return (
@@ -584,7 +584,7 @@ const ForSuppliers = () => {
 
       {/* What supplier gets */}
       <section className="border-b border-border/50">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.gets_eyebrow}
@@ -596,7 +596,7 @@ const ForSuppliers = () => {
               {t.gets_subtitle}
             </p>
           </div>
-          <ol className="mt-10 grid gap-x-10 gap-y-8 md:grid-cols-2">
+          <ol className="mt-8 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
             {t.gets_items.map((item, i) => {
               const Icon = getsIcons[i] ?? ListChecks;
               return (
@@ -624,7 +624,7 @@ const ForSuppliers = () => {
 
       {/* Less noise — before / after */}
       <section className="border-b border-border/50 bg-cool-gray">
-        <div className="container py-16 md:py-20">
+        <div className="container py-10 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.noise_eyebrow}
@@ -636,7 +636,7 @@ const ForSuppliers = () => {
               {t.noise_subtitle}
             </p>
           </div>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-2">
+          <div className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-2">
             {/* Before */}
             <div className="bg-background p-6">
               <div className="flex items-center gap-2">
@@ -679,7 +679,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="border-b border-border/50 bg-background py-16 md:py-24">
+      <section id="faq" className="border-b border-border/50 bg-background py-12 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -691,7 +691,7 @@ const ForSuppliers = () => {
             <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
               {t.faq_subtitle}
             </p>
-            <Accordion type="single" collapsible className="mt-10 w-full">
+            <Accordion type="single" collapsible className="mt-8 w-full md:mt-10">
               {t.faq_items.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="border-border">
                   <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
@@ -708,9 +708,9 @@ const ForSuppliers = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="bg-warm-bg py-20 md:py-24">
+      <section className="bg-warm-bg py-12 md:py-24">
         <div className="container">
-          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-8 py-12 text-center shadow-sm md:px-12 md:py-14">
+          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-6 py-10 text-center shadow-sm md:px-12 md:py-14">
             <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.cta_title}
             </h2>
