@@ -2026,6 +2026,7 @@ const ru: TranslationKeys = {
       { label: "Категории", href: "/#categories" },
       { label: "Проверенные поставщики", href: "/how-it-works" },
       { label: "Как это работает", href: "/how-it-works" },
+      { label: "Поставщикам", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
