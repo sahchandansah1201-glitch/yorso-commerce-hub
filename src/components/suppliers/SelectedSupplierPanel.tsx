@@ -58,8 +58,7 @@ const EmptyState = () => (
     </div>
     <p className="text-foreground">Select a supplier to review details</p>
     <p className="mt-1.5 text-xs leading-relaxed">
-      Pick a supplier from the list to review product focus, trust evidence, and
-      access options.
+      Select a supplier to review product focus, trust evidence, and access options.
     </p>
   </div>
 );
