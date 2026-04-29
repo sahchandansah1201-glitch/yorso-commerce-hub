@@ -708,10 +708,10 @@ const ForSuppliers = () => {
             <Accordion type="single" collapsible className="mt-6 w-full md:mt-10">
               {t.faq_items.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="border-border">
-                  <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
+                  <AccordionTrigger className="text-left text-base font-semibold text-foreground break-words [overflow-wrap:anywhere] hover:no-underline md:[overflow-wrap:break-word]">
                     {item.q}
                   </AccordionTrigger>
-                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground break-words">
                     {item.a}
                   </AccordionContent>
                 </AccordionItem>
