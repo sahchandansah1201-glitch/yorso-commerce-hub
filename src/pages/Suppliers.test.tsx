@@ -149,4 +149,38 @@ describe("/suppliers — implementation quality fixes", () => {
     const body = document.body.textContent ?? "";
     expect(body).toContain(`${supplier.totalProductsCount} products`);
   });
+
+  it("does not leak exact delivery geography in locked states", () => {
+    renderPage();
+    const supplier = mockSuppliers[0];
+    const hiddenRow = supplier.deliveryCountriesTotal - 3;
+    const hiddenPanel = supplier.deliveryCountriesTotal - 6;
+
+    const firstRow = screen.getAllByTestId("supplier-row")[0];
+    const selectBtn = within(firstRow).getByRole("button", {
+      name: /select .* to review details/i,
+    });
+    fireEvent.click(selectBtn);
+
+    const body = document.body.textContent ?? "";
+    expect(body).not.toContain(`${supplier.deliveryCountriesTotal} countries`);
+    if (hiddenRow > 0) expect(body).not.toContain(`+${hiddenRow} markets`);
+    if (hiddenPanel > 0) expect(body).not.toContain(`+${hiddenPanel} markets`);
+    expect(body).toMatch(/Delivery preview/i);
+    expect(body).toMatch(/Full delivery geography after supplier approval/i);
+  });
+
+  it("shows exact delivery geography in qualified_unlocked", () => {
+    seedQualifiedSession();
+    renderPage();
+    const supplier = mockSuppliers[0];
+    const firstRow = screen.getAllByTestId("supplier-row")[0];
+    const selectBtn = within(firstRow).getByRole("button", {
+      name: /select .* to review details/i,
+    });
+    fireEvent.click(selectBtn);
+
+    const body = document.body.textContent ?? "";
+    expect(body).toContain(`${supplier.deliveryCountriesTotal} countries`);
+  });
 });

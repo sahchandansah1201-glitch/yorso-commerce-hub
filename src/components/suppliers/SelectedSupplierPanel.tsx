@@ -84,10 +84,11 @@ export const SelectedSupplierPanel = ({
   const flag = countryCodeToFlag(supplier.countryCode);
 
   const previewDeliveries = supplier.deliveryCountries.slice(0, 6);
-  const deliveryRest = Math.max(
-    0,
-    supplier.deliveryCountriesTotal - previewDeliveries.length,
-  );
+  const deliveryRest = isUnlocked
+    ? Math.max(0, supplier.deliveryCountriesTotal - previewDeliveries.length)
+    : 0;
+  const showDeliveryTeaser =
+    !isUnlocked && supplier.deliveryCountriesTotal > previewDeliveries.length;
 
   // Catalog preview shown to all levels — items per level differ.
   const catalogVisible = isUnlocked
@@ -170,10 +171,12 @@ export const SelectedSupplierPanel = ({
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              Markets
+              {isUnlocked ? "Markets" : "Delivery preview"}
             </dt>
             <dd className="mt-1 font-medium text-foreground tabular-nums">
-              {supplier.deliveryCountriesTotal} countries
+              {isUnlocked
+                ? `${supplier.deliveryCountriesTotal} countries`
+                : "Preview only"}
             </dd>
           </div>
           <div>
@@ -236,6 +239,11 @@ export const SelectedSupplierPanel = ({
             {deliveryRest > 0 && (
               <span className="text-[11px] font-medium text-muted-foreground">
                 +{deliveryRest} markets
+              </span>
+            )}
+            {showDeliveryTeaser && (
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Full delivery geography after supplier approval
               </span>
             )}
           </div>
