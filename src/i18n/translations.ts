@@ -1088,6 +1088,7 @@ const en: TranslationKeys = {
       { label: "Categories", href: "/#categories" },
       { label: "Verified Suppliers", href: "/how-it-works" },
       { label: "How It Works", href: "/how-it-works" },
+      { label: "For suppliers", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
