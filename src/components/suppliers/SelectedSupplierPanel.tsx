@@ -160,10 +160,12 @@ export const SelectedSupplierPanel = ({
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              Catalog size
+              {isUnlocked ? "Catalog size" : "Catalog preview"}
             </dt>
             <dd className="mt-1 font-medium text-foreground tabular-nums">
-              {supplier.totalProductsCount} products
+              {isUnlocked
+                ? `${supplier.totalProductsCount} products`
+                : "Preview only"}
             </dd>
           </div>
           <div>
