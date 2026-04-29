@@ -627,14 +627,14 @@ const en: HowItWorksDict = {
   al_legend_unavailable: "not available",
   al_cell_onRequest: "on request",
 
-  bo_eyebrow: "Business outcomes",
-  bo_title: "Outcomes the workflow is built to produce.",
+  bo_eyebrow: "Outcomes",
+  bo_title: "What the buyer should walk away with.",
   bo_subtitle:
-    "These are the operational outcomes Yorso is designed to deliver across a procurement cycle — not vanity metrics, not fabricated results, not guarantees.",
-  bo_buyer_eyebrow: "For buyers",
+    "Operational outcomes Yorso is designed to deliver across a procurement cycle — buyer first, supplier as the supporting mechanism. Not vanity metrics, not guarantees.",
+  bo_buyer_eyebrow: "Buyer outcomes",
   bo_buyer_title: "Less risk per purchasing decision.",
-  bo_supplier_eyebrow: "For suppliers",
-  bo_supplier_title: "More qualified demand, less noise.",
+  bo_supplier_eyebrow: "Supplier outcomes (supporting)",
+  bo_supplier_title: "Why qualified suppliers stay engaged.",
   bo_buyer_items: [
     { title: "Less time wasted on supplier search", body: "Inbound discovery and structured filters replace days of WhatsApp and PDF chasing." },
     { title: "Fewer unreliable supplier conversations", body: "Evidence-led shortlisting filters out suppliers who cannot back up their claims." },
