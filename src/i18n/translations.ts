@@ -1087,6 +1087,7 @@ const en: TranslationKeys = {
     platform: [
       { label: "Live Offers", href: "/#offers" },
       { label: "Categories", href: "/#categories" },
+      { label: "Supplier directory", href: "/suppliers" },
       { label: "Verified Suppliers", href: "/how-it-works" },
       { label: "How It Works", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
@@ -2027,6 +2028,7 @@ const ru: TranslationKeys = {
     platform: [
       { label: "Предложения", href: "/#offers" },
       { label: "Категории", href: "/#categories" },
+      { label: "Каталог поставщиков", href: "/suppliers" },
       { label: "Проверенные поставщики", href: "/how-it-works" },
       { label: "Как это работает", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
@@ -2967,6 +2969,7 @@ const es: TranslationKeys = {
     platform: [
       { label: "Ofertas activas", href: "/#offers" },
       { label: "Categorías", href: "/#categories" },
+      { label: "Directorio de proveedores", href: "/suppliers" },
       { label: "Proveedores verificados", href: "/how-it-works" },
       { label: "Cómo funciona", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },

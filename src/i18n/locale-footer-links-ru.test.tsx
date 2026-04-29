@@ -25,6 +25,7 @@ import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { translations, type Language } from "@/i18n/translations";
 
 import Index from "@/pages/Index";
@@ -39,6 +40,7 @@ import AntiFraud from "@/pages/AntiFraud";
 import Careers from "@/pages/Careers";
 import Press from "@/pages/Press";
 import Partners from "@/pages/Partners";
+import Suppliers from "@/pages/Suppliers";
 
 const STORAGE_KEY = "yorso-lang";
 
@@ -64,7 +66,8 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
     <MemoryRouter initialEntries={[initialPath]}>
       <LanguageProvider>
         <TooltipProvider>
-          <RegistrationProvider>
+          <BuyerSessionProvider>
+            <RegistrationProvider>
             <Probe onReady={onReady} />
             <Routes>
               <Route path="/" element={<Index />} />
@@ -78,9 +81,11 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
               <Route path="/careers" element={<Careers />} />
               <Route path="/press" element={<Press />} />
               <Route path="/partners" element={<Partners />} />
+              <Route path="/suppliers" element={<Suppliers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </RegistrationProvider>
+          </BuyerSessionProvider>
         </TooltipProvider>
       </LanguageProvider>
     </MemoryRouter>,
