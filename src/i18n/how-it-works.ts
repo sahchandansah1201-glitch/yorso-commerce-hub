@@ -1483,16 +1483,16 @@ const es: HowItWorksDict = {
   ts_legend_missing: "Aún no proporcionado = elemento faltante. El comprador puede solicitarlo antes del RFQ.",
   ts_legend_promoted: "Promoted = visibilidad pagada, separada de la verificación.",
 
-  vg_eyebrow: "Qué aporta Yorso",
-  vg_title: "Valor equilibrado para compradores y proveedores.",
+  vg_eyebrow: "Lo que recibe el comprador",
+  vg_title: "Hecho para el lado comprador de la operación.",
   vg_subtitle:
-    "Los compradores obtienen evidencia de grado de decisión. Los proveedores obtienen demanda cualificada y un lugar para demostrarlo. Verified, Sponsored y Premium se mantienen visualmente separados — la colocación pagada nunca se vende como confianza.",
-  vg_buyer_eyebrow: "Para compradores",
+    "El comprador obtiene el espacio de trabajo y la evidencia. Los mecanismos del lado del proveedor existen para que las decisiones del comprador sean más seguras — no se venden por separado. Verified, Sponsored y Premium se mantienen visualmente separados; la colocación pagada nunca se vende como confianza.",
+  vg_buyer_eyebrow: "Capacidades del comprador",
   vg_buyer_title: "Decisiones de grado de compra, defendidas internamente.",
   vg_buyer_count: "9 capacidades · basadas en evidencia",
-  vg_supplier_eyebrow: "Para proveedores",
-  vg_supplier_title: "Demanda cualificada, evidencia estructurada, comercio recurrente.",
-  vg_supplier_count: "9 capacidades · verificación ≠ colocación pagada",
+  vg_supplier_eyebrow: "Mecanismo del lado del proveedor",
+  vg_supplier_title: "Lo que hace el lado del proveedor para que el comprador decida con seguridad.",
+  vg_supplier_count: "Verificación ≠ colocación pagada",
   vg_buyer_items: [
     { title: "Descubrimiento de productos", body: "Búsqueda por especie, formato, origen, certificaciones y país del proveedor." },
     { title: "Evidencia de proveedor verificado", body: "Registro, aprobación de planta y certificaciones presentados en un trust pack estructurado." },
