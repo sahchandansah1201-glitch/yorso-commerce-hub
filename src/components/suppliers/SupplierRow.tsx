@@ -88,10 +88,11 @@ const SupplierRowImpl = ({
     : 0;
   const showCatalogTeaser = !isUnlocked && supplier.totalProductsCount > catalogPreview.length;
   const previewDeliveries = supplier.deliveryCountries.slice(0, 3);
-  const deliveryRest = Math.max(
-    0,
-    supplier.deliveryCountriesTotal - previewDeliveries.length,
-  );
+  const deliveryRest = isUnlocked
+    ? Math.max(0, supplier.deliveryCountriesTotal - previewDeliveries.length)
+    : 0;
+  const showDeliveryTeaser =
+    !isUnlocked && supplier.deliveryCountriesTotal > previewDeliveries.length;
 
   // Two-line about teaser; full about only at qualified_unlocked.
   const aboutTeaser = supplier.shortDescription;
