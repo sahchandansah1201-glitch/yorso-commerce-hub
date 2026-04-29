@@ -1187,6 +1187,7 @@ const es: HowItWorksDict = {
   hero_subtitle:
     "Yorso ayuda al comprador a encontrar productos, comprobar proveedores, comparar ofertas y construir un expediente interno que se sostenga ante finanzas, calidad y dirección. La evidencia del proveedor es el mecanismo, no el mensaje.",
   hero_ctaFind: "Encontrar productos y proveedores",
+  hero_ctaRequestAccess: "Solicitar acceso a un proveedor",
   hero_ctaSupplier: "Soy proveedor",
   hero_ctaScroll: "Vea cómo funciona ↓",
   hero_workflow_eyebrow: "Flujo integral del comprador",
