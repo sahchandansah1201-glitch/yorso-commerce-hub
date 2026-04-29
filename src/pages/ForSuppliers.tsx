@@ -302,11 +302,14 @@ const ForSuppliers = () => {
               {t.flow_subtitle}
             </p>
           </div>
-          <ol className="mt-6 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
+          <ol className="mt-6 grid gap-3 md:mt-10 md:gap-px md:overflow-hidden md:rounded-md md:border md:border-border md:bg-border md:grid-cols-4">
             {t.flow_steps.map((step, i) => (
-              <li key={step.title} className="relative flex flex-col gap-3 bg-background p-5">
+              <li
+                key={step.title}
+                className="relative flex flex-col gap-3 rounded-lg border border-border bg-card p-5 shadow-sm md:rounded-none md:border-0 md:shadow-none md:bg-background"
+              >
                 <div className="flex items-center gap-2">
-                  <span className="font-heading text-2xl font-bold text-primary">
+                  <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-primary/10 px-2 font-heading text-base font-bold text-primary md:h-auto md:min-w-0 md:bg-transparent md:px-0 md:text-2xl">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
