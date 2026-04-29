@@ -118,7 +118,10 @@ const ForSuppliers = () => {
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/offers">
+              <Link
+                to="/offers"
+                onClick={() => analytics.track("supplier_page_cta_requests_click", { surface: "hero" })}
+              >
                 <Button size="lg" variant="outline" className="gap-2 px-7 text-base font-semibold">
                   {t.hero_ctaSecondary}
                 </Button>
