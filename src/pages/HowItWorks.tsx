@@ -120,7 +120,7 @@ const HowItWorks = () => {
                 {t.hero_subtitle}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
                 <Button asChild size="lg" className="font-semibold">
                   <Link to="/offers">
                     {t.hero_ctaFind}
@@ -128,7 +128,10 @@ const HowItWorks = () => {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold">
-                  <Link to="/register">{t.hero_ctaSupplier}</Link>
+                  <Link to="/offers#request">
+                    <FileCheck2 className="mr-1.5 h-4 w-4" />
+                    {t.fc_buyer_cta2}
+                  </Link>
                 </Button>
                 <a
                   href="#system-map"
@@ -136,6 +139,11 @@ const HowItWorks = () => {
                 >
                   {t.hero_ctaScroll}
                 </a>
+              </div>
+              <div className="mt-4 text-xs text-muted-foreground">
+                <Link to="/register" className="underline-offset-4 hover:text-primary hover:underline">
+                  {t.hero_ctaSupplier} →
+                </Link>
               </div>
             </div>
 
