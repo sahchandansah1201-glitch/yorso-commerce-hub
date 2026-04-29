@@ -683,7 +683,7 @@ const ForSuppliers = () => {
                 {t.noise_after.map((line, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/85">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{line}</span>
+                    <span className="min-w-0 break-words">{line}</span>
                   </li>
                 ))}
               </ul>
