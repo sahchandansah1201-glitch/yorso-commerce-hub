@@ -547,7 +547,7 @@ const ForSuppliers = () => {
                   <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[11px] font-bold text-foreground">
                     {i + 1}
                   </span>
-                  <span className="text-foreground/85">{step}</span>
+                  <span className="min-w-0 break-words text-foreground/85">{step}</span>
                 </li>
               ))}
             </ol>
