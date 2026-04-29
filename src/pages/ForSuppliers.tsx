@@ -91,7 +91,10 @@ const ForSuppliers = () => {
                       {item.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {item.body}
+                      {item.today}
+                    </p>
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-foreground/80">
+                      {item.cost}
                     </p>
                   </div>
                 </div>
