@@ -343,12 +343,17 @@ const ForSuppliers = () => {
               {t.pain_subtitle}
             </p>
           </div>
-          <div className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <div className="mt-6 grid gap-3 md:mt-10 md:gap-x-10 md:gap-y-8 md:grid-cols-2">
             {t.pain_items.map((item, i) => {
               const Icon = painIcons[i] ?? Inbox;
               return (
-                <div key={item.title} className="flex gap-4 border-l-2 border-border pl-5">
-                  <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div
+                  key={item.title}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm md:rounded-none md:border-0 md:border-l-2 md:bg-transparent md:p-0 md:pl-5 md:shadow-none"
+                >
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary md:h-auto md:w-auto md:bg-transparent">
+                    <Icon className="h-5 w-5 md:mt-0.5" />
+                  </span>
                   <div>
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
