@@ -2021,11 +2021,11 @@ const ru: TranslationKeys = {
   footer_legal: "Правовая информация",
   footer_links: {
     platform: [
-      { label: "Предложения", href: "#offers" },
-      { label: "Категории", href: "#categories" },
-      { label: "Проверенные поставщики", href: "#how-it-works" },
-      { label: "Как это работает", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Предложения", href: "/#offers" },
+      { label: "Категории", href: "/#categories" },
+      { label: "Проверенные поставщики", href: "/how-it-works" },
+      { label: "Как это работает", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "О YORSO", href: "/about" },
