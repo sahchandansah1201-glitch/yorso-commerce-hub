@@ -28,8 +28,13 @@ const BuyerJourney = () => {
                   <Icon className="h-4.5 w-4.5 text-primary" strokeWidth={2} />
                 </div>
                 <div className={["rounded-xl border border-border bg-card p-5 md:p-6", "lg:w-[calc(50%-2.5rem)]", isLeft ? "lg:mr-auto lg:pr-7" : "lg:ml-auto lg:pl-7"].join(" ")}>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t.bj_step} {String(idx + 1).padStart(2, "0")}</span>
+                  <div className="flex items-start gap-4">
+                    <span
+                      aria-label={`${t.bj_step} ${idx + 1}`}
+                      className="font-heading text-4xl font-bold leading-none tabular-nums text-primary md:text-5xl"
+                    >
+                      {idx + 1}
+                    </span>
                     <h3 className="font-heading text-lg font-bold leading-snug text-foreground md:text-xl">{step.title}</h3>
                   </div>
                   <dl className="mt-4 grid gap-3 sm:grid-cols-3">
