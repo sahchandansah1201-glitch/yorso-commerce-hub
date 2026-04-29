@@ -2807,8 +2807,8 @@ const es: TranslationKeys = {
   hero_activeBuyers: "compradores activos",
 
   offers_liveMarketplace: "Mercado en vivo",
-  offers_title: "Ofertas mayoristas",
-  offers_subtitle: "Listados actualizados de proveedores verificados en todo el mundo — actualización continua",
+  offers_title: "Ofertas mayoristas reales que el comprador puede comparar hoy.",
+  offers_subtitle: "Listados reales con origen, formato, rango de precio y MOQ. Abre cualquier ficha para revisar documentos y solicitar acceso al proveedor.",
   offers_viewAll: "Ver todas las ofertas",
   offers_viewAllMobile: "Ver todas las ofertas",
   offers_showMore: "Mostrar más ofertas",
