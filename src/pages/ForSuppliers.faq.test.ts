@@ -42,7 +42,7 @@ const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
 describe("/for-suppliers FAQ content", () => {
   LOCALES.forEach((lang) => {
     describe(`locale: ${lang}`, () => {
-      const t = forSuppliersTranslations[lang];
+      const t = loadDict(lang);
 
       it("has a non-empty FAQ list", () => {
         expect(Array.isArray(t.faq_items)).toBe(true);
