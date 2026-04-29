@@ -83,10 +83,10 @@ const SupplierRowImpl = ({
   const flag = countryCodeToFlag(supplier.countryCode);
 
   const catalogPreview = supplier.productCatalogPreview.slice(0, 3);
-  const catalogRest = Math.max(
-    0,
-    supplier.totalProductsCount - catalogPreview.length,
-  );
+  const catalogRest = isUnlocked
+    ? Math.max(0, supplier.totalProductsCount - catalogPreview.length)
+    : 0;
+  const showCatalogTeaser = !isUnlocked && supplier.totalProductsCount > catalogPreview.length;
   const previewDeliveries = supplier.deliveryCountries.slice(0, 3);
   const deliveryRest = Math.max(
     0,
