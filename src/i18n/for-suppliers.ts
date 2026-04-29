@@ -306,7 +306,7 @@ const en: ForSuppliersDict = {
 const ru: ForSuppliersDict = {
   seo_title: "Поставщики морепродуктов · Доступ к ценам · YORSO B2B",
   seo_description:
-    "YORSO для поставщиков морепродуктов: управляемый доступ к ценам, квалифицированные B2B-запросы покупателей, документы и сертификаты в одной карточке. Регистрация бесплатно.",
+    "YORSO для поставщиков морепродуктов: управляемый доступ к ценам, B2B-запросы покупателей, документы и сертификаты в одной карточке. Регистрация бесплатно.",
   seo_ogImageAlt:
     "YORSO для поставщиков — управляемый доступ к ценам, квалифицированные запросы покупателей, одна карточка поставщика с документами и сертификациями.",
   seo_ogLocale: "ru_RU",
@@ -517,7 +517,7 @@ const ru: ForSuppliersDict = {
 const es: ForSuppliersDict = {
   seo_title: "Proveedores de Mariscos · Acceso al Precio · YORSO B2B",
   seo_description:
-    "YORSO para proveedores de mariscos: acceso al precio controlado, solicitudes B2B cualificadas, documentos y certificaciones en una sola ficha de proveedor. Registro gratuito.",
+    "YORSO para proveedores de mariscos: acceso al precio controlado, solicitudes B2B cualificadas, documentos y certificaciones en una ficha. Registro gratuito.",
   seo_ogImageAlt:
     "YORSO para proveedores — acceso controlado al precio, solicitudes cualificadas y una ficha de proveedor con documentos y certificaciones.",
   seo_ogLocale: "es_ES",
