@@ -104,29 +104,29 @@ const HowItWorks = () => {
           id="hero"
           className="relative overflow-hidden border-b border-border bg-gradient-to-b from-[hsl(var(--cool-gray))] to-background"
         >
-          <div className="container max-w-6xl py-16 md:py-24">
+          <div className="container max-w-6xl py-12 md:py-24">
             <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t.hero_eyebrow}
               </span>
-              <h1 className="mt-5 font-heading text-4xl font-bold leading-[1.1] tracking-tight text-foreground md:text-5xl lg:text-6xl">
+              <h1 className="mt-4 font-heading text-[28px] font-bold leading-[1.15] tracking-tight text-foreground sm:text-4xl md:mt-5 md:text-5xl md:leading-[1.1] lg:text-6xl">
                 {t.hero_titlePrefix}
                 <span className="text-primary">{t.hero_titleHighlight}</span>
                 {t.hero_titleSuffix}
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+              <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
                 {t.hero_subtitle}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-3">
-                <Button asChild size="lg" className="font-semibold">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:mt-8">
+                <Button asChild size="lg" className="w-full font-semibold sm:w-auto">
                   <Link to="/offers">
                     {t.hero_ctaFind}
                     <ArrowRight className="ml-1.5 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="font-semibold">
+                <Button asChild size="lg" variant="outline" className="w-full font-semibold sm:w-auto">
                   <Link to="/offers#request">
                     <FileCheck2 className="mr-1.5 h-4 w-4" />
                     {t.hero_ctaRequestAccess}
@@ -134,45 +134,48 @@ const HowItWorks = () => {
                 </Button>
                 <a
                   href="#system-map"
-                  className="text-sm font-medium text-foreground/70 underline-offset-4 hover:text-primary hover:underline"
+                  className="inline-flex h-10 items-center text-sm font-medium text-foreground/70 underline-offset-4 hover:text-primary hover:underline sm:ml-1"
                 >
                   {t.hero_ctaScroll}
                 </a>
               </div>
-              <div className="mt-4 text-xs text-muted-foreground">
-                <Link to="/register" className="underline-offset-4 hover:text-primary hover:underline">
+              <div className="mt-3 text-sm md:mt-4 md:text-xs">
+                <Link
+                  to="/register"
+                  className="inline-flex h-9 items-center text-foreground/70 underline-offset-4 hover:text-primary hover:underline"
+                >
                   {t.hero_ctaSupplier} →
                 </Link>
               </div>
             </div>
 
             {/* Workflow strip */}
-            <div className="mt-12 rounded-xl border border-border bg-card p-4 shadow-sm md:mt-16 md:p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="mt-10 rounded-xl border border-border bg-card p-4 shadow-sm md:mt-16 md:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   {t.hero_workflow_eyebrow}
                 </p>
                 <span className="hidden text-xs text-muted-foreground md:inline">
                   {t.hero_workflow_caption}
                 </span>
               </div>
-              <ol className="grid grid-cols-2 gap-3 md:grid-cols-6 md:gap-2">
+              <ol className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-6 md:gap-2">
                 {t.hero_workflow_steps.map((label, idx) => {
                   const Icon = workflowIcons[idx] ?? Search;
                   const isLast = idx === t.hero_workflow_steps.length - 1;
                   return (
                     <li
                       key={label}
-                      className="relative flex items-center gap-3 rounded-lg border border-border/60 bg-background px-3 py-3"
+                      className="relative flex items-start gap-3 rounded-lg border border-border/60 bg-background px-3 py-3"
                     >
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
                         <Icon className="h-4.5 w-4.5" strokeWidth={2} />
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {t.hero_workflow_step} {idx + 1}
                         </div>
-                        <div className="truncate text-sm font-semibold text-foreground">
+                        <div className="text-[13px] font-semibold leading-snug text-foreground md:truncate md:text-sm">
                           {label}
                         </div>
                       </div>
@@ -190,48 +193,43 @@ const HowItWorks = () => {
         {/* BUYER DECISION SNAPSHOT */}
         <section
           id="buyer-decision-snapshot"
-          className="border-b border-border bg-background py-16 md:py-20"
+          className="border-b border-border bg-background py-14 md:py-20"
         >
           <div className="container max-w-6xl">
             <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
                 {t.bds_eyebrow}
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              <h2 className="mt-3 font-heading text-[26px] font-bold leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl">
                 {t.bds_title}
               </h2>
-              <p className="mt-3 text-muted-foreground">{t.bds_subtitle}</p>
+              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground md:text-base">{t.bds_subtitle}</p>
             </div>
 
-            <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:gap-5 md:mt-12 md:grid-cols-3">
               {t.bds_cards.map((card, idx) => {
                 const Icon = [ShieldCheck, Scale, FileCheck2][idx] ?? HelpCircle;
                 return (
                   <article
                     key={card.question}
-                    className="flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-md"
+                    className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md md:p-6"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t.bds_question}
-                      </span>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-4 font-heading text-lg font-bold leading-snug text-foreground">
+                    <h3 className="mt-4 font-heading text-[17px] font-bold leading-snug text-foreground md:text-lg">
                       {card.question}
                     </h3>
 
-                    <div className="mt-5 space-y-4 text-sm">
+                    <div className="mt-4 space-y-4 text-[14px] md:text-sm">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {t.bds_yorso}
                         </p>
                         <p className="mt-1.5 leading-relaxed text-foreground/85">{card.yorso}</p>
                       </div>
                       <div className="border-t border-border pt-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
                           {t.bds_proof}
                         </p>
                         <p className="mt-1.5 leading-relaxed text-foreground/85">{card.proof}</p>
@@ -242,7 +240,7 @@ const HowItWorks = () => {
               })}
             </div>
 
-            <p className="mx-auto mt-8 max-w-3xl text-center text-xs italic text-muted-foreground">
+            <p className="mx-auto mt-8 max-w-3xl text-center text-[13px] leading-relaxed text-muted-foreground">
               {t.bds_supplierNote}
             </p>
           </div>
