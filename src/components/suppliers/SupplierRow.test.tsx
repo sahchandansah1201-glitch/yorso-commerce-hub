@@ -132,4 +132,27 @@ describe("SupplierRow", () => {
     expect(within(row).getByText(supplier.companyName)).toBeInTheDocument();
     expect(row.textContent ?? "").not.toContain(supplier.maskedName);
   });
+
+  it("does not render exact catalog breadth in locked states", () => {
+    const hidden = supplier.totalProductsCount - 3;
+    for (const level of ["anonymous_locked", "registered_locked"] as const) {
+      const { unmount } = renderRow({ accessLevel: level });
+      const row = screen.getByTestId("supplier-row");
+      const text = row.textContent ?? "";
+      expect(text).not.toContain(`+${hidden} products`);
+      expect(text).not.toContain(`${supplier.totalProductsCount} products`);
+      expect(text).toMatch(/More products after access/i);
+      unmount();
+    }
+  });
+
+  it("renders exact +N products chip in qualified_unlocked", () => {
+    renderRow({ accessLevel: "qualified_unlocked" });
+    const row = screen.getByTestId("supplier-row");
+    const hidden = supplier.totalProductsCount - 3;
+    if (hidden > 0) {
+      expect(row.textContent ?? "").toContain(`+${hidden} products`);
+    }
+    expect(row.textContent ?? "").not.toMatch(/More products after access/i);
+  });
 });
