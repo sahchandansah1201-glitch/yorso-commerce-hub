@@ -39,6 +39,49 @@ export interface ForSuppliersDict {
   gets_today: string; // small label "Сегодня"
   gets_inYorso: string; // small label "В YORSO"
 
+  // Workflow: how a supplier works in YORSO (4 steps)
+  flow_eyebrow: string;
+  flow_title: string;
+  flow_subtitle: string;
+  flow_stepLabel: string; // "Step"
+  flow_steps: { title: string; body: string }[]; // 4
+
+  // What buyers see (mock preview)
+  preview_eyebrow: string;
+  preview_title: string;
+  preview_subtitle: string;
+  preview_product: string;
+  preview_origin: string;
+  preview_originValue: string;
+  preview_format: string;
+  preview_formatValue: string;
+  preview_certifications: string;
+  preview_priceRange: string;
+  preview_priceLocked: string;
+  preview_priceLockedHint: string;
+  preview_supplier: string;
+  preview_supplierLocked: string;
+  preview_supplierLockedHint: string;
+  preview_ctaRequest: string;
+  preview_caption: string;
+
+  // Price visibility control (3 access states)
+  access_eyebrow: string;
+  access_title: string;
+  access_subtitle: string;
+  access_states: { label: string; who: string; sees: string[] }[]; // 3
+  access_flowTitle: string;
+  access_flowSteps: string[]; // 4
+
+  // Less noise: before / after
+  noise_eyebrow: string;
+  noise_title: string;
+  noise_subtitle: string;
+  noise_beforeLabel: string;
+  noise_afterLabel: string;
+  noise_before: string[]; // 4
+  noise_after: string[]; // 4
+
   // Final CTA
   cta_title: string;
   cta_subtitle: string;
