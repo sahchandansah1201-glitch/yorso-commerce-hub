@@ -11,7 +11,7 @@ import { useAccessLevel } from "@/lib/access-level";
 import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
-import analytics from "@/lib/analytics";
+
 
 interface QuickFilter {
   id: string;
@@ -99,7 +99,7 @@ const Suppliers = () => {
       content:
         "Discover seafood suppliers by country, species, certification and trust evidence. Request supplier access through YORSO.",
     });
-    analytics.track("suppliers_page_view", { surface: "suppliers" });
+    
     return () => {
       document.title = prevTitle;
     };
@@ -152,7 +152,7 @@ const Suppliers = () => {
       toast({ title: "Added to shortlist" });
     }
     persistShortlist(next);
-    analytics.track("supplier_shortlist_toggle", { supplier_id: id, added: next.has(id) });
+    
   };
 
   const handlePrimaryAction = (supplier: MockSupplier) => {
@@ -167,7 +167,7 @@ const Suppliers = () => {
         description:
           "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
       });
-      analytics.track("supplier_access_request", { supplier_id: supplier.id });
+      
       return;
     }
     toast({
