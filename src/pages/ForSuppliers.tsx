@@ -316,10 +316,10 @@ const ForSuppliers = () => {
                     {t.flow_stepLabel}
                   </span>
                 </div>
-                <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground">
+                <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:[overflow-wrap:break-word]">
                   {step.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground break-words">{step.body}</p>
                 {i < t.flow_steps.length - 1 && (
                   <ChevronRight
                     aria-hidden
