@@ -302,11 +302,14 @@ const ForSuppliers = () => {
               {t.flow_subtitle}
             </p>
           </div>
-          <ol className="mt-6 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
+          <ol className="mt-6 grid gap-3 md:mt-10 md:gap-px md:overflow-hidden md:rounded-md md:border md:border-border md:bg-border md:grid-cols-4">
             {t.flow_steps.map((step, i) => (
-              <li key={step.title} className="relative flex flex-col gap-3 bg-background p-5">
+              <li
+                key={step.title}
+                className="relative flex flex-col gap-3 rounded-lg border border-border bg-card p-5 shadow-sm md:rounded-none md:border-0 md:shadow-none md:bg-background"
+              >
                 <div className="flex items-center gap-2">
-                  <span className="font-heading text-2xl font-bold text-primary">
+                  <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-primary/10 px-2 font-heading text-base font-bold text-primary md:h-auto md:min-w-0 md:bg-transparent md:px-0 md:text-2xl">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
@@ -343,12 +346,17 @@ const ForSuppliers = () => {
               {t.pain_subtitle}
             </p>
           </div>
-          <div className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <div className="mt-6 grid gap-3 md:mt-10 md:gap-x-10 md:gap-y-8 md:grid-cols-2">
             {t.pain_items.map((item, i) => {
               const Icon = painIcons[i] ?? Inbox;
               return (
-                <div key={item.title} className="flex gap-4 border-l-2 border-border pl-5">
-                  <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div
+                  key={item.title}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm md:rounded-none md:border-0 md:border-l-2 md:bg-transparent md:p-0 md:pl-5 md:shadow-none"
+                >
+                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary md:h-auto md:w-auto md:bg-transparent">
+                    <Icon className="h-5 w-5 md:mt-0.5" />
+                  </span>
                   <div>
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
@@ -561,11 +569,14 @@ const ForSuppliers = () => {
               {t.help_subtitle}
             </p>
           </div>
-          <ul className="mt-6 divide-y md:mt-10 divide-border border-y border-border">
+          <ul className="mt-6 grid gap-3 md:mt-10 md:block md:gap-0 md:divide-y md:divide-border md:border-y md:border-border">
             {t.help_items.map((item, i) => {
               const Icon = helpIcons[i] ?? Lock;
               return (
-                <li key={item.title} className="grid gap-2 py-6 md:grid-cols-[280px_1fr] md:gap-10">
+                <li
+                  key={item.title}
+                  className="grid gap-2 rounded-lg border border-border border-l-4 border-l-primary bg-card p-4 shadow-sm md:gap-10 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:py-6 md:shadow-none md:grid-cols-[280px_1fr]"
+                >
                   <div className="flex items-start gap-3">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
@@ -596,16 +607,19 @@ const ForSuppliers = () => {
               {t.gets_subtitle}
             </p>
           </div>
-          <ol className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <ol className="mt-6 grid gap-3 md:mt-10 md:gap-x-10 md:gap-y-8 md:grid-cols-2">
             {t.gets_items.map((item, i) => {
               const Icon = getsIcons[i] ?? ListChecks;
               return (
-                <li key={item.title} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <span className="font-heading text-sm font-bold text-primary">
+                <li
+                  key={item.title}
+                  className="flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm md:rounded-none md:border-0 md:bg-transparent md:p-0 md:shadow-none"
+                >
+                  <div className="flex flex-col items-center gap-1 md:gap-0">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[13px] font-bold text-primary-foreground md:h-auto md:w-auto md:rounded-none md:bg-transparent md:font-heading md:text-sm md:text-primary">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <Icon className="mt-2 h-5 w-5 text-muted-foreground" />
+                    <Icon className="h-4 w-4 text-muted-foreground md:mt-2 md:h-5 md:w-5" />
                   </div>
                   <div>
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
