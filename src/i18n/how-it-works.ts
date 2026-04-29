@@ -26,7 +26,7 @@ export interface HowItWorksDict {
   hero_workflow_eyebrow: string;
   hero_workflow_caption: string;
   hero_workflow_step: string;
-  hero_workflow_steps: string[]; // 6
+  hero_workflow_steps: { label: string; hint: string }[]; // 6
 
   // Buyer Decision Snapshot (3 cards)
   bds_eyebrow: string;
@@ -248,12 +248,12 @@ const en: HowItWorksDict = {
   hero_workflow_caption: "Repeatable, evidence-based, documented",
   hero_workflow_step: "Step",
   hero_workflow_steps: [
-    "Search",
-    "Access request",
-    "Supplier evidence",
-    "RFQ / negotiation",
-    "Order / documents",
-    "Repeat trade",
+    { label: "Search", hint: "Filter by species, origin, certificates, MOQ" },
+    { label: "Price access", hint: "Request exact price and supplier identity" },
+    { label: "Supplier proof", hint: "Certificates, lots, response time, IUU" },
+    { label: "RFQ", hint: "Quantity, packaging, Incoterms, delivery window" },
+    { label: "Order", hint: "Documents, shipment, customs trail" },
+    { label: "Repeat", hint: "Saved suppliers, recurring orders, audit file" },
   ],
 
   bds_eyebrow: "Buyer decision snapshot",
@@ -808,12 +808,12 @@ const ru: HowItWorksDict = {
   hero_workflow_caption: "Повторяемый, доказательный, документированный",
   hero_workflow_step: "Шаг",
   hero_workflow_steps: [
-    "Поиск",
-    "Запрос доступа",
-    "Доказательства поставщика",
-    "RFQ / переговоры",
-    "Заказ / документы",
-    "Повторная сделка",
+    { label: "Поиск", hint: "Фильтры по виду, стране, сертификатам, MOQ" },
+    { label: "Доступ к цене", hint: "Запрос точной цены и данных поставщика" },
+    { label: "Доказательства", hint: "Сертификаты, партии, время ответа, IUU" },
+    { label: "RFQ", hint: "Объём, упаковка, Инкотермс, окно поставки" },
+    { label: "Заказ", hint: "Документы, отгрузка, таможенный след" },
+    { label: "Повтор", hint: "Сохранённые поставщики, регулярные заказы, аудит" },
   ],
 
   bds_eyebrow: "Снимок решения покупателя",
@@ -1368,12 +1368,12 @@ const es: HowItWorksDict = {
   hero_workflow_caption: "Repetible, basado en evidencia, documentado",
   hero_workflow_step: "Paso",
   hero_workflow_steps: [
-    "Búsqueda",
-    "Solicitud de acceso",
-    "Evidencia del proveedor",
-    "RFQ / negociación",
-    "Pedido / documentos",
-    "Comercio recurrente",
+    { label: "Búsqueda", hint: "Filtros por especie, origen, certificados, MOQ" },
+    { label: "Acceso al precio", hint: "Solicita precio exacto e identidad del proveedor" },
+    { label: "Evidencia", hint: "Certificados, lotes, tiempo de respuesta, IUU" },
+    { label: "RFQ", hint: "Cantidad, embalaje, Incoterms, ventana de entrega" },
+    { label: "Pedido", hint: "Documentos, envío, traza aduanera" },
+    { label: "Recurrencia", hint: "Proveedores guardados, pedidos repetidos, auditoría" },
   ],
 
   bds_eyebrow: "Resumen de decisión del comprador",
