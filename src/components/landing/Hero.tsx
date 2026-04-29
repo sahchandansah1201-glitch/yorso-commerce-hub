@@ -18,8 +18,9 @@ const Hero = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    analytics.track("hero_search_submit", { query: searchQuery });
-    navigate("/offers");
+    const q = searchQuery.trim();
+    analytics.track("hero_search_submit", { query: q });
+    navigate(q ? `/offers?q=${encodeURIComponent(q)}` : "/offers");
   };
 
   const handleExploreOffers = (e: React.MouseEvent<HTMLAnchorElement>) => {
