@@ -94,6 +94,8 @@ const ForSuppliers = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <main id="main">
+
 
       {/* Hero */}
       <section className="border-b border-border bg-accent">
