@@ -2028,6 +2028,7 @@ const ru: TranslationKeys = {
     platform: [
       { label: "Предложения", href: "/#offers" },
       { label: "Категории", href: "/#categories" },
+      { label: "Каталог поставщиков", href: "/suppliers" },
       { label: "Проверенные поставщики", href: "/how-it-works" },
       { label: "Как это работает", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
