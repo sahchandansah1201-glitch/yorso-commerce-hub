@@ -295,7 +295,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.flow_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.flow_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -339,7 +339,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.pain_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.pain_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -383,7 +383,7 @@ const ForSuppliers = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 {t.preview_eyebrow}
               </p>
-              <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+              <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
                 {t.preview_title}
               </h2>
               <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -483,7 +483,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.access_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.access_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -562,7 +562,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.help_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.help_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -600,7 +600,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.gets_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.gets_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -643,7 +643,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.noise_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.noise_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -699,7 +699,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.faq_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.faq_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -725,7 +725,7 @@ const ForSuppliers = () => {
       <section className="bg-warm-bg py-12 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-6 py-10 text-center shadow-sm md:px-12 md:py-14">
-            <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.cta_title}
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
