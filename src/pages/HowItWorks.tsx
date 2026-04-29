@@ -246,75 +246,98 @@ const HowItWorks = () => {
           </div>
         </section>
 
-        {/* PROBLEM MAP */}
+        {/* PROBLEM MAP — buyer-dominant, supplier as trust infrastructure */}
         <section id="problem-map" className="border-b border-border bg-background py-16 md:py-24">
           <div className="container max-w-6xl">
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-destructive">
+                <AlertTriangle className="h-3.5 w-3.5" />
                 {t.problem_eyebrow}
               </span>
-              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              <h2 className="mt-3 font-heading text-[26px] font-bold leading-tight tracking-tight text-foreground sm:text-3xl md:text-4xl">
                 {t.problem_title}
               </h2>
-              <p className="mt-3 text-muted-foreground">{t.problem_subtitle}</p>
+              <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground md:text-base">
+                {t.problem_subtitle}
+              </p>
             </div>
 
-            <div className="mt-12 grid gap-6 lg:grid-cols-5">
-              {/* Buyer pain — dominant */}
-              <article className="rounded-2xl border-2 border-destructive/30 bg-destructive/[0.03] p-6 shadow-sm md:p-8 lg:col-span-3">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
-                    <AlertTriangle className="h-5 w-5" />
-                  </div>
+            <div className="mt-10 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:gap-12">
+              {/* Buyer pain — dominant column */}
+              <div className="lg:col-span-7 xl:col-span-8">
+                <div className="flex items-baseline justify-between gap-4 border-b border-border pb-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-destructive">
                       {t.problem_buyer_eyebrow}
                     </p>
-                    <h3 className="mt-1 font-heading text-xl font-bold text-foreground md:text-2xl">
+                    <h3 className="mt-1.5 font-heading text-xl font-bold leading-snug text-foreground md:text-2xl">
                       {t.problem_buyer_title}
                     </h3>
                   </div>
                 </div>
-                <ul className="mt-6 grid gap-2.5 md:grid-cols-2">
-                  {t.problem_buyer_pains.map((pain) => (
-                    <li
-                      key={pain}
-                      className="flex gap-3 rounded-lg border border-destructive/15 bg-background px-4 py-3 text-sm text-foreground/90"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
-                      <span>{pain}</span>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {t.problem_buyer_lead}
+                </p>
+
+                <ol className="mt-6 divide-y divide-border">
+                  {t.problem_buyer_pains.map((row, idx) => (
+                    <li key={row.pain} className="grid gap-3 py-5 md:grid-cols-[28px_1fr] md:gap-5">
+                      <div className="font-heading text-sm font-bold tabular-nums text-destructive/80 md:text-base">
+                        {String(idx + 1).padStart(2, "0")}
+                      </div>
+                      <div className="space-y-3">
+                        <p className="font-heading text-[16px] font-semibold leading-snug text-foreground md:text-[17px]">
+                          {row.pain}
+                        </p>
+                        <div className="grid gap-3 md:grid-cols-2 md:gap-6">
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {t.problem_buyer_consequenceLabel}
+                            </p>
+                            <p className="mt-1 text-sm leading-relaxed text-foreground/80">
+                              {row.consequence}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
+                              {t.problem_buyer_mechanismLabel}
+                            </p>
+                            <p className="mt-1 text-sm leading-relaxed text-foreground/80">
+                              {row.mechanism}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </li>
                   ))}
-                </ul>
-              </article>
+                </ol>
+              </div>
 
-              {/* Supplier-side mechanism — secondary, quieter */}
-              <article className="rounded-2xl border border-border bg-card p-6 md:p-8 lg:col-span-2">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]">
-                    <ShieldCheck className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {/* Supplier mechanism — secondary, trust-supporting column */}
+              <aside className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start xl:col-span-4">
+                <div className="rounded-xl bg-[hsl(var(--cool-gray))] p-5 md:p-6">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-[hsl(var(--success))]" />
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {t.problem_supplier_eyebrow}
                     </p>
-                    <h3 className="mt-1 font-heading text-base font-bold text-foreground md:text-lg">
-                      {t.problem_supplier_title}
-                    </h3>
                   </div>
+                  <h3 className="mt-2 font-heading text-base font-bold leading-snug text-foreground md:text-[17px]">
+                    {t.problem_supplier_title}
+                  </h3>
+                  <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                    {t.problem_supplier_lead}
+                  </p>
+                  <ul className="mt-5 space-y-3">
+                    {t.problem_supplier_pains.map((item) => (
+                      <li key={item} className="flex gap-3 text-[13px] leading-relaxed text-foreground/80">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[hsl(var(--success))]/70" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="mt-5 space-y-2">
-                  {t.problem_supplier_pains.map((pain) => (
-                    <li
-                      key={pain}
-                      className="flex gap-3 px-1 py-1.5 text-xs leading-relaxed text-foreground/80"
-                    >
-                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[hsl(var(--success))]/70" />
-                      <span>{pain}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
+              </aside>
             </div>
           </div>
         </section>
