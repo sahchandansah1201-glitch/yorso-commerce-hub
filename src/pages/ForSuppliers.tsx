@@ -424,7 +424,7 @@ const ForSuppliers = () => {
                       {["MSC", "ASC", "BRC", "IFS", "HACCP"].map((c) => (
                         <span
                           key={c}
-                          className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
+                          className="max-w-full break-all rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
                         >
                           {c}
                         </span>
