@@ -295,14 +295,14 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.flow_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.flow_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.flow_subtitle}
             </p>
           </div>
-          <ol className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
+          <ol className="mt-6 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
             {t.flow_steps.map((step, i) => (
               <li key={step.title} className="relative flex flex-col gap-3 bg-background p-5">
                 <div className="flex items-center gap-2">
@@ -336,14 +336,14 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.pain_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.pain_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.pain_subtitle}
             </p>
           </div>
-          <div className="mt-8 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <div className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
             {t.pain_items.map((item, i) => {
               const Icon = painIcons[i] ?? Inbox;
               return (
@@ -375,10 +375,10 @@ const ForSuppliers = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 {t.preview_eyebrow}
               </p>
-              <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+              <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
                 {t.preview_title}
               </h2>
-              <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+              <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
                 {t.preview_subtitle}
               </p>
             </div>
@@ -475,15 +475,15 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.access_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.access_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.access_subtitle}
             </p>
           </div>
 
-          <div className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-3">
+          <div className="mt-6 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-3">
             {t.access_states.map((state, i) => {
               const isApproved = i === t.access_states.length - 1;
               return (
@@ -529,7 +529,7 @@ const ForSuppliers = () => {
           </div>
 
           {/* Access flow */}
-          <div className="mt-8 rounded-md border border-border bg-cool-gray p-5">
+          <div className="mt-6 rounded-md border border-border bg-cool-gray p-5 md:mt-8">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {t.access_flowTitle}
             </p>
@@ -554,14 +554,14 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.help_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.help_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.help_subtitle}
             </p>
           </div>
-          <ul className="mt-8 divide-y md:mt-10 divide-border border-y border-border">
+          <ul className="mt-6 divide-y md:mt-10 divide-border border-y border-border">
             {t.help_items.map((item, i) => {
               const Icon = helpIcons[i] ?? Lock;
               return (
@@ -589,14 +589,14 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.gets_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.gets_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.gets_subtitle}
             </p>
           </div>
-          <ol className="mt-8 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
+          <ol className="mt-6 grid gap-x-10 gap-y-6 md:mt-10 md:gap-y-8 md:grid-cols-2">
             {t.gets_items.map((item, i) => {
               const Icon = getsIcons[i] ?? ListChecks;
               return (
@@ -629,14 +629,14 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.noise_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.noise_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.noise_subtitle}
             </p>
           </div>
-          <div className="mt-8 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-2">
+          <div className="mt-6 grid gap-px md:mt-10 overflow-hidden rounded-md border border-border bg-border md:grid-cols-2">
             {/* Before */}
             <div className="bg-background p-6">
               <div className="flex items-center gap-2">
@@ -685,13 +685,13 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.faq_eyebrow}
             </p>
-            <h2 className="mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.faq_title}
             </h2>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.faq_subtitle}
             </p>
-            <Accordion type="single" collapsible className="mt-8 w-full md:mt-10">
+            <Accordion type="single" collapsible className="mt-6 w-full md:mt-10">
               {t.faq_items.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="border-border">
                   <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
@@ -714,10 +714,10 @@ const ForSuppliers = () => {
             <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.cta_title}
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-[15px] leading-[1.65] text-muted-foreground md:text-base md:leading-[1.7]">
+            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
               {t.cta_subtitle}
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
               <Link
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
@@ -736,7 +736,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">{t.cta_note}</p>
+            <p className="mt-3 text-xs text-muted-foreground md:mt-4">{t.cta_note}</p>
           </div>
         </div>
       </section>
