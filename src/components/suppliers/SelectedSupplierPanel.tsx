@@ -272,11 +272,15 @@ export const SelectedSupplierPanel = ({
               </li>
             ))}
           </ul>
-          {catalogHidden > 0 && (
+          {isUnlocked ? (
+            catalogHidden > 0 && (
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                +{catalogHidden} more products in supplier profile
+              </p>
+            )
+          ) : (
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {isUnlocked
-                ? `+${catalogHidden} more products in supplier profile`
-                : `+${catalogHidden} more products available after access is granted`}
+              Full catalog available after supplier approval
             </p>
           )}
         </div>
