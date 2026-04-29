@@ -283,7 +283,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">{t.hero_note}</p>
+            <p className="mt-3 text-xs text-muted-foreground md:mt-4">{t.hero_note}</p>
           </div>
         </div>
       </section>
