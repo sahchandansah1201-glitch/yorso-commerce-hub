@@ -153,6 +153,18 @@ const ForSuppliers = () => {
             },
           ],
         },
+        {
+          "@type": "FAQPage",
+          "@id": `${canonical}#faq`,
+          mainEntity: t.faq_items.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.a,
+            },
+          })),
+        },
       ],
     };
 
