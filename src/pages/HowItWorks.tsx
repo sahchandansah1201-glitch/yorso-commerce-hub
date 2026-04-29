@@ -9,7 +9,7 @@ import {
   RefreshCw,
   ArrowRight,
   AlertTriangle,
-  EyeOff,
+  
   Network,
   Database,
   GitBranch,
@@ -262,14 +262,15 @@ const HowItWorks = () => {
               <p className="mt-3 text-muted-foreground">{t.problem_subtitle}</p>
             </div>
 
-            <div className="mt-12 grid gap-6 lg:grid-cols-2">
-              <article className="rounded-2xl border border-border bg-card p-6 md:p-8">
+            <div className="mt-12 grid gap-6 lg:grid-cols-5">
+              {/* Buyer pain — dominant */}
+              <article className="rounded-2xl border-2 border-destructive/30 bg-destructive/[0.03] p-6 shadow-sm md:p-8 lg:col-span-3">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
                     <AlertTriangle className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
                       {t.problem_buyer_eyebrow}
                     </p>
                     <h3 className="mt-1 font-heading text-xl font-bold text-foreground md:text-2xl">
@@ -277,40 +278,41 @@ const HowItWorks = () => {
                     </h3>
                   </div>
                 </div>
-                <ul className="mt-6 space-y-3">
+                <ul className="mt-6 grid gap-2.5 md:grid-cols-2">
                   {t.problem_buyer_pains.map((pain) => (
                     <li
                       key={pain}
-                      className="flex gap-3 rounded-lg border border-border/60 bg-background/60 px-4 py-3 text-sm text-foreground/85"
+                      className="flex gap-3 rounded-lg border border-destructive/15 bg-background px-4 py-3 text-sm text-foreground/90"
                     >
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/70" />
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
                       <span>{pain}</span>
                     </li>
                   ))}
                 </ul>
               </article>
 
-              <article className="rounded-2xl border border-border bg-card p-6 md:p-8">
+              {/* Supplier-side mechanism — secondary, quieter */}
+              <article className="rounded-2xl border border-border bg-card p-6 md:p-8 lg:col-span-2">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <EyeOff className="h-5 w-5" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]">
+                    <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {t.problem_supplier_eyebrow}
                     </p>
-                    <h3 className="mt-1 font-heading text-xl font-bold text-foreground md:text-2xl">
+                    <h3 className="mt-1 font-heading text-base font-bold text-foreground md:text-lg">
                       {t.problem_supplier_title}
                     </h3>
                   </div>
                 </div>
-                <ul className="mt-6 space-y-3">
+                <ul className="mt-5 space-y-2">
                   {t.problem_supplier_pains.map((pain) => (
                     <li
                       key={pain}
-                      className="flex gap-3 rounded-lg border border-border/60 bg-background/60 px-4 py-3 text-sm text-foreground/85"
+                      className="flex gap-3 px-1 py-1.5 text-xs leading-relaxed text-foreground/80"
                     >
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[hsl(var(--success))]/70" />
                       <span>{pain}</span>
                     </li>
                   ))}
