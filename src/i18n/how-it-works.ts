@@ -290,7 +290,7 @@ const en: HowItWorksDict = {
     { value: "4", label: "Internal approval audiences served by one record", why: "Procurement, finance, quality and leadership receive the same document the buyer used.", kind: "workflow count" },
   ],
 
-
+  problem_eyebrow: "The real risk",
   problem_title: "The main risk in seafood sourcing is a wrong procurement decision.",
   problem_subtitle:
     "A wrong supplier, a wrong price, a wrong landed cost — those land on the buyer, not on the supplier. The Yorso workflow is built around removing the six things that make that decision go wrong.",
