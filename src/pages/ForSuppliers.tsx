@@ -195,6 +195,7 @@ const ForSuppliers = () => {
     t.seo_ogLocale,
     tCommon.catalog_breadcrumbHome,
     tCommon.nav_forSuppliers,
+    t.faq_items,
     lang,
   ]);
 
