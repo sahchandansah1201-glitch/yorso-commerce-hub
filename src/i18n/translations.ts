@@ -910,8 +910,8 @@ const en: TranslationKeys = {
   // Hero
   hero_title1: "Verified Suppliers. Transparent Prices.",
   hero_title2: "Full Control Over Your Sourcing.",
-  hero_subtitle: `Source wholesale seafood from {suppliers} verified suppliers across {countries} countries — with direct contacts, real prices, and zero commissions.`,
-  hero_searchPlaceholder: "Search products — e.g. salmon fillet, vannamei shrimp...",
+  hero_subtitle: `Compare offers, check supplier documents, and request price access in one workspace. No commission on the deal.`,
+  hero_searchPlaceholder: "Search products: salmon fillet, vannamei shrimp, cod loin...",
   hero_searchBtn: "Search",
   hero_popular: "Popular: Atlantic Salmon · Vannamei Shrimp · Cod Loin · King Crab",
   hero_registerFree: "Register Free",
@@ -1858,8 +1858,8 @@ const ru: TranslationKeys = {
 
   hero_title1: "Проверенные поставщики. Прозрачные цены.",
   hero_title2: "Полный контроль закупок.",
-  hero_subtitle: "Закупайте морепродукты оптом у {suppliers} проверенных поставщиков из {countries} стран — с прямыми контактами, реальными ценами и без комиссий.",
-  hero_searchPlaceholder: "Поиск продукции — напр. филе лосося, ваннамей...",
+  hero_subtitle: "Сравнивайте предложения, проверяйте документы поставщиков и запрашивайте доступ к ценам в одном рабочем окне. Без комиссий со сделки.",
+  hero_searchPlaceholder: "Поиск продукции: филе лосося, креветка ваннамей, филе трески...",
   hero_searchBtn: "Найти",
   hero_popular: "Популярное: Атлантический лосось · Креветка ваннамей · Филе трески · Королевский краб",
   hero_registerFree: "Регистрация",
@@ -2795,8 +2795,8 @@ const es: TranslationKeys = {
 
   hero_title1: "Proveedores verificados. Precios transparentes.",
   hero_title2: "Control total de sus compras.",
-  hero_subtitle: "Compre mariscos al por mayor de {suppliers} proveedores verificados en {countries} países — con contactos directos, precios reales y cero comisiones.",
-  hero_searchPlaceholder: "Buscar productos — ej. filete de salmón, camarón vannamei...",
+  hero_subtitle: "Compare ofertas, revise documentos del proveedor y solicite acceso a precios en un solo espacio de trabajo. Sin comisiones por operación.",
+  hero_searchPlaceholder: "Buscar productos: filete de salmón, camarón vannamei, lomo de bacalao...",
   hero_searchBtn: "Buscar",
   hero_popular: "Popular: Salmón Atlántico · Camarón Vannamei · Lomo de Bacalao · Cangrejo Rey",
   hero_registerFree: "Registro gratis",
