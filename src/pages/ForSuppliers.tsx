@@ -23,32 +23,73 @@ import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { useForSuppliers } from "@/i18n/for-suppliers";
+import { useLanguage } from "@/i18n/LanguageContext";
+import analytics from "@/lib/analytics";
 import { useEffect } from "react";
 
 const painIcons = [Inbox, ShieldAlert, Eye, LayoutGrid];
 const helpIcons = [Lock, BadgeCheck, FileBadge, Package, LineChart];
 const getsIcons = [UserSquare2, Package, Inbox, KeyRound, MessagesSquare];
 
+const upsertMeta = (selector: string, attrs: Record<string, string>) => {
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+    document.head.appendChild(el);
+  } else {
+    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
+  }
+};
+
+const upsertLink = (rel: string, href: string) => {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+};
+
 const ForSuppliers = () => {
   const t = useForSuppliers();
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (typeof document === "undefined") return;
     const prevTitle = document.title;
+    const prevDescription =
+      document.head.querySelector<HTMLMetaElement>('meta[name="description"]')?.getAttribute("content") ?? "";
+    const prevCanonical =
+      document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? "";
+
     document.title = t.seo_title;
-    let descTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const prevDesc = descTag?.getAttribute("content") ?? null;
-    if (!descTag) {
-      descTag = document.createElement("meta");
-      descTag.setAttribute("name", "description");
-      document.head.appendChild(descTag);
-    }
-    descTag.setAttribute("content", t.seo_description);
+    document.documentElement.setAttribute("lang", lang);
+
+    upsertMeta('meta[name="description"]', { name: "description", content: t.seo_description });
+    upsertMeta('meta[property="og:title"]', { property: "og:title", content: t.seo_title });
+    upsertMeta('meta[property="og:description"]', { property: "og:description", content: t.seo_description });
+    upsertMeta('meta[property="og:type"]', { property: "og:type", content: "website" });
+    upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
+
+    const canonical =
+      typeof window !== "undefined" ? `${window.location.origin}/for-suppliers` : "/for-suppliers";
+    upsertLink("canonical", canonical);
+    upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonical });
+
+    analytics.track("supplier_page_view", { surface: "for_suppliers" });
+
     return () => {
       document.title = prevTitle;
-      if (prevDesc !== null) descTag?.setAttribute("content", prevDesc);
+      if (prevDescription) {
+        upsertMeta('meta[name="description"]', { name: "description", content: prevDescription });
+        upsertMeta('meta[property="og:description"]', { property: "og:description", content: prevDescription });
+      }
+      upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
+      if (prevCanonical) upsertLink("canonical", prevCanonical);
     };
-  }, [t.seo_title, t.seo_description]);
+  }, [t.seo_title, t.seo_description, lang]);
 
   return (
     <div className="min-h-screen bg-background">
