@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Search, ShieldCheck, Package, Globe, Users } from "lucide-react";
+import { ArrowRight, Search, ShieldCheck, Package, Globe, Users, ChevronRight } from "lucide-react";
 import { marketplaceStats } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
