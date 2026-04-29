@@ -710,7 +710,7 @@ const ForSuppliers = () => {
       {/* Final CTA */}
       <section className="bg-warm-bg py-12 md:py-24">
         <div className="container">
-          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-8 py-12 text-center shadow-sm md:px-12 md:py-14">
+          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-6 py-10 text-center shadow-sm md:px-12 md:py-14">
             <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
               {t.cta_title}
             </h2>
