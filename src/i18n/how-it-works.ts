@@ -1189,16 +1189,16 @@ const es: HowItWorksDict = {
   seo_description:
     "Yorso es un flujo de trabajo de comercio B2B de pescado y marisco: abastecimiento mayorista, proveedores verificados, RFQ y comparación de compras, contexto de precios y mercado, y un informe defensible de decisión.",
 
-  hero_eyebrow: "Cómo funciona Yorso",
-  hero_titlePrefix: "Yorso convierte el abastecimiento de pescado y marisco en un ",
-  hero_titleHighlight: "flujo controlado de comercio B2B",
+  hero_eyebrow: "Hecho para compradores",
+  hero_titlePrefix: "Tome y defienda la decisión correcta de ",
+  hero_titleHighlight: "compra de pescado y marisco",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Encuentre productos y proveedores, solicite acceso, compare ofertas, verifique evidencia y pase de la consulta a una decisión de compra defensible — dentro de un solo sistema operativo para el comercio B2B de pescado y marisco.",
-  hero_ctaFind: "Encontrar proveedores",
-  hero_ctaSupplier: "Convertirse en proveedor verificado",
+    "Yorso ayuda al comprador a encontrar productos, comprobar proveedores, comparar ofertas y construir un expediente interno que se sostenga ante finanzas, calidad y dirección. La evidencia del proveedor es el mecanismo, no el mensaje.",
+  hero_ctaFind: "Encontrar productos y proveedores",
+  hero_ctaSupplier: "Soy proveedor",
   hero_ctaScroll: "Vea cómo funciona ↓",
-  hero_workflow_eyebrow: "Flujo de comercio integral",
+  hero_workflow_eyebrow: "Flujo integral del comprador",
   hero_workflow_caption: "Repetible, basado en evidencia, documentado",
   hero_workflow_step: "Paso",
   hero_workflow_steps: [
@@ -1208,6 +1208,33 @@ const es: HowItWorksDict = {
     "RFQ / negociación",
     "Pedido / documentos",
     "Comercio recurrente",
+  ],
+
+  bds_eyebrow: "Resumen de decisión del comprador",
+  bds_title: "Tres preguntas que todo comprador debe responder.",
+  bds_subtitle:
+    "Antes de firmar cualquier operación, el responsable de compras tiene que defenderla internamente. Yorso está construido alrededor de las tres preguntas que deciden si la respuesta es sí.",
+  bds_question: "Pregunta del comprador",
+  bds_yorso: "Lo que aporta Yorso",
+  bds_proof: "Evidencia que recibe el comprador",
+  bds_supplierNote:
+    "La evidencia del proveedor es el mecanismo que ayuda al comprador a confiar en la decisión, no una historia de marketing aparte.",
+  bds_cards: [
+    {
+      question: "¿Puedo confiar en este proveedor?",
+      yorso: "Perfiles estructurados con registro mercantil, licencia de exportación, número de planta autorizada y certificaciones reunidos en un solo lugar.",
+      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma — mostrados como aportados, no como garantía de calidad.",
+    },
+    {
+      question: "¿Son razonables el precio y la oferta?",
+      yorso: "Rangos de precio, señales de mercado y contexto de referencia ligados a la especie, el origen y los Incoterms de la oferta concreta.",
+      proof: "Banda de precio (bajo / medio / alto), comparación de ofertas preseleccionadas y vista de coste en destino con flete y aranceles como estimaciones.",
+    },
+    {
+      question: "¿Podré defender esta decisión internamente?",
+      yorso: "Un expediente Procurement Decision Proof: preselección, comparación, evidencia del proveedor, riesgos, alternativas consideradas y registro de auditoría.",
+      proof: "Un informe exportable que el comprador puede enviar a finanzas, calidad y dirección sin reconstruirlo a partir de correos y hojas de cálculo.",
+    },
   ],
 
   problem_eyebrow: "Mapa de problemas",
