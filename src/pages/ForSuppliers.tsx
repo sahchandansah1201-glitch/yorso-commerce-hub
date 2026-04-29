@@ -231,9 +231,9 @@ const ForSuppliers = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <Header />
-      <main id="main">
+      <main id="main" className="overflow-x-hidden">
 
       {/* Breadcrumbs */}
       <div className="border-b border-border bg-background">
@@ -404,38 +404,38 @@ const ForSuppliers = () => {
                   {t.preview_product}
                 </h3>
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <div className="min-w-0">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground break-words">
                       {t.preview_origin}
                     </dt>
-                    <dd className="mt-1 font-medium text-foreground">{t.preview_originValue}</dd>
+                    <dd className="mt-1 font-medium text-foreground break-words [overflow-wrap:anywhere]">{t.preview_originValue}</dd>
                   </div>
-                  <div>
-                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <div className="min-w-0">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground break-words">
                       {t.preview_format}
                     </dt>
-                    <dd className="mt-1 font-medium text-foreground">{t.preview_formatValue}</dd>
+                    <dd className="mt-1 font-medium text-foreground break-words [overflow-wrap:anywhere]">{t.preview_formatValue}</dd>
                   </div>
-                  <div className="col-span-2">
-                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <div className="col-span-2 min-w-0">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground break-words">
                       {t.preview_certifications}
                     </dt>
                     <dd className="mt-1 flex flex-wrap gap-1.5">
                       {["MSC", "ASC", "BRC", "IFS", "HACCP"].map((c) => (
                         <span
                           key={c}
-                          className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
+                          className="max-w-full break-all rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
                         >
                           {c}
                         </span>
                       ))}
                     </dd>
                   </div>
-                  <div className="col-span-2">
-                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                  <div className="col-span-2 min-w-0">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground break-words">
                       {t.preview_priceRange}
                     </dt>
-                    <dd className="mt-1 font-medium text-foreground">€8.40 – €9.20 / kg</dd>
+                    <dd className="mt-1 font-medium text-foreground break-words [overflow-wrap:anywhere] tabular-nums">€8.40 – €9.20 / kg</dd>
                   </div>
                 </dl>
 
