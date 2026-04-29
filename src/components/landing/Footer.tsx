@@ -43,27 +43,21 @@ const Footer = () => {
             <div key={section.title}>
               <h4 className="text-sm font-semibold">{section.title}</h4>
               <ul className="mt-3 space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    {link.href.startsWith("#") ? (
-                      <a
-                        href={link.href}
-                        onClick={() => handleFooterClick(link.label, link.href)}
-                        className="text-sm text-accent-foreground/60 transition-colors hover:text-accent-foreground"
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
+                {section.links.map((link) => {
+                  // Normalize legacy bare hash anchors to absolute home anchors so they work from any route
+                  const to = link.href.startsWith("#") ? `/${link.href}` : link.href;
+                  return (
+                    <li key={link.label}>
                       <Link
-                        to={link.href}
-                        onClick={() => handleFooterClick(link.label, link.href)}
+                        to={to}
+                        onClick={() => handleFooterClick(link.label, to)}
                         className="text-sm text-accent-foreground/60 transition-colors hover:text-accent-foreground"
                       >
                         {link.label}
                       </Link>
-                    )}
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
