@@ -31,6 +31,7 @@ import Careers from "./pages/Careers.tsx";
 import Press from "./pages/Press.tsx";
 import Partners from "./pages/Partners.tsx";
 import HowItWorks from "./pages/HowItWorks.tsx";
+import ForSuppliers from "./pages/ForSuppliers.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
 import TypographyAudit from "./pages/dev/TypographyAudit.tsx";
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/press" element={<Press />} />
                 <Route path="/partners" element={<Partners />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/for-suppliers" element={<ForSuppliers />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
