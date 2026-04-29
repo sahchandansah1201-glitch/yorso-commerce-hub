@@ -101,7 +101,7 @@ const en: ForSuppliersDict = {
   seo_ogLocale: "en_US",
 
   hero_eyebrow: "For seafood suppliers, processors and exporters",
-  hero_title: "Stop sending price lists to people who never buy.",
+  hero_title: "Sell seafood B2B to verified buyers — without leaking your price list.",
   hero_subtitle:
     "A supplier doesn’t need hundreds of random requests. A supplier needs buyers who understand the product, the volume, the documents and the delivery terms. YORSO shows your offer to those buyers — and opens the price by your rules, not to every visitor.",
   hero_ctaPrimary: "Register as supplier",
@@ -109,7 +109,7 @@ const en: ForSuppliersDict = {
   hero_note: "Free to register. 0% commission on deals.",
 
   pain_eyebrow: "Where supplier time goes today",
-  pain_title: "Four things that quietly burn the sales day",
+  pain_title: "Where seafood sales teams lose the day",
   pain_subtitle:
     "These are not abstractions — this is how a seafood sales team actually spends Monday.",
   pain_items: [
@@ -140,7 +140,7 @@ const en: ForSuppliersDict = {
   ],
 
   help_eyebrow: "How YORSO helps",
-  help_title: "Visibility with qualified buyers — not random traffic",
+  help_title: "Reach verified seafood buyers — with controlled price access",
   help_subtitle:
     "YORSO helps you show your offer to buyers who are already sourcing fish and seafood for purchase, and opens prices and supplier data by access rules, not to every visitor.",
   help_items: [
@@ -174,7 +174,7 @@ const en: ForSuppliersDict = {
   gets_eyebrow: "What you get inside",
   gets_today: "Today",
   gets_inYorso: "In YORSO",
-  gets_title: "Five working surfaces, not slides",
+  gets_title: "What a seafood supplier gets in YORSO",
   gets_subtitle:
     "Each surface replaces a piece of work the supplier currently does in WhatsApp, email or Excel.",
   gets_items: [
@@ -206,7 +206,7 @@ const en: ForSuppliersDict = {
   ],
 
   flow_eyebrow: "How a supplier works in YORSO",
-  flow_title: "Four steps, not an implementation project",
+  flow_title: "How to start selling seafood on YORSO",
   flow_subtitle: "The sales team goes through the same sequence every week — only in one place.",
   flow_stepLabel: "Step",
   flow_steps: [
@@ -217,7 +217,7 @@ const en: ForSuppliersDict = {
   ],
 
   preview_eyebrow: "What buyers see",
-  preview_title: "Your offer from the buyer’s side",
+  preview_title: "How buyers see your seafood offer",
   preview_subtitle: "Public product data is visible at once. Exact price and supplier details — only after your approval.",
   preview_product: "Atlantic salmon, fillet skinless, frozen",
   preview_origin: "Origin",
@@ -235,7 +235,7 @@ const en: ForSuppliersDict = {
   preview_caption: "UI mock. Real offers are managed inside the supplier workspace.",
 
   access_eyebrow: "Control over price visibility",
-  access_title: "Three access levels, one rule",
+  access_title: "Price and supplier access — three controlled levels",
   access_subtitle: "Supplier details follow price access. No approved price — no supplier contact.",
   access_states: [
     {
@@ -278,7 +278,7 @@ const en: ForSuppliersDict = {
   ],
 
   noise_eyebrow: "Less noise for the sales team",
-  noise_title: "Before and after on a normal day",
+  noise_title: "Sales workflow before and after YORSO",
   noise_subtitle: "Same team, same Monday — different working surface.",
   noise_beforeLabel: "Today",
   noise_afterLabel: "In YORSO",
@@ -295,7 +295,7 @@ const en: ForSuppliersDict = {
     "Queue of price access requests to approve",
   ],
 
-  cta_title: "Put your sales work into one surface",
+  cta_title: "One B2B sales workspace for seafood suppliers",
   cta_subtitle:
     "Register the company, publish the supplier card and start receiving qualified buyer requests in your category.",
   cta_primary: "Register as supplier",
