@@ -623,7 +623,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Less noise — before / after */}
-      <section className="border-b border-border bg-accent/40">
+      <section className="border-b border-border bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
