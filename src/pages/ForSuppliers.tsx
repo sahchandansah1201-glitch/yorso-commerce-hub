@@ -54,7 +54,7 @@ const upsertLink = (rel: string, href: string) => {
 
 const ForSuppliers = () => {
   const t = useForSuppliers();
-  const { lang } = useLanguage();
+  const { lang, t: tCommon } = useLanguage();
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -96,6 +96,21 @@ const ForSuppliers = () => {
       <Header />
       <main id="main">
 
+      {/* Breadcrumbs */}
+      <div className="border-b border-border bg-background">
+        <div className="container py-3">
+          <nav
+            aria-label={tCommon.aria_breadcrumb}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <Link to="/" className="hover:text-foreground">
+              {tCommon.catalog_breadcrumbHome}
+            </Link>
+            <ChevronRight className="h-3 w-3" aria-hidden />
+            <span className="font-medium text-foreground">{tCommon.nav_forSuppliers}</span>
+          </nav>
+        </div>
+      </div>
 
       {/* Hero */}
       <section className="border-b border-border bg-accent">
