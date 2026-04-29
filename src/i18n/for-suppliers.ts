@@ -93,9 +93,9 @@ export interface ForSuppliersDict {
 }
 
 const en: ForSuppliersDict = {
-  seo_title: "YORSO for Suppliers · Sell Seafood B2B Without Price Leaks",
+  seo_title: "Seafood Suppliers · Controlled Price Access · YORSO B2B",
   seo_description:
-    "B2B sales workspace for seafood exporters: control who sees your prices, receive qualified buyer requests, manage documents and certifications in one card.",
+    "YORSO for seafood suppliers: controlled price access, qualified B2B buyer requests, one supplier card with documents and certifications. Free to register.",
   seo_ogImageAlt:
     "YORSO for Suppliers — controlled price access, qualified buyer requests, one supplier card with documents and certifications.",
   seo_ogLocale: "en_US",
@@ -304,9 +304,9 @@ const en: ForSuppliersDict = {
 };
 
 const ru: ForSuppliersDict = {
-  seo_title: "YORSO для поставщиков · B2B-продажи морепродуктов без утечки цен",
+  seo_title: "Поставщики морепродуктов · Доступ к ценам · YORSO B2B",
   seo_description:
-    "Рабочая B2B-площадка для экспортёров морепродуктов: контролируйте, кто видит цены, получайте квалифицированные запросы, ведите документы и сертификаты в одной карточке.",
+    "YORSO для поставщиков морепродуктов: управляемый доступ к ценам, B2B-запросы покупателей, документы и сертификаты в одной карточке. Регистрация бесплатно.",
   seo_ogImageAlt:
     "YORSO для поставщиков — управляемый доступ к ценам, квалифицированные запросы покупателей, одна карточка поставщика с документами и сертификациями.",
   seo_ogLocale: "ru_RU",
@@ -515,9 +515,9 @@ const ru: ForSuppliersDict = {
 };
 
 const es: ForSuppliersDict = {
-  seo_title: "YORSO para Proveedores · Vende Mariscos B2B Sin Filtrar Precios",
+  seo_title: "Proveedores de Mariscos · Acceso al Precio · YORSO B2B",
   seo_description:
-    "Espacio B2B para exportadores de mariscos: controla quién ve tus precios, recibe solicitudes cualificadas y gestiona documentos y certificaciones en una sola ficha.",
+    "YORSO para proveedores de mariscos: acceso al precio controlado, solicitudes B2B cualificadas, documentos y certificaciones en una ficha. Registro gratuito.",
   seo_ogImageAlt:
     "YORSO para proveedores — acceso controlado al precio, solicitudes cualificadas y una ficha de proveedor con documentos y certificaciones.",
   seo_ogLocale: "es_ES",
