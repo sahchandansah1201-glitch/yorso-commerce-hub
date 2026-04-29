@@ -637,7 +637,12 @@ const es: ForSuppliersDict = {
     {
       label: "Acceso aprobado",
       who: "Acceso concedido por el proveedor",
-      sees: ["Precio exacto", "Nombre y datos del proveedor", "Acciones de contacto directo", "Espacio de comunicación y seguimiento"],
+      sees: [
+        { text: "Precio exacto" },
+        { text: "Nombre y datos del proveedor" },
+        { text: "Acciones de contacto directo" },
+        { text: "Espacio de comunicación y seguimiento" },
+      ],
     },
   ],
   access_flowTitle: "Flujo de solicitud de acceso",
