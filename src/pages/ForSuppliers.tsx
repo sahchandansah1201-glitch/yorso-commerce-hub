@@ -252,7 +252,7 @@ const ForSuppliers = () => {
       </div>
 
       {/* Hero */}
-      <section className="border-b border-border bg-warm-bg">
+      <section className="border-b border-border/60 bg-warm-bg">
         <div className="container py-20 md:py-28">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -289,7 +289,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Workflow: 4 steps */}
-      <section className="border-b border-border">
+      <section className="border-b border-border/50">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -330,7 +330,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Pain map */}
-      <section className="border-b border-border">
+      <section className="border-b border-border/50">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -368,7 +368,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* What buyers see — UI mock preview */}
-      <section className="border-b border-border bg-cool-gray">
+      <section className="border-b border-border/50 bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-16">
             <div className="max-w-xl">
@@ -469,7 +469,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Control over price visibility — 3 access states + flow */}
-      <section className="border-b border-border">
+      <section className="border-b border-border/50">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -548,7 +548,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* How YORSO helps */}
-      <section className="border-b border-border bg-cool-gray">
+      <section className="border-b border-border/50 bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -583,7 +583,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* What supplier gets */}
-      <section className="border-b border-border">
+      <section className="border-b border-border/50">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -623,7 +623,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Less noise — before / after */}
-      <section className="border-b border-border bg-cool-gray">
+      <section className="border-b border-border/50 bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -679,7 +679,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="border-b border-border bg-background py-16 md:py-24">
+      <section id="faq" className="border-b border-border/50 bg-background py-16 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
