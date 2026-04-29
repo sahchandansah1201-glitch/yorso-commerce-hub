@@ -17,6 +17,9 @@ import {
   LineChart,
   PackageCheck,
   MessagesSquare,
+  Scale,
+  FileCheck2,
+  HelpCircle,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
