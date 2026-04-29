@@ -20,6 +20,7 @@ export interface HowItWorksDict {
   hero_titleSuffix: string;
   hero_subtitle: string;
   hero_ctaFind: string;
+  hero_ctaRequestAccess: string;
   hero_ctaSupplier: string;
   hero_ctaScroll: string;
   hero_workflow_eyebrow: string;
