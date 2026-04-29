@@ -248,12 +248,12 @@ const en: HowItWorksDict = {
   hero_workflow_caption: "Repeatable, evidence-based, documented",
   hero_workflow_step: "Step",
   hero_workflow_steps: [
-    "Search",
-    "Access request",
-    "Supplier evidence",
-    "RFQ / negotiation",
-    "Order / documents",
-    "Repeat trade",
+    { label: "Search", hint: "Filter by species, origin, certificates, MOQ" },
+    { label: "Price access", hint: "Request exact price and supplier identity" },
+    { label: "Supplier proof", hint: "Certificates, lots, response time, IUU" },
+    { label: "RFQ", hint: "Quantity, packaging, Incoterms, delivery window" },
+    { label: "Order", hint: "Documents, shipment, customs trail" },
+    { label: "Repeat", hint: "Saved suppliers, recurring orders, audit file" },
   ],
 
   bds_eyebrow: "Buyer decision snapshot",
