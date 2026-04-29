@@ -95,4 +95,41 @@ describe("SupplierRow", () => {
     expect(alt).toContain(firstSpecies);
     expect(alt).toContain(displayName);
   });
+
+  it("renders a delivery-markets preview with country names", () => {
+    renderRow();
+    const row = screen.getByTestId("supplier-row");
+    const list = within(row).getByLabelText(/delivery markets preview/i);
+    const firstMarket = supplier.deliveryCountries[0];
+    expect(within(list).getByText(firstMarket.name)).toBeInTheDocument();
+  });
+
+  it("does not leak companyName, website, or whatsapp in anonymous_locked", () => {
+    renderRow({ accessLevel: "anonymous_locked" });
+    const row = screen.getByTestId("supplier-row");
+    expect(row.textContent ?? "").not.toContain(supplier.companyName);
+    if (supplier.website) {
+      expect(row.textContent ?? "").not.toContain(supplier.website);
+      expect(row.querySelector(`a[href="${supplier.website}"]`)).toBeNull();
+    }
+    if (supplier.whatsapp) {
+      expect(row.textContent ?? "").not.toContain(supplier.whatsapp);
+    }
+  });
+
+  it("does not leak companyName, website, or whatsapp in registered_locked", () => {
+    renderRow({ accessLevel: "registered_locked" });
+    const row = screen.getByTestId("supplier-row");
+    expect(row.textContent ?? "").not.toContain(supplier.companyName);
+    if (supplier.website) {
+      expect(row.querySelector(`a[href="${supplier.website}"]`)).toBeNull();
+    }
+  });
+
+  it("renders the full companyName in qualified_unlocked", () => {
+    renderRow({ accessLevel: "qualified_unlocked" });
+    const row = screen.getByTestId("supplier-row");
+    expect(within(row).getByText(supplier.companyName)).toBeInTheDocument();
+    expect(row.textContent ?? "").not.toContain(supplier.maskedName);
+  });
 });
