@@ -252,16 +252,16 @@ const ForSuppliers = () => {
       </div>
 
       {/* Hero */}
-      <section className="border-b border-border bg-accent">
-        <div className="container py-16 md:py-24">
+      <section className="border-b border-border bg-warm-bg">
+        <div className="container py-20 md:py-28">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
             </p>
-            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight text-accent-foreground md:text-5xl">
+            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
               {t.hero_title}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-accent-foreground/75 md:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
               {t.hero_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -269,7 +269,7 @@ const ForSuppliers = () => {
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "hero" })}
               >
-                <Button size="lg" className="gap-2 px-7 text-base font-semibold">
+                <Button size="lg" className="gap-2 px-7 text-base font-semibold shadow-sm">
                   {t.hero_ctaPrimary}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
@@ -283,7 +283,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-accent-foreground/55">{t.hero_note}</p>
+            <p className="mt-4 text-xs text-muted-foreground">{t.hero_note}</p>
           </div>
         </div>
       </section>
