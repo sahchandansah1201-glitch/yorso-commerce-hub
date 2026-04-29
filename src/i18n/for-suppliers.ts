@@ -632,7 +632,12 @@ const es: ForSuppliersDict = {
     {
       label: "Comprador registrado",
       who: "Empresa y país verificados",
-      sees: ["Todo lo anterior", "Contexto de oferta y términos", "Puede solicitar acceso al precio", "Precio exacto y datos del proveedor — aún ocultos"],
+      sees: [
+        { text: "Todo lo anterior" },
+        { text: "Contexto de oferta y términos" },
+        { text: "Puede solicitar acceso al precio" },
+        { text: "Precio exacto y datos del proveedor — aún ocultos", hidden: true },
+      ],
     },
     {
       label: "Acceso aprobado",
