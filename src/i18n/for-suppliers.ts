@@ -84,6 +84,12 @@ export interface ForSuppliersDict {
   noise_before: string[]; // 4
   noise_after: string[]; // 4
 
+  // FAQ
+  faq_eyebrow: string;
+  faq_title: string;
+  faq_subtitle: string;
+  faq_items: { q: string; a: string }[];
+
   // Final CTA
   cta_title: string;
   cta_subtitle: string;
