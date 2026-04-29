@@ -84,6 +84,12 @@ export interface ForSuppliersDict {
   noise_before: string[]; // 4
   noise_after: string[]; // 4
 
+  // FAQ
+  faq_eyebrow: string;
+  faq_title: string;
+  faq_subtitle: string;
+  faq_items: { q: string; a: string }[];
+
   // Final CTA
   cta_title: string;
   cta_subtitle: string;
@@ -293,6 +299,37 @@ const en: ForSuppliersDict = {
     "Offer cards with status and price in one place",
     "One supplier card with documents",
     "Queue of price access requests to approve",
+  ],
+
+  faq_eyebrow: "Supplier FAQ",
+  faq_title: "B2B seafood selling, price access and supplier documents — answered",
+  faq_subtitle:
+    "Practical answers to the questions seafood suppliers, processors and exporters ask before publishing on YORSO.",
+  faq_items: [
+    {
+      q: "Who actually sees my prices on YORSO?",
+      a: "Only buyers you approve. Anonymous visitors see the product card without an exact price. Registered buyers can request price access. You see who they are — company, country, role — and decide one by one. Your price list is never broadcast to a public catalog.",
+    },
+    {
+      q: "Will my supplier name be public before I want it to be?",
+      a: "No. Supplier identity follows price access. Until you approve a buyer for the price, your company name and contacts are hidden. The buyer only sees product, origin, format, certifications and your trust signals.",
+    },
+    {
+      q: "Which documents and certifications can I show on the supplier card?",
+      a: "Company registration (e.g. OGRN/registration ID), export licence, plant approval number, and product certifications such as MSC, ASC, BRC, IFS and HACCP. Documents live in one supplier card so you stop sending them again to every new buyer.",
+    },
+    {
+      q: "What kind of buyers send requests?",
+      a: "Procurement managers from importers, distributors, retail chains, HoReCa and processors. Each request comes with target volume, destination country and Incoterms basis, so your sales team can qualify it in seconds instead of chatting blind.",
+    },
+    {
+      q: "How long does it take to publish a first offer?",
+      a: "Typically under a day. You register the company, fill the supplier card with documents and certifications, and publish offers per SKU with format, MOQ, origin and price rules. No implementation project, no integration required.",
+    },
+    {
+      q: "How much does it cost? Is there a commission on deals?",
+      a: "Registration is free. There is 0% commission on the deal itself — YORSO is the workspace and access layer, not a broker between you and the buyer.",
+    },
   ],
 
   cta_title: "One B2B sales workspace for seafood suppliers",
@@ -506,6 +543,37 @@ const ru: ForSuppliersDict = {
     "Очередь запросов доступа к цене для одобрения",
   ],
 
+  faq_eyebrow: "FAQ для поставщиков",
+  faq_title: "B2B-продажи морепродуктов, доступ к ценам и документы поставщика — отвечаем",
+  faq_subtitle:
+    "Практичные ответы на вопросы, которые поставщики, переработчики и экспортёры задают перед публикацией на YORSO.",
+  faq_items: [
+    {
+      q: "Кто на самом деле видит мои цены на YORSO?",
+      a: "Только покупатели, которых вы одобрили. Анонимные посетители видят карточку товара без точной цены. Зарегистрированные покупатели могут запросить доступ к цене. Вы видите, кто это — компания, страна, роль — и принимаете решение по каждому. Прайс не транслируется в публичный каталог.",
+    },
+    {
+      q: "Будет ли название моей компании публичным до того, как я этого захочу?",
+      a: "Нет. Идентификация поставщика следует за доступом к цене. Пока вы не одобрили покупателя на просмотр цены, название и контакты компании скрыты. Покупатель видит только продукт, происхождение, формат, сертификации и сигналы доверия.",
+    },
+    {
+      q: "Какие документы и сертификаты можно показывать в карточке поставщика?",
+      a: "Регистрационные данные компании (например, ОГРН), экспортную лицензию, номер аттестации завода, а также продуктовые сертификации: MSC, ASC, BRC, IFS, ХАССП. Все документы лежат в одной карточке поставщика, поэтому вы перестаёте отправлять их каждому новому покупателю.",
+    },
+    {
+      q: "Какие покупатели присылают запросы?",
+      a: "Менеджеры по закупкам импортёров, дистрибьюторов, розничных сетей, HoReCa и переработчиков. В каждом запросе указаны целевой объём, страна назначения и базис Incoterms — ваш отдел продаж квалифицирует его за секунды, а не в слепой переписке.",
+    },
+    {
+      q: "Сколько времени уходит на публикацию первого предложения?",
+      a: "Обычно меньше дня. Регистрируете компанию, заполняете карточку поставщика с документами и сертификациями, публикуете предложения по SKU с форматом, MOQ, происхождением и правилами доступа к цене. Без проекта внедрения и интеграций.",
+    },
+    {
+      q: "Сколько это стоит и есть ли комиссия со сделок?",
+      a: "Регистрация бесплатна. Комиссия со сделки — 0%. YORSO — это рабочая поверхность и слой управления доступом, а не посредник между вами и покупателем.",
+    },
+  ],
+
   cta_title: "Единая B2B-площадка продаж для поставщиков морепродуктов",
   cta_subtitle:
     "Зарегистрируйте компанию, опубликуйте карточку поставщика и начните получать квалифицированные запросы в своей категории.",
@@ -715,6 +783,37 @@ const es: ForSuppliersDict = {
     "Tarjetas de oferta con estado y precio en un solo lugar",
     "Una sola tarjeta de proveedor con documentos",
     "Cola de solicitudes de acceso al precio para aprobar",
+  ],
+
+  faq_eyebrow: "FAQ para proveedores",
+  faq_title: "Ventas B2B de mariscos, acceso al precio y documentos del proveedor — respondidos",
+  faq_subtitle:
+    "Respuestas prácticas a las preguntas que proveedores, procesadores y exportadores hacen antes de publicar en YORSO.",
+  faq_items: [
+    {
+      q: "¿Quién ve realmente mis precios en YORSO?",
+      a: "Solo los compradores que apruebas. Los visitantes anónimos ven la tarjeta del producto sin precio exacto. Los compradores registrados pueden solicitar acceso al precio. Tú ves quiénes son — empresa, país, rol — y decides uno a uno. Tu lista de precios no se publica al catálogo abierto.",
+    },
+    {
+      q: "¿Mi nombre como proveedor será público antes de que yo lo decida?",
+      a: "No. La identidad del proveedor sigue al acceso al precio. Mientras no apruebes a un comprador para ver el precio, el nombre y los contactos de tu empresa permanecen ocultos. El comprador solo ve producto, origen, formato, certificaciones y señales de confianza.",
+    },
+    {
+      q: "¿Qué documentos y certificaciones puedo mostrar en la ficha de proveedor?",
+      a: "Datos de registro de la empresa, licencia de exportación, número de aprobación de planta y certificaciones de producto como MSC, ASC, BRC, IFS y HACCP. Los documentos viven en una sola ficha, así dejas de enviarlos a cada nuevo comprador.",
+    },
+    {
+      q: "¿Qué tipo de compradores envían solicitudes?",
+      a: "Responsables de compras de importadores, distribuidores, cadenas retail, HoReCa y procesadores. Cada solicitud incluye volumen objetivo, país de destino y base Incoterms — tu equipo de ventas puede cualificarla en segundos en lugar de chatear a ciegas.",
+    },
+    {
+      q: "¿Cuánto tarda publicar la primera oferta?",
+      a: "Normalmente menos de un día. Registras la empresa, completas la ficha de proveedor con documentos y certificaciones, y publicas ofertas por SKU con formato, MOQ, origen y reglas de precio. Sin proyecto de implementación ni integraciones.",
+    },
+    {
+      q: "¿Cuánto cuesta? ¿Hay comisión sobre las operaciones?",
+      a: "El registro es gratis. La comisión sobre la operación es 0%. YORSO es el espacio de trabajo y la capa de control de acceso, no un intermediario entre tú y el comprador.",
+    },
   ],
 
   cta_title: "Una sola plataforma B2B de ventas para proveedores de mariscos",

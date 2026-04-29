@@ -39,8 +39,8 @@ describe("/for-suppliers heading hierarchy", () => {
         const h2s = screen.getAllByRole("heading", { level: 2 });
 
         // Sanity: page has the expected number of section H2s.
-        // (hero is H1; sections: flow, pain, preview, access, help, gets, noise, cta = 8)
-        expect(h2s.length).toBe(8);
+        // (hero is H1; sections: flow, pain, preview, access, help, gets, noise, faq, cta = 9)
+        expect(h2s.length).toBe(9);
 
         const texts = h2s.map((h) => (h.textContent ?? "").trim());
         // No empty H2

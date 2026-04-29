@@ -22,6 +22,12 @@ import {
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useForSuppliers } from "@/i18n/for-suppliers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
@@ -147,6 +153,18 @@ const ForSuppliers = () => {
             },
           ],
         },
+        {
+          "@type": "FAQPage",
+          "@id": `${canonical}#faq`,
+          mainEntity: t.faq_items.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.a,
+            },
+          })),
+        },
       ],
     };
 
@@ -177,6 +195,7 @@ const ForSuppliers = () => {
     t.seo_ogLocale,
     tCommon.catalog_breadcrumbHome,
     tCommon.nav_forSuppliers,
+    t.faq_items,
     lang,
   ]);
 
@@ -624,6 +643,35 @@ const ForSuppliers = () => {
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="border-b border-border bg-background py-16 md:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {t.faq_eyebrow}
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {t.faq_title}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              {t.faq_subtitle}
+            </p>
+            <Accordion type="single" collapsible className="mt-10 w-full">
+              {t.faq_items.map((item, i) => (
+                <AccordionItem key={i} value={`faq-${i}`} className="border-border">
+                  <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
+                    {item.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                    {item.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>
