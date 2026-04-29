@@ -83,10 +83,10 @@ const SupplierRowImpl = ({
   const flag = countryCodeToFlag(supplier.countryCode);
 
   const catalogPreview = supplier.productCatalogPreview.slice(0, 3);
-  const catalogRest = Math.max(
-    0,
-    supplier.totalProductsCount - catalogPreview.length,
-  );
+  const catalogRest = isUnlocked
+    ? Math.max(0, supplier.totalProductsCount - catalogPreview.length)
+    : 0;
+  const showCatalogTeaser = !isUnlocked && supplier.totalProductsCount > catalogPreview.length;
   const previewDeliveries = supplier.deliveryCountries.slice(0, 3);
   const deliveryRest = Math.max(
     0,
@@ -262,6 +262,11 @@ const SupplierRowImpl = ({
                     {catalogRest > 0 && (
                       <span className="inline-flex h-12 min-w-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-1.5 text-[11px] font-semibold text-foreground/80">
                         +{catalogRest} products
+                      </span>
+                    )}
+                    {showCatalogTeaser && (
+                      <span className="inline-flex h-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground">
+                        More products after access
                       </span>
                     )}
                   </div>

@@ -125,4 +125,28 @@ describe("/suppliers — implementation quality fixes", () => {
     expect(alt).toContain(mockSuppliers[0].productFocus[0].species);
     expect(alt).toContain(mockSuppliers[0].maskedName);
   });
+
+  it("does not leak exact supplier catalog breadth in locked states", () => {
+    renderPage();
+    const supplier = mockSuppliers[0];
+    const hidden = supplier.totalProductsCount - 3;
+    const body = document.body.textContent ?? "";
+    expect(body).not.toContain(`${supplier.totalProductsCount} products`);
+    expect(body).not.toContain(`+${hidden} products`);
+    expect(body).not.toContain(`+${hidden} more products`);
+  });
+
+  it("shows exact catalog breadth in qualified_unlocked", () => {
+    seedQualifiedSession();
+    renderPage();
+    const supplier = mockSuppliers[0];
+    const firstRow = screen.getAllByTestId("supplier-row")[0];
+    const selectBtn = within(firstRow).getByRole("button", {
+      name: /select .* to review details/i,
+    });
+    fireEvent.click(selectBtn);
+
+    const body = document.body.textContent ?? "";
+    expect(body).toContain(`${supplier.totalProductsCount} products`);
+  });
 });
