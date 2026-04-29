@@ -910,8 +910,8 @@ const en: TranslationKeys = {
   // Hero
   hero_title1: "Verified Suppliers. Transparent Prices.",
   hero_title2: "Full Control Over Your Sourcing.",
-  hero_subtitle: `Source wholesale seafood from {suppliers} verified suppliers across {countries} countries — with direct contacts, real prices, and zero commissions.`,
-  hero_searchPlaceholder: "Search products — e.g. salmon fillet, vannamei shrimp...",
+  hero_subtitle: `Compare offers, check supplier documents, and request price access in one workspace. No commission on the deal.`,
+  hero_searchPlaceholder: "Search products: salmon fillet, vannamei shrimp, cod loin...",
   hero_searchBtn: "Search",
   hero_popular: "Popular: Atlantic Salmon · Vannamei Shrimp · Cod Loin · King Crab",
   hero_registerFree: "Register Free",
