@@ -129,7 +129,7 @@ const HowItWorks = () => {
                 <Button asChild size="lg" variant="outline" className="font-semibold">
                   <Link to="/offers#request">
                     <FileCheck2 className="mr-1.5 h-4 w-4" />
-                    {t.fc_buyer_cta2}
+                    {t.hero_ctaRequestAccess}
                   </Link>
                 </Button>
                 <a
