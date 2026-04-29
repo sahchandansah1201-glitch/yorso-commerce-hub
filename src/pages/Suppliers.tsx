@@ -130,8 +130,15 @@ const Suppliers = () => {
         s.supplierType,
         ...s.productFocus.map((p) => `${p.species} ${p.forms}`),
         ...s.certifications,
+        s.shortDescription,
       ];
-      if (includeCompanyName) fields.push(s.companyName);
+      if (includeCompanyName) {
+        // Only qualified buyers can search by full identity / contact / about.
+        fields.push(s.companyName);
+        fields.push(s.about);
+        if (s.website) fields.push(s.website);
+        if (s.whatsapp) fields.push(s.whatsapp);
+      }
       const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
