@@ -529,7 +529,7 @@ const ForSuppliers = () => {
           </div>
 
           {/* Access flow */}
-          <div className="mt-8 rounded-md border border-border bg-accent/30 p-5">
+          <div className="mt-8 rounded-md border border-border bg-cool-gray p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {t.access_flowTitle}
             </p>
