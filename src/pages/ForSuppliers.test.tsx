@@ -47,7 +47,7 @@ describe("/for-suppliers route", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: /How a supplier works in YORSO|Four steps/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: /What buyers see/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: /buyer.s side/i })).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 2, name: /Control over price visibility|Three access levels/i }),
     ).toBeInTheDocument();
