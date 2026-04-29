@@ -264,6 +264,11 @@ const SupplierRowImpl = ({
                         +{catalogRest} products
                       </span>
                     )}
+                    {showCatalogTeaser && (
+                      <span className="inline-flex h-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground">
+                        More products after access
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
