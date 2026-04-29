@@ -1214,18 +1214,18 @@ const es: HowItWorksDict = {
   bds_cards: [
     {
       question: "¿Puedo confiar en este proveedor?",
-      yorso: "Perfiles estructurados con registro mercantil, licencia de exportación, número de planta autorizada y certificaciones reunidos en un solo lugar.",
-      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma, mostrados como aportados, no como garantía de calidad.",
+      yorso: "Una ficha de proveedor con número de registro mercantil, licencia de exportación, código de planta autorizada, certificaciones (MSC, ASC, BRC, IFS, APPCC) e historial en Yorso.",
+      proof: "Cada campo marcado como verificado, declarado o ausente, con enlace al documento y fecha de la última revisión. El comprador ve qué se comprobó, quién y cuándo, no una puntuación genérica de confianza.",
     },
     {
       question: "¿Son razonables el precio y la oferta?",
-      yorso: "Rangos de precio, señales de mercado y contexto de referencia ligados a la especie, el origen y los Incoterms de la oferta concreta.",
-      proof: "Banda de precio (bajo / medio / alto), comparación de ofertas preseleccionadas y vista de coste en destino con flete y aranceles como estimaciones.",
+      yorso: "Banda de precio ligada a especie, calibre, origen, formato e Incoterms de la oferta concreta, más una vista comparativa de los proveedores preseleccionados.",
+      proof: "Precio de la oferta situado en la escala bajo / medio / alto para la misma SKU e Incoterms, con tamaño de muestra y rango de fechas. El coste en destino añade flete, aranceles y plazo como estimaciones etiquetadas que el comprador puede ajustar.",
     },
     {
       question: "¿Podré defender esta decisión internamente?",
-      yorso: "Un expediente Procurement Decision Proof: preselección, comparación, evidencia del proveedor, riesgos, alternativas consideradas y registro de auditoría.",
-      proof: "Un informe exportable que el comprador puede enviar a finanzas, calidad y dirección sin reconstruirlo a partir de correos y hojas de cálculo.",
+      yorso: "Expediente Procurement Decision Proof: preselección, tabla comparativa, evidencia del proveedor, riesgos, alternativas consideradas y registro de cada solicitud, mensaje y documento.",
+      proof: "Una exportación en PDF y CSV con el nombre del comprador, la fecha de decisión y el ID de la oferta. Finanzas, calidad y dirección reciben el mismo documento que usó el comprador, no un correo reenviado ni una captura.",
     },
   ],
 
