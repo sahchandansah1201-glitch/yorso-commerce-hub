@@ -1087,6 +1087,7 @@ const en: TranslationKeys = {
     platform: [
       { label: "Live Offers", href: "/#offers" },
       { label: "Categories", href: "/#categories" },
+      { label: "Supplier directory", href: "/suppliers" },
       { label: "Verified Suppliers", href: "/how-it-works" },
       { label: "How It Works", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
