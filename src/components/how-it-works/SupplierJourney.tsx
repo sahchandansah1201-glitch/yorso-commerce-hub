@@ -84,8 +84,13 @@ const SupplierJourney = () => {
                 className="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
-                    <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
+                      <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                    </div>
+                    <span className="font-heading text-[11px] font-bold uppercase tracking-wider tabular-nums text-muted-foreground">
+                      Evidence {String(idx + 1).padStart(2, "0")}
+                    </span>
                   </div>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${chipStyles[kind]}`}
