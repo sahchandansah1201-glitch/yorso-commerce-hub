@@ -905,6 +905,7 @@ const en: TranslationKeys = {
   nav_liveOffers: "Catalog",
   nav_categories: "Categories",
   nav_howItWorks: "How It Works",
+  nav_forSuppliers: "For suppliers",
   nav_faq: "FAQ",
   nav_signIn: "Sign In",
   nav_registerFree: "Register Free",
