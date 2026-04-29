@@ -258,10 +258,10 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
             </p>
-            <h1 className="mt-3 font-heading text-[34px] font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:mt-5 md:text-[52px] md:leading-[1.05]">
+            <h1 className="mt-3 font-heading text-[34px] font-bold leading-[1.1] tracking-tight text-foreground [overflow-wrap:anywhere] sm:text-4xl sm:[overflow-wrap:break-word] md:mt-5 md:text-[52px] md:leading-[1.05]">
               {t.hero_title}
             </h1>
-            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-5 md:text-[17px] md:leading-[1.6]">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground break-words md:mt-5 md:text-[17px] md:leading-[1.6]">
               {t.hero_subtitle}
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
@@ -295,7 +295,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.flow_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.flow_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -316,10 +316,10 @@ const ForSuppliers = () => {
                     {t.flow_stepLabel}
                   </span>
                 </div>
-                <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground">
+                <h3 className="font-heading text-[15px] font-semibold leading-[1.35] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:[overflow-wrap:break-word]">
                   {step.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                <p className="text-sm leading-relaxed text-muted-foreground break-words">{step.body}</p>
                 {i < t.flow_steps.length - 1 && (
                   <ChevronRight
                     aria-hidden
@@ -339,7 +339,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.pain_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.pain_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -357,14 +357,14 @@ const ForSuppliers = () => {
                   <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary md:h-auto md:w-auto md:bg-transparent">
                     <Icon className="h-5 w-5 md:mt-0.5" />
                   </span>
-                  <div>
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground break-words md:mt-2">
                       {item.today}
                     </p>
-                    <p className="mt-2.5 text-sm font-medium leading-relaxed text-foreground/80 md:mt-2">
+                    <p className="mt-2.5 text-sm font-medium leading-relaxed text-foreground/80 break-words md:mt-2">
                       {item.cost}
                     </p>
                   </div>
@@ -383,7 +383,7 @@ const ForSuppliers = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 {t.preview_eyebrow}
               </p>
-              <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+              <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
                 {t.preview_title}
               </h2>
               <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -393,14 +393,14 @@ const ForSuppliers = () => {
 
             {/* Mock offer card */}
             <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-              <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                <span>yorso.com / offer</span>
-                <span className="flex items-center gap-1 text-primary">
-                  <BadgeCheck className="h-3.5 w-3.5" /> Verified supplier
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border bg-muted/40 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="min-w-0 truncate">yorso.com / offer</span>
+                <span className="flex shrink-0 items-center gap-1 text-primary">
+                  <BadgeCheck className="h-3.5 w-3.5 shrink-0" /> Verified supplier
                 </span>
               </div>
               <div className="p-5">
-                <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                   {t.preview_product}
                 </h3>
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
@@ -441,21 +441,21 @@ const ForSuppliers = () => {
 
                 {/* Gated rows */}
                 <div className="mt-4 space-y-2.5">
-                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{t.preview_priceLocked}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 break-words font-medium text-foreground">{t.preview_priceLocked}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="min-w-0 break-words text-xs text-muted-foreground">
                       {t.preview_priceLockedHint}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-foreground">{t.preview_supplierLocked}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <EyeOff className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 break-words font-medium text-foreground">{t.preview_supplierLocked}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="min-w-0 break-words text-xs text-muted-foreground">
                       {t.preview_supplierLockedHint}
                     </span>
                   </div>
@@ -483,7 +483,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.access_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.access_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -524,7 +524,7 @@ const ForSuppliers = () => {
                             }`}
                             aria-hidden
                           />
-                          <span className={line.hidden ? "text-muted-foreground" : "text-foreground/85"}>
+                          <span className={`min-w-0 break-words ${line.hidden ? "text-muted-foreground" : "text-foreground/85"}`}>
                             {line.text}
                           </span>
                         </li>
@@ -547,7 +547,7 @@ const ForSuppliers = () => {
                   <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[11px] font-bold text-foreground">
                     {i + 1}
                   </span>
-                  <span className="text-foreground/85">{step}</span>
+                  <span className="min-w-0 break-words text-foreground/85">{step}</span>
                 </li>
               ))}
             </ol>
@@ -562,7 +562,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.help_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.help_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -577,13 +577,13 @@ const ForSuppliers = () => {
                   key={item.title}
                   className="grid gap-2 rounded-lg border border-border border-l-4 border-l-primary bg-card p-4 shadow-sm md:gap-10 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:py-6 md:shadow-none md:grid-cols-[280px_1fr]"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                    <h3 className="min-w-0 flex-1 font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                  <p className="min-w-0 break-words text-sm leading-relaxed text-muted-foreground md:text-base">
                     {item.body}
                   </p>
                 </li>
@@ -600,7 +600,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.gets_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.gets_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -621,11 +621,11 @@ const ForSuppliers = () => {
                     </span>
                     <Icon className="h-4 w-4 text-muted-foreground md:mt-2 md:h-5 md:w-5" />
                   </div>
-                  <div>
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground break-words md:mt-2">
                       {item.body}
                     </p>
                   </div>
@@ -643,7 +643,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.noise_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.noise_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -666,7 +666,7 @@ const ForSuppliers = () => {
                     className="flex items-start gap-2 text-sm text-muted-foreground line-through decoration-muted-foreground/40"
                   >
                     <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
-                    <span>{line}</span>
+                    <span className="min-w-0 break-words">{line}</span>
                   </li>
                 ))}
               </ul>
@@ -683,7 +683,7 @@ const ForSuppliers = () => {
                 {t.noise_after.map((line, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/85">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{line}</span>
+                    <span className="min-w-0 break-words">{line}</span>
                   </li>
                 ))}
               </ul>
@@ -699,7 +699,7 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.faq_eyebrow}
             </p>
-            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="mt-3 md:mt-4 font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.faq_title}
             </h2>
             <p className="mt-3 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
@@ -708,10 +708,10 @@ const ForSuppliers = () => {
             <Accordion type="single" collapsible className="mt-6 w-full md:mt-10">
               {t.faq_items.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`} className="border-border">
-                  <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
+                  <AccordionTrigger className="text-left text-base font-semibold text-foreground break-words [overflow-wrap:anywhere] hover:no-underline md:[overflow-wrap:break-word]">
                     {item.q}
                   </AccordionTrigger>
-                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground break-words">
                     {item.a}
                   </AccordionContent>
                 </AccordionItem>
@@ -725,7 +725,7 @@ const ForSuppliers = () => {
       <section className="bg-warm-bg py-12 md:py-24">
         <div className="container">
           <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-6 py-10 text-center shadow-sm md:px-12 md:py-14">
-            <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground md:text-[36px] md:leading-[1.1]">
+            <h2 className="font-heading text-[26px] font-bold leading-[1.15] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[36px] md:leading-[1.1] md:[overflow-wrap:break-word]">
               {t.cta_title}
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-[15px] leading-[1.65] text-muted-foreground md:mt-4 md:text-base md:leading-[1.7]">
