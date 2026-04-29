@@ -29,6 +29,7 @@ type TranslationKeys = {
   hero_searchBtn: string;
   hero_popular: string;
   hero_registerFree: string;
+  hero_registerHint: string;
   hero_exploreLiveOffers: string;
   hero_liveOffers: string;
   hero_verifiedSuppliers: string;
