@@ -10,6 +10,8 @@ import type { Language } from "./translations";
 export interface ForSuppliersDict {
   seo_title: string;
   seo_description: string;
+  seo_ogImageAlt: string;
+  seo_ogLocale: string;
 
   // Hero
   hero_eyebrow: string;
@@ -94,6 +96,9 @@ const en: ForSuppliersDict = {
   seo_title: "YORSO for Suppliers · Sell Seafood B2B Without Price Leaks",
   seo_description:
     "B2B sales workspace for seafood exporters: control who sees your prices, receive qualified buyer requests, manage documents and certifications in one card.",
+  seo_ogImageAlt:
+    "YORSO for Suppliers — controlled price access, qualified buyer requests, one supplier card with documents and certifications.",
+  seo_ogLocale: "en_US",
 
   hero_eyebrow: "For seafood suppliers, processors and exporters",
   hero_title: "Stop sending price lists to people who never buy.",
@@ -302,6 +307,9 @@ const ru: ForSuppliersDict = {
   seo_title: "YORSO для поставщиков · B2B-продажи морепродуктов без утечки цен",
   seo_description:
     "Рабочая B2B-площадка для экспортёров морепродуктов: контролируйте, кто видит цены, получайте квалифицированные запросы, ведите документы и сертификаты в одной карточке.",
+  seo_ogImageAlt:
+    "YORSO для поставщиков — управляемый доступ к ценам, квалифицированные запросы покупателей, одна карточка поставщика с документами и сертификациями.",
+  seo_ogLocale: "ru_RU",
 
   hero_eyebrow: "Поставщикам, переработчикам и экспортёрам",
   hero_title: "Перестаньте отправлять прайсы тем, кто не покупает.",
@@ -510,6 +518,9 @@ const es: ForSuppliersDict = {
   seo_title: "YORSO para Proveedores · Vende Mariscos B2B Sin Filtrar Precios",
   seo_description:
     "Espacio B2B para exportadores de mariscos: controla quién ve tus precios, recibe solicitudes cualificadas y gestiona documentos y certificaciones en una sola ficha.",
+  seo_ogImageAlt:
+    "YORSO para proveedores — acceso controlado al precio, solicitudes cualificadas y una ficha de proveedor con documentos y certificaciones.",
+  seo_ogLocale: "es_ES",
 
   hero_eyebrow: "Para proveedores, procesadores y exportadores",
   hero_title: "Deja de enviar precios a quien nunca compra.",
