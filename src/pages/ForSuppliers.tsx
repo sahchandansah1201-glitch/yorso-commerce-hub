@@ -351,23 +351,17 @@ const ForSuppliers = () => {
                   </p>
                   <ul className="mt-4 space-y-2">
                     {state.sees.map((line, idx) => {
-                      const isHidden = /скрыт|hidden|оculto|ocultos|aún|still hidden|пока скрыт/i.test(
-                        line,
-                      );
-                      const Symbol = isHidden ? Lock : Check;
+                      const Symbol = line.hidden ? Lock : Check;
                       return (
                         <li key={idx} className="flex items-start gap-2 text-sm">
                           <Symbol
                             className={`mt-0.5 h-4 w-4 shrink-0 ${
-                              isHidden ? "text-muted-foreground" : "text-primary"
+                              line.hidden ? "text-muted-foreground" : "text-primary"
                             }`}
+                            aria-hidden
                           />
-                          <span
-                            className={
-                              isHidden ? "text-muted-foreground" : "text-foreground/85"
-                            }
-                          >
-                            {line}
+                          <span className={line.hidden ? "text-muted-foreground" : "text-foreground/85"}>
+                            {line.text}
                           </span>
                         </li>
                       );
