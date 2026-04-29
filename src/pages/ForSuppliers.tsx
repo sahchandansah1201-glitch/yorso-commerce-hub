@@ -368,7 +368,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* What buyers see — UI mock preview */}
-      <section className="border-b border-border bg-accent/40">
+      <section className="border-b border-border bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-16">
             <div className="max-w-xl">
