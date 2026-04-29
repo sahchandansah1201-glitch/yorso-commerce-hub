@@ -166,7 +166,7 @@ const ForSuppliers = () => {
                 {i < t.flow_steps.length - 1 && (
                   <ChevronRight
                     aria-hidden
-                    className="absolute right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-border md:block"
+                    className="absolute -right-2 top-7 hidden h-4 w-4 text-muted-foreground/40 md:block"
                   />
                 )}
               </li>
