@@ -45,7 +45,7 @@ export interface HowItWorksDict {
   problem_buyer_eyebrow: string;
   problem_buyer_title: string;
   problem_buyer_lead: string;
-  problem_buyer_painLabel: string;
+  
   problem_buyer_consequenceLabel: string;
   problem_buyer_mechanismLabel: string;
   problem_buyer_pains: { pain: string; consequence: string; mechanism: string }[]; // 6
