@@ -165,6 +165,37 @@ const ForSuppliers = () => {
             },
           })),
         },
+        {
+          "@type": "Article",
+          "@id": `${canonical}#article`,
+          headline: t.seo_title,
+          description: t.seo_description,
+          inLanguage: t.seo_ogLocale.replace("_", "-"),
+          image: [ogImageUrl],
+          mainEntityOfPage: { "@id": `${canonical}#webpage` },
+          isPartOf: { "@id": `${canonical}#webpage` },
+          author: { "@id": `${origin}/#organization` },
+          publisher: { "@id": `${origin}/#organization` },
+          about: { "@id": `${origin}/#organization` },
+          audience: {
+            "@type": "BusinessAudience",
+            audienceType: tCommon.nav_forSuppliers,
+          },
+          articleSection: tCommon.nav_forSuppliers,
+        },
+        {
+          "@type": "Service",
+          "@id": `${canonical}#service`,
+          name: t.seo_title,
+          description: t.seo_description,
+          serviceType: tCommon.nav_forSuppliers,
+          provider: { "@id": `${origin}/#organization` },
+          areaServed: "Worldwide",
+          audience: {
+            "@type": "BusinessAudience",
+            audienceType: tCommon.nav_forSuppliers,
+          },
+        },
       ],
     };
 
