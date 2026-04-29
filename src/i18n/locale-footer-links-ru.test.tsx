@@ -39,6 +39,7 @@ import AntiFraud from "@/pages/AntiFraud";
 import Careers from "@/pages/Careers";
 import Press from "@/pages/Press";
 import Partners from "@/pages/Partners";
+import Suppliers from "@/pages/Suppliers";
 
 const STORAGE_KEY = "yorso-lang";
 
@@ -78,6 +79,7 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
               <Route path="/careers" element={<Careers />} />
               <Route path="/press" element={<Press />} />
               <Route path="/partners" element={<Partners />} />
+              <Route path="/suppliers" element={<Suppliers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </RegistrationProvider>
