@@ -627,7 +627,12 @@ const es: ForSuppliersDict = {
     {
       label: "Visitante anónimo",
       who: "Sin registro",
-      sees: ["Nombre del producto, origen, formato", "Certificaciones", "Rango de precio", "Precio exacto y datos del proveedor — ocultos"],
+      sees: [
+        { text: "Nombre del producto, origen, formato" },
+        { text: "Certificaciones" },
+        { text: "Rango de precio" },
+        { text: "Precio exacto y datos del proveedor — ocultos", hidden: true },
+      ],
     },
     {
       label: "Comprador registrado",
