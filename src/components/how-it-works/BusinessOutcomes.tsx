@@ -1,4 +1,4 @@
-import { Clock, ShieldX, ClipboardCheck, LineChart, PackageCheck, Inbox, ThumbsUp, Sparkles, Eye, RefreshCw, TrendingUp, UserPlus, Repeat, ShieldCheck } from "lucide-react";
+import { Clock, ShieldX, ClipboardCheck, LineChart, PackageCheck, Inbox, ThumbsUp, Sparkles, Eye, RefreshCw, TrendingUp, UserPlus, Repeat, ShieldCheck, FlaskConical, ArrowRight, Minus, Check } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useHowItWorks } from "@/i18n/how-it-works";
 
@@ -28,6 +28,81 @@ const BusinessOutcomes = () => {
           </h2>
           <p className="mt-3 text-muted-foreground">{t.bo_subtitle}</p>
         </div>
+
+        {/* Buyer worksheet — Before vs With Yorso */}
+        <section aria-label={t.bo_saves_eyebrow} className="mt-12 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <header className="flex flex-col gap-3 border-b border-border bg-background/60 px-5 py-4 md:flex-row md:items-end md:justify-between md:px-6">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">{t.bo_saves_eyebrow}</p>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                  <FlaskConical className="h-3 w-3" />
+                  {t.pdp_exampleBadge}
+                </span>
+              </div>
+              <h3 className="mt-1 font-heading text-base font-bold leading-snug text-foreground md:text-lg">{t.bo_saves_title}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t.bo_saves_subtitle}</p>
+            </div>
+          </header>
+
+          {/* Desktop / tablet table */}
+          <div className="hidden md:block">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border bg-background/40 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <th className="w-[34%] px-6 py-3">{t.bo_saves_col_metric}</th>
+                  <th className="w-[33%] px-6 py-3">{t.bo_saves_col_before}</th>
+                  <th className="w-[33%] px-6 py-3">{t.bo_saves_col_with}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {t.bo_saves_rows.map((row, i) => (
+                  <tr key={row.metric} className={`border-b border-border/60 last:border-0 ${i % 2 === 1 ? "bg-background/30" : ""}`}>
+                    <td className="px-6 py-3 align-top font-semibold text-foreground">{row.metric}</td>
+                    <td className="px-6 py-3 align-top text-muted-foreground">
+                      <span className="inline-flex items-start gap-2">
+                        <Minus className="mt-1 h-3 w-3 shrink-0 text-muted-foreground/60" />
+                        <span>{row.before}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 align-top text-foreground/90">
+                      <span className="inline-flex items-start gap-2">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[hsl(var(--success))]" />
+                        <span>{row.with}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile stacked rows */}
+          <ul className="divide-y divide-border md:hidden">
+            {t.bo_saves_rows.map((row) => (
+              <li key={row.metric} className="px-5 py-4">
+                <p className="font-heading text-sm font-bold leading-snug text-foreground">{row.metric}</p>
+                <div className="mt-3 grid grid-cols-1 gap-2 text-xs">
+                  <div className="rounded-md border border-border/60 bg-background/40 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t.bo_saves_col_before}</p>
+                    <p className="mt-1 leading-relaxed text-muted-foreground">{row.before}</p>
+                  </div>
+                  <div className="flex justify-center text-muted-foreground/50">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="rounded-md border border-[hsl(var(--success))]/30 bg-[hsl(var(--success))]/5 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">{t.bo_saves_col_with}</p>
+                    <p className="mt-1 leading-relaxed text-foreground/90">{row.with}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <p className="border-t border-border bg-background/60 px-5 py-3 text-[11px] italic leading-relaxed text-muted-foreground md:px-6">
+            {t.bo_saves_footnote}
+          </p>
+        </section>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-5">
           {/* Buyer outcomes — dominant */}

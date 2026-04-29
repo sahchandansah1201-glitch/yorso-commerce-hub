@@ -193,6 +193,14 @@ export interface HowItWorksDict {
   bo_supplier_title: string;
   bo_buyer_items: { title: string; body: string }[]; // 5
   bo_supplier_items: { title: string; body: string }[]; // 5
+  bo_saves_eyebrow: string;
+  bo_saves_title: string;
+  bo_saves_subtitle: string;
+  bo_saves_col_before: string;
+  bo_saves_col_with: string;
+  bo_saves_col_metric: string;
+  bo_saves_rows: { metric: string; before: string; with: string }[]; // 6
+  bo_saves_footnote: string;
   bo_goals_eyebrow: string;
   bo_goals_title: string;
   bo_goals_subtitle: string;
@@ -726,6 +734,21 @@ const en: HowItWorksDict = {
     { title: "Useful visibility", body: "Indexed profile and category surfacing for buyers actively searching." },
     { title: "Repeatable workflow", body: "Per-buyer thread and follow-up history support the next order." },
   ],
+  bo_saves_eyebrow: "What this saves the buyer",
+  bo_saves_title: "Use your own numbers. The example below shows what changes when sourcing is structured.",
+  bo_saves_subtitle: "Illustrative procurement worksheet. Replace each value with your own to see the operational delta on a real category.",
+  bo_saves_col_before: "Before Yorso",
+  bo_saves_col_with: "With Yorso",
+  bo_saves_col_metric: "Operational item",
+  bo_saves_rows: [
+    { metric: "Supplier conversations to track", before: "12 parallel chats and emails", with: "3 shortlisted suppliers in one view" },
+    { metric: "Document checks before RFQ", before: "Asked after the offer, often missing", with: "5 checks visible before the request goes out" },
+    { metric: "Landed-cost components in front of approver", before: "Price only, freight and duties guessed later", with: "4 components visible before approval" },
+    { metric: "Decision record for internal review", before: "Scattered chats, PDFs and screenshots", with: "1 decision file with shortlist, evidence and audit trail" },
+    { metric: "Export formats for finance and quality", before: "Forwarded threads and copy-paste", with: "2 formats: PDF and CSV" },
+    { metric: "Internal teams reading the same record", before: "Each team rebuilds context from the buyer", with: "3 teams aligned: finance, quality, leadership" },
+  ],
+  bo_saves_footnote: "Illustrative example. Numbers reflect operational steps the workflow removes, not guaranteed savings or marketplace-wide results.",
   bo_goals_eyebrow: "Design intents",
   bo_goals_title: "What this workflow is built to support",
   bo_goals_subtitle: "Product goals that guide design decisions, not published performance claims.",
@@ -1271,6 +1294,21 @@ const ru: HowItWorksDict = {
     { title: "Полезнее видимость", body: "SEO-профиль и категорийная выдача — видимы покупателям, которые активно ищут." },
     { title: "Повторяемый процесс продаж", body: "CRM, история фоллоу-апов и аналитика намерений превращают сделку в постоянные отношения." },
   ],
+  bo_saves_eyebrow: "Что это экономит покупателю",
+  bo_saves_title: "Подставьте свои числа. Пример ниже показывает, что меняется при структурированных закупках.",
+  bo_saves_subtitle: "Иллюстративный закупочный воркшит. Замените значения своими, чтобы увидеть операционную разницу на реальной категории.",
+  bo_saves_col_before: "До Yorso",
+  bo_saves_col_with: "С Yorso",
+  bo_saves_col_metric: "Операционный пункт",
+  bo_saves_rows: [
+    { metric: "Поставщиков в активной переписке", before: "12 параллельных чатов и писем", with: "3 поставщика в шорт-листе в одном экране" },
+    { metric: "Проверок документов до RFQ", before: "Запрашиваются после оферты, часто отсутствуют", with: "5 проверок видны до отправки запроса" },
+    { metric: "Компонентов landed cost у апрувера", before: "Только цена, фрахт и пошлины — оценка постфактум", with: "4 компонента видны до согласования" },
+    { metric: "Запись решения для внутреннего ревью", before: "Разрозненные чаты, PDF и скриншоты", with: "1 файл решения: шорт-лист, доказательства, журнал" },
+    { metric: "Форматы экспорта для финансов и качества", before: "Пересланные треды и копипаст", with: "2 формата: PDF и CSV" },
+    { metric: "Внутренних команд на одной записи", before: "Каждая команда выясняет контекст у закупщика", with: "3 команды синхронизированы: финансы, качество, руководство" },
+  ],
+  bo_saves_footnote: "Иллюстративный пример. Числа отражают операционные шаги, которые убирает воркфлоу, а не гарантированную экономию или результаты по маркетплейсу.",
   bo_goals_eyebrow: "Дизайн-намерения",
   bo_goals_title: "Что этот workflow призван поддерживать",
   bo_goals_subtitle: "Это продуктовые цели — направленные намерения, ведущие дизайн-решения, а не публикуемые показатели.",
@@ -1816,6 +1854,21 @@ const es: HowItWorksDict = {
     { title: "Visibilidad más útil", body: "Perfil SEO y aparición en categorías — visible para compradores que buscan activamente." },
     { title: "Flujo de ventas repetible", body: "CRM, historial de seguimiento e intent analytics convierten un trato en una relación recurrente." },
   ],
+  bo_saves_eyebrow: "Lo que esto le ahorra al comprador",
+  bo_saves_title: "Use sus propios números. El ejemplo de abajo muestra qué cambia cuando el aprovisionamiento se estructura.",
+  bo_saves_subtitle: "Hoja de trabajo ilustrativa. Sustituya cada valor por el suyo para ver la diferencia operativa en una categoría real.",
+  bo_saves_col_before: "Antes de Yorso",
+  bo_saves_col_with: "Con Yorso",
+  bo_saves_col_metric: "Elemento operativo",
+  bo_saves_rows: [
+    { metric: "Conversaciones con proveedores en curso", before: "12 chats y correos en paralelo", with: "3 proveedores preseleccionados en una sola vista" },
+    { metric: "Comprobaciones de documentos antes del RFQ", before: "Pedidas tras la oferta, a menudo faltantes", with: "5 comprobaciones visibles antes de enviar la solicitud" },
+    { metric: "Componentes del coste en destino ante el aprobador", before: "Solo precio, flete y aranceles estimados después", with: "4 componentes visibles antes de la aprobación" },
+    { metric: "Registro de decisión para revisión interna", before: "Chats, PDFs y capturas dispersos", with: "1 expediente con preselección, evidencia y registro" },
+    { metric: "Formatos de exportación para finanzas y calidad", before: "Reenvíos de hilos y copia y pega", with: "2 formatos: PDF y CSV" },
+    { metric: "Equipos internos sobre el mismo registro", before: "Cada equipo reconstruye el contexto con el comprador", with: "3 equipos alineados: finanzas, calidad, dirección" },
+  ],
+  bo_saves_footnote: "Ejemplo ilustrativo. Las cifras reflejan pasos operativos que el flujo elimina, no ahorros garantizados ni resultados a escala de marketplace.",
   bo_goals_eyebrow: "Intenciones de diseño",
   bo_goals_title: "Qué pretende soportar este workflow",
   bo_goals_subtitle: "Son objetivos de producto — intenciones direccionales que guían decisiones de diseño, no afirmaciones de rendimiento publicadas.",
