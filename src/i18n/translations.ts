@@ -2793,6 +2793,7 @@ const es: TranslationKeys = {
   nav_liveOffers: "Catálogo",
   nav_categories: "Categorías",
   nav_howItWorks: "Cómo funciona",
+  nav_forSuppliers: "Para proveedores",
   nav_faq: "FAQ",
   nav_signIn: "Iniciar sesión",
   nav_registerFree: "Registro gratis",
