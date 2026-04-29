@@ -517,16 +517,16 @@ const en: HowItWorksDict = {
   ts_legend_missing: "Not provided yet = missing item. Buyers can request it before RFQ.",
   ts_legend_promoted: "Promoted = paid visibility, separate from verification.",
 
-  vg_eyebrow: "What Yorso provides",
-  vg_title: "Balanced value for buyers and suppliers.",
+  vg_eyebrow: "What buyers get",
+  vg_title: "Built for the buyer side of the trade.",
   vg_subtitle:
-    "Buyers get decision-grade evidence. Suppliers get qualified demand and a place to prove it. Verified, Sponsored and Premium are kept visually separate — paid placement is never sold as trust.",
-  vg_buyer_eyebrow: "For buyers",
+    "Buyers get the workspace and the evidence. Supplier-side mechanisms exist to make those buyer decisions safer — not to be sold separately. Verified, Sponsored and Premium are kept visually separate; paid placement is never sold as trust.",
+  vg_buyer_eyebrow: "Buyer capabilities",
   vg_buyer_title: "Procurement-grade decisions, defended internally.",
   vg_buyer_count: "9 capabilities · evidence-led",
-  vg_supplier_eyebrow: "For suppliers",
-  vg_supplier_title: "Qualified demand, structured evidence, repeat trade.",
-  vg_supplier_count: "9 capabilities · verification ≠ paid placement",
+  vg_supplier_eyebrow: "Supply-side mechanism",
+  vg_supplier_title: "What the supplier side does so the buyer can decide safely.",
+  vg_supplier_count: "Verification ≠ paid placement",
   vg_buyer_items: [
     { title: "Seafood product discovery", body: "Search by species, format, origin, certifications and supplier country." },
     { title: "Verified supplier evidence", body: "Registration, plant approval and certifications presented in a structured trust pack." },
