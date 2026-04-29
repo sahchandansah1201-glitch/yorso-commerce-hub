@@ -26,7 +26,7 @@ export interface HowItWorksDict {
   hero_workflow_eyebrow: string;
   hero_workflow_caption: string;
   hero_workflow_step: string;
-  hero_workflow_steps: string[]; // 6
+  hero_workflow_steps: { label: string; hint: string }[]; // 6
 
   // Buyer Decision Snapshot (3 cards)
   bds_eyebrow: string;
