@@ -86,6 +86,8 @@ export interface HowItWorksDict {
   pdp_subtitle: string;
   pdp_fileEyebrow: string;
   pdp_fileTitle: string;
+  pdp_exampleBadge: string;
+  pdp_summary: { value: string; label: string }[]; // 6
   pdp_decisionRecorded: string;
   pdp_exportable: string;
   pdp_priceBenchmark: string;
