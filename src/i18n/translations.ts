@@ -1083,11 +1083,11 @@ const en: TranslationKeys = {
   footer_legal: "Legal",
   footer_links: {
     platform: [
-      { label: "Live Offers", href: "#offers" },
-      { label: "Categories", href: "#categories" },
-      { label: "Verified Suppliers", href: "#how-it-works" },
-      { label: "How It Works", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Live Offers", href: "/#offers" },
+      { label: "Categories", href: "/#categories" },
+      { label: "Verified Suppliers", href: "/how-it-works" },
+      { label: "How It Works", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "About YORSO", href: "/about" },
