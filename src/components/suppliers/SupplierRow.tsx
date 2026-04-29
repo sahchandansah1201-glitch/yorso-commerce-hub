@@ -305,6 +305,11 @@ const SupplierRowImpl = ({
                         +{deliveryRest} markets
                       </span>
                     )}
+                    {showDeliveryTeaser && (
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        More markets after access
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
