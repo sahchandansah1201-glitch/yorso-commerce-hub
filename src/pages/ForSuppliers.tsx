@@ -539,7 +539,10 @@ const ForSuppliers = () => {
               {t.cta_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/register">
+              <Link
+                to="/register"
+                onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
+              >
                 <Button size="lg" className="gap-2 px-8 text-base font-semibold">
                   {t.cta_primary}
                   <ArrowRight className="h-5 w-5" />
