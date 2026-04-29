@@ -666,7 +666,7 @@ const ForSuppliers = () => {
                     className="flex items-start gap-2 text-sm text-muted-foreground line-through decoration-muted-foreground/40"
                   >
                     <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
-                    <span>{line}</span>
+                    <span className="min-w-0 break-words">{line}</span>
                   </li>
                 ))}
               </ul>
