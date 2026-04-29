@@ -26,6 +26,7 @@ import { useForSuppliers } from "@/i18n/for-suppliers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 import { useEffect } from "react";
+import ogImage from "@/assets/og-for-suppliers.jpg";
 
 const painIcons = [Inbox, ShieldAlert, Eye, LayoutGrid];
 const helpIcons = [Lock, BadgeCheck, FileBadge, Package, LineChart];
@@ -67,16 +68,35 @@ const ForSuppliers = () => {
     document.title = t.seo_title;
     document.documentElement.setAttribute("lang", lang);
 
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const canonical = `${origin}/for-suppliers`;
+    const ogImageUrl = `${origin}${ogImage}`;
+
+    // Standard SEO
     upsertMeta('meta[name="description"]', { name: "description", content: t.seo_description });
+
+    // Open Graph
     upsertMeta('meta[property="og:title"]', { property: "og:title", content: t.seo_title });
     upsertMeta('meta[property="og:description"]', { property: "og:description", content: t.seo_description });
     upsertMeta('meta[property="og:type"]', { property: "og:type", content: "website" });
-    upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
-
-    const canonical =
-      typeof window !== "undefined" ? `${window.location.origin}/for-suppliers` : "/for-suppliers";
-    upsertLink("canonical", canonical);
     upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonical });
+    upsertMeta('meta[property="og:site_name"]', { property: "og:site_name", content: "YORSO" });
+    upsertMeta('meta[property="og:locale"]', { property: "og:locale", content: t.seo_ogLocale });
+    upsertMeta('meta[property="og:image"]', { property: "og:image", content: ogImageUrl });
+    upsertMeta('meta[property="og:image:secure_url"]', { property: "og:image:secure_url", content: ogImageUrl });
+    upsertMeta('meta[property="og:image:type"]', { property: "og:image:type", content: "image/jpeg" });
+    upsertMeta('meta[property="og:image:width"]', { property: "og:image:width", content: "1200" });
+    upsertMeta('meta[property="og:image:height"]', { property: "og:image:height", content: "630" });
+    upsertMeta('meta[property="og:image:alt"]', { property: "og:image:alt", content: t.seo_ogImageAlt });
+
+    // Twitter Card
+    upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
+    upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: t.seo_title });
+    upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: t.seo_description });
+    upsertMeta('meta[name="twitter:image"]', { name: "twitter:image", content: ogImageUrl });
+    upsertMeta('meta[name="twitter:image:alt"]', { name: "twitter:image:alt", content: t.seo_ogImageAlt });
+
+    upsertLink("canonical", canonical);
 
     analytics.track("supplier_page_view", { surface: "for_suppliers" });
 
@@ -85,11 +105,13 @@ const ForSuppliers = () => {
       if (prevDescription) {
         upsertMeta('meta[name="description"]', { name: "description", content: prevDescription });
         upsertMeta('meta[property="og:description"]', { property: "og:description", content: prevDescription });
+        upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: prevDescription });
       }
       upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
+      upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: prevTitle });
       if (prevCanonical) upsertLink("canonical", prevCanonical);
     };
-  }, [t.seo_title, t.seo_description, lang]);
+  }, [t.seo_title, t.seo_description, t.seo_ogImageAlt, t.seo_ogLocale, lang]);
 
   return (
     <div className="min-h-screen bg-background">
