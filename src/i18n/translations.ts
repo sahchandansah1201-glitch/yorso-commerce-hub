@@ -923,8 +923,8 @@ const en: TranslationKeys = {
 
   // Live Offers
   offers_liveMarketplace: "Live Marketplace",
-  offers_title: "Wholesale Offers",
-  offers_subtitle: "Fresh listings from verified suppliers worldwide — updated continuously",
+  offers_title: "Live wholesale offers buyers can compare today.",
+  offers_subtitle: "Real listings with origin, format, price range and MOQ. Open any card to inspect documents and request supplier access.",
   offers_viewAll: "View all offers",
   offers_viewAllMobile: "View All Offers",
   offers_showMore: "Show more offers",
@@ -1870,8 +1870,8 @@ const ru: TranslationKeys = {
   hero_activeBuyers: "активных покупателей",
 
   offers_liveMarketplace: "Маркетплейс онлайн",
-  offers_title: "Оптовые предложения",
-  offers_subtitle: "Актуальные предложения от проверенных поставщиков со всего мира — обновляются постоянно",
+  offers_title: "Живые оптовые предложения, которые можно сравнить сегодня.",
+  offers_subtitle: "Реальные оферты с происхождением, форматом, диапазоном цены и MOQ. Откройте карточку, чтобы посмотреть документы и запросить доступ к поставщику.",
   offers_viewAll: "Все предложения",
   offers_viewAllMobile: "Все предложения",
   offers_showMore: "Показать ещё",
@@ -2807,8 +2807,8 @@ const es: TranslationKeys = {
   hero_activeBuyers: "compradores activos",
 
   offers_liveMarketplace: "Mercado en vivo",
-  offers_title: "Ofertas mayoristas",
-  offers_subtitle: "Listados actualizados de proveedores verificados en todo el mundo — actualización continua",
+  offers_title: "Ofertas mayoristas reales que el comprador puede comparar hoy.",
+  offers_subtitle: "Listados reales con origen, formato, rango de precio y MOQ. Abre cualquier ficha para revisar documentos y solicitar acceso al proveedor.",
   offers_viewAll: "Ver todas las ofertas",
   offers_viewAllMobile: "Ver todas las ofertas",
   offers_showMore: "Mostrar más ofertas",

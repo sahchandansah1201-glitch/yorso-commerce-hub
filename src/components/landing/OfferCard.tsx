@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -82,13 +81,12 @@ const OfferCard = ({ offer }: OfferCardProps) => {
 
         <CertificationBadges
           certifications={offer.certifications ?? []}
-          limit={3}
+          limit={2}
           className="mt-1.5"
         />
 
-
         <div className="mt-auto pt-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-baseline gap-1.5">
             <span className="font-heading text-base font-bold text-foreground" data-testid="offer-price">{formattedPrice}</span>
             <span className="text-xs text-muted-foreground" data-testid="offer-price-unit">{priceUnitLabel}</span>
           </div>
@@ -98,10 +96,6 @@ const OfferCard = ({ offer }: OfferCardProps) => {
             </p>
           )}
         </div>
-
-        <Button variant="outline" size="sm" className="mt-3 w-full text-xs font-semibold transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-          {t.card_viewOffer}
-        </Button>
       </div>
     </div>
   );
