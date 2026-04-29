@@ -193,6 +193,14 @@ export interface HowItWorksDict {
   bo_supplier_title: string;
   bo_buyer_items: { title: string; body: string }[]; // 5
   bo_supplier_items: { title: string; body: string }[]; // 5
+  bo_saves_eyebrow: string;
+  bo_saves_title: string;
+  bo_saves_subtitle: string;
+  bo_saves_col_before: string;
+  bo_saves_col_with: string;
+  bo_saves_col_metric: string;
+  bo_saves_rows: { metric: string; before: string; with: string }[]; // 6
+  bo_saves_footnote: string;
   bo_goals_eyebrow: string;
   bo_goals_title: string;
   bo_goals_subtitle: string;
