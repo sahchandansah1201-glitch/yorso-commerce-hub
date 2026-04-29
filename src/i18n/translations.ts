@@ -2964,6 +2964,7 @@ const es: TranslationKeys = {
       { label: "Categorías", href: "/#categories" },
       { label: "Proveedores verificados", href: "/how-it-works" },
       { label: "Cómo funciona", href: "/how-it-works" },
+      { label: "Para proveedores", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
