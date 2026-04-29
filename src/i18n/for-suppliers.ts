@@ -69,7 +69,7 @@ export interface ForSuppliersDict {
   access_eyebrow: string;
   access_title: string;
   access_subtitle: string;
-  access_states: { label: string; who: string; sees: string[] }[]; // 3
+  access_states: { label: string; who: string; sees: { text: string; hidden?: boolean }[] }[]; // 3
   access_flowTitle: string;
   access_flowSteps: string[]; // 4
 
