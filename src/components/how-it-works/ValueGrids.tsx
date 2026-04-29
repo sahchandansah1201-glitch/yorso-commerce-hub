@@ -1,10 +1,10 @@
-import { Search, ShieldCheck, FileSignature, GitCompare, LineChart, FileBadge, Truck, Users, ClipboardCheck, Box, Globe2, Inbox, Activity, Sparkles, RefreshCw, TrendingUp } from "lucide-react";
+import { Search, ShieldCheck, FileSignature, GitCompare, LineChart, FileBadge, Truck, Users, ClipboardCheck, Box, FileCheck2, MessageSquare, Inbox, Repeat, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useHowItWorks } from "@/i18n/how-it-works";
 
 const BUYER_ICONS: LucideIcon[] = [Search, ShieldCheck, FileSignature, GitCompare, LineChart, FileBadge, Truck, Users, ClipboardCheck];
-const SUPPLIER_ICONS: LucideIcon[] = [Box, ShieldCheck, Globe2, Inbox, Activity, Sparkles, TrendingUp, RefreshCw, Sparkles];
-const SUPPLIER_TONES: ("verified" | "premium" | undefined)[] = [undefined, "verified", undefined, undefined, undefined, undefined, undefined, undefined, "premium"];
+const SUPPLIER_ICONS: LucideIcon[] = [Box, ShieldCheck, FileCheck2, MessageSquare, Inbox, Repeat, Sparkles];
+const SUPPLIER_TONES: ("verified" | "premium" | undefined)[] = [undefined, "verified", undefined, undefined, undefined, undefined, "premium"];
 
 const tagClass = (tone: "verified" | "premium") =>
   tone === "verified"

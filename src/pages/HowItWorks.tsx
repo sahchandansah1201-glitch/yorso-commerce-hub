@@ -64,6 +64,11 @@ const HowItWorks = () => {
 
   useEffect(() => {
     const prevTitle = document.title;
+    const prevDescription =
+      document.head.querySelector<HTMLMetaElement>('meta[name="description"]')?.getAttribute("content") ?? "";
+    const prevCanonical =
+      document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? "";
+
     document.title = t.seo_title;
 
     upsertMeta('meta[name="description"]', { name: "description", content: t.seo_description });
@@ -91,6 +96,12 @@ const HowItWorks = () => {
 
     return () => {
       document.title = prevTitle;
+      if (prevDescription) {
+        upsertMeta('meta[name="description"]', { name: "description", content: prevDescription });
+        upsertMeta('meta[property="og:description"]', { property: "og:description", content: prevDescription });
+      }
+      upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
+      if (prevCanonical) upsertLink("canonical", prevCanonical);
       document.getElementById("ld-how-it-works")?.remove();
     };
   }, [t, lang]);

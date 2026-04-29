@@ -1083,11 +1083,11 @@ const en: TranslationKeys = {
   footer_legal: "Legal",
   footer_links: {
     platform: [
-      { label: "Live Offers", href: "#offers" },
-      { label: "Categories", href: "#categories" },
-      { label: "Verified Suppliers", href: "#how-it-works" },
-      { label: "How It Works", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Live Offers", href: "/#offers" },
+      { label: "Categories", href: "/#categories" },
+      { label: "Verified Suppliers", href: "/how-it-works" },
+      { label: "How It Works", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "About YORSO", href: "/about" },
@@ -2021,11 +2021,11 @@ const ru: TranslationKeys = {
   footer_legal: "Правовая информация",
   footer_links: {
     platform: [
-      { label: "Предложения", href: "#offers" },
-      { label: "Категории", href: "#categories" },
-      { label: "Проверенные поставщики", href: "#how-it-works" },
-      { label: "Как это работает", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Предложения", href: "/#offers" },
+      { label: "Категории", href: "/#categories" },
+      { label: "Проверенные поставщики", href: "/how-it-works" },
+      { label: "Как это работает", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "О YORSO", href: "/about" },
@@ -2959,11 +2959,11 @@ const es: TranslationKeys = {
   footer_legal: "Legal",
   footer_links: {
     platform: [
-      { label: "Ofertas activas", href: "#offers" },
-      { label: "Categorías", href: "#categories" },
-      { label: "Proveedores verificados", href: "#how-it-works" },
-      { label: "Cómo funciona", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Ofertas activas", href: "/#offers" },
+      { label: "Categorías", href: "/#categories" },
+      { label: "Proveedores verificados", href: "/how-it-works" },
+      { label: "Cómo funciona", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "Sobre YORSO", href: "/about" },
