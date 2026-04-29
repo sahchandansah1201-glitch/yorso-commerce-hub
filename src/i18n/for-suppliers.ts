@@ -251,7 +251,12 @@ const en: ForSuppliersDict = {
     {
       label: "Access approved",
       who: "Access granted by the supplier",
-      sees: ["Exact price", "Supplier name and details", "Direct contact actions", "Workspace for conversation and follow-up"],
+      sees: [
+        { text: "Exact price" },
+        { text: "Supplier name and details" },
+        { text: "Direct contact actions" },
+        { text: "Workspace for conversation and follow-up" },
+      ],
     },
   ],
   access_flowTitle: "Access request flow",
