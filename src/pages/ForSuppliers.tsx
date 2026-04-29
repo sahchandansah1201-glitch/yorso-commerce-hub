@@ -258,13 +258,13 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
             </p>
-            <h1 className="mt-5 font-heading text-[34px] font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-[52px] md:leading-[1.05]">
+            <h1 className="mt-3 font-heading text-[34px] font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:mt-5 md:text-[52px] md:leading-[1.05]">
               {t.hero_title}
             </h1>
-            <p className="mt-5 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:text-[17px] md:leading-[1.6]">
+            <p className="mt-4 max-w-2xl text-[15px] leading-[1.65] text-muted-foreground md:mt-5 md:text-[17px] md:leading-[1.6]">
               {t.hero_subtitle}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
               <Link
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "hero" })}
