@@ -708,13 +708,13 @@ const ForSuppliers = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="bg-accent py-16 md:py-20">
+      <section className="bg-warm-bg py-20 md:py-24">
         <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-accent-foreground md:text-4xl">
+          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-8 py-12 text-center shadow-sm md:px-12 md:py-14">
+            <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {t.cta_title}
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/70">
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
               {t.cta_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -722,7 +722,7 @@ const ForSuppliers = () => {
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
               >
-                <Button size="lg" className="gap-2 px-8 text-base font-semibold">
+                <Button size="lg" className="gap-2 px-8 text-base font-semibold shadow-sm">
                   {t.cta_primary}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
@@ -736,7 +736,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-accent-foreground/55">{t.cta_note}</p>
+            <p className="mt-4 text-xs text-muted-foreground">{t.cta_note}</p>
           </div>
         </div>
       </section>
