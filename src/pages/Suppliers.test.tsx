@@ -1,8 +1,10 @@
 /**
- * Focused tests for Supplier Catalog implementation quality fixes:
+ * Focused regression tests for Supplier Catalog (/suppliers):
  *  1. SupplierRow does not render nested <button> inside another <button>.
  *  2. Locked search must not match real companyName (anonymous_locked).
- *  3. Neutral selected panel is reachable until the user picks a supplier.
+ *  3. Qualified search MAY match real companyName (qualified_unlocked).
+ *  4. Neutral selected-panel state visible until user picks a supplier.
+ *  5. Product preview images render with meaningful alt text.
  */
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within, fireEvent } from "@testing-library/react";
@@ -13,6 +15,8 @@ import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
 import Suppliers from "@/pages/Suppliers";
 import { mockSuppliers } from "@/data/mockSuppliers";
+import { BUYER_SESSION_STORAGE_KEY } from "@/lib/buyer-session";
+import { setQualified } from "@/lib/access-level";
 
 const renderPage = () =>
   render(
@@ -31,6 +35,20 @@ const renderPage = () =>
     </MemoryRouter>,
   );
 
+const seedQualifiedSession = () => {
+  sessionStorage.setItem(
+    BUYER_SESSION_STORAGE_KEY,
+    JSON.stringify({
+      id: "test-buyer",
+      identifier: "buyer@example.com",
+      method: "email",
+      signedInAt: new Date().toISOString(),
+      displayName: "Test Buyer",
+    }),
+  );
+  setQualified(true, "Test Supplier");
+};
+
 describe("/suppliers — implementation quality fixes", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -44,7 +62,6 @@ describe("/suppliers — implementation quality fixes", () => {
     for (const row of rows) {
       const buttons = row.querySelectorAll("button");
       for (const btn of Array.from(buttons)) {
-        // No button should have a button ancestor inside the row.
         let parent = btn.parentElement;
         while (parent && parent !== row) {
           expect(parent.tagName.toLowerCase()).not.toBe("button");
@@ -56,29 +73,36 @@ describe("/suppliers — implementation quality fixes", () => {
 
   it("locked search does not match the real companyName", () => {
     renderPage();
-    const realName = mockSuppliers[0].companyName; // e.g. "Nordfjord Sjømat AS"
     const search = screen.getByLabelText(/search suppliers/i);
-    fireEvent.change(search, { target: { value: realName } });
+    // Search for distinctive token from the real (hidden) company name.
+    fireEvent.change(search, { target: { value: "Nordfjord" } });
 
-    // The masked identity for that supplier must not be on screen
-    // because the real name shouldn't match in locked mode.
     expect(
       screen.queryByText(mockSuppliers[0].maskedName),
     ).not.toBeInTheDocument();
 
-    // But searching the masked name should match.
-    fireEvent.change(search, { target: { value: mockSuppliers[0].maskedName } });
+    // Visible masked identity / category should still match.
+    fireEvent.change(search, { target: { value: "Norwegian salmon" } });
     expect(screen.getByText(mockSuppliers[0].maskedName)).toBeInTheDocument();
+  });
+
+  it("qualified_unlocked search matches the real companyName", () => {
+    seedQualifiedSession();
+    renderPage();
+
+    const search = screen.getByLabelText(/search suppliers/i);
+    fireEvent.change(search, { target: { value: "Nordfjord" } });
+
+    // In qualified state, the real company name is displayed in the row.
+    expect(screen.getByText(mockSuppliers[0].companyName)).toBeInTheDocument();
   });
 
   it("shows neutral selected-panel state until the user picks a supplier", () => {
     renderPage();
-    // Neutral copy from EmptyState
     expect(
       screen.getByText(/select a supplier to review product focus/i),
     ).toBeInTheDocument();
 
-    // Click first row's selection control
     const firstRow = screen.getAllByTestId("supplier-row")[0];
     const selectBtn = within(firstRow).getByRole("button", {
       name: /select .* to review details/i,
@@ -88,5 +112,17 @@ describe("/suppliers — implementation quality fixes", () => {
     expect(
       screen.queryByText(/select a supplier to review product focus/i),
     ).not.toBeInTheDocument();
+  });
+
+  it("renders at least one product preview image per supplier with productPreviewImages", () => {
+    renderPage();
+    const firstRow = screen.getAllByTestId("supplier-row")[0];
+    const imgs = within(firstRow).getAllByRole("img");
+    expect(imgs.length).toBeGreaterThan(0);
+
+    const alt = imgs[0].getAttribute("alt") ?? "";
+    // Alt text should reference a species and the displayed (masked here) name.
+    expect(alt).toContain(mockSuppliers[0].productFocus[0].species);
+    expect(alt).toContain(mockSuppliers[0].maskedName);
   });
 });
