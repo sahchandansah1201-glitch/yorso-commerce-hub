@@ -155,4 +155,29 @@ describe("SupplierRow", () => {
     }
     expect(row.textContent ?? "").not.toMatch(/More products after access/i);
   });
+
+  it("does not render exact delivery geography in locked states", () => {
+    const hiddenMarkets = supplier.deliveryCountriesTotal - 3;
+    for (const level of ["anonymous_locked", "registered_locked"] as const) {
+      const { unmount } = renderRow({ accessLevel: level });
+      const row = screen.getByTestId("supplier-row");
+      const text = row.textContent ?? "";
+      expect(text).not.toContain(`+${hiddenMarkets} markets`);
+      expect(text).not.toContain(`${supplier.deliveryCountriesTotal} countries`);
+      if (supplier.deliveryCountriesTotal > 3) {
+        expect(text).toMatch(/More markets after access/i);
+      }
+      unmount();
+    }
+  });
+
+  it("renders exact +N markets chip in qualified_unlocked", () => {
+    renderRow({ accessLevel: "qualified_unlocked" });
+    const row = screen.getByTestId("supplier-row");
+    const hiddenMarkets = supplier.deliveryCountriesTotal - 3;
+    if (hiddenMarkets > 0) {
+      expect(row.textContent ?? "").toContain(`+${hiddenMarkets} markets`);
+    }
+    expect(row.textContent ?? "").not.toMatch(/More markets after access/i);
+  });
 });
