@@ -86,6 +86,8 @@ export interface HowItWorksDict {
   pdp_subtitle: string;
   pdp_fileEyebrow: string;
   pdp_fileTitle: string;
+  pdp_exampleBadge: string;
+  pdp_summary: { value: string; label: string }[]; // 6
   pdp_decisionRecorded: string;
   pdp_exportable: string;
   pdp_priceBenchmark: string;
@@ -422,11 +424,20 @@ const en: HowItWorksDict = {
   ],
 
   pdp_eyebrow: "Procurement Decision Proof",
-  pdp_title: "Enough evidence to defend the deal — internally.",
+  pdp_title: "Enough evidence to defend the deal. internally.",
   pdp_subtitle:
     "Yorso assembles a structured record around every shortlisted offer: price benchmark, supplier evidence, comparison, landed cost logic, risk summary, alternatives considered and an audit trail. Illustrative example below.",
   pdp_fileEyebrow: "Procurement file · illustrative example",
   pdp_fileTitle: "Mackerel HGT, frozen, 300–500 g · Norway · CFR Rotterdam",
+  pdp_exampleBadge: "Illustrative procurement example",
+  pdp_summary: [
+    { value: "3", label: "Suppliers shortlisted" },
+    { value: "5", label: "Evidence checks" },
+    { value: "4", label: "Risk signals" },
+    { value: "5", label: "Landed-cost components" },
+    { value: "6", label: "Audit trail events" },
+    { value: "1.5%", label: "Below market average" },
+  ],
   pdp_decisionRecorded: "Decision recorded",
   pdp_exportable: "Exportable report",
   pdp_priceBenchmark: "Price benchmark",
@@ -442,7 +453,7 @@ const en: HowItWorksDict = {
     { label: "Certifications uploaded" },
     { label: "Trade history with platform" },
   ],
-  pdp_evidenceFootnote: "Status reflects what the supplier has submitted — not a quality guarantee.",
+  pdp_evidenceFootnote: "Status reflects what the supplier has submitted. not a quality guarantee.",
   pdp_riskSummary: "Risk summary",
   pdp_risks: [
     { label: "Origin country signal", note: "No active trade alerts." },
@@ -478,7 +489,7 @@ const en: HowItWorksDict = {
     { label: "Duties & clearance (est.)" },
     { label: "Estimated landed cost" },
   ],
-  pdp_landedFootnote: "Estimates only — confirmed against actual freight quote before order.",
+  pdp_landedFootnote: "Estimates only. confirmed against actual freight quote before order.",
   pdp_alternatives: "Alternatives considered",
   pdp_alternativeItems: [
     { label: "Supplier B (Faroe)", reason: "Longer lead time conflicts with promotional window." },
@@ -494,7 +505,7 @@ const en: HowItWorksDict = {
     { date: "17 Mar", event: "Comparison + landed cost confirmed." },
     { date: "18 Mar", event: "Decision recorded — Supplier A selected." },
   ],
-  pdp_footerNote: "Decision proof is buyer-controlled. Yorso structures the record — it does not approve the deal for you.",
+  pdp_footerNote: "Decision proof is buyer-controlled. Yorso structures the record. it does not approve the deal for you.",
   pdp_exportPdf: "Export as PDF for internal approval",
 
   sj_eyebrow: "Supply trust mechanism",
@@ -958,11 +969,20 @@ const ru: HowItWorksDict = {
   ],
 
   pdp_eyebrow: "Procurement Decision Proof",
-  pdp_title: "Достаточно доказательств, чтобы защитить сделку — внутри компании.",
+  pdp_title: "Достаточно доказательств, чтобы защитить сделку. внутри компании.",
   pdp_subtitle:
     "Yorso собирает структурированную запись по каждой шорт-листованной оферте: бенчмарк цены, доказательства поставщика, сравнение, логика landed cost, сводка рисков, рассмотренные альтернативы и журнал событий. Ниже — иллюстративный пример.",
   pdp_fileEyebrow: "Закупочное досье · иллюстративный пример",
   pdp_fileTitle: "Скумбрия HGT, заморозка, 300–500 г · Норвегия · CFR Роттердам",
+  pdp_exampleBadge: "Иллюстративный пример закупки",
+  pdp_summary: [
+    { value: "3", label: "Поставщика в шорт-листе" },
+    { value: "5", label: "Проверок доказательств" },
+    { value: "4", label: "Сигнала риска" },
+    { value: "5", label: "Компонентов landed cost" },
+    { value: "6", label: "Событий в журнале" },
+    { value: "1,5%", label: "Ниже среднего по рынку" },
+  ],
   pdp_decisionRecorded: "Решение зафиксировано",
   pdp_exportable: "Экспортируемый отчёт",
   pdp_priceBenchmark: "Бенчмарк цены",
@@ -978,7 +998,7 @@ const ru: HowItWorksDict = {
     { label: "Загруженные сертификаты" },
     { label: "История сделок на платформе" },
   ],
-  pdp_evidenceFootnote: "Статус отражает то, что подал поставщик — это не гарантия качества.",
+  pdp_evidenceFootnote: "Статус отражает то, что подал поставщик. это не гарантия качества.",
   pdp_riskSummary: "Сводка рисков",
   pdp_risks: [
     { label: "Сигнал по стране происхождения", note: "Активных торговых алертов нет." },
@@ -1014,7 +1034,7 @@ const ru: HowItWorksDict = {
     { label: "Пошлины и таможня (оценка)" },
     { label: "Расчётный landed cost" },
   ],
-  pdp_landedFootnote: "Только оценки — подтверждаются реальной фрахтовой котировкой до заказа.",
+  pdp_landedFootnote: "Только оценки. подтверждаются реальной фрахтовой котировкой до заказа.",
   pdp_alternatives: "Рассмотренные альтернативы",
   pdp_alternativeItems: [
     { label: "Поставщик B (Фареры)", reason: "Более длинный срок поставки конфликтует с промо-окном." },
@@ -1030,7 +1050,7 @@ const ru: HowItWorksDict = {
     { date: "17 мар", event: "Сравнение и landed cost подтверждены." },
     { date: "18 мар", event: "Решение зафиксировано — выбран Поставщик A." },
   ],
-  pdp_footerNote: "Доказательное досье управляется покупателем. Yorso структурирует запись — он не одобряет сделку за вас.",
+  pdp_footerNote: "Доказательное досье управляется покупателем. Yorso структурирует запись. он не одобряет сделку за вас.",
   pdp_exportPdf: "Экспортировать PDF для внутреннего согласования",
 
   sj_eyebrow: "Механизм доверия к поставщику",
@@ -1494,11 +1514,20 @@ const es: HowItWorksDict = {
   ],
 
   pdp_eyebrow: "Procurement Decision Proof",
-  pdp_title: "Suficiente evidencia para defender el trato — internamente.",
+  pdp_title: "Suficiente evidencia para defender el trato. internamente.",
   pdp_subtitle:
     "Yorso ensambla un registro estructurado en torno a cada oferta preseleccionada: benchmark de precio, evidencia del proveedor, comparación, lógica de landed cost, resumen de riesgos, alternativas y registro de auditoría. Ejemplo ilustrativo.",
   pdp_fileEyebrow: "Expediente de compra · ejemplo ilustrativo",
   pdp_fileTitle: "Caballa HGT, congelada, 300–500 g · Noruega · CFR Rotterdam",
+  pdp_exampleBadge: "Ejemplo ilustrativo de compra",
+  pdp_summary: [
+    { value: "3", label: "Proveedores preseleccionados" },
+    { value: "5", label: "Comprobaciones de evidencia" },
+    { value: "4", label: "Señales de riesgo" },
+    { value: "5", label: "Componentes del coste en destino" },
+    { value: "6", label: "Eventos en el registro" },
+    { value: "1,5%", label: "Por debajo de la media de mercado" },
+  ],
   pdp_decisionRecorded: "Decisión registrada",
   pdp_exportable: "Informe exportable",
   pdp_priceBenchmark: "Benchmark de precio",
@@ -1514,7 +1543,7 @@ const es: HowItWorksDict = {
     { label: "Certificaciones cargadas" },
     { label: "Historial comercial en la plataforma" },
   ],
-  pdp_evidenceFootnote: "El estado refleja lo que el proveedor ha presentado — no es una garantía de calidad.",
+  pdp_evidenceFootnote: "El estado refleja lo que el proveedor ha presentado. no es una garantía de calidad.",
   pdp_riskSummary: "Resumen de riesgos",
   pdp_risks: [
     { label: "Señal del país de origen", note: "Sin alertas comerciales activas." },
@@ -1550,7 +1579,7 @@ const es: HowItWorksDict = {
     { label: "Aranceles y despacho (est.)" },
     { label: "Landed cost estimado" },
   ],
-  pdp_landedFootnote: "Solo estimaciones — confirmadas con la cotización real de flete antes del pedido.",
+  pdp_landedFootnote: "Solo estimaciones. confirmadas con la cotización real de flete antes del pedido.",
   pdp_alternatives: "Alternativas consideradas",
   pdp_alternativeItems: [
     { label: "Proveedor B (Feroe)", reason: "Plazo más largo entra en conflicto con la ventana promocional." },
@@ -1566,7 +1595,7 @@ const es: HowItWorksDict = {
     { date: "17 mar", event: "Comparación y landed cost confirmados." },
     { date: "18 mar", event: "Decisión registrada — Proveedor A seleccionado." },
   ],
-  pdp_footerNote: "El expediente de decisión lo controla el comprador. Yorso estructura el registro — no aprueba el trato por usted.",
+  pdp_footerNote: "El expediente de decisión lo controla el comprador. Yorso estructura el registro. no aprueba el trato por usted.",
   pdp_exportPdf: "Exportar a PDF para aprobación interna",
 
   sj_eyebrow: "Mecanismo de confianza del proveedor",
