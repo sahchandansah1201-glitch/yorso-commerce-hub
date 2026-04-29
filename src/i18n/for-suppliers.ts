@@ -785,6 +785,37 @@ const es: ForSuppliersDict = {
     "Cola de solicitudes de acceso al precio para aprobar",
   ],
 
+  faq_eyebrow: "FAQ para proveedores",
+  faq_title: "Ventas B2B de mariscos, acceso al precio y documentos del proveedor — respondidos",
+  faq_subtitle:
+    "Respuestas prácticas a las preguntas que proveedores, procesadores y exportadores hacen antes de publicar en YORSO.",
+  faq_items: [
+    {
+      q: "¿Quién ve realmente mis precios en YORSO?",
+      a: "Solo los compradores que apruebas. Los visitantes anónimos ven la tarjeta del producto sin precio exacto. Los compradores registrados pueden solicitar acceso al precio. Tú ves quiénes son — empresa, país, rol — y decides uno a uno. Tu lista de precios no se publica al catálogo abierto.",
+    },
+    {
+      q: "¿Mi nombre como proveedor será público antes de que yo lo decida?",
+      a: "No. La identidad del proveedor sigue al acceso al precio. Mientras no apruebes a un comprador para ver el precio, el nombre y los contactos de tu empresa permanecen ocultos. El comprador solo ve producto, origen, formato, certificaciones y señales de confianza.",
+    },
+    {
+      q: "¿Qué documentos y certificaciones puedo mostrar en la ficha de proveedor?",
+      a: "Datos de registro de la empresa, licencia de exportación, número de aprobación de planta y certificaciones de producto como MSC, ASC, BRC, IFS y HACCP. Los documentos viven en una sola ficha, así dejas de enviarlos a cada nuevo comprador.",
+    },
+    {
+      q: "¿Qué tipo de compradores envían solicitudes?",
+      a: "Responsables de compras de importadores, distribuidores, cadenas retail, HoReCa y procesadores. Cada solicitud incluye volumen objetivo, país de destino y base Incoterms — tu equipo de ventas puede cualificarla en segundos en lugar de chatear a ciegas.",
+    },
+    {
+      q: "¿Cuánto tarda publicar la primera oferta?",
+      a: "Normalmente menos de un día. Registras la empresa, completas la ficha de proveedor con documentos y certificaciones, y publicas ofertas por SKU con formato, MOQ, origen y reglas de precio. Sin proyecto de implementación ni integraciones.",
+    },
+    {
+      q: "¿Cuánto cuesta? ¿Hay comisión sobre las operaciones?",
+      a: "El registro es gratis. La comisión sobre la operación es 0%. YORSO es el espacio de trabajo y la capa de control de acceso, no un intermediario entre tú y el comprador.",
+    },
+  ],
+
   cta_title: "Una sola plataforma B2B de ventas para proveedores de mariscos",
   cta_subtitle:
     "Registra la empresa, publica la tarjeta de proveedor y empieza a recibir solicitudes cualificadas en tu categoría.",
