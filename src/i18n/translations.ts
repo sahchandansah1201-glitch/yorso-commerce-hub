@@ -2969,6 +2969,7 @@ const es: TranslationKeys = {
     platform: [
       { label: "Ofertas activas", href: "/#offers" },
       { label: "Categorías", href: "/#categories" },
+      { label: "Directorio de proveedores", href: "/suppliers" },
       { label: "Proveedores verificados", href: "/how-it-works" },
       { label: "Cómo funciona", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
