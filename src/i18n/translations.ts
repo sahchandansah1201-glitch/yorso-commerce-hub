@@ -17,6 +17,7 @@ type TranslationKeys = {
   nav_liveOffers: string;
   nav_categories: string;
   nav_howItWorks: string;
+  nav_forSuppliers: string;
   nav_faq: string;
   nav_signIn: string;
   nav_registerFree: string;
