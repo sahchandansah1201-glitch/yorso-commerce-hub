@@ -20,6 +20,7 @@ export interface HowItWorksDict {
   hero_titleSuffix: string;
   hero_subtitle: string;
   hero_ctaFind: string;
+  hero_ctaRequestAccess: string;
   hero_ctaSupplier: string;
   hero_ctaScroll: string;
   hero_workflow_eyebrow: string;
@@ -216,8 +217,9 @@ const en: HowItWorksDict = {
   hero_titleHighlight: "seafood procurement decision",
   hero_titleSuffix: ".",
   hero_subtitle:
-    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism — not the message.",
+    "Yorso helps buyers find products, check suppliers, compare offers and build an internal record that holds up in front of finance, quality and leadership. Supplier evidence is the mechanism, not the message.",
   hero_ctaFind: "Find products and suppliers",
+  hero_ctaRequestAccess: "Request access to a supplier",
   hero_ctaSupplier: "I am a supplier",
   hero_ctaScroll: "See how it works ↓",
   hero_workflow_eyebrow: "End-to-end buyer workflow",
@@ -240,12 +242,12 @@ const en: HowItWorksDict = {
   bds_yorso: "What Yorso provides",
   bds_proof: "Evidence the buyer gets",
   bds_supplierNote:
-    "Supplier evidence is the mechanism that helps buyers trust the decision — not a separate marketing story.",
+    "Supplier evidence is the mechanism that helps buyers trust the decision, not a separate marketing story.",
   bds_cards: [
     {
       question: "Can I trust this supplier?",
       yorso: "Structured supplier profiles with company registration, export licence, plant approval and certifications collected in one place.",
-      proof: "Verification status per item, document readiness flag and trade history on the platform — shown as submitted, not as a quality guarantee.",
+      proof: "Verification status per item, document readiness flag and trade history on the platform, shown as submitted, not as a quality guarantee.",
     },
     {
       question: "Is this price and offer reasonable?",
@@ -701,6 +703,7 @@ const ru: HowItWorksDict = {
   hero_subtitle:
     "Yorso помогает покупателю находить продукты, проверять поставщиков, сравнивать оферты и собирать внутреннее обоснование, которое выдержит вопросы финансов, качества и руководства. Доказательства поставщика — это механизм, а не маркетинговое сообщение.",
   hero_ctaFind: "Найти продукты и поставщиков",
+  hero_ctaRequestAccess: "Запросить доступ к поставщику",
   hero_ctaSupplier: "Я поставщик",
   hero_ctaScroll: "Как это работает ↓",
   hero_workflow_eyebrow: "Сквозной процесс покупателя",
@@ -1184,6 +1187,7 @@ const es: HowItWorksDict = {
   hero_subtitle:
     "Yorso ayuda al comprador a encontrar productos, comprobar proveedores, comparar ofertas y construir un expediente interno que se sostenga ante finanzas, calidad y dirección. La evidencia del proveedor es el mecanismo, no el mensaje.",
   hero_ctaFind: "Encontrar productos y proveedores",
+  hero_ctaRequestAccess: "Solicitar acceso a un proveedor",
   hero_ctaSupplier: "Soy proveedor",
   hero_ctaScroll: "Vea cómo funciona ↓",
   hero_workflow_eyebrow: "Flujo integral del comprador",
@@ -1211,7 +1215,7 @@ const es: HowItWorksDict = {
     {
       question: "¿Puedo confiar en este proveedor?",
       yorso: "Perfiles estructurados con registro mercantil, licencia de exportación, número de planta autorizada y certificaciones reunidos en un solo lugar.",
-      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma — mostrados como aportados, no como garantía de calidad.",
+      proof: "Estado de verificación por elemento, indicador de preparación documental e historial en la plataforma, mostrados como aportados, no como garantía de calidad.",
     },
     {
       question: "¿Son razonables el precio y la oferta?",
