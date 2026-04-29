@@ -39,19 +39,24 @@ describe("/for-suppliers route", () => {
     localStorage.setItem(STORAGE_KEY, "en");
     renderPage();
 
-    // H1 present
+    // H1 reflects SEO intent: B2B + seafood + price control
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.textContent ?? "").toMatch(/price/i);
+    expect(h1.textContent ?? "").toMatch(/seafood/i);
+    expect(h1.textContent ?? "").toMatch(/B2B|price/i);
 
-    // Section H2s
+    // Section H2s — keyword-aligned
     expect(
-      screen.getByRole("heading", { level: 2, name: /How a supplier works in YORSO|Four steps/i }),
+      screen.getByRole("heading", { level: 2, name: /How to start selling seafood/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: /buyer.s side/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: /Control over price visibility|Three access levels/i }),
+      screen.getByRole("heading", { level: 2, name: /How buyers see your seafood offer/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: /Less noise|Before and after/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: /Price and supplier access/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: /Sales workflow before and after/i }),
+    ).toBeInTheDocument();
 
     // Primary register CTA links to /register (at least one)
     const registerLinks = screen
@@ -71,7 +76,8 @@ describe("/for-suppliers route", () => {
     renderPage();
 
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.textContent ?? "").toMatch(/прайсы|перестаньте/i);
+    expect(h1.textContent ?? "").toMatch(/морепродукт/i);
+    expect(h1.textContent ?? "").toMatch(/B2B|цен/i);
 
     // RU primary CTA
     const registerLinks = screen.getAllByRole("link", { name: /Зарегистрироваться как поставщик/i });
@@ -85,7 +91,7 @@ describe("/for-suppliers route", () => {
 
     // RU section heading sample (workflow)
     expect(
-      screen.getByRole("heading", { level: 2, name: /Как поставщик работает в YORSO|Четыре шага/i }),
+      screen.getByRole("heading", { level: 2, name: /Как начать продавать морепродукты/i }),
     ).toBeInTheDocument();
   });
 
