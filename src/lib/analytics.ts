@@ -62,6 +62,10 @@ export interface EventPayloadMap {
   value_register_buyer_click: Empty;
   value_register_supplier_click: Empty;
 
+  supplier_page_view: { surface?: "for_suppliers" } | Empty;
+  supplier_page_cta_register_click: { surface: "hero" | "final" };
+  supplier_page_cta_requests_click: { surface: "hero" | "final" };
+
   section_view: { section: string };
 
   // Offers ──────────────────────────────────────────────────────

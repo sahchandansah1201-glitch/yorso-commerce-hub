@@ -17,6 +17,7 @@ type TranslationKeys = {
   nav_liveOffers: string;
   nav_categories: string;
   nav_howItWorks: string;
+  nav_forSuppliers: string;
   nav_faq: string;
   nav_signIn: string;
   nav_registerFree: string;
@@ -904,6 +905,7 @@ const en: TranslationKeys = {
   nav_liveOffers: "Catalog",
   nav_categories: "Categories",
   nav_howItWorks: "How It Works",
+  nav_forSuppliers: "For suppliers",
   nav_faq: "FAQ",
   nav_signIn: "Sign In",
   nav_registerFree: "Register Free",
@@ -1087,6 +1089,7 @@ const en: TranslationKeys = {
       { label: "Categories", href: "/#categories" },
       { label: "Verified Suppliers", href: "/how-it-works" },
       { label: "How It Works", href: "/how-it-works" },
+      { label: "For suppliers", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
@@ -1854,6 +1857,7 @@ const ru: TranslationKeys = {
   nav_liveOffers: "Каталог",
   nav_categories: "Категории",
   nav_howItWorks: "Как это работает",
+  nav_forSuppliers: "Поставщикам",
   nav_faq: "FAQ",
   nav_signIn: "Войти",
   nav_registerFree: "Регистрация",
@@ -2025,6 +2029,7 @@ const ru: TranslationKeys = {
       { label: "Категории", href: "/#categories" },
       { label: "Проверенные поставщики", href: "/how-it-works" },
       { label: "Как это работает", href: "/how-it-works" },
+      { label: "Поставщикам", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
@@ -2792,6 +2797,7 @@ const es: TranslationKeys = {
   nav_liveOffers: "Catálogo",
   nav_categories: "Categorías",
   nav_howItWorks: "Cómo funciona",
+  nav_forSuppliers: "Para proveedores",
   nav_faq: "FAQ",
   nav_signIn: "Iniciar sesión",
   nav_registerFree: "Registro gratis",
@@ -2963,6 +2969,7 @@ const es: TranslationKeys = {
       { label: "Categorías", href: "/#categories" },
       { label: "Proveedores verificados", href: "/how-it-works" },
       { label: "Cómo funciona", href: "/how-it-works" },
+      { label: "Para proveedores", href: "/for-suppliers" },
       { label: "FAQ", href: "/#faq" },
     ],
     company: [
