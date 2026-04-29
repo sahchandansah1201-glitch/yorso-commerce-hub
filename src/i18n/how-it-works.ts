@@ -242,12 +242,12 @@ const en: HowItWorksDict = {
   bds_yorso: "What Yorso provides",
   bds_proof: "Evidence the buyer gets",
   bds_supplierNote:
-    "Supplier evidence is the mechanism that helps buyers trust the decision — not a separate marketing story.",
+    "Supplier evidence is the mechanism that helps buyers trust the decision, not a separate marketing story.",
   bds_cards: [
     {
       question: "Can I trust this supplier?",
       yorso: "Structured supplier profiles with company registration, export licence, plant approval and certifications collected in one place.",
-      proof: "Verification status per item, document readiness flag and trade history on the platform — shown as submitted, not as a quality guarantee.",
+      proof: "Verification status per item, document readiness flag and trade history on the platform, shown as submitted, not as a quality guarantee.",
     },
     {
       question: "Is this price and offer reasonable?",
