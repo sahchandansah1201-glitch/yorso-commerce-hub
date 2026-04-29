@@ -65,13 +65,20 @@ const Hero = () => {
             <p className="mt-2 text-xs text-accent-foreground/50">{t.hero_popular}</p>
           </form>
 
+          {/*
+           * Secondary CTA: scroll down to live offers. This is the natural
+           * next step for a buyer who hasn't searched yet — they should see
+           * the product before being asked to register.
+           */}
           <div className="mt-6 flex justify-center">
-            <Link to="/register" onClick={() => analytics.track("hero_primary_cta_click")} className="w-full sm:w-auto">
-              <Button size="lg" className="w-full gap-2 font-semibold sm:w-auto">
-                {t.hero_registerFree}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+            <a
+              href="#offers"
+              onClick={handleExploreOffers}
+              className="inline-flex h-11 items-center gap-1.5 rounded-md border border-accent-foreground/25 bg-transparent px-5 text-sm font-semibold text-accent-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              {t.hero_exploreLiveOffers}
+              <ChevronRight className="h-4 w-4" />
+            </a>
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-accent-foreground/60 sm:flex sm:flex-wrap sm:items-center sm:justify-center">
@@ -93,16 +100,22 @@ const Hero = () => {
             </div>
           </div>
 
-          <div className="mt-6">
-            <a
-              href="#offers"
-              onClick={handleExploreOffers}
-              className="inline-flex items-center gap-1 text-sm font-medium text-accent-foreground/70 underline-offset-4 transition-colors hover:text-primary hover:underline"
+          {/*
+           * Tertiary registration line. Registration is presented as a
+           * mechanism (needed for exact prices and supplier contacts),
+           * not as the primary action. Buyer reaches it naturally after
+           * scanning offers and hitting an access wall.
+           */}
+          <p className="mx-auto mt-8 max-w-md text-xs leading-relaxed text-accent-foreground/55">
+            <Link
+              to="/register"
+              onClick={() => analytics.track("hero_primary_cta_click")}
+              className="font-semibold text-accent-foreground/80 underline-offset-4 hover:text-primary hover:underline"
             >
-              {t.hero_exploreLiveOffers}
-              <ChevronRight className="h-4 w-4" />
-            </a>
-          </div>
+              {t.hero_registerFree}
+            </Link>
+            <span className="ml-1.5">{t.hero_registerHint}</span>
+          </p>
         </div>
       </div>
     </section>
