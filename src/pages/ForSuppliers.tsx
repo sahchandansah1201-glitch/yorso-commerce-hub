@@ -621,11 +621,11 @@ const ForSuppliers = () => {
                     </span>
                     <Icon className="h-4 w-4 text-muted-foreground md:mt-2 md:h-5 md:w-5" />
                   </div>
-                  <div>
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground break-words md:mt-2">
                       {item.body}
                     </p>
                   </div>
