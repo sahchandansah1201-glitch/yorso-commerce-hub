@@ -241,6 +241,11 @@ export const SelectedSupplierPanel = ({
                 +{deliveryRest} markets
               </span>
             )}
+            {showDeliveryTeaser && (
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Full delivery geography after supplier approval
+              </span>
+            )}
           </div>
         </div>
 
