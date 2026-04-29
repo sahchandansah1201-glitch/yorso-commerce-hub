@@ -1,4 +1,4 @@
-import { EyeOff, UserCheck, KeyRound, ShieldCheck, CheckCircle2, Lock, Minus } from "lucide-react";
+import { EyeOff, UserCheck, KeyRound, ShieldCheck, CheckCircle2, Minus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useHowItWorks } from "@/i18n/how-it-works";
 
@@ -73,7 +73,7 @@ const AccessLevels = () => {
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           <LevelCard tone="muted" icon={EyeOff} badge={t.al_card_anonymous.badge} code="anonymous_locked" title={t.al_card_anonymous.title} body={t.al_card_anonymous.body} bullets={t.al_card_anonymous.bullets} />
           <LevelCard tone="primary" icon={UserCheck} badge={t.al_card_registered.badge} code="registered_locked" title={t.al_card_registered.title} body={t.al_card_registered.body} bullets={t.al_card_registered.bullets} />
-          <LevelCard tone="success" icon={Lock} badge={t.al_card_qualified.badge} code="qualified_unlocked" title={t.al_card_qualified.title} body={t.al_card_qualified.body} bullets={t.al_card_qualified.bullets} />
+          <LevelCard tone="success" icon={ShieldCheck} badge={t.al_card_qualified.badge} code="qualified_unlocked" title={t.al_card_qualified.title} body={t.al_card_qualified.body} bullets={t.al_card_qualified.bullets} />
         </div>
 
         <div className="mt-10 overflow-hidden rounded-xl border border-border bg-card">
