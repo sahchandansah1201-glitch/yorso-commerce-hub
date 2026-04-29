@@ -44,9 +44,14 @@ export interface HowItWorksDict {
   problem_subtitle: string;
   problem_buyer_eyebrow: string;
   problem_buyer_title: string;
-  problem_buyer_pains: string[]; // 6
+  problem_buyer_lead: string;
+  
+  problem_buyer_consequenceLabel: string;
+  problem_buyer_mechanismLabel: string;
+  problem_buyer_pains: { pain: string; consequence: string; mechanism: string }[]; // 6
   problem_supplier_eyebrow: string;
   problem_supplier_title: string;
+  problem_supplier_lead: string;
   problem_supplier_pains: string[]; // 6
 
   // System map
@@ -261,29 +266,59 @@ const en: HowItWorksDict = {
     },
   ],
 
-  problem_eyebrow: "Buyer cost of a wrong decision",
-  problem_title: "The cost of a wrong seafood procurement decision is paid by the buyer.",
+  problem_eyebrow: "The real risk",
+  problem_title: "The main risk in seafood sourcing is a wrong procurement decision.",
   problem_subtitle:
-    "Suppliers can be replaced. A wrong order stays on the buyer's P&L. Yorso is built around the three things that make that decision go wrong.",
-  problem_buyer_eyebrow: "Buyer pain",
-  problem_buyer_title: "Where buyers lose money, time and internal credit.",
+    "A wrong supplier, a wrong price, a wrong landed cost — those land on the buyer, not on the supplier. The Yorso workflow is built around removing the six things that make that decision go wrong.",
+  problem_buyer_eyebrow: "Buyer risk",
+  problem_buyer_title: "Six places where a seafood procurement decision goes wrong.",
+  problem_buyer_lead:
+    "Each row reads pain, then what it costs the buyer, then how Yorso reduces the risk before commitment.",
+  problem_buyer_consequenceLabel: "What it costs the buyer",
+  problem_buyer_mechanismLabel: "How Yorso reduces it",
   problem_buyer_pains: [
-    "Trust: supplier identity, plant approval and trade history are unclear before the deal.",
-    "Trust: paid promotion looks the same as verified evidence in most channels.",
-    "Price: quotes scattered across WhatsApp, email and PDFs, with no way to compare.",
-    "Price: landed cost stays vague without freight, duties, lead time and cold-chain risk in one view.",
-    "Defense: finance, quality and leadership want a record, not a forwarded chat.",
-    "Defense: each season starts from zero. Past shortlists, comparisons and decisions are lost.",
+    {
+      pain: "Prices scattered across chats, emails, PDFs and old lists.",
+      consequence: "Buyer cannot compare like for like and loses margin on every cycle.",
+      mechanism: "One offer view per SKU, Incoterms and origin, with quotes side by side.",
+    },
+    {
+      pain: "Supplier reliability is unclear before commitment.",
+      consequence: "Risk of late shipment, wrong specs or a counterparty that disappears mid-deal.",
+      mechanism: "Structured supplier card with registration, export licence, plant approval and trade history on Yorso.",
+    },
+    {
+      pain: "Documents and certificates are checked too late.",
+      consequence: "Quality and compliance issues surface after the order is placed, not before.",
+      mechanism: "Document readiness flag and per-field status (verified, submitted, missing) before any RFQ goes out.",
+    },
+    {
+      pain: "Landed cost stays unclear until the invoice arrives.",
+      consequence: "Real margin is unknown at the moment of decision.",
+      mechanism: "Landed-cost view that adds freight, duties and lead time as labelled estimates the buyer can adjust.",
+    },
+    {
+      pain: "Internal approval is hard to defend.",
+      consequence: "Finance, quality and leadership block or delay the deal because there is no record.",
+      mechanism: "Procurement Decision Proof file: shortlist, comparison, supplier evidence, risks and event log, exportable as PDF and CSV.",
+    },
+    {
+      pain: "Repeat sourcing starts from zero each season.",
+      consequence: "Past shortlists, comparisons and supplier evidence are lost in inboxes.",
+      mechanism: "Decision history kept against the SKU, so the next season starts from the previous record, not from a blank sheet.",
+    },
   ],
-  problem_supplier_eyebrow: "How buyers verify it",
-  problem_supplier_title: "What the buyer can actually check before committing.",
+  problem_supplier_eyebrow: "Trust infrastructure",
+  problem_supplier_title: "What must be true about suppliers for buyers to trust the deal.",
+  problem_supplier_lead:
+    "Supplier features are not a parallel story. They exist to make the buyer's check above possible.",
   problem_supplier_pains: [
-    "Company registration, export licence and plant approval number, on file and checkable.",
-    "Product specs that are concrete: species, format, cut, packaging, origin, MOQ.",
-    "Certifications and traceability documents uploaded and current, not promised later.",
-    "Response quality: average reply time, completeness of answers, document readiness.",
-    "Trade history on the platform: past offers, requests handled, repeat buyers.",
-    "Paid visibility (Featured, Sponsored) shown separately from verification.",
+    "Company and export evidence on file: registration, export licence and plant approval code.",
+    "Product specs are structured: species, format, cut, packaging, origin, MOQ.",
+    "Certificates and document readiness are visible per offer, with last-checked date.",
+    "Paid visibility (Featured, Sponsored) is labelled separately from verification.",
+    "Response quality is recorded — average reply time and answer completeness — to help buyers shortlist.",
+    "Missing evidence can be requested by the buyer before an RFQ is sent.",
   ],
 
   system_eyebrow: "Yorso system map",
@@ -745,29 +780,59 @@ const ru: HowItWorksDict = {
     },
   ],
 
-  problem_eyebrow: "Цена ошибки покупателя",
-  problem_title: "Цена неверного решения о закупке морепродуктов всегда на стороне покупателя.",
+  problem_eyebrow: "Главный риск",
+  problem_title: "Главный риск в закупках морепродуктов — неверное решение о закупке.",
   problem_subtitle:
-    "Поставщика можно заменить. Неверный заказ остаётся в P&L покупателя. Yorso построен вокруг трёх вещей, из-за которых это решение идёт не так.",
-  problem_buyer_eyebrow: "Боль покупателя",
-  problem_buyer_title: "Где покупатель теряет деньги, время и внутреннее доверие.",
+    "Не тот поставщик, не та цена, не тот landed cost — всё это ложится на покупателя, не на продавца. Воркфлоу Yorso построен вокруг шести вещей, из-за которых это решение идёт не так.",
+  problem_buyer_eyebrow: "Риск покупателя",
+  problem_buyer_title: "Шесть мест, где решение о закупке морепродуктов идёт не так.",
+  problem_buyer_lead:
+    "В каждой строке: боль, чем она оборачивается для покупателя и как Yorso снижает риск до момента сделки.",
+  problem_buyer_consequenceLabel: "Чем оборачивается для покупателя",
+  problem_buyer_mechanismLabel: "Как Yorso снижает риск",
   problem_buyer_pains: [
-    "Доверие: личность поставщика, аттестация завода и история сделок непонятны до сделки.",
-    "Доверие: платное продвижение в большинстве каналов выглядит так же, как проверенные данные.",
-    "Цена: котировки разбросаны по WhatsApp, email и PDF, сравнить невозможно.",
-    "Цена: landed cost остаётся размытым без фрахта, пошлин, сроков и риска холодовой цепи в одном виде.",
-    "Защита решения: финансам, качеству и руководству нужен документ, а не пересланный чат.",
-    "Защита решения: каждый сезон начинается с нуля. Прошлые шорт-листы, сравнения и решения теряются.",
+    {
+      pain: "Цены разбросаны по чатам, письмам, PDF и старым прайсам.",
+      consequence: "Покупатель не может сравнить like-for-like и теряет маржу в каждом цикле.",
+      mechanism: "Один вид оферты на SKU, Incoterms и происхождение, котировки бок о бок.",
+    },
+    {
+      pain: "Надёжность поставщика непонятна до сделки.",
+      consequence: "Риск срыва сроков, неверной спецификации или контрагента, который исчезает посреди сделки.",
+      mechanism: "Структурированная карточка поставщика: регистрация, экспортная лицензия, аттестация завода и история работы на Yorso.",
+    },
+    {
+      pain: "Документы и сертификаты проверяются слишком поздно.",
+      consequence: "Проблемы качества и комплаенса всплывают после размещения заказа, а не до.",
+      mechanism: "Флаг готовности документов и статус по каждому полю (проверено, заявлено, отсутствует) — до отправки RFQ.",
+    },
+    {
+      pain: "Landed cost остаётся непонятным до прихода инвойса.",
+      consequence: "Реальная маржа неизвестна в момент принятия решения.",
+      mechanism: "Расчёт landed cost с фрахтом, пошлинами и сроком как помеченные оценки, которые покупатель может скорректировать.",
+    },
+    {
+      pain: "Внутреннее согласование сложно защитить.",
+      consequence: "Финансы, качество и руководство блокируют или тормозят сделку из-за отсутствия документа решения.",
+      mechanism: "Файл Procurement Decision Proof: шорт-лист, сравнение, доказательства поставщика, риски и журнал событий — экспорт PDF и CSV.",
+    },
+    {
+      pain: "Повторные закупки каждый сезон начинаются с нуля.",
+      consequence: "Прошлые шорт-листы, сравнения и доказательства поставщика теряются в почте.",
+      mechanism: "История решений хранится по SKU — следующий сезон начинается с предыдущей записи, а не с чистого листа.",
+    },
   ],
-  problem_supplier_eyebrow: "Как это проверяет покупатель",
-  problem_supplier_title: "Что покупатель реально может проверить до сделки.",
+  problem_supplier_eyebrow: "Инфраструктура доверия",
+  problem_supplier_title: "Что должно быть верно про поставщиков, чтобы покупатель мог доверять сделке.",
+  problem_supplier_lead:
+    "Возможности для поставщика — не параллельная история. Они существуют, чтобы проверки покупателя выше были возможны.",
   problem_supplier_pains: [
-    "Регистрация компании, экспортная лицензия и номер аттестации завода, загружены и проверяемы.",
-    "Конкретные спецификации продукта: вид, формат, разделка, упаковка, происхождение, MOQ.",
-    "Сертификаты и документы прослеживаемости загружены и актуальны, а не «вышлем потом».",
-    "Качество ответов: среднее время реакции, полнота ответов, готовность документов.",
-    "История работы на платформе: прошлые оферты, обработанные запросы, повторные покупатели.",
-    "Платное продвижение (Featured, Sponsored) показано отдельно от верификации.",
+    "Доказательства компании и экспорта в карточке: регистрация, экспортная лицензия, номер аттестации завода.",
+    "Спецификации продукта структурированы: вид, формат, разделка, упаковка, происхождение, MOQ.",
+    "Сертификаты и готовность документов видны по каждой оферте, с датой последней проверки.",
+    "Платное продвижение (Featured, Sponsored) промаркировано отдельно от верификации.",
+    "Качество ответов фиксируется — среднее время ответа и полнота — чтобы покупатель мог отсеивать.",
+    "Недостающие документы покупатель может запросить до отправки RFQ.",
   ],
 
   system_eyebrow: "Карта системы Yorso",
@@ -1229,29 +1294,59 @@ const es: HowItWorksDict = {
     },
   ],
 
-  problem_eyebrow: "Coste del error del comprador",
-  problem_title: "El coste de una decisión de compra equivocada lo paga el comprador.",
+  problem_eyebrow: "El riesgo real",
+  problem_title: "El principal riesgo en las compras de pescado y marisco es una decisión equivocada.",
   problem_subtitle:
-    "Al proveedor se le puede sustituir. Un pedido equivocado se queda en la cuenta de resultados del comprador. Yorso se construye alrededor de las tres cosas que hacen que esa decisión salga mal.",
-  problem_buyer_eyebrow: "Dolor del comprador",
-  problem_buyer_title: "Dónde el comprador pierde dinero, tiempo y crédito interno.",
+    "Un proveedor equivocado, un precio equivocado, un coste en destino equivocado: todo eso recae sobre el comprador, no sobre el proveedor. El flujo de Yorso está construido para eliminar las seis cosas que hacen que esa decisión salga mal.",
+  problem_buyer_eyebrow: "Riesgo del comprador",
+  problem_buyer_title: "Seis lugares donde una decisión de compra de pescado se tuerce.",
+  problem_buyer_lead:
+    "Cada fila se lee como dolor, qué le cuesta al comprador y cómo Yorso reduce el riesgo antes del cierre.",
+  problem_buyer_consequenceLabel: "Qué le cuesta al comprador",
+  problem_buyer_mechanismLabel: "Cómo lo reduce Yorso",
   problem_buyer_pains: [
-    "Confianza: identidad del proveedor, planta autorizada e historial no están claros antes de cerrar.",
-    "Confianza: la promoción pagada se ve igual que la evidencia verificada en la mayoría de canales.",
-    "Precio: cotizaciones dispersas entre WhatsApp, email y PDFs, sin forma de comparar.",
-    "Precio: el coste en destino queda difuso sin flete, aranceles, plazos y riesgo de cadena de frío en una vista.",
-    "Defensa: finanzas, calidad y dirección quieren un expediente, no un chat reenviado.",
-    "Defensa: cada temporada empieza desde cero. Preselecciones, comparaciones y decisiones anteriores se pierden.",
+    {
+      pain: "Precios dispersos entre chats, correos, PDFs y listas antiguas.",
+      consequence: "El comprador no puede comparar like-for-like y pierde margen en cada ciclo.",
+      mechanism: "Una vista por SKU, Incoterms y origen, con cotizaciones lado a lado.",
+    },
+    {
+      pain: "La fiabilidad del proveedor no está clara antes del cierre.",
+      consequence: "Riesgo de retraso, especificación equivocada o contraparte que desaparece a mitad de la operación.",
+      mechanism: "Ficha estructurada del proveedor: registro, licencia de exportación, planta autorizada e historial en Yorso.",
+    },
+    {
+      pain: "Documentos y certificados se revisan demasiado tarde.",
+      consequence: "Los problemas de calidad y cumplimiento aparecen tras el pedido, no antes.",
+      mechanism: "Indicador de preparación documental y estado por campo (verificado, declarado, ausente) antes de enviar el RFQ.",
+    },
+    {
+      pain: "El coste en destino se desconoce hasta que llega la factura.",
+      consequence: "El margen real es desconocido en el momento de la decisión.",
+      mechanism: "Vista de coste en destino con flete, aranceles y plazo como estimaciones etiquetadas que el comprador puede ajustar.",
+    },
+    {
+      pain: "La aprobación interna es difícil de defender.",
+      consequence: "Finanzas, calidad y dirección bloquean o retrasan la operación por falta de un expediente.",
+      mechanism: "Expediente Procurement Decision Proof: preselección, comparación, evidencia del proveedor, riesgos y registro, exportable en PDF y CSV.",
+    },
+    {
+      pain: "Las compras recurrentes empiezan desde cero cada temporada.",
+      consequence: "Preselecciones, comparaciones y evidencias anteriores se pierden en la bandeja de entrada.",
+      mechanism: "El historial de decisiones queda guardado por SKU; la próxima temporada parte del registro anterior, no de una hoja en blanco.",
+    },
   ],
-  problem_supplier_eyebrow: "Cómo lo verifica el comprador",
-  problem_supplier_title: "Qué puede comprobar realmente el comprador antes de cerrar.",
+  problem_supplier_eyebrow: "Infraestructura de confianza",
+  problem_supplier_title: "Qué debe ser cierto sobre los proveedores para que el comprador confíe en la operación.",
+  problem_supplier_lead:
+    "Las funciones para el proveedor no son una historia paralela. Existen para que las comprobaciones del comprador de arriba sean posibles.",
   problem_supplier_pains: [
-    "Registro mercantil, licencia de exportación y número de planta autorizada, en archivo y comprobables.",
-    "Especificaciones de producto concretas: especie, formato, corte, embalaje, origen, MOQ.",
-    "Certificados y documentos de trazabilidad cargados y vigentes, no prometidos para más tarde.",
-    "Calidad de respuesta: tiempo medio de respuesta, integridad de las respuestas, preparación documental.",
-    "Historial comercial en la plataforma: ofertas anteriores, solicitudes atendidas, compradores recurrentes.",
-    "Visibilidad pagada (Featured, Sponsored) mostrada separada de la verificación.",
+    "Evidencia de empresa y exportación en ficha: registro, licencia de exportación y código de planta autorizada.",
+    "Especificaciones de producto estructuradas: especie, formato, corte, embalaje, origen, MOQ.",
+    "Certificados y preparación documental visibles por oferta, con fecha de la última revisión.",
+    "Visibilidad pagada (Featured, Sponsored) etiquetada por separado de la verificación.",
+    "La calidad de respuesta queda registrada — tiempo medio e integridad — para ayudar al comprador a preseleccionar.",
+    "El comprador puede solicitar la evidencia que falta antes de enviar un RFQ.",
   ],
 
   system_eyebrow: "Mapa del sistema Yorso",
