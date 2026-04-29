@@ -1368,12 +1368,12 @@ const es: HowItWorksDict = {
   hero_workflow_caption: "Repetible, basado en evidencia, documentado",
   hero_workflow_step: "Paso",
   hero_workflow_steps: [
-    "Búsqueda",
-    "Solicitud de acceso",
-    "Evidencia del proveedor",
-    "RFQ / negociación",
-    "Pedido / documentos",
-    "Comercio recurrente",
+    { label: "Búsqueda", hint: "Filtros por especie, origen, certificados, MOQ" },
+    { label: "Acceso al precio", hint: "Solicita precio exacto e identidad del proveedor" },
+    { label: "Evidencia", hint: "Certificados, lotes, tiempo de respuesta, IUU" },
+    { label: "RFQ", hint: "Cantidad, embalaje, Incoterms, ventana de entrega" },
+    { label: "Pedido", hint: "Documentos, envío, traza aduanera" },
+    { label: "Recurrencia", hint: "Proveedores guardados, pedidos repetidos, auditoría" },
   ],
 
   bds_eyebrow: "Resumen de decisión del comprador",
