@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
