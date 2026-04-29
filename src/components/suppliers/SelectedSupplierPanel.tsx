@@ -171,10 +171,12 @@ export const SelectedSupplierPanel = ({
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              Markets
+              {isUnlocked ? "Markets" : "Delivery preview"}
             </dt>
             <dd className="mt-1 font-medium text-foreground tabular-nums">
-              {supplier.deliveryCountriesTotal} countries
+              {isUnlocked
+                ? `${supplier.deliveryCountriesTotal} countries`
+                : "Preview only"}
             </dd>
           </div>
           <div>
