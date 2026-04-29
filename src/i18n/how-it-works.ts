@@ -27,6 +27,16 @@ export interface HowItWorksDict {
   hero_workflow_step: string;
   hero_workflow_steps: string[]; // 6
 
+  // Buyer Decision Snapshot (3 cards)
+  bds_eyebrow: string;
+  bds_title: string;
+  bds_subtitle: string;
+  bds_question: string;
+  bds_yorso: string;
+  bds_proof: string;
+  bds_supplierNote: string;
+  bds_cards: { question: string; yorso: string; proof: string }[]; // 3
+
   // Problem map
   problem_eyebrow: string;
   problem_title: string;
