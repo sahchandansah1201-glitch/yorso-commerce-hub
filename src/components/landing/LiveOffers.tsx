@@ -55,11 +55,11 @@ const LiveOffers = () => {
               id="offers-heading"
               data-testid="section-title"
               data-section="offers"
-              className="mt-2 font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl"
+              className="mt-2 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
             >
               {t.offers_title}
             </h2>
-            <p id="offers-subtitle" className="mt-1 text-sm text-muted-foreground">
+            <p id="offers-subtitle" className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
               {t.offers_subtitle}
             </p>
           </div>
