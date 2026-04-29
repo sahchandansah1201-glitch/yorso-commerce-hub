@@ -252,16 +252,16 @@ const ForSuppliers = () => {
       </div>
 
       {/* Hero */}
-      <section className="border-b border-border bg-accent">
-        <div className="container py-16 md:py-24">
+      <section className="border-b border-border bg-warm-bg">
+        <div className="container py-20 md:py-28">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {t.hero_eyebrow}
             </p>
-            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight text-accent-foreground md:text-5xl">
+            <h1 className="mt-4 font-heading text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl">
               {t.hero_title}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-accent-foreground/75 md:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
               {t.hero_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -269,7 +269,7 @@ const ForSuppliers = () => {
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "hero" })}
               >
-                <Button size="lg" className="gap-2 px-7 text-base font-semibold">
+                <Button size="lg" className="gap-2 px-7 text-base font-semibold shadow-sm">
                   {t.hero_ctaPrimary}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
@@ -283,7 +283,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-accent-foreground/55">{t.hero_note}</p>
+            <p className="mt-4 text-xs text-muted-foreground">{t.hero_note}</p>
           </div>
         </div>
       </section>
@@ -368,7 +368,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* What buyers see — UI mock preview */}
-      <section className="border-b border-border bg-accent/40">
+      <section className="border-b border-border bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-16">
             <div className="max-w-xl">
@@ -529,7 +529,7 @@ const ForSuppliers = () => {
           </div>
 
           {/* Access flow */}
-          <div className="mt-8 rounded-md border border-border bg-accent/30 p-5">
+          <div className="mt-8 rounded-md border border-border bg-cool-gray p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {t.access_flowTitle}
             </p>
@@ -548,7 +548,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* How YORSO helps */}
-      <section className="border-b border-border bg-accent/40">
+      <section className="border-b border-border bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -623,7 +623,7 @@ const ForSuppliers = () => {
       </section>
 
       {/* Less noise — before / after */}
-      <section className="border-b border-border bg-accent/40">
+      <section className="border-b border-border bg-cool-gray">
         <div className="container py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -708,13 +708,13 @@ const ForSuppliers = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="bg-accent py-16 md:py-20">
+      <section className="bg-warm-bg py-20 md:py-24">
         <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-accent-foreground md:text-4xl">
+          <div className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-8 py-12 text-center shadow-sm md:px-12 md:py-14">
+            <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {t.cta_title}
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/70">
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
               {t.cta_subtitle}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -722,7 +722,7 @@ const ForSuppliers = () => {
                 to="/register"
                 onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
               >
-                <Button size="lg" className="gap-2 px-8 text-base font-semibold">
+                <Button size="lg" className="gap-2 px-8 text-base font-semibold shadow-sm">
                   {t.cta_primary}
                   <ArrowRight className="h-5 w-5" />
                 </Button>
@@ -736,7 +736,7 @@ const ForSuppliers = () => {
                 </Button>
               </Link>
             </div>
-            <p className="mt-4 text-xs text-accent-foreground/55">{t.cta_note}</p>
+            <p className="mt-4 text-xs text-muted-foreground">{t.cta_note}</p>
           </div>
         </div>
       </section>
