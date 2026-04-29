@@ -236,7 +236,12 @@ const en: ForSuppliersDict = {
     {
       label: "Anonymous visitor",
       who: "Not registered",
-      sees: ["Product name, origin, format", "Certifications", "Price range", "Exact price and supplier details — hidden"],
+      sees: [
+        { text: "Product name, origin, format" },
+        { text: "Certifications" },
+        { text: "Price range" },
+        { text: "Exact price and supplier details — hidden", hidden: true },
+      ],
     },
     {
       label: "Registered buyer",
