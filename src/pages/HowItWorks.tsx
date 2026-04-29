@@ -171,33 +171,29 @@ const HowItWorks = () => {
                   {t.hero_workflow_caption}
                 </span>
               </div>
-              <ol className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:gap-2">
+              <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:gap-3">
                 {t.hero_workflow_steps.map((step, idx) => {
                   const Icon = workflowIcons[idx] ?? Search;
-                  const isLast = idx === t.hero_workflow_steps.length - 1;
                   return (
                     <li
                       key={step.label}
-                      className="relative flex min-w-0 items-start gap-3 rounded-lg border border-border/60 bg-background px-3 py-3"
+                      className="group relative flex min-w-0 flex-col rounded-lg border border-border/60 bg-background p-4"
                     >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
-                        <span className="text-[11px] font-bold tabular-nums">{String(idx + 1).padStart(2, "0")}</span>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span
+                          aria-label={`${t.hero_workflow_step} ${idx + 1}`}
+                          className="font-heading text-3xl font-bold leading-none tabular-nums text-primary md:text-4xl"
+                        >
+                          {idx + 1}
+                        </span>
+                        <Icon className="h-4 w-4 shrink-0 text-muted-foreground/70" strokeWidth={2} />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          <Icon className="h-3 w-3" strokeWidth={2.25} />
-                          {t.hero_workflow_step} {idx + 1}
-                        </div>
-                        <div className="mt-0.5 text-[13px] font-bold leading-snug text-foreground md:text-sm">
-                          {step.label}
-                        </div>
-                        <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                          {step.hint}
-                        </div>
+                      <div className="mt-3 break-words text-sm font-bold leading-snug text-foreground">
+                        {step.label}
                       </div>
-                      {!isLast && (
-                        <ArrowRight className="absolute -right-3 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-muted-foreground/50 xl:block" />
-                      )}
+                      <div className="mt-1.5 break-words text-[12px] leading-snug text-muted-foreground">
+                        {step.hint}
+                      </div>
                     </li>
                   );
                 })}
