@@ -577,13 +577,13 @@ const ForSuppliers = () => {
                   key={item.title}
                   className="grid gap-2 rounded-lg border border-border border-l-4 border-l-primary bg-card p-4 shadow-sm md:gap-10 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:py-6 md:shadow-none md:grid-cols-[280px_1fr]"
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
+                    <h3 className="min-w-0 flex-1 font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                  <p className="min-w-0 break-words text-sm leading-relaxed text-muted-foreground md:text-base">
                     {item.body}
                   </p>
                 </li>
