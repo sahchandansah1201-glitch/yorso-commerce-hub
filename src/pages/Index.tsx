@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
 import LiveOffers from "@/components/landing/LiveOffers";
@@ -15,9 +16,22 @@ import AnimatedSection from "@/components/landing/AnimatedSection";
 import { initScrollDepthTracking } from "@/lib/analytics";
 
 const Index = () => {
+  const location = useLocation();
+
   useEffect(() => {
     return initScrollDepthTracking();
   }, []);
+
+  // Scroll to anchor when arriving with a hash (e.g. /#offers from another route)
+  useEffect(() => {
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    // Defer to allow sections to mount
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [location.hash]);
 
   return (
     <div className="min-h-screen">
