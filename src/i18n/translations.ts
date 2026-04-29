@@ -2959,11 +2959,11 @@ const es: TranslationKeys = {
   footer_legal: "Legal",
   footer_links: {
     platform: [
-      { label: "Ofertas activas", href: "#offers" },
-      { label: "Categorías", href: "#categories" },
-      { label: "Proveedores verificados", href: "#how-it-works" },
-      { label: "Cómo funciona", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Ofertas activas", href: "/#offers" },
+      { label: "Categorías", href: "/#categories" },
+      { label: "Proveedores verificados", href: "/how-it-works" },
+      { label: "Cómo funciona", href: "/how-it-works" },
+      { label: "FAQ", href: "/#faq" },
     ],
     company: [
       { label: "Sobre YORSO", href: "/about" },
