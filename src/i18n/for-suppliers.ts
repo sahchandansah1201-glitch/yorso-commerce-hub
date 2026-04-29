@@ -39,6 +39,49 @@ export interface ForSuppliersDict {
   gets_today: string; // small label "Сегодня"
   gets_inYorso: string; // small label "В YORSO"
 
+  // Workflow: how a supplier works in YORSO (4 steps)
+  flow_eyebrow: string;
+  flow_title: string;
+  flow_subtitle: string;
+  flow_stepLabel: string; // "Step"
+  flow_steps: { title: string; body: string }[]; // 4
+
+  // What buyers see (mock preview)
+  preview_eyebrow: string;
+  preview_title: string;
+  preview_subtitle: string;
+  preview_product: string;
+  preview_origin: string;
+  preview_originValue: string;
+  preview_format: string;
+  preview_formatValue: string;
+  preview_certifications: string;
+  preview_priceRange: string;
+  preview_priceLocked: string;
+  preview_priceLockedHint: string;
+  preview_supplier: string;
+  preview_supplierLocked: string;
+  preview_supplierLockedHint: string;
+  preview_ctaRequest: string;
+  preview_caption: string;
+
+  // Price visibility control (3 access states)
+  access_eyebrow: string;
+  access_title: string;
+  access_subtitle: string;
+  access_states: { label: string; who: string; sees: string[] }[]; // 3
+  access_flowTitle: string;
+  access_flowSteps: string[]; // 4
+
+  // Less noise: before / after
+  noise_eyebrow: string;
+  noise_title: string;
+  noise_subtitle: string;
+  noise_beforeLabel: string;
+  noise_afterLabel: string;
+  noise_before: string[]; // 4
+  noise_after: string[]; // 4
+
   // Final CTA
   cta_title: string;
   cta_subtitle: string;
@@ -155,6 +198,81 @@ const en: ForSuppliersDict = {
       body:
         "Conversation, price decision and next step in one place. The head of sales can see what the team is working on without asking.",
     },
+  ],
+
+  flow_eyebrow: "How a supplier works in YORSO",
+  flow_title: "Four steps, not an implementation project",
+  flow_subtitle: "The sales team goes through the same sequence every week — only in one place.",
+  flow_stepLabel: "Step",
+  flow_steps: [
+    { title: "Create the supplier profile", body: "Company data, licence, certifications and trade history — once. The buyer sees the same card your internal team uses." },
+    { title: "Publish offers", body: "By species, format, origin and packaging. Offers appear in the right category, not across the whole internet." },
+    { title: "Receive qualified buyer interest", body: "Requests come from registered buyers with volume, destination and timing already attached." },
+    { title: "Manage price access and follow-up", body: "Approve or decline access to the exact price. The conversation and the decision live on one screen." },
+  ],
+
+  preview_eyebrow: "What buyers see",
+  preview_title: "Your offer from the buyer’s side",
+  preview_subtitle: "Public product data is visible at once. Exact price and supplier details — only after your approval.",
+  preview_product: "Atlantic salmon, fillet skinless, frozen",
+  preview_origin: "Origin",
+  preview_originValue: "Norway",
+  preview_format: "Format",
+  preview_formatValue: "Fillet 2–3 kg, IQF, 20 kg case",
+  preview_certifications: "Certifications",
+  preview_priceRange: "Price range",
+  preview_priceLocked: "Exact price",
+  preview_priceLockedHint: "Opens after supplier approval",
+  preview_supplier: "Supplier",
+  preview_supplierLocked: "Supplier details",
+  preview_supplierLockedHint: "Open together with price access",
+  preview_ctaRequest: "Request price access",
+  preview_caption: "UI mock. Real offers are managed inside the supplier workspace.",
+
+  access_eyebrow: "Control over price visibility",
+  access_title: "Three access levels, one rule",
+  access_subtitle: "Supplier details follow price access. No approved price — no supplier contact.",
+  access_states: [
+    {
+      label: "Anonymous visitor",
+      who: "Not registered",
+      sees: ["Product name, origin, format", "Certifications", "Price range", "Exact price and supplier details — hidden"],
+    },
+    {
+      label: "Registered buyer",
+      who: "Verified company and country",
+      sees: ["Everything above", "Offer context and terms", "Can request price access", "Exact price and supplier details — still hidden"],
+    },
+    {
+      label: "Access approved",
+      who: "Access granted by the supplier",
+      sees: ["Exact price", "Supplier name and details", "Direct contact actions", "Workspace for conversation and follow-up"],
+    },
+  ],
+  access_flowTitle: "Access request flow",
+  access_flowSteps: [
+    "The registered buyer clicks “Request price access”",
+    "You see the request with company, country and context",
+    "You approve, decline or ask for context",
+    "The approved buyer sees the exact price and supplier details",
+  ],
+
+  noise_eyebrow: "Less noise for the sales team",
+  noise_title: "Before and after on a normal day",
+  noise_subtitle: "Same team, same Monday — different working surface.",
+  noise_beforeLabel: "Today",
+  noise_afterLabel: "In YORSO",
+  noise_before: [
+    "Five WhatsApp chats with price questions",
+    "Spreadsheets with last week’s quotes",
+    "Documents and certifications re-sent again",
+    "Price requests from unknown free-mail addresses",
+  ],
+  noise_after: [
+    "Buyer requests with volume and destination",
+    "Offer cards with status and price in one place",
+    "One supplier card with documents",
+    "Queue of price access requests to approve",
   ],
 
   cta_title: "Put your sales work into one surface",
@@ -275,6 +393,81 @@ const ru: ForSuppliersDict = {
     },
   ],
 
+  flow_eyebrow: "Как поставщик работает в YORSO",
+  flow_title: "Четыре шага, а не проект внедрения",
+  flow_subtitle: "Отдел продаж проходит одну и ту же последовательность каждую неделю — только в одном месте.",
+  flow_stepLabel: "Шаг",
+  flow_steps: [
+    { title: "Создать карточку поставщика", body: "Данные компании, лицензия, сертификации и история — один раз. Покупатель видит ту же карточку, что и ваш отдел внутри." },
+    { title: "Опубликовать предложения", body: "По виду, формату, происхождению и упаковке. Предложения видны в нужной категории, а не во всём интернете." },
+    { title: "Получать квалифицированный интерес", body: "Запросы от зарегистрированных покупателей с объёмом, направлением и сроками сразу в карточке." },
+    { title: "Управлять доступом к цене и работой с покупателем", body: "Одобряете или отклоняете доступ к точной цене. Переписка и решение живут в одном экране." },
+  ],
+
+  preview_eyebrow: "Что видит покупатель",
+  preview_title: "Ваше предложение со стороны покупателя",
+  preview_subtitle: "Публичные данные продукта видны сразу. Точная цена и данные поставщика — только после вашего согласия.",
+  preview_product: "Сёмга атлантическая, филе б/к, замороженная",
+  preview_origin: "Происхождение",
+  preview_originValue: "Норвегия",
+  preview_format: "Формат",
+  preview_formatValue: "Филе 2–3 кг, IQF, короб 20 кг",
+  preview_certifications: "Сертификации",
+  preview_priceRange: "Диапазон цены",
+  preview_priceLocked: "Точная цена",
+  preview_priceLockedHint: "Открывается после согласия поставщика",
+  preview_supplier: "Поставщик",
+  preview_supplierLocked: "Данные поставщика",
+  preview_supplierLockedHint: "Открываются вместе с доступом к цене",
+  preview_ctaRequest: "Запросить доступ к цене",
+  preview_caption: "Макет интерфейса. Реальные предложения управляются внутри рабочего места поставщика.",
+
+  access_eyebrow: "Контроль видимости цены",
+  access_title: "Три уровня доступа, одно правило",
+  access_subtitle: "Данные поставщика следуют за доступом к цене. Нет одобренной цены — нет контактов поставщика.",
+  access_states: [
+    {
+      label: "Анонимный посетитель",
+      who: "Без регистрации",
+      sees: ["Название продукта, происхождение, формат", "Сертификации", "Диапазон цены", "Точная цена и данные поставщика — скрыты"],
+    },
+    {
+      label: "Зарегистрированный покупатель",
+      who: "Подтверждённая компания и страна",
+      sees: ["Всё, что выше", "Контекст предложения и условия", "Может запросить доступ к цене", "Точная цена и данные поставщика — пока скрыты"],
+    },
+    {
+      label: "Доступ одобрен",
+      who: "Доступ выдан поставщиком",
+      sees: ["Точная цена", "Название и данные поставщика", "Действия для прямого контакта", "Рабочее место для переписки и работы с покупателем"],
+    },
+  ],
+  access_flowTitle: "Поток запроса доступа",
+  access_flowSteps: [
+    "Зарегистрированный покупатель нажимает «Запросить доступ к цене»",
+    "Вы видите запрос с компанией, страной и контекстом",
+    "Одобряете, отклоняете или просите контекст",
+    "Одобренный покупатель видит точную цену и данные поставщика",
+  ],
+
+  noise_eyebrow: "Меньше шума для отдела продаж",
+  noise_title: "До и после в обычный день",
+  noise_subtitle: "Та же команда, тот же понедельник — другая поверхность работы.",
+  noise_beforeLabel: "Сегодня",
+  noise_afterLabel: "В YORSO",
+  noise_before: [
+    "Пять чатов в WhatsApp с вопросами по цене",
+    "Excel-таблицы с прошлой неделей котировок",
+    "Документы и сертификаты, отправленные ещё раз",
+    "Запросы цены с незнакомых бесплатных адресов",
+  ],
+  noise_after: [
+    "Запросы покупателей с объёмом и направлением",
+    "Карточки предложений со статусом и ценой в одном месте",
+    "Одна карточка поставщика с документами",
+    "Очередь запросов доступа к цене для одобрения",
+  ],
+
   cta_title: "Соберите работу отдела продаж в одной поверхности",
   cta_subtitle:
     "Зарегистрируйте компанию, опубликуйте карточку поставщика и начните получать квалифицированные запросы в своей категории.",
@@ -391,6 +584,81 @@ const es: ForSuppliersDict = {
       body:
         "Conversación, decisión de precio y siguiente paso en un solo lugar. El responsable ve en qué trabaja el equipo sin tener que preguntar.",
     },
+  ],
+
+  flow_eyebrow: "Cómo trabaja el proveedor en YORSO",
+  flow_title: "Cuatro pasos, no un proyecto",
+  flow_subtitle: "El equipo de ventas pasa por la misma secuencia cada semana — solo que en un solo lugar.",
+  flow_stepLabel: "Paso",
+  flow_steps: [
+    { title: "Crear el perfil del proveedor", body: "Datos de la empresa, licencia, certificaciones e historial — una sola vez. El comprador ve la misma tarjeta que tu equipo interno." },
+    { title: "Publicar las ofertas", body: "Por especie, formato, origen y empaque. Las ofertas se ven en la categoría correcta, no en todo internet." },
+    { title: "Recibir interés cualificado", body: "Solicitudes de compradores registrados con volumen, destino y plazos ya adjuntos." },
+    { title: "Gestionar acceso al precio y seguimiento", body: "Apruebas o rechazas el acceso al precio exacto. La conversación y la decisión viven en una sola pantalla." },
+  ],
+
+  preview_eyebrow: "Lo que ve el comprador",
+  preview_title: "Tu oferta vista desde el lado del comprador",
+  preview_subtitle: "Datos públicos del producto a la vista. Precio exacto y datos del proveedor — solo tras tu aprobación.",
+  preview_product: "Salmón atlántico, fileteado, sin piel, congelado",
+  preview_origin: "Origen",
+  preview_originValue: "Noruega",
+  preview_format: "Formato",
+  preview_formatValue: "Filete 2–3 kg, IQF, caja 20 kg",
+  preview_certifications: "Certificaciones",
+  preview_priceRange: "Rango de precio",
+  preview_priceLocked: "Precio exacto",
+  preview_priceLockedHint: "Disponible tras aprobación del proveedor",
+  preview_supplier: "Proveedor",
+  preview_supplierLocked: "Datos del proveedor",
+  preview_supplierLockedHint: "Se abren junto con el acceso al precio",
+  preview_ctaRequest: "Solicitar acceso al precio",
+  preview_caption: "Maqueta. Las ofertas reales se gestionan dentro del espacio del proveedor.",
+
+  access_eyebrow: "Control de la visibilidad del precio",
+  access_title: "Tres niveles de acceso, una sola regla",
+  access_subtitle: "Los datos del proveedor siguen al acceso al precio. Sin precio aprobado — sin contacto del proveedor.",
+  access_states: [
+    {
+      label: "Visitante anónimo",
+      who: "Sin registro",
+      sees: ["Nombre del producto, origen, formato", "Certificaciones", "Rango de precio", "Precio exacto y datos del proveedor — ocultos"],
+    },
+    {
+      label: "Comprador registrado",
+      who: "Empresa y país verificados",
+      sees: ["Todo lo anterior", "Contexto de oferta y términos", "Puede solicitar acceso al precio", "Precio exacto y datos del proveedor — aún ocultos"],
+    },
+    {
+      label: "Acceso aprobado",
+      who: "Acceso concedido por el proveedor",
+      sees: ["Precio exacto", "Nombre y datos del proveedor", "Acciones de contacto directo", "Espacio de comunicación y seguimiento"],
+    },
+  ],
+  access_flowTitle: "Flujo de solicitud de acceso",
+  access_flowSteps: [
+    "El comprador registrado pulsa «Solicitar acceso al precio»",
+    "Tú ves la solicitud con la empresa, el país y el contexto",
+    "Apruebas, rechazas o pides más contexto",
+    "El comprador aprobado ve el precio y los datos del proveedor",
+  ],
+
+  noise_eyebrow: "Menos ruido para el equipo de ventas",
+  noise_title: "Antes y después en un día normal",
+  noise_subtitle: "El mismo equipo, el mismo lunes — distinta superficie de trabajo.",
+  noise_beforeLabel: "Antes",
+  noise_afterLabel: "Después",
+  noise_before: [
+    "Cinco chats de WhatsApp con preguntas de precio",
+    "Hojas de cálculo con cotizaciones de la semana pasada",
+    "Documentos y certificaciones reenviados otra vez",
+    "Solicitudes de precio de correos gratuitos desconocidos",
+  ],
+  noise_after: [
+    "Solicitudes de compradores con volumen y destino",
+    "Tarjetas de oferta con estado y precio en un solo lugar",
+    "Una sola tarjeta de proveedor con documentos",
+    "Cola de solicitudes de acceso al precio para aprobar",
   ],
 
   cta_title: "Reúne el trabajo de ventas en una sola superficie",
