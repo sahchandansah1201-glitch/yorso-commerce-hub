@@ -80,7 +80,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["ASC", "MSC", "BRC", "IFS"],
     activeOffersCount: 14,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/salmon.webp", "/images/salmon-fillet.jpg"],
     shortDescription:
       "Vertically integrated salmon farm and processing plant, weekly air shipments to EU and Asia.",
     responseSignal: "fast",
@@ -103,7 +103,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["BRC", "IFS", "HACCP", "BAP"],
     activeOffersCount: 28,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/cod.webp", "/images/cod-loin.jpg", "/offers/pangasius.webp"],
     shortDescription:
       "Reprocessing plant for Russian and Alaskan whitefish, MAP/IQF lines, EU and US export programs.",
     responseSignal: "normal",
@@ -124,7 +124,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["ASC", "BAP 4★", "HACCP"],
     activeOffersCount: 19,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/shrimp.webp", "/images/shrimp-vannamei.jpg"],
     shortDescription:
       "Farm-to-container shrimp exporter, container loading directly at the plant, weekly EU departures.",
     responseSignal: "fast",
@@ -146,7 +146,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["MSC CoC", "HACCP", "EU Approved"],
     activeOffersCount: 8,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/tuna.webp", "/images/tuna-loin.jpg"],
     shortDescription:
       "Handline tuna sourced from Eastern Indonesia, fresh airfreight and ultra-low-temp frozen lines.",
     responseSignal: "normal",
@@ -168,7 +168,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["ASC", "BRC", "IFS", "HALAL"],
     activeOffersCount: 22,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/pangasius.webp", "/images/pangasius.jpg", "/offers/shrimp.webp"],
     shortDescription:
       "Integrated farming and processing for pangasius and shrimp, EU and Middle East programs.",
     responseSignal: "fast",
@@ -191,7 +191,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["MSC", "Iceland Responsible Fisheries", "IFS"],
     activeOffersCount: 11,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/cod.webp", "/images/cod-loin.jpg"],
     shortDescription:
       "Day-boat catch with same-day processing, fresh airfreight to EU, frozen reefer to Asia.",
     responseSignal: "normal",
@@ -214,7 +214,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["MSC (pollock)", "HACCP"],
     activeOffersCount: 7,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/crab.webp", "/images/king-crab.jpg", "/offers/cod.webp"],
     shortDescription:
       "Sea-frozen and shore-processed Pacific catch, reefer container shipments via Vladivostok and Busan.",
     responseSignal: "slow",
@@ -237,7 +237,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["ASC", "BAP", "BRC"],
     activeOffersCount: 17,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/salmon.webp", "/images/salmon-fillet.jpg"],
     shortDescription:
       "Export consolidator for southern Chile producers, regular reefer programs to US, EU and Brazil.",
     responseSignal: "fast",
@@ -260,7 +260,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["HACCP", "EU Approved"],
     activeOffersCount: 6,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/squid.webp", "/images/squid-tube.jpg"],
     shortDescription:
       "Atlantic small pelagics and cephalopods, container shipments to Mediterranean and Asian markets.",
     responseSignal: "normal",
@@ -283,7 +283,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["IFS", "BRC", "MSC CoC"],
     activeOffersCount: 20,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/squid.webp", "/images/squid-tube.jpg"],
     shortDescription:
       "Vigo-based importer/distributor with cold storage and re-packing, supplies HoReCa and retail in Iberia.",
     responseSignal: "fast",
@@ -305,7 +305,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["HACCP"],
     activeOffersCount: 31,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/cod.webp", "/offers/squid.webp", "/images/cod-loin.jpg"],
     shortDescription:
       "Trading desk consolidating multiple Dalian-area reprocessors, flexible MOQ and mixed-container loads.",
     responseSignal: "normal",
@@ -327,7 +327,7 @@ export const mockSuppliers: MockSupplier[] = [
     ],
     certifications: ["MSC", "IFS"],
     activeOffersCount: 5,
-    productPreviewImages: [],
+    productPreviewImages: ["/offers/cod.webp", "/images/cod-loin.jpg"],
     shortDescription:
       "Traditional Lofoten klippfisk producer, programs for Portugal, Brazil and West Africa.",
     responseSignal: "normal",

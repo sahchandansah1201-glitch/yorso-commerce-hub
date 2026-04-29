@@ -58,8 +58,7 @@ const EmptyState = () => (
     </div>
     <p className="text-foreground">Select a supplier to review details</p>
     <p className="mt-1.5 text-xs leading-relaxed">
-      Pick a supplier from the list to review product focus, trust evidence, and
-      access options.
+      Select a supplier to review product focus, trust evidence, and access options.
     </p>
   </div>
 );
@@ -112,6 +111,26 @@ export const SelectedSupplierPanel = ({
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {supplier.shortDescription}
       </p>
+
+      {supplier.productPreviewImages.length > 0 && (
+        <div className="mt-3 flex gap-1.5" aria-label="Product previews">
+          {supplier.productPreviewImages.slice(0, 3).map((src, i) => {
+            const species =
+              supplier.productFocus[i]?.species ??
+              supplier.productFocus[0]?.species ??
+              "seafood";
+            return (
+              <img
+                key={`${src}-${i}`}
+                src={src}
+                alt={`${species} product preview from ${displayName}`}
+                loading="lazy"
+                className="h-14 w-14 shrink-0 rounded-md border border-border object-cover"
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* Stats grid */}
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 text-sm">
