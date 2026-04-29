@@ -790,9 +790,9 @@ const en: HowItWorksDict = {
 };
 
 const ru: HowItWorksDict = {
-  seo_title: "Как работает Yorso — B2B-закупки морепродуктов, проверенные поставщики, RFQ",
+  seo_title: "Как работает Yorso — B2B-закупки морепродуктов, проверенные поставщики, Запрос цены",
   seo_description:
-    "Yorso — это рабочий процесс B2B-торговли морепродуктами: поиск оптовых поставщиков, проверка, RFQ и сравнение оферт, рыночный контекст цен и защищаемое решение по закупке.",
+    "Yorso — это рабочий процесс B2B-торговли морепродуктами: поиск оптовых поставщиков, проверка, Запрос цены и сравнение оферт, рыночный контекст цен и защищаемое решение по закупке.",
 
   hero_eyebrow: "Сделано для покупателей",
   hero_titlePrefix: "Принимайте и аргументируйте ",
@@ -811,7 +811,7 @@ const ru: HowItWorksDict = {
     { label: "Поиск", hint: "Фильтры по виду, стране, сертификатам, MOQ" },
     { label: "Доступ к цене", hint: "Запрос точной цены и данных поставщика" },
     { label: "Доказательства", hint: "Сертификаты, партии, время ответа, IUU" },
-    { label: "RFQ", hint: "Объём, упаковка, Инкотермс, окно поставки" },
+    { label: "Запрос цены", hint: "Объём, упаковка, Инкотермс, окно поставки" },
     { label: "Заказ", hint: "Документы, отгрузка, таможенный след" },
     { label: "Повтор", hint: "Сохранённые поставщики, регулярные заказы, аудит" },
   ],
@@ -851,7 +851,7 @@ const ru: HowItWorksDict = {
     "Количество шагов и поля продукта. Без числа клиентов, GMV и заявлений о росте конверсии. Значения вроде времени отклика, срока действия или lead time показываются, когда их предоставил поставщик.",
   proof_metrics: [
     { value: "3", label: "Вопроса покупателя до сделки", why: "Доверять поставщику, защитить цену, защитить решение внутри компании.", kind: "счётчик воркфлоу" },
-    { value: "6", label: "Точек риска проверяется до RFQ", why: "По одной строке на риск: последствие и механизм Yorso, который его снижает.", kind: "счётчик воркфлоу" },
+    { value: "6", label: "Точек риска проверяется до Запрос цены", why: "По одной строке на риск: последствие и механизм Yorso, который его снижает.", kind: "счётчик воркфлоу" },
     { value: "7", label: "Блоков доказательств поставщика", why: "Идентификация, завод, сертификации, история, lead time, недостающие поля и контекст — видны до коммитмента.", kind: "счётчик воркфлоу" },
     { value: "8", label: "Слоёв доверия в карточке поставщика", why: "Каждый слой помечен как verified, submitted или missing, с источником и датой последней проверки.", kind: "счётчик воркфлоу" },
     { value: "3", label: "Состояния доступа к цене и идентичности поставщика", why: "Anonymous, registered, qualified — покупатель всегда понимает, что показано и что закрыто.", kind: "счётчик воркфлоу" },
@@ -884,7 +884,7 @@ const ru: HowItWorksDict = {
     {
       pain: "Документы и сертификаты проверяются слишком поздно.",
       consequence: "Проблемы качества и комплаенса всплывают после размещения заказа, а не до.",
-      mechanism: "Флаг готовности документов и статус по каждому полю (проверено, заявлено, отсутствует) — до отправки RFQ.",
+      mechanism: "Флаг готовности документов и статус по каждому полю (проверено, заявлено, отсутствует) — до отправки Запрос цены.",
     },
     {
       pain: "Landed cost остаётся непонятным до прихода инвойса.",
@@ -912,7 +912,7 @@ const ru: HowItWorksDict = {
     "Сертификаты и готовность документов видны по каждой оферте, с датой последней проверки.",
     "Платное продвижение (Featured, Sponsored) промаркировано отдельно от верификации.",
     "Качество ответов фиксируется — среднее время ответа и полнота — чтобы покупатель мог отсеивать.",
-    "Недостающие документы покупатель может запросить до отправки RFQ.",
+    "Недостающие документы покупатель может запросить до отправки Запрос цены.",
   ],
 
   system_eyebrow: "Карта системы Yorso",
@@ -922,7 +922,7 @@ const ru: HowItWorksDict = {
   system_layer: "Слой",
   system_blocks: [
     { title: "Каталог и граф предложения", body: "Продукты, виды, происхождение, спецификации, доступность и структурированные профили поставщиков в едином графе." },
-    { title: "Спрос и мэтчинг", body: "Запросы покупателей, RFQ, шорт-листы, замены и сопоставление с реальной мощностью поставщиков." },
+    { title: "Спрос и мэтчинг", body: "Запросы покупателей, Запрос цены, шорт-листы, замены и сопоставление с реальной мощностью поставщиков." },
     { title: "Идентичность и доверие", body: "Верификация, документы, сертификаты и доказательства поставщика, собранные в готовые к закупке профили." },
     { title: "Цены и рыночные сигналы", body: "История цен, новости стран, направление тренда и контекст бенчмарка, привязанные к конкретной оферте." },
     { title: "Заказы и логистика", body: "Статус заказа, риски доставки и поддержка по документам/логистике от подтверждения до поставки." },
@@ -969,9 +969,9 @@ const ru: HowItWorksDict = {
       example: "Лоины желтопёрого тунца против саку — сравнение 3 поставщиков по CFR/CIF.",
     },
     {
-      title: "Отправить структурированный RFQ или связаться с поставщиком",
-      buyer: "Отправляет RFQ с количеством, упаковкой, окном поставки и Инкотермс или открывает прямую коммуникацию.",
-      yorso: "Структурированная форма RFQ, тред сообщений, привязанный к оферте, история фоллоу-апов по поставщику.",
+      title: "Отправить структурированный Запрос цены или связаться с поставщиком",
+      buyer: "Отправляет Запрос цены с количеством, упаковкой, окном поставки и Инкотермс или открывает прямую коммуникацию.",
+      yorso: "Структурированная форма Запрос цены, тред сообщений, привязанный к оферте, история фоллоу-апов по поставщику.",
       risk: "Коммуникация остаётся внутри сделки, а не теряется в почтовых ящиках.",
       example: "Креветка ваннамей 26/30, IQF, 24 т, CIF Альхесирас, оплата 30% аванс.",
     },
@@ -1107,7 +1107,7 @@ const ru: HowItWorksDict = {
     {
       title: "Готовность к экспорту и сертификаты",
       supplier: "Ветеринарные сертификаты, MSC/ASC где применимо, IUU-комплаенс, лабораторные анализы со сроками действия.",
-      yorso: "Флаг готовности документов по оферте — загружено, истекает, отсутствует — виден до RFQ.",
+      yorso: "Флаг готовности документов по оферте — загружено, истекает, отсутствует — виден до Запрос цены.",
       outcome: "Покупатель замечает отсутствующий или истекающий сертификат до заказа, а не после отгрузки.",
       concept: "Verified",
     },
@@ -1120,16 +1120,16 @@ const ru: HowItWorksDict = {
     },
     {
       title: "Качество ответа",
-      supplier: "Отвечает на RFQ в структурированном формате, в измеримые сроки, полно по всем пунктам.",
+      supplier: "Отвечает на Запрос цены в структурированном формате, в измеримые сроки, полно по всем пунктам.",
       yorso: "Среднее время ответа и полнота ответов на профиле — «как заявлено», без обещаний.",
       outcome: "Покупатель шорт-листит тех, кто реально отвечает, а не тех, кто красиво выглядит в листинге.",
       concept: "Neutral",
     },
     {
-      title: "Недостающая информация — видна до RFQ",
+      title: "Недостающая информация — видна до Запрос цены",
       supplier: "Пункты, которые поставщик ещё не предоставил, остаются открытыми, а не скрытыми.",
       yorso: "Каждый пробел подписан «ещё не предоставлено», с запросом в один клик от покупателя.",
-      outcome: "Покупатель запрашивает недостающее до RFQ, а не после того, как возникла проблема.",
+      outcome: "Покупатель запрашивает недостающее до Запрос цены, а не после того, как возникла проблема.",
       concept: "Verified",
     },
     {
@@ -1150,18 +1150,18 @@ const ru: HowItWorksDict = {
     { title: "Идентичность компании", body: "Юр. лицо, страна регистрации, номер одобрения предприятия, ссылка на экспортную лицензию.", evidence: "Verified — регистрационный документ и одобрение предприятия в досье." },
     { title: "Спецификация продукта", body: "Вид (латинское название), формат/разделка, размер, упаковка, глазурь, срок годности.", evidence: "Verified — спецификация заявлена поставщиком в структурированных полях." },
     { title: "Происхождение и страна поставщика", body: "Происхождение вылова/фермы и страна отгрузки.", evidence: "Verified — происхождение указано по SKU; страна поставщика из регистрации." },
-    { title: "Сертификаты и документы", body: "Health-сертификаты, MSC/ASC при применимости, IUU compliance, лабораторные анализы.", evidence: "Ещё не предоставлено для этого поставщика — покупатель может запросить до RFQ." },
+    { title: "Сертификаты и документы", body: "Health-сертификаты, MSC/ASC при применимости, IUU compliance, лабораторные анализы.", evidence: "Ещё не предоставлено для этого поставщика — покупатель может запросить до Запрос цены." },
     { title: "Инкотермс, MOQ, оплата, срок", body: "Коммерческие условия привязаны к оферте, а не закопаны в чате.", evidence: "Verified — заявлено по оферте, сравнимо между поставщиками." },
     { title: "История цен и рыночные сигналы", body: "Индикативный диапазон цен, направление тренда, новостной контекст по стране происхождения.", evidence: "Нейтральный — направленный контекст, не маркет-фид." },
-    { title: "Готовность поставщика и качество ответов", body: "Готовность документов, среднее время ответа, доля закрытых RFQ.", evidence: "Verified — измерено по поведению на платформе во времени." },
-    { title: "Коммуникация и след сделки", body: "Структурированный тред RFQ, история фоллоу-апов, лог обмена документами.", evidence: "Verified — записано внутри сделки, экспортируется вместе с закупочным досье." },
+    { title: "Готовность поставщика и качество ответов", body: "Готовность документов, среднее время ответа, доля закрытых Запрос цены.", evidence: "Verified — измерено по поведению на платформе во времени." },
+    { title: "Коммуникация и след сделки", body: "Структурированный тред Запрос цены, история фоллоу-апов, лог обмена документами.", evidence: "Verified — записано внутри сделки, экспортируется вместе с закупочным досье." },
   ],
   ts_state_verified: "Verified",
   ts_state_missing: "Ещё не предоставлено",
   ts_state_promoted: "Promoted",
   ts_state_neutral: "Контекст",
   ts_legend_verified: "Verified = доказательства в досье. Не гарантия качества.",
-  ts_legend_missing: "Ещё не предоставлено = пункт отсутствует. Покупатель может запросить до RFQ.",
+  ts_legend_missing: "Ещё не предоставлено = пункт отсутствует. Покупатель может запросить до Запрос цены.",
   ts_legend_promoted: "Promoted = платная видимость, отдельно от верификации.",
 
   vg_eyebrow: "Что получает покупатель",
@@ -1177,7 +1177,7 @@ const ru: HowItWorksDict = {
   vg_buyer_items: [
     { title: "Поиск продуктов морепродуктов", body: "Поиск по виду, формату, происхождению, сертификатам и стране поставщика." },
     { title: "Доказательства проверенного поставщика", body: "Регистрация, одобрение предприятия и сертификаты в структурированном Trust Pack." },
-    { title: "Поток RFQ / запросов", body: "Отправка структурированного RFQ с количеством, упаковкой, Инкотермс и окном поставки." },
+    { title: "Поток Запрос цены / запросов", body: "Отправка структурированного Запрос цены с количеством, упаковкой, Инкотермс и окном поставки." },
     { title: "Сравнение оферт", body: "Сравнение бок о бок: цена, MOQ, срок, условия оплаты и документы." },
     { title: "Цены и рыночный контекст", body: "Индикативный диапазон цен, направление тренда и новости по стране, привязанные к оферте." },
     { title: "Готовность документов", body: "Видимость, какие сертификаты и отгрузочные документы уже в досье." },
@@ -1190,7 +1190,7 @@ const ru: HowItWorksDict = {
     { title: "Верификация и блоки доказательств поставщика", body: "Регистрация, аттестация завода, экспортная лицензия и сертификаты в стандартном Trust Pack — покупатель может проверить.", tagLabel: "Verified · по доказательствам" },
     { title: "Сигнал готовности документов", body: "Статус по оферте (загружено, истекает, отсутствует), чтобы покупатель шорт-листил без догадок." },
     { title: "Качество ответа на профиле", body: "Среднее время ответа и полнота ответов — записаны по поведению на платформе." },
-    { title: "Квалифицированный инбокс RFQ", body: "Запросы покупателей, отфильтрованные по категории, стране, объёму и Инкотермс." },
+    { title: "Квалифицированный инбокс Запрос цены", body: "Запросы покупателей, отфильтрованные по категории, стране, объёму и Инкотермс." },
     { title: "Память повторных сделок", body: "Тред по покупателю и история фоллоу-апов хранятся против SKU — для следующего цикла." },
     { title: "Premium-подача", body: "Усиленный мерчандайзинг и приоритет в выдаче. Видимость, не верификация.", tagLabel: "Premium · платная подача" },
   ],
@@ -1207,7 +1207,7 @@ const ru: HowItWorksDict = {
     { title: "Снижение скрейпа цен низкоинтентной аудиторией", body: "Гейтинг отсекает автоматический парсинг и «прицельный туризм»." },
     { title: "Повышение качества покупателей", body: "Реальное намерение закупки вознаграждается более глубоким доступом и рабочим процессом." },
     { title: "Сохранение доверия маркетплейса", body: "Поставщики раскрываются охотнее, когда понимают, кто и зачем смотрит." },
-    { title: "Раскрытие более полезного workflow", body: "Сравнение, история RFQ, фоллоу-апы и доказательства решения растут с уровнем доступа." },
+    { title: "Раскрытие более полезного workflow", body: "Сравнение, история Запрос цены, фоллоу-апы и доказательства решения растут с уровнем доступа." },
   ],
   al_card_anonymous: {
     badge: "Анонимный",
@@ -1229,7 +1229,7 @@ const ru: HowItWorksDict = {
       "Сохранение, watchlist, подписка на поставщиков",
       "Сравнение оферт бок о бок",
       "Запрос доступа к точной цене / поставщику",
-      "Отправка структурированных RFQ",
+      "Отправка структурированных Запрос цены",
       "Шорт-лист с командой",
     ],
   },
@@ -1260,7 +1260,7 @@ const ru: HowItWorksDict = {
     { label: "Сохранение, watchlist, подписка на поставщиков" },
     { label: "Сравнение оферт бок о бок" },
     { label: "Запрос цены / данных поставщика" },
-    { label: "Отправка структурированного RFQ" },
+    { label: "Отправка структурированного Запрос цены" },
     { label: "Точная цена видна" },
     { label: "Полная личность поставщика" },
     { label: "Расширенные данные о доверии" },
@@ -1288,7 +1288,7 @@ const ru: HowItWorksDict = {
     { title: "Меньше документного и логистического риска", body: "Видимость готовности документов, Инкотермс и сроков до коммитмента." },
   ],
   bo_supplier_items: [
-    { title: "Больше квалифицированных запросов", body: "RFQ отфильтрованы по категории, стране, объёму и Инкотермс." },
+    { title: "Больше квалифицированных запросов", body: "Запрос цены отфильтрованы по категории, стране, объёму и Инкотермс." },
     { title: "Сильнее доверие покупателей", body: "Блоки верифицированных доказательств помогают покупателю предварительно квалифицировать до диалога." },
     { title: "Лучше подача продукта", body: "Структурированный контент, сторителлинг и мерчандайзинг в одном пространстве." },
     { title: "Полезнее видимость", body: "SEO-профиль и категорийная выдача — видимы покупателям, которые активно ищут." },
@@ -1302,7 +1302,7 @@ const ru: HowItWorksDict = {
   bo_saves_col_metric: "Операционный пункт",
   bo_saves_rows: [
     { metric: "Поставщиков в активной переписке", before: "12 параллельных чатов и писем", with: "3 поставщика в шорт-листе в одном экране" },
-    { metric: "Проверок документов до RFQ", before: "Запрашиваются после оферты, часто отсутствуют", with: "5 проверок видны до отправки запроса" },
+    { metric: "Проверок документов до Запрос цены", before: "Запрашиваются после оферты, часто отсутствуют", with: "5 проверок видны до отправки запроса" },
     { metric: "Компонентов landed cost у апрувера", before: "Только цена, фрахт и пошлины — оценка постфактум", with: "4 компонента видны до согласования" },
     { metric: "Запись решения для внутреннего ревью", before: "Разрозненные чаты, PDF и скриншоты", with: "1 файл решения: шорт-лист, доказательства, журнал" },
     { metric: "Форматы экспорта для финансов и качества", before: "Пересланные треды и копипаст", with: "2 формата: PDF и CSV" },
@@ -1337,7 +1337,7 @@ const ru: HowItWorksDict = {
   fc_supplier_body: "Соберите верифицированный профиль и предоставьте доказательства, по которым покупатель принимает решение. Платная видимость доступна — и подписана отдельно.",
   fc_supplier_bullets: [
     "Verified Supplier Trust Pack — доказательства, а не бейджи",
-    "Инбокс квалифицированных RFQ с сигналами намерений покупателей",
+    "Инбокс квалифицированных Запрос цены с сигналами намерений покупателей",
     "Premium-подача — видимость, никогда не доказательство",
   ],
   fc_supplier_cta1: "Стать проверенным поставщиком",
@@ -1350,9 +1350,9 @@ const ru: HowItWorksDict = {
 };
 
 const es: HowItWorksDict = {
-  seo_title: "Cómo funciona Yorso — abastecimiento B2B de pescado y marisco, proveedores verificados, RFQ",
+  seo_title: "Cómo funciona Yorso — abastecimiento B2B de pescado y marisco, proveedores verificados, Solicitud de precio",
   seo_description:
-    "Yorso es un flujo de trabajo de comercio B2B de pescado y marisco: abastecimiento mayorista, proveedores verificados, RFQ y comparación de compras, contexto de precios y mercado, y un informe defensible de decisión.",
+    "Yorso es un flujo de trabajo de comercio B2B de pescado y marisco: abastecimiento mayorista, proveedores verificados, Solicitud de precio y comparación de compras, contexto de precios y mercado, y un informe defensible de decisión.",
 
   hero_eyebrow: "Hecho para compradores",
   hero_titlePrefix: "Tome y defienda la decisión correcta de ",
@@ -1371,7 +1371,7 @@ const es: HowItWorksDict = {
     { label: "Búsqueda", hint: "Filtros por especie, origen, certificados, MOQ" },
     { label: "Acceso al precio", hint: "Solicita precio exacto e identidad del proveedor" },
     { label: "Evidencia", hint: "Certificados, lotes, tiempo de respuesta, IUU" },
-    { label: "RFQ", hint: "Cantidad, embalaje, Incoterms, ventana de entrega" },
+    { label: "Solicitud de precio", hint: "Cantidad, embalaje, Incoterms, ventana de entrega" },
     { label: "Pedido", hint: "Documentos, envío, traza aduanera" },
     { label: "Recurrencia", hint: "Proveedores guardados, pedidos repetidos, auditoría" },
   ],
@@ -1411,7 +1411,7 @@ const es: HowItWorksDict = {
     "Recuentos del flujo y campos del producto. Sin número de clientes, sin GMV, sin afirmaciones de conversión. Valores como tiempo de respuesta, fecha de validez o lead time se muestran cuando el proveedor los aporta.",
   proof_metrics: [
     { value: "3", label: "Preguntas del comprador antes del cierre", why: "Confiar en el proveedor, defender el precio, defender la decisión internamente.", kind: "recuento del flujo" },
-    { value: "6", label: "Puntos de riesgo revisados antes del RFQ", why: "Una fila por riesgo: consecuencia y el mecanismo de Yorso que lo reduce.", kind: "recuento del flujo" },
+    { value: "6", label: "Puntos de riesgo revisados antes del Solicitud de precio", why: "Una fila por riesgo: consecuencia y el mecanismo de Yorso que lo reduce.", kind: "recuento del flujo" },
     { value: "7", label: "Bloques de evidencia del proveedor", why: "Identidad, planta, certificaciones, historial, lead time, campos ausentes y contexto — visibles antes del compromiso.", kind: "recuento del flujo" },
     { value: "8", label: "Capas de confianza en la ficha del proveedor", why: "Cada capa marcada como verified, submitted o missing, con fuente y fecha de revisión.", kind: "recuento del flujo" },
     { value: "3", label: "Estados de acceso a precio e identidad del proveedor", why: "Anonymous, registered, qualified — el comprador siempre sabe qué se muestra y qué está restringido.", kind: "recuento del flujo" },
@@ -1444,7 +1444,7 @@ const es: HowItWorksDict = {
     {
       pain: "Documentos y certificados se revisan demasiado tarde.",
       consequence: "Los problemas de calidad y cumplimiento aparecen tras el pedido, no antes.",
-      mechanism: "Indicador de preparación documental y estado por campo (verificado, declarado, ausente) antes de enviar el RFQ.",
+      mechanism: "Indicador de preparación documental y estado por campo (verificado, declarado, ausente) antes de enviar el Solicitud de precio.",
     },
     {
       pain: "El coste en destino se desconoce hasta que llega la factura.",
@@ -1472,7 +1472,7 @@ const es: HowItWorksDict = {
     "Certificados y preparación documental visibles por oferta, con fecha de la última revisión.",
     "Visibilidad pagada (Featured, Sponsored) etiquetada por separado de la verificación.",
     "La calidad de respuesta queda registrada — tiempo medio e integridad — para ayudar al comprador a preseleccionar.",
-    "El comprador puede solicitar la evidencia que falta antes de enviar un RFQ.",
+    "El comprador puede solicitar la evidencia que falta antes de enviar un Solicitud de precio.",
   ],
 
   system_eyebrow: "Mapa del sistema Yorso",
@@ -1482,7 +1482,7 @@ const es: HowItWorksDict = {
   system_layer: "Capa",
   system_blocks: [
     { title: "Catálogo y grafo de oferta", body: "Productos, especies, origen, especificaciones, disponibilidad y perfiles estructurados de proveedores en un grafo único." },
-    { title: "Demanda y matching", body: "Solicitudes del comprador, RFQ, shortlists, sustitutos y emparejamiento con la capacidad real del proveedor." },
+    { title: "Demanda y matching", body: "Solicitudes del comprador, Solicitud de precio, shortlists, sustitutos y emparejamiento con la capacidad real del proveedor." },
     { title: "Identidad y confianza", body: "Verificación, documentos, certificados y evidencia del proveedor en perfiles listos para compra." },
     { title: "Precios y señales de mercado", body: "Histórico de precios, noticias por país, dirección de tendencia y contexto de benchmark vinculado a la oferta." },
     { title: "Pedidos y logística", body: "Estado del pedido, riesgo de envío y soporte documental/logístico desde la confirmación hasta la entrega." },
@@ -1529,9 +1529,9 @@ const es: HowItWorksDict = {
       example: "Lomos de atún yellowfin vs saku — comparación de 3 proveedores en CFR/CIF.",
     },
     {
-      title: "Enviar un RFQ estructurado o contactar al proveedor",
-      buyer: "Envía un RFQ con cantidad, embalaje, ventana de entrega e Incoterms, o abre comunicación directa.",
-      yorso: "Formulario RFQ estructurado, hilo de mensajes vinculado a la oferta, historial de seguimiento por proveedor.",
+      title: "Enviar un Solicitud de precio estructurado o contactar al proveedor",
+      buyer: "Envía un Solicitud de precio con cantidad, embalaje, ventana de entrega e Incoterms, o abre comunicación directa.",
+      yorso: "Formulario Solicitud de precio estructurado, hilo de mensajes vinculado a la oferta, historial de seguimiento por proveedor.",
       risk: "La comunicación queda dentro del trato, no se pierde entre buzones.",
       example: "Camarón vannamei 26/30, IQF, 24 t, CIF Algeciras, pago 30% adelantado.",
     },
@@ -1667,7 +1667,7 @@ const es: HowItWorksDict = {
     {
       title: "Preparación para exportar y certificados",
       supplier: "Certificados sanitarios, MSC/ASC cuando aplique, cumplimiento IUU, análisis de laboratorio con vigencia.",
-      yorso: "Indicador de preparación documental por oferta — cargado, próximo a vencer o ausente — antes del RFQ.",
+      yorso: "Indicador de preparación documental por oferta — cargado, próximo a vencer o ausente — antes del Solicitud de precio.",
       outcome: "El comprador detecta un certificado ausente o por vencer antes del pedido, no tras el envío.",
       concept: "Verified",
     },
@@ -1680,16 +1680,16 @@ const es: HowItWorksDict = {
     },
     {
       title: "Calidad de respuesta",
-      supplier: "Responde a las RFQ en formato estructurado, en plazos medibles y con respuestas completas.",
+      supplier: "Responde a las Solicitud de precio en formato estructurado, en plazos medibles y con respuestas completas.",
       yorso: "Tiempo medio de respuesta e integridad de respuestas en el perfil — aportado, no prometido.",
       outcome: "El comprador preselecciona a quienes realmente responden, no a quienes solo lucen bien en el listado.",
       concept: "Neutral",
     },
     {
-      title: "Información faltante, visible antes del RFQ",
+      title: "Información faltante, visible antes del Solicitud de precio",
       supplier: "Los elementos que el proveedor aún no aportó se mantienen abiertos, no ocultos.",
       yorso: "Cada vacío se etiqueta «aún no proporcionado», con una solicitud de un clic para el comprador.",
-      outcome: "El comprador pide lo que falta antes del RFQ, no después de que aparezca un problema.",
+      outcome: "El comprador pide lo que falta antes del Solicitud de precio, no después de que aparezca un problema.",
       concept: "Verified",
     },
     {
@@ -1710,18 +1710,18 @@ const es: HowItWorksDict = {
     { title: "Identidad de la empresa", body: "Entidad legal, país de registro, número de aprobación de planta, referencia de licencia de exportación.", evidence: "Verified — documento de registro y aprobación de planta en archivo." },
     { title: "Especificación de producto", body: "Especie (nombre latino), formato/corte, calibre, embalaje, glaseado, vida útil.", evidence: "Verified — especificación declarada por el proveedor en campos estructurados." },
     { title: "Origen y país del proveedor", body: "Origen de pesca/granja y país desde el que envía el proveedor.", evidence: "Verified — origen declarado por SKU; país del proveedor desde el registro." },
-    { title: "Certificados y documentos", body: "Certificados sanitarios, MSC/ASC cuando aplique, cumplimiento IUU, análisis de laboratorio.", evidence: "Aún no proporcionado para este proveedor — el comprador puede solicitarlo antes del RFQ." },
+    { title: "Certificados y documentos", body: "Certificados sanitarios, MSC/ASC cuando aplique, cumplimiento IUU, análisis de laboratorio.", evidence: "Aún no proporcionado para este proveedor — el comprador puede solicitarlo antes del Solicitud de precio." },
     { title: "Incoterms, MOQ, pago, plazo", body: "Condiciones comerciales adjuntas a la oferta, no enterradas en chat.", evidence: "Verified — declaradas por oferta, comparables entre proveedores." },
     { title: "Histórico de precios y señales de mercado", body: "Rango indicativo de precio, dirección de tendencia, contexto de noticias por país.", evidence: "Neutral — contexto direccional, no un feed de mercado." },
-    { title: "Preparación del proveedor y calidad de respuesta", body: "Preparación documental, tiempo medio de respuesta, tasa de cierre de RFQ.", evidence: "Verified — medido por el comportamiento en plataforma a lo largo del tiempo." },
-    { title: "Comunicación y rastro del pedido", body: "Hilo RFQ estructurado, historial de seguimiento, registro de intercambio documental.", evidence: "Verified — registrado dentro del trato, exportable con el expediente de compra." },
+    { title: "Preparación del proveedor y calidad de respuesta", body: "Preparación documental, tiempo medio de respuesta, tasa de cierre de Solicitud de precio.", evidence: "Verified — medido por el comportamiento en plataforma a lo largo del tiempo." },
+    { title: "Comunicación y rastro del pedido", body: "Hilo Solicitud de precio estructurado, historial de seguimiento, registro de intercambio documental.", evidence: "Verified — registrado dentro del trato, exportable con el expediente de compra." },
   ],
   ts_state_verified: "Verified",
   ts_state_missing: "Aún no proporcionado",
   ts_state_promoted: "Promoted",
   ts_state_neutral: "Contexto",
   ts_legend_verified: "Verified = evidencia en archivo. No es garantía de calidad.",
-  ts_legend_missing: "Aún no proporcionado = elemento faltante. El comprador puede solicitarlo antes del RFQ.",
+  ts_legend_missing: "Aún no proporcionado = elemento faltante. El comprador puede solicitarlo antes del Solicitud de precio.",
   ts_legend_promoted: "Promoted = visibilidad pagada, separada de la verificación.",
 
   vg_eyebrow: "Lo que recibe el comprador",
@@ -1737,7 +1737,7 @@ const es: HowItWorksDict = {
   vg_buyer_items: [
     { title: "Descubrimiento de productos", body: "Búsqueda por especie, formato, origen, certificaciones y país del proveedor." },
     { title: "Evidencia de proveedor verificado", body: "Registro, aprobación de planta y certificaciones presentados en un trust pack estructurado." },
-    { title: "Flujo RFQ / solicitud", body: "Envío de un RFQ estructurado con cantidad, embalaje, Incoterms y ventana de entrega." },
+    { title: "Flujo Solicitud de precio / solicitud", body: "Envío de un Solicitud de precio estructurado con cantidad, embalaje, Incoterms y ventana de entrega." },
     { title: "Comparación de ofertas", body: "Comparación lado a lado de precio, MOQ, plazo, condiciones de pago y documentos." },
     { title: "Precio y contexto de mercado", body: "Rango indicativo, dirección de tendencia y noticias del país de origen vinculadas a la oferta." },
     { title: "Preparación documental", body: "Visibilidad de qué certificados y documentos de envío ya están en archivo." },
@@ -1750,7 +1750,7 @@ const es: HowItWorksDict = {
     { title: "Verificación y bloques de evidencia del proveedor", body: "Registro, aprobación de planta, licencia de exportación y certificados en un trust pack estándar que el comprador puede comprobar.", tagLabel: "Verified · respaldado por evidencia" },
     { title: "Señal de preparación documental", body: "Estado por oferta (cargado, por vencer, ausente) para que el comprador preseleccione sin adivinar." },
     { title: "Calidad de respuesta en el perfil", body: "Tiempo medio de respuesta e integridad, registrados a partir del comportamiento en la plataforma." },
-    { title: "Bandeja de RFQ cualificadas", body: "Solicitudes filtradas por categoría, país, volumen e Incoterms." },
+    { title: "Bandeja de Solicitud de precio cualificadas", body: "Solicitudes filtradas por categoría, país, volumen e Incoterms." },
     { title: "Memoria de pedidos recurrentes", body: "Hilo por comprador e historial de seguimiento atados al SKU para el siguiente ciclo." },
     { title: "Presentación Premium", body: "Merchandising reforzado y colocación de descubrimiento. Visibilidad, no verificación.", tagLabel: "Premium · presentación pagada" },
   ],
@@ -1767,7 +1767,7 @@ const es: HowItWorksDict = {
     { title: "Reducir scraping de baja intención", body: "El gating filtra extracción automatizada y curiosos sin intención." },
     { title: "Mejorar la calidad del comprador", body: "La intención real de compra se recompensa con más acceso y workflow más rico." },
     { title: "Preservar la confianza del marketplace", body: "Los proveedores listan más abiertamente cuando saben quién y por qué mira." },
-    { title: "Desbloquear workflow más útil", body: "Comparación, historial de RFQ, seguimiento y prueba de decisión crecen con el nivel." },
+    { title: "Desbloquear workflow más útil", body: "Comparación, historial de Solicitud de precio, seguimiento y prueba de decisión crecen con el nivel." },
   ],
   al_card_anonymous: {
     badge: "Anónimo",
@@ -1789,7 +1789,7 @@ const es: HowItWorksDict = {
       "Guardar, watchlist, seguir proveedores",
       "Comparar ofertas lado a lado",
       "Solicitar acceso a precio / proveedor",
-      "Enviar RFQ estructurados",
+      "Enviar Solicitud de precio estructurados",
       "Construir shortlist con su equipo",
     ],
   },
@@ -1820,7 +1820,7 @@ const es: HowItWorksDict = {
     { label: "Guardar, watchlist, seguir proveedores" },
     { label: "Comparar ofertas lado a lado" },
     { label: "Solicitar precio / datos del proveedor" },
-    { label: "Enviar RFQ estructurado" },
+    { label: "Enviar Solicitud de precio estructurado" },
     { label: "Precio exacto visible" },
     { label: "Identidad completa del proveedor" },
     { label: "Datos de confianza más ricos" },
@@ -1848,7 +1848,7 @@ const es: HowItWorksDict = {
     { title: "Menor riesgo documental y logístico", body: "Visibilidad de preparación documental, Incoterms y plazos antes del compromiso." },
   ],
   bo_supplier_items: [
-    { title: "Más consultas cualificadas", body: "RFQ filtrados por categoría, país, volumen e Incoterms." },
+    { title: "Más consultas cualificadas", body: "Solicitud de precio filtrados por categoría, país, volumen e Incoterms." },
     { title: "Mayor confianza del comprador", body: "Bloques de evidencia verificada ayudan a precualificar antes del diálogo." },
     { title: "Mejor presentación de producto", body: "Contenido estructurado, storytelling y merchandising en un solo workspace." },
     { title: "Visibilidad más útil", body: "Perfil SEO y aparición en categorías — visible para compradores que buscan activamente." },
@@ -1862,7 +1862,7 @@ const es: HowItWorksDict = {
   bo_saves_col_metric: "Elemento operativo",
   bo_saves_rows: [
     { metric: "Conversaciones con proveedores en curso", before: "12 chats y correos en paralelo", with: "3 proveedores preseleccionados en una sola vista" },
-    { metric: "Comprobaciones de documentos antes del RFQ", before: "Pedidas tras la oferta, a menudo faltantes", with: "5 comprobaciones visibles antes de enviar la solicitud" },
+    { metric: "Comprobaciones de documentos antes del Solicitud de precio", before: "Pedidas tras la oferta, a menudo faltantes", with: "5 comprobaciones visibles antes de enviar la solicitud" },
     { metric: "Componentes del coste en destino ante el aprobador", before: "Solo precio, flete y aranceles estimados después", with: "4 componentes visibles antes de la aprobación" },
     { metric: "Registro de decisión para revisión interna", before: "Chats, PDFs y capturas dispersos", with: "1 expediente con preselección, evidencia y registro" },
     { metric: "Formatos de exportación para finanzas y calidad", before: "Reenvíos de hilos y copia y pega", with: "2 formatos: PDF y CSV" },
@@ -1897,7 +1897,7 @@ const es: HowItWorksDict = {
   fc_supplier_body: "Construya un perfil verificado y aporte la evidencia con la que el comprador decide. La visibilidad pagada está disponible — y se etiqueta por separado.",
   fc_supplier_bullets: [
     "Verified Supplier Trust Pack — evidencia, no insignias",
-    "Bandeja de RFQ cualificadas con señales de intención",
+    "Bandeja de Solicitud de precio cualificadas con señales de intención",
     "Presentación Premium — visibilidad, nunca prueba",
   ],
   fc_supplier_cta1: "Convertirse en proveedor verificado",
