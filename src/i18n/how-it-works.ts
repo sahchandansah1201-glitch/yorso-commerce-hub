@@ -274,7 +274,6 @@ const en: HowItWorksDict = {
   problem_buyer_title: "Six places where a seafood procurement decision goes wrong.",
   problem_buyer_lead:
     "Each row reads pain, then what it costs the buyer, then how Yorso reduces the risk before commitment.",
-  problem_buyer_painLabel: "Pain",
   problem_buyer_consequenceLabel: "What it costs the buyer",
   problem_buyer_mechanismLabel: "How Yorso reduces it",
   problem_buyer_pains: [
@@ -789,7 +788,6 @@ const ru: HowItWorksDict = {
   problem_buyer_title: "Шесть мест, где решение о закупке морепродуктов идёт не так.",
   problem_buyer_lead:
     "В каждой строке: боль, чем она оборачивается для покупателя и как Yorso снижает риск до момента сделки.",
-  problem_buyer_painLabel: "Боль",
   problem_buyer_consequenceLabel: "Чем оборачивается для покупателя",
   problem_buyer_mechanismLabel: "Как Yorso снижает риск",
   problem_buyer_pains: [
@@ -1304,7 +1302,6 @@ const es: HowItWorksDict = {
   problem_buyer_title: "Seis lugares donde una decisión de compra de pescado se tuerce.",
   problem_buyer_lead:
     "Cada fila se lee como dolor, qué le cuesta al comprador y cómo Yorso reduce el riesgo antes del cierre.",
-  problem_buyer_painLabel: "Dolor",
   problem_buyer_consequenceLabel: "Qué le cuesta al comprador",
   problem_buyer_mechanismLabel: "Cómo lo reduce Yorso",
   problem_buyer_pains: [
