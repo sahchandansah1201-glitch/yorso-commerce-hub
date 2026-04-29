@@ -361,10 +361,10 @@ const ForSuppliers = () => {
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
                       {item.today}
                     </p>
-                    <p className="mt-2 text-sm font-medium leading-relaxed text-foreground/80">
+                    <p className="mt-2.5 text-sm font-medium leading-relaxed text-foreground/80 md:mt-2">
                       {item.cost}
                     </p>
                   </div>
@@ -440,7 +440,7 @@ const ForSuppliers = () => {
                 </dl>
 
                 {/* Gated rows */}
-                <div className="mt-4 space-y-2">
+                <div className="mt-4 space-y-2.5">
                   <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
                     <div className="flex items-center gap-2 text-sm">
                       <Lock className="h-4 w-4 text-muted-foreground" />
@@ -513,11 +513,11 @@ const ForSuppliers = () => {
                   <p className="mt-2 text-xs uppercase tracking-wider text-muted-foreground">
                     {state.who}
                   </p>
-                  <ul className="mt-4 space-y-2">
+                  <ul className="mt-4 space-y-2.5">
                     {state.sees.map((line, idx) => {
                       const Symbol = line.hidden ? Lock : Check;
                       return (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
+                        <li key={idx} className="flex items-start gap-2.5 text-sm leading-relaxed">
                           <Symbol
                             className={`mt-0.5 h-4 w-4 shrink-0 ${
                               line.hidden ? "text-muted-foreground" : "text-primary"
@@ -541,9 +541,9 @@ const ForSuppliers = () => {
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {t.access_flowTitle}
             </p>
-            <ol className="mt-4 grid gap-3 md:grid-cols-4">
+            <ol className="mt-4 grid gap-3.5 md:gap-3 md:grid-cols-4">
               {t.access_flowSteps.map((step, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
+                <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed">
                   <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[11px] font-bold text-foreground">
                     {i + 1}
                   </span>
@@ -625,7 +625,7 @@ const ForSuppliers = () => {
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground md:mt-2">
                       {item.body}
                     </p>
                   </div>
@@ -659,7 +659,7 @@ const ForSuppliers = () => {
                   {t.noise_beforeLabel}
                 </span>
               </div>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3 md:space-y-3">
                 {t.noise_before.map((line, i) => (
                   <li
                     key={i}
@@ -679,9 +679,9 @@ const ForSuppliers = () => {
                   {t.noise_afterLabel}
                 </span>
               </div>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-4 space-y-3 md:space-y-3">
                 {t.noise_after.map((line, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/85">
+                  <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/85">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <span>{line}</span>
                   </li>
