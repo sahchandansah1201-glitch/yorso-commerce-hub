@@ -1,80 +1,139 @@
-import { UserPlus, ShieldCheck, Search, Inbox, FileSignature, Sparkles, RefreshCw, ArrowRight, TrendingUp } from "lucide-react";
+import {
+  ShieldCheck,
+  Package,
+  FileCheck2,
+  TrendingUp,
+  MessageSquare,
+  Megaphone,
+  Quote,
+} from "lucide-react";
 import { useHowItWorks } from "@/i18n/how-it-works";
 
-const ICONS = [UserPlus, ShieldCheck, Search, Inbox, FileSignature, Sparkles, RefreshCw];
+const ICONS = [ShieldCheck, Package, FileCheck2, TrendingUp, MessageSquare, Megaphone];
+
+type ChipKind = "verified" | "promotion" | "neutral";
+const chipKind = (concept?: string): ChipKind => {
+  const c = (concept ?? "").toLowerCase();
+  if (c.includes("promotion") || c.includes("promoted")) return "promotion";
+  if (c.includes("verified")) return "verified";
+  return "neutral";
+};
 
 const SupplierJourney = () => {
   const t = useHowItWorks();
+
+  const chipStyles: Record<ChipKind, string> = {
+    verified: "bg-[hsl(var(--success))]/10 text-[hsl(var(--success))]",
+    promotion: "bg-primary/10 text-primary",
+    neutral: "bg-muted text-muted-foreground",
+  };
+  const chipLabel: Record<ChipKind, string> = {
+    verified: t.sj_def_verified_label,
+    promotion: t.sj_def_featured_label,
+    neutral: "Neutral",
+  };
+
   return (
-    <section id="supplier-journey" aria-label={t.sj_eyebrow} className="border-b border-border bg-background py-16 md:py-24">
+    <section
+      id="supplier-journey"
+      aria-label={t.sj_eyebrow}
+      className="border-b border-border bg-background py-16 md:py-20"
+    >
       <div className="container max-w-6xl">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
-            <TrendingUp className="h-3.5 w-3.5" />
+            <ShieldCheck className="h-3.5 w-3.5" />
             {t.sj_eyebrow}
           </span>
-          <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">{t.sj_title}</h2>
+          <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            {t.sj_title}
+          </h2>
           <p className="mt-3 text-muted-foreground">{t.sj_subtitle}</p>
         </div>
 
+        {/* Legend: Verified / Featured / Premium — never mixed */}
         <div className="mx-auto mt-8 grid max-w-4xl gap-2 rounded-xl border border-border bg-card p-3 text-xs sm:grid-cols-3">
           <div className="rounded-md bg-[hsl(var(--success))]/10 px-3 py-2">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--success))]">{t.sj_def_verified_label}</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[hsl(var(--success))]">
+              {t.sj_def_verified_label}
+            </div>
             <div className="mt-0.5 text-foreground/80">{t.sj_def_verified_body}</div>
           </div>
-          <div className="rounded-md bg-muted px-3 py-2">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t.sj_def_featured_label}</div>
+          <div className="rounded-md bg-primary/10 px-3 py-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-primary">
+              {t.sj_def_featured_label}
+            </div>
             <div className="mt-0.5 text-foreground/80">{t.sj_def_featured_body}</div>
           </div>
-          <div className="rounded-md bg-primary/10 px-3 py-2">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-primary">{t.sj_def_premium_label}</div>
+          <div className="rounded-md bg-muted px-3 py-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              {t.sj_def_premium_label}
+            </div>
             <div className="mt-0.5 text-foreground/80">{t.sj_def_premium_body}</div>
           </div>
         </div>
 
-        <ol className="relative mt-12">
-          <span aria-hidden className="absolute left-[19px] top-2 hidden h-[calc(100%-1rem)] w-px bg-border md:block lg:left-1/2" />
+        {/* Compact evidence grid */}
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {t.sj_steps.map((step, idx) => {
-            const Icon = ICONS[idx] ?? UserPlus;
-            const isLeft = idx % 2 === 0;
+            const Icon = ICONS[idx] ?? ShieldCheck;
+            const kind = chipKind(step.concept);
             return (
-              <li key={step.title} className="relative mb-8 last:mb-0 md:pl-14 lg:pl-0">
-                <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm md:left-0 lg:left-1/2 lg:-translate-x-1/2">
-                  <Icon className="h-4.5 w-4.5 text-primary" strokeWidth={2} />
-                </div>
-                <div className={["rounded-xl border border-border bg-card p-5 md:p-6", "lg:w-[calc(50%-2.5rem)]", isLeft ? "lg:mr-auto lg:pr-7" : "lg:ml-auto lg:pl-7"].join(" ")}>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t.bj_step} {String(idx + 1).padStart(2, "0")}</span>
-                    <h3 className="font-heading text-lg font-bold leading-snug text-foreground md:text-xl">{step.title}</h3>
+              <article
+                key={step.title}
+                className="flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--accent))]/5 text-[hsl(var(--accent))]">
+                    <Icon className="h-4.5 w-4.5" strokeWidth={2} />
                   </div>
-                  <dl className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-lg bg-background/60 p-3 ring-1 ring-border/60">
-                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t.sj_supplierDoes}</dt>
-                      <dd className="mt-1 text-xs leading-relaxed text-foreground/85">{step.supplier}</dd>
-                    </div>
-                    <div className="rounded-lg bg-primary/5 p-3 ring-1 ring-primary/15">
-                      <dt className="text-[10px] font-semibold uppercase tracking-wider text-primary">{t.sj_yorsoProvides}</dt>
-                      <dd className="mt-1 text-xs leading-relaxed text-foreground/85">{step.yorso}</dd>
-                    </div>
-                    <div className="rounded-lg bg-[hsl(var(--success))]/5 p-3 ring-1 ring-[hsl(var(--success))]/20">
-                      <dt className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
-                        <TrendingUp className="h-3 w-3" />
-                        {t.sj_outcome}
-                      </dt>
-                      <dd className="mt-1 text-xs leading-relaxed text-foreground/85">{step.outcome}</dd>
-                    </div>
-                  </dl>
-                  {step.concept && (
-                    <div className="mt-4 flex items-start gap-2 border-t border-border/60 pt-3">
-                      <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                      <p className="text-xs italic text-muted-foreground">{step.concept}</p>
-                    </div>
-                  )}
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${chipStyles[kind]}`}
+                  >
+                    {chipLabel[kind]}
+                  </span>
                 </div>
-              </li>
+                <h3 className="mt-4 font-heading text-base font-bold leading-snug text-foreground">
+                  {step.title}
+                </h3>
+
+                <dl className="mt-4 space-y-3 text-xs">
+                  <div>
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t.sj_supplierDoes}
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground/85">{step.supplier}</dd>
+                  </div>
+                  <div className="border-t border-border/60 pt-3">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t.sj_yorsoProvides}
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground/85">{step.yorso}</dd>
+                  </div>
+                  <div className="border-t border-border/60 pt-3">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--success))]">
+                      {t.sj_outcome}
+                    </dt>
+                    <dd className="mt-1 leading-relaxed text-foreground/85">{step.outcome}</dd>
+                  </div>
+                </dl>
+              </article>
             );
           })}
-        </ol>
+        </div>
+
+        {/* Closing principle */}
+        <div className="mx-auto mt-10 max-w-3xl rounded-xl border border-dashed border-border bg-card/60 p-5">
+          <div className="flex items-start gap-3">
+            <Quote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <p className="text-sm leading-relaxed text-foreground/85">
+              <span className="font-semibold text-foreground">
+                {t.sj_def_verified_label} · {t.sj_def_featured_label} · {t.sj_def_premium_label}
+              </span>{" "}
+              — {t.sj_subtitle}
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
