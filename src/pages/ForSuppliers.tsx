@@ -94,6 +94,8 @@ const ForSuppliers = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <main id="main">
+
 
       {/* Hero */}
       <section className="border-b border-border bg-accent">
@@ -164,7 +166,7 @@ const ForSuppliers = () => {
                 {i < t.flow_steps.length - 1 && (
                   <ChevronRight
                     aria-hidden
-                    className="absolute right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-border md:block"
+                    className="absolute -right-2 top-7 hidden h-4 w-4 text-muted-foreground/40 md:block"
                   />
                 )}
               </li>
@@ -351,23 +353,17 @@ const ForSuppliers = () => {
                   </p>
                   <ul className="mt-4 space-y-2">
                     {state.sees.map((line, idx) => {
-                      const isHidden = /скрыт|hidden|оculto|ocultos|aún|still hidden|пока скрыт/i.test(
-                        line,
-                      );
-                      const Symbol = isHidden ? Lock : Check;
+                      const Symbol = line.hidden ? Lock : Check;
                       return (
                         <li key={idx} className="flex items-start gap-2 text-sm">
                           <Symbol
                             className={`mt-0.5 h-4 w-4 shrink-0 ${
-                              isHidden ? "text-muted-foreground" : "text-primary"
+                              line.hidden ? "text-muted-foreground" : "text-primary"
                             }`}
+                            aria-hidden
                           />
-                          <span
-                            className={
-                              isHidden ? "text-muted-foreground" : "text-foreground/85"
-                            }
-                          >
-                            {line}
+                          <span className={line.hidden ? "text-muted-foreground" : "text-foreground/85"}>
+                            {line.text}
                           </span>
                         </li>
                       );
@@ -562,6 +558,7 @@ const ForSuppliers = () => {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

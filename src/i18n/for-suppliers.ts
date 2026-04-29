@@ -69,7 +69,7 @@ export interface ForSuppliersDict {
   access_eyebrow: string;
   access_title: string;
   access_subtitle: string;
-  access_states: { label: string; who: string; sees: string[] }[]; // 3
+  access_states: { label: string; who: string; sees: { text: string; hidden?: boolean }[] }[]; // 3
   access_flowTitle: string;
   access_flowSteps: string[]; // 4
 
@@ -236,17 +236,32 @@ const en: ForSuppliersDict = {
     {
       label: "Anonymous visitor",
       who: "Not registered",
-      sees: ["Product name, origin, format", "Certifications", "Price range", "Exact price and supplier details — hidden"],
+      sees: [
+        { text: "Product name, origin, format" },
+        { text: "Certifications" },
+        { text: "Price range" },
+        { text: "Exact price and supplier details — hidden", hidden: true },
+      ],
     },
     {
       label: "Registered buyer",
       who: "Verified company and country",
-      sees: ["Everything above", "Offer context and terms", "Can request price access", "Exact price and supplier details — still hidden"],
+      sees: [
+        { text: "Everything above" },
+        { text: "Offer context and terms" },
+        { text: "Can request price access" },
+        { text: "Exact price and supplier details — still hidden", hidden: true },
+      ],
     },
     {
       label: "Access approved",
       who: "Access granted by the supplier",
-      sees: ["Exact price", "Supplier name and details", "Direct contact actions", "Workspace for conversation and follow-up"],
+      sees: [
+        { text: "Exact price" },
+        { text: "Supplier name and details" },
+        { text: "Direct contact actions" },
+        { text: "Workspace for conversation and follow-up" },
+      ],
     },
   ],
   access_flowTitle: "Access request flow",
@@ -429,17 +444,32 @@ const ru: ForSuppliersDict = {
     {
       label: "Анонимный посетитель",
       who: "Без регистрации",
-      sees: ["Название продукта, происхождение, формат", "Сертификации", "Диапазон цены", "Точная цена и данные поставщика — скрыты"],
+      sees: [
+        { text: "Название продукта, происхождение, формат" },
+        { text: "Сертификации" },
+        { text: "Диапазон цены" },
+        { text: "Точная цена и данные поставщика — скрыты", hidden: true },
+      ],
     },
     {
       label: "Зарегистрированный покупатель",
       who: "Подтверждённая компания и страна",
-      sees: ["Всё, что выше", "Контекст предложения и условия", "Может запросить доступ к цене", "Точная цена и данные поставщика — пока скрыты"],
+      sees: [
+        { text: "Всё, что выше" },
+        { text: "Контекст предложения и условия" },
+        { text: "Может запросить доступ к цене" },
+        { text: "Точная цена и данные поставщика — пока скрыты", hidden: true },
+      ],
     },
     {
       label: "Доступ одобрен",
       who: "Доступ выдан поставщиком",
-      sees: ["Точная цена", "Название и данные поставщика", "Действия для прямого контакта", "Рабочее место для переписки и работы с покупателем"],
+      sees: [
+        { text: "Точная цена" },
+        { text: "Название и данные поставщика" },
+        { text: "Действия для прямого контакта" },
+        { text: "Рабочее место для переписки и работы с покупателем" },
+      ],
     },
   ],
   access_flowTitle: "Поток запроса доступа",
@@ -622,17 +652,32 @@ const es: ForSuppliersDict = {
     {
       label: "Visitante anónimo",
       who: "Sin registro",
-      sees: ["Nombre del producto, origen, formato", "Certificaciones", "Rango de precio", "Precio exacto y datos del proveedor — ocultos"],
+      sees: [
+        { text: "Nombre del producto, origen, formato" },
+        { text: "Certificaciones" },
+        { text: "Rango de precio" },
+        { text: "Precio exacto y datos del proveedor — ocultos", hidden: true },
+      ],
     },
     {
       label: "Comprador registrado",
       who: "Empresa y país verificados",
-      sees: ["Todo lo anterior", "Contexto de oferta y términos", "Puede solicitar acceso al precio", "Precio exacto y datos del proveedor — aún ocultos"],
+      sees: [
+        { text: "Todo lo anterior" },
+        { text: "Contexto de oferta y términos" },
+        { text: "Puede solicitar acceso al precio" },
+        { text: "Precio exacto y datos del proveedor — aún ocultos", hidden: true },
+      ],
     },
     {
       label: "Acceso aprobado",
       who: "Acceso concedido por el proveedor",
-      sees: ["Precio exacto", "Nombre y datos del proveedor", "Acciones de contacto directo", "Espacio de comunicación y seguimiento"],
+      sees: [
+        { text: "Precio exacto" },
+        { text: "Nombre y datos del proveedor" },
+        { text: "Acciones de contacto directo" },
+        { text: "Espacio de comunicación y seguimiento" },
+      ],
     },
   ],
   access_flowTitle: "Flujo de solicitud de acceso",
