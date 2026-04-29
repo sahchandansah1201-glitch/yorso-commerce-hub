@@ -45,7 +45,7 @@ describe("/for-suppliers heading accessibility", () => {
         localStorage.setItem(STORAGE_KEY, lang);
       });
 
-      it("only uses heading levels h1 and h2 (no skipped levels, no h3-h6)", () => {
+      it("uses heading levels in document order without skipping levels", () => {
         const { container } = renderPage();
         const allHeadings = Array.from(
           container.querySelectorAll("h1, h2, h3, h4, h5, h6")
@@ -53,13 +53,16 @@ describe("/for-suppliers heading accessibility", () => {
 
         expect(allHeadings.length).toBeGreaterThan(0);
 
-        const levels = new Set(allHeadings.map((h) => Number(h.tagName.substring(1))));
-        // Must contain h1 and h2
-        expect(levels.has(1)).toBe(true);
-        expect(levels.has(2)).toBe(true);
-        // Must NOT contain any deeper level used without its parent (we don't use h3+ on this page)
-        for (const lvl of [3, 4, 5, 6]) {
-          expect(levels.has(lvl)).toBe(false);
+        const levels = allHeadings.map((h) => Number(h.tagName.substring(1)));
+        // First heading must be h1
+        expect(levels[0]).toBe(1);
+        // No level jumps by more than 1 going deeper (e.g., h2 -> h4 is invalid; h3 -> h2 is fine)
+        for (let i = 1; i < levels.length; i++) {
+          const delta = levels[i] - levels[i - 1];
+          expect(
+            delta <= 1,
+            `Heading level jumps from h${levels[i - 1]} to h${levels[i]} in locale ${lang}`
+          ).toBe(true);
         }
       });
 
