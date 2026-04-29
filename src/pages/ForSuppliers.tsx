@@ -566,11 +566,14 @@ const ForSuppliers = () => {
               {t.help_subtitle}
             </p>
           </div>
-          <ul className="mt-6 divide-y md:mt-10 divide-border border-y border-border">
+          <ul className="mt-6 grid gap-3 md:mt-10 md:block md:gap-0 md:divide-y md:divide-border md:border-y md:border-border">
             {t.help_items.map((item, i) => {
               const Icon = helpIcons[i] ?? Lock;
               return (
-                <li key={item.title} className="grid gap-2 py-6 md:grid-cols-[280px_1fr] md:gap-10">
+                <li
+                  key={item.title}
+                  className="grid gap-2 rounded-lg border border-border border-l-4 border-l-primary bg-card p-4 shadow-sm md:gap-10 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:py-6 md:shadow-none md:grid-cols-[280px_1fr]"
+                >
                   <div className="flex items-start gap-3">
                     <Icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                     <h3 className="font-heading text-[17px] font-semibold leading-[1.3] tracking-tight text-foreground md:text-lg">
