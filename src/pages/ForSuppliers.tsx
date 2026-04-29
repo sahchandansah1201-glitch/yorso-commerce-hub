@@ -1,5 +1,24 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Inbox, ShieldAlert, Eye, LayoutGrid, Lock, BadgeCheck, FileBadge, Package, LineChart, UserSquare2, ListChecks, KeyRound, MessagesSquare } from "lucide-react";
+import {
+  ArrowRight,
+  Inbox,
+  ShieldAlert,
+  Eye,
+  LayoutGrid,
+  Lock,
+  BadgeCheck,
+  FileBadge,
+  Package,
+  LineChart,
+  UserSquare2,
+  ListChecks,
+  KeyRound,
+  MessagesSquare,
+  Check,
+  X,
+  EyeOff,
+  ChevronRight,
+} from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -66,6 +85,47 @@ const ForSuppliers = () => {
         </div>
       </section>
 
+      {/* Workflow: 4 steps */}
+      <section className="border-b border-border">
+        <div className="container py-16 md:py-20">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {t.flow_eyebrow}
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {t.flow_title}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              {t.flow_subtitle}
+            </p>
+          </div>
+          <ol className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-4">
+            {t.flow_steps.map((step, i) => (
+              <li key={step.title} className="relative flex flex-col gap-3 bg-background p-5">
+                <div className="flex items-center gap-2">
+                  <span className="font-heading text-2xl font-bold text-primary">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    {t.flow_stepLabel}
+                  </span>
+                </div>
+                <h3 className="font-heading text-base font-semibold leading-snug text-foreground">
+                  {step.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                {i < t.flow_steps.length - 1 && (
+                  <ChevronRight
+                    aria-hidden
+                    className="absolute right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-border md:block"
+                  />
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       {/* Pain map */}
       <section className="border-b border-border">
         <div className="container py-16 md:py-20">
@@ -100,6 +160,192 @@ const ForSuppliers = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* What buyers see — UI mock preview */}
+      <section className="border-b border-border bg-accent/40">
+        <div className="container py-16 md:py-20">
+          <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] md:items-center md:gap-16">
+            <div className="max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                {t.preview_eyebrow}
+              </p>
+              <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+                {t.preview_title}
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                {t.preview_subtitle}
+              </p>
+            </div>
+
+            {/* Mock offer card */}
+            <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+              <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                <span>yorso.com / offer</span>
+                <span className="flex items-center gap-1 text-primary">
+                  <BadgeCheck className="h-3.5 w-3.5" /> Verified supplier
+                </span>
+              </div>
+              <div className="p-5">
+                <h3 className="font-heading text-lg font-semibold text-foreground">
+                  {t.preview_product}
+                </h3>
+                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t.preview_origin}
+                    </dt>
+                    <dd className="mt-1 font-medium text-foreground">{t.preview_originValue}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t.preview_format}
+                    </dt>
+                    <dd className="mt-1 font-medium text-foreground">{t.preview_formatValue}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t.preview_certifications}
+                    </dt>
+                    <dd className="mt-1 flex flex-wrap gap-1.5">
+                      {["MSC", "ASC", "BRC", "IFS", "HACCP"].map((c) => (
+                        <span
+                          key={c}
+                          className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {t.preview_priceRange}
+                    </dt>
+                    <dd className="mt-1 font-medium text-foreground">€8.40 – €9.20 / kg</dd>
+                  </div>
+                </dl>
+
+                {/* Gated rows */}
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-foreground">{t.preview_priceLocked}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {t.preview_priceLockedHint}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded border border-dashed border-border bg-muted/30 px-3 py-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-foreground">{t.preview_supplierLocked}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {t.preview_supplierLockedHint}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground opacity-90"
+                >
+                  {t.preview_ctaRequest}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <p className="mt-3 text-[11px] italic text-muted-foreground">{t.preview_caption}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Control over price visibility — 3 access states + flow */}
+      <section className="border-b border-border">
+        <div className="container py-16 md:py-20">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {t.access_eyebrow}
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {t.access_title}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              {t.access_subtitle}
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-3">
+            {t.access_states.map((state, i) => {
+              const isApproved = i === t.access_states.length - 1;
+              return (
+                <div key={state.label} className="flex flex-col bg-background p-5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+                        isApproved
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-border bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <h3 className="font-heading text-base font-semibold text-foreground">
+                      {state.label}
+                    </h3>
+                  </div>
+                  <p className="mt-2 text-xs uppercase tracking-wider text-muted-foreground">
+                    {state.who}
+                  </p>
+                  <ul className="mt-4 space-y-2">
+                    {state.sees.map((line, idx) => {
+                      const isHidden = /скрыт|hidden|оculto|ocultos|aún|still hidden|пока скрыт/i.test(
+                        line,
+                      );
+                      const Symbol = isHidden ? Lock : Check;
+                      return (
+                        <li key={idx} className="flex items-start gap-2 text-sm">
+                          <Symbol
+                            className={`mt-0.5 h-4 w-4 shrink-0 ${
+                              isHidden ? "text-muted-foreground" : "text-primary"
+                            }`}
+                          />
+                          <span
+                            className={
+                              isHidden ? "text-muted-foreground" : "text-foreground/85"
+                            }
+                          >
+                            {line}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Access flow */}
+          <div className="mt-8 rounded-md border border-border bg-accent/30 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {t.access_flowTitle}
+            </p>
+            <ol className="mt-4 grid gap-3 md:grid-cols-4">
+              {t.access_flowSteps.map((step, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[11px] font-bold text-foreground">
+                    {i + 1}
+                  </span>
+                  <span className="text-foreground/85">{step}</span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
@@ -176,6 +422,62 @@ const ForSuppliers = () => {
               );
             })}
           </ol>
+        </div>
+      </section>
+
+      {/* Less noise — before / after */}
+      <section className="border-b border-border bg-accent/40">
+        <div className="container py-16 md:py-20">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {t.noise_eyebrow}
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {t.noise_title}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              {t.noise_subtitle}
+            </p>
+          </div>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-2">
+            {/* Before */}
+            <div className="bg-background p-6">
+              <div className="flex items-center gap-2">
+                <X className="h-4 w-4 text-muted-foreground" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {t.noise_beforeLabel}
+                </span>
+              </div>
+              <ul className="mt-4 space-y-3">
+                {t.noise_before.map((line, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm text-muted-foreground line-through decoration-muted-foreground/40"
+                  >
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* After */}
+            <div className="bg-background p-6">
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+                  {t.noise_afterLabel}
+                </span>
+              </div>
+              <ul className="mt-4 space-y-3">
+                {t.noise_after.map((line, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-foreground/85">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
