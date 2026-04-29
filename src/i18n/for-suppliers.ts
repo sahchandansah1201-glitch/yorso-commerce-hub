@@ -301,6 +301,37 @@ const en: ForSuppliersDict = {
     "Queue of price access requests to approve",
   ],
 
+  faq_eyebrow: "Supplier FAQ",
+  faq_title: "B2B seafood selling, price access and supplier documents — answered",
+  faq_subtitle:
+    "Practical answers to the questions seafood suppliers, processors and exporters ask before publishing on YORSO.",
+  faq_items: [
+    {
+      q: "Who actually sees my prices on YORSO?",
+      a: "Only buyers you approve. Anonymous visitors see the product card without an exact price. Registered buyers can request price access. You see who they are — company, country, role — and decide one by one. Your price list is never broadcast to a public catalog.",
+    },
+    {
+      q: "Will my supplier name be public before I want it to be?",
+      a: "No. Supplier identity follows price access. Until you approve a buyer for the price, your company name and contacts are hidden. The buyer only sees product, origin, format, certifications and your trust signals.",
+    },
+    {
+      q: "Which documents and certifications can I show on the supplier card?",
+      a: "Company registration (e.g. OGRN/registration ID), export licence, plant approval number, and product certifications such as MSC, ASC, BRC, IFS and HACCP. Documents live in one supplier card so you stop sending them again to every new buyer.",
+    },
+    {
+      q: "What kind of buyers send requests?",
+      a: "Procurement managers from importers, distributors, retail chains, HoReCa and processors. Each request comes with target volume, destination country and Incoterms basis, so your sales team can qualify it in seconds instead of chatting blind.",
+    },
+    {
+      q: "How long does it take to publish a first offer?",
+      a: "Typically under a day. You register the company, fill the supplier card with documents and certifications, and publish offers per SKU with format, MOQ, origin and price rules. No implementation project, no integration required.",
+    },
+    {
+      q: "How much does it cost? Is there a commission on deals?",
+      a: "Registration is free. There is 0% commission on the deal itself — YORSO is the workspace and access layer, not a broker between you and the buyer.",
+    },
+  ],
+
   cta_title: "One B2B sales workspace for seafood suppliers",
   cta_subtitle:
     "Register the company, publish the supplier card and start receiving qualified buyer requests in your category.",
