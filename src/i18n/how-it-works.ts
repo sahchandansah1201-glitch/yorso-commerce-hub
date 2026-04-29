@@ -38,6 +38,13 @@ export interface HowItWorksDict {
   bds_supplierNote: string;
   bds_cards: { question: string; yorso: string; proof: string }[]; // 3
 
+  // Proof by numbers
+  proof_eyebrow: string;
+  proof_title: string;
+  proof_subtitle: string;
+  proof_disclaimer: string;
+  proof_metrics: { value: string; label: string; why: string; kind: string }[]; // 8
+
   // Problem map
   problem_eyebrow: string;
   problem_title: string;
@@ -264,6 +271,23 @@ const en: HowItWorksDict = {
       yorso: "Procurement Decision Proof file: shortlist, comparison table, supplier evidence, risk summary, alternatives considered and an event log of every request, message and document.",
       proof: "One PDF and CSV export with buyer name, decision date and offer ID. Finance, quality and leadership get the same record the buyer used, not a forwarded chat or screenshot.",
     },
+  ],
+
+  proof_eyebrow: "Proof by numbers",
+  proof_title: "What the buyer workflow actually counts.",
+  proof_subtitle:
+    "These are workflow counts and structured fields the product uses, not business performance claims. Each number explains why it matters for a procurement decision.",
+  proof_disclaimer:
+    "Workflow counts and product fields. No customer counts, no GMV, no conversion claims. Field values such as response time, validity date or lead time are shown when the supplier provides them.",
+  proof_metrics: [
+    { value: "3", label: "Buyer questions answered before a deal", why: "Trust the supplier, defend the price, defend the decision internally.", kind: "workflow count" },
+    { value: "6", label: "Risk points checked before an RFQ", why: "One row per risk, with consequence and the Yorso mechanism that reduces it.", kind: "workflow count" },
+    { value: "7", label: "Supplier evidence blocks", why: "Identity, plant, certifications, history, lead time, missing fields and context — visible before the buyer commits.", kind: "workflow count" },
+    { value: "8", label: "Trust layers in the supplier card", why: "Each layer is marked verified, submitted or missing, with source and last-checked date.", kind: "workflow count" },
+    { value: "3", label: "Access states for price and supplier identity", why: "Anonymous, registered, qualified — buyers always know what is shown and what is gated.", kind: "workflow count" },
+    { value: "PDF + CSV", label: "Procurement Decision Proof export formats", why: "One file procurement, finance, quality and leadership can read without forwarded chats.", kind: "export formats" },
+    { value: "5", label: "Landed-cost components", why: "Price, freight, duties, lead time and Incoterms — labelled estimates the buyer can adjust.", kind: "illustrative example" },
+    { value: "4", label: "Internal approval audiences served by one record", why: "Procurement, finance, quality and leadership receive the same document the buyer used.", kind: "workflow count" },
   ],
 
   problem_eyebrow: "The real risk",
@@ -785,6 +809,23 @@ const ru: HowItWorksDict = {
     },
   ],
 
+  proof_eyebrow: "Доказательство в цифрах",
+  proof_title: "Что именно считает воркфлоу покупателя.",
+  proof_subtitle:
+    "Это количества шагов и структурированные поля продукта, а не заявления о бизнес-результатах. Каждая цифра объясняет, зачем она нужна для решения о закупке.",
+  proof_disclaimer:
+    "Количество шагов и поля продукта. Без числа клиентов, GMV и заявлений о росте конверсии. Значения вроде времени отклика, срока действия или lead time показываются, когда их предоставил поставщик.",
+  proof_metrics: [
+    { value: "3", label: "Вопроса покупателя до сделки", why: "Доверять поставщику, защитить цену, защитить решение внутри компании.", kind: "счётчик воркфлоу" },
+    { value: "6", label: "Точек риска проверяется до RFQ", why: "По одной строке на риск: последствие и механизм Yorso, который его снижает.", kind: "счётчик воркфлоу" },
+    { value: "7", label: "Блоков доказательств поставщика", why: "Идентификация, завод, сертификации, история, lead time, недостающие поля и контекст — видны до коммитмента.", kind: "счётчик воркфлоу" },
+    { value: "8", label: "Слоёв доверия в карточке поставщика", why: "Каждый слой помечен как verified, submitted или missing, с источником и датой последней проверки.", kind: "счётчик воркфлоу" },
+    { value: "3", label: "Состояния доступа к цене и идентичности поставщика", why: "Anonymous, registered, qualified — покупатель всегда понимает, что показано и что закрыто.", kind: "счётчик воркфлоу" },
+    { value: "PDF + CSV", label: "Форматы экспорта Procurement Decision Proof", why: "Один файл, который читают закупки, финансы, качество и руководство — без пересланных чатов.", kind: "форматы экспорта" },
+    { value: "5", label: "Компонентов landed cost", why: "Цена, фрахт, пошлины, lead time и Incoterms — помеченные оценки, которые покупатель может скорректировать.", kind: "иллюстративный пример" },
+    { value: "4", label: "Внутренних аудитории на одном документе", why: "Закупки, финансы, качество и руководство получают тот же документ, что и закупщик.", kind: "счётчик воркфлоу" },
+  ],
+
   problem_eyebrow: "Главный риск",
   problem_title: "Главный риск в закупках морепродуктов — неверное решение о закупке.",
   problem_subtitle:
@@ -1302,6 +1343,23 @@ const es: HowItWorksDict = {
       yorso: "Expediente Procurement Decision Proof: preselección, tabla comparativa, evidencia del proveedor, riesgos, alternativas consideradas y registro de cada solicitud, mensaje y documento.",
       proof: "Una exportación en PDF y CSV con el nombre del comprador, la fecha de decisión y el ID de la oferta. Finanzas, calidad y dirección reciben el mismo documento que usó el comprador, no un correo reenviado ni una captura.",
     },
+  ],
+
+  proof_eyebrow: "Pruebas en cifras",
+  proof_title: "Lo que el flujo del comprador realmente cuenta.",
+  proof_subtitle:
+    "Son recuentos del flujo y campos estructurados del producto, no afirmaciones de resultados de negocio. Cada cifra explica por qué importa para una decisión de compra.",
+  proof_disclaimer:
+    "Recuentos del flujo y campos del producto. Sin número de clientes, sin GMV, sin afirmaciones de conversión. Valores como tiempo de respuesta, fecha de validez o lead time se muestran cuando el proveedor los aporta.",
+  proof_metrics: [
+    { value: "3", label: "Preguntas del comprador antes del cierre", why: "Confiar en el proveedor, defender el precio, defender la decisión internamente.", kind: "recuento del flujo" },
+    { value: "6", label: "Puntos de riesgo revisados antes del RFQ", why: "Una fila por riesgo: consecuencia y el mecanismo de Yorso que lo reduce.", kind: "recuento del flujo" },
+    { value: "7", label: "Bloques de evidencia del proveedor", why: "Identidad, planta, certificaciones, historial, lead time, campos ausentes y contexto — visibles antes del compromiso.", kind: "recuento del flujo" },
+    { value: "8", label: "Capas de confianza en la ficha del proveedor", why: "Cada capa marcada como verified, submitted o missing, con fuente y fecha de revisión.", kind: "recuento del flujo" },
+    { value: "3", label: "Estados de acceso a precio e identidad del proveedor", why: "Anonymous, registered, qualified — el comprador siempre sabe qué se muestra y qué está restringido.", kind: "recuento del flujo" },
+    { value: "PDF + CSV", label: "Formatos de exportación del Procurement Decision Proof", why: "Un único archivo para compras, finanzas, calidad y dirección — sin reenvíos de chat.", kind: "formatos de exportación" },
+    { value: "5", label: "Componentes del coste en destino", why: "Precio, flete, aranceles, lead time e Incoterms — estimaciones etiquetadas que el comprador puede ajustar.", kind: "ejemplo ilustrativo" },
+    { value: "4", label: "Audiencias internas servidas por un mismo registro", why: "Compras, finanzas, calidad y dirección reciben el mismo documento que usó el comprador.", kind: "recuento del flujo" },
   ],
 
   problem_eyebrow: "El riesgo real",

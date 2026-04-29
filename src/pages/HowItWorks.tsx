@@ -30,6 +30,7 @@ import TrustStack from "@/components/how-it-works/TrustStack";
 import ValueGrids from "@/components/how-it-works/ValueGrids";
 import AccessLevels from "@/components/how-it-works/AccessLevels";
 import BusinessOutcomes from "@/components/how-it-works/BusinessOutcomes";
+import ProofByNumbers from "@/components/how-it-works/ProofByNumbers";
 import FinalCTA from "@/components/how-it-works/FinalCTA";
 import { useHowItWorks } from "@/i18n/how-it-works";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -256,6 +257,8 @@ const HowItWorks = () => {
             </p>
           </div>
         </section>
+
+        <ProofByNumbers />
 
         {/* PROBLEM MAP — buyer-dominant, supplier as trust infrastructure */}
         <section id="problem-map" className="border-b border-border bg-background py-16 md:py-24">
