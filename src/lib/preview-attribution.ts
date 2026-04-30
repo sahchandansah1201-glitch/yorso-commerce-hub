@@ -21,9 +21,42 @@ export interface PreviewAttribution {
 }
 
 /**
+ * Стабильный порядок полей для debug-сводок: сначала ключевые поля
+ * цепочки click→registration в фиксированном порядке, затем `<all>`,
+ * затем любые неизвестные имена — отсортированные по алфавиту.
+ * Это нужно, чтобы логи можно было сравнивать между запусками
+ * (snapshot-тесты, diff в DevTools, копипаст в issue).
+ */
+const MISSING_FIELD_ORDER: readonly string[] = [
+  "supplier_id",
+  "species",
+  "form",
+  "<all>",
+];
+
+function normalizeMissing(missing: readonly string[]): string[] {
+  const seen = new Set<string>();
+  for (const raw of missing) {
+    if (typeof raw !== "string") continue;
+    const trimmed = raw.trim();
+    if (trimmed.length === 0) continue;
+    seen.add(trimmed);
+  }
+  const known: string[] = [];
+  for (const field of MISSING_FIELD_ORDER) {
+    if (seen.delete(field)) known.push(field);
+  }
+  const unknown = Array.from(seen).sort((a, b) => a.localeCompare(b));
+  return [...known, ...unknown];
+}
+
+/**
  * Dev-only: компактная сводка контекста текущей попытки регистрации,
  * которую прикрепляем к каждому attribution-предупреждению, чтобы
  * быстрее восстанавливать цепочку click → registration в DevTools.
+ *
+ * Поле `missing` всегда нормализовано (без пустых, дедуплицировано,
+ * стабильный порядок) — чтобы сравнение логов было детерминированным.
  */
 function buildAttributionDebugSummary(missing: readonly string[]) {
   const attemptId = peekRegistrationAttemptId();
@@ -42,7 +75,7 @@ function buildAttributionDebugSummary(missing: readonly string[]) {
   return {
     attempt_id: attemptId,
     registration_source: registrationSource,
-    missing: [...missing],
+    missing: normalizeMissing(missing),
   };
 }
 
