@@ -103,6 +103,17 @@ export function readPendingPreviewAttribution(): PreviewAttribution | null {
       return null;
     }
     if (Date.now() - parsed.ts > TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] pending_preview_attribution EXPIRED — registration_complete не получит supplier_id/species/form",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearPendingPreviewAttribution();
       return null;
     }
