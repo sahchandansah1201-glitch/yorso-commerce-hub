@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ChevronRight,
@@ -120,6 +120,67 @@ const CertificationsBlock = ({
 
 /** Карточка «Основания надёжности». estimate-метки обязательны. */
 /** Юридические реквизиты компании — для верификации контрагента. */
+/** Инициалы компании для fallback-логотипа. Берём первые буквы 1-2 слов. */
+const getCompanyInitials = (name: string): string => {
+  const words = name
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((w) => !/^(as|asa|sa|sl|gmbh|ltd|llc|co|inc|bv|ehf|ab|aps|srl|sarl|pvt|sac|sas|ooo)$/i.test(w));
+  if (words.length === 0) return name.slice(0, 2).toUpperCase();
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+};
+
+/**
+ * Карточка-логотип поставщика.
+ * Рендерит реальный logoImage если задан, иначе — монограмму на брендовом фоне.
+ */
+const SupplierLogoCard = ({
+  supplier,
+  size = 80,
+  className = "",
+}: {
+  supplier: MockSupplier;
+  size?: 28 | 40 | 80;
+  className?: string;
+}) => {
+  const initials = getCompanyInitials(supplier.companyName);
+  const dim = `${size}px`;
+  const radius = size >= 80 ? "rounded-xl" : size >= 40 ? "rounded-lg" : "rounded-md";
+  const textSize =
+    size >= 80 ? "text-2xl" : size >= 40 ? "text-sm" : "text-[11px]";
+  const ring =
+    size >= 80
+      ? "ring-4 ring-background shadow-lg"
+      : "ring-2 ring-background shadow-sm";
+
+  return (
+    <div
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${className}`}
+      style={{ width: dim, height: dim }}
+      aria-label={`Логотип ${supplier.companyName}`}
+    >
+      {supplier.logoImage ? (
+        <img
+          src={supplier.logoImage}
+          alt={`${supplier.companyName} logo`}
+          className="h-full w-full object-contain p-1"
+          loading="lazy"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80">
+          <span
+            className={`font-heading font-bold tracking-tight text-primary-foreground ${textSize}`}
+          >
+            {initials}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const legal = getSupplierLegalDetails(supplier);
   const founded = formatFoundedDate(legal.foundedDate);
@@ -492,6 +553,20 @@ const SupplierProfile = () => {
   const tabTriggerCls =
     "rounded-full px-5 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background";
 
+  // Sticky-хедер: появляется когда основной hero уезжает за viewport.
+  const heroSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  useEffect(() => {
+    const el = heroSentinelRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setShowStickyHeader(!entry.isIntersecting),
+      { rootMargin: "0px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [supplier.id]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -519,9 +594,9 @@ const SupplierProfile = () => {
         {/* Hero cover */}
         <section className="relative">
           <div
-            className="h-44 w-full bg-cover bg-center md:h-56"
+            className="h-48 w-full bg-cover bg-center md:h-64 lg:h-72"
             style={{
-              backgroundImage: `linear-gradient(180deg, hsl(var(--foreground) / 0.25), hsl(var(--foreground) / 0.05)), url(${supplier.heroImage})`,
+              backgroundImage: `linear-gradient(180deg, hsl(var(--foreground) / 0.15) 0%, hsl(var(--foreground) / 0.05) 50%, hsl(var(--background)) 100%), url(${supplier.heroImage})`,
             }}
             aria-hidden
           />
@@ -529,16 +604,10 @@ const SupplierProfile = () => {
 
         {/* Identity */}
         <section className="bg-background">
-          <div className="container -mt-16 pb-6">
+          <div className="container -mt-12 pb-6 md:-mt-14">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <div className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 shadow-sm">
-                  <div className="flex h-16 w-56 items-center justify-center text-center">
-                    <span className="font-heading text-base font-bold tracking-tight text-foreground">
-                      {supplier.companyName}
-                    </span>
-                  </div>
-                </div>
+                <SupplierLogoCard supplier={supplier} size={80} />
 
                 <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {supplier.companyName}
@@ -551,7 +620,7 @@ const SupplierProfile = () => {
                 </p>
               </div>
 
-              <div className="flex shrink-0 md:mt-20 md:justify-end">
+              <div className="flex shrink-0 md:mt-16 md:justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -633,8 +702,44 @@ const SupplierProfile = () => {
                 )}
               </div>
             </div>
+            <div ref={heroSentinelRef} aria-hidden className="h-px w-full" />
           </div>
         </section>
+
+        {/* Sticky mini-header — appears after hero scrolls out */}
+        <div
+          className={`sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur transition-all duration-200 ${
+            showStickyHeader
+              ? "pointer-events-auto translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-2 opacity-0"
+          }`}
+          aria-hidden={!showStickyHeader}
+        >
+          <div className="container flex items-center justify-between gap-4 py-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <SupplierLogoCard supplier={supplier} size={28} />
+              <div className="min-w-0">
+                <p className="truncate font-heading text-sm font-semibold text-foreground">
+                  {supplier.companyName}
+                </p>
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {countryCodeToFlag(supplier.countryCode)} {supplier.country} ·{" "}
+                  {supplier.city}
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCopyLink}
+              className="hidden h-8 gap-1.5 sm:inline-flex"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Smart-link
+            </Button>
+          </div>
+        </div>
 
         {/* Tabs */}
         <section className="border-t border-border bg-background">
