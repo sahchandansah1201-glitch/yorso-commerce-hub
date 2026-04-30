@@ -740,7 +740,7 @@ const SupplierProfile = () => {
                     Documents &amp; certifications
                   </h2>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Document availability is indicative — exact files are shared
+                    Document availability is indicative. Exact files are shared
                     after the supplier approves your access.
                   </p>
                   <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-background">
