@@ -39,7 +39,7 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Link to="/register" onClick={() => analytics.track("value_register_buyer_click")}>
+            <Link to="/register" onClick={() => { analytics.track("value_register_buyer_click"); saveRegistrationSource("value_split_buyer"); }}>
               <Button className="mt-8 w-full gap-2 font-semibold">
                 {t.value_registerBuyer}
                 <ArrowRight className="h-4 w-4" />
