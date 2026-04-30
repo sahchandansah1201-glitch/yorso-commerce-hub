@@ -558,14 +558,8 @@ const SupplierProfile = () => {
                 <TabsTrigger value="catalog" className={tabTriggerCls}>
                   Каталог ({supplierOffers.length})
                 </TabsTrigger>
-                <TabsTrigger value="certs" className={tabTriggerCls}>
-                  Сертификаты и аудиты
-                </TabsTrigger>
-                <TabsTrigger value="production" className={tabTriggerCls}>
-                  Производство и мощности
-                </TabsTrigger>
-                <TabsTrigger value="logistics" className={tabTriggerCls}>
-                  Логистика и условия поставки
+                <TabsTrigger value="passport" className={tabTriggerCls}>
+                  Производственный паспорт
                 </TabsTrigger>
                 <TabsTrigger value="cases" className={tabTriggerCls}>
                   Отчёты о погрузке и кейсы
