@@ -7,7 +7,7 @@
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   SupplierAccessRequestPanel,
@@ -721,6 +721,143 @@ const SupplierProfile = () => {
                       </p>
                     )}
                   </div>
+                </article>
+
+                {/* Commercial fit */}
+                <article
+                  aria-labelledby="profile-commercial-fit"
+                  data-testid="supplier-profile-commercial-fit"
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                >
+                  <h2
+                    id="profile-commercial-fit"
+                    className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+                  >
+                    <Ship className="h-4 w-4 text-muted-foreground" aria-hidden />
+                    Commercial fit
+                  </h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Commercial fit is derived from current frontend offer data. Final terms are confirmed with the supplier.
+                  </p>
+                  {(() => {
+                    const uniq = (arr: (string | undefined)[]) =>
+                      Array.from(
+                        new Set(
+                          arr
+                            .filter((x): x is string => !!x && x.trim().length > 0)
+                            .map((x) => x.trim()),
+                        ),
+                      );
+
+                    const moqValues = supplierOffers
+                      .map((o) => o.moqValue)
+                      .filter((v): v is number => typeof v === "number" && v > 0);
+                    const incoterms = uniq(
+                      supplierOffers.flatMap((o) => [
+                        o.commercial?.incoterm,
+                        ...(o.deliveryBasisOptions?.map((d) => d.code) ?? []),
+                      ]),
+                    );
+                    const leadTimes = uniq(supplierOffers.map((o) => o.commercial?.leadTime));
+                    const paymentTerms = uniq(supplierOffers.map((o) => o.commercial?.paymentTerms));
+                    const ports = uniq(
+                      supplierOffers.flatMap((o) => [
+                        o.commercial?.shipmentPort,
+                        ...(o.deliveryBasisOptions?.map((d) => d.shipmentPort) ?? []),
+                      ]),
+                    );
+
+                    const focusList = supplier.productFocus.map((p) => p.species);
+                    const typeLc = supplierTypeLabel[supplier.supplierType].toLowerCase();
+                    const focusSummary =
+                      focusList.length === 0
+                        ? "seafood procurement"
+                        : focusList.slice(0, 2).join(" and ");
+                    const bestFitUnlocked = `Buyers sourcing ${focusSummary} from ${supplier.country}, working with a ${typeLc}.`;
+                    const bestFitLocked = "Product focus preview available. Detailed fit unlocks after supplier access.";
+
+                    const fmtMoqRange = () => {
+                      if (moqValues.length === 0) return null;
+                      const min = Math.min(...moqValues);
+                      const max = Math.max(...moqValues);
+                      const fmt = (n: number) => `${n.toLocaleString("en-US")} kg`;
+                      return min === max ? fmt(min) : `${fmt(min)} to ${fmt(max)}`;
+                    };
+
+                    const lockedValue = "Available after supplier access";
+
+                    const cards: { key: string; label: string; value: ReactNode }[] = [
+                      {
+                        key: "moq",
+                        label: "Typical MOQ",
+                        value: isUnlocked ? (fmtMoqRange() ?? lockedValue) : lockedValue,
+                      },
+                      {
+                        key: "incoterms",
+                        label: "Trade terms",
+                        value: isUnlocked
+                          ? incoterms.length > 0
+                            ? incoterms.join(", ")
+                            : lockedValue
+                          : "Request access to review supported Incoterms",
+                      },
+                      {
+                        key: "lead",
+                        label: "Lead time",
+                        value: isUnlocked
+                          ? leadTimes.length > 0
+                            ? leadTimes.join(", ")
+                            : lockedValue
+                          : "Lead time available after supplier access",
+                      },
+                      {
+                        key: "payment",
+                        label: "Payment terms",
+                        value: isUnlocked
+                          ? paymentTerms.length > 0
+                            ? paymentTerms.join(" · ")
+                            : lockedValue
+                          : "Request access to review payment terms",
+                      },
+                      {
+                        key: "ports",
+                        label: "Shipment ports",
+                        value: isUnlocked
+                          ? ports.length > 0
+                            ? ports.join(", ")
+                            : lockedValue
+                          : "Shipment details available after supplier access",
+                      },
+                      {
+                        key: "fit",
+                        label: "Best fit",
+                        value: isUnlocked ? bestFitUnlocked : bestFitLocked,
+                      },
+                    ];
+
+                    return (
+                      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                        {cards.map((c) => (
+                          <div
+                            key={c.key}
+                            className="rounded-md border border-border bg-background p-3"
+                          >
+                            <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                              {c.label}
+                            </dt>
+                            <dd className="mt-1.5 text-sm font-medium text-foreground break-words [overflow-wrap:anywhere]">
+                              {c.value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    );
+                  })()}
+                  {!isUnlocked && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Commercial terms available after supplier access.
+                    </p>
+                  )}
                 </article>
 
                 {/* Documents & certifications checklist */}
