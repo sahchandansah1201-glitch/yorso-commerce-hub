@@ -176,6 +176,8 @@ const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
   const { level } = useAccessLevel();
+  const { session: buyerSessionState } = useBuyerSession();
+  const { data: registrationData } = useRegistration();
   const supplier = useMemo(() => getSupplierById(supplierId), [supplierId]);
   const related = useMemo(
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
@@ -186,6 +188,19 @@ const SupplierProfile = () => {
     const speciesList = supplier.productFocus.map((p) => p.species);
     return getOffersForSupplier(supplier.country, speciesList, 4);
   }, [supplier]);
+
+  // Persisted access-request state for this specific supplier (sessionStorage).
+  const [accessRequest, setAccessRequest] =
+    useState<SupplierAccessRequest | null>(() =>
+      getSupplierAccessRequest(supplierId),
+    );
+  const [showRequestForm, setShowRequestForm] = useState(false);
+
+  // Re-sync if the route changes between suppliers in-place.
+  useEffect(() => {
+    setAccessRequest(getSupplierAccessRequest(supplierId));
+    setShowRequestForm(false);
+  }, [supplierId]);
 
   const isUnlocked = level === "qualified_unlocked";
   const isMasked = !isUnlocked;
