@@ -219,6 +219,26 @@ const SupplierProfile = () => {
   // Headline cert is supplier-level evidence — only surface on cards when fully unlocked.
   const headlineCert = isUnlocked ? pickHeadlineCert(supplier.certifications) : undefined;
 
+  /**
+   * Resolve a catalog preview card to a destination:
+   * - qualified_unlocked: prefer a concrete /offers/:id match by species,
+   *   fall back to /offers prefiltered by this supplier id.
+   * - locked levels: never reveal supplier identity in the URL — use the
+   *   broad category from the matched offer (or species), no supplier param.
+   */
+  const catalogCardHref = (item: { species: string; form: string }): string => {
+    const speciesLc = item.species.toLowerCase();
+    const speciesMatch = supplierOffers.find(
+      (o) => o.species.toLowerCase().includes(speciesLc) || speciesLc.includes(o.species.toLowerCase()),
+    );
+    if (isUnlocked) {
+      if (speciesMatch) return `/offers/${speciesMatch.id}`;
+      return supplierId ? `/offers?supplier=${encodeURIComponent(supplierId)}` : "/offers";
+    }
+    // Locked: route to broad category if known, otherwise to /offers.
+    if (speciesMatch?.category) return `/offers?category=${encodeURIComponent(speciesMatch.category)}`;
+    return "/offers";
+  };
   const handlePrimaryAction = () => {
     if (level === "anonymous_locked") {
       navigate("/register");
@@ -414,60 +434,68 @@ const SupplierProfile = () => {
                     {catalogVisible.map((item, i) => (
                       <li
                         key={`${item.image}-${i}`}
-                        className="overflow-hidden rounded-md border border-border bg-background"
+                        className="overflow-hidden rounded-md border border-border bg-background transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
                       >
-                        <div className="relative aspect-square w-full overflow-hidden bg-muted">
-                          <img
-                            src={item.image}
-                            alt={`${item.species} (${item.form}) product preview from ${displayName}`}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="p-2">
-                          <p
-                            className="truncate text-xs font-medium text-foreground"
-                            title={item.name}
-                          >
-                            {item.name}
-                          </p>
-                          <div
-                            className="mt-1 flex flex-wrap items-center gap-1"
-                            aria-label={`Product attributes: ${item.form}${
-                              isUnlocked && headlineCert ? `, ${headlineCert}` : ""
-                            }`}
-                          >
-                            <span
-                              className={cn(
-                                "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                                formBadgeClass(item.form),
-                              )}
+                        <Link
+                          to={catalogCardHref(item)}
+                          aria-label={
+                            isUnlocked
+                              ? `View ${item.name} (${item.form}) offers from ${displayName}`
+                              : `Browse ${item.species} offers in catalog`
+                          }
+                          className="block focus:outline-none"
+                        >
+                          <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                            <img
+                              src={item.image}
+                              alt={`${item.species} (${item.form}) product preview from ${displayName}`}
+                              loading="lazy"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
+                            />
+                          </div>
+                          <div className="p-2">
+                            <p
+                              className="truncate text-xs font-medium text-foreground"
+                              title={item.name}
                             >
-                              {item.form}
-                            </span>
-                            {hasIqfBadge(item.form) && !/\biqf\b/i.test(item.form.replace(/iqf/i, "")) === false ? null : null}
-                            {/* IQF surfaced as its own badge when it appears as a suffix like "Portions IQF" */}
-                            {hasIqfBadge(item.name) && !hasIqfBadge(item.form) && (
+                              {item.name}
+                            </p>
+                            <div
+                              className="mt-1 flex flex-wrap items-center gap-1"
+                              aria-label={`Product attributes: ${item.form}${
+                                isUnlocked && headlineCert ? `, ${headlineCert}` : ""
+                              }`}
+                            >
                               <span
                                 className={cn(
                                   "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                                  formBadgeClass("IQF"),
+                                  formBadgeClass(item.form),
                                 )}
                               >
-                                IQF
+                                {item.form}
                               </span>
-                            )}
-                            {isUnlocked && headlineCert && (
-                              <span
-                                className="inline-flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
-                                title={`Supplier certification: ${headlineCert}`}
-                              >
-                                <BadgeCheck className="h-2.5 w-2.5" aria-hidden />
-                                {headlineCert}
-                              </span>
-                            )}
+                              {hasIqfBadge(item.name) && !hasIqfBadge(item.form) && (
+                                <span
+                                  className={cn(
+                                    "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                                    formBadgeClass("IQF"),
+                                  )}
+                                >
+                                  IQF
+                                </span>
+                              )}
+                              {isUnlocked && headlineCert && (
+                                <span
+                                  className="inline-flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                                  title={`Supplier certification: ${headlineCert}`}
+                                >
+                                  <BadgeCheck className="h-2.5 w-2.5" aria-hidden />
+                                  {headlineCert}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </Link>
                       </li>
                     ))}
                   </ul>

@@ -5,6 +5,8 @@ import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucid
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { SeafoodOffer } from "@/data/mockOffers";
+import { getOffersForSupplier } from "@/data/mockOffers";
+import { getSupplierById } from "@/data/mockSuppliers";
 import { useResilientCatalog } from "@/lib/use-resilient-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -67,6 +69,10 @@ const Offers = () => {
     const category = params.get("category");
     return category ? { ...emptyCatalogFilters, category } : emptyCatalogFilters;
   });
+  // Optional supplier prefilter from /suppliers/:id catalog cards.
+  // Only honored at qualified_unlocked — locked users must not see a list
+  // narrowed to a specific supplier's offers (would imply identity).
+  const supplierIdParam = new URLSearchParams(location.search).get("supplier");
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -149,10 +155,23 @@ const Offers = () => {
     };
   }, [allowSupplierName, offers]);
 
-  const visible = useMemo(
-    () => offers.filter((o) => matches(o, filters, allowSupplierName)),
-    [filters, allowSupplierName, offers],
-  );
+  const visible = useMemo(() => {
+    let base = offers.filter((o) => matches(o, filters, allowSupplierName));
+    if (supplierIdParam && allowSupplierName) {
+      const sup = getSupplierById(supplierIdParam);
+      if (sup) {
+        const ids = new Set(
+          getOffersForSupplier(
+            sup.country,
+            sup.productFocus.map((p) => p.species),
+            50,
+          ).map((o) => o.id),
+        );
+        base = base.filter((o) => ids.has(o.id));
+      }
+    }
+    return base;
+  }, [filters, allowSupplierName, offers, supplierIdParam]);
 
   useEffect(() => {
     if (visible.length === 0) {
