@@ -602,9 +602,9 @@ const SupplierProfile = () => {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Smart-ссылка скопирована" });
+      toast({ title: t.supplier_copySmartLink_toastOk });
     } catch {
-      toast({ title: "Не удалось скопировать", variant: "destructive" });
+      toast({ title: t.supplier_copySmartLink_toastFail, variant: "destructive" });
     }
   };
 
