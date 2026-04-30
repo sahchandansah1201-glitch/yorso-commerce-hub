@@ -748,6 +748,154 @@ const SupplierProfile = () => {
                   </div>
                 </article>
 
+                {/* Documents & certifications checklist */}
+                <article
+                  aria-labelledby="profile-documents"
+                  data-testid="supplier-profile-documents"
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                >
+                  <h2
+                    id="profile-documents"
+                    className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+                  >
+                    <FileCheck2
+                      className="h-4 w-4 text-muted-foreground"
+                      aria-hidden
+                    />
+                    Documents &amp; certifications
+                  </h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Document availability is indicative — exact files are shared
+                    after the supplier approves your access.
+                  </p>
+                  <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-background">
+                    {(() => {
+                      type DocStatus =
+                        | "ready"
+                        | "partial"
+                        | "on_request"
+                        | "after_approval";
+                      const statusLabel: Record<DocStatus, string> = {
+                        ready: "Ready for review",
+                        partial: "Partial",
+                        on_request: "Available on request",
+                        after_approval: "Available after supplier approval",
+                      };
+                      const statusTone: Record<DocStatus, string> = {
+                        ready:
+                          "border-emerald-200 bg-emerald-50 text-emerald-900",
+                        partial:
+                          "border-amber-200 bg-amber-50 text-amber-900",
+                        on_request:
+                          "border-slate-200 bg-slate-50 text-slate-900",
+                        after_approval:
+                          "border-border bg-muted text-muted-foreground",
+                      };
+
+                      // Map supplier.documentReadiness + access level → per-doc status.
+                      // Fully honest: locked levels can never see "Ready for review",
+                      // and supplier-specific docs collapse to "Available after supplier approval".
+                      const baseFor = (
+                        kind:
+                          | "health"
+                          | "haccp"
+                          | "iuu"
+                          | "sustainability"
+                          | "packing"
+                          | "traceability",
+                      ): DocStatus => {
+                        if (!isUnlocked) return "after_approval";
+                        const r = supplier.documentReadiness;
+                        if (r === "ready") {
+                          // Sustainability tied to whether supplier has a sustainability cert.
+                          if (kind === "sustainability") {
+                            const hasSus = supplier.certifications.some((c) =>
+                              /asc|msc|bap|iceland responsible/i.test(c),
+                            );
+                            return hasSus ? "ready" : "on_request";
+                          }
+                          return "ready";
+                        }
+                        if (r === "partial") {
+                          if (kind === "health" || kind === "haccp")
+                            return "ready";
+                          return "partial";
+                        }
+                        return "on_request";
+                      };
+
+                      const items: {
+                        key: string;
+                        label: string;
+                        status: DocStatus;
+                      }[] = [
+                        {
+                          key: "health",
+                          label: "Health certificate",
+                          status: baseFor("health"),
+                        },
+                        {
+                          key: "haccp",
+                          label: "HACCP / food safety",
+                          status: baseFor("haccp"),
+                        },
+                        {
+                          key: "iuu",
+                          label: "Catch / IUU declaration",
+                          status: baseFor("iuu"),
+                        },
+                        {
+                          key: "sustainability",
+                          label: "Sustainability certificate",
+                          status: baseFor("sustainability"),
+                        },
+                        {
+                          key: "packing",
+                          label: "Packing list",
+                          status: baseFor("packing"),
+                        },
+                        {
+                          key: "traceability",
+                          label: "Traceability data",
+                          status: baseFor("traceability"),
+                        },
+                      ];
+
+                      return items.map((it) => (
+                        <li
+                          key={it.key}
+                          data-testid={`doc-row-${it.key}`}
+                          className="flex items-center justify-between gap-3 px-3 py-2.5"
+                        >
+                          <span className="inline-flex items-center gap-2 text-sm text-foreground">
+                            <FileCheck2
+                              className="h-3.5 w-3.5 text-muted-foreground"
+                              aria-hidden
+                            />
+                            {it.label}
+                          </span>
+                          <span
+                            data-testid={`doc-status-${it.key}`}
+                            className={cn(
+                              "inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                              statusTone[it.status],
+                            )}
+                          >
+                            {statusLabel[it.status]}
+                          </span>
+                        </li>
+                      ));
+                    })()}
+                  </ul>
+                  {!isUnlocked && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Document files and identifiers are not exposed in the
+                      preview. They become available after the supplier
+                      approves your buyer access.
+                    </p>
+                  )}
+                </article>
+
                 {/* Trust evidence */}
                 <article
                   aria-labelledby="profile-trust"
