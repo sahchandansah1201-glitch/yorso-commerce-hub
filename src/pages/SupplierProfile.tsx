@@ -216,6 +216,8 @@ const SupplierProfile = () => {
   const catalogHidden = isUnlocked
     ? Math.max(0, supplier.totalProductsCount - catalogVisible.length)
     : 0;
+  // Headline cert is supplier-level evidence — only surface on cards when fully unlocked.
+  const headlineCert = isUnlocked ? pickHeadlineCert(supplier.certifications) : undefined;
 
   const handlePrimaryAction = () => {
     if (level === "anonymous_locked") {
