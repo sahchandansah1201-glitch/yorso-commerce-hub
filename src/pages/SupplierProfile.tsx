@@ -1137,8 +1137,8 @@ const SupplierProfile = () => {
               </Link>
             </div>
 
-            <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {supplierOffers.map((o) => {
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {supplierOffers.slice(0, 3).map((o) => {
                 const priceVisible = isUnlocked;
                 return (
                   <li key={o.id}>
