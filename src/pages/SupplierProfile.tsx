@@ -17,7 +17,10 @@ import {
   getSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
-import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
+import {
+  drainApprovalNotifications,
+  processSupplierAccessRequests,
+} from "@/lib/supplier-access-approval";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
