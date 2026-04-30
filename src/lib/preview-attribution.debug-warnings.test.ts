@@ -58,6 +58,7 @@ const findDebugSummary = (args: unknown[]) =>
     (a): a is {
       attempt_id: string | null;
       registration_source: string | null;
+      registration_source_error: "json_parse_error" | "invalid_shape" | null;
       missing: string[];
     } =>
       a !== null &&
@@ -340,6 +341,7 @@ describe("preview-attribution debug warnings", () => {
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_bad_source");
     expect(summary!.registration_source).toBeNull();
+    expect(summary!.registration_source_error).toBe("json_parse_error");
     // Известные поля идут в фиксированном порядке, неизвестные — после.
     expect(summary!.missing).toEqual(["supplier_id", "invalid_registration_source"]);
   });
@@ -362,6 +364,7 @@ describe("preview-attribution debug warnings", () => {
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_bad_shape");
     expect(summary!.registration_source).toBeNull();
+    expect(summary!.registration_source_error).toBe("invalid_shape");
     expect(summary!.missing).toEqual([
       "supplier_id",
       "species",
@@ -625,5 +628,105 @@ describe("preview-attribution: invalid registration_source regressions", () => {
       "form",
       "invalid_registration_source",
     ]);
+  });
+
+  it("registration_source_error: матрица всех состояний", () => {
+    seedAttempt("att_error_type_matrix");
+
+    type Case = {
+      label: string;
+      seed: () => void;
+      expected: "json_parse_error" | "invalid_shape" | null;
+      expectInvalidFlag: boolean;
+    };
+    const cases: Case[] = [
+      {
+        label: "ключа нет вовсе",
+        seed: () => {},
+        expected: null,
+        expectInvalidFlag: false,
+      },
+      {
+        label: "валидный source",
+        seed: () => seedSource("hero_cta"),
+        expected: null,
+        expectInvalidFlag: false,
+      },
+      {
+        label: "битый JSON",
+        seed: () => sessionStorage.setItem(SOURCE_KEY, "{not json"),
+        expected: "json_parse_error",
+        expectInvalidFlag: true,
+      },
+      {
+        label: "JSON-массив",
+        seed: () => sessionStorage.setItem(SOURCE_KEY, JSON.stringify(["x"])),
+        expected: "invalid_shape",
+        expectInvalidFlag: true,
+      },
+      {
+        label: "JSON null",
+        seed: () => sessionStorage.setItem(SOURCE_KEY, "null"),
+        expected: "invalid_shape",
+        expectInvalidFlag: true,
+      },
+      {
+        label: "объект без source",
+        seed: () =>
+          sessionStorage.setItem(SOURCE_KEY, JSON.stringify({ ts: NOW })),
+        expected: "invalid_shape",
+        expectInvalidFlag: true,
+      },
+      {
+        label: "source: number",
+        seed: () =>
+          sessionStorage.setItem(
+            SOURCE_KEY,
+            JSON.stringify({ source: 42, ts: NOW }),
+          ),
+        expected: "invalid_shape",
+        expectInvalidFlag: true,
+      },
+      {
+        label: "source: ''",
+        seed: () =>
+          sessionStorage.setItem(
+            SOURCE_KEY,
+            JSON.stringify({ source: "", ts: NOW }),
+          ),
+        expected: "invalid_shape",
+        expectInvalidFlag: true,
+      },
+    ];
+
+    for (const c of cases) {
+      // Чистим только SOURCE_KEY между кейсами — attempt_id остаётся.
+      sessionStorage.removeItem(SOURCE_KEY);
+      warn.mockClear();
+      c.seed();
+
+      savePreviewAttribution({
+        supplier_id: "",
+        species: "salmon",
+        form: "fillet",
+        href: "/x",
+        access_level: "anonymous_locked",
+      });
+
+      const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+      expect(summary, `case: ${c.label}`).toBeDefined();
+      expect(summary!.registration_source_error, `case: ${c.label}`).toBe(
+        c.expected,
+      );
+      if (c.expectInvalidFlag) {
+        expect(summary!.missing, `case: ${c.label}`).toContain(
+          "invalid_registration_source",
+        );
+      } else {
+        expect(summary!.missing, `case: ${c.label}`).not.toContain(
+          "invalid_registration_source",
+        );
+      }
+    }
   });
 });
