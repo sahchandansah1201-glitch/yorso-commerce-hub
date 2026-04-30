@@ -87,16 +87,33 @@ const classifyWarn = (args: unknown[]): WarnKind => {
   return null;
 };
 
+/**
+ * Зафиксированный «текущий момент» для всех тестов набора. Берём явную
+ * детерминированную дату (а не Date.now() в момент запуска), чтобы
+ * TTL-арифметика (Date.now() - ts > TTL_MS) не зависела от часов CI и
+ * не ломалась со временем. Любая «протухшая» запись считается как
+ * NOW − (TTL + запас), любая «свежая» — как NOW.
+ */
+const NOW = new Date("2026-01-15T12:00:00.000Z").getTime();
+const TTL_MS = 30 * 60 * 1000;
+const STALE_TS = NOW - (TTL_MS + 60 * 1000); // на 1 минуту старше TTL
+
 describe("preview-attribution debug warnings", () => {
   let warn: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     sessionStorage.clear();
+    // Замораживаем системное время на NOW. Дальше любые Date.now() в
+    // production-коде и в seed-хелперах вернут одно и то же значение —
+    // тесты становятся детерминированными.
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
     warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -154,7 +171,7 @@ describe("preview-attribution debug warnings", () => {
     // Запись старше TTL (30 минут).
     const stale: PreviewAttribution = {
       ...completeAttribution(),
-      ts: Date.now() - 31 * 60 * 1000,
+      ts: STALE_TS,
     };
     sessionStorage.setItem(PREVIEW_KEY, JSON.stringify(stale));
 
@@ -177,7 +194,7 @@ describe("preview-attribution debug warnings", () => {
     seedAttempt("att_pending_expired");
     const stale: PreviewAttribution = {
       ...completeAttribution(),
-      ts: Date.now() - 31 * 60 * 1000,
+      ts: STALE_TS,
     };
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(stale));
 
@@ -200,7 +217,7 @@ describe("preview-attribution debug warnings", () => {
     seedAttempt("att_src_expired");
     sessionStorage.setItem(
       SOURCE_KEY,
-      JSON.stringify({ source: "header_cta", ts: Date.now() - 31 * 60 * 1000 }),
+      JSON.stringify({ source: "header_cta", ts: STALE_TS }),
     );
 
     expect(readRegistrationSource()).toBeNull();
@@ -411,7 +428,7 @@ describe("preview-attribution debug warnings", () => {
       PREVIEW_KEY,
       JSON.stringify({
         ...completeAttribution(),
-        ts: Date.now() - 31 * 60 * 1000,
+        ts: STALE_TS,
       }),
     );
     readPreviewAttribution();
@@ -420,7 +437,7 @@ describe("preview-attribution debug warnings", () => {
       PENDING_KEY,
       JSON.stringify({
         ...completeAttribution(),
-        ts: Date.now() - 31 * 60 * 1000,
+        ts: STALE_TS,
       }),
     );
     readPendingPreviewAttribution();
