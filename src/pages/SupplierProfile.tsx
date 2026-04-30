@@ -53,6 +53,7 @@ import {
   supplierTypeLabelKey,
 } from "@/lib/supplier-content";
 import { interpolate, pluralize, formatLocalizedDate } from "@/lib/supplier-i18n";
+import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/intl-format";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
