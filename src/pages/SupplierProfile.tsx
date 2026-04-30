@@ -374,28 +374,32 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
 };
 
 const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+  const { t } = useLanguage();
   const responseLabel =
     supplier.responseSignal === "fast"
-      ? "до 4 ч"
+      ? t.supplier_response_fast
       : supplier.responseSignal === "normal"
-      ? "до 24 ч"
-      : "более 24 ч";
+      ? t.supplier_response_normal
+      : t.supplier_response_slow;
   const docsLabel =
     supplier.documentReadiness === "ready"
-      ? "готовы"
+      ? t.supplier_docs_ready
       : supplier.documentReadiness === "partial"
-      ? "частично"
-      : "по запросу";
+      ? t.supplier_docs_partial
+      : t.supplier_docs_onRequest;
+
+  const typeKey = supplierTypeLabelKey(supplier.supplierType);
+  const typeValue = typeKey ? t[typeKey] : supplier.supplierType;
 
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
-    { label: "Тип", value: supplierTypeLabel(supplier.supplierType) },
-    { label: "Лет на рынке", value: String(supplier.yearsInBusiness) },
-    { label: "Активные офферы", value: String(supplier.activeOffersCount) },
-    { label: "Документы", value: docsLabel },
-    { label: "Скорость ответа", value: responseLabel, estimate: true },
+    { label: t.supplier_trust_type, value: typeValue },
+    { label: t.supplier_trust_yearsOnMarket, value: String(supplier.yearsInBusiness) },
+    { label: t.supplier_trust_activeOffers, value: String(supplier.activeOffersCount) },
+    { label: t.supplier_trust_documents, value: docsLabel },
+    { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
-      label: "Повторные сделки",
-      value: "около 60%",
+      label: t.supplier_trust_repeatDeals,
+      value: t.supplier_trust_repeatDeals_value,
       estimate: true,
     },
   ];
@@ -419,23 +423,6 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
       ))}
     </dl>
   );
-};
-
-const supplierTypeLabel = (t: MockSupplier["supplierType"]) => {
-  switch (t) {
-    case "producer":
-      return "Производитель";
-    case "processor":
-      return "Переработчик";
-    case "exporter":
-      return "Экспортёр";
-    case "distributor":
-      return "Дистрибьютор";
-    case "trader":
-      return "Трейдер";
-    default:
-      return t;
-  }
 };
 
 /* ===== Mock-данные для новых SEO-вкладок (детерминированно от id) ===== */
