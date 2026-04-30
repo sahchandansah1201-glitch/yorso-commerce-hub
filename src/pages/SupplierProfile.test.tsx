@@ -218,7 +218,7 @@ describe("SupplierProfile — access gating", () => {
   });
 });
 
-describe("SupplierProfile — supplier access request flow", () => {
+describe("SupplierProfile — supplier access request flow (one-click)", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -227,135 +227,178 @@ describe("SupplierProfile — supplier access request flow", () => {
   const supplier = mockSuppliers[0];
   const otherSupplier = mockSuppliers[1];
 
-  it("anonymous_locked does not render request form, keeps Create buyer account CTA", () => {
+  it("anonymous_locked does not render the request panel; keeps Create buyer account CTA", () => {
     renderAt(`/suppliers/${supplier.id}`);
     expect(
-      screen.queryByRole("heading", { name: /request supplier access/i }),
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
     expect(
       screen.getByRole("link", { name: /create buyer account/i }),
     ).toBeInTheDocument();
   });
 
-  it("registered_locked: clicking Request supplier access opens inline form using maskedName", () => {
+  it("registered_locked: renders one-click Request price access CTA without reason checkboxes or message field", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const heading = screen.getByRole("heading", {
-      name: /request supplier access/i,
-    });
-    const form = heading.closest("form")!;
-    expect(within(form).getAllByText(supplier.maskedName).length)
-      .toBeGreaterThan(0);
-    expect(form.textContent ?? "").not.toContain(supplier.companyName);
+    expect(
+      screen.getByRole("button", { name: /request price access/i }),
+    ).toBeInTheDocument();
+    // No reason checkboxes, validation, or textarea.
+    expect(screen.queryByText(/what are you requesting/i)).toBeNull();
+    expect(screen.queryByLabelText(/exact price access/i)).toBeNull();
+    expect(screen.queryByLabelText(/supplier contact/i)).toBeNull();
+    expect(document.querySelectorAll("textarea").length).toBe(0);
+    // Masked name shown, real companyName never leaks.
+    expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+    expect(document.body.textContent ?? "").not.toContain(supplier.companyName);
   });
 
-  it("submitting with no reasons shows inline validation error", () => {
+  it("registered_locked: clicking the CTA stores a request with intent exact_price and shows status card", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    // Uncheck the default-checked reason.
-    const exact = screen.getByLabelText(/exact price access/i);
-    fireEvent.click(exact);
-    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
-    expect(screen.getByRole("alert").textContent ?? "")
-      .toMatch(/select at least one reason/i);
-    // Form is still visible — no success state.
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
-  });
+    const status = screen.getByTestId("supplier-access-request-status");
+    expect(status).toBeInTheDocument();
+    // Status starts as "sent" or has already advanced to "pending" via the
+    // boot-time approval scan that runs when the profile mounts.
+    expect(["sent", "pending"]).toContain(
+      status.getAttribute("data-status"),
+    );
 
-  it("submitting with selected reasons saves sessionStorage and renders Access request sent", () => {
-    seedRegisteredSession();
-    renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    fireEvent.click(screen.getByLabelText(/supplier contact/i));
-    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
     expect(parsed[supplier.id]).toBeTruthy();
-    expect(parsed[supplier.id].status).toBe("sent");
-    expect(parsed[supplier.id].reasons).toEqual(
-      expect.arrayContaining(["exact_price", "supplier_contact"]),
-    );
+    expect(parsed[supplier.id].intent).toBe("exact_price");
+    expect(typeof parsed[supplier.id].sentAt).toBe("string");
+    expect(typeof parsed[supplier.id].mockApproveAt).toBe("string");
   });
 
-  it("preserves request sent state after re-render for the same supplier", () => {
+  it("preserves status state after re-render for the same supplier (using legacy sessionStorage record)", () => {
     seedRegisteredSession();
     sessionStorage.setItem(
       "yorso_supplier_access_requests",
       JSON.stringify({
         [supplier.id]: {
           status: "sent",
-          reasons: ["exact_price"],
-          message: "",
+          intent: "exact_price",
+          supplierId: supplier.id,
           sentAt: new Date().toISOString(),
+          mockApproveAt: new Date(Date.now() + 60_000).toISOString(),
         },
       }),
     );
     renderAt(`/suppliers/${supplier.id}`);
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-    // Primary CTA must not re-prompt to Request supplier access.
     expect(
-      screen.queryByRole("button", { name: /request supplier access/i }),
+      screen.getByTestId("supplier-access-request-status"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
   });
 
   it("request status is supplier-specific", () => {
     seedRegisteredSession();
-    sessionStorage.setItem(
+    localStorage.setItem(
       "yorso_supplier_access_requests",
       JSON.stringify({
         [supplier.id]: {
           status: "sent",
-          reasons: ["exact_price"],
-          message: "",
+          intent: "exact_price",
+          supplierId: supplier.id,
           sentAt: new Date().toISOString(),
+          mockApproveAt: new Date(Date.now() + 60_000).toISOString(),
         },
       }),
     );
     renderAt(`/suppliers/${otherSupplier.id}`);
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(screen.queryByTestId("supplier-access-request-status")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     ).toBeInTheDocument();
   });
 
-  it("qualified_unlocked does not render request form and still shows contact channels", () => {
+  it("approved request: status card shows approved and qualified access is applied", async () => {
+    seedRegisteredSession();
+    // Seed a request whose mock approval is already due.
+    localStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "pending",
+          intent: "exact_price",
+          supplierId: supplier.id,
+          sentAt: new Date(Date.now() - 10_000).toISOString(),
+          pendingAt: new Date(Date.now() - 9_000).toISOString(),
+          mockApproveAt: new Date(Date.now() - 1_000).toISOString(),
+        },
+      }),
+    );
+    renderAt(`/suppliers/${supplier.id}`);
+    const status = await screen.findByTestId("supplier-access-request-status");
+    expect(status.getAttribute("data-status")).toBe("approved");
+    // Qualification was applied — companyName becomes visible.
+    expect(screen.getAllByText(supplier.companyName).length).toBeGreaterThan(0);
+  });
+
+  it("queues a one-time approval notification that survives the next visit", () => {
+    // Pre-seed an already-approved request whose notification has not been seen.
+    localStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "approved",
+          intent: "exact_price",
+          supplierId: supplier.id,
+          sentAt: new Date(Date.now() - 60_000).toISOString(),
+          pendingAt: new Date(Date.now() - 50_000).toISOString(),
+          approvedAt: new Date(Date.now() - 10_000).toISOString(),
+        },
+      }),
+    );
+    localStorage.setItem(
+      "yorso_supplier_access_notifications",
+      JSON.stringify({
+        [supplier.id]: {
+          supplierId: supplier.id,
+          approvedAt: new Date(Date.now() - 10_000).toISOString(),
+          seen: false,
+        },
+      }),
+    );
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    // The status card reflects approved.
+    expect(
+      screen.getByTestId("supplier-access-request-status").getAttribute(
+        "data-status",
+      ),
+    ).toBe("approved");
+    // Notification is delivered exactly once: store entry now marked seen.
+    const notes = JSON.parse(
+      localStorage.getItem("yorso_supplier_access_notifications") ?? "{}",
+    );
+    expect(notes[supplier.id]?.seen).toBe(true);
+  });
+
+  it("qualified_unlocked does not render request panel and still shows contact channels", () => {
     seedQualifiedSession();
     renderAt(`/suppliers/${supplier.id}`);
     expect(
-      screen.queryByRole("heading", { name: /request supplier access/i }),
-    ).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /request supplier access/i }),
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
     if (supplier.website) {
       expect(screen.getByRole("link", { name: /website/i })).toBeInTheDocument();
     }
   });
 
-  it("does not render nested <button> elements while form is open", () => {
+  it("does not render nested <button> elements with the panel visible", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const buttons = document.querySelectorAll("button");
-    for (const btn of Array.from(buttons)) {
-      let parent = btn.parentElement;
-      while (parent) {
-        expect(parent.tagName.toLowerCase()).not.toBe("button");
-        parent = parent.parentElement;
-      }
-    }
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    expect(document.querySelectorAll("a button").length).toBe(0);
   });
 });
 
