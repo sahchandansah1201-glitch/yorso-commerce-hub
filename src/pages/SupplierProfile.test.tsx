@@ -635,3 +635,113 @@ describe("SupplierProfile — regression: access request validation + storage sh
   });
 });
 
+
+describe("SupplierProfile — standalone page contract", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  it("/suppliers/:supplierId direct route renders SupplierProfile (h1 + breadcrumb)", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: /breadcrumb/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("standalone page does not render the supplier directory search input", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.queryByLabelText(/search suppliers/i)).toBeNull();
+  });
+
+  it("standalone page does not render the directory's Selected supplier preview panel", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    // The directory's preview-label test id only exists in SelectedSupplierPanel,
+    // which must not appear on the standalone profile page.
+    expect(
+      screen.queryByTestId("selected-supplier-preview-label"),
+    ).toBeNull();
+    expect(
+      screen.queryByTestId("selected-supplier-open-profile"),
+    ).toBeNull();
+    // No "Quick preview" label either.
+    expect(screen.queryByText(/quick preview/i)).toBeNull();
+  });
+
+  it("renders the Documents & certifications section with all six checklist rows", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-documents");
+    expect(
+      within(section).getByRole("heading", {
+        name: /documents.*certifications/i,
+      }),
+    ).toBeInTheDocument();
+    for (const key of [
+      "health",
+      "haccp",
+      "iuu",
+      "sustainability",
+      "packing",
+      "traceability",
+    ]) {
+      expect(within(section).getByTestId(`doc-row-${key}`)).toBeInTheDocument();
+      expect(
+        within(section).getByTestId(`doc-status-${key}`),
+      ).toBeInTheDocument();
+    }
+    // Honest copy: the visible labels should match the spec.
+    expect(within(section).getByText(/health certificate/i)).toBeInTheDocument();
+    expect(within(section).getByText(/haccp/i)).toBeInTheDocument();
+    expect(within(section).getByText(/catch.*iuu declaration/i)).toBeInTheDocument();
+    expect(within(section).getByText(/sustainability certificate/i)).toBeInTheDocument();
+    expect(within(section).getByText(/packing list/i)).toBeInTheDocument();
+    expect(within(section).getByText(/traceability data/i)).toBeInTheDocument();
+  });
+
+  it("locked: Documents section uses 'Available after supplier approval' status for all rows", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-documents");
+    for (const key of [
+      "health",
+      "haccp",
+      "iuu",
+      "sustainability",
+      "packing",
+      "traceability",
+    ]) {
+      const status = within(section).getByTestId(`doc-status-${key}`);
+      expect(status.textContent ?? "").toMatch(/after supplier approval/i);
+    }
+  });
+
+  it("invalid supplier id renders not-found state with a valid link back to /suppliers", () => {
+    renderAt(`/suppliers/does-not-exist`);
+    expect(screen.getByText(/supplier not found/i)).toBeInTheDocument();
+    const back = screen.getByRole("link", { name: /back to suppliers/i });
+    expect(back.getAttribute("href")).toBe("/suppliers");
+  });
+
+  it("no invalid interactive nesting: a button = 0, button button = 0", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    expect(document.querySelectorAll("a button").length).toBe(0);
+  });
+
+  it("locked profile does not leak companyName, website, whatsapp or exact counts", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const body = document.body.textContent ?? "";
+    expect(body).not.toContain(supplier.companyName);
+    if (supplier.website) expect(body).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(body).not.toContain(supplier.whatsapp);
+    expect(body).not.toContain(`${supplier.totalProductsCount} products`);
+    expect(body).not.toContain(`${supplier.deliveryCountriesTotal} countries`);
+    // Exact activeOffersCount is asserted in detail by other suites; assert here as a smoke check.
+    const exact = new RegExp(
+      `(^|[^0-9])${supplier.activeOffersCount}([^0-9]|$)`,
+    );
+    expect(body).not.toMatch(exact);
+  });
+});
