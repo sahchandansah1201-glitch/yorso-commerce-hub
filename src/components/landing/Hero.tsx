@@ -6,6 +6,7 @@ import { ArrowRight, Search, ShieldCheck, Package, Globe, Users, ChevronRight } 
 import { marketplaceStats } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const Hero = () => {
   const { t } = useLanguage();
