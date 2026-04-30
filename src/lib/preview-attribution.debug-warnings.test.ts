@@ -210,6 +210,7 @@ describe("preview-attribution debug warnings", () => {
       args[0].includes("registration_source EXPIRED"),
     );
     expect(expiredCall).toBeDefined();
+    expect(classifyWarn(expiredCall!)).toBe("EXPIRED");
     const summary = findDebugSummary(expiredCall!);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_src_expired");
