@@ -373,9 +373,23 @@ const SupplierRowImpl = ({
                   <ChevronRight className="h-4 w-4" />
                 </Button>
                 <Button
-                  type="button"
+                  asChild
                   size="sm"
                   variant="outline"
+                  className="gap-2"
+                >
+                  <Link
+                    to={`/suppliers/${supplier.id}`}
+                    data-testid="supplier-row-open-profile"
+                    aria-label={`Open profile: ${displayName}`}
+                  >
+                    Open profile
+                  </Link>
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
                   className="gap-2"
                   onClick={() => onShortlist(supplier.id)}
                   aria-pressed={isShortlisted}
