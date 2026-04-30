@@ -114,6 +114,9 @@ describe("preview-attribution debug warnings", () => {
 
     const calls = debugWarnCalls(warn);
     expect(calls.length).toBeGreaterThan(0);
+    // Тип предупреждения должен быть INCOMPLETE (текст «неполная»),
+    // а не EXPIRED — иначе сводка теряет смысл.
+    expect(classifyWarn(calls[0])).toBe("INCOMPLETE");
     const summary = findDebugSummary(calls[0]);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_incomplete");
