@@ -57,7 +57,7 @@ const RegisterReady = () => {
       const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
       const pendingAttr = readPendingPreviewAttribution();
       const completePayload = {
-        role: data.role || "unknown",
+        role: (data.role || "unknown") as "buyer" | "supplier" | "unknown",
         step: 7 as const,
         sessionId: data.sessionId,
         country: data.country,
