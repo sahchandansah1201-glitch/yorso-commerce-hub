@@ -3274,7 +3274,7 @@ const ru: TranslationKeys = {
   supplier_cases_factProduct: "Продукт",
   supplier_cases_factVolume: "Объём партии",
   supplier_cases_factBasis: "Базис",
-  supplier_cases_volumeTons: "{n} т",
+  
   supplier_cases_photoReportTitle: "Фото-отчёт о погрузке",
   supplier_cases_photoReportNote: "Полные фото-отчёты в исходном разрешении передаются квалифицированным покупателям после запроса доступа.",
   supplier_cases_photoCaption_loading: "Загрузка контейнера, склад отправителя",
