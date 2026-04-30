@@ -167,18 +167,18 @@ const SupplierRowImpl = ({
                 </span>
               </div>
 
-              <h3 className="mt-1 font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
+              <h3 className="mt-2 font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]">
                 {displayName}
               </h3>
               {isMasked && (
-                <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                <p className="mt-2 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
                   <Lock className="h-3 w-3" aria-hidden />
                   Supplier identity restricted
                 </p>
               )}
 
               <p
-                className="mt-2 line-clamp-2 text-sm leading-relaxed text-foreground/85"
+                className="mt-4 line-clamp-2 text-sm leading-relaxed text-foreground/85"
                 title={aboutTeaser}
               >
                 {aboutTeaser}
@@ -187,7 +187,7 @@ const SupplierRowImpl = ({
               {/* Certificate badge row */}
               {supplier.certificationBadges.length > 0 && (
                 <div
-                  className="mt-3 flex flex-wrap gap-1.5"
+                  className="mt-5 flex flex-wrap gap-1.5"
                   aria-label="Certifications"
                 >
                   {supplier.certificationBadges.slice(0, 5).map((c) => (
@@ -208,7 +208,7 @@ const SupplierRowImpl = ({
               )}
 
               {/* Bottom signals */}
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
                 <span className="inline-flex items-center gap-1 text-foreground/80">
                   <span className="font-semibold tabular-nums text-foreground">
                     {supplier.activeOffersCount}
