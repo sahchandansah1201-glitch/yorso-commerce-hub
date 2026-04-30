@@ -650,8 +650,6 @@ const SupplierProfile = () => {
             </div>
           </div>
         </section>
-          </div>
-        </section>
 
         {/* Related suppliers */}
         {related.length > 0 && (
