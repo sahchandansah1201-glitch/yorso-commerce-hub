@@ -337,220 +337,302 @@ const SupplierProfile = () => {
           </div>
         </div>
 
-        {/* Area 1: Dossier Hero + Area 2: Access Panel */}
+        {/* Area 1+2: Supplier Trading Dossier (single integrated module) */}
         <section
           data-testid="supplier-profile-dossier-hero"
-          className="border-b border-border bg-background"
+          className="bg-background"
         >
           <div className="container py-5 md:py-6">
-            <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)_320px] lg:items-start">
-              {/* Left zone: image */}
-              <div className="relative h-[220px] w-full overflow-hidden rounded-lg border border-border bg-muted sm:h-[260px] lg:h-[260px]">
-                <img
-                  src={supplier.heroImage}
-                  alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
-                  <span aria-hidden className="text-sm leading-none">
-                    {flag || "🌐"}
-                  </span>
-                  <span>
-                    {supplier.country} · {supplier.city}
-                  </span>
-                </div>
-                {supplier.verificationLevel === "documents_reviewed" && (
-                  <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
-                    <BadgeCheck className="h-3 w-3" aria-hidden />
-                    Reviewed
-                  </div>
-                )}
-              </div>
-
-              {/* Center zone: identity + summary */}
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
-                  <span className="font-semibold uppercase tracking-[0.14em] text-foreground/70">
-                    {supplierTypeLabel[supplier.supplierType]}
-                  </span>
-                  <span aria-hidden>·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <CalendarDays className="h-3 w-3" aria-hidden />
-                    Since {supplier.inBusinessSinceYear}
-                  </span>
-                  {supplier.productFocus.length > 0 && (
-                    <>
-                      <span aria-hidden>·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Fish className="h-3 w-3" aria-hidden />
-                        {supplier.productFocus.slice(0, 2).map((p) => p.species).join(", ")}
-                        {supplier.productFocus.length > 2 && (
-                          <span className="text-muted-foreground"> +{supplier.productFocus.length - 2}</span>
-                        )}
+            <div
+              data-testid="supplier-trading-dossier"
+              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+            >
+              {/* Top row: media | identity | access */}
+              <div className="grid gap-5 p-[18px] md:p-6 lg:grid-cols-[340px_minmax(0,1fr)_320px] lg:gap-7 lg:items-start">
+                {/* Left: media */}
+                <div className="flex flex-col gap-2">
+                  <div className="relative h-[240px] w-full overflow-hidden rounded-lg border border-border bg-muted sm:h-[280px] lg:h-[300px]">
+                    <img
+                      src={supplier.heroImage}
+                      alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                      <span aria-hidden className="text-sm leading-none">
+                        {flag || "🌐"}
                       </span>
-                    </>
-                  )}
-                </div>
-                <h1 className="mt-1.5 font-heading text-[24px] font-bold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[28px]">
-                  {displayName}
-                </h1>
-                {isMasked && (
-                  <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                    <Lock className="h-3 w-3" aria-hidden />
-                    Supplier identity restricted
-                  </p>
-                )}
-                <p className="mt-2.5 max-w-2xl text-[13px] leading-relaxed text-foreground/85">
-                  {isUnlocked ? supplier.about : supplier.shortDescription}
-                </p>
-
-                {/* Compact trust / readiness fact strip */}
-                <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-1.5 text-xs sm:grid-cols-2">
-                  <div className="inline-flex items-center gap-1.5 text-foreground/85">
-                    <BadgeCheck className="h-3.5 w-3.5 flex-shrink-0 text-primary" aria-hidden />
-                    <span>{verificationLabel(supplier.verificationLevel)}</span>
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 text-foreground/85">
-                    <Activity className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                    <span>{responseLabel[supplier.responseSignal]}</span>
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 text-foreground/85">
-                    <DocIcon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                    <span>{docsLabel[supplier.documentReadiness]}</span>
-                  </div>
-                  {isUnlocked && (
-                    <div className="inline-flex items-center gap-1.5 text-foreground/85">
-                      <Package className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
                       <span>
-                        <span className="font-semibold tabular-nums text-foreground">{supplier.activeOffersCount}</span>{" "}
-                        active offers
+                        {supplier.country} · {supplier.city}
                       </span>
                     </div>
+                    {supplier.verificationLevel === "documents_reviewed" && (
+                      <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
+                        <BadgeCheck className="h-3 w-3" aria-hidden />
+                        Reviewed
+                      </div>
+                    )}
+                  </div>
+                  {supplier.productCatalogPreview.length > 0 && (
+                    <ul className="grid grid-cols-3 gap-1.5" aria-label="Product previews">
+                      {supplier.productCatalogPreview.slice(0, 3).map((item, i) => (
+                        <li
+                          key={`thumb-${i}`}
+                          className="relative aspect-square overflow-hidden rounded border border-border bg-muted"
+                          title={item.species}
+                        >
+                          <img
+                            src={item.image}
+                            alt={`${item.species} preview`}
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                        </li>
+                      ))}
+                    </ul>
                   )}
-                </dl>
-              </div>
+                </div>
 
-              {/* Right zone: access / action panel */}
-              <aside
-                aria-label="Access and next action"
-                data-testid="supplier-profile-access-panel"
-                className="lg:sticky lg:top-20 lg:self-start"
-              >
-                <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                      <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-                      {isUnlocked ? "Access granted" : "Access required"}
+                {/* Center: identity */}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                    <span className="font-semibold uppercase tracking-[0.14em] text-foreground/70">
+                      {supplierTypeLabel[supplier.supplierType]}
+                    </span>
+                    <span aria-hidden>·</span>
+                    <span className="inline-flex items-center gap-1">
+                      <CalendarDays className="h-3 w-3" aria-hidden />
+                      Since {supplier.inBusinessSinceYear}
+                    </span>
+                    {supplier.productFocus.length > 0 && (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Fish className="h-3 w-3" aria-hidden />
+                          {supplier.productFocus.slice(0, 2).map((p) => p.species).join(", ")}
+                          {supplier.productFocus.length > 2 && (
+                            <span className="text-muted-foreground"> +{supplier.productFocus.length - 2}</span>
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <h1 className="mt-1.5 font-heading text-[24px] font-bold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[28px]">
+                    {displayName}
+                  </h1>
+                  {isMasked && (
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      <Lock className="h-3 w-3" aria-hidden />
+                      Supplier identity restricted
+                    </p>
+                  )}
+                  <p className="mt-2.5 max-w-2xl text-[13px] leading-relaxed text-foreground/85">
+                    {isUnlocked ? supplier.about : supplier.shortDescription}
+                  </p>
+
+                  <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-1.5 text-xs sm:grid-cols-2">
+                    <div className="inline-flex items-center gap-1.5 text-foreground/85">
+                      <BadgeCheck className="h-3.5 w-3.5 flex-shrink-0 text-primary" aria-hidden />
+                      <span>{verificationLabel(supplier.verificationLevel)}</span>
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 text-foreground/85">
+                      <Activity className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
+                      <span>{responseLabel[supplier.responseSignal]}</span>
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 text-foreground/85">
+                      <DocIcon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
+                      <span>{docsLabel[supplier.documentReadiness]}</span>
                     </div>
                     {isUnlocked && (
-                      <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900">
-                        Unlocked
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 text-[13px] leading-relaxed text-foreground/85">
-                    {accessExplainer(level)}
-                  </p>
-
-                  <div className="mt-3 flex flex-col gap-2">
-                    {level === "anonymous_locked" ? (
-                      <Button asChild type="button" className="w-full gap-2">
-                        <Link to="/register">{primaryCtaCopy(level)}</Link>
-                      </Button>
-                    ) : level === "registered_locked" && !hasSentRequest ? (
-                      <SupplierAccessRequestPanel
-                        supplierId={supplier.id}
-                        supplierMaskedName={supplier.maskedName}
-                        onSent={(req) => setAccessRequest(req)}
-                      />
-                    ) : level === "registered_locked" ? null : (
-                      <Button
-                        type="button"
-                        className="w-full gap-2"
-                        onClick={handlePrimaryAction}
-                      >
-                        {primaryCtaCopy(level)}
-                      </Button>
-                    )}
-                    {hasSentRequest && (
-                      <SupplierAccessRequestSent
-                        request={accessRequest!}
-                        supplierMaskedName={supplier.maskedName}
-                      />
-                    )}
-                    <Button
-                      asChild
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-2"
-                    >
-                      <Link to="/suppliers">
-                        <Star className={cn("h-3.5 w-3.5 text-muted-foreground")} aria-hidden />
-                        Back to suppliers
-                      </Link>
-                    </Button>
-                  </div>
-
-                  {/* Contact channels / locked teaser */}
-                  <div className="mt-3 border-t border-border pt-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Contact channels
-                    </p>
-                    {isUnlocked && (supplier.website || supplier.whatsapp) ? (
-                      <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Supplier contact channels">
-                        {supplier.website && (
-                          <a
-                            href={supplier.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
-                          >
-                            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                            Website
-                          </a>
-                        )}
-                        {supplier.whatsapp && (
-                          <a
-                            href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
-                          >
-                            <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-                            WhatsApp
-                          </a>
-                        )}
+                      <div className="inline-flex items-center gap-1.5 text-foreground/85">
+                        <Package className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
+                        <span>
+                          <span className="font-semibold tabular-nums text-foreground">{supplier.activeOffersCount}</span>{" "}
+                          active offers
+                        </span>
                       </div>
+                    )}
+                  </dl>
+                </div>
+
+                {/* Right: access / action */}
+                <aside
+                  aria-label="Access and next action"
+                  data-testid="supplier-profile-access-panel"
+                  className="lg:sticky lg:top-20 lg:self-start"
+                >
+                  <div className="rounded-lg border border-border bg-background p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                        {isUnlocked ? "Access granted" : "Access required"}
+                      </div>
+                      {isUnlocked && (
+                        <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900">
+                          Unlocked
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 text-[13px] leading-relaxed text-foreground/85">
+                      {accessExplainer(level)}
+                    </p>
+
+                    <div className="mt-3 flex flex-col gap-2">
+                      {level === "anonymous_locked" ? (
+                        <Button asChild type="button" className="w-full gap-2">
+                          <Link to="/register">{primaryCtaCopy(level)}</Link>
+                        </Button>
+                      ) : level === "registered_locked" && !hasSentRequest ? (
+                        <SupplierAccessRequestPanel
+                          supplierId={supplier.id}
+                          supplierMaskedName={supplier.maskedName}
+                          onSent={(req) => setAccessRequest(req)}
+                        />
+                      ) : level === "registered_locked" ? null : (
+                        <Button
+                          type="button"
+                          className="w-full gap-2"
+                          onClick={handlePrimaryAction}
+                        >
+                          {primaryCtaCopy(level)}
+                        </Button>
+                      )}
+                      {hasSentRequest && (
+                        <SupplierAccessRequestSent
+                          request={accessRequest!}
+                          supplierMaskedName={supplier.maskedName}
+                        />
+                      )}
+                    </div>
+
+                    <div className="mt-3 border-t border-border pt-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Contact channels
+                      </p>
+                      {isUnlocked && (supplier.website || supplier.whatsapp) ? (
+                        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Supplier contact channels">
+                          {supplier.website && (
+                            <a
+                              href={supplier.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                              Website
+                            </a>
+                          )}
+                          {supplier.whatsapp && (
+                            <a
+                              href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" aria-hidden />
+                              WhatsApp
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="mt-1.5 text-[11px] text-muted-foreground">
+                          Website and messaging channel become visible after the supplier approves your buyer access.
+                        </p>
+                      )}
+                    </div>
+
+                    {isUnlocked ? (
+                      <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-border pt-3 text-[11px]">
+                        <div>
+                          <dt className="text-muted-foreground">Response speed</dt>
+                          <dd className="mt-0.5 font-semibold text-foreground">
+                            {responseLabel[supplier.responseSignal]}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-muted-foreground">Active offers</dt>
+                          <dd className="mt-0.5 font-semibold text-foreground tabular-nums">
+                            {supplier.activeOffersCount}
+                          </dd>
+                        </div>
+                      </dl>
                     ) : (
-                      <p className="mt-1.5 text-[11px] text-muted-foreground">
-                        Website and messaging channel become visible after the supplier approves your buyer access.
+                      <p className="mt-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
+                        Active offers and supplier response details available after supplier approval.
                       </p>
                     )}
                   </div>
+                </aside>
+              </div>
 
-                  {isUnlocked ? (
-                    <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-border pt-3 text-[11px]">
-                      <div>
-                        <dt className="text-muted-foreground">Response speed</dt>
-                        <dd className="mt-0.5 font-semibold text-foreground">
-                          {responseLabel[supplier.responseSignal]}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">Active offers</dt>
-                        <dd className="mt-0.5 font-semibold text-foreground tabular-nums">
-                          {supplier.activeOffersCount}
-                        </dd>
-                      </div>
-                    </dl>
-                  ) : (
-                    <p className="mt-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
-                      Active offers and supplier response details available after supplier approval.
-                    </p>
-                  )}
+              {/* Evidence strip: 4 columns inside the same module */}
+              <div
+                data-testid="supplier-trading-dossier-evidence"
+                className="grid grid-cols-2 gap-px border-t border-border bg-border lg:grid-cols-4"
+              >
+                {/* Product focus */}
+                <div className="bg-card px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Product focus
+                  </p>
+                  <p className="mt-1 text-[13px] font-medium text-foreground">
+                    {supplier.productFocus.length > 0
+                      ? supplier.productFocus
+                          .slice(0, 2)
+                          .map((p) => `${p.species} (${p.forms})`)
+                          .join(" · ")
+                      : "Seafood procurement"}
+                  </p>
                 </div>
-              </aside>
+                {/* Commercial terms */}
+                <div className="bg-card px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Commercial terms
+                  </p>
+                  <p className="mt-1 text-[13px] font-medium text-foreground">
+                    {isUnlocked
+                      ? (() => {
+                          const incoterms = Array.from(
+                            new Set(
+                              supplierOffers
+                                .map((o) => o.commercial?.incoterm)
+                                .filter((x): x is string => !!x),
+                            ),
+                          );
+                          return incoterms.length > 0
+                            ? incoterms.slice(0, 3).join(", ")
+                            : "Confirmed with supplier";
+                        })()
+                      : "Terms after access"}
+                  </p>
+                </div>
+                {/* Documents */}
+                <div className="bg-card px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Documents
+                  </p>
+                  <p className="mt-1 text-[13px] font-medium text-foreground">
+                    {isUnlocked
+                      ? docsLabel[supplier.documentReadiness]
+                      : "Documents available after approval"}
+                  </p>
+                </div>
+                {/* Delivery */}
+                <div className="bg-card px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Delivery
+                  </p>
+                  <p className="mt-1 text-[13px] font-medium text-foreground">
+                    {previewDeliveries.length > 0
+                      ? previewDeliveries.slice(0, 4).map((d) => d.name).join(", ")
+                      : "On request"}
+                    {!isUnlocked && (
+                      <span className="block text-[11px] font-normal text-muted-foreground">
+                        Full geography after approval
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -560,7 +642,7 @@ const SupplierProfile = () => {
           data-testid="supplier-profile-main-content"
           className="bg-cool-gray/40"
         >
-          <div className="container space-y-4 py-5 md:space-y-5 md:py-6">
+          <div className="container space-y-4 py-4 md:space-y-5 md:py-5">
             {/* 1. Product catalog preview */}
             <article
               aria-labelledby="profile-catalog"
