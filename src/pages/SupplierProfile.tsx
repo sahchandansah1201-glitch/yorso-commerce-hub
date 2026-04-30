@@ -8,6 +8,16 @@
  * delivery counts.
  */
 import { useEffect, useMemo, useState } from "react";
+
+/**
+ * IA version marker — bump whenever the information architecture of
+ * SupplierProfile changes meaningfully. Exposed via:
+ *   - console.info("[SupplierProfile] IA <version> rendered ...")
+ *   - data-ia-version / data-component on the root <div>
+ *   - hidden <span data-testid="supplier-profile-ia-version">
+ * Lets QA confirm at a glance which IA actually shipped to the browser.
+ */
+const SUPPLIER_PROFILE_IA_VERSION = "v2";
 import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
