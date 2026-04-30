@@ -314,7 +314,18 @@ const SupplierProfile = () => {
   const hasSentRequest = !!accessRequest;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      data-component="SupplierProfile"
+      data-ia-version={SUPPLIER_PROFILE_IA_VERSION}
+      data-access-level={level}
+    >
+      <span
+        data-testid="supplier-profile-ia-version"
+        data-ia-version={SUPPLIER_PROFILE_IA_VERSION}
+        hidden
+        aria-hidden="true"
+      />
       <Header />
       <main id="main">
         {/* Breadcrumbs */}
