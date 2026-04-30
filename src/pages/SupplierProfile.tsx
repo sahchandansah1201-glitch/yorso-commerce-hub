@@ -67,6 +67,7 @@ const upsertMeta = (selector: string, attrs: Record<string, string>) => {
 
 /** Компактный блок «Страны доставки» (используется в рельсе и в досье). */
 const DeliveryCountriesBlock = ({ supplier }: { supplier: MockSupplier }) => {
+  const { t } = useLanguage();
   const preview = supplier.deliveryCountries.slice(0, 15);
   const remaining = Math.max(supplier.deliveryCountriesTotal - preview.length, 0);
   return (
@@ -84,8 +85,18 @@ const DeliveryCountriesBlock = ({ supplier }: { supplier: MockSupplier }) => {
         ))}
       </ul>
       <p className="mt-2 text-xs text-muted-foreground">
-        Доставка в {supplier.deliveryCountriesTotal} стран
-        {remaining > 0 && <> · показано {preview.length}, ещё {remaining}</>}
+        {interpolate(t.supplier_about_deliveryCountriesCount, {
+          n: supplier.deliveryCountriesTotal,
+        })}
+        {remaining > 0 && (
+          <>
+            {" · "}
+            {interpolate(t.supplier_about_deliveryCountriesShown, {
+              n: preview.length,
+              rest: remaining,
+            })}
+          </>
+        )}
       </p>
     </div>
   );
