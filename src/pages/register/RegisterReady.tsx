@@ -14,6 +14,10 @@ import { authApi, isApiError } from "@/lib/api-contracts";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import {
+  readPendingPreviewAttribution,
+  clearPendingPreviewAttribution,
+} from "@/lib/preview-attribution";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
