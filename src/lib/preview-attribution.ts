@@ -367,6 +367,7 @@ export function readRegistrationSource(): string | null {
             ageMs: Date.now() - parsed.ts,
             ttlMs: SOURCE_TTL_MS,
             record: parsed,
+            ...buildAttributionDebugSummary(["<all>"]),
           },
         );
       }
