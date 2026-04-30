@@ -322,7 +322,13 @@ const PENDING_KEY = "yorso_preview_attribution_pending";
 export function savePendingPreviewAttribution(attr: PreviewAttribution): void {
   try {
     validateAttributionShape("savePendingPreviewAttribution", attr);
-    sessionStorage.setItem(PENDING_KEY, JSON.stringify(attr));
+    // В DEV переносим actual attempt_id в pending-копию: если входящая
+    // запись пришла без него (например, из старого preview), обновляем
+    // на текущее значение, чтобы корреляция работала и на /register/ready.
+    const record: PreviewAttribution = import.meta.env.DEV
+      ? { ...attr, attempt_id: attr.attempt_id ?? peekRegistrationAttemptId() }
+      : attr;
+    sessionStorage.setItem(PENDING_KEY, JSON.stringify(record));
   } catch {
     // silent
   }
