@@ -237,7 +237,7 @@ const Header = () => {
                 <Link to="/signin" onClick={() => setMobileOpen(false)}>
                   <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
                 </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                <Link to="/register" onClick={() => { saveRegistrationSource("header"); setMobileOpen(false); }}>
                   <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
                 </Link>
               </>
