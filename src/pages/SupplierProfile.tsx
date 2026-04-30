@@ -557,7 +557,7 @@ const SupplierProfile = () => {
                     {supplier.productFocus.length > 0
                       ? supplier.productFocus
                           .slice(0, 2)
-                          .map((p) => `${p.species} (${p.forms.slice(0, 2).join(", ")})`)
+                          .map((p) => `${p.species} (${p.forms})`)
                           .join(" · ")
                       : "Seafood procurement"}
                   </p>
