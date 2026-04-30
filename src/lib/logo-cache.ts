@@ -63,8 +63,8 @@ export const prefetchLogo = (url: string | undefined | null): Promise<LogoStatus
     // hint браузеру: префетч-загрузки имеют низкий приоритет
     // (для hero мы используем loading="eager" в самом <img>).
     try {
-      // @ts-expect-error — нестандартный, но широко поддержан
-      img.fetchPriority = "low";
+      // нестандартный атрибут, но широко поддержан в Chromium/WebKit
+      (img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = "low";
     } catch {
       /* ignore */
     }
