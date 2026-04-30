@@ -553,6 +553,20 @@ const SupplierProfile = () => {
   const tabTriggerCls =
     "rounded-full px-5 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background";
 
+  // Sticky-хедер: появляется когда основной hero уезжает за viewport.
+  const heroSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  useEffect(() => {
+    const el = heroSentinelRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setShowStickyHeader(!entry.isIntersecting),
+      { rootMargin: "0px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [supplier.id]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
