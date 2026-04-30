@@ -684,7 +684,7 @@ const SupplierProfile = () => {
           <div className="container -mt-12 pb-6 md:-mt-14">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard supplier={supplier} size={80} priority="hero" />
+                <SupplierLogoCard supplier={supplier} size={86} priority="hero" />
 
                 <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {supplier.companyName}
