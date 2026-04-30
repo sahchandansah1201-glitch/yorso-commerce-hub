@@ -594,9 +594,9 @@ const SupplierProfile = () => {
         {/* Hero cover */}
         <section className="relative">
           <div
-            className="h-44 w-full bg-cover bg-center md:h-56"
+            className="h-48 w-full bg-cover bg-center md:h-64 lg:h-72"
             style={{
-              backgroundImage: `linear-gradient(180deg, hsl(var(--foreground) / 0.25), hsl(var(--foreground) / 0.05)), url(${supplier.heroImage})`,
+              backgroundImage: `linear-gradient(180deg, hsl(var(--foreground) / 0.15) 0%, hsl(var(--foreground) / 0.05) 50%, hsl(var(--background)) 100%), url(${supplier.heroImage})`,
             }}
             aria-hidden
           />
@@ -604,16 +604,10 @@ const SupplierProfile = () => {
 
         {/* Identity */}
         <section className="bg-background">
-          <div className="container -mt-16 pb-6">
+          <div className="container -mt-12 pb-6 md:-mt-14">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <div className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 shadow-sm">
-                  <div className="flex h-16 w-56 items-center justify-center text-center">
-                    <span className="font-heading text-base font-bold tracking-tight text-foreground">
-                      {supplier.companyName}
-                    </span>
-                  </div>
-                </div>
+                <SupplierLogoCard supplier={supplier} size={80} />
 
                 <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {supplier.companyName}
