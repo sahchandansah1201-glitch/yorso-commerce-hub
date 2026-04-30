@@ -30,17 +30,33 @@ export interface PreviewAttribution {
 }
 
 /**
- * Стабильный порядок полей для debug-сводок: сначала ключевые поля
- * цепочки click→registration в фиксированном порядке, затем `<all>`,
- * затем любые неизвестные имена — отсортированные по алфавиту.
- * Это нужно, чтобы логи можно было сравнивать между запусками
- * (snapshot-тесты, diff в DevTools, копипаст в issue).
+ * Стабильный порядок полей для debug-сводок:
+ *   1. ключевые поля цепочки click→registration в фиксированном порядке,
+ *   2. затем `<all>`,
+ *   3. затем любые неизвестные имена, отсортированные по алфавиту,
+ *   4. в самом конце — «хвостовые» мета-флаги (например,
+ *      `invalid_registration_source`), которые описывают состояние
+ *      *контекста*, а не пропущенное поле payload. Их место в конце
+ *      нужно, чтобы при diff-сравнении сначала бросались в глаза
+ *      реальные отсутствующие поля.
+ *
+ * Это даёт детерминированный порядок для snapshot-тестов, diff в
+ * DevTools и копипаста в issue.
  */
 const MISSING_FIELD_ORDER: readonly string[] = [
   "supplier_id",
   "species",
   "form",
   "<all>",
+];
+
+/**
+ * Хвостовые флаги — всегда после всего остального, в фиксированном
+ * порядке внутри группы. Отделены от MISSING_FIELD_ORDER, чтобы
+ * добавление нового флага не ломало сортировку «известных» полей.
+ */
+const MISSING_TRAILING_ORDER: readonly string[] = [
+  "invalid_registration_source",
 ];
 
 function normalizeMissing(missing: readonly string[]): string[] {
@@ -55,8 +71,12 @@ function normalizeMissing(missing: readonly string[]): string[] {
   for (const field of MISSING_FIELD_ORDER) {
     if (seen.delete(field)) known.push(field);
   }
+  const trailing: string[] = [];
+  for (const field of MISSING_TRAILING_ORDER) {
+    if (seen.delete(field)) trailing.push(field);
+  }
   const unknown = Array.from(seen).sort((a, b) => a.localeCompare(b));
-  return [...known, ...unknown];
+  return [...known, ...unknown, ...trailing];
 }
 
 /**
