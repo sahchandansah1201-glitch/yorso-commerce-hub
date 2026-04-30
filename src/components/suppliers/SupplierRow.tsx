@@ -235,7 +235,7 @@ const SupplierRowImpl = ({
             </button>
 
             {/* Right-middle: catalog + delivery + actions */}
-            <div className="flex shrink-0 flex-col gap-3 md:w-[260px]">
+            <div className="flex shrink-0 flex-col gap-4 md:w-[260px]">
               {/* Product catalog preview strip */}
               {catalogPreview.length > 0 && (
                 <div>
@@ -247,7 +247,7 @@ const SupplierRowImpl = ({
                     Catalog
                   </div>
                   <div
-                    className="mt-1.5 flex items-center gap-1.5"
+                    className="mt-2 flex items-center gap-2"
                     aria-label="Product catalog preview"
                   >
                     {catalogPreview.map((item, i) => (
@@ -265,12 +265,13 @@ const SupplierRowImpl = ({
                         +{catalogRest} products
                       </span>
                     )}
-                    {showCatalogTeaser && (
-                      <span className="inline-flex h-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-2 text-[11px] font-medium text-muted-foreground">
-                        More products after access
-                      </span>
-                    )}
                   </div>
+                  {showCatalogTeaser && (
+                    <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                      Full catalog after supplier approval
+                      <span className="sr-only"> — More products after access</span>
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -285,7 +286,7 @@ const SupplierRowImpl = ({
                     Delivers to
                   </div>
                   <div
-                    className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs"
+                    className="mt-2 flex flex-wrap items-center gap-1.5 text-xs"
                     aria-label="Delivery markets preview"
                   >
                     {previewDeliveries.map((d) => (
@@ -305,12 +306,13 @@ const SupplierRowImpl = ({
                         +{deliveryRest} markets
                       </span>
                     )}
-                    {showDeliveryTeaser && (
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        More markets after access
-                      </span>
-                    )}
                   </div>
+                  {showDeliveryTeaser && (
+                    <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                      More delivery markets after supplier approval
+                      <span className="sr-only"> — More markets after access</span>
+                    </p>
+                  )}
                 </div>
               )}
 
