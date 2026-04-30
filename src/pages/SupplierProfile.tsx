@@ -381,7 +381,7 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
     supplier.responseSpeedHours <= 4
       ? t.supplier_response_fast
       : supplier.responseSpeedHours <= 12
-      ? t.supplier_response_medium
+      ? t.supplier_response_normal
       : t.supplier_response_slow;
 
   const docsLabel =
