@@ -60,6 +60,7 @@ const RegisterReady = () => {
       setField("completed", true);
       const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
       const pendingAttr = readPendingPreviewAttribution();
+      const attempt_id = getRegistrationAttemptId();
       const completePayload = {
         role: (data.role || "unknown") as "buyer" | "supplier" | "unknown",
         step: 7 as const,
@@ -68,6 +69,7 @@ const RegisterReady = () => {
         categories: data.categories.length,
         countries: data.countries.length,
         funnelDurationMs,
+        attempt_id,
         ...(pendingAttr
           ? {
               source: "supplier_preview" as const,
