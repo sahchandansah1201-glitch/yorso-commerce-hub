@@ -453,6 +453,8 @@ export interface EventPayloadMap {
     form: string;
     href: string;
     access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    /** Уникальный id попытки регистрации, инициируемой этим кликом. */
+    attempt_id: string;
   };
 
   /**
@@ -469,6 +471,8 @@ export interface EventPayloadMap {
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
     /** Source of attribution; "direct" when no preceding CTA/preview click is recorded. */
     source: RegistrationSource;
+    /** Уникальный id текущей попытки регистрации. */
+    attempt_id: string;
   };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
