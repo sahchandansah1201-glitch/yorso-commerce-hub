@@ -172,7 +172,7 @@ const SupplierLogoCard = ({
   priority = "lazy",
 }: {
   supplier: MockSupplier;
-  size?: 28 | 40 | 80;
+  size?: 28 | 40 | 80 | 86;
   className?: string;
   priority?: "hero" | "lazy";
 }) => {
