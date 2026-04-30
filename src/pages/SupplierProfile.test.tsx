@@ -359,3 +359,232 @@ describe("SupplierProfile — supplier access request flow", () => {
   });
 });
 
+describe("SupplierProfile — regression: invalid nested interactive controls", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  const assertNoInvalidNesting = () => {
+    // No <button> nested inside another <button>.
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    // No <button> nested inside an <a> — Link wrapping Button is invalid HTML.
+    // Use Button asChild + Link, or a styled Link, instead.
+    expect(document.querySelectorAll("a button").length).toBe(0);
+  };
+
+  it("anonymous_locked: no button>button and no a>button", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    assertNoInvalidNesting();
+  });
+
+  it("registered_locked: no button>button and no a>button", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    assertNoInvalidNesting();
+  });
+
+  it("qualified_unlocked: no button>button and no a>button", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    assertNoInvalidNesting();
+  });
+
+  it("not-found state (Back to suppliers): no a>button", () => {
+    renderAt(`/suppliers/does-not-exist`);
+    assertNoInvalidNesting();
+  });
+});
+
+describe("SupplierProfile — regression: locked panel must not reveal exact active offers count", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const findAccessPanel = () =>
+    document.querySelector('aside[aria-label="Access and next action"]') as HTMLElement | null;
+
+  const expectNoExactCount = (count: number) => {
+    const panel = findAccessPanel();
+    expect(panel).not.toBeNull();
+    const text = panel!.textContent ?? "";
+    // The exact active offers count must not be rendered as a numeric value
+    // in the locked access panel. We allow non-exact, teaser-style copy.
+    // Match the exact count as a standalone number (not part of a year, etc).
+    const exact = new RegExp(`(^|[^0-9])${count}([^0-9]|$)`);
+    expect(text).not.toMatch(exact);
+    // And there should be a soft teaser/explanation instead.
+    expect(text).toMatch(
+      /active offers.*after supplier approval|after supplier approval|available after/i,
+    );
+  };
+
+  it("anonymous_locked: access panel does not show exact activeOffersCount", () => {
+    const supplier = mockSuppliers[0];
+    renderAt(`/suppliers/${supplier.id}`);
+    expectNoExactCount(supplier.activeOffersCount);
+  });
+
+  it("registered_locked: access panel does not show exact activeOffersCount", () => {
+    const supplier = mockSuppliers[0];
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    expectNoExactCount(supplier.activeOffersCount);
+  });
+
+  it("qualified_unlocked: exact activeOffersCount may be shown in access panel", () => {
+    const supplier = mockSuppliers[0];
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const panel = document.querySelector(
+      'aside[aria-label="Access and next action"]',
+    ) as HTMLElement | null;
+    expect(panel).not.toBeNull();
+    expect(panel!.textContent ?? "").toContain(
+      String(supplier.activeOffersCount),
+    );
+  });
+});
+
+describe("SupplierProfile — regression: access request flow stays supplier-specific", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplierA = mockSuppliers[0];
+  const supplierB = mockSuppliers[1];
+
+  it("submitting for supplier A only writes supplier A under its id; supplier B keeps the request CTA", () => {
+    seedRegisteredSession();
+    const { unmount } = renderAt(`/suppliers/${supplierA.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /send access request/i }),
+    );
+    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+
+    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(Object.keys(parsed)).toEqual([supplierA.id]);
+    expect(parsed[supplierB.id]).toBeUndefined();
+
+    unmount();
+
+    renderAt(`/suppliers/${supplierB.id}`);
+    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("SupplierProfile — regression: access request form does not leak supplier identity", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  it("registered_locked: open form shows masked name and hides companyName/website/whatsapp/exact counts", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    const heading = screen.getByRole("heading", {
+      name: /request supplier access/i,
+    });
+    const form = heading.closest("form")!;
+    const text = form.textContent ?? "";
+
+    expect(within(form).getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+    expect(text).not.toContain(supplier.companyName);
+    if (supplier.website) {
+      expect(text).not.toContain(supplier.website);
+      expect(form.querySelector(`a[href="${supplier.website}"]`)).toBeNull();
+    }
+    if (supplier.whatsapp) {
+      expect(text).not.toContain(supplier.whatsapp);
+    }
+    // Exact hidden catalog/delivery counts must not leak inside the form.
+    const hiddenCatalog = supplier.totalProductsCount - 3;
+    const hiddenMarkets = supplier.deliveryCountriesTotal - 3;
+    if (hiddenCatalog > 0) {
+      expect(text).not.toContain(`+${hiddenCatalog} products`);
+      expect(text).not.toContain(`${supplier.totalProductsCount} products`);
+    }
+    if (hiddenMarkets > 0) {
+      expect(text).not.toContain(`+${hiddenMarkets} markets`);
+      expect(text).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
+    }
+  });
+});
+
+describe("SupplierProfile — regression: access request validation + storage shape", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  it("submitting with no reasons selected: shows inline validation, writes nothing to storage", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    // Uncheck the default-selected reason.
+    fireEvent.click(screen.getByLabelText(/exact price access/i));
+    fireEvent.click(
+      screen.getByRole("button", { name: /send access request/i }),
+    );
+    expect(screen.getByRole("alert").textContent ?? "").toMatch(
+      /select at least one reason/i,
+    );
+    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(
+      sessionStorage.getItem("yorso_supplier_access_requests"),
+    ).toBeNull();
+  });
+
+  it("after selecting at least one reason and submitting: success state visible and storage shape matches contract", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    // Default reason "exact_price" is pre-checked; submit as is.
+    fireEvent.click(
+      screen.getByRole("button", { name: /send access request/i }),
+    );
+    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+
+    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+
+    expect(Object.keys(parsed)).toEqual([supplier.id]);
+    const record = parsed[supplier.id];
+    expect(record.status).toBe("sent");
+    expect(Array.isArray(record.reasons)).toBe(true);
+    expect(record.reasons.length).toBeGreaterThan(0);
+    for (const r of record.reasons) {
+      expect(typeof r).toBe("string");
+    }
+    expect(typeof record.message).toBe("string");
+    expect(typeof record.sentAt).toBe("string");
+    // sentAt must be a valid ISO timestamp.
+    expect(Number.isNaN(Date.parse(record.sentAt))).toBe(false);
+    expect(record.sentAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+});
+
