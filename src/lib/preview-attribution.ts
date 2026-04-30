@@ -18,6 +18,15 @@ export interface PreviewAttribution {
   href: string;
   access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   ts: number;
+  /**
+   * DEV-only поле: текущий attempt_id, скопированный в момент сохранения
+   * записи. Позволяет восстановить цепочку click → registration по одной
+   * структуре, без необходимости отдельно читать ключ
+   * `yorso_registration_attempt_id` из sessionStorage. В production не
+   * проставляется (остаётся undefined), чтобы не раздувать payload и не
+   * влиять на сравнение записей.
+   */
+  attempt_id?: string | null;
 }
 
 /**
