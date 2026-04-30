@@ -196,7 +196,7 @@ function validateAttributionShape(
       // eslint-disable-next-line no-console
       console.warn(
         `[debug] ${source}: preview_attribution неполная — поля ${missing.join(", ")} отсутствуют/пустые`,
-        attr,
+        { attr, ...buildAttributionDebugSummary(missing) },
       );
     }
     recordMissing(source, missing);
