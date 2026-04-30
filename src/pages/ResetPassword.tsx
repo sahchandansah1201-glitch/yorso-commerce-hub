@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 
 /**
  * /reset-password
@@ -162,6 +163,7 @@ const ResetPassword = () => {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };
