@@ -38,6 +38,13 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import { getSupplierLegalDetails, formatFoundedDate } from "@/lib/supplier-legal";
+import {
+  getLogoStatus,
+  prefetchLogos,
+  subscribeLogoStatus,
+  type LogoStatus,
+} from "@/lib/logo-cache";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -133,17 +140,41 @@ const getCompanyInitials = (name: string): string => {
 };
 
 /**
+ * Хук статуса загрузки логотипа из общего модульного кэша (см. lib/logo-cache).
+ * До loaded — показываем скелет, при error — fallback-монограмму.
+ */
+const useLogoStatus = (url?: string): LogoStatus => {
+  const [status, setStatus] = useState<LogoStatus>(() =>
+    url ? getLogoStatus(url) : "idle",
+  );
+  useEffect(() => {
+    if (!url) {
+      setStatus("idle");
+      return;
+    }
+    setStatus(getLogoStatus(url));
+    return subscribeLogoStatus(url, setStatus);
+  }, [url]);
+  return status;
+};
+
+/**
  * Карточка-логотип поставщика.
  * Рендерит реальный logoImage если задан, иначе — монограмму на брендовом фоне.
+ *
+ * priority="hero" → loading=eager + fetchPriority=high (используется один раз
+ * на странице — для основного логотипа в hero). Все остальные — lazy.
  */
 const SupplierLogoCard = ({
   supplier,
   size = 80,
   className = "",
+  priority = "lazy",
 }: {
   supplier: MockSupplier;
   size?: 28 | 40 | 80;
   className?: string;
+  priority?: "hero" | "lazy";
 }) => {
   const initials = getCompanyInitials(supplier.companyName);
   const dim = `${size}px`;
@@ -155,19 +186,36 @@ const SupplierLogoCard = ({
       ? "ring-4 ring-background shadow-lg"
       : "ring-2 ring-background shadow-sm";
 
+  const status = useLogoStatus(supplier.logoImage);
+  const showImage = !!supplier.logoImage && status !== "error";
+  const showSkeleton = showImage && status !== "loaded";
+
   return (
     <div
       className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${className}`}
       style={{ width: dim, height: dim }}
       aria-label={`Логотип ${supplier.companyName}`}
     >
-      {supplier.logoImage ? (
-        <img
-          src={supplier.logoImage}
-          alt={`${supplier.companyName} logo`}
-          className="h-full w-full object-contain p-1"
-          loading="lazy"
-        />
+      {showImage ? (
+        <>
+          {showSkeleton && (
+            <Skeleton
+              aria-hidden
+              className="absolute inset-0 h-full w-full rounded-none"
+            />
+          )}
+          <img
+            src={supplier.logoImage}
+            alt={`${supplier.companyName} logo`}
+            className={`h-full w-full object-contain p-1 transition-opacity duration-200 ${
+              status === "loaded" ? "opacity-100" : "opacity-0"
+            }`}
+            loading={priority === "hero" ? "eager" : "lazy"}
+            decoding="async"
+            // @ts-expect-error — нестандартный атрибут, поддержан в Chromium/WebKit
+            fetchpriority={priority === "hero" ? "high" : "low"}
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80">
           <span
@@ -482,6 +530,35 @@ const SupplierProfile = () => {
   const shipmentCases = useMemo(() => (supplier ? buildShipmentCases(supplier) : []), [supplier]);
   const faqItems = useMemo(() => (supplier ? buildFaqItems(supplier) : []), [supplier]);
 
+  // Prefetch логотипов соседних профилей (prev + next 2) пока пользователь
+  // смотрит текущий — переход по ссылкам «Похожие поставщики» / каталог
+  // покажет логотип мгновенно (он уже в memory/HTTP cache).
+  useEffect(() => {
+    if (!supplier) return;
+    const idx = mockSuppliers.findIndex((s) => s.id === supplier.id);
+    if (idx < 0) return;
+    const neighbors = [
+      mockSuppliers[idx - 1],
+      mockSuppliers[idx + 1],
+      mockSuppliers[idx + 2],
+    ]
+      .filter(Boolean)
+      .map((s) => s.logoImage)
+      .filter((u): u is string => !!u);
+    if (neighbors.length === 0) return;
+    // Откладываем до idle, чтобы не конкурировать с критическими ресурсами
+    // текущей страницы.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number;
+    };
+    const run = () => prefetchLogos(neighbors);
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(run);
+    } else {
+      setTimeout(run, 300);
+    }
+  }, [supplier]);
+
   useEffect(() => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
@@ -607,7 +684,7 @@ const SupplierProfile = () => {
           <div className="container -mt-12 pb-6 md:-mt-14">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard supplier={supplier} size={80} />
+                <SupplierLogoCard supplier={supplier} size={80} priority="hero" />
 
                 <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                   {supplier.companyName}
