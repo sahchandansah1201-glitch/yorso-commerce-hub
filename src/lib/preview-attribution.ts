@@ -80,43 +80,65 @@ function normalizeMissing(missing: readonly string[]): string[] {
 }
 
 /**
+ * Тип ошибки разбора `registration_source` из sessionStorage.
+ *   - `null` — ошибки нет (либо ключа нет, либо source валидный),
+ *   - `"json_parse_error"` — JSON.parse бросил, исходная строка битая,
+ *   - `"invalid_shape"` — JSON распарсился, но форма не та
+ *     (нет поля `source`, не строка, пустая строка, массив и т.п.).
+ *
+ * Разделение этих двух случаев нужно, чтобы в логе было видно, где
+ * именно ломается цепочка: на сериализации (битая запись в storage)
+ * или на контракте формы (неожиданный writer выше по коду).
+ */
+type RegistrationSourceErrorType = "json_parse_error" | "invalid_shape";
+
+/**
  * Dev-only: компактная сводка контекста текущей попытки регистрации,
  * которую прикрепляем к каждому attribution-предупреждению, чтобы
  * быстрее восстанавливать цепочку click → registration в DevTools.
  *
  * Поле `missing` всегда нормализовано (без пустых, дедуплицировано,
  * стабильный порядок) — чтобы сравнение логов было детерминированным.
+ * Поле `registration_source_error` отделяет «битый JSON» от «валидный
+ * JSON неправильной формы».
  */
 function buildAttributionDebugSummary(missing: readonly string[]) {
   const attemptId = peekRegistrationAttemptId();
   let registrationSource: string | null = null;
-  let invalidSource = false;
+  let sourceError: RegistrationSourceErrorType | null = null;
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (raw) {
+      let parsed: unknown = undefined;
       try {
-        const parsed = JSON.parse(raw) as { source?: unknown } | null;
-        if (parsed && typeof parsed.source === "string" && parsed.source.length > 0) {
-          registrationSource = parsed.source;
-        } else {
-          // JSON распарсился, но форма неожиданная (нет поля source / не строка / пустая) —
-          // не теряем контекст: помечаем источник как invalid, чтобы было видно в логе.
-          invalidSource = true;
-        }
+        parsed = JSON.parse(raw);
       } catch {
-        // JSON битый — отдельный сигнал, отличающийся от «ключа просто нет».
-        invalidSource = true;
+        // JSON битый — отдельный сигнал, отличающийся от «неправильной формы».
+        sourceError = "json_parse_error";
+      }
+      if (sourceError === null) {
+        const candidate =
+          parsed && typeof parsed === "object" && !Array.isArray(parsed)
+            ? (parsed as { source?: unknown }).source
+            : undefined;
+        if (typeof candidate === "string" && candidate.length > 0) {
+          registrationSource = candidate;
+        } else {
+          // JSON распарсился, но форма неожиданная (нет source / не строка /
+          // пустая строка / массив / null) — помечаем как invalid_shape.
+          sourceError = "invalid_shape";
+        }
       }
     }
   } catch {
     // sessionStorage недоступен — debug helper не должен падать
   }
-  const augmentedMissing = invalidSource
-    ? [...missing, "invalid_registration_source"]
-    : missing;
+  const augmentedMissing =
+    sourceError !== null ? [...missing, "invalid_registration_source"] : missing;
   return {
     attempt_id: attemptId,
     registration_source: registrationSource,
+    registration_source_error: sourceError,
     missing: normalizeMissing(augmentedMissing),
   };
 }
