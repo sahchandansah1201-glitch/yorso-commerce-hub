@@ -33,7 +33,7 @@ import {
 import { fallbackOffersForLevel, findFallbackOfferById } from "@/lib/catalog-fallback";
 import analytics from "@/lib/analytics";
 
-const SOFT_FALLBACK_MS = 3500;
+const SOFT_FALLBACK_MS = 1500;
 const BACKGROUND_RETRY_MS = 12_000;
 
 /**
@@ -231,6 +231,7 @@ export const useResilientOffer = (
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    let softFallbackApplied = false;
     let backgroundTimer: number | undefined;
     let backgroundAttempt = 0;
     let lastErr: { code: string; httpStatus: number | null } = { code: "ERR", httpStatus: null };
@@ -239,6 +240,24 @@ export const useResilientOffer = (
     const correlationId = correlationIdRef.current;
     if (!dataRef.current) setLoading(true);
     setError(null);
+
+    // Soft-fallback: если за SOFT_FALLBACK_MS реальные данные не пришли —
+    // показываем mock-оффер, чтобы пользователь сразу увидел контент.
+    const softFallbackTimer = window.setTimeout(() => {
+      if (cancelled) return;
+      const fallback = findFallbackOfferById(id, level);
+      if (!fallback) return;
+      softFallbackApplied = true;
+      setData(fallback);
+      setUsingFallback(true);
+      setLoading(false);
+      analytics.track("catalog_soft_fallback_applied", {
+        level,
+        lastErrorCode: lastErr.code,
+        httpStatus: lastErr.httpStatus,
+        correlationId,
+      });
+    }, SOFT_FALLBACK_MS);
 
     const trackAttemptFail = (err: unknown, n: number) => {
       const code = extractCatalogErrorCode(err);
@@ -307,6 +326,7 @@ export const useResilientOffer = (
     fetchOfferByIdWithRetry(id, level, { signal: abort.signal, onAttemptFail: trackAttemptFail })
       .then((res) => {
         if (cancelled) return;
+        window.clearTimeout(softFallbackTimer);
         setData(res);
         setUsingFallback(false);
         setFailedAttempts(0);
@@ -314,23 +334,27 @@ export const useResilientOffer = (
       })
       .catch((e) => {
         if (cancelled) return;
+        window.clearTimeout(softFallbackTimer);
         console.error("[useResilientOffer] fetchOfferById failed", e);
-        const fallback = isRetriableCatalogError(e) ? findFallbackOfferById(id, level) : null;
-        if (fallback) {
-          setData(fallback);
-          setUsingFallback(true);
-          setError(null);
-          // Симметрично каталогу: фиксируем сам факт включения демо-данных.
-          analytics.track("catalog_soft_fallback_applied", {
-            level,
-            lastErrorCode: lastErr.code,
-            httpStatus: lastErr.httpStatus,
-            correlationId,
-          });
+        if (isRetriableCatalogError(e)) {
+          if (!softFallbackApplied) {
+            const fallback = findFallbackOfferById(id, level);
+            if (fallback) {
+              setData(fallback);
+              setUsingFallback(true);
+              setError(null);
+              analytics.track("catalog_soft_fallback_applied", {
+                level,
+                lastErrorCode: lastErr.code,
+                httpStatus: lastErr.httpStatus,
+                correlationId,
+              });
+            }
+          }
           scheduleBackgroundRetry();
           return;
         }
-        setError("Не удалось загрузить оффер");
+        if (!softFallbackApplied) setError("Не удалось загрузить оффер");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -339,6 +363,7 @@ export const useResilientOffer = (
     return () => {
       cancelled = true;
       abort.abort();
+      window.clearTimeout(softFallbackTimer);
       if (backgroundTimer) window.clearTimeout(backgroundTimer);
     };
     // failedAttempts намеренно не в deps — это счётчик, а не вход.
