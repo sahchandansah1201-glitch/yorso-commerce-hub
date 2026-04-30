@@ -18,10 +18,46 @@ export interface PreviewAttribution {
   ts: number;
 }
 
+/**
+ * Проверяет, что во входных данных attribution заполнены все ключевые
+ * поля цепочки click → registration. В dev-режиме шумит в консоль с
+ * явным указанием, какие поля пустые, чтобы быстрее ловить разрывы.
+ *
+ * Возвращает массив имён отсутствующих полей (пустой = всё ок).
+ */
+function validateAttributionShape(
+  source: string,
+  attr: Partial<Pick<PreviewAttribution, "supplier_id" | "species" | "form" | "href" | "access_level">> | null | undefined,
+): string[] {
+  const missing: string[] = [];
+  if (!attr) {
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.warn(`[debug] ${source}: attribution payload is null/undefined`);
+    }
+    return ["<all>"];
+  }
+  for (const key of ["supplier_id", "species", "form"] as const) {
+    const value = attr[key];
+    if (typeof value !== "string" || value.length === 0) {
+      missing.push(key);
+    }
+  }
+  if (missing.length > 0 && import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[debug] ${source}: preview_attribution неполная — поля ${missing.join(", ")} отсутствуют/пустые`,
+      attr,
+    );
+  }
+  return missing;
+}
+
 export function savePreviewAttribution(
   input: Omit<PreviewAttribution, "ts">,
 ): void {
   try {
+    validateAttributionShape("savePreviewAttribution", input);
     const record: PreviewAttribution = { ...input, ts: Date.now() };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
     if (import.meta.env.DEV) {
