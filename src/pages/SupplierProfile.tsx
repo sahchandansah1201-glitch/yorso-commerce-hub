@@ -44,6 +44,44 @@ import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
 
+/**
+ * Visual class for a product-form badge (HOG, Fillet, IQF, etc.).
+ * Form is public product metadata — shown at every access level.
+ */
+function formBadgeClass(form: string): string {
+  const f = form.toLowerCase();
+  if (f.includes("iqf")) return "bg-sky-100 text-sky-900 border-sky-200";
+  if (f.includes("hog") || f.includes("whole")) return "bg-amber-100 text-amber-900 border-amber-200";
+  if (f.includes("fillet") || f.includes("loin") || f.includes("saku") || f.includes("portion"))
+    return "bg-emerald-100 text-emerald-900 border-emerald-200";
+  if (f.includes("hoso") || f.includes("hlso") || f.includes("pd"))
+    return "bg-rose-100 text-rose-900 border-rose-200";
+  if (f.includes("block")) return "bg-slate-100 text-slate-900 border-slate-200";
+  return "bg-muted text-foreground border-border";
+}
+
+/**
+ * Detects whether a catalog item implies an IQF processing badge,
+ * based on the form string ("IQF", "Portions IQF", etc.).
+ */
+function hasIqfBadge(form: string): boolean {
+  return /\biqf\b/i.test(form);
+}
+
+/**
+ * Picks one headline certification from the supplier's certs list to
+ * surface on catalog cards. Only revealed at qualified_unlocked, since
+ * locked users already see a Catalog preview teaser, not full evidence.
+ */
+function pickHeadlineCert(certs: string[]): string | undefined {
+  const priority = ["ASC", "MSC", "BAP", "BAP 4★", "BRC", "IFS", "HACCP", "MSC CoC", "EU Approved"];
+  for (const p of priority) {
+    const hit = certs.find((c) => c.toUpperCase().startsWith(p.toUpperCase()));
+    if (hit) return hit;
+  }
+  return certs[0];
+}
+
 const responseLabel: Record<ResponseSignal, string> = {
   fast: "Replies within a day",
   normal: "Replies in 1–3 days",
