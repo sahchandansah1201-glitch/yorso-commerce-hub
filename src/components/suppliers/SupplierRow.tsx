@@ -158,9 +158,27 @@ const SupplierRowImpl = ({
               onClick={() => onSelect(supplier.id)}
               aria-pressed={isSelected}
               aria-label={`Select ${displayName} to review details`}
+              aria-describedby={`${metaId} ${aboutId}`}
               className="flex min-w-0 flex-1 cursor-pointer flex-col rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              <h3
+                id={titleId}
+                className="font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]"
+              >
+                {displayName}
+              </h3>
+              {isMasked && (
+                <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground md:mt-2">
+                  <Lock className="h-3 w-3" aria-hidden />
+                  Supplier identity restricted
+                </p>
+              )}
+
+              <div
+                id={metaId}
+                aria-label="Supplier overview"
+                className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground md:mt-2"
+              >
                 <span className="font-medium text-foreground/80">
                   {supplier.city}, {supplier.country}
                 </span>
@@ -173,17 +191,9 @@ const SupplierRowImpl = ({
                 </span>
               </div>
 
-              <h3 className="mt-1.5 font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:mt-2 md:text-lg md:[overflow-wrap:break-word]">
-                {displayName}
-              </h3>
-              {isMasked && (
-                <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground md:mt-2">
-                  <Lock className="h-3 w-3" aria-hidden />
-                  Supplier identity restricted
-                </p>
-              )}
-
               <p
+                id={aboutId}
+                aria-label="About supplier"
                 className="mt-2.5 line-clamp-2 min-h-[2.6rem] text-sm leading-relaxed text-foreground/85 md:mt-4"
                 title={aboutTeaser}
               >
@@ -192,29 +202,36 @@ const SupplierRowImpl = ({
 
               {/* Certificate badge row */}
               {supplier.certificationBadges.length > 0 && (
-                <div
+                <ul
+                  id={certsId}
                   className="mt-3 flex flex-wrap gap-1.5 md:mt-5"
-                  aria-label="Certifications"
+                  aria-label={`Certifications (${supplier.certificationBadges.length})`}
                 >
                   {supplier.certificationBadges.slice(0, 5).map((c) => (
-                    <span
+                    <li
                       key={c.code}
                       className="inline-flex items-center rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
                       title={c.label}
                     >
                       {c.label}
-                    </span>
+                    </li>
                   ))}
                   {supplier.certificationBadges.length > 5 && (
-                    <span className="text-[11px] text-muted-foreground">
+                    <li
+                      className="text-[11px] text-muted-foreground"
+                      aria-label={`${supplier.certificationBadges.length - 5} more certifications`}
+                    >
                       +{supplier.certificationBadges.length - 5}
-                    </span>
+                    </li>
                   )}
-                </div>
+                </ul>
               )}
 
               {/* Bottom signals */}
-              <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 text-xs md:pt-5">
+              <div
+                aria-label="Supplier signals"
+                className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 text-xs md:pt-5"
+              >
                 <span className="inline-flex items-center gap-1 text-foreground/80">
                   <span className="font-semibold tabular-nums text-foreground">
                     {supplier.activeOffersCount}
