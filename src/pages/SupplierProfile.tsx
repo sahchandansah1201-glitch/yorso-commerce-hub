@@ -564,14 +564,19 @@ const SupplierProfile = () => {
       "@type": "FAQPage",
       mainEntity: faqItems.map((f) => ({
         "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
+        name: t[f.qKey] as string,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: f.params
+            ? interpolate(t[f.aKey] as string, f.params)
+            : (t[f.aKey] as string),
+        },
       })),
     });
     return () => {
       script?.remove();
     };
-  }, [supplier, faqItems]);
+  }, [supplier, faqItems, t]);
 
   if (!supplier) {
     return (
@@ -579,12 +584,12 @@ const SupplierProfile = () => {
         <Header />
         <main className="flex-1 container py-16">
           <h1 className="font-heading text-2xl font-bold text-foreground">
-            Поставщик не найден
+            {t.supplier_notFound_title}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Возможно, ссылка устарела. Вернитесь в{" "}
+            {t.supplier_notFound_body}{" "}
             <Link to="/suppliers" className="text-primary underline">
-              каталог поставщиков
+              {t.supplier_notFound_link}
             </Link>
             .
           </p>
