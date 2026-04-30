@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldOff, Eye, BarChart3, AlertTriangle, Globe, Users, TrendingUp, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const buyerIcons = [AlertTriangle, Eye, ShieldOff, BarChart3];
 const supplierIcons = [Globe, Users, TrendingUp, ShieldCheck];
@@ -38,7 +39,7 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Link to="/register" onClick={() => analytics.track("value_register_buyer_click")}>
+            <Link to="/register" onClick={() => { analytics.track("value_register_buyer_click"); saveRegistrationSource("value_split_buyer"); }}>
               <Button className="mt-8 w-full gap-2 font-semibold">
                 {t.value_registerBuyer}
                 <ArrowRight className="h-4 w-4" />
@@ -65,7 +66,7 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Link to="/register" onClick={() => analytics.track("value_register_supplier_click")}>
+            <Link to="/register" onClick={() => { analytics.track("value_register_supplier_click"); saveRegistrationSource("value_split_supplier"); }}>
               <Button variant="outline" className="mt-8 w-full gap-2 font-semibold">
                 {t.value_registerSupplier}
                 <ArrowRight className="h-4 w-4" />

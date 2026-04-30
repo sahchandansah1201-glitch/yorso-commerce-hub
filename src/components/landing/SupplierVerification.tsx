@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, FileSearch, BadgeCheck, ArrowRight, XCircle, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics, { trackSectionImpression } from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const stepIcons = [FileSearch, ShieldCheck, BadgeCheck];
 
@@ -58,7 +59,7 @@ const SupplierVerification = () => {
 
         <div className="mt-12 text-center">
           <p className="text-sm text-accent-foreground/60">{t.verify_ctaHint}</p>
-          <Link to="/register" onClick={() => analytics.track("register_cta_midpage_click", { section: "supplier_verification" })}>
+          <Link to="/register" onClick={() => { analytics.track("register_cta_midpage_click", { section: "supplier_verification" }); saveRegistrationSource("trust_block"); }}>
             <Button size="lg" className="mt-4 gap-2 font-semibold">
               {t.verify_ctaBtn}
               <ArrowRight className="h-4 w-4" />

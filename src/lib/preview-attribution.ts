@@ -108,3 +108,56 @@ export function clearPendingPreviewAttribution(): void {
     // silent
   }
 }
+
+/**
+ * Простой source-маркер для CTA, ведущих на /register
+ * (hero, trust-блок, header, final CTA и т.д.). Используется
+ * `RegisterChoose` для атрибуции, когда нет более конкретного
+ * `PreviewAttribution`.
+ */
+const SOURCE_KEY = "yorso_registration_source";
+const SOURCE_TTL_MS = 30 * 60 * 1000;
+
+interface RegistrationSourceRecord {
+  source: string;
+  ts: number;
+}
+
+export function saveRegistrationSource(source: string): void {
+  try {
+    const record: RegistrationSourceRecord = { source, ts: Date.now() };
+    sessionStorage.setItem(SOURCE_KEY, JSON.stringify(record));
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log("[debug] registration_source saved:", record);
+    }
+  } catch {
+    // silent
+  }
+}
+
+export function readRegistrationSource(): string | null {
+  try {
+    const raw = sessionStorage.getItem(SOURCE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as RegistrationSourceRecord;
+    if (!parsed || typeof parsed.source !== "string" || typeof parsed.ts !== "number") {
+      return null;
+    }
+    if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
+      clearRegistrationSource();
+      return null;
+    }
+    return parsed.source;
+  } catch {
+    return null;
+  }
+}
+
+export function clearRegistrationSource(): void {
+  try {
+    sessionStorage.removeItem(SOURCE_KEY);
+  } catch {
+    // silent
+  }
+}

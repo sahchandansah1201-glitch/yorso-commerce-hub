@@ -5,6 +5,7 @@ import { Menu, X, Globe, ChevronDown, Bell, LogOut } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 import { useSignalAlerts } from "@/lib/watched-signals";
 import { AlertsPopover } from "@/components/alerts/AlertsPanel";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
@@ -174,7 +175,7 @@ const Header = () => {
               <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
                 <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
               </Link>
-              <Link to="/register" onClick={() => analytics.track("header_register_click")}>
+              <Link to="/register" onClick={() => { analytics.track("header_register_click"); saveRegistrationSource("header"); }}>
                 <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
               </Link>
             </>
@@ -236,7 +237,7 @@ const Header = () => {
                 <Link to="/signin" onClick={() => setMobileOpen(false)}>
                   <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
                 </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
+                <Link to="/register" onClick={() => { saveRegistrationSource("header"); setMobileOpen(false); }}>
                   <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
                 </Link>
               </>

@@ -22,6 +22,26 @@ import { getProvider, recordAnalyticsFailure } from "./analytics-provider";
 // ─── Common payload primitives ──────────────────────────────────────────────
 
 export type UserRole = "buyer" | "supplier" | "unknown";
+
+/**
+ * Источники, с которых пользователь стартовал регистрацию.
+ * Используется в `registration_start` и `registration_complete` для
+ * сравнения конверсии разных CTA.
+ */
+export type RegistrationSource =
+  | "direct"
+  | "supplier_preview"
+  | "hero_cta"
+  | "trust_block"
+  | "header"
+  | "final_cta"
+  | "value_split_buyer"
+  | "value_split_supplier"
+  | "supplier_profile"
+  | "offer_detail"
+  | "catalog_banner"
+  | "how_it_works"
+  | "for_suppliers";
 export type Surface =
   | "homepage"
   | "offers_list"
@@ -322,7 +342,7 @@ export interface EventPayloadMap {
     form?: string;
     href?: string;
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
-    source?: "supplier_preview" | "direct";
+    source?: RegistrationSource;
   };
   value_destination_selected: { country: string; role: UserRole };
 
@@ -447,8 +467,8 @@ export interface EventPayloadMap {
     form?: string;
     href?: string;
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
-    /** Source of attribution; "direct" when no preceding preview click is recorded. */
-    source: "supplier_preview" | "direct";
+    /** Source of attribution; "direct" when no preceding CTA/preview click is recorded. */
+    source: RegistrationSource;
   };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
