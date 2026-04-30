@@ -166,9 +166,9 @@ const NotFound = () => (
           We could not find this supplier. It may have been removed or the link
           is incorrect.
         </p>
-        <Link to="/suppliers" className="mt-5 inline-block">
-          <Button type="button">Back to suppliers</Button>
-        </Link>
+        <Button asChild type="button" className="mt-5">
+          <Link to="/suppliers">Back to suppliers</Link>
+        </Button>
       </div>
     </main>
     <Footer />
@@ -781,11 +781,9 @@ const SupplierProfile = () => {
 
                   <div className="flex flex-col gap-2">
                     {level === "anonymous_locked" ? (
-                      <Link to="/register" className="block">
-                        <Button type="button" className="w-full gap-2">
-                          {primaryCtaCopy(level)}
-                        </Button>
-                      </Link>
+                      <Button asChild type="button" className="w-full gap-2">
+                        <Link to="/register">{primaryCtaCopy(level)}</Link>
+                      </Button>
                     ) : level === "registered_locked" ? (
                       !hasSentRequest && !showRequestForm ? (
                         <Button
@@ -805,19 +803,20 @@ const SupplierProfile = () => {
                         {primaryCtaCopy(level)}
                       </Button>
                     )}
-                    <Link to="/suppliers" className="block">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full gap-2"
-                      >
+                    <Button
+                      asChild
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2"
+                    >
+                      <Link to="/suppliers">
                         <Star
                           className={cn("h-4 w-4 text-muted-foreground")}
                           aria-hidden
                         />
                         Back to suppliers
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
 
                   <dl className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
@@ -830,7 +829,9 @@ const SupplierProfile = () => {
                     <div>
                       <dt className="text-muted-foreground">Active offers</dt>
                       <dd className="mt-1 font-medium text-foreground tabular-nums">
-                        {supplier.activeOffersCount}
+                        {isUnlocked
+                          ? supplier.activeOffersCount
+                          : "Available after supplier approval"}
                       </dd>
                     </div>
                   </dl>
