@@ -13,6 +13,7 @@ import {
   clearRegistrationSource,
 } from "@/lib/preview-attribution";
 import type { RegistrationSource } from "@/lib/analytics";
+import { getRegistrationAttemptId } from "@/lib/registration-attempt";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterChoose = () => {
