@@ -19,7 +19,7 @@ import SignIn from "./pages/SignIn.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Offers from "./pages/Offers.tsx";
 import Suppliers from "./pages/Suppliers.tsx";
-import SupplierProfile from "./pages/SupplierProfile.tsx";
+
 import OfferDetail from "./pages/OfferDetail.tsx";
 import LegacyOfferRedirect from "./components/routing/LegacyOfferRedirect.tsx";
 import About from "./pages/About.tsx";
@@ -66,7 +66,6 @@ const App = () => (
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/offers/:id" element={<LegacyOfferRedirect><OfferDetail /></LegacyOfferRedirect>} />
                 <Route path="/suppliers" element={<Suppliers />} />
-                <Route path="/suppliers/:supplierId" element={<SupplierProfile />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/terms" element={<Terms />} />
