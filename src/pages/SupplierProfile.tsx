@@ -337,315 +337,349 @@ const SupplierProfile = () => {
           </div>
         </div>
 
-        {/* Supplier Trading Dossier — single integrated trading-card module */}
+        {/* Supplier dossier hero — banner + logo card + identity + right rail */}
         <section
           data-testid="supplier-profile-dossier-hero"
           className="bg-background"
         >
-          <div className="container py-5 md:py-6">
-            <div
-              data-testid="supplier-trading-dossier"
-              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
-            >
-              {/* Zone A — Trading header row: media | facts | access rail */}
-              <div className="grid gap-5 p-5 lg:grid-cols-[360px_minmax(0,1fr)_320px] lg:gap-5">
-                {/* Zone A left — media column */}
-                <div className="flex flex-col gap-2">
-                  <div className="relative h-[220px] w-full overflow-hidden rounded-lg bg-muted sm:h-[240px] lg:h-[260px] lg:w-[360px]">
-                    <img
-                      src={supplier.heroImage}
-                      alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
-                      <span aria-hidden className="text-sm leading-none">
-                        {flag || "🌐"}
-                      </span>
-                      <span>
-                        {supplier.country} · {supplier.city}
-                      </span>
-                    </div>
-                    {supplier.verificationLevel === "documents_reviewed" && (
-                      <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
-                        <BadgeCheck className="h-3 w-3" aria-hidden />
-                        Reviewed
+          <div
+            data-testid="supplier-trading-dossier"
+            className="relative"
+          >
+            {/* Panoramic banner */}
+            <div className="relative h-[180px] w-full overflow-hidden bg-muted md:h-[220px] lg:h-[260px]">
+              <img
+                src={supplier.heroImage}
+                alt={`${supplier.country} ${supplierTypeLabel[supplier.supplierType].toLowerCase()} reference`}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-gradient-to-r from-foreground/55 via-foreground/25 to-transparent"
+              />
+              <div className="absolute left-0 right-0 top-3 px-4 md:px-6">
+                <div className="container flex items-center gap-2 text-[11px] font-medium text-background/90">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-background/15 px-2 py-0.5 backdrop-blur-sm">
+                    <span aria-hidden className="text-sm leading-none">{flag || "🌐"}</span>
+                    {supplier.country} · {supplier.city}
+                  </span>
+                  {supplier.verificationLevel === "documents_reviewed" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2 py-0.5 text-background">
+                      <BadgeCheck className="h-3 w-3" aria-hidden />
+                      Reviewed by YORSO
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Body — pulled up under banner */}
+            <div className="container">
+              <div className="-mt-16 grid gap-6 pb-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8 lg:pb-10">
+                {/* Left column: logo card + identity + CTAs */}
+                <div className="min-w-0">
+                  {/* Logo card overlapping banner */}
+                  <div className="inline-flex h-[120px] w-[200px] items-center justify-center overflow-hidden rounded-lg border border-border bg-background p-3 shadow-md md:h-[140px] md:w-[240px]">
+                    {supplier.productCatalogPreview[0]?.image ? (
+                      <img
+                        src={supplier.productCatalogPreview[0].image}
+                        alt={`${displayName} logo or hero product`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Building2 className="h-10 w-10 text-muted-foreground" aria-hidden />
+                    )}
+                  </div>
+
+                  <div className="mt-5">
+                    <h1 className="font-heading text-[28px] font-bold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[32px]">
+                      {displayName}
+                    </h1>
+                    {isMasked && (
+                      <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                        <Lock className="h-3 w-3" aria-hidden />
+                        Supplier identity restricted
+                      </p>
+                    )}
+
+                    {/* Identity facts column */}
+                    <ul className="mt-4 space-y-1.5 text-[13px] text-foreground/85">
+                      <li className="inline-flex items-center gap-2">
+                        <CalendarDays className="h-4 w-4 text-primary" aria-hidden />
+                        В бизнесе с {supplier.inBusinessSinceYear}
+                      </li>
+                      <li className="inline-flex items-center gap-2">
+                        <Globe2 className="h-4 w-4 text-primary" aria-hidden />
+                        <span aria-hidden className="text-base leading-none">{flag || "🌐"}</span>
+                        {supplier.country}, {supplier.city}
+                      </li>
+                      {isUnlocked && supplier.website && (
+                        <li className="inline-flex items-center gap-2">
+                          <ExternalLink className="h-4 w-4 text-primary" aria-hidden />
+                          <a
+                            href={supplier.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Website"
+                            className="text-primary hover:underline"
+                          >
+                            {supplier.website.replace(/^https?:\/\//, "")}
+                          </a>
+                        </li>
+                      )}
+                      <li className="inline-flex items-center gap-2 text-foreground/75">
+                        <BadgeCheck className="h-4 w-4 text-primary" aria-hidden />
+                        {verificationLabel(supplier.verificationLevel)}
+                      </li>
+                      <li className="inline-flex items-center gap-2 text-foreground/75">
+                        <Activity className="h-4 w-4 text-muted-foreground" aria-hidden />
+                        {responseLabel[supplier.responseSignal]}
+                      </li>
+                    </ul>
+
+                    <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-foreground/85">
+                      {isUnlocked ? supplier.about : supplier.shortDescription}
+                    </p>
+
+                    {/* Product focus chips */}
+                    {supplier.productFocus.length > 0 && (
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <Fish className="h-3.5 w-3.5" aria-hidden />
+                          Фокус
+                        </span>
+                        {supplier.productFocus.slice(0, 4).map((p) => (
+                          <span
+                            key={p.species}
+                            className="inline-flex items-center rounded-full border border-border bg-muted/50 px-2.5 py-0.5 text-[12px] font-medium text-foreground/85"
+                          >
+                            {p.species}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
-                  {supplier.productCatalogPreview.length > 0 && (
-                    <ul className="flex gap-1.5" aria-label="Product previews">
-                      {supplier.productCatalogPreview.slice(0, 3).map((item, i) => (
-                        <li
-                          key={`thumb-${i}`}
-                          className="relative h-[56px] w-[78px] overflow-hidden rounded bg-muted"
-                          title={item.species}
-                        >
-                          <img
-                            src={item.image}
-                            alt={`${item.species} preview`}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover"
-                          />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
 
-                {/* Zone A center — supplier facts */}
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
-                    <span className="font-semibold uppercase tracking-[0.14em] text-foreground/70">
-                      {supplierTypeLabel[supplier.supplierType]}
-                    </span>
-                    <span aria-hidden>·</span>
-                    <span className="inline-flex items-center gap-1">
-                      <CalendarDays className="h-3 w-3" aria-hidden />
-                      Since {supplier.inBusinessSinceYear}
-                    </span>
-                    {supplier.productFocus.length > 0 && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Fish className="h-3 w-3" aria-hidden />
-                          {supplier.productFocus.slice(0, 2).map((p) => p.species).join(", ")}
-                          {supplier.productFocus.length > 2 && (
-                            <span className="text-muted-foreground"> +{supplier.productFocus.length - 2}</span>
-                          )}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <h1 className="mt-1.5 font-heading text-[24px] font-bold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-[28px]">
-                    {displayName}
-                  </h1>
-                  {isMasked && (
-                    <p className="mt-1 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                      <Lock className="h-3 w-3" aria-hidden />
-                      Supplier identity restricted
-                    </p>
-                  )}
-                  <p className="mt-2 line-clamp-2 max-w-2xl text-[13px] leading-relaxed text-foreground/85">
-                    {isUnlocked ? supplier.about : supplier.shortDescription}
-                  </p>
-
-                  {/* Compact trust row */}
-                  <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[12px] text-foreground/85">
-                    <li className="inline-flex items-center gap-1.5">
-                      <BadgeCheck className="h-3.5 w-3.5 flex-shrink-0 text-primary" aria-hidden />
-                      <span>{verificationLabel(supplier.verificationLevel)}</span>
-                    </li>
-                    <li className="inline-flex items-center gap-1.5">
-                      <Activity className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                      <span>{responseLabel[supplier.responseSignal]}</span>
-                    </li>
-                    <li className="inline-flex items-center gap-1.5">
-                      <DocIcon className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
-                      <span>{docsLabel[supplier.documentReadiness]}</span>
-                    </li>
-                  </ul>
-
-                  {/* Compact certification line */}
-                  {supplier.certificationBadges.length > 0 && (
-                    <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-                      <ShieldCheck className="h-3 w-3 flex-shrink-0" aria-hidden />
-                      <span className="uppercase tracking-wider">Certifications:</span>
-                      {supplier.certificationBadges.slice(0, 5).map((c) => (
-                        <span
-                          key={c.code}
-                          className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-foreground/80"
-                          title={c.label}
-                        >
-                          {c.label}
-                        </span>
-                      ))}
-                    </p>
-                  )}
-                </div>
-
-                {/* Zone A right — access / action rail (integrated, not a card) */}
+                {/* Right rail: deliveries + certifications + access */}
                 <aside
                   aria-label="Access and next action"
                   data-testid="supplier-profile-access-panel"
-                  className="lg:border-l lg:border-border lg:bg-muted/30 lg:-my-5 lg:-mr-5 lg:py-5 lg:pl-5 lg:pr-5"
+                  className="lg:mt-2"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                      <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-                      {isUnlocked ? "Access granted" : "Access required"}
-                    </div>
-                    {isUnlocked && (
-                      <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900">
-                        Unlocked
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex flex-col gap-2">
-                    {level === "anonymous_locked" ? (
-                      <Button asChild type="button" className="w-full gap-2">
-                        <Link to="/register">{primaryCtaCopy(level)}</Link>
-                      </Button>
-                    ) : level === "registered_locked" && !hasSentRequest ? (
-                      <SupplierAccessRequestPanel
-                        supplierId={supplier.id}
-                        supplierMaskedName={supplier.maskedName}
-                        onSent={(req) => setAccessRequest(req)}
-                      />
-                    ) : level === "registered_locked" ? null : (
-                      <Button
-                        type="button"
-                        className="w-full gap-2"
-                        onClick={handlePrimaryAction}
-                      >
-                        {primaryCtaCopy(level)}
-                      </Button>
-                    )}
-                    {hasSentRequest && (
-                      <SupplierAccessRequestSent
-                        request={accessRequest!}
-                        supplierMaskedName={supplier.maskedName}
-                      />
-                    )}
-                  </div>
-
-                  {!isUnlocked && (
-                    <ul className="mt-3 space-y-1 text-[12px] leading-snug text-foreground/80">
-                      <li className="flex gap-1.5">
-                        <span aria-hidden className="text-muted-foreground">·</span>
-                        <span>Unlock exact prices and full commercial terms.</span>
-                      </li>
-                      <li className="flex gap-1.5">
-                        <span aria-hidden className="text-muted-foreground">·</span>
-                        <span>See supplier identity and contact channels.</span>
-                      </li>
-                    </ul>
-                  )}
-
-                  {isUnlocked && (
-                    <div className="mt-3 border-t border-border pt-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Contact channels
+                  <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+                    {/* Delivery countries */}
+                    <div>
+                      <p className="font-heading text-[15px] font-semibold text-foreground">
+                        Страны доставки
                       </p>
-                      {(supplier.website || supplier.whatsapp) ? (
-                        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Supplier contact channels">
-                          {supplier.website && (
-                            <a
-                              href={supplier.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
+                      <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Delivery countries">
+                        {previewDeliveries.slice(0, 10).map((d) => (
+                          <li
+                            key={d.code}
+                            title={d.name}
+                            className="inline-flex h-6 w-9 items-center justify-center overflow-hidden rounded border border-border bg-background text-base leading-none"
+                          >
+                            <span aria-hidden>{countryCodeToFlag(d.code) || "🌐"}</span>
+                          </li>
+                        ))}
+                        {isUnlocked && supplier.deliveryCountriesTotal > previewDeliveries.length && (
+                          <li className="inline-flex h-6 items-center rounded border border-border bg-background px-2 text-[11px] font-medium text-muted-foreground">
+                            и ещё {supplier.deliveryCountriesTotal - previewDeliveries.length}
+                          </li>
+                        )}
+                        {!isUnlocked && (
+                          <li className="inline-flex h-6 items-center rounded border border-border bg-background px-2 text-[11px] font-medium text-muted-foreground">
+                            <Lock className="mr-1 h-3 w-3" aria-hidden />
+                            ещё после доступа
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+
+                    {/* Certifications */}
+                    {supplier.certificationBadges.length > 0 && (
+                      <div className="mt-5 border-t border-border pt-4">
+                        <p className="font-heading text-[15px] font-semibold text-foreground">
+                          Сертификаты
+                        </p>
+                        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Certifications">
+                          {supplier.certificationBadges.slice(0, 6).map((c) => (
+                            <li
+                              key={c.code}
+                              title={c.label}
+                              className="inline-flex items-center gap-1 rounded border border-border bg-muted/40 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-foreground/80"
                             >
-                              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                              Website
-                            </a>
-                          )}
-                          {supplier.whatsapp && (
-                            <a
-                              href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
-                            >
-                              <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-                              WhatsApp
-                            </a>
-                          )}
+                              <ShieldCheck className="h-3 w-3 text-primary" aria-hidden />
+                              {c.label}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Access state + CTA */}
+                    <div className="mt-5 border-t border-border pt-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                          <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                          {isUnlocked ? "Access granted" : "Access required"}
                         </div>
+                        {isUnlocked && (
+                          <span className="inline-flex items-center rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900">
+                            Unlocked
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-3 flex flex-col gap-2">
+                        {level === "anonymous_locked" ? (
+                          <Button asChild type="button" className="w-full gap-2">
+                            <Link to="/register">{primaryCtaCopy(level)}</Link>
+                          </Button>
+                        ) : level === "registered_locked" && !hasSentRequest ? (
+                          <SupplierAccessRequestPanel
+                            supplierId={supplier.id}
+                            supplierMaskedName={supplier.maskedName}
+                            onSent={(req) => setAccessRequest(req)}
+                          />
+                        ) : level === "registered_locked" ? null : (
+                          <div className="flex flex-col gap-2">
+                            <Button
+                              type="button"
+                              className="w-full gap-2"
+                              onClick={handlePrimaryAction}
+                            >
+                              <MessageCircle className="h-4 w-4" aria-hidden />
+                              Отправить сообщение
+                            </Button>
+                            {supplier.whatsapp && (
+                              <Button asChild type="button" variant="outline" className="w-full gap-2">
+                                <a
+                                  href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <MessageCircle className="h-4 w-4" aria-hidden />
+                                  WhatsApp
+                                </a>
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        {hasSentRequest && (
+                          <SupplierAccessRequestSent
+                            request={accessRequest!}
+                            supplierMaskedName={supplier.maskedName}
+                          />
+                        )}
+                      </div>
+
+                      {!isUnlocked && (
+                        <ul className="mt-3 space-y-1 text-[12px] leading-snug text-foreground/80">
+                          <li className="flex gap-1.5">
+                            <span aria-hidden className="text-muted-foreground">·</span>
+                            <span>Unlock exact prices and full commercial terms.</span>
+                          </li>
+                          <li className="flex gap-1.5">
+                            <span aria-hidden className="text-muted-foreground">·</span>
+                            <span>See supplier identity and contact channels.</span>
+                          </li>
+                        </ul>
+                      )}
+
+                      {isUnlocked ? (
+                        <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3 text-[11px]">
+                          <div>
+                            <dt className="text-muted-foreground">Response speed</dt>
+                            <dd className="mt-0.5 font-semibold text-foreground">
+                              {responseLabel[supplier.responseSignal]}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">Active offers</dt>
+                            <dd className="mt-0.5 font-semibold text-foreground tabular-nums">
+                              {supplier.activeOffersCount}
+                            </dd>
+                          </div>
+                        </dl>
                       ) : (
-                        <p className="mt-1.5 text-[11px] text-muted-foreground">
-                          Direct channels available on request.
+                        <p className="mt-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
+                          Active offers and supplier response details available after supplier approval.
                         </p>
                       )}
                     </div>
-                  )}
-
-                  {isUnlocked ? (
-                    <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-border pt-3 text-[11px]">
-                      <div>
-                        <dt className="text-muted-foreground">Response speed</dt>
-                        <dd className="mt-0.5 font-semibold text-foreground">
-                          {responseLabel[supplier.responseSignal]}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-muted-foreground">Active offers</dt>
-                        <dd className="mt-0.5 font-semibold text-foreground tabular-nums">
-                          {supplier.activeOffersCount}
-                        </dd>
-                      </div>
-                    </dl>
-                  ) : (
-                    <p className="mt-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
-                      Active offers and supplier response details available after supplier approval.
-                    </p>
-                  )}
+                  </div>
                 </aside>
               </div>
+            </div>
 
-              {/* Zone B — Evidence strip: 4 cells, internal dividers, no card boxes */}
-              <div
-                data-testid="supplier-trading-dossier-evidence"
-                className="grid grid-cols-2 divide-y divide-border border-t border-border sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x"
-              >
-                <div className="px-4 py-3 sm:border-b sm:border-border lg:border-b-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Product focus
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
-                    {supplier.productFocus.length > 0
-                      ? supplier.productFocus
-                          .slice(0, 2)
-                          .map((p) => `${p.species} (${p.forms})`)
-                          .join(" · ")
-                      : "Seafood procurement"}
-                  </p>
-                </div>
-                <div className="border-l border-border px-4 py-3 sm:border-b sm:border-border lg:border-b-0">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Commercial terms
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
-                    {isUnlocked
-                      ? (() => {
-                          const incoterms = Array.from(
-                            new Set(
-                              supplierOffers
-                                .map((o) => o.commercial?.incoterm)
-                                .filter((x): x is string => !!x),
-                            ),
-                          );
-                          return incoterms.length > 0
-                            ? incoterms.slice(0, 3).join(", ")
-                            : "Confirmed with supplier";
-                        })()
-                      : "Terms after access"}
-                  </p>
-                </div>
-                <div className="px-4 py-3 lg:border-l lg:border-border">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Documents
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
-                    {isUnlocked
-                      ? docsLabel[supplier.documentReadiness]
-                      : "Documents available after approval"}
-                  </p>
-                </div>
-                <div className="border-l border-border px-4 py-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Delivery
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
-                    {previewDeliveries.length > 0
-                      ? previewDeliveries.slice(0, 4).map((d) => d.name).join(", ")
-                      : "On request"}
-                    {!isUnlocked && (
-                      <span className="block text-[11px] font-normal text-muted-foreground">
-                        Full geography after approval
-                      </span>
-                    )}
-                  </p>
+            {/* Evidence strip — kept for IA contract, slim divider band below hero */}
+            <div className="border-y border-border bg-muted/30">
+              <div className="container">
+                <div
+                  data-testid="supplier-trading-dossier-evidence"
+                  className="grid grid-cols-2 lg:grid-cols-4"
+                >
+                  <div className="border-r border-border px-4 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Product focus
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
+                      {supplier.productFocus.length > 0
+                        ? supplier.productFocus
+                            .slice(0, 2)
+                            .map((p) => `${p.species} (${p.forms})`)
+                            .join(" · ")
+                        : "Seafood procurement"}
+                    </p>
+                  </div>
+                  <div className="px-4 py-3 lg:border-r lg:border-border">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Commercial terms
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
+                      {isUnlocked
+                        ? (() => {
+                            const incoterms = Array.from(
+                              new Set(
+                                supplierOffers
+                                  .map((o) => o.commercial?.incoterm)
+                                  .filter((x): x is string => !!x),
+                              ),
+                            );
+                            return incoterms.length > 0
+                              ? incoterms.slice(0, 3).join(", ")
+                              : "Confirmed with supplier";
+                          })()
+                        : "Terms after access"}
+                    </p>
+                  </div>
+                  <div className="border-r border-border border-t border-t-border px-4 py-3 lg:border-t-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Documents
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
+                      {isUnlocked
+                        ? docsLabel[supplier.documentReadiness]
+                        : "Documents available after approval"}
+                    </p>
+                  </div>
+                  <div className="border-t border-border px-4 py-3 lg:border-t-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Delivery
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
+                      {previewDeliveries.length > 0
+                        ? previewDeliveries.slice(0, 4).map((d) => d.name).join(", ")
+                        : "On request"}
+                      {!isUnlocked && (
+                        <span className="block text-[11px] font-normal text-muted-foreground">
+                          Full geography after approval
+                        </span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
