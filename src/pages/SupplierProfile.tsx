@@ -199,10 +199,17 @@ const SupplierLogoCard = ({
   const showImage = !!supplier.logoImage && status !== "error";
   const showSkeleton = showImage && status !== "loaded";
 
-  // Для hero — адаптивные классы (mobile 80 → md 86), плавный transition.
-  // Для остальных размеров — фиксированный inline-размер как раньше.
+  // Для hero — адаптивные классы (mobile 80 → md 86) с плавным transition.
+  // Брейкпоинт md (768px) срабатывает в т.ч. при смене ориентации
+  // (768×1024 portrait ↔ 1024×768 landscape), поэтому переход одинаково
+  // плавный для resize и для rotate. motion-reduce — для accessibility.
   const sizeClasses = isHero
-    ? "h-20 w-20 md:h-[86px] md:w-[86px] transition-[width,height] duration-200 ease-out"
+    ? [
+        "h-20 w-20 md:h-[86px] md:w-[86px]",
+        "transition-[width,height,box-shadow] duration-300 ease-out",
+        "motion-reduce:transition-none motion-reduce:duration-0",
+        "[will-change:width,height]",
+      ].join(" ")
     : "";
   const sizeStyle: React.CSSProperties | undefined = isHero
     ? undefined
@@ -219,7 +226,10 @@ const SupplierLogoCard = ({
           {showSkeleton && (
             <Skeleton
               aria-hidden
-              className="absolute inset-0 h-full w-full rounded-none"
+              // transition-none — скелетон сам не анимирует свои размеры,
+              // он просто растягивается inset-0 вместе с родителем, поэтому
+              // pulse не «дёргается» во время resize/rotate-перехода.
+              className="absolute inset-0 h-full w-full rounded-none transition-none"
             />
           )}
           <img
