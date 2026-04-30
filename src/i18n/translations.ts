@@ -896,6 +896,181 @@ type TranslationKeys = {
   offerDetail_supplierProfileLocked: string;
   offerDetail_basisCountAvailable: string;
   offerDetail_indicativePrice: string;
+
+  // Supplier Profile — breadcrumbs / not found
+  supplier_breadcrumb_home: string;
+  supplier_breadcrumb_suppliers: string;
+  supplier_notFound_title: string;
+  supplier_notFound_body: string;
+  supplier_notFound_link: string;
+  // Supplier Profile — hero / identity
+  supplier_logo_aria: string;
+  supplier_identity_subline: string; // {type} · {years} · {offers}
+  supplier_yearsOnMarket: string; // {n} {plural}
+  supplier_yearsOnMarket_pluralOne: string;
+  supplier_yearsOnMarket_pluralFew: string;
+  supplier_yearsOnMarket_pluralMany: string;
+  supplier_activeOffers: string; // {n} active offers
+  supplier_inBusinessSince: string; // {year}
+  supplier_copySmartLink: string;
+  supplier_copySmartLink_short: string;
+  supplier_copySmartLink_toastOk: string;
+  supplier_copySmartLink_toastFail: string;
+  supplier_sendMessage: string;
+  supplier_sendMessage_toast_title: string;
+  supplier_sendMessage_toast_desc: string;
+  supplier_writeToSupplier: string;
+  // Supplier Profile — supplier types
+  supplier_type_producer: string;
+  supplier_type_processor: string;
+  supplier_type_exporter: string;
+  supplier_type_distributor: string;
+  supplier_type_trader: string;
+  // Supplier Profile — tabs
+  supplier_tab_about: string;
+  supplier_tab_catalog: string; // {n}
+  supplier_tab_passport: string;
+  supplier_tab_cases: string;
+  supplier_tab_faq: string;
+  // Supplier Profile — about
+  supplier_about_company: string;
+  supplier_about_productFocus: string;
+  supplier_about_trustBasis: string;
+  supplier_about_certifications: string;
+  supplier_about_deliveryGeo: string;
+  supplier_about_deliveryCountriesCount: string; // Delivery to {n} countries
+  supplier_about_deliveryCountriesShown: string; // shown {n}, {rest} more
+  supplier_about_catalogEmpty: string;
+  // Supplier Profile — legal details
+  supplier_legal_title: string;
+  supplier_legal_subtitle: string;
+  supplier_legal_legalForm: string;
+  supplier_legal_founded: string;
+  supplier_legal_jurisdiction: string;
+  supplier_legal_disclaimer: string;
+  // Supplier Profile — trust facts
+  supplier_trust_type: string;
+  supplier_trust_yearsOnMarket: string;
+  supplier_trust_activeOffers: string;
+  supplier_trust_documents: string;
+  supplier_trust_responseSpeed: string;
+  supplier_trust_repeatDeals: string;
+  supplier_trust_repeatDeals_value: string;
+  supplier_response_fast: string;
+  supplier_response_normal: string;
+  supplier_response_slow: string;
+  supplier_docs_ready: string;
+  supplier_docs_partial: string;
+  supplier_docs_onRequest: string;
+  // Supplier Profile — passport (production / cold / logistics)
+  supplier_passport_nav_certs: string;
+  supplier_passport_nav_production: string;
+  supplier_passport_nav_logistics: string;
+  supplier_passport_nav_aria: string;
+  supplier_passport_certs_title: string;
+  supplier_passport_certs_subtitle: string;
+  supplier_passport_certs_disclaimer: string;
+  supplier_passport_production_title: string;
+  supplier_passport_production_dailyTons: string;
+  supplier_passport_production_lines: string;
+  supplier_passport_production_staff: string;
+  supplier_passport_production_staffValue: string; // about {n}
+  supplier_passport_production_catalog: string;
+  supplier_passport_production_catalogValue: string; // {n} SKU
+  supplier_passport_production_dailyTonsValue: string; // {n} t / day
+  supplier_passport_cold_title: string;
+  supplier_passport_cold_storage: string;
+  supplier_passport_cold_storageValue: string; // {n} t simultaneous storage
+  supplier_passport_cold_blast: string;
+  supplier_passport_cold_blastValue: string; // {n} t / day
+  supplier_passport_cold_temp: string;
+  supplier_passport_cold_glaze: string;
+  supplier_passport_cold_glazeValue: string;
+  supplier_passport_formats_title: string;
+  supplier_passport_qc_title: string;
+  supplier_passport_qc_b1: string;
+  supplier_passport_qc_b2: string;
+  supplier_passport_qc_b3: string;
+  supplier_passport_qc_b4: string;
+  supplier_passport_estNote: string;
+  supplier_passport_logistics_title: string;
+  supplier_passport_logistics_incoterms: string;
+  supplier_passport_logistics_minBatch: string;
+  supplier_passport_logistics_minBatchValue: string; // from {n} t / SKU
+  supplier_passport_logistics_transit: string;
+  supplier_passport_logistics_transitValue: string; // {min}–{max} days
+  supplier_passport_logistics_containers: string;
+  supplier_passport_temp_title: string;
+  supplier_passport_temp_reefer: string;
+  supplier_passport_temp_logger: string;
+  supplier_passport_temp_loggerValue: string;
+  supplier_passport_temp_seal: string;
+  supplier_passport_temp_sealValue: string;
+  supplier_passport_temp_insurance: string;
+  supplier_passport_temp_insuranceValue: string;
+  supplier_passport_docs_title: string;
+  supplier_passport_docs_b1: string;
+  supplier_passport_docs_b2: string;
+  supplier_passport_docs_b3: string;
+  supplier_passport_docs_b4: string;
+  supplier_passport_docs_b5: string;
+  supplier_passport_docs_b6: string;
+  supplier_passport_lead_title: string;
+  supplier_passport_lead_b1: string;
+  supplier_passport_lead_b2: string;
+  supplier_passport_lead_b3: string;
+  supplier_passport_unit_tonsPerDay: string;
+  supplier_passport_unit_days: string;
+  // Supplier Profile — shipment cases
+  supplier_cases_title: string;
+  supplier_cases_intro: string;
+  supplier_cases_buyerType_retail: string;
+  supplier_cases_buyerType_horeca: string;
+  supplier_cases_buyerType_wholesale: string;
+  supplier_cases_caseTitle_de: string; // {product} delivery to retail chain, Germany
+  supplier_cases_caseTitle_fr: string;
+  supplier_cases_caseTitle_ae: string;
+  supplier_cases_destination_de: string;
+  supplier_cases_destination_fr: string;
+  supplier_cases_destination_ae: string;
+  supplier_cases_date_oct2024: string;
+  supplier_cases_date_jul2024: string;
+  supplier_cases_date_dec2023: string;
+  supplier_cases_notes_de: string;
+  supplier_cases_notes_fr: string;
+  supplier_cases_notes_ae: string;
+  supplier_cases_factProduct: string;
+  supplier_cases_factVolume: string;
+  supplier_cases_factBasis: string;
+  supplier_cases_volumeTons: string; // {n} t
+  supplier_cases_photoReportTitle: string;
+  supplier_cases_photoReportNote: string;
+  supplier_cases_photoCaption_loading: string;
+  supplier_cases_photoCaption_logger: string;
+  supplier_cases_photoCaption_seal: string;
+  supplier_cases_photoCaption_docs: string;
+  supplier_cases_photoCaption_pallets: string;
+  supplier_cases_photoCaption_label: string;
+  supplier_cases_photoCaption_tempLog: string;
+  supplier_cases_photoCaption_survey: string;
+  supplier_cases_photoCaption_loadingHC: string;
+  supplier_cases_defaultProduct: string;
+  // Supplier Profile — FAQ
+  supplier_faq_title: string;
+  supplier_faq_q1: string;
+  supplier_faq_a1: string; // {n}
+  supplier_faq_q2: string;
+  supplier_faq_a2: string;
+  supplier_faq_q3: string;
+  supplier_faq_a3: string;
+  supplier_faq_q4: string;
+  supplier_faq_a4: string;
+  supplier_faq_q5: string;
+  supplier_faq_a5: string;
+  supplier_faq_q6: string;
+  supplier_faq_a6: string;
+  supplier_faq_noAnswerTitle: string;
+  supplier_faq_noAnswerBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1850,6 +2025,172 @@ const en: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Unlock supplier profile",
   offerDetail_basisCountAvailable: "{n} delivery bases available",
   offerDetail_indicativePrice: "Indicative range",
+
+  // Supplier Profile
+  supplier_breadcrumb_home: "Home",
+  supplier_breadcrumb_suppliers: "Suppliers",
+  supplier_notFound_title: "Supplier not found",
+  supplier_notFound_body: "The link may be outdated. Return to the",
+  supplier_notFound_link: "supplier directory",
+  supplier_logo_aria: "{name} logo",
+  supplier_identity_subline: "{type} · {years} · {offers}",
+  supplier_yearsOnMarket: "{n} {plural} on the market",
+  supplier_yearsOnMarket_pluralOne: "year",
+  supplier_yearsOnMarket_pluralFew: "years",
+  supplier_yearsOnMarket_pluralMany: "years",
+  supplier_activeOffers: "{n} active offers",
+  supplier_inBusinessSince: "In business since {year}",
+  supplier_copySmartLink: "Copy smart-link",
+  supplier_copySmartLink_short: "Smart-link",
+  supplier_copySmartLink_toastOk: "Smart-link copied",
+  supplier_copySmartLink_toastFail: "Could not copy",
+  supplier_sendMessage: "SEND MESSAGE",
+  supplier_sendMessage_toast_title: "Message to supplier",
+  supplier_sendMessage_toast_desc: "Request prepared. A manager will contact you.",
+  supplier_writeToSupplier: "Message supplier",
+  supplier_type_producer: "Producer",
+  supplier_type_processor: "Processor",
+  supplier_type_exporter: "Exporter",
+  supplier_type_distributor: "Distributor",
+  supplier_type_trader: "Trader",
+  supplier_tab_about: "About supplier",
+  supplier_tab_catalog: "Catalog ({n})",
+  supplier_tab_passport: "Production passport",
+  supplier_tab_cases: "Shipment reports & cases",
+  supplier_tab_faq: "FAQ",
+  supplier_about_company: "About the company",
+  supplier_about_productFocus: "Product focus",
+  supplier_about_trustBasis: "Trust basis",
+  supplier_about_certifications: "Certifications",
+  supplier_about_deliveryGeo: "Delivery geography",
+  supplier_about_deliveryCountriesCount: "Delivery to {n} countries",
+  supplier_about_deliveryCountriesShown: "shown {n}, {rest} more",
+  supplier_about_catalogEmpty: "Catalog has not been published yet.",
+  supplier_legal_title: "Legal details",
+  supplier_legal_subtitle: "For counterparty verification in national registries",
+  supplier_legal_legalForm: "Legal form",
+  supplier_legal_founded: "Founded",
+  supplier_legal_jurisdiction: "Jurisdiction",
+  supplier_legal_disclaimer: "Details provided by the supplier and verified by YORSO at onboarding. The full document set is available in the «Production passport» tab.",
+  supplier_trust_type: "Type",
+  supplier_trust_yearsOnMarket: "Years on market",
+  supplier_trust_activeOffers: "Active offers",
+  supplier_trust_documents: "Documents",
+  supplier_trust_responseSpeed: "Response speed",
+  supplier_trust_repeatDeals: "Repeat deals",
+  supplier_trust_repeatDeals_value: "around 60%",
+  supplier_response_fast: "under 4 h",
+  supplier_response_normal: "under 24 h",
+  supplier_response_slow: "over 24 h",
+  supplier_docs_ready: "ready",
+  supplier_docs_partial: "partial",
+  supplier_docs_onRequest: "on request",
+  supplier_passport_nav_certs: "Certifications & audits",
+  supplier_passport_nav_production: "Production & capacity",
+  supplier_passport_nav_logistics: "Logistics & delivery terms",
+  supplier_passport_nav_aria: "Production passport sections",
+  supplier_passport_certs_title: "Certifications & audits",
+  supplier_passport_certs_subtitle: "Confirmed industry certifications and audits. Originals and validity dates are shared under NDA after access is requested.",
+  supplier_passport_certs_disclaimer: "Certification logos are trademarks of their respective owners and are used to indicate the programs.",
+  supplier_passport_production_title: "Production capacity",
+  supplier_passport_production_dailyTons: "Daily processing",
+  supplier_passport_production_lines: "Production lines",
+  supplier_passport_production_staff: "Plant staff",
+  supplier_passport_production_staffValue: "around {n}",
+  supplier_passport_production_catalog: "Product catalog",
+  supplier_passport_production_catalogValue: "{n} SKU",
+  supplier_passport_production_dailyTonsValue: "{n} t / day",
+  supplier_passport_cold_title: "Cold storage & freezing",
+  supplier_passport_cold_storage: "Cold storage",
+  supplier_passport_cold_storageValue: "{n} t simultaneous storage",
+  supplier_passport_cold_blast: "Blast freezing",
+  supplier_passport_cold_blastValue: "{n} t / day",
+  supplier_passport_cold_temp: "Temperature range",
+  supplier_passport_cold_glaze: "Glaze",
+  supplier_passport_cold_glazeValue: "5–12% control on request",
+  supplier_passport_formats_title: "Product formats",
+  supplier_passport_qc_title: "Quality control",
+  supplier_passport_qc_b1: "Internal QC checklist on every batch",
+  supplier_passport_qc_b2: "Lab tests: microbiology, histamine, heavy metals",
+  supplier_passport_qc_b3: "Standard photo report on loading",
+  supplier_passport_qc_b4: "Independent survey (SGS / Bureau Veritas) — on request",
+  supplier_passport_estNote: "Some figures are estimates and are confirmed when access is requested.",
+  supplier_passport_logistics_title: "Delivery terms",
+  supplier_passport_logistics_incoterms: "Incoterms",
+  supplier_passport_logistics_minBatch: "Minimum batch",
+  supplier_passport_logistics_minBatchValue: "from {n} t / SKU",
+  supplier_passport_logistics_transit: "Transit to main ports",
+  supplier_passport_logistics_transitValue: "{min}–{max} days",
+  supplier_passport_logistics_containers: "Container types",
+  supplier_passport_temp_title: "Temperature regime & integrity",
+  supplier_passport_temp_reefer: "Reefer temperature",
+  supplier_passport_temp_logger: "Temperature logger",
+  supplier_passport_temp_loggerValue: "installed on every batch",
+  supplier_passport_temp_seal: "Sealing",
+  supplier_passport_temp_sealValue: "per protocol, seal photo provided",
+  supplier_passport_temp_insurance: "Cargo insurance",
+  supplier_passport_temp_insuranceValue: "CIF: ICC (A), 110% of invoice",
+  supplier_passport_docs_title: "Per-batch documents",
+  supplier_passport_docs_b1: "Health Certificate",
+  supplier_passport_docs_b2: "Certificate of Origin (EUR.1 when applicable)",
+  supplier_passport_docs_b3: "Certificate of Analysis",
+  supplier_passport_docs_b4: "Packing list",
+  supplier_passport_docs_b5: "Bill of Lading / CMR",
+  supplier_passport_docs_b6: "Halal / Kosher — on request",
+  supplier_passport_lead_title: "Lead times",
+  supplier_passport_lead_b1: "From stock: 3–7 days after payment",
+  supplier_passport_lead_b2: "Made to order: 2–4 weeks",
+  supplier_passport_lead_b3: "Seasonal items: per harvest schedule",
+  supplier_passport_unit_tonsPerDay: "t / day",
+  supplier_passport_unit_days: "days",
+  supplier_cases_title: "Shipment reports & real cases",
+  supplier_cases_intro: "Every YORSO supplier provides a photo report of the batch loading: container stuffing, temperature logger installation, sealing, accompanying documents. Buyer names are hidden under NDA; all verifiable details (port, volume, Incoterms, date) are listed.",
+  supplier_cases_buyerType_retail: "Federal retail chain (NDA)",
+  supplier_cases_buyerType_horeca: "HoReCa distributor (NDA)",
+  supplier_cases_buyerType_wholesale: "Wholesale importer (NDA)",
+  supplier_cases_caseTitle_de: "Shipment of «{product}» to retail chain, Germany",
+  supplier_cases_caseTitle_fr: "Shipment of «{product}» to HoReCa distributor, France",
+  supplier_cases_caseTitle_ae: "Shipment of «{product}» to wholesale importer, UAE",
+  supplier_cases_destination_de: "Hamburg, DE 🇩🇪",
+  supplier_cases_destination_fr: "Marseille, FR 🇫🇷",
+  supplier_cases_destination_ae: "Jebel Ali, AE 🇦🇪",
+  supplier_cases_date_oct2024: "Oct 2024",
+  supplier_cases_date_jul2024: "Jul 2024",
+  supplier_cases_date_dec2023: "Dec 2023",
+  supplier_cases_notes_de: "Batch shipped in 40' reefer, temperature −20 °C, PSI inspection before loading. Documents: H/C, CoO EUR.1, CoA, packing list.",
+  supplier_cases_notes_fr: "Mixed pallet shipment, IQF format, retail-ready cartons. Buyer request: photo of every pallet and 72-hour temperature log.",
+  supplier_cases_notes_ae: "Halal certification of the batch, double glaze check, independent surveyor inspection at the port of departure.",
+  supplier_cases_factProduct: "Product",
+  supplier_cases_factVolume: "Batch volume",
+  supplier_cases_factBasis: "Basis",
+  supplier_cases_volumeTons: "{n} t",
+  supplier_cases_photoReportTitle: "Loading photo report",
+  supplier_cases_photoReportNote: "Full photo reports in original resolution are shared with qualified buyers after access is requested.",
+  supplier_cases_photoCaption_loading: "Container loading, shipper warehouse",
+  supplier_cases_photoCaption_logger: "Temperature logger installation, before sealing",
+  supplier_cases_photoCaption_seal: "Sealed container, seal number hidden",
+  supplier_cases_photoCaption_docs: "Batch documents (anonymised)",
+  supplier_cases_photoCaption_pallets: "Pallets after blast freezer",
+  supplier_cases_photoCaption_label: "Batch label (brand hidden)",
+  supplier_cases_photoCaption_tempLog: "Temperature log, reefer unloading",
+  supplier_cases_photoCaption_survey: "Surveyor inspection before loading",
+  supplier_cases_photoCaption_loadingHC: "Loading 40' HC reefer",
+  supplier_cases_defaultProduct: "Seafood",
+  supplier_faq_title: "Frequently asked buyer questions",
+  supplier_faq_q1: "What is the minimum order volume?",
+  supplier_faq_a1: "Standard minimum is from {n} tons per SKU. Consolidated containers are discussed individually after price access is requested.",
+  supplier_faq_q2: "Which Incoterms do you work with?",
+  supplier_faq_a2: "Default FCA shipper warehouse and CFR/CIF to main ports. DAP is agreed per route and insurer.",
+  supplier_faq_q3: "Which documents are provided per batch?",
+  supplier_faq_a3: "Health Certificate, Certificate of Origin (EUR.1 if available), Certificate of Analysis, packing list, BL/CMR, Halal/Kosher on request.",
+  supplier_faq_q4: "How is quality controlled before shipment?",
+  supplier_faq_a4: "Internal QC checklist (net weight, glaze, core temperature, packaging), photo report, on request — independent survey (SGS/Bureau Veritas) at buyer's expense.",
+  supplier_faq_q5: "What are the production and shipment lead times?",
+  supplier_faq_a5: "From stock — 3–7 days after payment / L/C confirmation. Made to order — 2–4 weeks depending on season and format.",
+  supplier_faq_q6: "What are the payment terms?",
+  supplier_faq_a6: "Default 30% prepayment / 70% against copies of documents. For repeat deals — deferred payment or letter of credit (L/C at sight).",
+  supplier_faq_noAnswerTitle: "Didn't find the answer?",
+  supplier_faq_noAnswerBody: "Send a message to the supplier — a manager will reply during working hours.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -2791,6 +3132,172 @@ const ru: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Открыть профиль поставщика",
   offerDetail_basisCountAvailable: "Доступно базисов поставки: {n}",
   offerDetail_indicativePrice: "Ориентировочный диапазон",
+
+  // Supplier Profile
+  supplier_breadcrumb_home: "Главная",
+  supplier_breadcrumb_suppliers: "Поставщики",
+  supplier_notFound_title: "Поставщик не найден",
+  supplier_notFound_body: "Возможно, ссылка устарела. Вернитесь в",
+  supplier_notFound_link: "каталог поставщиков",
+  supplier_logo_aria: "Логотип {name}",
+  supplier_identity_subline: "{type} · {years} · {offers}",
+  supplier_yearsOnMarket: "{n} {plural} на рынке",
+  supplier_yearsOnMarket_pluralOne: "год",
+  supplier_yearsOnMarket_pluralFew: "года",
+  supplier_yearsOnMarket_pluralMany: "лет",
+  supplier_activeOffers: "{n} активных офферов",
+  supplier_inBusinessSince: "В бизнесе с {year}",
+  supplier_copySmartLink: "Копировать smart-link",
+  supplier_copySmartLink_short: "Smart-link",
+  supplier_copySmartLink_toastOk: "Smart-ссылка скопирована",
+  supplier_copySmartLink_toastFail: "Не удалось скопировать",
+  supplier_sendMessage: "ОТПРАВИТЬ СООБЩЕНИЕ",
+  supplier_sendMessage_toast_title: "Сообщение поставщику",
+  supplier_sendMessage_toast_desc: "Запрос подготовлен. Менеджер свяжется с вами.",
+  supplier_writeToSupplier: "Написать поставщику",
+  supplier_type_producer: "Производитель",
+  supplier_type_processor: "Переработчик",
+  supplier_type_exporter: "Экспортёр",
+  supplier_type_distributor: "Дистрибьютор",
+  supplier_type_trader: "Трейдер",
+  supplier_tab_about: "О поставщике",
+  supplier_tab_catalog: "Каталог ({n})",
+  supplier_tab_passport: "Производственный паспорт",
+  supplier_tab_cases: "Отчёты о погрузке и кейсы",
+  supplier_tab_faq: "FAQ",
+  supplier_about_company: "О компании",
+  supplier_about_productFocus: "Продуктовый фокус",
+  supplier_about_trustBasis: "Основания надёжности",
+  supplier_about_certifications: "Сертификаты",
+  supplier_about_deliveryGeo: "География поставок",
+  supplier_about_deliveryCountriesCount: "Доставка в {n} стран",
+  supplier_about_deliveryCountriesShown: "показано {n}, ещё {rest}",
+  supplier_about_catalogEmpty: "Каталог пока не опубликован.",
+  supplier_legal_title: "Юридические реквизиты",
+  supplier_legal_subtitle: "Для проверки контрагента в национальных реестрах",
+  supplier_legal_legalForm: "Юр. форма",
+  supplier_legal_founded: "Основана",
+  supplier_legal_jurisdiction: "Юрисдикция",
+  supplier_legal_disclaimer: "Реквизиты предоставлены поставщиком и проверены YORSO при подключении. Полный пакет документов — во вкладке «Производственный паспорт».",
+  supplier_trust_type: "Тип",
+  supplier_trust_yearsOnMarket: "Лет на рынке",
+  supplier_trust_activeOffers: "Активные офферы",
+  supplier_trust_documents: "Документы",
+  supplier_trust_responseSpeed: "Скорость ответа",
+  supplier_trust_repeatDeals: "Повторные сделки",
+  supplier_trust_repeatDeals_value: "около 60%",
+  supplier_response_fast: "до 4 ч",
+  supplier_response_normal: "до 24 ч",
+  supplier_response_slow: "более 24 ч",
+  supplier_docs_ready: "готовы",
+  supplier_docs_partial: "частично",
+  supplier_docs_onRequest: "по запросу",
+  supplier_passport_nav_certs: "Сертификаты и аудиты",
+  supplier_passport_nav_production: "Производство и мощности",
+  supplier_passport_nav_logistics: "Логистика и условия поставки",
+  supplier_passport_nav_aria: "Разделы производственного паспорта",
+  supplier_passport_certs_title: "Сертификаты и аудиты",
+  supplier_passport_certs_subtitle: "Подтверждённые отраслевые сертификации и аудиты. Подлинники и сроки действия передаются под NDA после запроса доступа.",
+  supplier_passport_certs_disclaimer: "Логотипы сертификаций — товарные знаки правообладателей, используются для обозначения программ.",
+  supplier_passport_production_title: "Производственные мощности",
+  supplier_passport_production_dailyTons: "Суточная переработка",
+  supplier_passport_production_lines: "Производственных линий",
+  supplier_passport_production_staff: "Сотрудников на производстве",
+  supplier_passport_production_staffValue: "около {n}",
+  supplier_passport_production_catalog: "Каталог продукции",
+  supplier_passport_production_catalogValue: "{n} SKU",
+  supplier_passport_production_dailyTonsValue: "{n} т / сутки",
+  supplier_passport_cold_title: "Холод и заморозка",
+  supplier_passport_cold_storage: "Холодильные склады",
+  supplier_passport_cold_storageValue: "{n} т единовременного хранения",
+  supplier_passport_cold_blast: "Шоковая заморозка",
+  supplier_passport_cold_blastValue: "{n} т / сутки",
+  supplier_passport_cold_temp: "Температурный режим",
+  supplier_passport_cold_glaze: "Глазурь",
+  supplier_passport_cold_glazeValue: "контроль 5–12% по запросу",
+  supplier_passport_formats_title: "Форматы продукции",
+  supplier_passport_qc_title: "Контроль качества",
+  supplier_passport_qc_b1: "Внутренняя QC по чек-листу на каждую партию",
+  supplier_passport_qc_b2: "Лабораторные тесты: микробиология, гистамин, тяжёлые металлы",
+  supplier_passport_qc_b3: "Фото-отчёт о погрузке в стандарте",
+  supplier_passport_qc_b4: "Независимый сюрвей (SGS / Bureau Veritas) — по запросу",
+  supplier_passport_estNote: "Часть показателей — оценочные (estimate), уточняются при запросе доступа.",
+  supplier_passport_logistics_title: "Условия поставки",
+  supplier_passport_logistics_incoterms: "Incoterms",
+  supplier_passport_logistics_minBatch: "Минимальная партия",
+  supplier_passport_logistics_minBatchValue: "от {n} т / SKU",
+  supplier_passport_logistics_transit: "Транзит до основных портов",
+  supplier_passport_logistics_transitValue: "{min}–{max} дней",
+  supplier_passport_logistics_containers: "Тип контейнеров",
+  supplier_passport_temp_title: "Температурный режим и сохранность",
+  supplier_passport_temp_reefer: "Температура в reefer",
+  supplier_passport_temp_logger: "Термописец",
+  supplier_passport_temp_loggerValue: "устанавливается на каждую партию",
+  supplier_passport_temp_seal: "Пломбирование",
+  supplier_passport_temp_sealValue: "по протоколу, фото пломбы",
+  supplier_passport_temp_insurance: "Страхование груза",
+  supplier_passport_temp_insuranceValue: "CIF: ICC (A), 110% инвойса",
+  supplier_passport_docs_title: "Документы на партию",
+  supplier_passport_docs_b1: "Health Certificate",
+  supplier_passport_docs_b2: "Certificate of Origin (EUR.1 при наличии)",
+  supplier_passport_docs_b3: "Certificate of Analysis",
+  supplier_passport_docs_b4: "Упаковочный лист",
+  supplier_passport_docs_b5: "Bill of Lading / CMR",
+  supplier_passport_docs_b6: "Halal / Kosher — по запросу",
+  supplier_passport_lead_title: "Сроки готовности",
+  supplier_passport_lead_b1: "Со склада: 3–7 дней после оплаты",
+  supplier_passport_lead_b2: "Под заказ: 2–4 недели",
+  supplier_passport_lead_b3: "Сезонные позиции: по графику добычи",
+  supplier_passport_unit_tonsPerDay: "т / сутки",
+  supplier_passport_unit_days: "дней",
+  supplier_cases_title: "Отчёты о погрузке и реальные кейсы",
+  supplier_cases_intro: "Каждый поставщик YORSO предоставляет фото-отчёт о погрузке партии: загрузка контейнера, установка термописца, опломбирование, сопроводительные документы. Имена покупателей скрыты по NDA, все верифицируемые детали (порт, объём, Incoterms, дата) — указаны.",
+  supplier_cases_buyerType_retail: "Федеральная розничная сеть (NDA)",
+  supplier_cases_buyerType_horeca: "Дистрибьютор HoReCa (NDA)",
+  supplier_cases_buyerType_wholesale: "Импортёр-оптовик (NDA)",
+  supplier_cases_caseTitle_de: "Поставка «{product}» в розничную сеть, Германия",
+  supplier_cases_caseTitle_fr: "Поставка «{product}» дистрибьютору HoReCa, Франция",
+  supplier_cases_caseTitle_ae: "Поставка «{product}» оптовому импортёру, ОАЭ",
+  supplier_cases_destination_de: "Гамбург, DE 🇩🇪",
+  supplier_cases_destination_fr: "Марсель, FR 🇫🇷",
+  supplier_cases_destination_ae: "Джебель-Али, AE 🇦🇪",
+  supplier_cases_date_oct2024: "Окт 2024",
+  supplier_cases_date_jul2024: "Июл 2024",
+  supplier_cases_date_dec2023: "Дек 2023",
+  supplier_cases_notes_de: "Партия отгружена в 40' reefer, температура −20 °C, PSI-инспекция перед погрузкой. Документы: H/C, CoO EUR.1, CoA, упаковочный лист.",
+  supplier_cases_notes_fr: "Смешанная палетная отгрузка, IQF-формат, картон ритейл-готовый. Запрос покупателя: фото каждого паллета и температурный лог за 72 часа.",
+  supplier_cases_notes_ae: "Halal-сертификация партии, двойная проверка глазури, сюрвей независимой инспекции в порту отправки.",
+  supplier_cases_factProduct: "Продукт",
+  supplier_cases_factVolume: "Объём партии",
+  supplier_cases_factBasis: "Базис",
+  supplier_cases_volumeTons: "{n} т",
+  supplier_cases_photoReportTitle: "Фото-отчёт о погрузке",
+  supplier_cases_photoReportNote: "Полные фото-отчёты в исходном разрешении передаются квалифицированным покупателям после запроса доступа.",
+  supplier_cases_photoCaption_loading: "Загрузка контейнера, склад отправителя",
+  supplier_cases_photoCaption_logger: "Установка термописца, перед пломбировкой",
+  supplier_cases_photoCaption_seal: "Опломбированный контейнер, № пломбы скрыт",
+  supplier_cases_photoCaption_docs: "Документы партии (обезличено)",
+  supplier_cases_photoCaption_pallets: "Палеты после блистфризера",
+  supplier_cases_photoCaption_label: "Этикетка партии (бренд скрыт)",
+  supplier_cases_photoCaption_tempLog: "Температурный лог, выгрузка из reefer",
+  supplier_cases_photoCaption_survey: "Сюрвей-инспекция перед погрузкой",
+  supplier_cases_photoCaption_loadingHC: "Загрузка 40' HC reefer",
+  supplier_cases_defaultProduct: "Морепродукция",
+  supplier_faq_title: "Частые вопросы покупателей",
+  supplier_faq_q1: "Какой минимальный объём заказа?",
+  supplier_faq_a1: "Стандартный минимум — от {n} тонн на SKU. Под сборные контейнеры обсуждается индивидуально после запроса доступа к ценам.",
+  supplier_faq_q2: "На каких условиях Incoterms работаете?",
+  supplier_faq_a2: "Базово FCA склад отправителя и CFR/CIF до основных портов. DAP — по согласованию маршрута и страховщика.",
+  supplier_faq_q3: "Какие документы предоставляете на партию?",
+  supplier_faq_a3: "Health Certificate, Certificate of Origin (EUR.1 при наличии), Certificate of Analysis, упаковочный лист, BL/CMR, по запросу — Halal/Kosher.",
+  supplier_faq_q4: "Как происходит контроль качества перед отгрузкой?",
+  supplier_faq_a4: "Внутренняя QC-проверка по чек-листу (вес-нетто, глазурь, температура ядра, упаковка), фото-отчёт, по требованию — независимый сюрвей (SGS/Bureau Veritas) за счёт покупателя.",
+  supplier_faq_q5: "Какие сроки производства и отгрузки?",
+  supplier_faq_a5: "Со склада — 3–7 дней после подтверждения оплаты/аккредитива. Производство под заказ — 2–4 недели в зависимости от сезона и формата.",
+  supplier_faq_q6: "Какие условия оплаты?",
+  supplier_faq_a6: "Базово 30% предоплата / 70% против копий документов. Для повторных сделок — отсрочка или аккредитив (L/C at sight).",
+  supplier_faq_noAnswerTitle: "Не нашли ответ?",
+  supplier_faq_noAnswerBody: "Отправьте сообщение поставщику — менеджер ответит в рабочее время.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -3732,6 +4239,172 @@ const es: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Desbloquear perfil del proveedor",
   offerDetail_basisCountAvailable: "Bases de entrega disponibles: {n}",
   offerDetail_indicativePrice: "Rango orientativo",
+
+  // Supplier Profile
+  supplier_breadcrumb_home: "Inicio",
+  supplier_breadcrumb_suppliers: "Proveedores",
+  supplier_notFound_title: "Proveedor no encontrado",
+  supplier_notFound_body: "Es posible que el enlace haya caducado. Vuelve al",
+  supplier_notFound_link: "catálogo de proveedores",
+  supplier_logo_aria: "Logotipo de {name}",
+  supplier_identity_subline: "{type} · {years} · {offers}",
+  supplier_yearsOnMarket: "{n} {plural} en el mercado",
+  supplier_yearsOnMarket_pluralOne: "año",
+  supplier_yearsOnMarket_pluralFew: "años",
+  supplier_yearsOnMarket_pluralMany: "años",
+  supplier_activeOffers: "{n} ofertas activas",
+  supplier_inBusinessSince: "En activo desde {year}",
+  supplier_copySmartLink: "Copiar smart-link",
+  supplier_copySmartLink_short: "Smart-link",
+  supplier_copySmartLink_toastOk: "Smart-link copiado",
+  supplier_copySmartLink_toastFail: "No se pudo copiar",
+  supplier_sendMessage: "ENVIAR MENSAJE",
+  supplier_sendMessage_toast_title: "Mensaje al proveedor",
+  supplier_sendMessage_toast_desc: "Solicitud preparada. Un gestor te contactará.",
+  supplier_writeToSupplier: "Escribir al proveedor",
+  supplier_type_producer: "Productor",
+  supplier_type_processor: "Procesador",
+  supplier_type_exporter: "Exportador",
+  supplier_type_distributor: "Distribuidor",
+  supplier_type_trader: "Trader",
+  supplier_tab_about: "Sobre el proveedor",
+  supplier_tab_catalog: "Catálogo ({n})",
+  supplier_tab_passport: "Pasaporte de producción",
+  supplier_tab_cases: "Informes de carga y casos",
+  supplier_tab_faq: "FAQ",
+  supplier_about_company: "Sobre la empresa",
+  supplier_about_productFocus: "Foco de producto",
+  supplier_about_trustBasis: "Bases de confianza",
+  supplier_about_certifications: "Certificaciones",
+  supplier_about_deliveryGeo: "Geografía de entregas",
+  supplier_about_deliveryCountriesCount: "Entrega a {n} países",
+  supplier_about_deliveryCountriesShown: "mostrados {n}, {rest} más",
+  supplier_about_catalogEmpty: "El catálogo aún no se ha publicado.",
+  supplier_legal_title: "Datos legales",
+  supplier_legal_subtitle: "Para verificar la contraparte en registros nacionales",
+  supplier_legal_legalForm: "Forma jurídica",
+  supplier_legal_founded: "Fundada",
+  supplier_legal_jurisdiction: "Jurisdicción",
+  supplier_legal_disclaimer: "Datos facilitados por el proveedor y verificados por YORSO al incorporarlo. El paquete documental completo está en la pestaña «Pasaporte de producción».",
+  supplier_trust_type: "Tipo",
+  supplier_trust_yearsOnMarket: "Años en el mercado",
+  supplier_trust_activeOffers: "Ofertas activas",
+  supplier_trust_documents: "Documentos",
+  supplier_trust_responseSpeed: "Velocidad de respuesta",
+  supplier_trust_repeatDeals: "Operaciones recurrentes",
+  supplier_trust_repeatDeals_value: "alrededor del 60%",
+  supplier_response_fast: "hasta 4 h",
+  supplier_response_normal: "hasta 24 h",
+  supplier_response_slow: "más de 24 h",
+  supplier_docs_ready: "listos",
+  supplier_docs_partial: "parciales",
+  supplier_docs_onRequest: "a petición",
+  supplier_passport_nav_certs: "Certificaciones y auditorías",
+  supplier_passport_nav_production: "Producción y capacidades",
+  supplier_passport_nav_logistics: "Logística y condiciones de entrega",
+  supplier_passport_nav_aria: "Secciones del pasaporte de producción",
+  supplier_passport_certs_title: "Certificaciones y auditorías",
+  supplier_passport_certs_subtitle: "Certificaciones y auditorías sectoriales confirmadas. Originales y vigencia se entregan bajo NDA tras la solicitud de acceso.",
+  supplier_passport_certs_disclaimer: "Los logotipos de las certificaciones son marcas registradas de sus titulares y se usan para indicar los programas.",
+  supplier_passport_production_title: "Capacidad de producción",
+  supplier_passport_production_dailyTons: "Procesamiento diario",
+  supplier_passport_production_lines: "Líneas de producción",
+  supplier_passport_production_staff: "Personal de planta",
+  supplier_passport_production_staffValue: "alrededor de {n}",
+  supplier_passport_production_catalog: "Catálogo de productos",
+  supplier_passport_production_catalogValue: "{n} SKU",
+  supplier_passport_production_dailyTonsValue: "{n} t / día",
+  supplier_passport_cold_title: "Frío y congelación",
+  supplier_passport_cold_storage: "Almacenes frigoríficos",
+  supplier_passport_cold_storageValue: "{n} t de almacenamiento simultáneo",
+  supplier_passport_cold_blast: "Congelación rápida (blast)",
+  supplier_passport_cold_blastValue: "{n} t / día",
+  supplier_passport_cold_temp: "Régimen de temperatura",
+  supplier_passport_cold_glaze: "Glaseado",
+  supplier_passport_cold_glazeValue: "control 5–12% a petición",
+  supplier_passport_formats_title: "Formatos de producto",
+  supplier_passport_qc_title: "Control de calidad",
+  supplier_passport_qc_b1: "QC interno por checklist en cada lote",
+  supplier_passport_qc_b2: "Pruebas de laboratorio: microbiología, histamina, metales pesados",
+  supplier_passport_qc_b3: "Informe fotográfico de carga estándar",
+  supplier_passport_qc_b4: "Inspección independiente (SGS / Bureau Veritas) — a petición",
+  supplier_passport_estNote: "Algunos indicadores son estimados (estimate) y se concretan al solicitar acceso.",
+  supplier_passport_logistics_title: "Condiciones de entrega",
+  supplier_passport_logistics_incoterms: "Incoterms",
+  supplier_passport_logistics_minBatch: "Lote mínimo",
+  supplier_passport_logistics_minBatchValue: "desde {n} t / SKU",
+  supplier_passport_logistics_transit: "Tránsito a puertos principales",
+  supplier_passport_logistics_transitValue: "{min}–{max} días",
+  supplier_passport_logistics_containers: "Tipo de contenedores",
+  supplier_passport_temp_title: "Régimen térmico e integridad",
+  supplier_passport_temp_reefer: "Temperatura en reefer",
+  supplier_passport_temp_logger: "Registrador de temperatura",
+  supplier_passport_temp_loggerValue: "instalado en cada lote",
+  supplier_passport_temp_seal: "Precintado",
+  supplier_passport_temp_sealValue: "según protocolo, foto del precinto",
+  supplier_passport_temp_insurance: "Seguro de carga",
+  supplier_passport_temp_insuranceValue: "CIF: ICC (A), 110% de la factura",
+  supplier_passport_docs_title: "Documentos por lote",
+  supplier_passport_docs_b1: "Health Certificate",
+  supplier_passport_docs_b2: "Certificate of Origin (EUR.1 si procede)",
+  supplier_passport_docs_b3: "Certificate of Analysis",
+  supplier_passport_docs_b4: "Lista de embalaje",
+  supplier_passport_docs_b5: "Bill of Lading / CMR",
+  supplier_passport_docs_b6: "Halal / Kosher — a petición",
+  supplier_passport_lead_title: "Plazos de disponibilidad",
+  supplier_passport_lead_b1: "De stock: 3–7 días tras el pago",
+  supplier_passport_lead_b2: "Bajo pedido: 2–4 semanas",
+  supplier_passport_lead_b3: "Productos de temporada: según calendario de captura",
+  supplier_passport_unit_tonsPerDay: "t / día",
+  supplier_passport_unit_days: "días",
+  supplier_cases_title: "Informes de carga y casos reales",
+  supplier_cases_intro: "Cada proveedor de YORSO entrega un informe fotográfico de la carga del lote: estiba en contenedor, instalación del registrador de temperatura, precintado y documentación. Los nombres de los compradores se ocultan por NDA; todos los datos verificables (puerto, volumen, Incoterms, fecha) están indicados.",
+  supplier_cases_buyerType_retail: "Cadena minorista federal (NDA)",
+  supplier_cases_buyerType_horeca: "Distribuidor HoReCa (NDA)",
+  supplier_cases_buyerType_wholesale: "Importador mayorista (NDA)",
+  supplier_cases_caseTitle_de: "Suministro de «{product}» a cadena minorista, Alemania",
+  supplier_cases_caseTitle_fr: "Suministro de «{product}» a distribuidor HoReCa, Francia",
+  supplier_cases_caseTitle_ae: "Suministro de «{product}» a importador mayorista, EAU",
+  supplier_cases_destination_de: "Hamburgo, DE 🇩🇪",
+  supplier_cases_destination_fr: "Marsella, FR 🇫🇷",
+  supplier_cases_destination_ae: "Jebel Ali, AE 🇦🇪",
+  supplier_cases_date_oct2024: "Oct 2024",
+  supplier_cases_date_jul2024: "Jul 2024",
+  supplier_cases_date_dec2023: "Dic 2023",
+  supplier_cases_notes_de: "Lote despachado en reefer 40', temperatura −20 °C, inspección PSI antes de la carga. Documentos: H/C, CoO EUR.1, CoA, lista de embalaje.",
+  supplier_cases_notes_fr: "Carga mixta paletizada, formato IQF, cartón listo para retail. Petición del comprador: foto de cada palet y registro de temperatura de las últimas 72 horas.",
+  supplier_cases_notes_ae: "Certificación Halal del lote, doble verificación del glaseado, inspección independiente en el puerto de salida.",
+  supplier_cases_factProduct: "Producto",
+  supplier_cases_factVolume: "Volumen del lote",
+  supplier_cases_factBasis: "Incoterm",
+  supplier_cases_volumeTons: "{n} t",
+  supplier_cases_photoReportTitle: "Informe fotográfico de carga",
+  supplier_cases_photoReportNote: "Los informes fotográficos completos en resolución original se entregan a compradores cualificados tras la solicitud de acceso.",
+  supplier_cases_photoCaption_loading: "Carga del contenedor, almacén del expedidor",
+  supplier_cases_photoCaption_logger: "Instalación del registrador de temperatura, antes de precintar",
+  supplier_cases_photoCaption_seal: "Contenedor precintado, n.º de precinto oculto",
+  supplier_cases_photoCaption_docs: "Documentos del lote (anonimizados)",
+  supplier_cases_photoCaption_pallets: "Palets tras el blast freezer",
+  supplier_cases_photoCaption_label: "Etiqueta del lote (marca oculta)",
+  supplier_cases_photoCaption_tempLog: "Registro de temperatura, descarga del reefer",
+  supplier_cases_photoCaption_survey: "Inspección de surveyor antes de la carga",
+  supplier_cases_photoCaption_loadingHC: "Carga en reefer 40' HC",
+  supplier_cases_defaultProduct: "Producto del mar",
+  supplier_faq_title: "Preguntas frecuentes de los compradores",
+  supplier_faq_q1: "¿Cuál es el volumen mínimo de pedido?",
+  supplier_faq_a1: "El mínimo estándar es desde {n} toneladas por SKU. Los contenedores consolidados se acuerdan individualmente tras la solicitud de acceso al precio.",
+  supplier_faq_q2: "¿Con qué Incoterms trabajan?",
+  supplier_faq_a2: "Por defecto FCA almacén del expedidor y CFR/CIF a los puertos principales. DAP — según ruta y aseguradora.",
+  supplier_faq_q3: "¿Qué documentos entregan por lote?",
+  supplier_faq_a3: "Health Certificate, Certificate of Origin (EUR.1 si procede), Certificate of Analysis, lista de embalaje, BL/CMR, a petición — Halal/Kosher.",
+  supplier_faq_q4: "¿Cómo se realiza el control de calidad antes del envío?",
+  supplier_faq_a4: "QC interno por checklist (peso neto, glaseado, temperatura del núcleo, embalaje), informe fotográfico, a petición — inspección independiente (SGS/Bureau Veritas) por cuenta del comprador.",
+  supplier_faq_q5: "¿Cuáles son los plazos de producción y envío?",
+  supplier_faq_a5: "Desde stock — 3–7 días tras la confirmación de pago/carta de crédito. Producción bajo pedido — 2–4 semanas según temporada y formato.",
+  supplier_faq_q6: "¿Cuáles son las condiciones de pago?",
+  supplier_faq_a6: "Por defecto 30% por adelantado / 70% contra copias de documentos. Para operaciones recurrentes — aplazamiento o carta de crédito (L/C at sight).",
+  supplier_faq_noAnswerTitle: "¿No encuentras la respuesta?",
+  supplier_faq_noAnswerBody: "Envía un mensaje al proveedor: el gestor responderá en horario laboral.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
