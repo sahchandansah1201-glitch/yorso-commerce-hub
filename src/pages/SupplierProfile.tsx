@@ -931,7 +931,7 @@ const SupplierProfile = () => {
                     ))}
                     {supplierOffers.length === 0 && (
                       <p className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-                        Каталог пока не опубликован.
+                        {t.supplier_about_catalogEmpty}
                       </p>
                     )}
                   </div>
@@ -941,7 +941,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
                         <h3 className="font-heading text-sm font-semibold text-foreground">
-                          Основания надёжности
+                          {t.supplier_about_trustBasis}
                         </h3>
                       </div>
                       <div className="mt-3">
@@ -953,7 +953,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-primary" aria-hidden />
                         <h3 className="font-heading text-sm font-semibold text-foreground">
-                          Сертификаты
+                          {t.supplier_about_certifications}
                         </h3>
                       </div>
                       <div className="mt-3">
@@ -965,7 +965,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <Globe className="h-4 w-4 text-primary" aria-hidden />
                         <h3 className="font-heading text-sm font-semibold text-foreground">
-                          Страны доставки
+                          {t.supplier_about_deliveryGeo}
                         </h3>
                       </div>
                       <div className="mt-3">
@@ -981,7 +981,7 @@ const SupplierProfile = () => {
                 <div className="space-y-4">
                   {/* Внутренняя навигация по разделам паспорта */}
                   <nav
-                    aria-label="Разделы производственного паспорта"
+                    aria-label={t.supplier_passport_nav_aria}
                     className="sticky top-16 z-10 -mx-1 flex flex-wrap gap-2 rounded-xl border border-border bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/80"
                   >
                     <a
@@ -989,21 +989,21 @@ const SupplierProfile = () => {
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
                     >
                       <Award className="h-3.5 w-3.5 text-primary" aria-hidden />
-                      Сертификаты и аудиты
+                      {t.supplier_passport_nav_certs}
                     </a>
                     <a
                       href="#passport-production"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
                     >
                       <Factory className="h-3.5 w-3.5 text-primary" aria-hidden />
-                      Производство и мощности
+                      {t.supplier_passport_nav_production}
                     </a>
                     <a
                       href="#passport-logistics"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
                     >
                       <Truck className="h-3.5 w-3.5 text-primary" aria-hidden />
-                      Логистика и условия поставки
+                      {t.supplier_passport_nav_logistics}
                     </a>
                   </nav>
 
@@ -1013,19 +1013,17 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <Award className="h-5 w-5 text-primary" aria-hidden />
                         <h2 className="font-heading text-lg font-semibold text-foreground">
-                          Сертификаты и аудиты
+                          {t.supplier_passport_certs_title}
                         </h2>
                       </div>
                       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                        Подтверждённые отраслевые сертификации и аудиты. Подлинники
-                        и сроки действия передаются под NDA после запроса доступа.
+                        {t.supplier_passport_certs_subtitle}
                       </p>
                       <div className="mt-5">
                         <CertificationsBlock supplier={supplier} size="lg" />
                       </div>
                       <p className="mt-4 text-[11px] text-muted-foreground">
-                        Логотипы сертификаций — товарные знаки правообладателей,
-                        используются для обозначения программ.
+                        {t.supplier_passport_certs_disclaimer}
                       </p>
                     </div>
                   </section>
@@ -1039,27 +1037,33 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Factory className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Производственные мощности
+                                {t.supplier_passport_production_title}
                               </h2>
                             </div>
                             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                               <FactCell
-                                label="Суточная переработка"
-                                value={`${production.dailyTons} т / сутки`}
+                                label={t.supplier_passport_production_dailyTons}
+                                value={interpolate(t.supplier_passport_production_dailyTonsValue, {
+                                  n: production.dailyTons,
+                                })}
                                 estimate
                               />
                               <FactCell
-                                label="Производственных линий"
+                                label={t.supplier_passport_production_lines}
                                 value={String(production.lines)}
                               />
                               <FactCell
-                                label="Сотрудников на производстве"
-                                value={`около ${production.staff}`}
+                                label={t.supplier_passport_production_staff}
+                                value={interpolate(t.supplier_passport_production_staffValue, {
+                                  n: production.staff,
+                                })}
                                 estimate
                               />
                               <FactCell
-                                label="Каталог продукции"
-                                value={`${supplier.totalProductsCount} SKU`}
+                                label={t.supplier_passport_production_catalog}
+                                value={interpolate(t.supplier_passport_production_catalogValue, {
+                                  n: supplier.totalProductsCount,
+                                })}
                               />
                             </dl>
                           </div>
@@ -1068,22 +1072,26 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Snowflake className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Холод и заморозка
+                                {t.supplier_passport_cold_title}
                               </h2>
                             </div>
                             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                               <FactCell
-                                label="Холодильные склады"
-                                value={`${production.coldStorageT} т единовременного хранения`}
+                                label={t.supplier_passport_cold_storage}
+                                value={interpolate(t.supplier_passport_cold_storageValue, {
+                                  n: production.coldStorageT,
+                                })}
                                 estimate
                               />
                               <FactCell
-                                label="Шоковая заморозка"
-                                value={`${production.blastFreezerT} т / сутки`}
+                                label={t.supplier_passport_cold_blast}
+                                value={interpolate(t.supplier_passport_cold_blastValue, {
+                                  n: production.blastFreezerT,
+                                })}
                                 estimate
                               />
-                              <FactCell label="Температурный режим" value="−18 °C … −24 °C" />
-                              <FactCell label="Глазурь" value="контроль 5–12% по запросу" />
+                              <FactCell label={t.supplier_passport_cold_temp} value="−18 °C … −24 °C" />
+                              <FactCell label={t.supplier_passport_cold_glaze} value={t.supplier_passport_cold_glazeValue} />
                             </dl>
                           </div>
 
@@ -1091,7 +1099,7 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Package className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Форматы продукции
+                                {t.supplier_passport_formats_title}
                               </h2>
                             </div>
                             <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
@@ -1110,19 +1118,19 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <FileCheck2 className="h-4 w-4 text-primary" aria-hidden />
                               <h3 className="font-heading text-base font-semibold text-foreground">
-                                Контроль качества
+                                {t.supplier_passport_qc_title}
                               </h3>
                             </div>
                             <ul className="mt-3 space-y-2 text-sm text-foreground/80">
-                              <li>• Внутренняя QC по чек-листу на каждую партию</li>
-                              <li>• Лабораторные тесты: микробиология, гистамин, тяжёлые металлы</li>
-                              <li>• Фото-отчёт о погрузке в стандарте</li>
-                              <li>• Независимый сюрвей (SGS / Bureau Veritas) — по запросу</li>
+                              <li>• {t.supplier_passport_qc_b1}</li>
+                              <li>• {t.supplier_passport_qc_b2}</li>
+                              <li>• {t.supplier_passport_qc_b3}</li>
+                              <li>• {t.supplier_passport_qc_b4}</li>
                             </ul>
                           </div>
 
                           <p className="text-[11px] text-muted-foreground">
-                            Часть показателей — оценочные (estimate), уточняются при запросе доступа.
+                            {t.supplier_passport_estNote}
                           </p>
                         </aside>
                       </div>
@@ -1138,24 +1146,29 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Truck className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Условия поставки
+                                {t.supplier_passport_logistics_title}
                               </h2>
                             </div>
                             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                               <FactCell
-                                label="Incoterms"
+                                label={t.supplier_passport_logistics_incoterms}
                                 value={logistics.incoterms.join(" · ")}
                               />
                               <FactCell
-                                label="Минимальная партия"
-                                value={`от ${logistics.minBatchTons} т / SKU`}
+                                label={t.supplier_passport_logistics_minBatch}
+                                value={interpolate(t.supplier_passport_logistics_minBatchValue, {
+                                  n: logistics.minBatchTons,
+                                })}
                               />
                               <FactCell
-                                label="Транзит до основных портов"
-                                value={`${logistics.transitDaysMin}–${logistics.transitDaysMax} дней`}
+                                label={t.supplier_passport_logistics_transit}
+                                value={interpolate(t.supplier_passport_logistics_transitValue, {
+                                  min: logistics.transitDaysMin,
+                                  max: logistics.transitDaysMax,
+                                })}
                                 estimate
                               />
-                              <FactCell label="Тип контейнеров" value={logistics.containers.join(", ")} />
+                              <FactCell label={t.supplier_passport_logistics_containers} value={logistics.containers.join(", ")} />
                             </dl>
                           </div>
 
@@ -1163,14 +1176,14 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Thermometer className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Температурный режим и сохранность
+                                {t.supplier_passport_temp_title}
                               </h2>
                             </div>
                             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                              <FactCell label="Температура в reefer" value={logistics.tempRange} />
-                              <FactCell label="Термописец" value="устанавливается на каждую партию" />
-                              <FactCell label="Пломбирование" value="по протоколу, фото пломбы" />
-                              <FactCell label="Страхование груза" value="CIF: ICC (A), 110% инвойса" />
+                              <FactCell label={t.supplier_passport_temp_reefer} value={logistics.tempRange} />
+                              <FactCell label={t.supplier_passport_temp_logger} value={t.supplier_passport_temp_loggerValue} />
+                              <FactCell label={t.supplier_passport_temp_seal} value={t.supplier_passport_temp_sealValue} />
+                              <FactCell label={t.supplier_passport_temp_insurance} value={t.supplier_passport_temp_insuranceValue} />
                             </dl>
                           </div>
 
@@ -1178,16 +1191,16 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <FileCheck2 className="h-5 w-5 text-primary" aria-hidden />
                               <h2 className="font-heading text-lg font-semibold text-foreground">
-                                Документы на партию
+                                {t.supplier_passport_docs_title}
                               </h2>
                             </div>
                             <ul className="mt-3 grid gap-1.5 text-sm text-foreground/80 sm:grid-cols-2">
-                              <li>• Health Certificate</li>
-                              <li>• Certificate of Origin (EUR.1 при наличии)</li>
-                              <li>• Certificate of Analysis</li>
-                              <li>• Упаковочный лист</li>
-                              <li>• Bill of Lading / CMR</li>
-                              <li>• Halal / Kosher — по запросу</li>
+                              <li>• {t.supplier_passport_docs_b1}</li>
+                              <li>• {t.supplier_passport_docs_b2}</li>
+                              <li>• {t.supplier_passport_docs_b3}</li>
+                              <li>• {t.supplier_passport_docs_b4}</li>
+                              <li>• {t.supplier_passport_docs_b5}</li>
+                              <li>• {t.supplier_passport_docs_b6}</li>
                             </ul>
                           </div>
                         </div>
@@ -1197,7 +1210,7 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Globe className="h-4 w-4 text-primary" aria-hidden />
                               <h3 className="font-heading text-base font-semibold text-foreground">
-                                География поставок
+                                {t.supplier_about_deliveryGeo}
                               </h3>
                             </div>
                             <div className="mt-3">
