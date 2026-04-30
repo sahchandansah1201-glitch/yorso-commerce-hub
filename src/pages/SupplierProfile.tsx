@@ -132,6 +132,11 @@ const SupplierProfile = () => {
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
     [supplierId],
   );
+  const supplierOffers = useMemo(() => {
+    if (!supplier) return [];
+    const speciesList = supplier.productFocus.map((p) => p.species);
+    return getOffersForSupplier(supplier.country, speciesList, 4);
+  }, [supplier]);
 
   const isUnlocked = level === "qualified_unlocked";
   const isMasked = !isUnlocked;
