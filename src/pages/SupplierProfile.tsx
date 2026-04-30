@@ -52,6 +52,7 @@ import {
 import { useAccessLevel } from "@/lib/access-level";
 import analytics from "@/lib/analytics";
 import { savePreviewAttribution } from "@/lib/preview-attribution";
+import { getRegistrationAttemptId } from "@/lib/registration-attempt";
 import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
