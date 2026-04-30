@@ -67,6 +67,10 @@ const Offers = () => {
     const category = params.get("category");
     return category ? { ...emptyCatalogFilters, category } : emptyCatalogFilters;
   });
+  // Optional supplier prefilter from /suppliers/:id catalog cards.
+  // Only honored at qualified_unlocked — locked users must not see a list
+  // narrowed to a specific supplier's offers (would imply identity).
+  const supplierIdParam = new URLSearchParams(location.search).get("supplier");
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
