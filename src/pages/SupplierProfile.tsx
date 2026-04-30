@@ -611,6 +611,8 @@ const SupplierProfile = () => {
                   </div>
 
                   <aside className="space-y-6">
+                    <LegalDetailsBlock supplier={supplier} />
+
                     <div className="rounded-xl border border-border bg-card p-6">
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
