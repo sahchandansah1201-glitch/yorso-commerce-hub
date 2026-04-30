@@ -341,6 +341,7 @@ describe("preview-attribution debug warnings", () => {
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_bad_source");
     expect(summary!.registration_source).toBeNull();
+    expect(summary!.registration_source_error).toBe("json_parse_error");
     // Известные поля идут в фиксированном порядке, неизвестные — после.
     expect(summary!.missing).toEqual(["supplier_id", "invalid_registration_source"]);
   });
