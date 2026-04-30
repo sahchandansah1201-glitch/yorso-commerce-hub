@@ -125,9 +125,23 @@ export const SelectedSupplierPanel = ({
       </div>
 
       <div className="p-5">
+        {/* Quick preview label — clarifies this is a side-panel preview, not the standalone profile */}
+        <p
+          data-testid="selected-supplier-preview-label"
+          className="mb-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
+        >
+          Quick preview
+        </p>
         {/* Supplier summary */}
         <h2 className="font-heading text-lg font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere]">
-          {displayName}
+          <Link
+            to={`/suppliers/${supplier.id}`}
+            data-testid="selected-supplier-title-link"
+            className="hover:text-primary hover:underline"
+            aria-label={`Open supplier profile: ${displayName}`}
+          >
+            {displayName}
+          </Link>
         </h2>
         {isMasked && (
           <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -336,11 +350,9 @@ export const SelectedSupplierPanel = ({
 
           <div className="mt-3 flex flex-col gap-2">
             {accessLevel === "anonymous_locked" ? (
-              <Link to="/register" className="block">
-                <Button type="button" className="w-full gap-2">
-                  {primaryCtaCopy(accessLevel)}
-                </Button>
-              </Link>
+              <Button asChild type="button" className="w-full gap-2">
+                <Link to="/register">{primaryCtaCopy(accessLevel)}</Link>
+              </Button>
             ) : (
               <Button
                 type="button"
@@ -351,8 +363,21 @@ export const SelectedSupplierPanel = ({
               </Button>
             )}
             <Button
-              type="button"
+              asChild
               variant="outline"
+              className="w-full gap-2"
+            >
+              <Link
+                to={`/suppliers/${supplier.id}`}
+                data-testid="selected-supplier-open-profile"
+                aria-label={`Open full supplier profile: ${displayName}`}
+              >
+                Open full profile
+              </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
               className="w-full gap-2"
               onClick={() => onShortlist(supplier.id)}
               aria-pressed={isShortlisted}

@@ -184,3 +184,62 @@ describe("/suppliers — implementation quality fixes", () => {
     expect(body).toContain(`${supplier.deliveryCountriesTotal} countries`);
   });
 });
+
+describe("/suppliers — standalone profile navigation", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it("each supplier row exposes a title link to /suppliers/:id", () => {
+    renderPage();
+    const rows = screen.getAllByTestId("supplier-row");
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      const titleLink = within(row).getByTestId("supplier-row-title-link");
+      expect(titleLink.tagName.toLowerCase()).toBe("a");
+      const href = titleLink.getAttribute("href") ?? "";
+      expect(href).toMatch(/^\/suppliers\/sup-/);
+    }
+  });
+
+  it("each supplier row exposes an explicit Open profile link to /suppliers/:id", () => {
+    renderPage();
+    const rows = screen.getAllByTestId("supplier-row");
+    for (const row of rows) {
+      const link = within(row).getByTestId("supplier-row-open-profile");
+      expect(link.tagName.toLowerCase()).toBe("a");
+      const href = link.getAttribute("href") ?? "";
+      expect(href).toMatch(/^\/suppliers\/sup-/);
+    }
+  });
+
+  it("first supplier row Open profile link points at supplier id sup-no-001", () => {
+    renderPage();
+    const rows = screen.getAllByTestId("supplier-row");
+    const link = within(rows[0]).getByTestId("supplier-row-open-profile");
+    expect(link.getAttribute("href")).toBe(`/suppliers/${mockSuppliers[0].id}`);
+  });
+
+  it("does not contain invalid interactive nesting on /suppliers", () => {
+    renderPage();
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    expect(document.querySelectorAll("a button").length).toBe(0);
+  });
+
+  it("selecting a supplier exposes an Open full profile link in the right preview panel", () => {
+    renderPage();
+    const firstRow = screen.getAllByTestId("supplier-row")[0];
+    const selectBtn = within(firstRow).getByRole("button", {
+      name: /select .* to review details/i,
+    });
+    fireEvent.click(selectBtn);
+    const openLink = screen.getByTestId("selected-supplier-open-profile");
+    expect(openLink.tagName.toLowerCase()).toBe("a");
+    expect(openLink.getAttribute("href")).toBe(
+      `/suppliers/${mockSuppliers[0].id}`,
+    );
+    // Preview label clarifies this is a quick preview, not the full page.
+    expect(screen.getByTestId("selected-supplier-preview-label")).toBeInTheDocument();
+  });
+});
