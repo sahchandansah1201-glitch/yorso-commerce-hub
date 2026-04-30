@@ -219,6 +219,26 @@ const SupplierProfile = () => {
   // Headline cert is supplier-level evidence — only surface on cards when fully unlocked.
   const headlineCert = isUnlocked ? pickHeadlineCert(supplier.certifications) : undefined;
 
+  /**
+   * Resolve a catalog preview card to a destination:
+   * - qualified_unlocked: prefer a concrete /offers/:id match by species,
+   *   fall back to /offers prefiltered by this supplier id.
+   * - locked levels: never reveal supplier identity in the URL — use the
+   *   broad category from the matched offer (or species), no supplier param.
+   */
+  const catalogCardHref = (item: { species: string; form: string }): string => {
+    const speciesLc = item.species.toLowerCase();
+    const speciesMatch = supplierOffers.find(
+      (o) => o.species.toLowerCase().includes(speciesLc) || speciesLc.includes(o.species.toLowerCase()),
+    );
+    if (isUnlocked) {
+      if (speciesMatch) return `/offers/${speciesMatch.id}`;
+      return supplierId ? `/offers?supplier=${encodeURIComponent(supplierId)}` : "/offers";
+    }
+    // Locked: route to broad category if known, otherwise to /offers.
+    if (speciesMatch?.category) return `/offers?category=${encodeURIComponent(speciesMatch.category)}`;
+    return "/offers";
+  };
   const handlePrimaryAction = () => {
     if (level === "anonymous_locked") {
       navigate("/register");
