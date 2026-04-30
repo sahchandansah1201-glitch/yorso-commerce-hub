@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Compass, Home, LogIn, UserPlus } from "lucide-react";
 import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 
@@ -139,6 +140,7 @@ const NotFound = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

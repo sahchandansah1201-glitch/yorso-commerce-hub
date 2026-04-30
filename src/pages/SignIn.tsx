@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
 type LoginMethod = "email" | "phone";
@@ -229,6 +230,7 @@ const SignIn = () => {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

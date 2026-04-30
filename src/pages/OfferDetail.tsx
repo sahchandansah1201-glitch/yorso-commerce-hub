@@ -19,6 +19,7 @@ import SimilarProducts from "@/components/offer-detail/SimilarProducts";
 import RelatedArticles from "@/components/offer-detail/RelatedArticles";
 import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 
 /**
  * Legacy-id редирект ("/offers/1" → "/offers/<uuid>") теперь обслуживается на
@@ -79,21 +80,22 @@ const OfferDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background font-body">
+      <div className="min-h-screen bg-background font-body flex flex-col">
         <Header />
-        <main className="container py-6 md:py-10" aria-busy="true" aria-live="polite">
+        <main className="container py-6 md:py-10 flex-1" aria-busy="true" aria-live="polite">
           <Skeleton className="h-8 w-32 mb-5" />
           <DetailSkeleton />
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background font-body">
+      <div className="min-h-screen bg-background font-body flex flex-col">
         <Header />
-        <main className="container py-16 text-center">
+        <main className="container py-16 text-center flex-1">
           <h1 className="font-heading text-2xl font-bold text-foreground">{error}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Сервис временно недоступен. Неудачных попыток: {failedAttempts}
@@ -113,17 +115,22 @@ const OfferDetail = () => {
             <Link to="/offers"><Button>{t.offerDetail_browseAll}</Button></Link>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!offer) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="font-heading text-2xl font-bold text-foreground">{t.offerDetail_notFound}</h1>
-          <Link to="/offers"><Button className="mt-4">{t.offerDetail_browseAll}</Button></Link>
-        </div>
+      <div className="min-h-screen bg-background font-body flex flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <h1 className="font-heading text-2xl font-bold text-foreground">{t.offerDetail_notFound}</h1>
+            <Link to="/offers"><Button className="mt-4">{t.offerDetail_browseAll}</Button></Link>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -227,6 +234,8 @@ const OfferDetail = () => {
       </div>
 
       <div className="h-24 lg:hidden" />
+
+      <Footer />
     </div>
   );
 };
