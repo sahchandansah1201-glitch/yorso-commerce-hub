@@ -247,8 +247,17 @@ const Offers = () => {
     });
   };
 
+  // Compare tray — это fixed-панель внизу экрана. Когда она активна,
+  // прижимаем подвал/контент дополнительным отступом, чтобы tray не
+  // перекрывал footer и последние строки списка после прокрутки.
+  const hasCompareTray = compareIds.length > 0;
+
   return (
-    <div className="flex min-h-screen flex-col overflow-x-clip bg-background">
+    <div
+      className={`flex min-h-screen flex-col overflow-x-clip bg-background ${
+        hasCompareTray ? "pb-24 md:pb-20" : ""
+      }`}
+    >
       <Header />
 
       <main className="container flex-1 overflow-x-clip py-6 md:py-8 pb-32">
