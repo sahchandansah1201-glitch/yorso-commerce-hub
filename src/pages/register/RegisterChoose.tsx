@@ -9,7 +9,10 @@ import {
   readPreviewAttribution,
   clearPreviewAttribution,
   savePendingPreviewAttribution,
+  readRegistrationSource,
+  clearRegistrationSource,
 } from "@/lib/preview-attribution";
+import type { RegistrationSource } from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterChoose = () => {
