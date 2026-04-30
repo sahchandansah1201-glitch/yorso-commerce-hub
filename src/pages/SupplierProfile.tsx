@@ -702,8 +702,44 @@ const SupplierProfile = () => {
                 )}
               </div>
             </div>
+            <div ref={heroSentinelRef} aria-hidden className="h-px w-full" />
           </div>
         </section>
+
+        {/* Sticky mini-header — appears after hero scrolls out */}
+        <div
+          className={`sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur transition-all duration-200 ${
+            showStickyHeader
+              ? "pointer-events-auto translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-2 opacity-0"
+          }`}
+          aria-hidden={!showStickyHeader}
+        >
+          <div className="container flex items-center justify-between gap-4 py-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <SupplierLogoCard supplier={supplier} size={28} />
+              <div className="min-w-0">
+                <p className="truncate font-heading text-sm font-semibold text-foreground">
+                  {supplier.companyName}
+                </p>
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {countryCodeToFlag(supplier.countryCode)} {supplier.country} ·{" "}
+                  {supplier.city}
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCopyLink}
+              className="hidden h-8 gap-1.5 sm:inline-flex"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Smart-link
+            </Button>
+          </div>
+        </div>
 
         {/* Tabs */}
         <section className="border-t border-border bg-background">
