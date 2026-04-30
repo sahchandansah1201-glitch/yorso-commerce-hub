@@ -172,12 +172,12 @@ const Header = () => {
             </div>
           ) : (
             <>
-              <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>
-                <Button variant="ghost" size="sm">{t.nav_signIn}</Button>
-              </Link>
-              <Link to="/register" onClick={() => { analytics.track("header_register_click"); saveRegistrationSource("header"); }}>
-                <Button size="sm" className="font-semibold">{t.nav_registerFree}</Button>
-              </Link>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/signin" onClick={() => analytics.track("header_signin_click")}>{t.nav_signIn}</Link>
+              </Button>
+              <Button asChild size="sm" className="font-semibold">
+                <Link to="/register" onClick={() => { analytics.track("header_register_click"); saveRegistrationSource("header"); }}>{t.nav_registerFree}</Link>
+              </Button>
             </>
           )}
         </div>
