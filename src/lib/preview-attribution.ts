@@ -46,6 +46,17 @@ export function readPreviewAttribution(): PreviewAttribution | null {
       return null;
     }
     if (Date.now() - parsed.ts > TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] preview_attribution EXPIRED — связь клик→регистрация потеряна",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearPreviewAttribution();
       return null;
     }
@@ -92,6 +103,17 @@ export function readPendingPreviewAttribution(): PreviewAttribution | null {
       return null;
     }
     if (Date.now() - parsed.ts > TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] pending_preview_attribution EXPIRED — registration_complete не получит supplier_id/species/form",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearPendingPreviewAttribution();
       return null;
     }
@@ -145,6 +167,17 @@ export function readRegistrationSource(): string | null {
       return null;
     }
     if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] registration_source EXPIRED — CTA-атрибуция потеряна, registration_start будет direct",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: SOURCE_TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearRegistrationSource();
       return null;
     }
