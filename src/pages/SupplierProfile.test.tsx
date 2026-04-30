@@ -745,3 +745,66 @@ describe("SupplierProfile — standalone page contract", () => {
     expect(body).not.toMatch(exact);
   });
 });
+
+describe("SupplierProfile — Commercial fit section", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+  const labels = [
+    /typical moq/i,
+    /trade terms/i,
+    /lead time/i,
+    /payment terms/i,
+    /shipment ports/i,
+    /best fit/i,
+  ];
+
+  it("renders Commercial fit section with all six labels (locked)", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-commercial-fit");
+    expect(
+      within(section).getByRole("heading", { name: /commercial fit/i }),
+    ).toBeInTheDocument();
+    for (const l of labels) {
+      expect(within(section).getByText(l)).toBeInTheDocument();
+    }
+  });
+
+  it("locked: Commercial fit does not expose supplier identity or exact terms", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-commercial-fit");
+    const text = section.textContent ?? "";
+    expect(text).not.toContain(supplier.companyName);
+    if (supplier.website) expect(text).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(text).not.toContain(supplier.whatsapp);
+    expect(text).not.toMatch(/advance|net \d+ days|against b\/l/i);
+    expect(text).toMatch(/after supplier access|request access/i);
+  });
+
+  it("qualified_unlocked: Commercial fit shows concrete derived values", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-commercial-fit");
+    const text = section.textContent ?? "";
+    expect(text).toMatch(/FOB|CIF|FCA|CFR|DAP|EXW/);
+    expect(text).toMatch(/days/i);
+    expect(text).toContain(supplier.country);
+  });
+
+  it("Commercial fit section: no nested interactive controls", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-commercial-fit");
+    expect(section.querySelectorAll("button button").length).toBe(0);
+    expect(section.querySelectorAll("a button").length).toBe(0);
+  });
+
+  it("Commercial fit copy contains no em dash", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const section = screen.getByTestId("supplier-profile-commercial-fit");
+    expect(section.textContent ?? "").not.toContain("—");
+  });
+});
