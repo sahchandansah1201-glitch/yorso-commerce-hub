@@ -415,6 +415,19 @@ export interface EventPayloadMap {
   /** Buyer clicked an item in the /offers trust proof-strip to jump to its anchor. */
   catalog_trust_proof_click: { itemId: string; anchor: string };
 
+  /**
+   * Click on a supplier-profile catalog preview card.
+   * Used to compare conversion of locked vs unlocked previews into
+   * registration / offer detail views.
+   */
+  preview_card_click: {
+    supplier_id: string;
+    species: string;
+    form: string;
+    href: string;
+    access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+  };
+
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_start: Empty;
   registration_complete_mock: Empty;

@@ -50,6 +50,7 @@ import {
   type SupplierType,
 } from "@/data/mockSuppliers";
 import { useAccessLevel } from "@/lib/access-level";
+import analytics from "@/lib/analytics";
 import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
@@ -460,13 +461,24 @@ const SupplierProfile = () => {
                     )}
                   </div>
                   <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {catalogVisible.map((item, i) => (
+                    {catalogVisible.map((item, i) => {
+                      const href = catalogCardHref(item);
+                      return (
                       <li
                         key={`${item.image}-${i}`}
                         className="overflow-hidden rounded-md border border-border bg-background transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
                       >
                         <Link
-                          to={catalogCardHref(item)}
+                          to={href}
+                          onClick={() =>
+                            analytics.track("preview_card_click", {
+                              supplier_id: supplier.id,
+                              species: item.species,
+                              form: item.form,
+                              href,
+                              access_level: level,
+                            })
+                          }
                           aria-label={
                             isUnlocked
                               ? `View ${item.name} (${item.form}) offers from ${displayName}`
@@ -526,7 +538,8 @@ const SupplierProfile = () => {
                           </div>
                         </Link>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                   {isUnlocked
                     ? catalogHidden > 0 && (
