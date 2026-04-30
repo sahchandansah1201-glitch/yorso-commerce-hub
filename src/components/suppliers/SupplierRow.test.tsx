@@ -36,20 +36,39 @@ const renderRow = (overrides: Partial<Parameters<typeof SupplierRow>[0]> = {}) =
 };
 
 describe("SupplierRow", () => {
-  it("renders an <article> root and never nests <button> inside <button>", () => {
+  it("renders an <article> root and never nests <button> inside <button>, and no a>button", () => {
     renderRow();
     const row = screen.getByTestId("supplier-row");
     expect(row.tagName.toLowerCase()).toBe("article");
 
     const buttons = row.querySelectorAll("button");
-    expect(buttons.length).toBeGreaterThanOrEqual(3); // select + CTA + shortlist
+    expect(buttons.length).toBeGreaterThanOrEqual(2); // CTA + shortlist (select is role=button on a div)
     for (const btn of Array.from(buttons)) {
       let parent = btn.parentElement;
       while (parent && parent !== row) {
         expect(parent.tagName.toLowerCase()).not.toBe("button");
+        expect(parent.tagName.toLowerCase()).not.toBe("a");
         parent = parent.parentElement;
       }
     }
+    expect(row.querySelectorAll("button button").length).toBe(0);
+    expect(row.querySelectorAll("a button").length).toBe(0);
+  });
+
+  it("renders the supplier title as a Link to /suppliers/:id", () => {
+    renderRow();
+    const row = screen.getByTestId("supplier-row");
+    const titleLink = within(row).getByTestId("supplier-row-title-link");
+    expect(titleLink.tagName.toLowerCase()).toBe("a");
+    expect(titleLink.getAttribute("href")).toBe(`/suppliers/${supplier.id}`);
+  });
+
+  it("renders an explicit Open profile link to /suppliers/:id", () => {
+    renderRow();
+    const row = screen.getByTestId("supplier-row");
+    const openLink = within(row).getByTestId("supplier-row-open-profile");
+    expect(openLink.tagName.toLowerCase()).toBe("a");
+    expect(openLink.getAttribute("href")).toBe(`/suppliers/${supplier.id}`);
   });
 
   it("calls onSelect only when the supplier selection area is clicked", () => {
