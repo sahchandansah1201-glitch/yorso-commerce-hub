@@ -128,6 +128,10 @@ const SupplierProfile = () => {
   const navigate = useNavigate();
   const { level } = useAccessLevel();
   const supplier = useMemo(() => getSupplierById(supplierId), [supplierId]);
+  const related = useMemo(
+    () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
+    [supplierId],
+  );
 
   const isUnlocked = level === "qualified_unlocked";
   const isMasked = !isUnlocked;
