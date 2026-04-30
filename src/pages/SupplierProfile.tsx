@@ -473,15 +473,19 @@ const SupplierProfile = () => {
                         <Link
                           to={href}
                           onClick={() => {
-                            const payload = {
+                            const attribution = {
                               supplier_id: supplier.id,
                               species: item.species,
                               form: item.form,
                               href,
                               access_level: level,
                             };
-                            analytics.track("preview_card_click", payload);
-                            savePreviewAttribution(payload);
+                            const attempt_id = getRegistrationAttemptId();
+                            analytics.track("preview_card_click", {
+                              ...attribution,
+                              attempt_id,
+                            });
+                            savePreviewAttribution(attribution);
                           }}
                           aria-label={
                             isUnlocked
