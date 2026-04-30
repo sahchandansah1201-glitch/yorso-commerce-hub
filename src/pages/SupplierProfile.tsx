@@ -829,7 +829,9 @@ const SupplierProfile = () => {
                     <div>
                       <dt className="text-muted-foreground">Active offers</dt>
                       <dd className="mt-1 font-medium text-foreground tabular-nums">
-                        {supplier.activeOffersCount}
+                        {isUnlocked
+                          ? supplier.activeOffersCount
+                          : "Available after supplier approval"}
                       </dd>
                     </div>
                   </dl>
