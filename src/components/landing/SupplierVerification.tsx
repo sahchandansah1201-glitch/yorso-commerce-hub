@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, FileSearch, BadgeCheck, ArrowRight, XCircle, AlertTriangle } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics, { trackSectionImpression } from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const stepIcons = [FileSearch, ShieldCheck, BadgeCheck];
 
