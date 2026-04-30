@@ -4387,7 +4387,6 @@ const es: TranslationKeys = {
   supplier_cases_factProduct: "Producto",
   supplier_cases_factVolume: "Volumen del lote",
   supplier_cases_factBasis: "Incoterm",
-  supplier_cases_volumeTons: "{n} t",
   supplier_cases_photoReportTitle: "Informe fotográfico de carga",
   supplier_cases_photoReportNote: "Los informes fotográficos completos en resolución original se entregan a compradores cualificados tras la solicitud de acceso.",
   supplier_cases_photoCaption_loading: "Carga del contenedor, almacén del expedidor",
