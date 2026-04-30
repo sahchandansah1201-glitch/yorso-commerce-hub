@@ -316,6 +316,13 @@ export interface EventPayloadMap {
     countries: number;
     /** ms from role_selected → complete (null if not measurable) */
     funnelDurationMs: number | null;
+    // Preview attribution (если регистрация началась с клика по preview-карточке)
+    supplier_id?: string;
+    species?: string;
+    form?: string;
+    href?: string;
+    access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    source?: "supplier_preview" | "direct";
   };
   value_destination_selected: { country: string; role: UserRole };
 

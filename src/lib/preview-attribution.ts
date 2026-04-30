@@ -62,3 +62,49 @@ export function clearPreviewAttribution(): void {
     // silent
   }
 }
+
+/**
+ * Pending-копия attribution, переживающая весь registration-флоу
+ * (от /register до /register/ready), чтобы прикрепить supplier_id /
+ * species / form к событию `registration_complete`. Очищается после
+ * успешной регистрации или по TTL.
+ */
+const PENDING_KEY = "yorso_preview_attribution_pending";
+
+export function savePendingPreviewAttribution(attr: PreviewAttribution): void {
+  try {
+    sessionStorage.setItem(PENDING_KEY, JSON.stringify(attr));
+  } catch {
+    // silent
+  }
+}
+
+export function readPendingPreviewAttribution(): PreviewAttribution | null {
+  try {
+    const raw = sessionStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PreviewAttribution;
+    if (
+      !parsed ||
+      typeof parsed.supplier_id !== "string" ||
+      typeof parsed.ts !== "number"
+    ) {
+      return null;
+    }
+    if (Date.now() - parsed.ts > TTL_MS) {
+      clearPendingPreviewAttribution();
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingPreviewAttribution(): void {
+  try {
+    sessionStorage.removeItem(PENDING_KEY);
+  } catch {
+    // silent
+  }
+}
