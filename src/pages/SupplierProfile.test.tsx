@@ -890,10 +890,10 @@ describe("SupplierProfile — Trading Dossier module v1", () => {
     const dossier = screen.getByTestId("supplier-trading-dossier");
     const strip = within(dossier).getByTestId("supplier-trading-dossier-evidence");
     expect(strip).toBeInTheDocument();
-    expect(within(strip).getByText(/product focus/i)).toBeInTheDocument();
-    expect(within(strip).getByText(/commercial terms/i)).toBeInTheDocument();
-    expect(within(strip).getByText(/documents/i)).toBeInTheDocument();
-    expect(within(strip).getByText(/delivery/i)).toBeInTheDocument();
+    expect(within(strip).getByText("Product focus")).toBeInTheDocument();
+    expect(within(strip).getByText("Commercial terms")).toBeInTheDocument();
+    expect(within(strip).getByText("Documents")).toBeInTheDocument();
+    expect(within(strip).getByText("Delivery")).toBeInTheDocument();
   });
 
   it("locked: dossier hides companyName, website, whatsapp", () => {
