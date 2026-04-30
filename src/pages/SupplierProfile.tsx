@@ -529,7 +529,22 @@ const SupplierProfile = () => {
                     )}
                   </div>
 
-                  {!isUnlocked && (
+                  {isUnlocked ? (
+                    <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-border pt-3 text-[11px]">
+                      <div>
+                        <dt className="text-muted-foreground">Response speed</dt>
+                        <dd className="mt-0.5 font-semibold text-foreground">
+                          {responseLabel[supplier.responseSignal]}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Active offers</dt>
+                        <dd className="mt-0.5 font-semibold text-foreground tabular-nums">
+                          {supplier.activeOffersCount}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
                     <p className="mt-3 border-t border-border pt-3 text-[11px] text-muted-foreground">
                       Active offers and supplier response details available after supplier approval.
                     </p>
