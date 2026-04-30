@@ -467,9 +467,17 @@ const buildLogisticsFacts = (supplier: MockSupplier) => {
 
 const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
-  const supplier = useMemo<MockSupplier | undefined>(
+  const { t, lang } = useLanguage();
+
+  // Базовый поставщик (en) — нужен для стабильных id/seed/lookup.
+  const baseSupplier = useMemo<MockSupplier | undefined>(
     () => mockSuppliers.find((s) => s.id === supplierId),
     [supplierId],
+  );
+  // Локализованная копия — то, что реально рендерим (about, country, и т.п.).
+  const supplier = useMemo<MockSupplier | undefined>(
+    () => (baseSupplier ? localizeSupplier(baseSupplier, lang) : undefined),
+    [baseSupplier, lang],
   );
 
   const supplierOffers = useMemo(() => {
@@ -481,8 +489,22 @@ const SupplierProfile = () => {
 
   const production = useMemo(() => (supplier ? buildProductionFacts(supplier) : null), [supplier]);
   const logistics = useMemo(() => (supplier ? buildLogisticsFacts(supplier) : null), [supplier]);
-  const shipmentCases = useMemo(() => (supplier ? buildShipmentCases(supplier) : []), [supplier]);
-  const faqItems = useMemo(() => (supplier ? buildFaqItems(supplier) : []), [supplier]);
+
+  // Локализованное название продукта для подстановки в кейсы (поле product
+  // в карточке кейса). Берём из productFocus уже локализованного supplier'а.
+  const productLabel = useMemo(() => {
+    if (!supplier) return "";
+    return supplier.productFocus[0]?.species ?? t.supplier_cases_defaultProduct;
+  }, [supplier, t]);
+
+  const shipmentCases = useMemo(
+    () => (supplier ? buildShipmentCasesI18n(supplier, productLabel) : []),
+    [supplier, productLabel],
+  );
+  const faqItems = useMemo(
+    () => (supplier ? buildFaqItemsI18n(supplier) : []),
+    [supplier],
+  );
 
   // Prefetch логотипов соседних профилей (prev + next 2) пока пользователь
   // смотрит текущий — переход по ссылкам «Похожие поставщики» / каталог
