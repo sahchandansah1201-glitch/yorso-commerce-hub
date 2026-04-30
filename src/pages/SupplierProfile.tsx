@@ -839,7 +839,7 @@ const SupplierProfile = () => {
         >
           <div className="container flex items-center justify-between gap-4 py-2.5">
             <div className="flex min-w-0 items-center gap-2.5">
-              <SupplierLogoCard supplier={supplier} size={28} />
+              <SupplierLogoCard supplier={supplier} size={28} priority="mini" />
               <div className="min-w-0">
                 <p className="truncate font-heading text-sm font-semibold text-foreground">
                   {supplier.companyName}
