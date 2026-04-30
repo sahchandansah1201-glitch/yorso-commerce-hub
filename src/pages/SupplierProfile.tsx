@@ -189,8 +189,9 @@ const SupplierLogoCard = ({
       : size >= 40
         ? "text-sm"
         : "text-[11px]";
-  const ring =
-    size >= 80
+  const ring = isHero
+    ? "ring-[3px] md:ring-4 ring-background shadow-lg"
+    : size >= 80
       ? "ring-4 ring-background shadow-lg"
       : "ring-2 ring-background shadow-sm";
 
@@ -698,7 +699,7 @@ const SupplierProfile = () => {
 
         {/* Identity */}
         <section className="bg-background">
-          <div className="container -mt-12 pb-6 md:-mt-14">
+          <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
                 <SupplierLogoCard supplier={supplier} size={86} priority="hero" />
@@ -714,7 +715,7 @@ const SupplierProfile = () => {
                 </p>
               </div>
 
-              <div className="flex shrink-0 md:mt-16 md:justify-end">
+              <div className="flex shrink-0 md:mt-[70px] md:justify-end">
                 <Button
                   type="button"
                   variant="outline"
