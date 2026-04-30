@@ -637,11 +637,11 @@ const SupplierProfile = () => {
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <Link to="/" className="hover:text-foreground">
-                Главная
+                {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
               <Link to="/suppliers" className="hover:text-foreground">
-                Поставщики
+                {t.supplier_breadcrumb_suppliers}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
               <span className="font-medium text-foreground">{supplier.companyName}</span>
@@ -672,9 +672,28 @@ const SupplierProfile = () => {
                 </h1>
 
                 <p className="mt-2 text-sm text-foreground/80">
-                  {supplierTypeLabel(supplier.supplierType)} ·{" "}
-                  {supplier.yearsInBusiness} лет на рынке ·{" "}
-                  {supplier.activeOffersCount} активных офферов
+                  {(() => {
+                    const typeKey = supplierTypeLabelKey(supplier.supplierType);
+                    const typeStr = typeKey
+                      ? (t[typeKey] as string)
+                      : supplier.supplierType;
+                    const yearsStr = interpolate(t.supplier_yearsOnMarket, {
+                      n: supplier.yearsInBusiness,
+                      plural: pluralize(lang, supplier.yearsInBusiness, {
+                        one: t.supplier_yearsOnMarket_pluralOne,
+                        few: t.supplier_yearsOnMarket_pluralFew,
+                        many: t.supplier_yearsOnMarket_pluralMany,
+                      }),
+                    });
+                    const offersStr = interpolate(t.supplier_activeOffers, {
+                      n: supplier.activeOffersCount,
+                    });
+                    return interpolate(t.supplier_identity_subline, {
+                      type: typeStr,
+                      years: yearsStr,
+                      offers: offersStr,
+                    });
+                  })()}
                 </p>
               </div>
 
@@ -687,7 +706,7 @@ const SupplierProfile = () => {
                   className="h-8 gap-1.5"
                 >
                   <Copy className="h-3.5 w-3.5" />
-                  Копировать smart-link
+                  {t.supplier_copySmartLink}
                 </Button>
               </div>
             </div>
@@ -697,7 +716,11 @@ const SupplierProfile = () => {
               <ul className="mt-4 space-y-2 text-sm text-foreground">
                 <li className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden />
-                  <span>В бизнесе с {supplier.inBusinessSinceYear}</span>
+                  <span>
+                    {interpolate(t.supplier_inBusinessSince, {
+                      year: supplier.inBusinessSinceYear,
+                    })}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden />
@@ -732,13 +755,13 @@ const SupplierProfile = () => {
                   className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() =>
                     toast({
-                      title: "Сообщение поставщику",
-                      description: "Запрос подготовлен. Менеджер свяжется с вами.",
+                      title: t.supplier_sendMessage_toast_title,
+                      description: t.supplier_sendMessage_toast_desc,
                     })
                   }
                 >
                   <MessageCircle className="h-4 w-4" />
-                  ОТПРАВИТЬ СООБЩЕНИЕ
+                  {t.supplier_sendMessage}
                 </Button>
                 {supplier.whatsapp && (
                   <Button
