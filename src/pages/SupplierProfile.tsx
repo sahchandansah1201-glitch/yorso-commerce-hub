@@ -29,11 +29,13 @@ import {
   FileCheck2,
   FileClock,
   FileQuestion,
+  Fish,
   Globe2,
   Lock,
   MessageCircle,
   Package,
   ShieldCheck,
+  Ship,
   Star,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
