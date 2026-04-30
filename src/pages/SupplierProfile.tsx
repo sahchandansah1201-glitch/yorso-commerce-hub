@@ -351,7 +351,7 @@ const SupplierProfile = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="default">
-                              {offer.commercialTerms?.incoterm ?? "CFR"} —{" "}
+                              {offer.commercial?.incoterm ?? "CFR"} —{" "}
                               {offer.origin}
                             </SelectItem>
                           </SelectContent>
