@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ChevronRight,
@@ -7,28 +7,17 @@ import {
   MapPin,
   Globe,
   MessageCircle,
-  ShoppingCart,
-  HelpCircle,
-  Store,
-  TrendingUp,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, countryCodeToFlag, type MockSupplier } from "@/data/mockSuppliers";
 import { mockOffers } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { cn } from "@/lib/utils";
+import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
+import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
