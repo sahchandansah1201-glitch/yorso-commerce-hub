@@ -298,175 +298,22 @@ const SupplierProfile = () => {
               {/* Catalog */}
               <TabsContent value="catalog" className="mt-6 space-y-4">
                 {supplierOffers.map((offer) => (
-                  <article
-                    key={offer.id}
-                    className="grid gap-5 rounded-xl border border-border bg-card p-5 lg:grid-cols-[260px_minmax(0,1fr)_280px]"
-                  >
-                    {/* Image + meta */}
-                    <div>
-                      <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-                        <img
-                          src={offer.gallery?.[0]?.src ?? "/placeholder.svg"}
-                          alt={offer.productName}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        {Math.floor(500 + Math.random() * 800)} человек интересовались
-                      </p>
-                      <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" aria-hidden />
-                        24 Январь 2025
-                      </p>
+                  <div key={offer.id}>
+                    <div className="sm:hidden">
+                      <MobileOfferCard
+                        offer={offer}
+                        isSelected={false}
+                        onSelect={() => {}}
+                      />
                     </div>
-
-                    {/* Center info */}
-                    <div className="min-w-0">
-                      <h3 className="font-heading text-lg font-bold text-foreground">
-                        {offer.productName}
-                      </h3>
-                      <p className="mt-1 text-sm italic text-muted-foreground">
-                        {offer.latinName}
-                      </p>
-
-                      <div className="mt-4">
-                        <p className="text-xs font-medium text-foreground">
-                          Логистика (влияет на цену)
-                        </p>
-                        <Select defaultValue="default">
-                          <SelectTrigger className="mt-1.5 h-10">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="default">
-                              {offer.commercial?.incoterm ?? "CFR"} —{" "}
-                              {offer.origin}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-xs font-medium text-foreground">
-                            Производитель
-                          </p>
-                          <div className="mt-1.5 flex items-center gap-1.5 text-sm">
-                            <span aria-hidden>
-                              {countryCodeToFlag(supplier.countryCode)}
-                            </span>
-                            <span className="font-medium text-foreground">
-                              {supplier.companyName.split(" ")[0].toUpperCase()}…
-                            </span>
-                            <span className="text-muted-foreground">
-                              , {supplier.country}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-foreground">
-                            Сертификаты
-                          </p>
-                          <ul className="mt-1.5 flex flex-wrap gap-1">
-                            {supplier.certificationBadges.slice(0, 4).map((b) => (
-                              <li
-                                key={b.code}
-                                className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-semibold text-foreground"
-                              >
-                                {b.label}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
+                    <div className="hidden sm:block">
+                      <CatalogOfferRow
+                        offer={offer}
+                        isSelected={false}
+                        onSelect={() => {}}
+                      />
                     </div>
-
-                    {/* Right price + actions */}
-                    <div className="flex flex-col">
-                      <p className="font-heading text-2xl font-bold text-foreground">
-                        {offer.priceRange} {offer.priceUnit}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        от {offer.moq}
-                      </p>
-
-                      <div className="mt-4">
-                        <p className="text-xs font-medium text-foreground">Оплата</p>
-                        <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="rounded border border-border bg-background px-2 py-1 text-xs font-semibold">
-                            L/C
-                          </span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                type="button"
-                                className="text-muted-foreground hover:text-foreground"
-                                aria-label="Подробнее об оплате"
-                              >
-                                <HelpCircle className="h-3.5 w-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Аккредитив, безопасный для крупных сделок
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </div>
-
-                      <Button
-                        type="button"
-                        size="lg"
-                        className="mt-4 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                        asChild
-                      >
-                        <Link to={`/offers/${offer.id}`}>
-                          <ShoppingCart className="h-4 w-4" />В КОРЗИНУ
-                        </Link>
-                      </Button>
-
-                      <button
-                        type="button"
-                        className="mt-3 flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
-                      >
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        Price movement statistics
-                      </button>
-
-                      <div className="mt-4 border-t border-border pt-3">
-                        <p className="flex items-center gap-1.5 text-sm font-semibold text-primary">
-                          <Store className="h-3.5 w-3.5" />
-                          {supplier.companyName}
-                        </p>
-                        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" aria-hidden />
-                          {supplier.country}{" "}
-                          <span aria-hidden>{countryCodeToFlag(supplier.countryCode)}</span>
-                        </p>
-
-                        <div className="mt-2 flex gap-2">
-                          <button
-                            type="button"
-                            aria-label="Сообщение"
-                            className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/40 text-primary hover:bg-primary/5"
-                          >
-                            <MessageCircle className="h-3.5 w-3.5" />
-                          </button>
-                          {supplier.whatsapp && (
-                            <a
-                              href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label="WhatsApp"
-                              className="flex h-8 w-8 items-center justify-center rounded-full border border-primary/40 text-primary hover:bg-primary/5"
-                            >
-                              <WhatsAppIcon className="h-3.5 w-3.5" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </article>
+                  </div>
                 ))}
                 {supplierOffers.length === 0 && (
                   <p className="rounded-lg border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
