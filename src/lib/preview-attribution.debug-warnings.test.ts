@@ -58,6 +58,7 @@ const findDebugSummary = (args: unknown[]) =>
     (a): a is {
       attempt_id: string | null;
       registration_source: string | null;
+      registration_source_error: "json_parse_error" | "invalid_shape" | null;
       missing: string[];
     } =>
       a !== null &&
