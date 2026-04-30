@@ -76,7 +76,7 @@ describe("SupplierProfile — access gating", () => {
     expect(body).not.toContain(`${supplier.totalProductsCount} products`);
     expect(body).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
     expect(body).toMatch(/Full delivery geography after supplier approval/i);
-    expect(screen.getByText(supplier.maskedName)).toBeInTheDocument();
+    expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
   });
 
   it("registered_locked profile still hides restricted fields", () => {
@@ -95,7 +95,7 @@ describe("SupplierProfile — access gating", () => {
   it("qualified_unlocked profile shows companyName and contact channels", () => {
     seedQualifiedSession();
     renderAt(`/suppliers/${supplier.id}`);
-    expect(screen.getByText(supplier.companyName)).toBeInTheDocument();
+    expect(screen.getAllByText(supplier.companyName).length).toBeGreaterThan(0);
     const body = document.body.textContent ?? "";
     expect(body).toContain(`${supplier.totalProductsCount}`);
     expect(body).toContain(`${supplier.deliveryCountriesTotal}`);
