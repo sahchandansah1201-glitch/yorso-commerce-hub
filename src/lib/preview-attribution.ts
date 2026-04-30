@@ -252,6 +252,12 @@ export function savePreviewAttribution(
   try {
     validateAttributionShape("savePreviewAttribution", input);
     const record: PreviewAttribution = { ...input, ts: Date.now() };
+    if (import.meta.env.DEV) {
+      // В DEV прикрепляем attempt_id прямо к записи, чтобы цепочку
+      // click → registration можно было восстановить из одной структуры
+      // в DevTools/логах, без отдельного чтения ключа attempt_id.
+      record.attempt_id = peekRegistrationAttemptId();
+    }
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
