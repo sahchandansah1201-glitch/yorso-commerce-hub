@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
@@ -13,9 +13,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterChoose = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setField } = useRegistration();
   const { t } = useLanguage();
 
+  // Re-fire on every SPA visit to /register (mount or in-app re-navigation),
+  // keyed by location.key so internal nav without unmount still emits the event.
   useEffect(() => {
     const attr = readPreviewAttribution();
     if (attr) {
@@ -32,9 +35,7 @@ const RegisterChoose = () => {
     } else {
       analytics.track("registration_start", { source: "direct" });
     }
-    // Run once per mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location.key]);
 
   const roleCards = [
     {
