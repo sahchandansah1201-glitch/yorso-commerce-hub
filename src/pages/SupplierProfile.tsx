@@ -378,9 +378,9 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const { t, lang } = useLanguage();
 
   const responseLabel =
-    supplier.responseSpeedHours <= 4
+    supplier.responseSignal === "fast"
       ? t.supplier_response_fast
-      : supplier.responseSpeedHours <= 12
+      : supplier.responseSignal === "normal"
       ? t.supplier_response_normal
       : t.supplier_response_slow;
 
