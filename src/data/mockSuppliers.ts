@@ -679,3 +679,29 @@ export const getSupplierById = (id: string | undefined): MockSupplier | null => 
   if (!id) return null;
   return mockSuppliers.find((s) => s.id === id) ?? null;
 };
+
+/**
+ * Related suppliers — same-species or same-country suppliers, excluding `id`.
+ * Frontend-only ranking: shared species first, then same country, capped to `limit`.
+ */
+export const getRelatedSuppliers = (id: string, limit = 3): MockSupplier[] => {
+  const base = getSupplierById(id);
+  if (!base) return [];
+  const baseSpecies = new Set(
+    base.productFocus.map((p) => p.species.toLowerCase()),
+  );
+  const scored = mockSuppliers
+    .filter((s) => s.id !== id)
+    .map((s) => {
+      const sharedSpecies = s.productFocus.filter((p) =>
+        baseSpecies.has(p.species.toLowerCase()),
+      ).length;
+      const sameCountry = s.country === base.country ? 1 : 0;
+      return { s, score: sharedSpecies * 10 + sameCountry };
+    })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((x) => x.s);
+  return scored;
+};
