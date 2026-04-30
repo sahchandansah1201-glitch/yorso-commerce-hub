@@ -241,6 +241,7 @@ export function readPreviewAttribution(): PreviewAttribution | null {
             ageMs: Date.now() - parsed.ts,
             ttlMs: TTL_MS,
             record: parsed,
+            ...buildAttributionDebugSummary(["<all>"]),
           },
         );
       }
