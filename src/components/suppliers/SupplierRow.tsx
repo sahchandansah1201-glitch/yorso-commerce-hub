@@ -153,10 +153,24 @@ const SupplierRowImpl = ({
 
           {/* Center + right content */}
           <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 md:flex-row md:gap-5 md:p-5">
-            {/* Identity / about — clickable selection area */}
-            <button
-              type="button"
-              onClick={() => onSelect(supplier.id)}
+            {/* Identity / about — clickable selection area (div role=button so we can nest a real <Link> for the title) */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                // Don't hijack clicks on inner links/buttons.
+                const target = e.target as HTMLElement;
+                if (target.closest("a, button")) return;
+                onSelect(supplier.id);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  const target = e.target as HTMLElement;
+                  if (target.closest("a, button")) return;
+                  e.preventDefault();
+                  onSelect(supplier.id);
+                }
+              }}
               aria-pressed={isSelected}
               aria-label={`Select ${displayName} to review details`}
               aria-describedby={`${metaId} ${aboutId}`}
@@ -166,7 +180,14 @@ const SupplierRowImpl = ({
                 id={titleId}
                 className="font-heading text-[17px] font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere] md:text-lg md:[overflow-wrap:break-word]"
               >
-                {displayName}
+                <Link
+                  to={`/suppliers/${supplier.id}`}
+                  data-testid="supplier-row-title-link"
+                  className="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
+                  aria-label={`Open supplier profile: ${displayName}`}
+                >
+                  {displayName}
+                </Link>
               </h3>
               {isMasked && (
                 <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground md:mt-2">
@@ -256,7 +277,7 @@ const SupplierRowImpl = ({
                   {responseLabel[supplier.responseSignal]}
                 </span>
               </div>
-            </button>
+            </div>
 
             {/* Right-middle: catalog + delivery + actions */}
             <div className="flex shrink-0 flex-col gap-4 md:w-[260px]">
