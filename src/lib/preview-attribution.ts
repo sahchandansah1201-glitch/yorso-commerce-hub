@@ -93,6 +93,31 @@ function normalizeMissing(missing: readonly string[]): string[] {
 type RegistrationSourceErrorType = "json_parse_error" | "invalid_shape";
 
 /**
+ * Type-guard для записи `registration_source` из sessionStorage.
+ * Сужает `unknown` до `RegistrationSourceRecord` без force-cast,
+ * аккуратно обрабатывая null, массивы, отсутствие поля `source`,
+ * не-строковый `source`, пустую строку и не-числовой `ts`.
+ *
+ * Используется и в `readRegistrationSource` (production-путь), и в
+ * `buildAttributionDebugSummary` (dev-сводка) — чтобы оба места имели
+ * одинаковый, проверяемый компилятором контракт формы записи.
+ */
+function isRegistrationSourceRecord(
+  value: unknown,
+): value is RegistrationSourceRecord {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const candidate = value as { source?: unknown; ts?: unknown };
+  return (
+    typeof candidate.source === "string" &&
+    candidate.source.length > 0 &&
+    typeof candidate.ts === "number" &&
+    Number.isFinite(candidate.ts)
+  );
+}
+
+/**
  * Dev-only: компактная сводка контекста текущей попытки регистрации,
  * которую прикрепляем к каждому attribution-предупреждению, чтобы
  * быстрее восстанавливать цепочку click → registration в DevTools.
@@ -109,20 +134,20 @@ function buildAttributionDebugSummary(missing: readonly string[]) {
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (raw) {
-      let parsed: unknown = undefined;
+      let parsed: unknown;
+      let parseFailed = false;
       try {
         parsed = JSON.parse(raw);
       } catch {
         // JSON битый — отдельный сигнал, отличающийся от «неправильной формы».
         sourceError = "json_parse_error";
+        parseFailed = true;
       }
-      if (sourceError === null) {
-        const candidate =
-          parsed && typeof parsed === "object" && !Array.isArray(parsed)
-            ? (parsed as { source?: unknown }).source
-            : undefined;
-        if (typeof candidate === "string" && candidate.length > 0) {
-          registrationSource = candidate;
+      if (!parseFailed) {
+        // Type-guard сужает unknown → RegistrationSourceRecord без cast,
+        // одинаково для production-чтения и dev-сводки.
+        if (isRegistrationSourceRecord(parsed)) {
+          registrationSource = parsed.source;
         } else {
           // JSON распарсился, но форма неожиданная (нет source / не строка /
           // пустая строка / массив / null) — помечаем как invalid_shape.
@@ -463,8 +488,15 @@ export function readRegistrationSource(): string | null {
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as RegistrationSourceRecord;
-    if (!parsed || typeof parsed.source !== "string" || typeof parsed.ts !== "number") {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+    // Один и тот же type-guard, что и в debug-сводке: гарантирует,
+    // что parsed.source — непустая строка, а parsed.ts — конечное число.
+    if (!isRegistrationSourceRecord(parsed)) {
       return null;
     }
     if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
