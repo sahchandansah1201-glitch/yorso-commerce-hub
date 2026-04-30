@@ -217,3 +217,145 @@ describe("SupplierProfile — access gating", () => {
     expect(within(section).getAllByText(/per kg/i).length).toBeGreaterThan(0);
   });
 });
+
+describe("SupplierProfile — supplier access request flow", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+  const otherSupplier = mockSuppliers[1];
+
+  it("anonymous_locked does not render request form, keeps Create buyer account CTA", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(
+      screen.queryByRole("heading", { name: /request supplier access/i }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("link", { name: /create buyer account/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("registered_locked: clicking Request supplier access opens inline form using maskedName", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    const heading = screen.getByRole("heading", {
+      name: /request supplier access/i,
+    });
+    const form = heading.closest("form")!;
+    expect(within(form).getAllByText(supplier.maskedName).length)
+      .toBeGreaterThan(0);
+    expect(form.textContent ?? "").not.toContain(supplier.companyName);
+  });
+
+  it("submitting with no reasons shows inline validation error", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    // Uncheck the default-checked reason.
+    const exact = screen.getByLabelText(/exact price access/i);
+    fireEvent.click(exact);
+    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
+    expect(screen.getByRole("alert").textContent ?? "")
+      .toMatch(/select at least one reason/i);
+    // Form is still visible — no success state.
+    expect(screen.queryByText(/access request sent/i)).toBeNull();
+  });
+
+  it("submitting with selected reasons saves sessionStorage and renders Access request sent", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    fireEvent.click(screen.getByLabelText(/supplier contact/i));
+    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
+    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed[supplier.id]).toBeTruthy();
+    expect(parsed[supplier.id].status).toBe("sent");
+    expect(parsed[supplier.id].reasons).toEqual(
+      expect.arrayContaining(["exact_price", "supplier_contact"]),
+    );
+  });
+
+  it("preserves request sent state after re-render for the same supplier", () => {
+    seedRegisteredSession();
+    sessionStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "sent",
+          reasons: ["exact_price"],
+          message: "",
+          sentAt: new Date().toISOString(),
+        },
+      }),
+    );
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+    // Primary CTA must not re-prompt to Request supplier access.
+    expect(
+      screen.queryByRole("button", { name: /request supplier access/i }),
+    ).toBeNull();
+  });
+
+  it("request status is supplier-specific", () => {
+    seedRegisteredSession();
+    sessionStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "sent",
+          reasons: ["exact_price"],
+          message: "",
+          sentAt: new Date().toISOString(),
+        },
+      }),
+    );
+    renderAt(`/suppliers/${otherSupplier.id}`);
+    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("qualified_unlocked does not render request form and still shows contact channels", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(
+      screen.queryByRole("heading", { name: /request supplier access/i }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /request supplier access/i }),
+    ).toBeNull();
+    if (supplier.website) {
+      expect(screen.getByRole("link", { name: /website/i })).toBeInTheDocument();
+    }
+  });
+
+  it("does not render nested <button> elements while form is open", () => {
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    fireEvent.click(
+      screen.getByRole("button", { name: /request supplier access/i }),
+    );
+    const buttons = document.querySelectorAll("button");
+    for (const btn of Array.from(buttons)) {
+      let parent = btn.parentElement;
+      while (parent) {
+        expect(parent.tagName.toLowerCase()).not.toBe("button");
+        parent = parent.parentElement;
+      }
+    }
+  });
+});
+
