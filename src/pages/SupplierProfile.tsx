@@ -530,6 +530,35 @@ const SupplierProfile = () => {
   const shipmentCases = useMemo(() => (supplier ? buildShipmentCases(supplier) : []), [supplier]);
   const faqItems = useMemo(() => (supplier ? buildFaqItems(supplier) : []), [supplier]);
 
+  // Prefetch логотипов соседних профилей (prev + next 2) пока пользователь
+  // смотрит текущий — переход по ссылкам «Похожие поставщики» / каталог
+  // покажет логотип мгновенно (он уже в memory/HTTP cache).
+  useEffect(() => {
+    if (!supplier) return;
+    const idx = mockSuppliers.findIndex((s) => s.id === supplier.id);
+    if (idx < 0) return;
+    const neighbors = [
+      mockSuppliers[idx - 1],
+      mockSuppliers[idx + 1],
+      mockSuppliers[idx + 2],
+    ]
+      .filter(Boolean)
+      .map((s) => s.logoImage)
+      .filter((u): u is string => !!u);
+    if (neighbors.length === 0) return;
+    // Откладываем до idle, чтобы не конкурировать с критическими ресурсами
+    // текущей страницы.
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number;
+    };
+    const run = () => prefetchLogos(neighbors);
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(run);
+    } else {
+      setTimeout(run, 300);
+    }
+  }, [supplier]);
+
   useEffect(() => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
