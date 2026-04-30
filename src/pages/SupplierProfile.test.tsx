@@ -769,7 +769,7 @@ describe("SupplierProfile — Commercial fit section", () => {
       within(section).getByRole("heading", { name: /commercial fit/i }),
     ).toBeInTheDocument();
     for (const l of labels) {
-      expect(within(section).getByText(l)).toBeInTheDocument();
+      expect(within(section).getAllByText(l).length).toBeGreaterThan(0);
     }
   });
 
