@@ -420,6 +420,7 @@ const SupplierProfile = () => {
                             href={supplier.website}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label="Website"
                             className="text-primary hover:underline"
                           >
                             {supplier.website.replace(/^https?:\/\//, "")}
