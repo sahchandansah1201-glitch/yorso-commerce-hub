@@ -820,7 +820,7 @@ const SupplierProfile = () => {
             {/* 3. Trade and delivery */}
             <article
               aria-labelledby="profile-trade"
-              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <h2
