@@ -51,6 +51,7 @@ const App = () => (
         <BrowserRouter>
           <BuyerSessionProvider>
             <RegistrationProvider>
+              <SupplierApprovalNotifier />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/register" element={<RegisterChoose />} />
