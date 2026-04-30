@@ -46,6 +46,17 @@ export function readPreviewAttribution(): PreviewAttribution | null {
       return null;
     }
     if (Date.now() - parsed.ts > TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] preview_attribution EXPIRED — связь клик→регистрация потеряна",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearPreviewAttribution();
       return null;
     }
