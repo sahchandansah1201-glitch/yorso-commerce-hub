@@ -45,6 +45,23 @@ export function getRegistrationAttemptId(): string {
   }
 }
 
+/**
+ * Возвращает текущий attempt_id без создания нового, если его нет.
+ * Используется для debug-логов, чтобы не «материализовать» попытку
+ * регистрации просто фактом чтения значения.
+ */
+export function peekRegistrationAttemptId(): string | null {
+  try {
+    const existing = sessionStorage.getItem(STORAGE_KEY);
+    if (existing && typeof existing === "string" && existing.length > 0) {
+      return existing;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 /** Сбрасывает attempt_id (после registration_complete или явного reset). */
 export function resetRegistrationAttemptId(): void {
   try {
@@ -53,3 +70,4 @@ export function resetRegistrationAttemptId(): void {
     // silent
   }
 }
+
