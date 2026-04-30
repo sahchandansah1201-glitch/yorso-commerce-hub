@@ -11,9 +11,14 @@
  * строка форматируется через t(...) на стороне рендера.
  */
 import type { MockSupplier } from "@/data/mockSuppliers";
-import type { TranslationKeys } from "@/i18n/translations";
+import { translations } from "@/i18n/translations";
 
-type TKey = keyof TranslationKeys;
+/**
+ * TranslationKeys не экспортируется из translations.ts (внутренний тип).
+ * Выводим тип ключей из самого объекта переводов — это даёт строгую
+ * типизацию без модификации публичного API i18n-модуля.
+ */
+type TKey = keyof (typeof translations)["en"];
 
 /* ===== Детерминированный seed (тот же алгоритм, что в SupplierProfile) ===== */
 const hashSeed = (s: string): number => {
