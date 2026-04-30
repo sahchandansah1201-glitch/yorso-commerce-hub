@@ -8,6 +8,16 @@
  * delivery counts.
  */
 import { useEffect, useMemo, useState } from "react";
+
+/**
+ * IA version marker — bump whenever the information architecture of
+ * SupplierProfile changes meaningfully. Exposed via:
+ *   - console.info("[SupplierProfile] IA <version> rendered ...")
+ *   - data-ia-version / data-component on the root <div>
+ *   - hidden <span data-testid="supplier-profile-ia-version">
+ * Lets QA confirm at a glance which IA actually shipped to the browser.
+ */
+const SUPPLIER_PROFILE_IA_VERSION = "v2";
 import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
@@ -232,6 +242,17 @@ const SupplierProfile = () => {
     };
   }, [supplier, displayName]);
 
+  // Diagnostic marker: log the IA version + access level on every mount /
+  // supplier change so QA can confirm in DevTools that the new IA shipped.
+  useEffect(() => {
+    if (!supplier) return;
+    // eslint-disable-next-line no-console
+    console.info(
+      `[SupplierProfile] IA ${SUPPLIER_PROFILE_IA_VERSION} rendered`,
+      { supplierId: supplier.id, accessLevel: level },
+    );
+  }, [supplier, level]);
+
   if (!supplier) return <NotFound />;
 
   const DocIcon = docsIcon(supplier.documentReadiness);
@@ -293,7 +314,18 @@ const SupplierProfile = () => {
   const hasSentRequest = !!accessRequest;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      data-component="SupplierProfile"
+      data-ia-version={SUPPLIER_PROFILE_IA_VERSION}
+      data-access-level={level}
+    >
+      <span
+        data-testid="supplier-profile-ia-version"
+        data-ia-version={SUPPLIER_PROFILE_IA_VERSION}
+        hidden
+        aria-hidden="true"
+      />
       <Header />
       <main id="main">
         {/* Breadcrumbs */}
