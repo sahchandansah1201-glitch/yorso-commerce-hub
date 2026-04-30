@@ -24,6 +24,10 @@ export function savePreviewAttribution(
   try {
     const record: PreviewAttribution = { ...input, ts: Date.now() };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log("[debug] preview_attribution saved:", record);
+    }
   } catch {
     // storage unavailable — silent
   }
