@@ -903,6 +903,10 @@ type TranslationKeys = {
   supplier_notFound_title: string;
   supplier_notFound_body: string;
   supplier_notFound_link: string;
+  // Supplier Profile — SEO
+  supplier_seo_titleSuffix: string; // e.g. "Supplier" / "Поставщик" / "Proveedor"
+  supplier_seo_descriptionFallback: string; // {company} {country}
+  supplier_seo_orgDescription: string; // {company} — {type} from {country}
   // Supplier Profile — hero / identity
   supplier_logo_aria: string;
   supplier_identity_subline: string; // {type} · {years} · {offers}
@@ -2032,6 +2036,9 @@ const en: TranslationKeys = {
   supplier_notFound_title: "Supplier not found",
   supplier_notFound_body: "The link may be outdated. Return to the",
   supplier_notFound_link: "supplier directory",
+  supplier_seo_titleSuffix: "Supplier",
+  supplier_seo_descriptionFallback: "{company} — verified seafood supplier from {country} on YORSO B2B marketplace.",
+  supplier_seo_orgDescription: "{company} — {type} from {country}. Verified B2B seafood supplier on YORSO.",
   supplier_logo_aria: "{name} logo",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} on the market",
@@ -3139,6 +3146,9 @@ const ru: TranslationKeys = {
   supplier_notFound_title: "Поставщик не найден",
   supplier_notFound_body: "Возможно, ссылка устарела. Вернитесь в",
   supplier_notFound_link: "каталог поставщиков",
+  supplier_seo_titleSuffix: "Поставщик",
+  supplier_seo_descriptionFallback: "{company} — проверенный поставщик морепродуктов из {country} на B2B-маркетплейсе YORSO.",
+  supplier_seo_orgDescription: "{company} — {type} из {country}. Проверенный B2B-поставщик морепродуктов на YORSO.",
   supplier_logo_aria: "Логотип {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} на рынке",
@@ -4246,6 +4256,9 @@ const es: TranslationKeys = {
   supplier_notFound_title: "Proveedor no encontrado",
   supplier_notFound_body: "Es posible que el enlace haya caducado. Vuelve al",
   supplier_notFound_link: "catálogo de proveedores",
+  supplier_seo_titleSuffix: "Proveedor",
+  supplier_seo_descriptionFallback: "{company} — proveedor verificado de productos del mar desde {country} en el marketplace B2B YORSO.",
+  supplier_seo_orgDescription: "{company} — {type} de {country}. Proveedor B2B verificado de productos del mar en YORSO.",
   supplier_logo_aria: "Logotipo de {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} en el mercado",
