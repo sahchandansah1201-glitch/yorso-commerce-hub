@@ -1234,7 +1234,7 @@ const SupplierProfile = () => {
               </Link>
             </div>
 
-            <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((r) => {
                 const rName = isMasked ? r.maskedName : r.companyName;
                 const rFlag = countryCodeToFlag(r.countryCode);
