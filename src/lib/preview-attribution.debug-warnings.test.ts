@@ -67,6 +67,26 @@ const findDebugSummary = (args: unknown[]) =>
       Object.prototype.hasOwnProperty.call(a, "registration_source"),
   );
 
+/**
+ * Классифицирует тип предупреждения по тексту первого аргумента warn.
+ * INCOMPLETE — payload неполный или null/undefined; EXPIRED — TTL истёк
+ * для preview/pending/source. Возвращает null, если первый аргумент —
+ * не строка с известным маркером.
+ */
+type WarnKind = "INCOMPLETE" | "EXPIRED" | null;
+const classifyWarn = (args: unknown[]): WarnKind => {
+  const head = args[0];
+  if (typeof head !== "string") return null;
+  if (head.includes("EXPIRED")) return "EXPIRED";
+  if (
+    head.includes("неполная") ||
+    head.includes("null/undefined")
+  ) {
+    return "INCOMPLETE";
+  }
+  return null;
+};
+
 describe("preview-attribution debug warnings", () => {
   let warn: ReturnType<typeof vi.spyOn>;
 
