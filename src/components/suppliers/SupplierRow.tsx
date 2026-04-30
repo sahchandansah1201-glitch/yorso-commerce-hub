@@ -106,7 +106,8 @@ const SupplierRowImpl = ({
     <li>
       <article
         data-testid="supplier-row"
-        aria-label={`Supplier: ${displayName}`}
+        aria-labelledby={titleId}
+        aria-describedby={`${metaId} ${aboutId}${supplier.certificationBadges.length > 0 ? ` ${certsId}` : ""}`}
         className={cn(
           "group relative overflow-hidden rounded-lg border bg-card text-left shadow-sm transition",
           isSelected
