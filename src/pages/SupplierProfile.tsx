@@ -1140,7 +1140,7 @@ const SupplierProfile = () => {
                     </div>
                   )}
 
-                  {level === "registered_locked" && hasSentRequest && (
+                  {hasSentRequest && (
                     <SupplierAccessRequestSent
                       request={accessRequest!}
                       supplierMaskedName={supplier.maskedName}
