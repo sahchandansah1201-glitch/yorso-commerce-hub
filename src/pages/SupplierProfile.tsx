@@ -1222,13 +1222,13 @@ const SupplierProfile = () => {
                             <div className="flex items-center gap-2">
                               <Clock className="h-4 w-4 text-primary" aria-hidden />
                               <h3 className="font-heading text-base font-semibold text-foreground">
-                                Сроки готовности
+                                {t.supplier_passport_lead_title}
                               </h3>
                             </div>
                             <ul className="mt-3 space-y-2 text-sm text-foreground/80">
-                              <li>• Со склада: 3–7 дней после оплаты</li>
-                              <li>• Под заказ: 2–4 недели <span className="text-[10px] uppercase text-muted-foreground">est.</span></li>
-                              <li>• Сезонные позиции: по графику добычи</li>
+                              <li>• {t.supplier_passport_lead_b1}</li>
+                              <li>• {t.supplier_passport_lead_b2} <span className="text-[10px] uppercase text-muted-foreground">est.</span></li>
+                              <li>• {t.supplier_passport_lead_b3}</li>
                             </ul>
                           </div>
                         </aside>
@@ -1245,14 +1245,11 @@ const SupplierProfile = () => {
                     <div className="flex items-center gap-2">
                       <Camera className="h-5 w-5 text-primary" aria-hidden />
                       <h2 className="font-heading text-lg font-semibold text-foreground">
-                        Отчёты о погрузке и реальные кейсы
+                        {t.supplier_cases_title}
                       </h2>
                     </div>
                     <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-                      Каждый поставщик YORSO предоставляет фото-отчёт о погрузке партии:
-                      загрузка контейнера, установка термописца, опломбирование,
-                      сопроводительные документы. Имена покупателей скрыты по NDA,
-                      все верифицируемые детали (порт, объём, Incoterms, дата) — указаны.
+                      {t.supplier_cases_intro}
                     </p>
                   </div>
 
@@ -1265,10 +1262,12 @@ const SupplierProfile = () => {
                         <header className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="font-heading text-base font-semibold text-foreground">
-                              {c.title}
+                              {interpolate(t[c.titleKey] as string, { product: c.product })}
                             </h3>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {c.date} · {c.destination} · {c.buyerType}
+                              {t[c.dateKey] as string} ·{" "}
+                              {t[c.destinationKey] as string} ·{" "}
+                              {t[c.buyerTypeKey] as string}
                             </p>
                           </div>
                           <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground">
@@ -1277,21 +1276,24 @@ const SupplierProfile = () => {
                         </header>
 
                         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-                          <FactCell label="Продукт" value={c.product} />
-                          <FactCell label="Объём партии" value={c.volume} />
-                          <FactCell label="Базис" value={c.incoterm} />
+                          <FactCell label={t.supplier_cases_factProduct} value={c.product} />
+                          <FactCell
+                            label={t.supplier_cases_factVolume}
+                            value={interpolate(t.supplier_cases_volumeTons, { n: c.volumeTons })}
+                          />
+                          <FactCell label={t.supplier_cases_factBasis} value={c.incoterm} />
                         </dl>
 
                         <p className="mt-4 text-sm leading-relaxed text-foreground/80">
-                          {c.notes}
+                          {t[c.notesKey] as string}
                         </p>
 
                         <div className="mt-5">
                           <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                            Фото-отчёт о погрузке
+                            {t.supplier_cases_photoReportTitle}
                           </h4>
                           <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                            {c.photos.map((p, i) => (
+                            {c.photoCaptionKeys.map((capKey, i) => (
                               <li
                                 key={i}
                                 className="overflow-hidden rounded-lg border border-border bg-cool-gray/40"
@@ -1303,14 +1305,13 @@ const SupplierProfile = () => {
                                   <Camera className="h-8 w-8 opacity-60" />
                                 </div>
                                 <p className="px-3 py-2 text-[11px] leading-snug text-foreground/80">
-                                  {p.caption}
+                                  {t[capKey] as string}
                                 </p>
                               </li>
                             ))}
                           </ul>
                           <p className="mt-3 text-[11px] text-muted-foreground">
-                            Полные фото-отчёты в исходном разрешении передаются
-                            квалифицированным покупателям после запроса доступа.
+                            {t.supplier_cases_photoReportNote}
                           </p>
                         </div>
                       </article>
@@ -1327,17 +1328,19 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <HelpCircle className="h-5 w-5 text-primary" aria-hidden />
                         <h2 className="font-heading text-lg font-semibold text-foreground">
-                          Частые вопросы покупателей
+                          {t.supplier_faq_title}
                         </h2>
                       </div>
                       <Accordion type="single" collapsible className="mt-3">
                         {faqItems.map((f, i) => (
                           <AccordionItem key={i} value={`q-${i}`}>
                             <AccordionTrigger className="text-left text-sm font-semibold text-foreground">
-                              {f.q}
+                              {t[f.qKey] as string}
                             </AccordionTrigger>
                             <AccordionContent className="text-sm leading-relaxed text-foreground/80">
-                              {f.a}
+                              {f.params
+                                ? interpolate(t[f.aKey] as string, f.params)
+                                : (t[f.aKey] as string)}
                             </AccordionContent>
                           </AccordionItem>
                         ))}
@@ -1348,10 +1351,10 @@ const SupplierProfile = () => {
                   <aside className="space-y-6">
                     <div className="rounded-xl border border-border bg-card p-6">
                       <h3 className="font-heading text-base font-semibold text-foreground">
-                        Не нашли ответ?
+                        {t.supplier_faq_noAnswerTitle}
                       </h3>
                       <p className="mt-2 text-sm text-foreground/80">
-                        Отправьте сообщение поставщику — менеджер ответит в рабочее время.
+                        {t.supplier_faq_noAnswerBody}
                       </p>
                       <Button
                         type="button"
@@ -1359,13 +1362,13 @@ const SupplierProfile = () => {
                         className="mt-3 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                         onClick={() =>
                           toast({
-                            title: "Сообщение поставщику",
-                            description: "Запрос подготовлен. Менеджер свяжется с вами.",
+                            title: t.supplier_sendMessage_toast_title,
+                            description: t.supplier_sendMessage_toast_desc,
                           })
                         }
                       >
                         <MessageCircle className="h-4 w-4" />
-                        Написать поставщику
+                        {t.supplier_writeToSupplier}
                       </Button>
                     </div>
                   </aside>
