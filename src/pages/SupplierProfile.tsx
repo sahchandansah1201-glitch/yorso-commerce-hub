@@ -1055,7 +1055,7 @@ const SupplierProfile = () => {
             {/* 5. Trust evidence */}
             <article
               aria-labelledby="profile-trust"
-              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5"
             >
               <h2
                 id="profile-trust"
@@ -1067,27 +1067,24 @@ const SupplierProfile = () => {
                 />
                 Trust evidence
               </h2>
-              <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-md border border-border bg-background p-3">
-                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              <dl className="mt-3 grid grid-cols-1 overflow-hidden rounded-md border border-border bg-background sm:grid-cols-2 sm:divide-x sm:divide-border">
+                <div className="flex items-baseline justify-between gap-3 px-3 py-2.5">
+                  <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Verification
                   </dt>
-                  <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
-                    <BadgeCheck
-                      className="h-4 w-4 text-primary"
-                      aria-hidden
-                    />
+                  <dd className="inline-flex items-center gap-1.5 text-right text-[13px] font-semibold text-foreground">
+                    <BadgeCheck className="h-3.5 w-3.5 text-primary" aria-hidden />
                     {verificationLabel(supplier.verificationLevel)}
                   </dd>
                 </div>
-                <div className="rounded-md border border-border bg-background p-3">
-                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                <div className="flex items-baseline justify-between gap-3 border-t border-border px-3 py-2.5 sm:border-t-0">
+                  <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Active offers on YORSO
                   </dt>
-                  <dd className="mt-1 text-sm font-medium text-foreground tabular-nums">
+                  <dd className="text-right text-[13px] font-semibold text-foreground tabular-nums">
                     {isUnlocked
                       ? supplier.activeOffersCount
-                      : "Available after supplier approval"}
+                      : "Available after approval"}
                   </dd>
                 </div>
               </dl>
