@@ -18,6 +18,15 @@ export interface PreviewAttribution {
   href: string;
   access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   ts: number;
+  /**
+   * DEV-only поле: текущий attempt_id, скопированный в момент сохранения
+   * записи. Позволяет восстановить цепочку click → registration по одной
+   * структуре, без необходимости отдельно читать ключ
+   * `yorso_registration_attempt_id` из sessionStorage. В production не
+   * проставляется (остаётся undefined), чтобы не раздувать payload и не
+   * влиять на сравнение записей.
+   */
+  attempt_id?: string | null;
 }
 
 /**
@@ -243,6 +252,12 @@ export function savePreviewAttribution(
   try {
     validateAttributionShape("savePreviewAttribution", input);
     const record: PreviewAttribution = { ...input, ts: Date.now() };
+    if (import.meta.env.DEV) {
+      // В DEV прикрепляем attempt_id прямо к записи, чтобы цепочку
+      // click → registration можно было восстановить из одной структуры
+      // в DevTools/логах, без отдельного чтения ключа attempt_id.
+      record.attempt_id = peekRegistrationAttemptId();
+    }
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
@@ -307,7 +322,13 @@ const PENDING_KEY = "yorso_preview_attribution_pending";
 export function savePendingPreviewAttribution(attr: PreviewAttribution): void {
   try {
     validateAttributionShape("savePendingPreviewAttribution", attr);
-    sessionStorage.setItem(PENDING_KEY, JSON.stringify(attr));
+    // В DEV переносим actual attempt_id в pending-копию: если входящая
+    // запись пришла без него (например, из старого preview), обновляем
+    // на текущее значение, чтобы корреляция работала и на /register/ready.
+    const record: PreviewAttribution = import.meta.env.DEV
+      ? { ...attr, attempt_id: attr.attempt_id ?? peekRegistrationAttemptId() }
+      : attr;
+    sessionStorage.setItem(PENDING_KEY, JSON.stringify(record));
   } catch {
     // silent
   }
