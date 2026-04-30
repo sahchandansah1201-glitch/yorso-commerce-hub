@@ -449,6 +449,53 @@ describe("SupplierProfile — regression: locked panel must not reveal exact act
   });
 });
 
+describe("SupplierProfile — regression: locked profile must not leak exact active offers count anywhere", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const standaloneNumberRegex = (count: number) =>
+    new RegExp(`(^|[^0-9A-Za-z-])${count}([^0-9A-Za-z-]|$)`);
+
+  const expectNoExactCountInDocument = (count: number) => {
+    const text = document.body.textContent ?? "";
+    expect(text).not.toMatch(standaloneNumberRegex(count));
+    const all = document.querySelectorAll("*");
+    for (const el of Array.from(all)) {
+      for (const attr of ["title", "aria-label"]) {
+        const v = el.getAttribute(attr);
+        if (v && standaloneNumberRegex(count).test(v)) {
+          throw new Error(
+            `Exact active offers count "${count}" leaked via ${attr}="${v}"`,
+          );
+        }
+      }
+    }
+  };
+
+  it("anonymous_locked: exact activeOffersCount is not rendered anywhere on the profile", () => {
+    const supplier = mockSuppliers[0];
+    renderAt(`/suppliers/${supplier.id}`);
+    expectNoExactCountInDocument(supplier.activeOffersCount);
+  });
+
+  it("registered_locked: exact activeOffersCount is not rendered anywhere on the profile", () => {
+    const supplier = mockSuppliers[0];
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    expectNoExactCountInDocument(supplier.activeOffersCount);
+  });
+
+  it("qualified_unlocked: exact activeOffersCount may be visible on the profile", () => {
+    const supplier = mockSuppliers[0];
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const text = document.body.textContent ?? "";
+    expect(text).toContain(String(supplier.activeOffersCount));
+  });
+});
+
 describe("SupplierProfile — regression: access request flow stays supplier-specific", () => {
   beforeEach(() => {
     localStorage.clear();
