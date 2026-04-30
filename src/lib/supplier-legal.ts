@@ -59,7 +59,7 @@ const REG_BY_COUNTRY: Record<
   US: { label: "EIN", format: (s) => `${pad(s, 2)}-${pad(s >> 4, 7)}` },
 };
 
-const DEFAULT_REG = {
+const DEFAULT_REG: { label: string; format: (s: number) => string; vatPrefix?: string; vatLen?: number } = {
   label: "Reg. number",
   format: (s: number) => pad(s, 9),
 };
