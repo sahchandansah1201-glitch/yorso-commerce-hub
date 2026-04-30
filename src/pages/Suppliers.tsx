@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Search } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -76,6 +76,7 @@ const SHORTLIST_KEY = "yorso_supplier_shortlist";
 
 const Suppliers = () => {
   const { level } = useAccessLevel();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -180,10 +181,7 @@ const Suppliers = () => {
       
       return;
     }
-    toast({
-      title: "Supplier profile",
-      description: "Full supplier profile page is coming next.",
-    });
+    navigate(`/suppliers/${supplier.id}`);
   };
 
   return (
