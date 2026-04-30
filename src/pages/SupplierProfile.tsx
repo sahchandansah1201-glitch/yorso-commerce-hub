@@ -17,6 +17,7 @@ import {
   getSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
+import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
