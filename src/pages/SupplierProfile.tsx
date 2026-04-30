@@ -582,7 +582,7 @@ const SupplierProfile = () => {
       orgScript.id = orgId;
       document.head.appendChild(orgScript);
     }
-    const typeLabel = t[supplierTypeLabelKey(supplier.type)] as string;
+    const typeLabel = t[supplierTypeLabelKey(supplier.supplierType)] as string;
     orgScript.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Organization",
