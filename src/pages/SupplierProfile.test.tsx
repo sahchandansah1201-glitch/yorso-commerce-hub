@@ -539,7 +539,7 @@ describe("SupplierProfile — regression: locked profile must not leak exact act
   });
 });
 
-describe("SupplierProfile — regression: access request flow stays supplier-specific", () => {
+describe("SupplierProfile — regression: one-click access flow stays supplier-specific", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -548,18 +548,17 @@ describe("SupplierProfile — regression: access request flow stays supplier-spe
   const supplierA = mockSuppliers[0];
   const supplierB = mockSuppliers[1];
 
-  it("submitting for supplier A only writes supplier A under its id; supplier B keeps the request CTA", () => {
+  it("requesting for supplier A only writes supplier A under its id; supplier B keeps the CTA", () => {
     seedRegisteredSession();
     const { unmount } = renderAt(`/suppliers/${supplierA.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+    expect(
+      screen.getByTestId("supplier-access-request-status"),
+    ).toBeInTheDocument();
 
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
     expect(Object.keys(parsed)).toEqual([supplierA.id]);
@@ -568,14 +567,14 @@ describe("SupplierProfile — regression: access request flow stays supplier-spe
     unmount();
 
     renderAt(`/suppliers/${supplierB.id}`);
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(screen.queryByTestId("supplier-access-request-status")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     ).toBeInTheDocument();
   });
 });
 
-describe("SupplierProfile — regression: access request form does not leak supplier identity", () => {
+describe("SupplierProfile — regression: access request panel does not leak supplier identity", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -583,42 +582,20 @@ describe("SupplierProfile — regression: access request form does not leak supp
 
   const supplier = mockSuppliers[0];
 
-  it("registered_locked: open form shows masked name and hides companyName/website/whatsapp/exact counts", () => {
+  it("registered_locked: visible panel shows masked name, never companyName/website/whatsapp", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const heading = screen.getByRole("heading", {
-      name: /request supplier access/i,
-    });
-    const form = heading.closest("form")!;
-    const text = form.textContent ?? "";
-
-    expect(within(form).getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+    const cta = screen.getByRole("button", { name: /request price access/i });
+    const panel = cta.closest("div")!.parentElement!;
+    const text = panel.textContent ?? "";
+    expect(text).toContain(supplier.maskedName);
     expect(text).not.toContain(supplier.companyName);
-    if (supplier.website) {
-      expect(text).not.toContain(supplier.website);
-      expect(form.querySelector(`a[href="${supplier.website}"]`)).toBeNull();
-    }
-    if (supplier.whatsapp) {
-      expect(text).not.toContain(supplier.whatsapp);
-    }
-    // Exact hidden catalog/delivery counts must not leak inside the form.
-    const hiddenCatalog = supplier.totalProductsCount - 3;
-    const hiddenMarkets = supplier.deliveryCountriesTotal - 3;
-    if (hiddenCatalog > 0) {
-      expect(text).not.toContain(`+${hiddenCatalog} products`);
-      expect(text).not.toContain(`${supplier.totalProductsCount} products`);
-    }
-    if (hiddenMarkets > 0) {
-      expect(text).not.toContain(`+${hiddenMarkets} markets`);
-      expect(text).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
-    }
+    if (supplier.website) expect(text).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(text).not.toContain(supplier.whatsapp);
   });
 });
 
-describe("SupplierProfile — regression: access request validation + storage shape", () => {
+describe("SupplierProfile — regression: one-click request storage shape", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -626,57 +603,29 @@ describe("SupplierProfile — regression: access request validation + storage sh
 
   const supplier = mockSuppliers[0];
 
-  it("submitting with no reasons selected: shows inline validation, writes nothing to storage", () => {
+  it("clicking the CTA writes a record with the documented contract", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    // Uncheck the default-selected reason.
-    fireEvent.click(screen.getByLabelText(/exact price access/i));
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByRole("alert").textContent ?? "").toMatch(
-      /select at least one reason/i,
-    );
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
-    expect(
-      sessionStorage.getItem("yorso_supplier_access_requests"),
-    ).toBeNull();
-  });
 
-  it("after selecting at least one reason and submitting: success state visible and storage shape matches contract", () => {
-    seedRegisteredSession();
-    renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    // Default reason "exact_price" is pre-checked; submit as is.
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
-
     expect(Object.keys(parsed)).toEqual([supplier.id]);
     const record = parsed[supplier.id];
-    expect(record.status).toBe("sent");
-    expect(Array.isArray(record.reasons)).toBe(true);
-    expect(record.reasons.length).toBeGreaterThan(0);
-    for (const r of record.reasons) {
-      expect(typeof r).toBe("string");
-    }
-    expect(typeof record.message).toBe("string");
+    expect(["sent", "pending"]).toContain(record.status);
+    expect(record.intent).toBe("exact_price");
+    expect(record.supplierId).toBe(supplier.id);
     expect(typeof record.sentAt).toBe("string");
-    // sentAt must be a valid ISO timestamp.
     expect(Number.isNaN(Date.parse(record.sentAt))).toBe(false);
     expect(record.sentAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(typeof record.mockApproveAt).toBe("string");
+    expect(Number.isNaN(Date.parse(record.mockApproveAt))).toBe(false);
   });
 });
+
 
 
 describe("SupplierProfile — standalone page contract", () => {
