@@ -739,7 +739,7 @@ const SupplierProfile = () => {
                       ? (t[typeKey] as string)
                       : supplier.supplierType;
                     const yearsStr = interpolate(t.supplier_yearsOnMarket, {
-                      n: supplier.yearsInBusiness,
+                      n: formatNumber(lang as AppLang, supplier.yearsInBusiness),
                       plural: pluralize(lang, supplier.yearsInBusiness, {
                         one: t.supplier_yearsOnMarket_pluralOne,
                         few: t.supplier_yearsOnMarket_pluralFew,
@@ -747,7 +747,7 @@ const SupplierProfile = () => {
                       }),
                     });
                     const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: supplier.activeOffersCount,
+                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
                     });
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
