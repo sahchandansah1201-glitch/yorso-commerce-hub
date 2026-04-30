@@ -343,6 +343,8 @@ export interface EventPayloadMap {
     href?: string;
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
     source?: RegistrationSource;
+    /** Уникальный id попытки регистрации, общий с registration_start. */
+    attempt_id?: string;
   };
   value_destination_selected: { country: string; role: UserRole };
 
