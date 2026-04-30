@@ -545,11 +545,11 @@ const SupplierProfile = () => {
           data-testid="supplier-profile-main-content"
           className="bg-cool-gray/40"
         >
-          <div className="container space-y-6 py-6 md:py-8">
+          <div className="container space-y-4 py-5 md:space-y-5 md:py-6">
             {/* 1. Product catalog preview */}
             <article
               aria-labelledby="profile-catalog"
-              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5"
             >
               <div className="flex items-center justify-between gap-3">
                 <h2
