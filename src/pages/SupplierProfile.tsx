@@ -698,7 +698,7 @@ const SupplierProfile = () => {
 
         {/* Identity */}
         <section className="bg-background">
-          <div className="container -mt-12 pb-6 md:-mt-14">
+          <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
                 <SupplierLogoCard supplier={supplier} size={86} priority="hero" />
