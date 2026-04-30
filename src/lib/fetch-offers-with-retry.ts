@@ -73,8 +73,8 @@ export const fetchOffersWithRetry = async (
   level: AccessLevel,
   opts: RetryOptions = {},
 ): Promise<SeafoodOffer[]> => {
-  const maxAttempts = opts.maxAttempts ?? 6;
-  const delayMs = opts.delayMs ?? 800;
+  const maxAttempts = opts.maxAttempts ?? 3;
+  const delayMs = opts.delayMs ?? 400;
 
   let lastErr: unknown;
   for (let n = 1; n <= maxAttempts; n++) {
@@ -85,7 +85,7 @@ export const fetchOffersWithRetry = async (
       lastErr = err;
       opts.onAttemptFail?.(err, n);
       if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
-      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
+      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 1500);
       // Прерываемое ожидание.
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => resolve(), wait);
@@ -112,8 +112,8 @@ export const fetchOfferByIdWithRetry = async (
   level: AccessLevel,
   opts: RetryOptions = {},
 ): Promise<SeafoodOffer | null> => {
-  const maxAttempts = opts.maxAttempts ?? 6;
-  const delayMs = opts.delayMs ?? 800;
+  const maxAttempts = opts.maxAttempts ?? 3;
+  const delayMs = opts.delayMs ?? 400;
 
   let lastErr: unknown;
   for (let n = 1; n <= maxAttempts; n++) {
@@ -124,7 +124,7 @@ export const fetchOfferByIdWithRetry = async (
       lastErr = err;
       opts.onAttemptFail?.(err, n);
       if (!isRetriableCatalogError(err) || n === maxAttempts) throw err;
-      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 4000);
+      const wait = Math.min(delayMs * Math.pow(1.6, n - 1), 1500);
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => resolve(), wait);
         if (opts.signal) {
