@@ -428,8 +428,23 @@ export interface EventPayloadMap {
     access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   };
 
+  /**
+   * Fired when the user lands on /register (step 0 of the funnel).
+   * Optional attribution params link the registration attempt to a
+   * preceding `preview_card_click` so we can compare conversion of
+   * locked vs unlocked supplier-profile previews into actual signups.
+   */
+  registration_start: {
+    supplier_id?: string;
+    species?: string;
+    form?: string;
+    href?: string;
+    access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    /** Source of attribution; "direct" when no preceding preview click is recorded. */
+    source: "supplier_preview" | "direct";
+  };
+
   // Legacy (kept for backward compat — remove during cleanup) ───
-  registration_start: Empty;
   registration_complete_mock: Empty;
 }
 
