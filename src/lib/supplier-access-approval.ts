@@ -122,3 +122,19 @@ export const processSupplierAccessRequests = (
 
   return { changedAny, newlyApproved };
 };
+
+/**
+ * Drain pending approval notifications. Calls the provided notify
+ * callback exactly once per supplier and marks each one as seen so it
+ * never fires again.
+ */
+export const drainApprovalNotifications = (
+  notify: (n: ApprovalNotification) => void,
+): ApprovalNotification[] => {
+  const pending = getPendingApprovalNotifications();
+  for (const n of pending) {
+    notify(n);
+    markNotificationSeen(n.supplierId);
+  }
+  return pending;
+};
