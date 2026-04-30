@@ -212,29 +212,29 @@ const SupplierLogoCard = ({
   // Адаптивные размеры:
   //  - hero: 80 → md:86 (площадь +15%)
   //  - mini: 28 → md:32 (sticky-хедер, читается рядом со Smart-link)
-  // Скелетон растягивается inset-0 синхронно с родителем (см. ниже),
+  // Скелетон растягивается inset-0 синхронно с родителем,
   // поэтому смена брейкпоинта не вызывает «дёрганья».
   const sizeClasses = isHero
-    ? [
-        "h-20 w-20 md:h-[86px] md:w-[86px]",
-        "transition-[width,height,box-shadow] duration-300 ease-out",
-        "motion-reduce:transition-none motion-reduce:duration-0",
-        "[will-change:width,height]",
-      ].join(" ")
+    ? "h-20 w-20 md:h-[86px] md:w-[86px] transition-[width,height,box-shadow] duration-300 ease-out [will-change:width,height]"
     : isMini
-      ? [
-          "h-7 w-7 md:h-8 md:w-8",
-          "transition-[width,height] duration-200 ease-out",
-          "motion-reduce:transition-none motion-reduce:duration-0",
-        ].join(" ")
+      ? "h-7 w-7 md:h-8 md:w-8 transition-[width,height] duration-200 ease-out"
       : "";
+
+  // Reduced motion: жёстко отключаем ВСЕ transitions/animations внутри
+  // карточки одним каскадным правилом — включая box-shadow (ring),
+  // opacity на <img> (fade-in после loaded) и pulse скелетона.
+  // Без этого reduced-motion-пользователь мог увидеть частичные эффекты
+  // (текст/ring без анимации, но image fade-in остался).
+  const motionReduceLockdown =
+    "motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:![animation-duration:0ms] motion-reduce:!transition-none motion-reduce:![animation-duration:0ms]";
+
   const sizeStyle: React.CSSProperties | undefined = isHero || isMini
     ? undefined
     : { width: dim, height: dim };
 
   return (
     <div
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${className}`}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${motionReduceLockdown} ${className}`}
       style={sizeStyle}
       aria-label={`Логотип ${supplier.companyName}`}
     >
