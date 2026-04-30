@@ -466,3 +466,164 @@ describe("preview-attribution debug warnings", () => {
     expect(kinds.has("EXPIRED")).toBe(true);
   });
 });
+
+/**
+ * Отдельный набор регрессий специально для повреждённого
+ * registration_source: каждая «битая» форма (битый JSON, объект без
+ * source, source неправильного типа, пустая строка, массив) должна
+ * приводить к одному и тому же поведению в debug-сводке:
+ *   - registration_source === null (не теряем nullable-контракт)
+ *   - missing включает "invalid_registration_source"
+ *   - attempt_id попадает в лог из своего ключа sessionStorage
+ *   - первый аргумент warn — INCOMPLETE-предупреждение (не EXPIRED)
+ * Это защищает от регрессий «тихо проглотили битый source и потеряли
+ * контекст в логах».
+ */
+describe("preview-attribution: invalid registration_source regressions", () => {
+  let warn: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    sessionStorage.clear();
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  /**
+   * Триггерит INCOMPLETE-предупреждение через savePreviewAttribution с
+   * заведомо пустым supplier_id и возвращает первую найденную сводку.
+   */
+  const triggerWarnAndGetSummary = () => {
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "salmon",
+      form: "fillet",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+    const calls = debugWarnCalls(warn);
+    expect(calls.length).toBeGreaterThan(0);
+    expect(classifyWarn(calls[0])).toBe("INCOMPLETE");
+    const summary = findDebugSummary(calls[0]);
+    expect(summary).toBeDefined();
+    return summary!;
+  };
+
+  it("битый JSON в registration_source → invalid_registration_source + attempt_id", () => {
+    seedAttempt("att_broken_json");
+    sessionStorage.setItem(SOURCE_KEY, "{not json");
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_broken_json");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).toContain("invalid_registration_source");
+    expect(summary.missing).toContain("supplier_id");
+  });
+
+  it("пустая строка в storage → invalid_registration_source НЕ добавляется (нет ключа = нет источника)", () => {
+    seedAttempt("att_empty_string");
+    // Пустая строка трактуется как «ключа нет» (raw falsy) — это валидный
+    // случай отсутствия источника, не invalid.
+    sessionStorage.setItem(SOURCE_KEY, "");
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_empty_string");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).not.toContain("invalid_registration_source");
+  });
+
+  it("JSON-массив вместо объекта → invalid_registration_source", () => {
+    seedAttempt("att_array");
+    sessionStorage.setItem(SOURCE_KEY, JSON.stringify(["hero_cta"]));
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_array");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).toContain("invalid_registration_source");
+  });
+
+  it("объект без поля source → invalid_registration_source", () => {
+    seedAttempt("att_no_source_field");
+    sessionStorage.setItem(SOURCE_KEY, JSON.stringify({ ts: NOW }));
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_no_source_field");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).toContain("invalid_registration_source");
+  });
+
+  it("source неправильного типа (number) → invalid_registration_source", () => {
+    seedAttempt("att_wrong_type");
+    sessionStorage.setItem(SOURCE_KEY, JSON.stringify({ source: 42, ts: NOW }));
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_wrong_type");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).toContain("invalid_registration_source");
+  });
+
+  it("source как пустая строка → invalid_registration_source (валидной строки нет)", () => {
+    seedAttempt("att_empty_source");
+    sessionStorage.setItem(SOURCE_KEY, JSON.stringify({ source: "", ts: NOW }));
+
+    const summary = triggerWarnAndGetSummary();
+    expect(summary.attempt_id).toBe("att_empty_source");
+    expect(summary.registration_source).toBeNull();
+    expect(summary.missing).toContain("invalid_registration_source");
+  });
+
+  it("sessionStorage.getItem бросает → debug helper не падает, контекст сохраняется", () => {
+    // Мокаем getItem только для SOURCE_KEY: бросает Error, имитируя
+    // недоступный/повреждённый storage. Для других ключей возвращаем
+    // штатные значения, чтобы peekRegistrationAttemptId сработал.
+    seedAttempt("att_getitem_throws");
+    const realGetItem = Storage.prototype.getItem;
+    const getItemSpy = vi
+      .spyOn(Storage.prototype, "getItem")
+      .mockImplementation(function (this: Storage, key: string) {
+        if (key === SOURCE_KEY) {
+          throw new Error("storage unavailable");
+        }
+        return realGetItem.call(this, key);
+      });
+
+    try {
+      const summary = triggerWarnAndGetSummary();
+      // attempt_id должен дойти до сводки даже если SOURCE_KEY бросил.
+      expect(summary.attempt_id).toBe("att_getitem_throws");
+      // registration_source — null, контекст не теряется (есть ключ в объекте).
+      expect(summary.registration_source).toBeNull();
+      // Падение getItem не должно «съесть» исходный пропуск supplier_id.
+      expect(summary.missing).toContain("supplier_id");
+    } finally {
+      getItemSpy.mockRestore();
+    }
+  });
+
+  it("invalid source: missing нормализован — известные поля впереди, флаг в конце", () => {
+    seedAttempt("att_normalized");
+    sessionStorage.setItem(SOURCE_KEY, "{not json");
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "",
+      form: "",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+    const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+    expect(summary).toBeDefined();
+    // Стабильный порядок: supplier_id → species → form → <unknown alphabetical>.
+    expect(summary!.missing).toEqual([
+      "supplier_id",
+      "species",
+      "form",
+      "invalid_registration_source",
+    ]);
+  });
+});
