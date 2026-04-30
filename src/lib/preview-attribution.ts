@@ -167,6 +167,17 @@ export function readRegistrationSource(): string | null {
       return null;
     }
     if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          "[debug] registration_source EXPIRED — CTA-атрибуция потеряна, registration_start будет direct",
+          {
+            ageMs: Date.now() - parsed.ts,
+            ttlMs: SOURCE_TTL_MS,
+            record: parsed,
+          },
+        );
+      }
       clearRegistrationSource();
       return null;
     }
