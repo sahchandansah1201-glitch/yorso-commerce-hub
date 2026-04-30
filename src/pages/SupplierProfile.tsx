@@ -18,6 +18,8 @@ import {
   Thermometer,
   FileCheck2,
   Clock,
+  Building2,
+  FileBadge,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -35,6 +37,7 @@ import { mockOffers } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
+import { getSupplierLegalDetails, formatFoundedDate } from "@/lib/supplier-legal";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -116,6 +119,87 @@ const CertificationsBlock = ({
 };
 
 /** Карточка «Основания надёжности». estimate-метки обязательны. */
+/** Юридические реквизиты компании — для верификации контрагента. */
+const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+  const legal = getSupplierLegalDetails(supplier);
+  const founded = formatFoundedDate(legal.foundedDate);
+  const yearsOnMarket =
+    new Date().getFullYear() - supplier.inBusinessSinceYear;
+
+  const rows: { label: string; value: string; mono?: boolean }[] = [
+    {
+      label: legal.registrationLabel,
+      value: legal.registrationNumber,
+      mono: true,
+    },
+    ...(legal.vatNumber
+      ? [{ label: "VAT", value: legal.vatNumber, mono: true }]
+      : []),
+    ...(legal.eoriNumber
+      ? [{ label: "EORI", value: legal.eoriNumber, mono: true }]
+      : []),
+    { label: "Юр. форма", value: legal.legalForm },
+    {
+      label: "Основана",
+      value: `${founded} · ${yearsOnMarket} ${
+        yearsOnMarket % 10 === 1 && yearsOnMarket % 100 !== 11
+          ? "год"
+          : yearsOnMarket % 10 >= 2 &&
+            yearsOnMarket % 10 <= 4 &&
+            (yearsOnMarket % 100 < 10 || yearsOnMarket % 100 >= 20)
+          ? "года"
+          : "лет"
+      } на рынке`,
+    },
+    {
+      label: "Юрисдикция",
+      value: `${countryCodeToFlag(supplier.countryCode)} ${supplier.country}`,
+    },
+  ];
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flex items-center gap-2">
+        <FileBadge className="h-4 w-4 text-primary" aria-hidden />
+        <h3 className="font-heading text-base font-semibold text-foreground">
+          Юридические реквизиты
+        </h3>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Для проверки контрагента в национальных реестрах
+      </p>
+
+      <dl className="mt-4 divide-y divide-border text-sm">
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
+          >
+            <dt className="shrink-0 text-xs uppercase tracking-wider text-muted-foreground">
+              {r.label}
+            </dt>
+            <dd
+              className={`text-right text-foreground ${
+                r.mono ? "font-mono text-[13px] tabular-nums" : "font-medium"
+              }`}
+            >
+              {r.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+        <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+        <span>
+          Реквизиты предоставлены поставщиком и проверены YORSO при подключении.
+          Полный пакет документов — во вкладке «Производственный паспорт».
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const responseLabel =
     supplier.responseSignal === "fast"
@@ -608,6 +692,8 @@ const SupplierProfile = () => {
                   </div>
 
                   <aside className="space-y-6">
+                    <LegalDetailsBlock supplier={supplier} />
+
                     <div className="rounded-xl border border-border bg-card p-6">
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
