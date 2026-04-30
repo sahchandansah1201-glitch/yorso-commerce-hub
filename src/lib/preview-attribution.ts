@@ -488,8 +488,15 @@ export function readRegistrationSource(): string | null {
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as RegistrationSourceRecord;
-    if (!parsed || typeof parsed.source !== "string" || typeof parsed.ts !== "number") {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+    // Один и тот же type-guard, что и в debug-сводке: гарантирует,
+    // что parsed.source — непустая строка, а parsed.ts — конечное число.
+    if (!isRegistrationSourceRecord(parsed)) {
       return null;
     }
     if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
