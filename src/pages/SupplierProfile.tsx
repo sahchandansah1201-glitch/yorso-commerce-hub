@@ -270,11 +270,7 @@ const SupplierProfile = () => {
       return;
     }
     if (level === "registered_locked") {
-      toast({
-        title: "Access request prepared",
-        description:
-          "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
-      });
+      setShowRequestForm(true);
       return;
     }
     toast({
@@ -282,6 +278,14 @@ const SupplierProfile = () => {
       description: `We notified ${supplier.companyName} about your contact request.`,
     });
   };
+
+  const buyerSummary = {
+    identifier:
+      buyerSessionState?.identifier || registrationData.email || undefined,
+    company: registrationData.company || undefined,
+    country: registrationData.country || undefined,
+  };
+  const hasSentRequest = !!accessRequest;
 
   return (
     <div className="min-h-screen bg-background">
