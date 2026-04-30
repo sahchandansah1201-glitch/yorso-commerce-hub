@@ -110,7 +110,10 @@ const Hero = () => {
           <p className="mx-auto mt-8 max-w-md text-xs leading-relaxed text-accent-foreground/55">
             <Link
               to="/register"
-              onClick={() => analytics.track("hero_primary_cta_click")}
+              onClick={() => {
+                analytics.track("hero_primary_cta_click");
+                saveRegistrationSource("hero_cta");
+              }}
               className="font-semibold text-accent-foreground/80 underline-offset-4 hover:text-primary hover:underline"
             >
               {t.hero_registerFree}
