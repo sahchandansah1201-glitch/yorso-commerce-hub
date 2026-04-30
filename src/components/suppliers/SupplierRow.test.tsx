@@ -6,6 +6,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, within, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { SupplierRow } from "./SupplierRow";
 import { mockSuppliers } from "@/data/mockSuppliers";
 
@@ -16,18 +17,20 @@ const renderRow = (overrides: Partial<Parameters<typeof SupplierRow>[0]> = {}) =
   const onShortlist = vi.fn();
   const onPrimaryAction = vi.fn();
   const utils = render(
-    <ul>
-      <SupplierRow
-        supplier={supplier}
-        isSelected={false}
-        isShortlisted={false}
-        accessLevel="anonymous_locked"
-        onSelect={onSelect}
-        onShortlist={onShortlist}
-        onPrimaryAction={onPrimaryAction}
-        {...overrides}
-      />
-    </ul>,
+    <MemoryRouter>
+      <ul>
+        <SupplierRow
+          supplier={supplier}
+          isSelected={false}
+          isShortlisted={false}
+          accessLevel="anonymous_locked"
+          onSelect={onSelect}
+          onShortlist={onShortlist}
+          onPrimaryAction={onPrimaryAction}
+          {...overrides}
+        />
+      </ul>
+    </MemoryRouter>,
   );
   return { ...utils, onSelect, onShortlist, onPrimaryAction };
 };
