@@ -93,6 +93,31 @@ function normalizeMissing(missing: readonly string[]): string[] {
 type RegistrationSourceErrorType = "json_parse_error" | "invalid_shape";
 
 /**
+ * Type-guard для записи `registration_source` из sessionStorage.
+ * Сужает `unknown` до `RegistrationSourceRecord` без force-cast,
+ * аккуратно обрабатывая null, массивы, отсутствие поля `source`,
+ * не-строковый `source`, пустую строку и не-числовой `ts`.
+ *
+ * Используется и в `readRegistrationSource` (production-путь), и в
+ * `buildAttributionDebugSummary` (dev-сводка) — чтобы оба места имели
+ * одинаковый, проверяемый компилятором контракт формы записи.
+ */
+function isRegistrationSourceRecord(
+  value: unknown,
+): value is RegistrationSourceRecord {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const candidate = value as { source?: unknown; ts?: unknown };
+  return (
+    typeof candidate.source === "string" &&
+    candidate.source.length > 0 &&
+    typeof candidate.ts === "number" &&
+    Number.isFinite(candidate.ts)
+  );
+}
+
+/**
  * Dev-only: компактная сводка контекста текущей попытки регистрации,
  * которую прикрепляем к каждому attribution-предупреждению, чтобы
  * быстрее восстанавливать цепочку click → registration в DevTools.
