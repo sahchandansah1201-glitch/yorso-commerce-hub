@@ -18,6 +18,10 @@ import {
   readPendingPreviewAttribution,
   clearPendingPreviewAttribution,
 } from "@/lib/preview-attribution";
+import {
+  getRegistrationAttemptId,
+  resetRegistrationAttemptId,
+} from "@/lib/registration-attempt";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
@@ -56,6 +60,7 @@ const RegisterReady = () => {
       setField("completed", true);
       const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
       const pendingAttr = readPendingPreviewAttribution();
+      const attempt_id = getRegistrationAttemptId();
       const completePayload = {
         role: (data.role || "unknown") as "buyer" | "supplier" | "unknown",
         step: 7 as const,
@@ -64,6 +69,7 @@ const RegisterReady = () => {
         categories: data.categories.length,
         countries: data.countries.length,
         funnelDurationMs,
+        attempt_id,
         ...(pendingAttr
           ? {
               source: "supplier_preview" as const,
@@ -91,6 +97,8 @@ const RegisterReady = () => {
 
       analytics.track("registration_complete", completePayload);
       if (pendingAttr) clearPendingPreviewAttribution();
+      // Сбрасываем attempt_id — следующая попытка регистрации получит свежий id.
+      resetRegistrationAttemptId();
 
       // Buyers came here to find products fast — sign them in and route to /offers.
       if (data.role === "buyer" && data.email && !isSignedIn) {

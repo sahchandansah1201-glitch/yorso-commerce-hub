@@ -52,6 +52,7 @@ import {
 import { useAccessLevel } from "@/lib/access-level";
 import analytics from "@/lib/analytics";
 import { savePreviewAttribution } from "@/lib/preview-attribution";
+import { getRegistrationAttemptId } from "@/lib/registration-attempt";
 import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
@@ -472,15 +473,19 @@ const SupplierProfile = () => {
                         <Link
                           to={href}
                           onClick={() => {
-                            const payload = {
+                            const attribution = {
                               supplier_id: supplier.id,
                               species: item.species,
                               form: item.form,
                               href,
                               access_level: level,
                             };
-                            analytics.track("preview_card_click", payload);
-                            savePreviewAttribution(payload);
+                            const attempt_id = getRegistrationAttemptId();
+                            analytics.track("preview_card_click", {
+                              ...attribution,
+                              attempt_id,
+                            });
+                            savePreviewAttribution(attribution);
                           }}
                           aria-label={
                             isUnlocked
