@@ -181,8 +181,6 @@ const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
   const { level } = useAccessLevel();
-  const { session: buyerSessionState } = useBuyerSession();
-  const { data: registrationData } = useRegistration();
   const supplier = useMemo(() => getSupplierById(supplierId), [supplierId]);
   const related = useMemo(
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
