@@ -828,19 +828,19 @@ const SupplierProfile = () => {
             <Tabs defaultValue="about" className="w-full">
               <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-cool-gray/60 p-1">
                 <TabsTrigger value="about" className={tabTriggerCls}>
-                  О поставщике
+                  {t.supplier_tab_about}
                 </TabsTrigger>
                 <TabsTrigger value="catalog" className={tabTriggerCls}>
-                  Каталог ({supplierOffers.length})
+                  {interpolate(t.supplier_tab_catalog, { n: supplierOffers.length })}
                 </TabsTrigger>
                 <TabsTrigger value="passport" className={tabTriggerCls}>
-                  Производственный паспорт
+                  {t.supplier_tab_passport}
                 </TabsTrigger>
                 <TabsTrigger value="cases" className={tabTriggerCls}>
-                  Отчёты о погрузке и кейсы
+                  {t.supplier_tab_cases}
                 </TabsTrigger>
                 <TabsTrigger value="faq" className={tabTriggerCls}>
-                  FAQ
+                  {t.supplier_tab_faq}
                 </TabsTrigger>
               </TabsList>
 
@@ -850,7 +850,7 @@ const SupplierProfile = () => {
                   <div className="space-y-6 lg:col-span-2">
                     <div className="rounded-xl border border-border bg-card p-6">
                       <h2 className="font-heading text-lg font-semibold text-foreground">
-                        О компании
+                        {t.supplier_about_company}
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-foreground/80">
                         {supplier.about}
@@ -861,7 +861,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <Package className="h-4 w-4 text-primary" aria-hidden />
                         <h2 className="font-heading text-lg font-semibold text-foreground">
-                          Продуктовый фокус
+                          {t.supplier_about_productFocus}
                         </h2>
                       </div>
                       <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
@@ -884,7 +884,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
                         <h3 className="font-heading text-base font-semibold text-foreground">
-                          Основания надёжности
+                          {t.supplier_about_trustBasis}
                         </h3>
                       </div>
                       <div className="mt-3">
@@ -896,7 +896,7 @@ const SupplierProfile = () => {
                       <div className="flex items-center gap-2">
                         <Globe className="h-4 w-4 text-primary" aria-hidden />
                         <h3 className="font-heading text-base font-semibold text-foreground">
-                          География поставок
+                          {t.supplier_about_deliveryGeo}
                         </h3>
                       </div>
                       <div className="mt-3">
