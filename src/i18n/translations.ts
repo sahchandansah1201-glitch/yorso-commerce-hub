@@ -903,6 +903,10 @@ type TranslationKeys = {
   supplier_notFound_title: string;
   supplier_notFound_body: string;
   supplier_notFound_link: string;
+  // Supplier Profile — SEO
+  supplier_seo_titleSuffix: string; // e.g. "Supplier" / "Поставщик" / "Proveedor"
+  supplier_seo_descriptionFallback: string; // {company} {country}
+  supplier_seo_orgDescription: string; // {company} — {type} from {country}
   // Supplier Profile — hero / identity
   supplier_logo_aria: string;
   supplier_identity_subline: string; // {type} · {years} · {offers}
