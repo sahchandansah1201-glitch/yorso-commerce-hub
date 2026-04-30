@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldOff, Eye, BarChart3, AlertTriangle, Globe, Users, TrendingUp, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const buyerIcons = [AlertTriangle, Eye, ShieldOff, BarChart3];
 const supplierIcons = [Globe, Users, TrendingUp, ShieldCheck];
