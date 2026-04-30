@@ -376,7 +376,24 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
 
 const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const { t, lang } = useLanguage();
-...
+
+  const responseLabel =
+    supplier.responseSpeedHours <= 4
+      ? t.supplier_response_fast
+      : supplier.responseSpeedHours <= 12
+      ? t.supplier_response_medium
+      : t.supplier_response_slow;
+
+  const docsLabel =
+    supplier.documentReadiness === "ready"
+      ? t.supplier_docs_ready
+      : supplier.documentReadiness === "partial"
+      ? t.supplier_docs_partial
+      : t.supplier_docs_onRequest;
+
+  const typeKey = supplierTypeLabelKey(supplier.supplierType);
+  const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
+
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
     { label: t.supplier_trust_type, value: typeValue },
     { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
