@@ -166,9 +166,9 @@ const NotFound = () => (
           We could not find this supplier. It may have been removed or the link
           is incorrect.
         </p>
-        <Link to="/suppliers" className="mt-5 inline-block">
-          <Button type="button">Back to suppliers</Button>
-        </Link>
+        <Button asChild type="button" className="mt-5">
+          <Link to="/suppliers">Back to suppliers</Link>
+        </Button>
       </div>
     </main>
     <Footer />
