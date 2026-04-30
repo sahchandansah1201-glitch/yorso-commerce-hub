@@ -211,10 +211,15 @@ const SupplierProfile = () => {
   // while the buyer is on this page, reflect that immediately.
   useEffect(() => {
     const tick = () => {
-      const result = processSupplierAccessRequests();
-      if (result.changedAny) {
-        setAccessRequest(getSupplierAccessRequest(supplierId));
-      }
+      processSupplierAccessRequests();
+      drainApprovalNotifications(() => {
+        toast({
+          title: "Price access approved",
+          description:
+            "You can now view exact prices and supplier details.",
+        });
+      });
+      setAccessRequest(getSupplierAccessRequest(supplierId));
     };
     tick();
     const interval = window.setInterval(tick, 1000);
