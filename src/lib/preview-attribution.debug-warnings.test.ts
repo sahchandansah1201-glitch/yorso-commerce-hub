@@ -364,6 +364,7 @@ describe("preview-attribution debug warnings", () => {
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_bad_shape");
     expect(summary!.registration_source).toBeNull();
+    expect(summary!.registration_source_error).toBe("invalid_shape");
     expect(summary!.missing).toEqual([
       "supplier_id",
       "species",
