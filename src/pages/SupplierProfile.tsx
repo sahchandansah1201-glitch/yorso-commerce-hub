@@ -291,22 +291,13 @@ const SupplierProfile = () => {
       navigate("/register");
       return;
     }
-    if (level === "registered_locked") {
-      setShowRequestForm(true);
-      return;
-    }
+    // registered_locked is now handled inline by the one-click panel.
     toast({
       title: "Contact request shared",
       description: `We notified ${supplier.companyName} about your contact request.`,
     });
   };
 
-  const buyerSummary = {
-    identifier:
-      buyerSessionState?.identifier || registrationData.email || undefined,
-    company: registrationData.company || undefined,
-    country: registrationData.country || undefined,
-  };
   const hasSentRequest = !!accessRequest;
 
   return (
