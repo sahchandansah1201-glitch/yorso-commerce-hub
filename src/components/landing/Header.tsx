@@ -5,6 +5,7 @@ import { Menu, X, Globe, ChevronDown, Bell, LogOut } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 import { useSignalAlerts } from "@/lib/watched-signals";
 import { AlertsPopover } from "@/components/alerts/AlertsPanel";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
