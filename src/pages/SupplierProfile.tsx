@@ -901,22 +901,27 @@ const SupplierProfile = () => {
                     </Button>
                   </div>
 
-                  <dl className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
-                    <div>
-                      <dt className="text-muted-foreground">Response speed</dt>
-                      <dd className="mt-1 font-medium text-foreground">
-                        {responseLabel[supplier.responseSignal]}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Active offers</dt>
-                      <dd className="mt-1 font-medium text-foreground tabular-nums">
-                        {isUnlocked
-                          ? supplier.activeOffersCount
-                          : "Available after supplier approval"}
-                      </dd>
-                    </div>
-                  </dl>
+                  {isUnlocked ? (
+                    <dl className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Response speed</dt>
+                        <dd className="mt-1 font-medium text-foreground">
+                          {responseLabel[supplier.responseSignal]}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Active offers</dt>
+                        <dd className="mt-1 font-medium text-foreground tabular-nums">
+                          {supplier.activeOffersCount}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <p className="border-t border-border pt-4 text-xs text-muted-foreground">
+                      Active offers and supplier response details available
+                      after supplier approval.
+                    </p>
+                  )}
                 </div>
               </aside>
             </div>
