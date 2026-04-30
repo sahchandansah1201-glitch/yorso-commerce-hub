@@ -176,7 +176,10 @@ function validateAttributionShape(
   if (!attr) {
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
-      console.warn(`[debug] ${source}: attribution payload is null/undefined`);
+      console.warn(
+        `[debug] ${source}: attribution payload is null/undefined`,
+        buildAttributionDebugSummary(["<all>"]),
+      );
       recordMissing(source, ["<all>"]);
     }
     return ["<all>"];
