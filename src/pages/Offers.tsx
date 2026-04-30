@@ -23,6 +23,7 @@ import CatalogRecoveryCard from "@/components/catalog/CatalogRecoveryCard";
 import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
 import CompareTray from "@/components/catalog/CompareTray";
 import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
 import TrustProofStrip from "@/components/catalog/TrustProofStrip";
 import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
