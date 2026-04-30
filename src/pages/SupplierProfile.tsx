@@ -195,17 +195,30 @@ const SupplierProfile = () => {
     return getOffersForSupplier(supplier.country, speciesList, 4);
   }, [supplier]);
 
-  // Persisted access-request state for this specific supplier (sessionStorage).
+  // Persisted access-request state for this specific supplier (localStorage).
   const [accessRequest, setAccessRequest] =
     useState<SupplierAccessRequest | null>(() =>
       getSupplierAccessRequest(supplierId),
     );
-  const [showRequestForm, setShowRequestForm] = useState(false);
 
   // Re-sync if the route changes between suppliers in-place.
   useEffect(() => {
     setAccessRequest(getSupplierAccessRequest(supplierId));
-    setShowRequestForm(false);
+  }, [supplierId]);
+
+  // Drive the mock approval pipeline whenever the profile mounts or the
+  // supplier id changes. If a previously-sent request becomes approved
+  // while the buyer is on this page, reflect that immediately.
+  useEffect(() => {
+    const tick = () => {
+      const result = processSupplierAccessRequests();
+      if (result.changedAny) {
+        setAccessRequest(getSupplierAccessRequest(supplierId));
+      }
+    };
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    return () => window.clearInterval(interval);
   }, [supplierId]);
 
   const isUnlocked = level === "qualified_unlocked";
