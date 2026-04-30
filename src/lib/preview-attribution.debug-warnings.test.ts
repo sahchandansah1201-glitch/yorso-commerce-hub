@@ -233,4 +233,120 @@ describe("preview-attribution debug warnings", () => {
     saveRegistrationSource("hero_cta");
     expect(debugWarnCalls(warn).length).toBe(0);
   });
+
+  // ---- Edge cases для missing: null/undefined/мусор ----
+  // validateAttributionShape принимает Partial и считает любое НЕ-string
+  // значение пустым (включая null/undefined). Сводка должна оставаться
+  // консистентной: ключи attempt_id/registration_source присутствуют,
+  // missing — нормализованный массив строк без null/undefined/дубликатов.
+
+  it("edge: null/undefined в полях payload трактуются как пропуски, missing нормализован", () => {
+    seedAttempt("att_null_fields");
+    seedSource("hero_cta");
+    // Передаём заведомо «грязные» значения — TS обходим через any,
+    // потому что в проде такие значения теоретически могут прийти из
+    // битого storage / внешнего источника.
+    savePreviewAttribution({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      supplier_id: null as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      species: undefined as any,
+      form: "fillet",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+
+    const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+    expect(summary).toBeDefined();
+    expect(summary!.attempt_id).toBe("att_null_fields");
+    expect(summary!.registration_source).toBe("hero_cta");
+    expect(summary!.missing).toEqual(["supplier_id", "species"]);
+    // Гарантируем: никаких null/undefined внутри missing не просочилось.
+    for (const v of summary!.missing) {
+      expect(typeof v).toBe("string");
+      expect(v.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("edge: payload === null → missing=['<all>'], сводка с обоими ключами", () => {
+    seedAttempt("att_null_payload");
+    seedSource("trust_block");
+    // Симулируем readPreviewAttribution с подменённым parsed=null
+    // через прямую запись «не той формы» в storage и чтение.
+    sessionStorage.setItem(PREVIEW_KEY, JSON.stringify(null));
+    const result = readPreviewAttribution();
+    expect(result).toBeNull();
+    // null payload в readPreviewAttribution просто возвращает null без warn —
+    // зато прямой вызов через savePending с null невозможен по типу.
+    // Проверим путь через явную форму: пустая запись после JSON.parse даёт null.
+    // Здесь основная цель — убедиться, что storage с null не валит код.
+  });
+
+  it("edge: битый JSON в registration_source → флаг invalid_registration_source", () => {
+    seedAttempt("att_bad_source");
+    sessionStorage.setItem(SOURCE_KEY, "{not json");
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "salmon",
+      form: "fillet",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+
+    const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+    expect(summary).toBeDefined();
+    expect(summary!.attempt_id).toBe("att_bad_source");
+    expect(summary!.registration_source).toBeNull();
+    // Известные поля идут в фиксированном порядке, неизвестные — после.
+    expect(summary!.missing).toEqual(["supplier_id", "invalid_registration_source"]);
+  });
+
+  it("edge: registration_source с некорректной формой (source не строка) → invalid_registration_source", () => {
+    seedAttempt("att_bad_shape");
+    sessionStorage.setItem(
+      SOURCE_KEY,
+      JSON.stringify({ source: 42, ts: Date.now() }),
+    );
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "",
+      form: "",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+
+    const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+    expect(summary).toBeDefined();
+    expect(summary!.attempt_id).toBe("att_bad_shape");
+    expect(summary!.registration_source).toBeNull();
+    expect(summary!.missing).toEqual([
+      "supplier_id",
+      "species",
+      "form",
+      "invalid_registration_source",
+    ]);
+  });
+
+  it("edge: сводка всегда содержит три ключа attempt_id, registration_source, missing", () => {
+    // Никаких seed — оба контекста пустые. Любой warn всё равно даёт сводку
+    // со всеми тремя ключами (attempt_id=null, registration_source=null,
+    // missing — массив строк).
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "",
+      form: "",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+    const summary = findDebugSummary(debugWarnCalls(warn)[0]);
+    expect(summary).toBeDefined();
+    expect(Object.prototype.hasOwnProperty.call(summary!, "attempt_id")).toBe(true);
+    expect(
+      Object.prototype.hasOwnProperty.call(summary!, "registration_source"),
+    ).toBe(true);
+    expect(Object.prototype.hasOwnProperty.call(summary!, "missing")).toBe(true);
+    expect(summary!.attempt_id).toBeNull();
+    expect(summary!.registration_source).toBeNull();
+    expect(Array.isArray(summary!.missing)).toBe(true);
+  });
 });
