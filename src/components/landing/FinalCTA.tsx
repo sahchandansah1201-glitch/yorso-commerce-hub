@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, Eye, Ban } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
+import { saveRegistrationSource } from "@/lib/preview-attribution";
 
 const FinalCTA = () => {
   const { t } = useLanguage();
