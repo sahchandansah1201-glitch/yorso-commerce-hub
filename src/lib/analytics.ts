@@ -342,7 +342,7 @@ export interface EventPayloadMap {
     form?: string;
     href?: string;
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
-    source?: "supplier_preview" | "direct";
+    source?: RegistrationSource;
   };
   value_destination_selected: { country: string; role: UserRole };
 
