@@ -40,6 +40,7 @@ import {
   type SupplierType,
 } from "@/data/mockSuppliers";
 import { useAccessLevel } from "@/lib/access-level";
+import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
 
