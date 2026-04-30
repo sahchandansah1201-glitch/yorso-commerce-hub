@@ -29,11 +29,13 @@ import {
   FileCheck2,
   FileClock,
   FileQuestion,
+  Fish,
   Globe2,
   Lock,
   MessageCircle,
   Package,
   ShieldCheck,
+  Ship,
   Star,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
@@ -405,6 +407,67 @@ const SupplierProfile = () => {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
               {/* Main column */}
               <div className="space-y-6">
+                {/* Quick procurement summary */}
+                <article
+                  aria-labelledby="profile-quick-summary"
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                >
+                  <h2
+                    id="profile-quick-summary"
+                    className="font-heading text-base font-semibold text-foreground"
+                  >
+                    Quick procurement summary
+                  </h2>
+                  <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Fish className="h-3.5 w-3.5" aria-hidden />
+                        Product focus
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {supplier.productFocus
+                          .slice(0, 2)
+                          .map((p) => p.species)
+                          .join(", ")}
+                        {supplier.productFocus.length > 2 && (
+                          <span className="text-muted-foreground">
+                            {" "}+{supplier.productFocus.length - 2} more
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <DocIcon className="h-3.5 w-3.5" aria-hidden />
+                        Document readiness
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {docsLabel[supplier.documentReadiness]}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Activity className="h-3.5 w-3.5" aria-hidden />
+                        Response speed
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {responseLabel[supplier.responseSignal]}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Ship className="h-3.5 w-3.5" aria-hidden />
+                        Trade capability
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {isUnlocked
+                          ? `${supplierTypeLabel[supplier.supplierType]} · ${supplier.deliveryCountriesTotal} export markets`
+                          : `${supplierTypeLabel[supplier.supplierType]} · export markets after approval`}
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+
                 {/* Product focus */}
                 <article
                   aria-labelledby="profile-focus"
@@ -562,6 +625,97 @@ const SupplierProfile = () => {
                     )}
                 </article>
 
+                {/* Trade capabilities */}
+                <article
+                  aria-labelledby="profile-trade"
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h2
+                      id="profile-trade"
+                      className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+                    >
+                      <Ship
+                        className="h-4 w-4 text-muted-foreground"
+                        aria-hidden
+                      />
+                      Trade capabilities
+                    </h2>
+                    {isUnlocked ? (
+                      <span className="text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground tabular-nums">
+                          {supplier.deliveryCountriesTotal}
+                        </span>{" "}
+                        export markets
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Delivery preview
+                      </span>
+                    )}
+                  </div>
+
+                  <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        Supplier type
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-foreground">
+                        {supplierTypeLabel[supplier.supplierType]}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        Origin
+                      </dt>
+                      <dd className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                        <span aria-hidden className="text-base leading-none">
+                          {flag || "🌐"}
+                        </span>
+                        {supplier.country} · {supplier.city}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        Export readiness
+                      </dt>
+                      <dd className="mt-1 text-sm font-medium text-foreground">
+                        {supplier.documentReadiness === "ready"
+                          ? "Export documents on file"
+                          : supplier.documentReadiness === "partial"
+                            ? "Partial export documents"
+                            : "Export documents on request"}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-4">
+                    <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                      <Globe2 className="h-3 w-3" aria-hidden />
+                      {isUnlocked ? "Delivery markets" : "Delivery preview"}
+                    </p>
+                    <ul className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                      {previewDeliveries.map((d) => (
+                        <li
+                          key={d.code}
+                          className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-foreground/85"
+                          title={d.name}
+                        >
+                          <span aria-hidden className="text-sm leading-none">
+                            {countryCodeToFlag(d.code) || "🌐"}
+                          </span>
+                          <span>{d.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {showDeliveryTeaser && (
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Full delivery geography after supplier approval
+                      </p>
+                    )}
+                  </div>
+                </article>
+
                 {/* Trust evidence */}
                 <article
                   aria-labelledby="profile-trust"
@@ -588,30 +742,6 @@ const SupplierProfile = () => {
                           aria-hidden
                         />
                         {verificationLabel(supplier.verificationLevel)}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Document readiness
-                      </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        <DocIcon
-                          className="h-4 w-4 text-muted-foreground"
-                          aria-hidden
-                        />
-                        {docsLabel[supplier.documentReadiness]}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Response speed
-                      </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        <Activity
-                          className="h-4 w-4 text-muted-foreground"
-                          aria-hidden
-                        />
-                        {responseLabel[supplier.responseSignal]}
                       </dd>
                     </div>
                     <div className="rounded-md border border-border bg-background p-3">
@@ -643,56 +773,6 @@ const SupplierProfile = () => {
                         ))}
                       </ul>
                     </div>
-                  )}
-                </article>
-
-                {/* Delivery geography */}
-                <article
-                  aria-labelledby="profile-delivery"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <h2
-                      id="profile-delivery"
-                      className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                    >
-                      <Globe2
-                        className="h-4 w-4 text-muted-foreground"
-                        aria-hidden
-                      />
-                      Delivery geography
-                    </h2>
-                    {isUnlocked ? (
-                      <span className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground tabular-nums">
-                          {supplier.deliveryCountriesTotal}
-                        </span>{" "}
-                        markets
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        Delivery preview
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-3 flex flex-wrap gap-1.5 text-xs">
-                    {previewDeliveries.map((d) => (
-                      <li
-                        key={d.code}
-                        className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-foreground/85"
-                        title={d.name}
-                      >
-                        <span aria-hidden className="text-sm leading-none">
-                          {countryCodeToFlag(d.code) || "🌐"}
-                        </span>
-                        <span>{d.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {showDeliveryTeaser && (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Full delivery geography after supplier approval
-                    </p>
                   )}
                 </article>
               </div>
@@ -821,22 +901,27 @@ const SupplierProfile = () => {
                     </Button>
                   </div>
 
-                  <dl className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
-                    <div>
-                      <dt className="text-muted-foreground">Response speed</dt>
-                      <dd className="mt-1 font-medium text-foreground">
-                        {responseLabel[supplier.responseSignal]}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Active offers</dt>
-                      <dd className="mt-1 font-medium text-foreground tabular-nums">
-                        {isUnlocked
-                          ? supplier.activeOffersCount
-                          : "Available after supplier approval"}
-                      </dd>
-                    </div>
-                  </dl>
+                  {isUnlocked ? (
+                    <dl className="grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
+                      <div>
+                        <dt className="text-muted-foreground">Response speed</dt>
+                        <dd className="mt-1 font-medium text-foreground">
+                          {responseLabel[supplier.responseSignal]}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">Active offers</dt>
+                        <dd className="mt-1 font-medium text-foreground tabular-nums">
+                          {supplier.activeOffersCount}
+                        </dd>
+                      </div>
+                    </dl>
+                  ) : (
+                    <p className="border-t border-border pt-4 text-xs text-muted-foreground">
+                      Active offers and supplier response details available
+                      after supplier approval.
+                    </p>
+                  )}
                 </div>
               </aside>
             </div>
