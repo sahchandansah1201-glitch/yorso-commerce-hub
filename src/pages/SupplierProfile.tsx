@@ -174,35 +174,46 @@ const SupplierLogoCard = ({
   supplier: MockSupplier;
   size?: 28 | 40 | 80 | 86;
   className?: string;
-  priority?: "hero" | "lazy";
+  priority?: "hero" | "mini" | "lazy";
 }) => {
   const initials = getCompanyInitials(supplier.companyName);
-  // Hero-логотип адаптивный: 80px на mobile → 86px на md+ (площадь +15%).
-  // Плавный переход transition-all сглаживает rerender при resize.
+  // Hero — 80→86px. Mini — 28→32px (sticky-хедер). Плавный переход на md.
   const isHero = priority === "hero";
+  const isMini = priority === "mini";
   const dim = `${size}px`;
-  const radius = size >= 80 ? "rounded-xl" : size >= 40 ? "rounded-lg" : "rounded-md";
+  const radius = isMini
+    ? "rounded-md md:rounded-lg"
+    : size >= 80
+      ? "rounded-xl"
+      : size >= 40
+        ? "rounded-lg"
+        : "rounded-md";
   const textSize = isHero
     ? "text-2xl md:text-[26px]"
-    : size >= 80
-      ? "text-2xl"
-      : size >= 40
-        ? "text-sm"
-        : "text-[11px]";
+    : isMini
+      ? "text-[11px] md:text-xs"
+      : size >= 80
+        ? "text-2xl"
+        : size >= 40
+          ? "text-sm"
+          : "text-[11px]";
   const ring = isHero
     ? "ring-[3px] md:ring-4 ring-background shadow-lg"
-    : size >= 80
-      ? "ring-4 ring-background shadow-lg"
-      : "ring-2 ring-background shadow-sm";
+    : isMini
+      ? "ring-1 md:ring-2 ring-background shadow-sm"
+      : size >= 80
+        ? "ring-4 ring-background shadow-lg"
+        : "ring-2 ring-background shadow-sm";
 
   const status = useLogoStatus(supplier.logoImage);
   const showImage = !!supplier.logoImage && status !== "error";
   const showSkeleton = showImage && status !== "loaded";
 
-  // Для hero — адаптивные классы (mobile 80 → md 86) с плавным transition.
-  // Брейкпоинт md (768px) срабатывает в т.ч. при смене ориентации
-  // (768×1024 portrait ↔ 1024×768 landscape), поэтому переход одинаково
-  // плавный для resize и для rotate. motion-reduce — для accessibility.
+  // Адаптивные размеры:
+  //  - hero: 80 → md:86 (площадь +15%)
+  //  - mini: 28 → md:32 (sticky-хедер, читается рядом со Smart-link)
+  // Скелетон растягивается inset-0 синхронно с родителем (см. ниже),
+  // поэтому смена брейкпоинта не вызывает «дёрганья».
   const sizeClasses = isHero
     ? [
         "h-20 w-20 md:h-[86px] md:w-[86px]",
@@ -210,8 +221,14 @@ const SupplierLogoCard = ({
         "motion-reduce:transition-none motion-reduce:duration-0",
         "[will-change:width,height]",
       ].join(" ")
-    : "";
-  const sizeStyle: React.CSSProperties | undefined = isHero
+    : isMini
+      ? [
+          "h-7 w-7 md:h-8 md:w-8",
+          "transition-[width,height] duration-200 ease-out",
+          "motion-reduce:transition-none motion-reduce:duration-0",
+        ].join(" ")
+      : "";
+  const sizeStyle: React.CSSProperties | undefined = isHero || isMini
     ? undefined
     : { width: dim, height: dim };
 
