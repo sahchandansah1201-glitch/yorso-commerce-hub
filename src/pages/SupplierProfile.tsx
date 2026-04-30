@@ -38,6 +38,13 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import { getSupplierLegalDetails, formatFoundedDate } from "@/lib/supplier-legal";
+import {
+  getLogoStatus,
+  prefetchLogos,
+  subscribeLogoStatus,
+  type LogoStatus,
+} from "@/lib/logo-cache";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
