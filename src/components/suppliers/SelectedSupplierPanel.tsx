@@ -125,9 +125,23 @@ export const SelectedSupplierPanel = ({
       </div>
 
       <div className="p-5">
+        {/* Quick preview label — clarifies this is a side-panel preview, not the standalone profile */}
+        <p
+          data-testid="selected-supplier-preview-label"
+          className="mb-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
+        >
+          Quick preview
+        </p>
         {/* Supplier summary */}
         <h2 className="font-heading text-lg font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere]">
-          {displayName}
+          <Link
+            to={`/suppliers/${supplier.id}`}
+            data-testid="selected-supplier-title-link"
+            className="hover:text-primary hover:underline"
+            aria-label={`Open supplier profile: ${displayName}`}
+          >
+            {displayName}
+          </Link>
         </h2>
         {isMasked && (
           <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
