@@ -871,3 +871,73 @@ describe("SupplierProfile — IA Skeleton v1", () => {
     expect(document.querySelectorAll("a button").length).toBe(0);
   });
 });
+
+describe("SupplierProfile — Trading Dossier module v1", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  it("renders the supplier-trading-dossier module", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.getByTestId("supplier-trading-dossier")).toBeInTheDocument();
+  });
+
+  it("evidence strip with 4 facts is part of the same module", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const dossier = screen.getByTestId("supplier-trading-dossier");
+    const strip = within(dossier).getByTestId("supplier-trading-dossier-evidence");
+    expect(strip).toBeInTheDocument();
+    expect(within(strip).getByText(/product focus/i)).toBeInTheDocument();
+    expect(within(strip).getByText(/commercial terms/i)).toBeInTheDocument();
+    expect(within(strip).getByText(/documents/i)).toBeInTheDocument();
+    expect(within(strip).getByText(/delivery/i)).toBeInTheDocument();
+  });
+
+  it("locked: dossier hides companyName, website, whatsapp", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const dossier = screen.getByTestId("supplier-trading-dossier");
+    const text = dossier.textContent ?? "";
+    expect(text).not.toContain(supplier.companyName);
+    if (supplier.website) expect(text).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(text).not.toContain(supplier.whatsapp);
+    expect(text).toMatch(/terms after access/i);
+    expect(text).toMatch(/documents available after approval/i);
+  });
+
+  it("qualified: dossier reveals companyName and website link", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const dossier = screen.getByTestId("supplier-trading-dossier");
+    expect(within(dossier).getAllByText(supplier.companyName).length).toBeGreaterThan(0);
+    if (supplier.website) {
+      expect(within(dossier).getByRole("link", { name: /website/i })).toBeInTheDocument();
+    }
+  });
+
+  it("main content sections render below the dossier (not above)", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const dossier = screen.getByTestId("supplier-trading-dossier");
+    const main = screen.getByTestId("supplier-profile-main-content");
+    const dossierTop = dossier.compareDocumentPosition(main);
+    // main follows dossier
+    expect(dossierTop & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    for (const re of [
+      /product catalog preview/i,
+      /commercial fit/i,
+      /trade and delivery/i,
+      /documents and certifications/i,
+    ]) {
+      expect(within(main).getByRole("heading", { name: re })).toBeInTheDocument();
+    }
+  });
+
+  it("no invalid interactive nesting in dossier", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const dossier = screen.getByTestId("supplier-trading-dossier");
+    expect(dossier.querySelectorAll("button button").length).toBe(0);
+    expect(dossier.querySelectorAll("a button").length).toBe(0);
+  });
+});
