@@ -1037,9 +1037,6 @@ type TranslationKeys = {
   supplier_cases_destination_de: string;
   supplier_cases_destination_fr: string;
   supplier_cases_destination_ae: string;
-  supplier_cases_date_oct2024: string;
-  supplier_cases_date_jul2024: string;
-  supplier_cases_date_dec2023: string;
   supplier_cases_notes_de: string;
   supplier_cases_notes_fr: string;
   supplier_cases_notes_ae: string;
