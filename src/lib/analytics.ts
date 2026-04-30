@@ -447,8 +447,8 @@ export interface EventPayloadMap {
     form?: string;
     href?: string;
     access_level?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
-    /** Source of attribution; "direct" when no preceding preview click is recorded. */
-    source: "supplier_preview" | "direct";
+    /** Source of attribution; "direct" when no preceding CTA/preview click is recorded. */
+    source: RegistrationSource;
   };
 
   // Legacy (kept for backward compat — remove during cleanup) ───
