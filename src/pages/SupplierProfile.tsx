@@ -233,16 +233,7 @@ const SupplierProfile = () => {
     };
   }, [supplier, displayName]);
 
-  // Diagnostic marker: log the IA version + access level on every mount /
-  // supplier change so QA can confirm in DevTools that the new IA shipped.
-  useEffect(() => {
-    if (!supplier) return;
-    // eslint-disable-next-line no-console
-    console.info(
-      `[SupplierProfile] IA ${SUPPLIER_PROFILE_IA_VERSION} rendered`,
-      { supplierId: supplier.id, accessLevel: level },
-    );
-  }, [supplier, level]);
+
 
   if (!supplier) return <NotFound />;
 
