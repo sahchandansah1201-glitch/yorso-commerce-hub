@@ -188,6 +188,7 @@ describe("preview-attribution debug warnings", () => {
       args[0].includes("pending_preview_attribution EXPIRED"),
     );
     expect(expiredCall).toBeDefined();
+    expect(classifyWarn(expiredCall!)).toBe("EXPIRED");
     const summary = findDebugSummary(expiredCall!);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_pending_expired");
