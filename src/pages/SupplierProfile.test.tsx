@@ -88,7 +88,7 @@ describe("SupplierProfile — access gating", () => {
     if (supplier.whatsapp) expect(body).not.toContain(supplier.whatsapp);
     expect(body).not.toContain(`${supplier.totalProductsCount} products`);
     expect(body).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
-    expect(screen.getByRole("button", { name: /request supplier access/i }))
+    expect(screen.getByRole("button", { name: /request price access/i }))
       .toBeInTheDocument();
   });
 
