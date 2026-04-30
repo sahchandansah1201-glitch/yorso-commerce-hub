@@ -1037,16 +1037,13 @@ type TranslationKeys = {
   supplier_cases_destination_de: string;
   supplier_cases_destination_fr: string;
   supplier_cases_destination_ae: string;
-  supplier_cases_date_oct2024: string;
-  supplier_cases_date_jul2024: string;
-  supplier_cases_date_dec2023: string;
   supplier_cases_notes_de: string;
   supplier_cases_notes_fr: string;
   supplier_cases_notes_ae: string;
   supplier_cases_factProduct: string;
   supplier_cases_factVolume: string;
   supplier_cases_factBasis: string;
-  supplier_cases_volumeTons: string; // {n} t
+  
   supplier_cases_photoReportTitle: string;
   supplier_cases_photoReportNote: string;
   supplier_cases_photoCaption_loading: string;
@@ -2161,16 +2158,13 @@ const en: TranslationKeys = {
   supplier_cases_destination_de: "Hamburg, DE 🇩🇪",
   supplier_cases_destination_fr: "Marseille, FR 🇫🇷",
   supplier_cases_destination_ae: "Jebel Ali, AE 🇦🇪",
-  supplier_cases_date_oct2024: "Oct 2024",
-  supplier_cases_date_jul2024: "Jul 2024",
-  supplier_cases_date_dec2023: "Dec 2023",
   supplier_cases_notes_de: "Batch shipped in 40' reefer, temperature −20 °C, PSI inspection before loading. Documents: H/C, CoO EUR.1, CoA, packing list.",
   supplier_cases_notes_fr: "Mixed pallet shipment, IQF format, retail-ready cartons. Buyer request: photo of every pallet and 72-hour temperature log.",
   supplier_cases_notes_ae: "Halal certification of the batch, double glaze check, independent surveyor inspection at the port of departure.",
   supplier_cases_factProduct: "Product",
   supplier_cases_factVolume: "Batch volume",
   supplier_cases_factBasis: "Basis",
-  supplier_cases_volumeTons: "{n} t",
+  
   supplier_cases_photoReportTitle: "Loading photo report",
   supplier_cases_photoReportNote: "Full photo reports in original resolution are shared with qualified buyers after access is requested.",
   supplier_cases_photoCaption_loading: "Container loading, shipper warehouse",
@@ -3271,16 +3265,13 @@ const ru: TranslationKeys = {
   supplier_cases_destination_de: "Гамбург, DE 🇩🇪",
   supplier_cases_destination_fr: "Марсель, FR 🇫🇷",
   supplier_cases_destination_ae: "Джебель-Али, AE 🇦🇪",
-  supplier_cases_date_oct2024: "Окт 2024",
-  supplier_cases_date_jul2024: "Июл 2024",
-  supplier_cases_date_dec2023: "Дек 2023",
   supplier_cases_notes_de: "Партия отгружена в 40' reefer, температура −20 °C, PSI-инспекция перед погрузкой. Документы: H/C, CoO EUR.1, CoA, упаковочный лист.",
   supplier_cases_notes_fr: "Смешанная палетная отгрузка, IQF-формат, картон ритейл-готовый. Запрос покупателя: фото каждого паллета и температурный лог за 72 часа.",
   supplier_cases_notes_ae: "Halal-сертификация партии, двойная проверка глазури, сюрвей независимой инспекции в порту отправки.",
   supplier_cases_factProduct: "Продукт",
   supplier_cases_factVolume: "Объём партии",
   supplier_cases_factBasis: "Базис",
-  supplier_cases_volumeTons: "{n} т",
+  
   supplier_cases_photoReportTitle: "Фото-отчёт о погрузке",
   supplier_cases_photoReportNote: "Полные фото-отчёты в исходном разрешении передаются квалифицированным покупателям после запроса доступа.",
   supplier_cases_photoCaption_loading: "Загрузка контейнера, склад отправителя",
@@ -4381,16 +4372,12 @@ const es: TranslationKeys = {
   supplier_cases_destination_de: "Hamburgo, DE 🇩🇪",
   supplier_cases_destination_fr: "Marsella, FR 🇫🇷",
   supplier_cases_destination_ae: "Jebel Ali, AE 🇦🇪",
-  supplier_cases_date_oct2024: "Oct 2024",
-  supplier_cases_date_jul2024: "Jul 2024",
-  supplier_cases_date_dec2023: "Dic 2023",
   supplier_cases_notes_de: "Lote despachado en reefer 40', temperatura −20 °C, inspección PSI antes de la carga. Documentos: H/C, CoO EUR.1, CoA, lista de embalaje.",
   supplier_cases_notes_fr: "Carga mixta paletizada, formato IQF, cartón listo para retail. Petición del comprador: foto de cada palet y registro de temperatura de las últimas 72 horas.",
   supplier_cases_notes_ae: "Certificación Halal del lote, doble verificación del glaseado, inspección independiente en el puerto de salida.",
   supplier_cases_factProduct: "Producto",
   supplier_cases_factVolume: "Volumen del lote",
   supplier_cases_factBasis: "Incoterm",
-  supplier_cases_volumeTons: "{n} t",
   supplier_cases_photoReportTitle: "Informe fotográfico de carga",
   supplier_cases_photoReportNote: "Los informes fotográficos completos en resolución original se entregan a compradores cualificados tras la solicitud de acceso.",
   supplier_cases_photoCaption_loading: "Carga del contenedor, almacén del expedidor",

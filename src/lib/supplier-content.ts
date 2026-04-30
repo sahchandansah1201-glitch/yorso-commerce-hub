@@ -54,13 +54,13 @@ export interface ShipmentCaseI18n {
   id: string;
   /** i18n-ключ заголовка с параметром {product}. */
   titleKey: TKey;
-  /** i18n-ключ даты партии (без параметров). */
-  dateKey: TKey;
+  /** ISO-дата партии (YYYY-MM-DD) — форматируется через Intl.DateTimeFormat. */
+  dateISO: string;
   /** i18n-ключ порта/города назначения. */
   destinationKey: TKey;
   /** Название продукта — уже локализованное вызывающей стороной (через localizeSupplier). */
   product: string;
-  /** Объём партии в тоннах (число) — форматируется через ключ supplier_cases_volumeTons. */
+  /** Объём партии в тоннах (число) — форматируется через Intl.NumberFormat (unit: metric-ton). */
   volumeTons: number;
   /** Incoterm-код (язык-нейтральный). */
   incoterm: string;
@@ -81,7 +81,7 @@ export const buildShipmentCasesI18n = (
     {
       id: "case-de-2024",
       titleKey: "supplier_cases_caseTitle_de",
-      dateKey: "supplier_cases_date_oct2024",
+      dateISO: "2024-10-15",
       destinationKey: "supplier_cases_destination_de",
       product: productLabel,
       volumeTons: 20 + (seed % 8),
@@ -98,7 +98,7 @@ export const buildShipmentCasesI18n = (
     {
       id: "case-fr-2024",
       titleKey: "supplier_cases_caseTitle_fr",
-      dateKey: "supplier_cases_date_jul2024",
+      dateISO: "2024-07-20",
       destinationKey: "supplier_cases_destination_fr",
       product: productLabel,
       volumeTons: 10 + (seed % 6),
@@ -114,7 +114,7 @@ export const buildShipmentCasesI18n = (
     {
       id: "case-ae-2023",
       titleKey: "supplier_cases_caseTitle_ae",
-      dateKey: "supplier_cases_date_dec2023",
+      dateISO: "2023-12-10",
       destinationKey: "supplier_cases_destination_ae",
       product: productLabel,
       volumeTons: 24 + (seed % 5),

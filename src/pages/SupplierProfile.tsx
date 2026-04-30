@@ -53,6 +53,7 @@ import {
   supplierTypeLabelKey,
 } from "@/lib/supplier-content";
 import { interpolate, pluralize, formatLocalizedDate } from "@/lib/supplier-i18n";
+import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/intl-format";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -374,13 +375,15 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
 };
 
 const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+
   const responseLabel =
     supplier.responseSignal === "fast"
       ? t.supplier_response_fast
       : supplier.responseSignal === "normal"
       ? t.supplier_response_normal
       : t.supplier_response_slow;
+
   const docsLabel =
     supplier.documentReadiness === "ready"
       ? t.supplier_docs_ready
@@ -393,8 +396,8 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
 
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
     { label: t.supplier_trust_type, value: typeValue },
-    { label: t.supplier_trust_yearsOnMarket, value: String(supplier.yearsInBusiness) },
-    { label: t.supplier_trust_activeOffers, value: String(supplier.activeOffersCount) },
+    { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
+    { label: t.supplier_trust_activeOffers, value: formatNumber(lang as AppLang, supplier.activeOffersCount) },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
@@ -736,7 +739,7 @@ const SupplierProfile = () => {
                       ? (t[typeKey] as string)
                       : supplier.supplierType;
                     const yearsStr = interpolate(t.supplier_yearsOnMarket, {
-                      n: supplier.yearsInBusiness,
+                      n: formatNumber(lang as AppLang, supplier.yearsInBusiness),
                       plural: pluralize(lang, supplier.yearsInBusiness, {
                         one: t.supplier_yearsOnMarket_pluralOne,
                         few: t.supplier_yearsOnMarket_pluralFew,
@@ -744,7 +747,7 @@ const SupplierProfile = () => {
                       }),
                     });
                     const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: supplier.activeOffersCount,
+                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
                     });
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
@@ -1323,7 +1326,7 @@ const SupplierProfile = () => {
                               {interpolate(t[c.titleKey] as string, { product: c.product })}
                             </h3>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {t[c.dateKey] as string} ·{" "}
+                              {formatMonthYear(lang as AppLang, c.dateISO)} ·{" "}
                               {t[c.destinationKey] as string} ·{" "}
                               {t[c.buyerTypeKey] as string}
                             </p>
@@ -1337,7 +1340,7 @@ const SupplierProfile = () => {
                           <FactCell label={t.supplier_cases_factProduct} value={c.product} />
                           <FactCell
                             label={t.supplier_cases_factVolume}
-                            value={interpolate(t.supplier_cases_volumeTons, { n: c.volumeTons })}
+                            value={formatTons(lang as AppLang, c.volumeTons)}
                           />
                           <FactCell label={t.supplier_cases_factBasis} value={c.incoterm} />
                         </dl>
