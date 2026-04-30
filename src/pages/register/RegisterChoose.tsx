@@ -48,6 +48,8 @@ const RegisterChoose = () => {
 
     analytics.track("registration_start", payload);
     if (attr) {
+      // Сохраняем pending-копию, чтобы прикрепить к registration_complete.
+      savePendingPreviewAttribution(attr);
       // Clear so we don't double-attribute on a later visit.
       clearPreviewAttribution();
     }
