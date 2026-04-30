@@ -294,10 +294,21 @@ const SupplierLogoCard = ({
 };
 
 const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+  const { t, lang } = useLanguage();
   const legal = getSupplierLegalDetails(supplier);
-  const founded = formatFoundedDate(legal.foundedDate);
+  const founded = formatLocalizedDate(legal.foundedDate, lang);
   const yearsOnMarket =
     new Date().getFullYear() - supplier.inBusinessSinceYear;
+
+  const yearsWord = pluralize(lang, yearsOnMarket, {
+    one: t.supplier_yearsOnMarket_pluralOne,
+    few: t.supplier_yearsOnMarket_pluralFew,
+    many: t.supplier_yearsOnMarket_pluralMany,
+  });
+  const yearsOnMarketLabel = interpolate(t.supplier_yearsOnMarket, {
+    n: yearsOnMarket,
+    plural: yearsWord,
+  });
 
   const rows: { label: string; value: string; mono?: boolean }[] = [
     {
@@ -311,21 +322,13 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
     ...(legal.eoriNumber
       ? [{ label: "EORI", value: legal.eoriNumber, mono: true }]
       : []),
-    { label: "Юр. форма", value: legal.legalForm },
+    { label: t.supplier_legal_legalForm, value: legal.legalForm },
     {
-      label: "Основана",
-      value: `${founded} · ${yearsOnMarket} ${
-        yearsOnMarket % 10 === 1 && yearsOnMarket % 100 !== 11
-          ? "год"
-          : yearsOnMarket % 10 >= 2 &&
-            yearsOnMarket % 10 <= 4 &&
-            (yearsOnMarket % 100 < 10 || yearsOnMarket % 100 >= 20)
-          ? "года"
-          : "лет"
-      } на рынке`,
+      label: t.supplier_legal_founded,
+      value: `${founded} · ${yearsOnMarketLabel}`,
     },
     {
-      label: "Юрисдикция",
+      label: t.supplier_legal_jurisdiction,
       value: `${countryCodeToFlag(supplier.countryCode)} ${supplier.country}`,
     },
   ];
@@ -335,11 +338,11 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
       <div className="flex items-center gap-2">
         <FileBadge className="h-4 w-4 text-primary" aria-hidden />
         <h3 className="font-heading text-base font-semibold text-foreground">
-          Юридические реквизиты
+          {t.supplier_legal_title}
         </h3>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Для проверки контрагента в национальных реестрах
+        {t.supplier_legal_subtitle}
       </p>
 
       <dl className="mt-4 divide-y divide-border text-sm">
@@ -364,10 +367,7 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
 
       <div className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
         <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-        <span>
-          Реквизиты предоставлены поставщиком и проверены YORSO при подключении.
-          Полный пакет документов — во вкладке «Производственный паспорт».
-        </span>
+        <span>{t.supplier_legal_disclaimer}</span>
       </div>
     </div>
   );
