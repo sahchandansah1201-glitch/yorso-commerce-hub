@@ -63,7 +63,7 @@ describe("SupplierProfile — access gating", () => {
     renderAt(`/suppliers/${supplier.id}`);
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /product focus/i }),
+      screen.getByRole("heading", { name: /product catalog preview/i }),
     ).toBeInTheDocument();
   });
 
