@@ -679,7 +679,7 @@ const SupplierProfile = () => {
             <article
               aria-labelledby="profile-commercial-fit"
               data-testid="supplier-profile-commercial-fit"
-              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5"
             >
               <h2
                 id="profile-commercial-fit"
