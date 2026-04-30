@@ -96,6 +96,7 @@ export function readPreviewAttribution(): PreviewAttribution | null {
       clearPreviewAttribution();
       return null;
     }
+    validateAttributionShape("readPreviewAttribution", parsed);
     return parsed;
   } catch {
     return null;
@@ -120,6 +121,7 @@ const PENDING_KEY = "yorso_preview_attribution_pending";
 
 export function savePendingPreviewAttribution(attr: PreviewAttribution): void {
   try {
+    validateAttributionShape("savePendingPreviewAttribution", attr);
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(attr));
   } catch {
     // silent
@@ -153,6 +155,7 @@ export function readPendingPreviewAttribution(): PreviewAttribution | null {
       clearPendingPreviewAttribution();
       return null;
     }
+    validateAttributionShape("readPendingPreviewAttribution", parsed);
     return parsed;
   } catch {
     return null;
