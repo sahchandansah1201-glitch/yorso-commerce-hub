@@ -177,10 +177,18 @@ const SupplierLogoCard = ({
   priority?: "hero" | "lazy";
 }) => {
   const initials = getCompanyInitials(supplier.companyName);
+  // Hero-логотип адаптивный: 80px на mobile → 86px на md+ (площадь +15%).
+  // Плавный переход transition-all сглаживает rerender при resize.
+  const isHero = priority === "hero";
   const dim = `${size}px`;
   const radius = size >= 80 ? "rounded-xl" : size >= 40 ? "rounded-lg" : "rounded-md";
-  const textSize =
-    size >= 80 ? "text-2xl" : size >= 40 ? "text-sm" : "text-[11px]";
+  const textSize = isHero
+    ? "text-2xl md:text-[26px]"
+    : size >= 80
+      ? "text-2xl"
+      : size >= 40
+        ? "text-sm"
+        : "text-[11px]";
   const ring =
     size >= 80
       ? "ring-4 ring-background shadow-lg"
@@ -190,10 +198,19 @@ const SupplierLogoCard = ({
   const showImage = !!supplier.logoImage && status !== "error";
   const showSkeleton = showImage && status !== "loaded";
 
+  // Для hero — адаптивные классы (mobile 80 → md 86), плавный transition.
+  // Для остальных размеров — фиксированный inline-размер как раньше.
+  const sizeClasses = isHero
+    ? "h-20 w-20 md:h-[86px] md:w-[86px] transition-[width,height] duration-200 ease-out"
+    : "";
+  const sizeStyle: React.CSSProperties | undefined = isHero
+    ? undefined
+    : { width: dim, height: dim };
+
   return (
     <div
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${className}`}
-      style={{ width: dim, height: dim }}
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${className}`}
+      style={sizeStyle}
       aria-label={`Логотип ${supplier.companyName}`}
     >
       {showImage ? (
