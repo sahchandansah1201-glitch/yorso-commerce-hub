@@ -2,7 +2,9 @@
  * Supplier Profile v1 — access gating + structural tests.
  */
 import { describe, it, expect, beforeEach } from "vitest";
+import userEvent from "@testing-library/user-event";
 import { render, screen, within } from "@testing-library/react";
+import { Toaster } from "@/components/ui/toaster";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
