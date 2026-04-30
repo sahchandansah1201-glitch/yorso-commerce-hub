@@ -25,16 +25,19 @@ const RegisterChoose = () => {
   // keyed by location.key so internal nav without unmount still emits the event.
   useEffect(() => {
     const attr = readPreviewAttribution();
+    const ctaSource = readRegistrationSource() as RegistrationSource | null;
+
+    // Приоритет атрибуции: preview-карточка поставщика → CTA-source → direct.
     const payload = attr
       ? {
-          source: "supplier_preview" as const,
+          source: "supplier_preview" as RegistrationSource,
           supplier_id: attr.supplier_id,
           species: attr.species,
           form: attr.form,
           href: attr.href,
           access_level: attr.access_level,
         }
-      : { source: "direct" as const };
+      : { source: (ctaSource ?? "direct") as RegistrationSource };
 
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
@@ -43,6 +46,8 @@ const RegisterChoose = () => {
       );
       // eslint-disable-next-line no-console
       console.log("preview_attribution:", attr);
+      // eslint-disable-next-line no-console
+      console.log("cta_source:", ctaSource);
       // eslint-disable-next-line no-console
       console.log("registration_start payload:", payload);
       // eslint-disable-next-line no-console
@@ -56,6 +61,8 @@ const RegisterChoose = () => {
       // Clear so we don't double-attribute on a later visit.
       clearPreviewAttribution();
     }
+    // CTA-source consumed — clear so следующий direct-визит не подтянет старое.
+    if (ctaSource) clearRegistrationSource();
   }, [location.key]);
 
   const roleCards = [
