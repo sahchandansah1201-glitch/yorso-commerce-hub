@@ -55,15 +55,42 @@ const RegisterReady = () => {
       }
       setField("completed", true);
       const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
-      analytics.track("registration_complete", {
+      const pendingAttr = readPendingPreviewAttribution();
+      const completePayload = {
         role: data.role || "unknown",
-        step: 7,
+        step: 7 as const,
         sessionId: data.sessionId,
         country: data.country,
         categories: data.categories.length,
         countries: data.countries.length,
         funnelDurationMs,
-      });
+        ...(pendingAttr
+          ? {
+              source: "supplier_preview" as const,
+              supplier_id: pendingAttr.supplier_id,
+              species: pendingAttr.species,
+              form: pendingAttr.form,
+              href: pendingAttr.href,
+              access_level: pendingAttr.access_level,
+            }
+          : { source: "direct" as const }),
+      };
+
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.groupCollapsed(
+          `[debug] registration_complete (${completePayload.source})`,
+        );
+        // eslint-disable-next-line no-console
+        console.log("pending_preview_attribution:", pendingAttr);
+        // eslint-disable-next-line no-console
+        console.log("registration_complete payload:", completePayload);
+        // eslint-disable-next-line no-console
+        console.groupEnd();
+      }
+
+      analytics.track("registration_complete", completePayload);
+      if (pendingAttr) clearPendingPreviewAttribution();
 
       // Buyers came here to find products fast — sign them in and route to /offers.
       if (data.role === "buyer" && data.email && !isSignedIn) {
