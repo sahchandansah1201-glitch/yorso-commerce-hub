@@ -189,8 +189,9 @@ const SupplierLogoCard = ({
       : size >= 40
         ? "text-sm"
         : "text-[11px]";
-  const ring =
-    size >= 80
+  const ring = isHero
+    ? "ring-[3px] md:ring-4 ring-background shadow-lg"
+    : size >= 80
       ? "ring-4 ring-background shadow-lg"
       : "ring-2 ring-background shadow-sm";
 
