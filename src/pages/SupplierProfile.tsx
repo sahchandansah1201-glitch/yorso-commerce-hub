@@ -3,7 +3,7 @@
  *
  * Route: /suppliers/:supplierId
  *
- * Access gating mirrors /suppliers — locked users see the masked preview,
+ * Access gating mirrors /suppliers locked users see the masked preview,
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
@@ -62,7 +62,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Visual class for a product-form badge (HOG, Fillet, IQF, etc.).
- * Form is public product metadata — shown at every access level.
+ * Form is public product metadata shown at every access level.
  */
 function formBadgeClass(form: string): string {
   const f = form.toLowerCase();
@@ -249,14 +249,14 @@ const SupplierProfile = () => {
   const catalogHidden = isUnlocked
     ? Math.max(0, supplier.totalProductsCount - catalogVisible.length)
     : 0;
-  // Headline cert is supplier-level evidence — only surface on cards when fully unlocked.
+  // Headline cert is supplier-level evidence only surface on cards when fully unlocked.
   const headlineCert = isUnlocked ? pickHeadlineCert(supplier.certifications) : undefined;
 
   /**
    * Resolve a catalog preview card to a destination:
    * - qualified_unlocked: prefer a concrete /offers/:id match by species,
    *   fall back to /offers prefiltered by this supplier id.
-   * - locked levels: never reveal supplier identity in the URL — use the
+   * - locked levels: never reveal supplier identity in the URL use the
    *   broad category from the matched offer (or species), no supplier param.
    */
   const catalogCardHref = (item: { species: string; form: string }): string => {
@@ -948,7 +948,7 @@ const SupplierProfile = () => {
                     </p>
                   </div>
 
-                  {/* Contact channels — qualified only */}
+                  {/* Contact channels qualified only */}
                   {isUnlocked && (supplier.website || supplier.whatsapp) ? (
                     <div>
                       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
