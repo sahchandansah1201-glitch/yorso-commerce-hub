@@ -208,7 +208,7 @@ const SupplierRowImpl = ({
               )}
 
               {/* Bottom signals */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+              <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-5 text-xs">
                 <span className="inline-flex items-center gap-1 text-foreground/80">
                   <span className="font-semibold tabular-nums text-foreground">
                     {supplier.activeOffersCount}
