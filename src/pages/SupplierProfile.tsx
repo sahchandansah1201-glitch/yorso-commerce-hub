@@ -719,7 +719,7 @@ const SupplierProfile = () => {
                       }
                       className="block focus:outline-none"
                     >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                      <div className="relative h-[140px] w-full overflow-hidden bg-muted sm:h-[160px]">
                         <img
                           src={item.image}
                           alt={`${item.species} (${item.form}) product preview from ${displayName}`}
