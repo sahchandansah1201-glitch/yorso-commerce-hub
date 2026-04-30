@@ -650,6 +650,113 @@ const SupplierProfile = () => {
             </div>
           </div>
         </section>
+          </div>
+        </section>
+
+        {/* Related suppliers */}
+        {related.length > 0 && (
+          <section
+            aria-labelledby="profile-related"
+            className="border-t border-border bg-background"
+          >
+            <div className="container py-8 md:py-10">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <h2
+                    id="profile-related"
+                    className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl"
+                  >
+                    Similar suppliers
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Other suppliers with overlapping product focus or origin.
+                  </p>
+                </div>
+                <Link
+                  to="/suppliers"
+                  className="hidden text-sm font-medium text-primary hover:underline md:inline"
+                >
+                  All suppliers →
+                </Link>
+              </div>
+
+              <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((r) => {
+                  const rName = isMasked ? r.maskedName : r.companyName;
+                  const rFlag = countryCodeToFlag(r.countryCode);
+                  return (
+                    <li key={r.id}>
+                      <Link
+                        to={`/suppliers/${r.id}`}
+                        aria-label={`Open supplier profile: ${rName}`}
+                        className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                          <img
+                            src={r.heroImage}
+                            alt={`${r.productFocus[0]?.species ?? "Seafood"} reference image for ${rName}`}
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
+                          />
+                          <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                            <span aria-hidden className="text-sm leading-none">
+                              {rFlag || "🌐"}
+                            </span>
+                            <span>{r.country}</span>
+                          </div>
+                          {r.verificationLevel === "documents_reviewed" && (
+                            <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
+                              <BadgeCheck className="h-3 w-3" aria-hidden />
+                              Reviewed
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            {supplierTypeLabel[r.supplierType]} · {r.city}
+                          </p>
+                          <h3 className="mt-1.5 font-heading text-base font-semibold leading-snug text-foreground break-words [overflow-wrap:anywhere]">
+                            {rName}
+                          </h3>
+                          {isMasked && (
+                            <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                              <Lock className="h-3 w-3" aria-hidden />
+                              Identity restricted
+                            </p>
+                          )}
+                          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-foreground/80">
+                            {r.shortDescription}
+                          </p>
+                          {r.certificationBadges.length > 0 && (
+                            <ul className="mt-3 flex flex-wrap gap-1">
+                              {r.certificationBadges.slice(0, 4).map((c) => (
+                                <li
+                                  key={c.code}
+                                  className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-foreground/75"
+                                >
+                                  {c.label}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <Package className="h-3 w-3" aria-hidden />
+                              {r.productFocus[0]?.species}
+                            </span>
+                            <span className="font-medium text-primary group-hover:underline">
+                              Open profile →
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </div>
