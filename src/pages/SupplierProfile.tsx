@@ -558,14 +558,8 @@ const SupplierProfile = () => {
                 <TabsTrigger value="catalog" className={tabTriggerCls}>
                   Каталог ({supplierOffers.length})
                 </TabsTrigger>
-                <TabsTrigger value="certs" className={tabTriggerCls}>
-                  Сертификаты и аудиты
-                </TabsTrigger>
-                <TabsTrigger value="production" className={tabTriggerCls}>
-                  Производство и мощности
-                </TabsTrigger>
-                <TabsTrigger value="logistics" className={tabTriggerCls}>
-                  Логистика и условия поставки
+                <TabsTrigger value="passport" className={tabTriggerCls}>
+                  Производственный паспорт
                 </TabsTrigger>
                 <TabsTrigger value="cases" className={tabTriggerCls}>
                   Отчёты о погрузке и кейсы
@@ -705,232 +699,253 @@ const SupplierProfile = () => {
                 </div>
               </TabsContent>
 
-              {/* === 3. Сертификаты и аудиты — плитки === */}
-              <TabsContent value="certs" className="mt-6">
-                <div className="rounded-xl border border-border bg-card p-6">
-                  <div className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" aria-hidden />
-                    <h2 className="font-heading text-lg font-semibold text-foreground">
+              {/* === 3. Производственный паспорт (Сертификаты + Производство + Логистика) === */}
+              <TabsContent value="passport" className="mt-6">
+                <div className="space-y-4">
+                  {/* Внутренняя навигация по разделам паспорта */}
+                  <nav
+                    aria-label="Разделы производственного паспорта"
+                    className="sticky top-16 z-10 -mx-1 flex flex-wrap gap-2 rounded-xl border border-border bg-background/95 p-2 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+                  >
+                    <a
+                      href="#passport-certs"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                    >
+                      <Award className="h-3.5 w-3.5 text-primary" aria-hidden />
                       Сертификаты и аудиты
-                    </h2>
-                  </div>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                    Подтверждённые отраслевые сертификации и аудиты. Подлинники
-                    и сроки действия передаются под NDA после запроса доступа.
-                  </p>
-                  <div className="mt-5">
-                    <CertificationsBlock supplier={supplier} size="lg" />
-                  </div>
-                  <p className="mt-4 text-[11px] text-muted-foreground">
-                    Логотипы сертификаций — товарные знаки правообладателей,
-                    используются для обозначения программ.
-                  </p>
-                </div>
-              </TabsContent>
+                    </a>
+                    <a
+                      href="#passport-production"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                    >
+                      <Factory className="h-3.5 w-3.5 text-primary" aria-hidden />
+                      Производство и мощности
+                    </a>
+                    <a
+                      href="#passport-logistics"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                    >
+                      <Truck className="h-3.5 w-3.5 text-primary" aria-hidden />
+                      Логистика и условия поставки
+                    </a>
+                  </nav>
 
-              {/* === 4. Производство и мощности === */}
-              <TabsContent value="production" className="mt-6">
-                {production && (
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="space-y-6 lg:col-span-2">
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Factory className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Производственные мощности
-                          </h2>
-                        </div>
-                        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                          <FactCell
-                            label="Суточная переработка"
-                            value={`${production.dailyTons} т / сутки`}
-                            estimate
-                          />
-                          <FactCell
-                            label="Производственных линий"
-                            value={String(production.lines)}
-                          />
-                          <FactCell
-                            label="Сотрудников на производстве"
-                            value={`около ${production.staff}`}
-                            estimate
-                          />
-                          <FactCell
-                            label="Каталог продукции"
-                            value={`${supplier.totalProductsCount} SKU`}
-                          />
-                        </dl>
+                  {/* --- 3.1 Сертификаты и аудиты --- */}
+                  <section id="passport-certs" className="scroll-mt-32">
+                    <div className="rounded-xl border border-border bg-card p-6">
+                      <div className="flex items-center gap-2">
+                        <Award className="h-5 w-5 text-primary" aria-hidden />
+                        <h2 className="font-heading text-lg font-semibold text-foreground">
+                          Сертификаты и аудиты
+                        </h2>
                       </div>
-
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Snowflake className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Холод и заморозка
-                          </h2>
-                        </div>
-                        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                          <FactCell
-                            label="Холодильные склады"
-                            value={`${production.coldStorageT} т единовременного хранения`}
-                            estimate
-                          />
-                          <FactCell
-                            label="Шоковая заморозка"
-                            value={`${production.blastFreezerT} т / сутки`}
-                            estimate
-                          />
-                          <FactCell label="Температурный режим" value="−18 °C … −24 °C" />
-                          <FactCell label="Глазурь" value="контроль 5–12% по запросу" />
-                        </dl>
-                      </div>
-
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Package className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Форматы продукции
-                          </h2>
-                        </div>
-                        <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
-                          {supplier.productFocus.map((p) => (
-                            <li key={p.species}>
-                              <span className="font-medium text-foreground">{p.species}</span>{" "}
-                              — {p.forms}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <aside className="space-y-6">
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <FileCheck2 className="h-4 w-4 text-primary" aria-hidden />
-                          <h3 className="font-heading text-base font-semibold text-foreground">
-                            Контроль качества
-                          </h3>
-                        </div>
-                        <ul className="mt-3 space-y-2 text-sm text-foreground/80">
-                          <li>• Внутренняя QC по чек-листу на каждую партию</li>
-                          <li>• Лабораторные тесты: микробиология, гистамин, тяжёлые металлы</li>
-                          <li>• Фото-отчёт о погрузке в стандарте</li>
-                          <li>• Независимый сюрвей (SGS / Bureau Veritas) — по запросу</li>
-                        </ul>
-                      </div>
-
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Award className="h-4 w-4 text-primary" aria-hidden />
-                          <h3 className="font-heading text-base font-semibold text-foreground">
-                            Сертификации производства
-                          </h3>
-                        </div>
-                        <div className="mt-3">
-                          <CertificationsBlock supplier={supplier} size="sm" />
-                        </div>
-                      </div>
-
-                      <p className="text-[11px] text-muted-foreground">
-                        Часть показателей — оценочные (estimate), уточняются при запросе доступа.
+                      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                        Подтверждённые отраслевые сертификации и аудиты. Подлинники
+                        и сроки действия передаются под NDA после запроса доступа.
                       </p>
-                    </aside>
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* === 5. Логистика и условия поставки === */}
-              <TabsContent value="logistics" className="mt-6">
-                {logistics && (
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="space-y-6 lg:col-span-2">
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Truck className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Условия поставки
-                          </h2>
-                        </div>
-                        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                          <FactCell
-                            label="Incoterms"
-                            value={logistics.incoterms.join(" · ")}
-                          />
-                          <FactCell
-                            label="Минимальная партия"
-                            value={`от ${logistics.minBatchTons} т / SKU`}
-                          />
-                          <FactCell
-                            label="Транзит до основных портов"
-                            value={`${logistics.transitDaysMin}–${logistics.transitDaysMax} дней`}
-                            estimate
-                          />
-                          <FactCell label="Тип контейнеров" value={logistics.containers.join(", ")} />
-                        </dl>
+                      <div className="mt-5">
+                        <CertificationsBlock supplier={supplier} size="lg" />
                       </div>
-
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Thermometer className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Температурный режим и сохранность
-                          </h2>
-                        </div>
-                        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                          <FactCell label="Температура в reefer" value={logistics.tempRange} />
-                          <FactCell label="Термописец" value="устанавливается на каждую партию" />
-                          <FactCell label="Пломбирование" value="по протоколу, фото пломбы" />
-                          <FactCell label="Страхование груза" value="CIF: ICC (A), 110% инвойса" />
-                        </dl>
-                      </div>
-
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <FileCheck2 className="h-5 w-5 text-primary" aria-hidden />
-                          <h2 className="font-heading text-lg font-semibold text-foreground">
-                            Документы на партию
-                          </h2>
-                        </div>
-                        <ul className="mt-3 grid gap-1.5 text-sm text-foreground/80 sm:grid-cols-2">
-                          <li>• Health Certificate</li>
-                          <li>• Certificate of Origin (EUR.1 при наличии)</li>
-                          <li>• Certificate of Analysis</li>
-                          <li>• Упаковочный лист</li>
-                          <li>• Bill of Lading / CMR</li>
-                          <li>• Halal / Kosher — по запросу</li>
-                        </ul>
-                      </div>
+                      <p className="mt-4 text-[11px] text-muted-foreground">
+                        Логотипы сертификаций — товарные знаки правообладателей,
+                        используются для обозначения программ.
+                      </p>
                     </div>
+                  </section>
 
-                    <aside className="space-y-6">
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-primary" aria-hidden />
-                          <h3 className="font-heading text-base font-semibold text-foreground">
-                            География поставок
-                          </h3>
-                        </div>
-                        <div className="mt-3">
-                          <DeliveryCountriesBlock supplier={supplier} />
-                        </div>
-                      </div>
+                  {/* --- 3.2 Производство и мощности --- */}
+                  <section id="passport-production" className="scroll-mt-32">
+                    {production && (
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Factory className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Производственные мощности
+                              </h2>
+                            </div>
+                            <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                              <FactCell
+                                label="Суточная переработка"
+                                value={`${production.dailyTons} т / сутки`}
+                                estimate
+                              />
+                              <FactCell
+                                label="Производственных линий"
+                                value={String(production.lines)}
+                              />
+                              <FactCell
+                                label="Сотрудников на производстве"
+                                value={`около ${production.staff}`}
+                                estimate
+                              />
+                              <FactCell
+                                label="Каталог продукции"
+                                value={`${supplier.totalProductsCount} SKU`}
+                              />
+                            </dl>
+                          </div>
 
-                      <div className="rounded-xl border border-border bg-card p-6">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-primary" aria-hidden />
-                          <h3 className="font-heading text-base font-semibold text-foreground">
-                            Сроки готовности
-                          </h3>
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Snowflake className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Холод и заморозка
+                              </h2>
+                            </div>
+                            <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                              <FactCell
+                                label="Холодильные склады"
+                                value={`${production.coldStorageT} т единовременного хранения`}
+                                estimate
+                              />
+                              <FactCell
+                                label="Шоковая заморозка"
+                                value={`${production.blastFreezerT} т / сутки`}
+                                estimate
+                              />
+                              <FactCell label="Температурный режим" value="−18 °C … −24 °C" />
+                              <FactCell label="Глазурь" value="контроль 5–12% по запросу" />
+                            </dl>
+                          </div>
+
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Package className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Форматы продукции
+                              </h2>
+                            </div>
+                            <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
+                              {supplier.productFocus.map((p) => (
+                                <li key={p.species}>
+                                  <span className="font-medium text-foreground">{p.species}</span>{" "}
+                                  — {p.forms}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-                        <ul className="mt-3 space-y-2 text-sm text-foreground/80">
-                          <li>• Со склада: 3–7 дней после оплаты</li>
-                          <li>• Под заказ: 2–4 недели <span className="text-[10px] uppercase text-muted-foreground">est.</span></li>
-                          <li>• Сезонные позиции: по графику добычи</li>
-                        </ul>
+
+                        <aside className="space-y-6">
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <FileCheck2 className="h-4 w-4 text-primary" aria-hidden />
+                              <h3 className="font-heading text-base font-semibold text-foreground">
+                                Контроль качества
+                              </h3>
+                            </div>
+                            <ul className="mt-3 space-y-2 text-sm text-foreground/80">
+                              <li>• Внутренняя QC по чек-листу на каждую партию</li>
+                              <li>• Лабораторные тесты: микробиология, гистамин, тяжёлые металлы</li>
+                              <li>• Фото-отчёт о погрузке в стандарте</li>
+                              <li>• Независимый сюрвей (SGS / Bureau Veritas) — по запросу</li>
+                            </ul>
+                          </div>
+
+                          <p className="text-[11px] text-muted-foreground">
+                            Часть показателей — оценочные (estimate), уточняются при запросе доступа.
+                          </p>
+                        </aside>
                       </div>
-                    </aside>
-                  </div>
-                )}
+                    )}
+                  </section>
+
+                  {/* --- 3.3 Логистика и условия поставки --- */}
+                  <section id="passport-logistics" className="scroll-mt-32">
+                    {logistics && (
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="space-y-6 lg:col-span-2">
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Truck className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Условия поставки
+                              </h2>
+                            </div>
+                            <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                              <FactCell
+                                label="Incoterms"
+                                value={logistics.incoterms.join(" · ")}
+                              />
+                              <FactCell
+                                label="Минимальная партия"
+                                value={`от ${logistics.minBatchTons} т / SKU`}
+                              />
+                              <FactCell
+                                label="Транзит до основных портов"
+                                value={`${logistics.transitDaysMin}–${logistics.transitDaysMax} дней`}
+                                estimate
+                              />
+                              <FactCell label="Тип контейнеров" value={logistics.containers.join(", ")} />
+                            </dl>
+                          </div>
+
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Thermometer className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Температурный режим и сохранность
+                              </h2>
+                            </div>
+                            <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                              <FactCell label="Температура в reefer" value={logistics.tempRange} />
+                              <FactCell label="Термописец" value="устанавливается на каждую партию" />
+                              <FactCell label="Пломбирование" value="по протоколу, фото пломбы" />
+                              <FactCell label="Страхование груза" value="CIF: ICC (A), 110% инвойса" />
+                            </dl>
+                          </div>
+
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <FileCheck2 className="h-5 w-5 text-primary" aria-hidden />
+                              <h2 className="font-heading text-lg font-semibold text-foreground">
+                                Документы на партию
+                              </h2>
+                            </div>
+                            <ul className="mt-3 grid gap-1.5 text-sm text-foreground/80 sm:grid-cols-2">
+                              <li>• Health Certificate</li>
+                              <li>• Certificate of Origin (EUR.1 при наличии)</li>
+                              <li>• Certificate of Analysis</li>
+                              <li>• Упаковочный лист</li>
+                              <li>• Bill of Lading / CMR</li>
+                              <li>• Halal / Kosher — по запросу</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <aside className="space-y-6">
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Globe className="h-4 w-4 text-primary" aria-hidden />
+                              <h3 className="font-heading text-base font-semibold text-foreground">
+                                География поставок
+                              </h3>
+                            </div>
+                            <div className="mt-3">
+                              <DeliveryCountriesBlock supplier={supplier} />
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-border bg-card p-6">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-primary" aria-hidden />
+                              <h3 className="font-heading text-base font-semibold text-foreground">
+                                Сроки готовности
+                              </h3>
+                            </div>
+                            <ul className="mt-3 space-y-2 text-sm text-foreground/80">
+                              <li>• Со склада: 3–7 дней после оплаты</li>
+                              <li>• Под заказ: 2–4 недели <span className="text-[10px] uppercase text-muted-foreground">est.</span></li>
+                              <li>• Сезонные позиции: по графику добычи</li>
+                            </ul>
+                          </div>
+                        </aside>
+                      </div>
+                    )}
+                  </section>
+                </div>
               </TabsContent>
 
               {/* === 6. Отчёты о погрузке и кейсы === */}
