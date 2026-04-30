@@ -70,21 +70,34 @@ function normalizeMissing(missing: readonly string[]): string[] {
 function buildAttributionDebugSummary(missing: readonly string[]) {
   const attemptId = peekRegistrationAttemptId();
   let registrationSource: string | null = null;
+  let invalidSource = false;
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as { source?: unknown } | null;
-      if (parsed && typeof parsed.source === "string") {
-        registrationSource = parsed.source;
+      try {
+        const parsed = JSON.parse(raw) as { source?: unknown } | null;
+        if (parsed && typeof parsed.source === "string" && parsed.source.length > 0) {
+          registrationSource = parsed.source;
+        } else {
+          // JSON распарсился, но форма неожиданная (нет поля source / не строка / пустая) —
+          // не теряем контекст: помечаем источник как invalid, чтобы было видно в логе.
+          invalidSource = true;
+        }
+      } catch {
+        // JSON битый — отдельный сигнал, отличающийся от «ключа просто нет».
+        invalidSource = true;
       }
     }
   } catch {
-    // silent — debug helper не должен падать
+    // sessionStorage недоступен — debug helper не должен падать
   }
+  const augmentedMissing = invalidSource
+    ? [...missing, "invalid_registration_source"]
+    : missing;
   return {
     attempt_id: attemptId,
     registration_source: registrationSource,
-    missing: normalizeMissing(missing),
+    missing: normalizeMissing(augmentedMissing),
   };
 }
 
