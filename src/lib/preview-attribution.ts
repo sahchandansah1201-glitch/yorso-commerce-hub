@@ -6,6 +6,8 @@
  * Только frontend, sessionStorage. TTL 30 минут — клики старше
  * считаются неотносящимися к текущей попытке регистрации.
  */
+import { peekRegistrationAttemptId } from "./registration-attempt";
+
 const STORAGE_KEY = "yorso_preview_attribution";
 const TTL_MS = 30 * 60 * 1000;
 
@@ -16,6 +18,32 @@ export interface PreviewAttribution {
   href: string;
   access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
   ts: number;
+}
+
+/**
+ * Dev-only: компактная сводка контекста текущей попытки регистрации,
+ * которую прикрепляем к каждому attribution-предупреждению, чтобы
+ * быстрее восстанавливать цепочку click → registration в DevTools.
+ */
+function buildAttributionDebugSummary(missing: readonly string[]) {
+  const attemptId = peekRegistrationAttemptId();
+  let registrationSource: string | null = null;
+  try {
+    const raw = sessionStorage.getItem(SOURCE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as { source?: unknown } | null;
+      if (parsed && typeof parsed.source === "string") {
+        registrationSource = parsed.source;
+      }
+    }
+  } catch {
+    // silent — debug helper не должен падать
+  }
+  return {
+    attempt_id: attemptId,
+    registration_source: registrationSource,
+    missing: [...missing],
+  };
 }
 
 /**
@@ -148,7 +176,10 @@ function validateAttributionShape(
   if (!attr) {
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
-      console.warn(`[debug] ${source}: attribution payload is null/undefined`);
+      console.warn(
+        `[debug] ${source}: attribution payload is null/undefined`,
+        buildAttributionDebugSummary(["<all>"]),
+      );
       recordMissing(source, ["<all>"]);
     }
     return ["<all>"];
@@ -165,7 +196,7 @@ function validateAttributionShape(
       // eslint-disable-next-line no-console
       console.warn(
         `[debug] ${source}: preview_attribution неполная — поля ${missing.join(", ")} отсутствуют/пустые`,
-        attr,
+        { attr, ...buildAttributionDebugSummary(missing) },
       );
     }
     recordMissing(source, missing);
@@ -210,6 +241,7 @@ export function readPreviewAttribution(): PreviewAttribution | null {
             ageMs: Date.now() - parsed.ts,
             ttlMs: TTL_MS,
             record: parsed,
+            ...buildAttributionDebugSummary(["<all>"]),
           },
         );
       }
@@ -269,6 +301,7 @@ export function readPendingPreviewAttribution(): PreviewAttribution | null {
             ageMs: Date.now() - parsed.ts,
             ttlMs: TTL_MS,
             record: parsed,
+            ...buildAttributionDebugSummary(["<all>"]),
           },
         );
       }
@@ -334,6 +367,7 @@ export function readRegistrationSource(): string | null {
             ageMs: Date.now() - parsed.ts,
             ttlMs: SOURCE_TTL_MS,
             record: parsed,
+            ...buildAttributionDebugSummary(["<all>"]),
           },
         );
       }
