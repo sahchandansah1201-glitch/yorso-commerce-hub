@@ -97,6 +97,11 @@ const SupplierRowImpl = ({
   // Two-line about teaser; full about only at qualified_unlocked.
   const aboutTeaser = supplier.shortDescription;
 
+  const titleId = `supplier-${supplier.id}-title`;
+  const metaId = `supplier-${supplier.id}-meta`;
+  const aboutId = `supplier-${supplier.id}-about`;
+  const certsId = `supplier-${supplier.id}-certs`;
+
   return (
     <li>
       <article
