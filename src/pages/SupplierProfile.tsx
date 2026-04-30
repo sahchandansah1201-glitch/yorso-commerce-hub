@@ -847,31 +847,31 @@ const SupplierProfile = () => {
                 )}
               </div>
 
-              <dl className="mt-3 grid gap-3 sm:grid-cols-3">
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              <dl className="mt-3 grid grid-cols-1 overflow-hidden rounded-md border border-border bg-background sm:grid-cols-3 sm:divide-x sm:divide-border">
+                <div className="flex items-baseline justify-between gap-3 px-3 py-2.5">
+                  <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Supplier type
                   </dt>
-                  <dd className="mt-1 text-sm font-medium text-foreground">
+                  <dd className="text-right text-[13px] font-semibold text-foreground">
                     {supplierTypeLabel[supplier.supplierType]}
                   </dd>
                 </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                <div className="flex items-baseline justify-between gap-3 border-t border-border px-3 py-2.5 sm:border-t-0">
+                  <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Origin
                   </dt>
-                  <dd className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                  <dd className="inline-flex items-center gap-1 text-right text-[13px] font-semibold text-foreground">
                     <span aria-hidden className="text-base leading-none">
                       {flag || "🌐"}
                     </span>
                     {supplier.country} · {supplier.city}
                   </dd>
                 </div>
-                <div>
-                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                <div className="flex items-baseline justify-between gap-3 border-t border-border px-3 py-2.5 sm:border-t-0">
+                  <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                     Export readiness
                   </dt>
-                  <dd className="mt-1 text-sm font-medium text-foreground">
+                  <dd className="text-right text-[13px] font-semibold text-foreground">
                     {supplier.documentReadiness === "ready"
                       ? "Export documents on file"
                       : supplier.documentReadiness === "partial"
