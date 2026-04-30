@@ -786,7 +786,7 @@ const SupplierProfile = () => {
 
                     const lockedValue = "Available after supplier access";
 
-                    const cards: { key: string; label: string; value: React.ReactNode }[] = [
+                    const cards: { key: string; label: string; value: ReactNode }[] = [
                       {
                         key: "moq",
                         label: "Typical MOQ",
