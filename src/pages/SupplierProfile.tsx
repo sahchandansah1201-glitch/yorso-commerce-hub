@@ -537,7 +537,8 @@ const SupplierProfile = () => {
                           </div>
                         </Link>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                   {isUnlocked
                     ? catalogHidden > 0 && (
