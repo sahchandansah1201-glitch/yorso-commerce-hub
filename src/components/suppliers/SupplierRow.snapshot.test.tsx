@@ -10,6 +10,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { SupplierRow } from "./SupplierRow";
 import { mockSuppliers } from "@/data/mockSuppliers";
 import type { AccessLevel } from "@/lib/access-level";
@@ -18,17 +19,19 @@ const supplier = mockSuppliers[0];
 
 const renderRow = (accessLevel: AccessLevel) =>
   render(
-    <ul>
-      <SupplierRow
-        supplier={supplier}
-        isSelected={false}
-        isShortlisted={false}
-        accessLevel={accessLevel}
-        onSelect={vi.fn()}
-        onShortlist={vi.fn()}
-        onPrimaryAction={vi.fn()}
-      />
-    </ul>,
+    <MemoryRouter>
+      <ul>
+        <SupplierRow
+          supplier={supplier}
+          isSelected={false}
+          isShortlisted={false}
+          accessLevel={accessLevel}
+          onSelect={vi.fn()}
+          onShortlist={vi.fn()}
+          onPrimaryAction={vi.fn()}
+        />
+      </ul>
+    </MemoryRouter>,
   );
 
 describe("SupplierRow — visual structure snapshots", () => {
