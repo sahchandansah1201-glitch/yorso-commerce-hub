@@ -22,6 +22,26 @@ import { getProvider, recordAnalyticsFailure } from "./analytics-provider";
 // ─── Common payload primitives ──────────────────────────────────────────────
 
 export type UserRole = "buyer" | "supplier" | "unknown";
+
+/**
+ * Источники, с которых пользователь стартовал регистрацию.
+ * Используется в `registration_start` и `registration_complete` для
+ * сравнения конверсии разных CTA.
+ */
+export type RegistrationSource =
+  | "direct"
+  | "supplier_preview"
+  | "hero_cta"
+  | "trust_block"
+  | "header"
+  | "final_cta"
+  | "value_split_buyer"
+  | "value_split_supplier"
+  | "supplier_profile"
+  | "offer_detail"
+  | "catalog_banner"
+  | "how_it_works"
+  | "for_suppliers";
 export type Surface =
   | "homepage"
   | "offers_list"
