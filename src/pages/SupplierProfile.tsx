@@ -226,7 +226,10 @@ const SupplierLogoCard = ({
           {showSkeleton && (
             <Skeleton
               aria-hidden
-              className="absolute inset-0 h-full w-full rounded-none"
+              // transition-none — скелетон сам не анимирует свои размеры,
+              // он просто растягивается inset-0 вместе с родителем, поэтому
+              // pulse не «дёргается» во время resize/rotate-перехода.
+              className="absolute inset-0 h-full w-full rounded-none transition-none"
             />
           )}
           <img
