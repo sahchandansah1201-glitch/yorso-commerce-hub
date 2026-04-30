@@ -38,6 +38,7 @@ import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDas
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
 import TypographyAudit from "./pages/dev/TypographyAudit.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
+import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
         <BrowserRouter>
           <BuyerSessionProvider>
             <RegistrationProvider>
+              <SupplierApprovalNotifier />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/register" element={<RegisterChoose />} />

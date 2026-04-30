@@ -88,7 +88,7 @@ describe("SupplierProfile — access gating", () => {
     if (supplier.whatsapp) expect(body).not.toContain(supplier.whatsapp);
     expect(body).not.toContain(`${supplier.totalProductsCount} products`);
     expect(body).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
-    expect(screen.getByRole("button", { name: /request supplier access/i }))
+    expect(screen.getByRole("button", { name: /request price access/i }))
       .toBeInTheDocument();
   });
 
@@ -218,7 +218,7 @@ describe("SupplierProfile — access gating", () => {
   });
 });
 
-describe("SupplierProfile — supplier access request flow", () => {
+describe("SupplierProfile — supplier access request flow (one-click)", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -227,135 +227,178 @@ describe("SupplierProfile — supplier access request flow", () => {
   const supplier = mockSuppliers[0];
   const otherSupplier = mockSuppliers[1];
 
-  it("anonymous_locked does not render request form, keeps Create buyer account CTA", () => {
+  it("anonymous_locked does not render the request panel; keeps Create buyer account CTA", () => {
     renderAt(`/suppliers/${supplier.id}`);
     expect(
-      screen.queryByRole("heading", { name: /request supplier access/i }),
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
     expect(
       screen.getByRole("link", { name: /create buyer account/i }),
     ).toBeInTheDocument();
   });
 
-  it("registered_locked: clicking Request supplier access opens inline form using maskedName", () => {
+  it("registered_locked: renders one-click Request price access CTA without reason checkboxes or message field", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const heading = screen.getByRole("heading", {
-      name: /request supplier access/i,
-    });
-    const form = heading.closest("form")!;
-    expect(within(form).getAllByText(supplier.maskedName).length)
-      .toBeGreaterThan(0);
-    expect(form.textContent ?? "").not.toContain(supplier.companyName);
+    expect(
+      screen.getByRole("button", { name: /request price access/i }),
+    ).toBeInTheDocument();
+    // No reason checkboxes, validation, or textarea.
+    expect(screen.queryByText(/what are you requesting/i)).toBeNull();
+    expect(screen.queryByLabelText(/exact price access/i)).toBeNull();
+    expect(screen.queryByLabelText(/supplier contact/i)).toBeNull();
+    expect(document.querySelectorAll("textarea").length).toBe(0);
+    // Masked name shown, real companyName never leaks.
+    expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+    expect(document.body.textContent ?? "").not.toContain(supplier.companyName);
   });
 
-  it("submitting with no reasons shows inline validation error", () => {
+  it("registered_locked: clicking the CTA stores a request with intent exact_price and shows status card", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    // Uncheck the default-checked reason.
-    const exact = screen.getByLabelText(/exact price access/i);
-    fireEvent.click(exact);
-    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
-    expect(screen.getByRole("alert").textContent ?? "")
-      .toMatch(/select at least one reason/i);
-    // Form is still visible — no success state.
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
-  });
+    const status = screen.getByTestId("supplier-access-request-status");
+    expect(status).toBeInTheDocument();
+    // Status starts as "sent" or has already advanced to "pending" via the
+    // boot-time approval scan that runs when the profile mounts.
+    expect(["sent", "pending"]).toContain(
+      status.getAttribute("data-status"),
+    );
 
-  it("submitting with selected reasons saves sessionStorage and renders Access request sent", () => {
-    seedRegisteredSession();
-    renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    fireEvent.click(screen.getByLabelText(/supplier contact/i));
-    fireEvent.click(screen.getByRole("button", { name: /send access request/i }));
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
     expect(parsed[supplier.id]).toBeTruthy();
-    expect(parsed[supplier.id].status).toBe("sent");
-    expect(parsed[supplier.id].reasons).toEqual(
-      expect.arrayContaining(["exact_price", "supplier_contact"]),
-    );
+    expect(parsed[supplier.id].intent).toBe("exact_price");
+    expect(typeof parsed[supplier.id].sentAt).toBe("string");
+    expect(typeof parsed[supplier.id].mockApproveAt).toBe("string");
   });
 
-  it("preserves request sent state after re-render for the same supplier", () => {
+  it("preserves status state after re-render for the same supplier (using legacy sessionStorage record)", () => {
     seedRegisteredSession();
     sessionStorage.setItem(
       "yorso_supplier_access_requests",
       JSON.stringify({
         [supplier.id]: {
           status: "sent",
-          reasons: ["exact_price"],
-          message: "",
+          intent: "exact_price",
+          supplierId: supplier.id,
           sentAt: new Date().toISOString(),
+          mockApproveAt: new Date(Date.now() + 60_000).toISOString(),
         },
       }),
     );
     renderAt(`/suppliers/${supplier.id}`);
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-    // Primary CTA must not re-prompt to Request supplier access.
     expect(
-      screen.queryByRole("button", { name: /request supplier access/i }),
+      screen.getByTestId("supplier-access-request-status"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
   });
 
   it("request status is supplier-specific", () => {
     seedRegisteredSession();
-    sessionStorage.setItem(
+    localStorage.setItem(
       "yorso_supplier_access_requests",
       JSON.stringify({
         [supplier.id]: {
           status: "sent",
-          reasons: ["exact_price"],
-          message: "",
+          intent: "exact_price",
+          supplierId: supplier.id,
           sentAt: new Date().toISOString(),
+          mockApproveAt: new Date(Date.now() + 60_000).toISOString(),
         },
       }),
     );
     renderAt(`/suppliers/${otherSupplier.id}`);
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(screen.queryByTestId("supplier-access-request-status")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     ).toBeInTheDocument();
   });
 
-  it("qualified_unlocked does not render request form and still shows contact channels", () => {
+  it("approved request: status card shows approved and qualified access is applied", async () => {
+    seedRegisteredSession();
+    // Seed a request whose mock approval is already due.
+    localStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "pending",
+          intent: "exact_price",
+          supplierId: supplier.id,
+          sentAt: new Date(Date.now() - 10_000).toISOString(),
+          pendingAt: new Date(Date.now() - 9_000).toISOString(),
+          mockApproveAt: new Date(Date.now() - 1_000).toISOString(),
+        },
+      }),
+    );
+    renderAt(`/suppliers/${supplier.id}`);
+    const status = await screen.findByTestId("supplier-access-request-status");
+    expect(status.getAttribute("data-status")).toBe("approved");
+    // Qualification was applied — companyName becomes visible.
+    expect(screen.getAllByText(supplier.companyName).length).toBeGreaterThan(0);
+  });
+
+  it("queues a one-time approval notification that survives the next visit", () => {
+    // Pre-seed an already-approved request whose notification has not been seen.
+    localStorage.setItem(
+      "yorso_supplier_access_requests",
+      JSON.stringify({
+        [supplier.id]: {
+          status: "approved",
+          intent: "exact_price",
+          supplierId: supplier.id,
+          sentAt: new Date(Date.now() - 60_000).toISOString(),
+          pendingAt: new Date(Date.now() - 50_000).toISOString(),
+          approvedAt: new Date(Date.now() - 10_000).toISOString(),
+        },
+      }),
+    );
+    localStorage.setItem(
+      "yorso_supplier_access_notifications",
+      JSON.stringify({
+        [supplier.id]: {
+          supplierId: supplier.id,
+          approvedAt: new Date(Date.now() - 10_000).toISOString(),
+          seen: false,
+        },
+      }),
+    );
+    seedRegisteredSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    // The status card reflects approved.
+    expect(
+      screen.getByTestId("supplier-access-request-status").getAttribute(
+        "data-status",
+      ),
+    ).toBe("approved");
+    // Notification is delivered exactly once: store entry now marked seen.
+    const notes = JSON.parse(
+      localStorage.getItem("yorso_supplier_access_notifications") ?? "{}",
+    );
+    expect(notes[supplier.id]?.seen).toBe(true);
+  });
+
+  it("qualified_unlocked does not render request panel and still shows contact channels", () => {
     seedQualifiedSession();
     renderAt(`/suppliers/${supplier.id}`);
     expect(
-      screen.queryByRole("heading", { name: /request supplier access/i }),
-    ).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /request supplier access/i }),
+      screen.queryByRole("button", { name: /request price access/i }),
     ).toBeNull();
     if (supplier.website) {
       expect(screen.getByRole("link", { name: /website/i })).toBeInTheDocument();
     }
   });
 
-  it("does not render nested <button> elements while form is open", () => {
+  it("does not render nested <button> elements with the panel visible", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const buttons = document.querySelectorAll("button");
-    for (const btn of Array.from(buttons)) {
-      let parent = btn.parentElement;
-      while (parent) {
-        expect(parent.tagName.toLowerCase()).not.toBe("button");
-        parent = parent.parentElement;
-      }
-    }
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    expect(document.querySelectorAll("a button").length).toBe(0);
   });
 });
 
@@ -496,7 +539,7 @@ describe("SupplierProfile — regression: locked profile must not leak exact act
   });
 });
 
-describe("SupplierProfile — regression: access request flow stays supplier-specific", () => {
+describe("SupplierProfile — regression: one-click access flow stays supplier-specific", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -505,18 +548,17 @@ describe("SupplierProfile — regression: access request flow stays supplier-spe
   const supplierA = mockSuppliers[0];
   const supplierB = mockSuppliers[1];
 
-  it("submitting for supplier A only writes supplier A under its id; supplier B keeps the request CTA", () => {
+  it("requesting for supplier A only writes supplier A under its id; supplier B keeps the CTA", () => {
     seedRegisteredSession();
     const { unmount } = renderAt(`/suppliers/${supplierA.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
+    expect(
+      screen.getByTestId("supplier-access-request-status"),
+    ).toBeInTheDocument();
 
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
     expect(Object.keys(parsed)).toEqual([supplierA.id]);
@@ -525,14 +567,14 @@ describe("SupplierProfile — regression: access request flow stays supplier-spe
     unmount();
 
     renderAt(`/suppliers/${supplierB.id}`);
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
+    expect(screen.queryByTestId("supplier-access-request-status")).toBeNull();
     expect(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     ).toBeInTheDocument();
   });
 });
 
-describe("SupplierProfile — regression: access request form does not leak supplier identity", () => {
+describe("SupplierProfile — regression: access request panel does not leak supplier identity", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -540,42 +582,20 @@ describe("SupplierProfile — regression: access request form does not leak supp
 
   const supplier = mockSuppliers[0];
 
-  it("registered_locked: open form shows masked name and hides companyName/website/whatsapp/exact counts", () => {
+  it("registered_locked: visible panel shows masked name, never companyName/website/whatsapp", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    const heading = screen.getByRole("heading", {
-      name: /request supplier access/i,
-    });
-    const form = heading.closest("form")!;
-    const text = form.textContent ?? "";
-
-    expect(within(form).getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+    const cta = screen.getByRole("button", { name: /request price access/i });
+    const panel = cta.closest("div")!.parentElement!;
+    const text = panel.textContent ?? "";
+    expect(text).toContain(supplier.maskedName);
     expect(text).not.toContain(supplier.companyName);
-    if (supplier.website) {
-      expect(text).not.toContain(supplier.website);
-      expect(form.querySelector(`a[href="${supplier.website}"]`)).toBeNull();
-    }
-    if (supplier.whatsapp) {
-      expect(text).not.toContain(supplier.whatsapp);
-    }
-    // Exact hidden catalog/delivery counts must not leak inside the form.
-    const hiddenCatalog = supplier.totalProductsCount - 3;
-    const hiddenMarkets = supplier.deliveryCountriesTotal - 3;
-    if (hiddenCatalog > 0) {
-      expect(text).not.toContain(`+${hiddenCatalog} products`);
-      expect(text).not.toContain(`${supplier.totalProductsCount} products`);
-    }
-    if (hiddenMarkets > 0) {
-      expect(text).not.toContain(`+${hiddenMarkets} markets`);
-      expect(text).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
-    }
+    if (supplier.website) expect(text).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(text).not.toContain(supplier.whatsapp);
   });
 });
 
-describe("SupplierProfile — regression: access request validation + storage shape", () => {
+describe("SupplierProfile — regression: one-click request storage shape", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
@@ -583,57 +603,29 @@ describe("SupplierProfile — regression: access request validation + storage sh
 
   const supplier = mockSuppliers[0];
 
-  it("submitting with no reasons selected: shows inline validation, writes nothing to storage", () => {
+  it("clicking the CTA writes a record with the documented contract", () => {
     seedRegisteredSession();
     renderAt(`/suppliers/${supplier.id}`);
     fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
+      screen.getByRole("button", { name: /request price access/i }),
     );
-    // Uncheck the default-selected reason.
-    fireEvent.click(screen.getByLabelText(/exact price access/i));
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByRole("alert").textContent ?? "").toMatch(
-      /select at least one reason/i,
-    );
-    expect(screen.queryByText(/access request sent/i)).toBeNull();
-    expect(
-      sessionStorage.getItem("yorso_supplier_access_requests"),
-    ).toBeNull();
-  });
 
-  it("after selecting at least one reason and submitting: success state visible and storage shape matches contract", () => {
-    seedRegisteredSession();
-    renderAt(`/suppliers/${supplier.id}`);
-    fireEvent.click(
-      screen.getByRole("button", { name: /request supplier access/i }),
-    );
-    // Default reason "exact_price" is pre-checked; submit as is.
-    fireEvent.click(
-      screen.getByRole("button", { name: /send access request/i }),
-    );
-    expect(screen.getByText(/access request sent/i)).toBeInTheDocument();
-
-    const raw = sessionStorage.getItem("yorso_supplier_access_requests");
+    const raw = localStorage.getItem("yorso_supplier_access_requests");
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
-
     expect(Object.keys(parsed)).toEqual([supplier.id]);
     const record = parsed[supplier.id];
-    expect(record.status).toBe("sent");
-    expect(Array.isArray(record.reasons)).toBe(true);
-    expect(record.reasons.length).toBeGreaterThan(0);
-    for (const r of record.reasons) {
-      expect(typeof r).toBe("string");
-    }
-    expect(typeof record.message).toBe("string");
+    expect(["sent", "pending"]).toContain(record.status);
+    expect(record.intent).toBe("exact_price");
+    expect(record.supplierId).toBe(supplier.id);
     expect(typeof record.sentAt).toBe("string");
-    // sentAt must be a valid ISO timestamp.
     expect(Number.isNaN(Date.parse(record.sentAt))).toBe(false);
     expect(record.sentAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(typeof record.mockApproveAt).toBe("string");
+    expect(Number.isNaN(Date.parse(record.mockApproveAt))).toBe(false);
   });
 });
+
 
 
 describe("SupplierProfile — standalone page contract", () => {

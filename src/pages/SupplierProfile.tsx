@@ -17,8 +17,10 @@ import {
   getSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
-import { useBuyerSession } from "@/contexts/BuyerSessionContext";
-import { useRegistration } from "@/contexts/RegistrationContext";
+import {
+  drainApprovalNotifications,
+  processSupplierAccessRequests,
+} from "@/lib/supplier-access-approval";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
@@ -182,8 +184,6 @@ const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
   const { level } = useAccessLevel();
-  const { session: buyerSessionState } = useBuyerSession();
-  const { data: registrationData } = useRegistration();
   const supplier = useMemo(() => getSupplierById(supplierId), [supplierId]);
   const related = useMemo(
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
@@ -195,17 +195,35 @@ const SupplierProfile = () => {
     return getOffersForSupplier(supplier.country, speciesList, 4);
   }, [supplier]);
 
-  // Persisted access-request state for this specific supplier (sessionStorage).
+  // Persisted access-request state for this specific supplier (localStorage).
   const [accessRequest, setAccessRequest] =
     useState<SupplierAccessRequest | null>(() =>
       getSupplierAccessRequest(supplierId),
     );
-  const [showRequestForm, setShowRequestForm] = useState(false);
 
   // Re-sync if the route changes between suppliers in-place.
   useEffect(() => {
     setAccessRequest(getSupplierAccessRequest(supplierId));
-    setShowRequestForm(false);
+  }, [supplierId]);
+
+  // Drive the mock approval pipeline whenever the profile mounts or the
+  // supplier id changes. If a previously-sent request becomes approved
+  // while the buyer is on this page, reflect that immediately.
+  useEffect(() => {
+    const tick = () => {
+      processSupplierAccessRequests();
+      drainApprovalNotifications(() => {
+        toast({
+          title: "Price access approved",
+          description:
+            "You can now view exact prices and supplier details.",
+        });
+      });
+      setAccessRequest(getSupplierAccessRequest(supplierId));
+    };
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    return () => window.clearInterval(interval);
   }, [supplierId]);
 
   const isUnlocked = level === "qualified_unlocked";
@@ -277,22 +295,13 @@ const SupplierProfile = () => {
       navigate("/register");
       return;
     }
-    if (level === "registered_locked") {
-      setShowRequestForm(true);
-      return;
-    }
+    // registered_locked is now handled inline by the one-click panel.
     toast({
       title: "Contact request shared",
       description: `We notified ${supplier.companyName} about your contact request.`,
     });
   };
 
-  const buyerSummary = {
-    identifier:
-      buyerSessionState?.identifier || registrationData.email || undefined,
-    company: registrationData.company || undefined,
-    country: registrationData.country || undefined,
-  };
   const hasSentRequest = !!accessRequest;
 
   return (
@@ -1131,44 +1140,27 @@ const SupplierProfile = () => {
                     </div>
                   )}
 
-                  {level === "registered_locked" && hasSentRequest && (
+                  {hasSentRequest && (
                     <SupplierAccessRequestSent
                       request={accessRequest!}
                       supplierMaskedName={supplier.maskedName}
                     />
                   )}
 
-                  {level === "registered_locked" &&
-                    !hasSentRequest &&
-                    showRequestForm && (
-                      <SupplierAccessRequestPanel
-                        supplierId={supplier.id}
-                        supplierMaskedName={supplier.maskedName}
-                        buyer={buyerSummary}
-                        onSent={(req) => {
-                          setAccessRequest(req);
-                          setShowRequestForm(false);
-                        }}
-                        onCancel={() => setShowRequestForm(false)}
-                      />
-                    )}
+                  {level === "registered_locked" && !hasSentRequest && (
+                    <SupplierAccessRequestPanel
+                      supplierId={supplier.id}
+                      supplierMaskedName={supplier.maskedName}
+                      onSent={(req) => setAccessRequest(req)}
+                    />
+                  )}
 
                   <div className="flex flex-col gap-2">
                     {level === "anonymous_locked" ? (
                       <Button asChild type="button" className="w-full gap-2">
                         <Link to="/register">{primaryCtaCopy(level)}</Link>
                       </Button>
-                    ) : level === "registered_locked" ? (
-                      !hasSentRequest && !showRequestForm ? (
-                        <Button
-                          type="button"
-                          className="w-full gap-2"
-                          onClick={handlePrimaryAction}
-                        >
-                          {primaryCtaCopy(level)}
-                        </Button>
-                      ) : null
-                    ) : (
+                    ) : level === "registered_locked" ? null : (
                       <Button
                         type="button"
                         className="w-full gap-2"
