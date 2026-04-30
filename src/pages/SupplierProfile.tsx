@@ -429,9 +429,42 @@ const SupplierProfile = () => {
                           >
                             {item.name}
                           </p>
-                          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                            {item.form}
-                          </p>
+                          <div
+                            className="mt-1 flex flex-wrap items-center gap-1"
+                            aria-label={`Product attributes: ${item.form}${
+                              isUnlocked && headlineCert ? `, ${headlineCert}` : ""
+                            }`}
+                          >
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                                formBadgeClass(item.form),
+                              )}
+                            >
+                              {item.form}
+                            </span>
+                            {hasIqfBadge(item.form) && !/\biqf\b/i.test(item.form.replace(/iqf/i, "")) === false ? null : null}
+                            {/* IQF surfaced as its own badge when it appears as a suffix like "Portions IQF" */}
+                            {hasIqfBadge(item.name) && !hasIqfBadge(item.form) && (
+                              <span
+                                className={cn(
+                                  "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                                  formBadgeClass("IQF"),
+                                )}
+                              >
+                                IQF
+                              </span>
+                            )}
+                            {isUnlocked && headlineCert && (
+                              <span
+                                className="inline-flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                                title={`Supplier certification: ${headlineCert}`}
+                              >
+                                <BadgeCheck className="h-2.5 w-2.5" aria-hidden />
+                                {headlineCert}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </li>
                     ))}
