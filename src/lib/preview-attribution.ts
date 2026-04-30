@@ -134,20 +134,20 @@ function buildAttributionDebugSummary(missing: readonly string[]) {
   try {
     const raw = sessionStorage.getItem(SOURCE_KEY);
     if (raw) {
-      let parsed: unknown = undefined;
+      let parsed: unknown;
+      let parseFailed = false;
       try {
         parsed = JSON.parse(raw);
       } catch {
         // JSON битый — отдельный сигнал, отличающийся от «неправильной формы».
         sourceError = "json_parse_error";
+        parseFailed = true;
       }
-      if (sourceError === null) {
-        const candidate =
-          parsed && typeof parsed === "object" && !Array.isArray(parsed)
-            ? (parsed as { source?: unknown }).source
-            : undefined;
-        if (typeof candidate === "string" && candidate.length > 0) {
-          registrationSource = candidate;
+      if (!parseFailed) {
+        // Type-guard сужает unknown → RegistrationSourceRecord без cast,
+        // одинаково для production-чтения и dev-сводки.
+        if (isRegistrationSourceRecord(parsed)) {
+          registrationSource = parsed.source;
         } else {
           // JSON распарсился, но форма неожиданная (нет source / не строка /
           // пустая строка / массив / null) — помечаем как invalid_shape.
