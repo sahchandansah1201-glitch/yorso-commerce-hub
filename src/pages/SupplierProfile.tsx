@@ -1021,7 +1021,7 @@ const SupplierProfile = () => {
                     <li
                       key={it.key}
                       data-testid={`doc-row-${it.key}`}
-                      className="flex items-center justify-between gap-3 px-3 py-2.5"
+                      className="flex items-center justify-between gap-3 px-3 py-2"
                     >
                       <span className="inline-flex items-center gap-2 text-sm text-foreground">
                         <FileCheck2
