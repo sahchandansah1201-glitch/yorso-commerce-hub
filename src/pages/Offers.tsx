@@ -480,6 +480,8 @@ const Offers = () => {
         onClear={() => setCompareIds([])}
         max={COMPARE_MAX}
       />
+
+      <Footer />
     </div>
   );
 };
