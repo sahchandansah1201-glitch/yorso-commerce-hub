@@ -407,6 +407,67 @@ const SupplierProfile = () => {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
               {/* Main column */}
               <div className="space-y-6">
+                {/* Quick procurement summary */}
+                <article
+                  aria-labelledby="profile-quick-summary"
+                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                >
+                  <h2
+                    id="profile-quick-summary"
+                    className="font-heading text-base font-semibold text-foreground"
+                  >
+                    Quick procurement summary
+                  </h2>
+                  <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Fish className="h-3.5 w-3.5" aria-hidden />
+                        Product focus
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {supplier.productFocus
+                          .slice(0, 2)
+                          .map((p) => p.species)
+                          .join(", ")}
+                        {supplier.productFocus.length > 2 && (
+                          <span className="text-muted-foreground">
+                            {" "}+{supplier.productFocus.length - 2} more
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <DocIcon className="h-3.5 w-3.5" aria-hidden />
+                        Document readiness
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {docsLabel[supplier.documentReadiness]}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Activity className="h-3.5 w-3.5" aria-hidden />
+                        Response speed
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {responseLabel[supplier.responseSignal]}
+                      </dd>
+                    </div>
+                    <div className="rounded-md border border-border bg-background p-3">
+                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <Ship className="h-3.5 w-3.5" aria-hidden />
+                        Trade capability
+                      </dt>
+                      <dd className="mt-1.5 text-sm font-medium text-foreground">
+                        {isUnlocked
+                          ? `${supplierTypeLabel[supplier.supplierType]} · ${supplier.deliveryCountriesTotal} export markets`
+                          : `${supplierTypeLabel[supplier.supplierType]} · export markets after approval`}
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+
                 {/* Product focus */}
                 <article
                   aria-labelledby="profile-focus"
