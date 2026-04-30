@@ -152,7 +152,7 @@ const SupplierRowImpl = ({
               onClick={() => onSelect(supplier.id)}
               aria-pressed={isSelected}
               aria-label={`Select ${displayName} to review details`}
-              className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-w-0 flex-1 cursor-pointer flex-col rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span className="font-medium text-foreground/80">
