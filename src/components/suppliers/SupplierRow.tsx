@@ -152,7 +152,7 @@ const SupplierRowImpl = ({
               onClick={() => onSelect(supplier.id)}
               aria-pressed={isSelected}
               aria-label={`Select ${displayName} to review details`}
-              className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-w-0 flex-1 cursor-pointer flex-col rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span className="font-medium text-foreground/80">
@@ -178,7 +178,7 @@ const SupplierRowImpl = ({
               )}
 
               <p
-                className="mt-4 line-clamp-2 text-sm leading-relaxed text-foreground/85"
+                className="mt-4 line-clamp-2 min-h-[2.6rem] text-sm leading-relaxed text-foreground/85"
                 title={aboutTeaser}
               >
                 {aboutTeaser}
@@ -208,7 +208,7 @@ const SupplierRowImpl = ({
               )}
 
               {/* Bottom signals */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+              <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-5 text-xs">
                 <span className="inline-flex items-center gap-1 text-foreground/80">
                   <span className="font-semibold tabular-nums text-foreground">
                     {supplier.activeOffersCount}
