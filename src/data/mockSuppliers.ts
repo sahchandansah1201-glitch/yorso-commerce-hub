@@ -673,3 +673,9 @@ export const mockSuppliers: MockSupplier[] = [
     website: "https://example-lofotenklipp.no",
   },
 ];
+
+/** Lookup helper for the supplier profile route. */
+export const getSupplierById = (id: string | undefined): MockSupplier | null => {
+  if (!id) return null;
+  return mockSuppliers.find((s) => s.id === id) ?? null;
+};
