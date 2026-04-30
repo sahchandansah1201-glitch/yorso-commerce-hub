@@ -1000,3 +1000,42 @@ export const faqItems = [
     answer: "YORSO is fully GDPR-compliant with data stored in EU-based infrastructure. All communications are encrypted in transit and at rest. We conduct regular security audits, and supplier verification includes compliance checks for export regulations, food safety standards (HACCP, BRC, IFS), and trade sanctions screening. Your data is never shared or sold to third parties.",
   },
 ];
+
+/**
+ * Frontend-only mapper: given a supplier (origin country + product focus),
+ * return offers that plausibly belong to that supplier. Used by Supplier
+ * Profile v1 to render the "Active offers" section without changing data.
+ */
+export const getOffersForSupplier = (
+  origin: string,
+  speciesList: string[],
+  limit = 4,
+): SeafoodOffer[] => {
+  const speciesLc = speciesList.map((s) => s.toLowerCase());
+  const sameOrigin = mockOffers.filter(
+    (o) => o.origin.toLowerCase() === origin.toLowerCase(),
+  );
+  const matchesSpecies = (o: SeafoodOffer) =>
+    speciesLc.some(
+      (sp) =>
+        o.species.toLowerCase().includes(sp) ||
+        sp.includes(o.species.toLowerCase()),
+    );
+  const ranked = [
+    ...sameOrigin.filter(matchesSpecies),
+    ...sameOrigin.filter((o) => !matchesSpecies(o)),
+    ...mockOffers.filter(
+      (o) =>
+        o.origin.toLowerCase() !== origin.toLowerCase() && matchesSpecies(o),
+    ),
+  ];
+  const seen = new Set<string>();
+  const out: SeafoodOffer[] = [];
+  for (const o of ranked) {
+    if (seen.has(o.id)) continue;
+    seen.add(o.id);
+    out.push(o);
+    if (out.length >= limit) break;
+  }
+  return out;
+};

@@ -40,6 +40,7 @@ import {
   type SupplierType,
 } from "@/data/mockSuppliers";
 import { useAccessLevel } from "@/lib/access-level";
+import { getOffersForSupplier } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { cn } from "@/lib/utils";
 
@@ -132,6 +133,11 @@ const SupplierProfile = () => {
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
     [supplierId],
   );
+  const supplierOffers = useMemo(() => {
+    if (!supplier) return [];
+    const speciesList = supplier.productFocus.map((p) => p.species);
+    return getOffersForSupplier(supplier.country, speciesList, 4);
+  }, [supplier]);
 
   const isUnlocked = level === "qualified_unlocked";
   const isMasked = !isUnlocked;
@@ -650,6 +656,107 @@ const SupplierProfile = () => {
             </div>
           </div>
         </section>
+
+        {/* Active offers from this supplier */}
+        {supplierOffers.length > 0 && (
+          <section
+            aria-labelledby="profile-active-offers"
+            className="border-t border-border bg-cool-gray/30"
+          >
+            <div className="container py-8 md:py-10">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <h2
+                    id="profile-active-offers"
+                    className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl"
+                  >
+                    Active offers from this supplier
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {isUnlocked
+                      ? `${supplier.activeOffersCount} active offers in total — recent listings below.`
+                      : "Recent listings matching this supplier's product focus and origin."}
+                  </p>
+                </div>
+                <Link
+                  to="/offers"
+                  className="hidden text-sm font-medium text-primary hover:underline md:inline"
+                >
+                  All offers →
+                </Link>
+              </div>
+
+              <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {supplierOffers.map((o) => {
+                  const priceVisible = isUnlocked;
+                  return (
+                    <li key={o.id}>
+                      <Link
+                        to={`/offers/${o.id}`}
+                        aria-label={`Open offer: ${o.productName}`}
+                        className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                          <img
+                            src={o.image}
+                            alt={`${o.productName} — product image`}
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
+                          />
+                          <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                            <span aria-hidden className="text-sm leading-none">
+                              {o.originFlag}
+                            </span>
+                            <span>{o.origin}</span>
+                          </div>
+                          <div className="absolute right-2 top-2 inline-flex items-center rounded border border-border bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground shadow-sm backdrop-blur-sm">
+                            {o.format}
+                          </div>
+                        </div>
+                        <div className="p-3.5">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            {o.species} · {o.cutType}
+                          </p>
+                          <h3
+                            className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground"
+                            title={o.productName}
+                          >
+                            {o.productName}
+                          </h3>
+                          <div className="mt-3 flex items-baseline justify-between gap-2 text-xs">
+                            {priceVisible ? (
+                              <span className="font-semibold text-foreground tabular-nums">
+                                {o.priceRange}
+                                <span className="ml-1 font-normal text-muted-foreground">
+                                  {o.priceUnit}
+                                </span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Lock className="h-3 w-3" aria-hidden />
+                                Price after access
+                              </span>
+                            )}
+                            <span className="text-muted-foreground">{o.moq}</span>
+                          </div>
+                          <div className="mt-2 text-[11px] font-medium text-primary group-hover:underline">
+                            View offer →
+                          </div>
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+              {!isUnlocked && (
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Exact prices and full offer terms become visible after the
+                  supplier approves your buyer access.
+                </p>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* Related suppliers */}
         {related.length > 0 && (
