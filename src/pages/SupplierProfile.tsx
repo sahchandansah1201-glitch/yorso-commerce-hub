@@ -18,6 +18,8 @@ import {
   Thermometer,
   FileCheck2,
   Clock,
+  Building2,
+  FileBadge,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
