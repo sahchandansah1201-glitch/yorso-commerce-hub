@@ -140,17 +140,41 @@ const getCompanyInitials = (name: string): string => {
 };
 
 /**
+ * Хук статуса загрузки логотипа из общего модульного кэша (см. lib/logo-cache).
+ * До loaded — показываем скелет, при error — fallback-монограмму.
+ */
+const useLogoStatus = (url?: string): LogoStatus => {
+  const [status, setStatus] = useState<LogoStatus>(() =>
+    url ? getLogoStatus(url) : "idle",
+  );
+  useEffect(() => {
+    if (!url) {
+      setStatus("idle");
+      return;
+    }
+    setStatus(getLogoStatus(url));
+    return subscribeLogoStatus(url, setStatus);
+  }, [url]);
+  return status;
+};
+
+/**
  * Карточка-логотип поставщика.
  * Рендерит реальный logoImage если задан, иначе — монограмму на брендовом фоне.
+ *
+ * priority="hero" → loading=eager + fetchPriority=high (используется один раз
+ * на странице — для основного логотипа в hero). Все остальные — lazy.
  */
 const SupplierLogoCard = ({
   supplier,
   size = 80,
   className = "",
+  priority = "lazy",
 }: {
   supplier: MockSupplier;
   size?: 28 | 40 | 80;
   className?: string;
+  priority?: "hero" | "lazy";
 }) => {
   const initials = getCompanyInitials(supplier.companyName);
   const dim = `${size}px`;
@@ -162,19 +186,36 @@ const SupplierLogoCard = ({
       ? "ring-4 ring-background shadow-lg"
       : "ring-2 ring-background shadow-sm";
 
+  const status = useLogoStatus(supplier.logoImage);
+  const showImage = !!supplier.logoImage && status !== "error";
+  const showSkeleton = showImage && status !== "loaded";
+
   return (
     <div
       className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${className}`}
       style={{ width: dim, height: dim }}
       aria-label={`Логотип ${supplier.companyName}`}
     >
-      {supplier.logoImage ? (
-        <img
-          src={supplier.logoImage}
-          alt={`${supplier.companyName} logo`}
-          className="h-full w-full object-contain p-1"
-          loading="lazy"
-        />
+      {showImage ? (
+        <>
+          {showSkeleton && (
+            <Skeleton
+              aria-hidden
+              className="absolute inset-0 h-full w-full rounded-none"
+            />
+          )}
+          <img
+            src={supplier.logoImage}
+            alt={`${supplier.companyName} logo`}
+            className={`h-full w-full object-contain p-1 transition-opacity duration-200 ${
+              status === "loaded" ? "opacity-100" : "opacity-0"
+            }`}
+            loading={priority === "hero" ? "eager" : "lazy"}
+            decoding="async"
+            // @ts-expect-error — нестандартный атрибут, поддержан в Chromium/WebKit
+            fetchpriority={priority === "hero" ? "high" : "low"}
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80">
           <span
