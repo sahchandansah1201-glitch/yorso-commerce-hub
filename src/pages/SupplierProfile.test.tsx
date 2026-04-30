@@ -60,7 +60,7 @@ describe("SupplierProfile (clean-sheet)", () => {
   it("locks supplier identity and contact channels for anonymous users", () => {
     renderAt();
     expect(screen.queryByText(supplier.companyName)).not.toBeInTheDocument();
-    expect(screen.getByText(supplier.maskedName)).toBeInTheDocument();
+    expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
     expect(screen.queryByTestId("supplier-contact-website")).not.toBeInTheDocument();
     expect(screen.queryByTestId("supplier-contact-whatsapp")).not.toBeInTheDocument();
     if (supplier.website) {
