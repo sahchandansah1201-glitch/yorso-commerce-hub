@@ -18,6 +18,10 @@ import {
   readPendingPreviewAttribution,
   clearPendingPreviewAttribution,
 } from "@/lib/preview-attribution";
+import {
+  getRegistrationAttemptId,
+  resetRegistrationAttemptId,
+} from "@/lib/registration-attempt";
 
 const anim = (delay: number) => ({
   initial: { opacity: 0, y: 10 },
