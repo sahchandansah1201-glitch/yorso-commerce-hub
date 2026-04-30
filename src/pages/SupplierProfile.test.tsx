@@ -144,4 +144,45 @@ describe("SupplierProfile — access gating", () => {
     expect(within(nav).getByRole("link", { name: /suppliers/i }))
       .toHaveAttribute("href", "/suppliers");
   });
+
+  it("renders Similar suppliers section with masked names + profile links in locked state", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const heading = screen.getByRole("heading", { name: /similar suppliers/i });
+    const section = heading.closest("section")!;
+    const links = within(section).getAllByRole("link", {
+      name: /open supplier profile:/i,
+    });
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      const href = link.getAttribute("href") ?? "";
+      expect(href).toMatch(/^\/suppliers\/.+/);
+      // Self-link must not appear in related list.
+      expect(href).not.toBe(`/suppliers/${supplier.id}`);
+    }
+    // Masked identity is preserved for related cards in locked state.
+    const sectionText = section.textContent ?? "";
+    for (const s of mockSuppliers) {
+      if (s.id === supplier.id) continue;
+      if (sectionText.includes(s.maskedName)) {
+        expect(sectionText).not.toContain(s.companyName);
+      }
+    }
+  });
+
+  it("Similar suppliers section reveals real companyName in qualified_unlocked", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const heading = screen.getByRole("heading", { name: /similar suppliers/i });
+    const section = heading.closest("section")!;
+    const links = within(section).getAllByRole("link", {
+      name: /open supplier profile:/i,
+    });
+    expect(links.length).toBeGreaterThan(0);
+    // At least one related supplier renders its real companyName.
+    const sectionText = section.textContent ?? "";
+    const anyRealName = mockSuppliers
+      .filter((s) => s.id !== supplier.id)
+      .some((s) => sectionText.includes(s.companyName));
+    expect(anyRealName).toBe(true);
+  });
 });
