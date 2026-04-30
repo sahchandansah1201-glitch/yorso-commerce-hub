@@ -575,8 +575,8 @@ const SupplierProfile = () => {
                   </span>
                 )}
               </div>
-              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {catalogVisible.map((item, i) => {
+              <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {catalogVisible.slice(0, 3).map((item, i) => {
                   const href = catalogCardHref(item);
                   return (
                   <li
@@ -607,7 +607,7 @@ const SupplierProfile = () => {
                       }
                       className="block focus:outline-none"
                     >
-                      <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                         <img
                           src={item.image}
                           alt={`${item.species} (${item.form}) product preview from ${displayName}`}
