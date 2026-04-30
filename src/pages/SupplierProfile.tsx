@@ -389,7 +389,7 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
       : t.supplier_docs_onRequest;
 
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
-  const typeValue = typeKey ? t[typeKey] : supplier.supplierType;
+  const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
     { label: t.supplier_trust_type, value: typeValue },
