@@ -446,26 +446,28 @@ const SupplierProfile = () => {
         {/* Identity */}
         <section className="bg-background">
           <div className="container -mt-16 pb-6">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 shadow-sm">
-                <div className="flex h-16 w-56 items-center justify-center text-center">
-                  <span className="font-heading text-base font-bold tracking-tight text-foreground">
-                    {supplier.companyName}
-                  </span>
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-3xl flex-1">
+                <div className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-4 shadow-sm">
+                  <div className="flex h-16 w-56 items-center justify-center text-center">
+                    <span className="font-heading text-base font-bold tracking-tight text-foreground">
+                      {supplier.companyName}
+                    </span>
+                  </div>
                 </div>
+
+                <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+                  {supplier.companyName}
+                </h1>
+
+                <p className="mt-2 text-sm text-foreground/80">
+                  {supplierTypeLabel(supplier.supplierType)} ·{" "}
+                  {supplier.yearsInBusiness} лет на рынке ·{" "}
+                  {supplier.activeOffersCount} активных офферов
+                </p>
               </div>
 
-              <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                {supplier.companyName}
-              </h1>
-
-              <p className="mt-2 text-sm text-foreground/80">
-                {supplierTypeLabel(supplier.supplierType)} ·{" "}
-                {supplier.yearsInBusiness} лет на рынке ·{" "}
-                {supplier.activeOffersCount} активных офферов
-              </p>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="flex shrink-0 md:mt-20 md:justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -477,6 +479,9 @@ const SupplierProfile = () => {
                   Копировать smart-link
                 </Button>
               </div>
+            </div>
+
+            <div className="max-w-3xl">
 
               <ul className="mt-4 space-y-2 text-sm text-foreground">
                 <li className="flex items-center gap-2">
