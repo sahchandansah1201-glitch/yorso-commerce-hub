@@ -97,6 +97,8 @@ const RegisterReady = () => {
 
       analytics.track("registration_complete", completePayload);
       if (pendingAttr) clearPendingPreviewAttribution();
+      // Сбрасываем attempt_id — следующая попытка регистрации получит свежий id.
+      resetRegistrationAttemptId();
 
       // Buyers came here to find products fast — sign them in and route to /offers.
       if (data.role === "buyer" && data.email && !isSignedIn) {
