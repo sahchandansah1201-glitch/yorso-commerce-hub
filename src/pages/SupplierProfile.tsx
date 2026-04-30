@@ -1143,37 +1143,20 @@ const SupplierProfile = () => {
                     />
                   )}
 
-                  {level === "registered_locked" &&
-                    !hasSentRequest &&
-                    showRequestForm && (
-                      <SupplierAccessRequestPanel
-                        supplierId={supplier.id}
-                        supplierMaskedName={supplier.maskedName}
-                        buyer={buyerSummary}
-                        onSent={(req) => {
-                          setAccessRequest(req);
-                          setShowRequestForm(false);
-                        }}
-                        onCancel={() => setShowRequestForm(false)}
-                      />
-                    )}
+                  {level === "registered_locked" && !hasSentRequest && (
+                    <SupplierAccessRequestPanel
+                      supplierId={supplier.id}
+                      supplierMaskedName={supplier.maskedName}
+                      onSent={(req) => setAccessRequest(req)}
+                    />
+                  )}
 
                   <div className="flex flex-col gap-2">
                     {level === "anonymous_locked" ? (
                       <Button asChild type="button" className="w-full gap-2">
                         <Link to="/register">{primaryCtaCopy(level)}</Link>
                       </Button>
-                    ) : level === "registered_locked" ? (
-                      !hasSentRequest && !showRequestForm ? (
-                        <Button
-                          type="button"
-                          className="w-full gap-2"
-                          onClick={handlePrimaryAction}
-                        >
-                          {primaryCtaCopy(level)}
-                        </Button>
-                      ) : null
-                    ) : (
+                    ) : level === "registered_locked" ? null : (
                       <Button
                         type="button"
                         className="w-full gap-2"
