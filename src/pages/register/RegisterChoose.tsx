@@ -27,6 +27,7 @@ const RegisterChoose = () => {
   useEffect(() => {
     const attr = readPreviewAttribution();
     const ctaSource = readRegistrationSource() as RegistrationSource | null;
+    const attempt_id = getRegistrationAttemptId();
 
     // Приоритет атрибуции: preview-карточка поставщика → CTA-source → direct.
     const payload = attr
@@ -37,8 +38,9 @@ const RegisterChoose = () => {
           form: attr.form,
           href: attr.href,
           access_level: attr.access_level,
+          attempt_id,
         }
-      : { source: (ctaSource ?? "direct") as RegistrationSource };
+      : { source: (ctaSource ?? "direct") as RegistrationSource, attempt_id };
 
     if (import.meta.env.DEV) {
       // eslint-disable-next-line no-console
@@ -49,6 +51,8 @@ const RegisterChoose = () => {
       console.log("preview_attribution:", attr);
       // eslint-disable-next-line no-console
       console.log("cta_source:", ctaSource);
+      // eslint-disable-next-line no-console
+      console.log("attempt_id:", attempt_id);
       // eslint-disable-next-line no-console
       console.log("registration_start payload:", payload);
       // eslint-disable-next-line no-console
