@@ -171,7 +171,7 @@ describe("preview-attribution debug warnings", () => {
     // Запись старше TTL (30 минут).
     const stale: PreviewAttribution = {
       ...completeAttribution(),
-      ts: Date.now() - 31 * 60 * 1000,
+      ts: STALE_TS,
     };
     sessionStorage.setItem(PREVIEW_KEY, JSON.stringify(stale));
 
@@ -194,7 +194,7 @@ describe("preview-attribution debug warnings", () => {
     seedAttempt("att_pending_expired");
     const stale: PreviewAttribution = {
       ...completeAttribution(),
-      ts: Date.now() - 31 * 60 * 1000,
+      ts: STALE_TS,
     };
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(stale));
 
@@ -217,7 +217,7 @@ describe("preview-attribution debug warnings", () => {
     seedAttempt("att_src_expired");
     sessionStorage.setItem(
       SOURCE_KEY,
-      JSON.stringify({ source: "header_cta", ts: Date.now() - 31 * 60 * 1000 }),
+      JSON.stringify({ source: "header_cta", ts: STALE_TS }),
     );
 
     expect(readRegistrationSource()).toBeNull();
@@ -428,7 +428,7 @@ describe("preview-attribution debug warnings", () => {
       PREVIEW_KEY,
       JSON.stringify({
         ...completeAttribution(),
-        ts: Date.now() - 31 * 60 * 1000,
+        ts: STALE_TS,
       }),
     );
     readPreviewAttribution();
@@ -437,7 +437,7 @@ describe("preview-attribution debug warnings", () => {
       PENDING_KEY,
       JSON.stringify({
         ...completeAttribution(),
-        ts: Date.now() - 31 * 60 * 1000,
+        ts: STALE_TS,
       }),
     );
     readPendingPreviewAttribution();
