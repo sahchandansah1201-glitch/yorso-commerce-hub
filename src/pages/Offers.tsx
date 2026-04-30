@@ -153,10 +153,23 @@ const Offers = () => {
     };
   }, [allowSupplierName, offers]);
 
-  const visible = useMemo(
-    () => offers.filter((o) => matches(o, filters, allowSupplierName)),
-    [filters, allowSupplierName, offers],
-  );
+  const visible = useMemo(() => {
+    let base = offers.filter((o) => matches(o, filters, allowSupplierName));
+    if (supplierIdParam && allowSupplierName) {
+      const sup = getSupplierById(supplierIdParam);
+      if (sup) {
+        const ids = new Set(
+          getOffersForSupplier(
+            sup.country,
+            sup.productFocus.map((p) => p.species),
+            50,
+          ).map((o) => o.id),
+        );
+        base = base.filter((o) => ids.has(o.id));
+      }
+    }
+    return base;
+  }, [filters, allowSupplierName, offers, supplierIdParam]);
 
   useEffect(() => {
     if (visible.length === 0) {
