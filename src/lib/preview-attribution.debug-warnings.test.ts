@@ -67,6 +67,26 @@ const findDebugSummary = (args: unknown[]) =>
       Object.prototype.hasOwnProperty.call(a, "registration_source"),
   );
 
+/**
+ * Классифицирует тип предупреждения по тексту первого аргумента warn.
+ * INCOMPLETE — payload неполный или null/undefined; EXPIRED — TTL истёк
+ * для preview/pending/source. Возвращает null, если первый аргумент —
+ * не строка с известным маркером.
+ */
+type WarnKind = "INCOMPLETE" | "EXPIRED" | null;
+const classifyWarn = (args: unknown[]): WarnKind => {
+  const head = args[0];
+  if (typeof head !== "string") return null;
+  if (head.includes("EXPIRED")) return "EXPIRED";
+  if (
+    head.includes("неполная") ||
+    head.includes("null/undefined")
+  ) {
+    return "INCOMPLETE";
+  }
+  return null;
+};
+
 describe("preview-attribution debug warnings", () => {
   let warn: ReturnType<typeof vi.spyOn>;
 
@@ -94,6 +114,9 @@ describe("preview-attribution debug warnings", () => {
 
     const calls = debugWarnCalls(warn);
     expect(calls.length).toBeGreaterThan(0);
+    // Тип предупреждения должен быть INCOMPLETE (текст «неполная»),
+    // а не EXPIRED — иначе сводка теряет смысл.
+    expect(classifyWarn(calls[0])).toBe("INCOMPLETE");
     const summary = findDebugSummary(calls[0]);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_incomplete");
@@ -142,6 +165,7 @@ describe("preview-attribution debug warnings", () => {
       typeof args[0] === "string" && args[0].includes("preview_attribution EXPIRED"),
     );
     expect(expiredCall).toBeDefined();
+    expect(classifyWarn(expiredCall!)).toBe("EXPIRED");
     const summary = findDebugSummary(expiredCall!);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_expired");
@@ -164,6 +188,7 @@ describe("preview-attribution debug warnings", () => {
       args[0].includes("pending_preview_attribution EXPIRED"),
     );
     expect(expiredCall).toBeDefined();
+    expect(classifyWarn(expiredCall!)).toBe("EXPIRED");
     const summary = findDebugSummary(expiredCall!);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_pending_expired");
@@ -185,6 +210,7 @@ describe("preview-attribution debug warnings", () => {
       args[0].includes("registration_source EXPIRED"),
     );
     expect(expiredCall).toBeDefined();
+    expect(classifyWarn(expiredCall!)).toBe("EXPIRED");
     const summary = findDebugSummary(expiredCall!);
     expect(summary).toBeDefined();
     expect(summary!.attempt_id).toBe("att_src_expired");
@@ -348,5 +374,78 @@ describe("preview-attribution debug warnings", () => {
     expect(summary!.attempt_id).toBeNull();
     expect(summary!.registration_source).toBeNull();
     expect(Array.isArray(summary!.missing)).toBe(true);
+  });
+
+  it("kind+summary: null payload в savePreviewAttribution → INCOMPLETE с сводкой", () => {
+    seedAttempt("att_null_payload_save");
+    seedSource("hero_cta");
+    // savePreviewAttribution принимает Omit<..., "ts"> — null обходим через any,
+    // чтобы попасть в ветку validateAttributionShape("...payload is null/undefined").
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    savePreviewAttribution(null as any);
+
+    const calls = debugWarnCalls(warn);
+    expect(calls.length).toBeGreaterThan(0);
+    expect(classifyWarn(calls[0])).toBe("INCOMPLETE");
+    const summary = findDebugSummary(calls[0]);
+    expect(summary).toBeDefined();
+    expect(summary!.attempt_id).toBe("att_null_payload_save");
+    expect(summary!.registration_source).toBe("hero_cta");
+    expect(summary!.missing).toEqual(["<all>"]);
+  });
+
+  it("kind+summary матрица: каждый warn-вызов имеет известный kind и валидную сводку", () => {
+    seedAttempt("att_matrix");
+    seedSource("matrix_cta");
+
+    // 1) INCOMPLETE через save
+    savePreviewAttribution({
+      supplier_id: "",
+      species: "salmon",
+      form: "fillet",
+      href: "/x",
+      access_level: "anonymous_locked",
+    });
+    // 2) EXPIRED через прочтение протухшей preview-записи
+    sessionStorage.setItem(
+      PREVIEW_KEY,
+      JSON.stringify({
+        ...completeAttribution(),
+        ts: Date.now() - 31 * 60 * 1000,
+      }),
+    );
+    readPreviewAttribution();
+    // 3) EXPIRED через прочтение протухшей pending-записи
+    sessionStorage.setItem(
+      PENDING_KEY,
+      JSON.stringify({
+        ...completeAttribution(),
+        ts: Date.now() - 31 * 60 * 1000,
+      }),
+    );
+    readPendingPreviewAttribution();
+
+    const calls = debugWarnCalls(warn);
+    expect(calls.length).toBeGreaterThanOrEqual(3);
+
+    const kinds = new Set<WarnKind>();
+    for (const call of calls) {
+      const kind = classifyWarn(call);
+      expect(kind).not.toBeNull(); // нет «безымянных» warn без типа
+      kinds.add(kind);
+      // У каждого warn должна быть сводка с тремя ключами и нормализованным missing.
+      const summary = findDebugSummary(call);
+      expect(summary).toBeDefined();
+      expect(summary!.attempt_id).toBe("att_matrix");
+      expect(Array.isArray(summary!.missing)).toBe(true);
+      // Никаких null/undefined внутри missing.
+      for (const v of summary!.missing) {
+        expect(typeof v).toBe("string");
+        expect(v.length).toBeGreaterThan(0);
+      }
+    }
+    // В матрице должны встретиться оба типа warn.
+    expect(kinds.has("INCOMPLETE")).toBe(true);
+    expect(kinds.has("EXPIRED")).toBe(true);
   });
 });
