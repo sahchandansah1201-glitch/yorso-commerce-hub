@@ -178,7 +178,7 @@ const SupplierRowImpl = ({
               )}
 
               <p
-                className="mt-4 line-clamp-2 text-sm leading-relaxed text-foreground/85"
+                className="mt-4 line-clamp-2 min-h-[2.6rem] text-sm leading-relaxed text-foreground/85"
                 title={aboutTeaser}
               >
                 {aboutTeaser}
