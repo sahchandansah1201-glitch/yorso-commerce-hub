@@ -1043,7 +1043,7 @@ type TranslationKeys = {
   supplier_cases_factProduct: string;
   supplier_cases_factVolume: string;
   supplier_cases_factBasis: string;
-  supplier_cases_volumeTons: string; // {n} t
+  
   supplier_cases_photoReportTitle: string;
   supplier_cases_photoReportNote: string;
   supplier_cases_photoCaption_loading: string;
