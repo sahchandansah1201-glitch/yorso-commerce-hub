@@ -3,7 +3,7 @@
  *
  * Route: /suppliers/:supplierId
  *
- * Access gating mirrors /suppliers — locked users see the masked preview,
+ * Access gating mirrors /suppliers locked users see the masked preview,
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
@@ -62,7 +62,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Visual class for a product-form badge (HOG, Fillet, IQF, etc.).
- * Form is public product metadata — shown at every access level.
+ * Form is public product metadata shown at every access level.
  */
 function formBadgeClass(form: string): string {
   const f = form.toLowerCase();
@@ -132,7 +132,7 @@ const accessExplainer = (level: AccessLevel) => {
     return "Create a buyer account to request access to supplier identity, documents, contact channel, and the full product catalog.";
   }
   if (level === "registered_locked") {
-    return "Send an access request — the supplier reviews your buyer profile before sharing identity, contact channel, and full catalog.";
+    return "Send an access request. The supplier reviews your buyer profile before sharing identity, contact channel, and full catalog.";
   }
   return "Access granted. You can review the full supplier profile, contact channels, and the full product catalog.";
 };
@@ -223,7 +223,7 @@ const SupplierProfile = () => {
       document.title = `${displayName} · YORSO suppliers`;
       upsertMeta('meta[name="description"]', {
         name: "description",
-        content: `Review ${displayName} — ${supplier.country} ${supplierTypeLabel[supplier.supplierType].toLowerCase()}, certifications, delivery markets and access options on YORSO.`,
+        content: `Review ${displayName} (${supplier.country} ${supplierTypeLabel[supplier.supplierType].toLowerCase()}): certifications, delivery markets and access options on YORSO.`,
       });
     } else {
       document.title = "Supplier not found · YORSO";
@@ -249,14 +249,14 @@ const SupplierProfile = () => {
   const catalogHidden = isUnlocked
     ? Math.max(0, supplier.totalProductsCount - catalogVisible.length)
     : 0;
-  // Headline cert is supplier-level evidence — only surface on cards when fully unlocked.
+  // Headline cert is supplier-level evidence only surface on cards when fully unlocked.
   const headlineCert = isUnlocked ? pickHeadlineCert(supplier.certifications) : undefined;
 
   /**
    * Resolve a catalog preview card to a destination:
    * - qualified_unlocked: prefer a concrete /offers/:id match by species,
    *   fall back to /offers prefiltered by this supplier id.
-   * - locked levels: never reveal supplier identity in the URL — use the
+   * - locked levels: never reveal supplier identity in the URL use the
    *   broad category from the matched offer (or species), no supplier param.
    */
   const catalogCardHref = (item: { species: string; form: string }): string => {
@@ -948,7 +948,7 @@ const SupplierProfile = () => {
                     </p>
                   </div>
 
-                  {/* Contact channels — qualified only */}
+                  {/* Contact channels qualified only */}
                   {isUnlocked && (supplier.website || supplier.whatsapp) ? (
                     <div>
                       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -1100,7 +1100,7 @@ const SupplierProfile = () => {
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {isUnlocked
-                      ? `${supplier.activeOffersCount} active offers in total — recent listings below.`
+                      ? `${supplier.activeOffersCount} active offers in total. Recent listings below.`
                       : "Recent listings matching this supplier's product focus and origin."}
                   </p>
                 </div>
@@ -1125,7 +1125,7 @@ const SupplierProfile = () => {
                         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                           <img
                             src={o.image}
-                            alt={`${o.productName} — product image`}
+                            alt={`${o.productName} product image`}
                             loading="lazy"
                             className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
                           />
