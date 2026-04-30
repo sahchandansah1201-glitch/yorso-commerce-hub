@@ -7,7 +7,17 @@
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  SupplierAccessRequestPanel,
+  SupplierAccessRequestSent,
+} from "@/components/suppliers/SupplierAccessRequestPanel";
+import {
+  getSupplierAccessRequest,
+  type SupplierAccessRequest,
+} from "@/lib/supplier-access-requests";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import { useRegistration } from "@/contexts/RegistrationContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
@@ -166,6 +176,8 @@ const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const navigate = useNavigate();
   const { level } = useAccessLevel();
+  const { session: buyerSessionState } = useBuyerSession();
+  const { data: registrationData } = useRegistration();
   const supplier = useMemo(() => getSupplierById(supplierId), [supplierId]);
   const related = useMemo(
     () => (supplierId ? getRelatedSuppliers(supplierId, 3) : []),
@@ -176,6 +188,19 @@ const SupplierProfile = () => {
     const speciesList = supplier.productFocus.map((p) => p.species);
     return getOffersForSupplier(supplier.country, speciesList, 4);
   }, [supplier]);
+
+  // Persisted access-request state for this specific supplier (sessionStorage).
+  const [accessRequest, setAccessRequest] =
+    useState<SupplierAccessRequest | null>(() =>
+      getSupplierAccessRequest(supplierId),
+    );
+  const [showRequestForm, setShowRequestForm] = useState(false);
+
+  // Re-sync if the route changes between suppliers in-place.
+  useEffect(() => {
+    setAccessRequest(getSupplierAccessRequest(supplierId));
+    setShowRequestForm(false);
+  }, [supplierId]);
 
   const isUnlocked = level === "qualified_unlocked";
   const isMasked = !isUnlocked;
@@ -245,11 +270,7 @@ const SupplierProfile = () => {
       return;
     }
     if (level === "registered_locked") {
-      toast({
-        title: "Access request prepared",
-        description:
-          "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
-      });
+      setShowRequestForm(true);
       return;
     }
     toast({
@@ -257,6 +278,14 @@ const SupplierProfile = () => {
       description: `We notified ${supplier.companyName} about your contact request.`,
     });
   };
+
+  const buyerSummary = {
+    identifier:
+      buyerSessionState?.identifier || registrationData.email || undefined,
+    company: registrationData.company || undefined,
+    country: registrationData.country || undefined,
+  };
+  const hasSentRequest = !!accessRequest;
 
   return (
     <div className="min-h-screen bg-background">
@@ -707,6 +736,28 @@ const SupplierProfile = () => {
                     </div>
                   )}
 
+                  {level === "registered_locked" && hasSentRequest && (
+                    <SupplierAccessRequestSent
+                      request={accessRequest!}
+                      supplierMaskedName={supplier.maskedName}
+                    />
+                  )}
+
+                  {level === "registered_locked" &&
+                    !hasSentRequest &&
+                    showRequestForm && (
+                      <SupplierAccessRequestPanel
+                        supplierId={supplier.id}
+                        supplierMaskedName={supplier.maskedName}
+                        buyer={buyerSummary}
+                        onSent={(req) => {
+                          setAccessRequest(req);
+                          setShowRequestForm(false);
+                        }}
+                        onCancel={() => setShowRequestForm(false)}
+                      />
+                    )}
+
                   <div className="flex flex-col gap-2">
                     {level === "anonymous_locked" ? (
                       <Link to="/register" className="block">
@@ -714,6 +765,16 @@ const SupplierProfile = () => {
                           {primaryCtaCopy(level)}
                         </Button>
                       </Link>
+                    ) : level === "registered_locked" ? (
+                      !hasSentRequest && !showRequestForm ? (
+                        <Button
+                          type="button"
+                          className="w-full gap-2"
+                          onClick={handlePrimaryAction}
+                        >
+                          {primaryCtaCopy(level)}
+                        </Button>
+                      ) : null
                     ) : (
                       <Button
                         type="button"
