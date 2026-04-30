@@ -234,12 +234,12 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Link to="/signin" onClick={() => setMobileOpen(false)}>
-                  <Button variant="outline" className="w-full">{t.nav_signIn}</Button>
-                </Link>
-                <Link to="/register" onClick={() => { saveRegistrationSource("header"); setMobileOpen(false); }}>
-                  <Button className="w-full font-semibold">{t.nav_registerFree}</Button>
-                </Link>
+                <Button asChild variant="outline" className="w-full">
+                  <Link to="/signin" onClick={() => setMobileOpen(false)}>{t.nav_signIn}</Link>
+                </Button>
+                <Button asChild className="w-full font-semibold">
+                  <Link to="/register" onClick={() => { saveRegistrationSource("header"); setMobileOpen(false); }}>{t.nav_registerFree}</Link>
+                </Button>
               </>
             )}
           </div>
