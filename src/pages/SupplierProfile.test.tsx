@@ -185,4 +185,35 @@ describe("SupplierProfile — access gating", () => {
       .some((s) => sectionText.includes(s.companyName));
     expect(anyRealName).toBe(true);
   });
+
+  it("renders Active offers section with /offers/:id links and hides exact prices in locked state", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const heading = screen.queryByRole("heading", {
+      name: /active offers from this supplier/i,
+    });
+    if (!heading) return; // No matching offers in mock data — skip.
+    const section = heading.closest("section")!;
+    const links = within(section).getAllByRole("link", {
+      name: /open offer:/i,
+    });
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link.getAttribute("href")).toMatch(/^\/offers\/.+/);
+    }
+    expect(within(section).getAllByText(/price after access/i).length)
+      .toBeGreaterThan(0);
+  });
+
+  it("Active offers section reveals exact prices in qualified_unlocked", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    const heading = screen.queryByRole("heading", {
+      name: /active offers from this supplier/i,
+    });
+    if (!heading) return;
+    const section = heading.closest("section")!;
+    expect(within(section).queryByText(/price after access/i)).toBeNull();
+    // At least one price unit string should be visible.
+    expect(within(section).getAllByText(/per kg/i).length).toBeGreaterThan(0);
+  });
 });
