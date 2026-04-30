@@ -788,16 +788,21 @@ const SupplierProfile = () => {
                 ];
 
                 return (
-                  <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {cards.map((c) => (
+                  <dl className="mt-3 grid grid-cols-1 overflow-hidden rounded-md border border-border bg-background sm:grid-cols-2 sm:divide-x sm:divide-border">
+                    {cards.map((c, idx) => (
                       <div
                         key={c.key}
-                        className="rounded-md border border-border bg-background p-3"
+                        className={cn(
+                          "flex items-baseline justify-between gap-4 px-3 py-2.5",
+                          idx >= 2 && "sm:border-t sm:border-border",
+                          idx > 0 && idx < 2 && "border-t border-border sm:border-t-0",
+                          idx >= 2 && "border-t border-border",
+                        )}
                       >
-                        <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <dt className="shrink-0 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                           {c.label}
                         </dt>
-                        <dd className="mt-1.5 text-sm font-medium text-foreground break-words [overflow-wrap:anywhere]">
+                        <dd className="text-right text-[13px] font-semibold text-foreground break-words [overflow-wrap:anywhere]">
                           {c.value}
                         </dd>
                       </div>
