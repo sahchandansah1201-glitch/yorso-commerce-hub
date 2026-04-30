@@ -538,45 +538,103 @@ const SupplierProfile = () => {
   useEffect(() => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
-    document.title = `${supplier.companyName} · YORSO`;
+    const suffix = t.supplier_seo_titleSuffix;
+    document.title = `${supplier.companyName} — ${suffix} · YORSO`;
+    const description =
+      supplier.shortDescription ||
+      interpolate(t.supplier_seo_descriptionFallback, {
+        company: supplier.companyName,
+        country: supplier.country,
+      });
     upsertMeta('meta[name="description"]', {
       name: "description",
-      content: supplier.shortDescription,
+      content: description,
     });
+    // og:locale для соцсетей
+    const ogLocaleMap: Record<string, string> = {
+      en: "en_US",
+      ru: "ru_RU",
+      es: "es_ES",
+    };
+    upsertMeta('meta[property="og:locale"]', {
+      property: "og:locale",
+      content: ogLocaleMap[lang] ?? "en_US",
+    });
+    // <html lang="..."> для корректной индексации
+    if (document.documentElement) {
+      document.documentElement.lang = lang;
+    }
     return () => {
       document.title = prev;
     };
-  }, [supplier]);
+  }, [supplier, t, lang]);
 
-  // FAQPage JSON-LD для SEO
+  // Organization + FAQPage JSON-LD для SEO (локализованные)
   useEffect(() => {
-    if (!supplier || typeof document === "undefined" || faqItems.length === 0) return;
-    const id = `faq-jsonld-${supplier.id}`;
-    let script = document.getElementById(id) as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement("script");
-      script.type = "application/ld+json";
-      script.id = id;
-      document.head.appendChild(script);
+    if (!supplier || typeof document === "undefined") return;
+
+    // Organization
+    const orgId = `org-jsonld-${supplier.id}`;
+    let orgScript = document.getElementById(orgId) as HTMLScriptElement | null;
+    if (!orgScript) {
+      orgScript = document.createElement("script");
+      orgScript.type = "application/ld+json";
+      orgScript.id = orgId;
+      document.head.appendChild(orgScript);
     }
-    script.text = JSON.stringify({
+    const typeLabel = t[supplierTypeLabelKey(supplier.type)] as string;
+    orgScript.text = JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: faqItems.map((f) => ({
-        "@type": "Question",
-        name: t[f.qKey] as string,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: f.params
-            ? interpolate(t[f.aKey] as string, f.params)
-            : (t[f.aKey] as string),
-        },
-      })),
+      "@type": "Organization",
+      "@id": `${window.location.origin}/suppliers/${supplier.id}`,
+      name: supplier.companyName,
+      url: `${window.location.origin}/suppliers/${supplier.id}`,
+      logo: supplier.logoImage,
+      description: interpolate(t.supplier_seo_orgDescription, {
+        company: supplier.companyName,
+        type: typeLabel,
+        country: supplier.country,
+      }),
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: supplier.country,
+      },
+      inLanguage: lang,
     });
+
+    // FAQPage
+    const faqId = `faq-jsonld-${supplier.id}`;
+    let faqScript: HTMLScriptElement | null = null;
+    if (faqItems.length > 0) {
+      faqScript = document.getElementById(faqId) as HTMLScriptElement | null;
+      if (!faqScript) {
+        faqScript = document.createElement("script");
+        faqScript.type = "application/ld+json";
+        faqScript.id = faqId;
+        document.head.appendChild(faqScript);
+      }
+      faqScript.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        inLanguage: lang,
+        mainEntity: faqItems.map((f) => ({
+          "@type": "Question",
+          name: t[f.qKey] as string,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: f.params
+              ? interpolate(t[f.aKey] as string, f.params)
+              : (t[f.aKey] as string),
+          },
+        })),
+      });
+    }
+
     return () => {
-      script?.remove();
+      orgScript?.remove();
+      faqScript?.remove();
     };
-  }, [supplier, faqItems, t]);
+  }, [supplier, faqItems, t, lang]);
 
   if (!supplier) {
     return (
