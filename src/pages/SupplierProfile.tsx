@@ -7,7 +7,7 @@
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   SupplierAccessRequestPanel,
