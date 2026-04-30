@@ -896,6 +896,181 @@ type TranslationKeys = {
   offerDetail_supplierProfileLocked: string;
   offerDetail_basisCountAvailable: string;
   offerDetail_indicativePrice: string;
+
+  // Supplier Profile — breadcrumbs / not found
+  supplier_breadcrumb_home: string;
+  supplier_breadcrumb_suppliers: string;
+  supplier_notFound_title: string;
+  supplier_notFound_body: string;
+  supplier_notFound_link: string;
+  // Supplier Profile — hero / identity
+  supplier_logo_aria: string;
+  supplier_identity_subline: string; // {type} · {years} · {offers}
+  supplier_yearsOnMarket: string; // {n} {plural}
+  supplier_yearsOnMarket_pluralOne: string;
+  supplier_yearsOnMarket_pluralFew: string;
+  supplier_yearsOnMarket_pluralMany: string;
+  supplier_activeOffers: string; // {n} active offers
+  supplier_inBusinessSince: string; // {year}
+  supplier_copySmartLink: string;
+  supplier_copySmartLink_short: string;
+  supplier_copySmartLink_toastOk: string;
+  supplier_copySmartLink_toastFail: string;
+  supplier_sendMessage: string;
+  supplier_sendMessage_toast_title: string;
+  supplier_sendMessage_toast_desc: string;
+  supplier_writeToSupplier: string;
+  // Supplier Profile — supplier types
+  supplier_type_producer: string;
+  supplier_type_processor: string;
+  supplier_type_exporter: string;
+  supplier_type_distributor: string;
+  supplier_type_trader: string;
+  // Supplier Profile — tabs
+  supplier_tab_about: string;
+  supplier_tab_catalog: string; // {n}
+  supplier_tab_passport: string;
+  supplier_tab_cases: string;
+  supplier_tab_faq: string;
+  // Supplier Profile — about
+  supplier_about_company: string;
+  supplier_about_productFocus: string;
+  supplier_about_trustBasis: string;
+  supplier_about_certifications: string;
+  supplier_about_deliveryGeo: string;
+  supplier_about_deliveryCountriesCount: string; // Delivery to {n} countries
+  supplier_about_deliveryCountriesShown: string; // shown {n}, {rest} more
+  supplier_about_catalogEmpty: string;
+  // Supplier Profile — legal details
+  supplier_legal_title: string;
+  supplier_legal_subtitle: string;
+  supplier_legal_legalForm: string;
+  supplier_legal_founded: string;
+  supplier_legal_jurisdiction: string;
+  supplier_legal_disclaimer: string;
+  // Supplier Profile — trust facts
+  supplier_trust_type: string;
+  supplier_trust_yearsOnMarket: string;
+  supplier_trust_activeOffers: string;
+  supplier_trust_documents: string;
+  supplier_trust_responseSpeed: string;
+  supplier_trust_repeatDeals: string;
+  supplier_trust_repeatDeals_value: string;
+  supplier_response_fast: string;
+  supplier_response_normal: string;
+  supplier_response_slow: string;
+  supplier_docs_ready: string;
+  supplier_docs_partial: string;
+  supplier_docs_onRequest: string;
+  // Supplier Profile — passport (production / cold / logistics)
+  supplier_passport_nav_certs: string;
+  supplier_passport_nav_production: string;
+  supplier_passport_nav_logistics: string;
+  supplier_passport_nav_aria: string;
+  supplier_passport_certs_title: string;
+  supplier_passport_certs_subtitle: string;
+  supplier_passport_certs_disclaimer: string;
+  supplier_passport_production_title: string;
+  supplier_passport_production_dailyTons: string;
+  supplier_passport_production_lines: string;
+  supplier_passport_production_staff: string;
+  supplier_passport_production_staffValue: string; // about {n}
+  supplier_passport_production_catalog: string;
+  supplier_passport_production_catalogValue: string; // {n} SKU
+  supplier_passport_production_dailyTonsValue: string; // {n} t / day
+  supplier_passport_cold_title: string;
+  supplier_passport_cold_storage: string;
+  supplier_passport_cold_storageValue: string; // {n} t simultaneous storage
+  supplier_passport_cold_blast: string;
+  supplier_passport_cold_blastValue: string; // {n} t / day
+  supplier_passport_cold_temp: string;
+  supplier_passport_cold_glaze: string;
+  supplier_passport_cold_glazeValue: string;
+  supplier_passport_formats_title: string;
+  supplier_passport_qc_title: string;
+  supplier_passport_qc_b1: string;
+  supplier_passport_qc_b2: string;
+  supplier_passport_qc_b3: string;
+  supplier_passport_qc_b4: string;
+  supplier_passport_estNote: string;
+  supplier_passport_logistics_title: string;
+  supplier_passport_logistics_incoterms: string;
+  supplier_passport_logistics_minBatch: string;
+  supplier_passport_logistics_minBatchValue: string; // from {n} t / SKU
+  supplier_passport_logistics_transit: string;
+  supplier_passport_logistics_transitValue: string; // {min}–{max} days
+  supplier_passport_logistics_containers: string;
+  supplier_passport_temp_title: string;
+  supplier_passport_temp_reefer: string;
+  supplier_passport_temp_logger: string;
+  supplier_passport_temp_loggerValue: string;
+  supplier_passport_temp_seal: string;
+  supplier_passport_temp_sealValue: string;
+  supplier_passport_temp_insurance: string;
+  supplier_passport_temp_insuranceValue: string;
+  supplier_passport_docs_title: string;
+  supplier_passport_docs_b1: string;
+  supplier_passport_docs_b2: string;
+  supplier_passport_docs_b3: string;
+  supplier_passport_docs_b4: string;
+  supplier_passport_docs_b5: string;
+  supplier_passport_docs_b6: string;
+  supplier_passport_lead_title: string;
+  supplier_passport_lead_b1: string;
+  supplier_passport_lead_b2: string;
+  supplier_passport_lead_b3: string;
+  supplier_passport_unit_tonsPerDay: string;
+  supplier_passport_unit_days: string;
+  // Supplier Profile — shipment cases
+  supplier_cases_title: string;
+  supplier_cases_intro: string;
+  supplier_cases_buyerType_retail: string;
+  supplier_cases_buyerType_horeca: string;
+  supplier_cases_buyerType_wholesale: string;
+  supplier_cases_caseTitle_de: string; // {product} delivery to retail chain, Germany
+  supplier_cases_caseTitle_fr: string;
+  supplier_cases_caseTitle_ae: string;
+  supplier_cases_destination_de: string;
+  supplier_cases_destination_fr: string;
+  supplier_cases_destination_ae: string;
+  supplier_cases_date_oct2024: string;
+  supplier_cases_date_jul2024: string;
+  supplier_cases_date_dec2023: string;
+  supplier_cases_notes_de: string;
+  supplier_cases_notes_fr: string;
+  supplier_cases_notes_ae: string;
+  supplier_cases_factProduct: string;
+  supplier_cases_factVolume: string;
+  supplier_cases_factBasis: string;
+  supplier_cases_volumeTons: string; // {n} t
+  supplier_cases_photoReportTitle: string;
+  supplier_cases_photoReportNote: string;
+  supplier_cases_photoCaption_loading: string;
+  supplier_cases_photoCaption_logger: string;
+  supplier_cases_photoCaption_seal: string;
+  supplier_cases_photoCaption_docs: string;
+  supplier_cases_photoCaption_pallets: string;
+  supplier_cases_photoCaption_label: string;
+  supplier_cases_photoCaption_tempLog: string;
+  supplier_cases_photoCaption_survey: string;
+  supplier_cases_photoCaption_loadingHC: string;
+  supplier_cases_defaultProduct: string;
+  // Supplier Profile — FAQ
+  supplier_faq_title: string;
+  supplier_faq_q1: string;
+  supplier_faq_a1: string; // {n}
+  supplier_faq_q2: string;
+  supplier_faq_a2: string;
+  supplier_faq_q3: string;
+  supplier_faq_a3: string;
+  supplier_faq_q4: string;
+  supplier_faq_a4: string;
+  supplier_faq_q5: string;
+  supplier_faq_a5: string;
+  supplier_faq_q6: string;
+  supplier_faq_a6: string;
+  supplier_faq_noAnswerTitle: string;
+  supplier_faq_noAnswerBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
