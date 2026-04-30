@@ -1212,7 +1212,7 @@ const SupplierProfile = () => {
         {related.length > 0 && (
           <article
             aria-labelledby="profile-related"
-            className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5"
           >
             <div className="flex items-end justify-between gap-3">
               <div>
