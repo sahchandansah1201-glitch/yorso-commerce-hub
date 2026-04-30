@@ -736,6 +736,28 @@ const SupplierProfile = () => {
                     </div>
                   )}
 
+                  {level === "registered_locked" && hasSentRequest && (
+                    <SupplierAccessRequestSent
+                      request={accessRequest!}
+                      supplierMaskedName={supplier.maskedName}
+                    />
+                  )}
+
+                  {level === "registered_locked" &&
+                    !hasSentRequest &&
+                    showRequestForm && (
+                      <SupplierAccessRequestPanel
+                        supplierId={supplier.id}
+                        supplierMaskedName={supplier.maskedName}
+                        buyer={buyerSummary}
+                        onSent={(req) => {
+                          setAccessRequest(req);
+                          setShowRequestForm(false);
+                        }}
+                        onCancel={() => setShowRequestForm(false)}
+                      />
+                    )}
+
                   <div className="flex flex-col gap-2">
                     {level === "anonymous_locked" ? (
                       <Link to="/register" className="block">
@@ -743,6 +765,16 @@ const SupplierProfile = () => {
                           {primaryCtaCopy(level)}
                         </Button>
                       </Link>
+                    ) : level === "registered_locked" ? (
+                      !hasSentRequest && !showRequestForm ? (
+                        <Button
+                          type="button"
+                          className="w-full gap-2"
+                          onClick={handlePrimaryAction}
+                        >
+                          {primaryCtaCopy(level)}
+                        </Button>
+                      ) : null
                     ) : (
                       <Button
                         type="button"
