@@ -2164,7 +2164,7 @@ const en: TranslationKeys = {
   supplier_cases_factProduct: "Product",
   supplier_cases_factVolume: "Batch volume",
   supplier_cases_factBasis: "Basis",
-  supplier_cases_volumeTons: "{n} t",
+  
   supplier_cases_photoReportTitle: "Loading photo report",
   supplier_cases_photoReportNote: "Full photo reports in original resolution are shared with qualified buyers after access is requested.",
   supplier_cases_photoCaption_loading: "Container loading, shipper warehouse",
