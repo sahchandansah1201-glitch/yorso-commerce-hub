@@ -350,11 +350,9 @@ export const SelectedSupplierPanel = ({
 
           <div className="mt-3 flex flex-col gap-2">
             {accessLevel === "anonymous_locked" ? (
-              <Link to="/register" className="block">
-                <Button type="button" className="w-full gap-2">
-                  {primaryCtaCopy(accessLevel)}
-                </Button>
-              </Link>
+              <Button asChild type="button" className="w-full gap-2">
+                <Link to="/register">{primaryCtaCopy(accessLevel)}</Link>
+              </Button>
             ) : (
               <Button
                 type="button"
@@ -365,8 +363,21 @@ export const SelectedSupplierPanel = ({
               </Button>
             )}
             <Button
-              type="button"
+              asChild
               variant="outline"
+              className="w-full gap-2"
+            >
+              <Link
+                to={`/suppliers/${supplier.id}`}
+                data-testid="selected-supplier-open-profile"
+                aria-label={`Open full supplier profile: ${displayName}`}
+              >
+                Open full profile
+              </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
               className="w-full gap-2"
               onClick={() => onShortlist(supplier.id)}
               aria-pressed={isShortlisted}
