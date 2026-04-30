@@ -7,7 +7,17 @@
  * never the real companyName / website / WhatsApp / exact catalog or
  * delivery counts.
  */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  SupplierAccessRequestPanel,
+  SupplierAccessRequestSent,
+} from "@/components/suppliers/SupplierAccessRequestPanel";
+import {
+  getSupplierAccessRequest,
+  type SupplierAccessRequest,
+} from "@/lib/supplier-access-requests";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import { useRegistration } from "@/contexts/RegistrationContext";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
