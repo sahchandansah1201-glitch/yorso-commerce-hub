@@ -817,7 +817,7 @@ const SupplierProfile = () => {
               className="hidden h-8 gap-1.5 sm:inline-flex"
             >
               <Copy className="h-3.5 w-3.5" />
-              Smart-link
+              {t.supplier_copySmartLink_short}
             </Button>
           </div>
         </div>
