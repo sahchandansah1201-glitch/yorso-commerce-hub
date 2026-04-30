@@ -337,11 +337,15 @@ const SupplierProfile = () => {
           </div>
         </div>
 
-        {/* Profile header */}
-        <section className="border-b border-border bg-background">
+        {/* Area 1: Dossier Hero + Area 2: Access Panel */}
+        <section
+          data-testid="supplier-profile-dossier-hero"
+          className="border-b border-border bg-background"
+        >
           <div className="container py-6 md:py-8">
-            <div className="grid gap-5 md:grid-cols-[260px_minmax(0,1fr)] md:gap-6">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-muted md:aspect-auto md:h-[200px]">
+            <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_340px] lg:items-start">
+              {/* Left zone: image */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-muted lg:aspect-[4/3]">
                 <img
                   src={supplier.heroImage}
                   alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
@@ -363,6 +367,7 @@ const SupplierProfile = () => {
                 )}
               </div>
 
+              {/* Center zone: identity + summary */}
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                   <span className="font-medium uppercase tracking-[0.14em]">
@@ -389,6 +394,20 @@ const SupplierProfile = () => {
                   {isUnlocked ? supplier.about : supplier.shortDescription}
                 </p>
 
+                {/* Product focus summary */}
+                {supplier.productFocus.length > 0 && (
+                  <p className="mt-3 inline-flex items-start gap-1.5 text-xs text-foreground/80">
+                    <Fish className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" aria-hidden />
+                    <span>
+                      <span className="font-semibold uppercase tracking-wider text-muted-foreground">Product focus: </span>
+                      {supplier.productFocus.slice(0, 3).map((p) => p.species).join(", ")}
+                      {supplier.productFocus.length > 3 && (
+                        <span className="text-muted-foreground"> +{supplier.productFocus.length - 3} more</span>
+                      )}
+                    </span>
+                  </p>
+                )}
+
                 <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
                   <span className="inline-flex items-center gap-1 text-foreground/85">
                     <BadgeCheck
@@ -412,675 +431,17 @@ const SupplierProfile = () => {
                     {docsLabel[supplier.documentReadiness]}
                   </span>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Workspace */}
-        <section className="bg-cool-gray/40">
-          <div className="container py-6 md:py-8">
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-              {/* Main column */}
-              <div className="space-y-6">
-                {/* Quick procurement summary */}
-                <article
-                  aria-labelledby="profile-quick-summary"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <h2
-                    id="profile-quick-summary"
-                    className="font-heading text-base font-semibold text-foreground"
-                  >
-                    Quick procurement summary
-                  </h2>
-                  <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                        <Fish className="h-3.5 w-3.5" aria-hidden />
-                        Product focus
-                      </dt>
-                      <dd className="mt-1.5 text-sm font-medium text-foreground">
-                        {supplier.productFocus
-                          .slice(0, 2)
-                          .map((p) => p.species)
-                          .join(", ")}
-                        {supplier.productFocus.length > 2 && (
-                          <span className="text-muted-foreground">
-                            {" "}+{supplier.productFocus.length - 2} more
-                          </span>
-                        )}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                        <DocIcon className="h-3.5 w-3.5" aria-hidden />
-                        Document readiness
-                      </dt>
-                      <dd className="mt-1.5 text-sm font-medium text-foreground">
-                        {docsLabel[supplier.documentReadiness]}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                        <Activity className="h-3.5 w-3.5" aria-hidden />
-                        Response speed
-                      </dt>
-                      <dd className="mt-1.5 text-sm font-medium text-foreground">
-                        {responseLabel[supplier.responseSignal]}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                        <Ship className="h-3.5 w-3.5" aria-hidden />
-                        Trade capability
-                      </dt>
-                      <dd className="mt-1.5 text-sm font-medium text-foreground">
-                        {isUnlocked
-                          ? `${supplierTypeLabel[supplier.supplierType]} · ${supplier.deliveryCountriesTotal} export markets`
-                          : `${supplierTypeLabel[supplier.supplierType]} · export markets after approval`}
-                      </dd>
-                    </div>
-                  </dl>
-                </article>
-
-                {/* Product focus */}
-                <article
-                  aria-labelledby="profile-focus"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <h2
-                    id="profile-focus"
-                    className="font-heading text-base font-semibold text-foreground"
-                  >
-                    Product focus
-                  </h2>
-                  <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-                    {supplier.productFocus.map((p) => (
-                      <li
-                        key={p.species}
-                        className="rounded-md border border-border bg-background p-3"
-                      >
-                        <p className="text-sm font-semibold text-foreground">
-                          {p.species}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {p.forms}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-
-                {/* Catalog preview */}
-                <article
-                  aria-labelledby="profile-catalog"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <h2
-                      id="profile-catalog"
-                      className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                    >
-                      <Package
-                        className="h-4 w-4 text-muted-foreground"
-                        aria-hidden
-                      />
-                      {isUnlocked ? "Product catalog" : "Catalog preview"}
-                    </h2>
-                    {isUnlocked ? (
-                      <span className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground tabular-nums">
-                          {supplier.totalProductsCount}
-                        </span>{" "}
-                        products
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        Preview only
-                      </span>
-                    )}
-                  </div>
-                  <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {catalogVisible.map((item, i) => {
-                      const href = catalogCardHref(item);
-                      return (
-                      <li
-                        key={`${item.image}-${i}`}
-                        className="overflow-hidden rounded-md border border-border bg-background transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
-                      >
-                        <Link
-                          to={href}
-                          onClick={() => {
-                            const attribution = {
-                              supplier_id: supplier.id,
-                              species: item.species,
-                              form: item.form,
-                              href,
-                              access_level: level,
-                            };
-                            const attempt_id = getRegistrationAttemptId();
-                            analytics.track("preview_card_click", {
-                              ...attribution,
-                              attempt_id,
-                            });
-                            savePreviewAttribution(attribution);
-                          }}
-                          aria-label={
-                            isUnlocked
-                              ? `View ${item.name} (${item.form}) offers from ${displayName}`
-                              : `Browse ${item.species} offers in catalog`
-                          }
-                          className="block focus:outline-none"
-                        >
-                          <div className="relative aspect-square w-full overflow-hidden bg-muted">
-                            <img
-                              src={item.image}
-                              alt={`${item.species} (${item.form}) product preview from ${displayName}`}
-                              loading="lazy"
-                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
-                            />
-                          </div>
-                          <div className="p-2">
-                            <p
-                              className="truncate text-xs font-medium text-foreground"
-                              title={item.name}
-                            >
-                              {item.name}
-                            </p>
-                            <div
-                              className="mt-1 flex flex-wrap items-center gap-1"
-                              aria-label={`Product attributes: ${item.form}${
-                                isUnlocked && headlineCert ? `, ${headlineCert}` : ""
-                              }`}
-                            >
-                              <span
-                                className={cn(
-                                  "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                                  formBadgeClass(item.form),
-                                )}
-                              >
-                                {item.form}
-                              </span>
-                              {hasIqfBadge(item.name) && !hasIqfBadge(item.form) && (
-                                <span
-                                  className={cn(
-                                    "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                                    formBadgeClass("IQF"),
-                                  )}
-                                >
-                                  IQF
-                                </span>
-                              )}
-                              {isUnlocked && headlineCert && (
-                                <span
-                                  className="inline-flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
-                                  title={`Supplier certification: ${headlineCert}`}
-                                >
-                                  <BadgeCheck className="h-2.5 w-2.5" aria-hidden />
-                                  {headlineCert}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                      );
-                    })}
-                  </ul>
-                  {isUnlocked
-                    ? catalogHidden > 0 && (
-                        <p className="mt-3 text-xs text-muted-foreground">
-                          +{catalogHidden} more products in supplier catalog
-                        </p>
-                      )
-                    : (
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        Full catalog available after supplier approval
-                      </p>
-                    )}
-                </article>
-
-                {/* Trade capabilities */}
-                <article
-                  aria-labelledby="profile-trade"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <h2
-                      id="profile-trade"
-                      className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                    >
-                      <Ship
-                        className="h-4 w-4 text-muted-foreground"
-                        aria-hidden
-                      />
-                      Trade capabilities
-                    </h2>
-                    {isUnlocked ? (
-                      <span className="text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground tabular-nums">
-                          {supplier.deliveryCountriesTotal}
-                        </span>{" "}
-                        export markets
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        Delivery preview
-                      </span>
-                    )}
-                  </div>
-
-                  <dl className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <div>
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Supplier type
-                      </dt>
-                      <dd className="mt-1 text-sm font-medium text-foreground">
-                        {supplierTypeLabel[supplier.supplierType]}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Origin
-                      </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-foreground">
-                        <span aria-hidden className="text-base leading-none">
-                          {flag || "🌐"}
-                        </span>
-                        {supplier.country} · {supplier.city}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Export readiness
-                      </dt>
-                      <dd className="mt-1 text-sm font-medium text-foreground">
-                        {supplier.documentReadiness === "ready"
-                          ? "Export documents on file"
-                          : supplier.documentReadiness === "partial"
-                            ? "Partial export documents"
-                            : "Export documents on request"}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="mt-4">
-                    <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                      <Globe2 className="h-3 w-3" aria-hidden />
-                      {isUnlocked ? "Delivery markets" : "Delivery preview"}
-                    </p>
-                    <ul className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                      {previewDeliveries.map((d) => (
-                        <li
-                          key={d.code}
-                          className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-foreground/85"
-                          title={d.name}
-                        >
-                          <span aria-hidden className="text-sm leading-none">
-                            {countryCodeToFlag(d.code) || "🌐"}
-                          </span>
-                          <span>{d.name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    {showDeliveryTeaser && (
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        Full delivery geography after supplier approval
-                      </p>
-                    )}
-                  </div>
-                </article>
-
-                {/* Commercial fit */}
-                <article
-                  aria-labelledby="profile-commercial-fit"
-                  data-testid="supplier-profile-commercial-fit"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <h2
-                    id="profile-commercial-fit"
-                    className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                  >
-                    <Ship className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    Commercial fit
-                  </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Commercial fit is derived from current frontend offer data. Final terms are confirmed with the supplier.
-                  </p>
-                  {(() => {
-                    const uniq = (arr: (string | undefined)[]) =>
-                      Array.from(
-                        new Set(
-                          arr
-                            .filter((x): x is string => !!x && x.trim().length > 0)
-                            .map((x) => x.trim()),
-                        ),
-                      );
-
-                    const moqValues = supplierOffers
-                      .map((o) => o.moqValue)
-                      .filter((v): v is number => typeof v === "number" && v > 0);
-                    const incoterms = uniq(
-                      supplierOffers.flatMap((o) => [
-                        o.commercial?.incoterm,
-                        ...(o.deliveryBasisOptions?.map((d) => d.code) ?? []),
-                      ]),
-                    );
-                    const leadTimes = uniq(supplierOffers.map((o) => o.commercial?.leadTime));
-                    const paymentTerms = uniq(supplierOffers.map((o) => o.commercial?.paymentTerms));
-                    const ports = uniq(
-                      supplierOffers.flatMap((o) => [
-                        o.commercial?.shipmentPort,
-                        ...(o.deliveryBasisOptions?.map((d) => d.shipmentPort) ?? []),
-                      ]),
-                    );
-
-                    const focusList = supplier.productFocus.map((p) => p.species);
-                    const typeLc = supplierTypeLabel[supplier.supplierType].toLowerCase();
-                    const focusSummary =
-                      focusList.length === 0
-                        ? "seafood procurement"
-                        : focusList.slice(0, 2).join(" and ");
-                    const bestFitUnlocked = `Buyers sourcing ${focusSummary} from ${supplier.country}, working with a ${typeLc}.`;
-                    const bestFitLocked = "Product focus preview available. Detailed fit unlocks after supplier access.";
-
-                    const fmtMoqRange = () => {
-                      if (moqValues.length === 0) return null;
-                      const min = Math.min(...moqValues);
-                      const max = Math.max(...moqValues);
-                      const fmt = (n: number) => `${n.toLocaleString("en-US")} kg`;
-                      return min === max ? fmt(min) : `${fmt(min)} to ${fmt(max)}`;
-                    };
-
-                    const lockedValue = "Available after supplier access";
-
-                    const cards: { key: string; label: string; value: ReactNode }[] = [
-                      {
-                        key: "moq",
-                        label: "Typical MOQ",
-                        value: isUnlocked ? (fmtMoqRange() ?? lockedValue) : lockedValue,
-                      },
-                      {
-                        key: "incoterms",
-                        label: "Trade terms",
-                        value: isUnlocked
-                          ? incoterms.length > 0
-                            ? incoterms.join(", ")
-                            : lockedValue
-                          : "Request access to review supported Incoterms",
-                      },
-                      {
-                        key: "lead",
-                        label: "Lead time",
-                        value: isUnlocked
-                          ? leadTimes.length > 0
-                            ? leadTimes.join(", ")
-                            : lockedValue
-                          : "Lead time available after supplier access",
-                      },
-                      {
-                        key: "payment",
-                        label: "Payment terms",
-                        value: isUnlocked
-                          ? paymentTerms.length > 0
-                            ? paymentTerms.join(" · ")
-                            : lockedValue
-                          : "Request access to review payment terms",
-                      },
-                      {
-                        key: "ports",
-                        label: "Shipment ports",
-                        value: isUnlocked
-                          ? ports.length > 0
-                            ? ports.join(", ")
-                            : lockedValue
-                          : "Shipment details available after supplier access",
-                      },
-                      {
-                        key: "fit",
-                        label: "Best fit",
-                        value: isUnlocked ? bestFitUnlocked : bestFitLocked,
-                      },
-                    ];
-
-                    return (
-                      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                        {cards.map((c) => (
-                          <div
-                            key={c.key}
-                            className="rounded-md border border-border bg-background p-3"
-                          >
-                            <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                              {c.label}
-                            </dt>
-                            <dd className="mt-1.5 text-sm font-medium text-foreground break-words [overflow-wrap:anywhere]">
-                              {c.value}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    );
-                  })()}
-                  {!isUnlocked && (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Commercial terms available after supplier access.
-                    </p>
-                  )}
-                </article>
-
-                {/* Documents & certifications checklist */}
-                <article
-                  aria-labelledby="profile-documents"
-                  data-testid="supplier-profile-documents"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <h2
-                    id="profile-documents"
-                    className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                  >
-                    <FileCheck2
-                      className="h-4 w-4 text-muted-foreground"
-                      aria-hidden
-                    />
-                    Documents &amp; certifications
-                  </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Document availability is indicative. Exact files are shared
-                    after the supplier approves your access.
-                  </p>
-                  <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-background">
-                    {(() => {
-                      type DocStatus =
-                        | "ready"
-                        | "partial"
-                        | "on_request"
-                        | "after_approval";
-                      const statusLabel: Record<DocStatus, string> = {
-                        ready: "Ready for review",
-                        partial: "Partial",
-                        on_request: "Available on request",
-                        after_approval: "Available after supplier approval",
-                      };
-                      const statusTone: Record<DocStatus, string> = {
-                        ready:
-                          "border-emerald-200 bg-emerald-50 text-emerald-900",
-                        partial:
-                          "border-amber-200 bg-amber-50 text-amber-900",
-                        on_request:
-                          "border-slate-200 bg-slate-50 text-slate-900",
-                        after_approval:
-                          "border-border bg-muted text-muted-foreground",
-                      };
-
-                      // Map supplier.documentReadiness + access level → per-doc status.
-                      // Fully honest: locked levels can never see "Ready for review",
-                      // and supplier-specific docs collapse to "Available after supplier approval".
-                      const baseFor = (
-                        kind:
-                          | "health"
-                          | "haccp"
-                          | "iuu"
-                          | "sustainability"
-                          | "packing"
-                          | "traceability",
-                      ): DocStatus => {
-                        if (!isUnlocked) return "after_approval";
-                        const r = supplier.documentReadiness;
-                        if (r === "ready") {
-                          // Sustainability tied to whether supplier has a sustainability cert.
-                          if (kind === "sustainability") {
-                            const hasSus = supplier.certifications.some((c) =>
-                              /asc|msc|bap|iceland responsible/i.test(c),
-                            );
-                            return hasSus ? "ready" : "on_request";
-                          }
-                          return "ready";
-                        }
-                        if (r === "partial") {
-                          if (kind === "health" || kind === "haccp")
-                            return "ready";
-                          return "partial";
-                        }
-                        return "on_request";
-                      };
-
-                      const items: {
-                        key: string;
-                        label: string;
-                        status: DocStatus;
-                      }[] = [
-                        {
-                          key: "health",
-                          label: "Health certificate",
-                          status: baseFor("health"),
-                        },
-                        {
-                          key: "haccp",
-                          label: "HACCP / food safety",
-                          status: baseFor("haccp"),
-                        },
-                        {
-                          key: "iuu",
-                          label: "Catch / IUU declaration",
-                          status: baseFor("iuu"),
-                        },
-                        {
-                          key: "sustainability",
-                          label: "Sustainability certificate",
-                          status: baseFor("sustainability"),
-                        },
-                        {
-                          key: "packing",
-                          label: "Packing list",
-                          status: baseFor("packing"),
-                        },
-                        {
-                          key: "traceability",
-                          label: "Traceability data",
-                          status: baseFor("traceability"),
-                        },
-                      ];
-
-                      return items.map((it) => (
-                        <li
-                          key={it.key}
-                          data-testid={`doc-row-${it.key}`}
-                          className="flex items-center justify-between gap-3 px-3 py-2.5"
-                        >
-                          <span className="inline-flex items-center gap-2 text-sm text-foreground">
-                            <FileCheck2
-                              className="h-3.5 w-3.5 text-muted-foreground"
-                              aria-hidden
-                            />
-                            {it.label}
-                          </span>
-                          <span
-                            data-testid={`doc-status-${it.key}`}
-                            className={cn(
-                              "inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
-                              statusTone[it.status],
-                            )}
-                          >
-                            {statusLabel[it.status]}
-                          </span>
-                        </li>
-                      ));
-                    })()}
-                  </ul>
-                  {!isUnlocked && (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Document files and identifiers are not exposed in the
-                      preview. They become available after the supplier
-                      approves your buyer access.
-                    </p>
-                  )}
-                </article>
-
-                {/* Trust evidence */}
-                <article
-                  aria-labelledby="profile-trust"
-                  className="rounded-lg border border-border bg-card p-5 shadow-sm"
-                >
-                  <h2
-                    id="profile-trust"
-                    className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
-                  >
-                    <ShieldCheck
-                      className="h-4 w-4 text-muted-foreground"
-                      aria-hidden
-                    />
-                    Trust evidence
-                  </h2>
-                  <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Verification
-                      </dt>
-                      <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        <BadgeCheck
-                          className="h-4 w-4 text-primary"
-                          aria-hidden
-                        />
-                        {verificationLabel(supplier.verificationLevel)}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border bg-background p-3">
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Active offers on YORSO
-                      </dt>
-                      <dd className="mt-1 text-sm font-medium text-foreground tabular-nums">
-                        {isUnlocked
-                          ? supplier.activeOffersCount
-                          : "Available after supplier approval"}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  {supplier.certificationBadges.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                        Certifications
-                      </p>
-                      <ul className="mt-2 flex flex-wrap gap-1.5">
-                        {supplier.certificationBadges.map((c) => (
-                          <li
-                            key={c.code}
-                            className="inline-flex items-center rounded border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
-                            title={c.label}
-                          >
-                            {c.label}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </article>
+                {/* Access state summary line */}
+                <p className="mt-4 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+                  {accessExplainer(level)}
+                </p>
               </div>
 
-              {/* Decision panel */}
+              {/* Right zone: access / action panel */}
               <aside
                 aria-label="Access and next action"
+                data-testid="supplier-profile-access-panel"
                 className="lg:sticky lg:top-20 lg:self-start"
               >
                 <div className="space-y-4 rounded-lg border border-border bg-card p-5 shadow-sm">
@@ -1212,211 +573,776 @@ const SupplierProfile = () => {
           </div>
         </section>
 
-        {/* Active offers from this supplier */}
-        {supplierOffers.length > 0 && (
-          <section
-            aria-labelledby="profile-active-offers"
-            className="border-t border-border bg-cool-gray/30"
-          >
-            <div className="container py-8 md:py-10">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <h2
-                    id="profile-active-offers"
-                    className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl"
-                  >
-                    Active offers from this supplier
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {isUnlocked
-                      ? `${supplier.activeOffersCount} active offers in total. Recent listings below.`
-                      : "Recent listings matching this supplier's product focus and origin."}
-                  </p>
-                </div>
-                <Link
-                  to="/offers"
-                  className="hidden text-sm font-medium text-primary hover:underline md:inline"
+        {/* Area 3: Main Procurement Content */}
+        <section
+          data-testid="supplier-profile-main-content"
+          className="bg-cool-gray/40"
+        >
+          <div className="container space-y-6 py-6 md:py-8">
+            {/* 1. Product catalog preview */}
+            <article
+              aria-labelledby="profile-catalog"
+              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2
+                  id="profile-catalog"
+                  className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
                 >
-                  All offers →
-                </Link>
+                  <Package
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden
+                  />
+                  Product catalog preview
+                </h2>
+                {isUnlocked ? (
+                  <span className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {supplier.totalProductsCount}
+                    </span>{" "}
+                    products
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    Preview only
+                  </span>
+                )}
               </div>
-
-              <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {supplierOffers.map((o) => {
-                  const priceVisible = isUnlocked;
+              <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {catalogVisible.map((item, i) => {
+                  const href = catalogCardHref(item);
                   return (
-                    <li key={o.id}>
-                      <Link
-                        to={`/offers/${o.id}`}
-                        aria-label={`Open offer: ${o.productName}`}
-                        className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                          <img
-                            src={o.image}
-                            alt={`${o.productName} product image`}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
-                          />
-                          <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
-                            <span aria-hidden className="text-sm leading-none">
-                              {o.originFlag}
-                            </span>
-                            <span>{o.origin}</span>
-                          </div>
-                          <div className="absolute right-2 top-2 inline-flex items-center rounded border border-border bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground shadow-sm backdrop-blur-sm">
-                            {o.format}
-                          </div>
-                        </div>
-                        <div className="p-3.5">
-                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                            {o.species} · {o.cutType}
-                          </p>
-                          <h3
-                            className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground"
-                            title={o.productName}
-                          >
-                            {o.productName}
-                          </h3>
-                          <div className="mt-3 flex items-baseline justify-between gap-2 text-xs">
-                            {priceVisible ? (
-                              <span className="font-semibold text-foreground tabular-nums">
-                                {o.priceRange}
-                                <span className="ml-1 font-normal text-muted-foreground">
-                                  {o.priceUnit}
-                                </span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                <Lock className="h-3 w-3" aria-hidden />
-                                Price after access
-                              </span>
+                  <li
+                    key={`${item.image}-${i}`}
+                    className="overflow-hidden rounded-md border border-border bg-background transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40"
+                  >
+                    <Link
+                      to={href}
+                      onClick={() => {
+                        const attribution = {
+                          supplier_id: supplier.id,
+                          species: item.species,
+                          form: item.form,
+                          href,
+                          access_level: level,
+                        };
+                        const attempt_id = getRegistrationAttemptId();
+                        analytics.track("preview_card_click", {
+                          ...attribution,
+                          attempt_id,
+                        });
+                        savePreviewAttribution(attribution);
+                      }}
+                      aria-label={
+                        isUnlocked
+                          ? `View ${item.name} (${item.form}) offers from ${displayName}`
+                          : `Browse ${item.species} offers in catalog`
+                      }
+                      className="block focus:outline-none"
+                    >
+                      <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                        <img
+                          src={item.image}
+                          alt={`${item.species} (${item.form}) product preview from ${displayName}`}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 hover:scale-[1.02]"
+                        />
+                      </div>
+                      <div className="p-2">
+                        <p
+                          className="truncate text-xs font-medium text-foreground"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </p>
+                        <div
+                          className="mt-1 flex flex-wrap items-center gap-1"
+                          aria-label={`Product attributes: ${item.form}${
+                            isUnlocked && headlineCert ? `, ${headlineCert}` : ""
+                          }`}
+                        >
+                          <span
+                            className={cn(
+                              "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                              formBadgeClass(item.form),
                             )}
-                            <span className="text-muted-foreground">{o.moq}</span>
-                          </div>
-                          <div className="mt-2 text-[11px] font-medium text-primary group-hover:underline">
-                            View offer →
-                          </div>
+                          >
+                            {item.form}
+                          </span>
+                          {hasIqfBadge(item.name) && !hasIqfBadge(item.form) && (
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                                formBadgeClass("IQF"),
+                              )}
+                            >
+                              IQF
+                            </span>
+                          )}
+                          {isUnlocked && headlineCert && (
+                            <span
+                              className="inline-flex items-center gap-0.5 rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+                              title={`Supplier certification: ${headlineCert}`}
+                            >
+                              <BadgeCheck className="h-2.5 w-2.5" aria-hidden />
+                              {headlineCert}
+                            </span>
+                          )}
                         </div>
-                      </Link>
-                    </li>
+                      </div>
+                    </Link>
+                  </li>
                   );
                 })}
               </ul>
+              {isUnlocked
+                ? catalogHidden > 0 && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      +{catalogHidden} more products in supplier catalog
+                    </p>
+                  )
+                : (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Full catalog available after supplier approval
+                  </p>
+                )}
+            </article>
+
+            {/* 2. Commercial fit */}
+            <article
+              aria-labelledby="profile-commercial-fit"
+              data-testid="supplier-profile-commercial-fit"
+              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            >
+              <h2
+                id="profile-commercial-fit"
+                className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+              >
+                <Ship className="h-4 w-4 text-muted-foreground" aria-hidden />
+                Commercial fit
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Commercial fit is derived from current frontend offer data. Final terms are confirmed with the supplier.
+              </p>
+              {(() => {
+                const uniq = (arr: (string | undefined)[]) =>
+                  Array.from(
+                    new Set(
+                      arr
+                        .filter((x): x is string => !!x && x.trim().length > 0)
+                        .map((x) => x.trim()),
+                    ),
+                  );
+
+                const moqValues = supplierOffers
+                  .map((o) => o.moqValue)
+                  .filter((v): v is number => typeof v === "number" && v > 0);
+                const incoterms = uniq(
+                  supplierOffers.flatMap((o) => [
+                    o.commercial?.incoterm,
+                    ...(o.deliveryBasisOptions?.map((d) => d.code) ?? []),
+                  ]),
+                );
+                const leadTimes = uniq(supplierOffers.map((o) => o.commercial?.leadTime));
+                const paymentTerms = uniq(supplierOffers.map((o) => o.commercial?.paymentTerms));
+                const ports = uniq(
+                  supplierOffers.flatMap((o) => [
+                    o.commercial?.shipmentPort,
+                    ...(o.deliveryBasisOptions?.map((d) => d.shipmentPort) ?? []),
+                  ]),
+                );
+
+                const focusList = supplier.productFocus.map((p) => p.species);
+                const typeLc = supplierTypeLabel[supplier.supplierType].toLowerCase();
+                const focusSummary =
+                  focusList.length === 0
+                    ? "seafood procurement"
+                    : focusList.slice(0, 2).join(" and ");
+                const bestFitUnlocked = `Buyers sourcing ${focusSummary} from ${supplier.country}, working with a ${typeLc}.`;
+                const bestFitLocked = "Product focus preview available. Detailed fit unlocks after supplier access.";
+
+                const fmtMoqRange = () => {
+                  if (moqValues.length === 0) return null;
+                  const min = Math.min(...moqValues);
+                  const max = Math.max(...moqValues);
+                  const fmt = (n: number) => `${n.toLocaleString("en-US")} kg`;
+                  return min === max ? fmt(min) : `${fmt(min)} to ${fmt(max)}`;
+                };
+
+                const lockedValue = "Available after supplier access";
+
+                const cards: { key: string; label: string; value: ReactNode }[] = [
+                  {
+                    key: "moq",
+                    label: "Typical MOQ",
+                    value: isUnlocked ? (fmtMoqRange() ?? lockedValue) : lockedValue,
+                  },
+                  {
+                    key: "incoterms",
+                    label: "Trade terms",
+                    value: isUnlocked
+                      ? incoterms.length > 0
+                        ? incoterms.join(", ")
+                        : lockedValue
+                      : "Request access to review supported Incoterms",
+                  },
+                  {
+                    key: "lead",
+                    label: "Lead time",
+                    value: isUnlocked
+                      ? leadTimes.length > 0
+                        ? leadTimes.join(", ")
+                        : lockedValue
+                      : "Lead time available after supplier access",
+                  },
+                  {
+                    key: "payment",
+                    label: "Payment terms",
+                    value: isUnlocked
+                      ? paymentTerms.length > 0
+                        ? paymentTerms.join(" · ")
+                        : lockedValue
+                      : "Request access to review payment terms",
+                  },
+                  {
+                    key: "ports",
+                    label: "Shipment ports",
+                    value: isUnlocked
+                      ? ports.length > 0
+                        ? ports.join(", ")
+                        : lockedValue
+                      : "Shipment details available after supplier access",
+                  },
+                  {
+                    key: "fit",
+                    label: "Best fit",
+                    value: isUnlocked ? bestFitUnlocked : bestFitLocked,
+                  },
+                ];
+
+                return (
+                  <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {cards.map((c) => (
+                      <div
+                        key={c.key}
+                        className="rounded-md border border-border bg-background p-3"
+                      >
+                        <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                          {c.label}
+                        </dt>
+                        <dd className="mt-1.5 text-sm font-medium text-foreground break-words [overflow-wrap:anywhere]">
+                          {c.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                );
+              })()}
               {!isUnlocked && (
-                <p className="mt-4 text-xs text-muted-foreground">
-                  Exact prices and full offer terms become visible after the
-                  supplier approves your buyer access.
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Commercial terms available after supplier access.
                 </p>
               )}
-            </div>
-          </section>
-        )}
+            </article>
 
-        {/* Related suppliers */}
-        {related.length > 0 && (
-          <section
-            aria-labelledby="profile-related"
-            className="border-t border-border bg-background"
-          >
-            <div className="container py-8 md:py-10">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <h2
-                    id="profile-related"
-                    className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl"
-                  >
-                    Similar suppliers
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Other suppliers with overlapping product focus or origin.
-                  </p>
-                </div>
-                <Link
-                  to="/suppliers"
-                  className="hidden text-sm font-medium text-primary hover:underline md:inline"
+            {/* 3. Trade and delivery */}
+            <article
+              aria-labelledby="profile-trade"
+              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <h2
+                  id="profile-trade"
+                  className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
                 >
-                  All suppliers →
-                </Link>
+                  <Ship
+                    className="h-4 w-4 text-muted-foreground"
+                    aria-hidden
+                  />
+                  Trade and delivery
+                </h2>
+                {isUnlocked ? (
+                  <span className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground tabular-nums">
+                      {supplier.deliveryCountriesTotal}
+                    </span>{" "}
+                    export markets
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    Delivery preview
+                  </span>
+                )}
               </div>
 
-              <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {related.map((r) => {
-                  const rName = isMasked ? r.maskedName : r.companyName;
-                  const rFlag = countryCodeToFlag(r.countryCode);
-                  return (
-                    <li key={r.id}>
-                      <Link
-                        to={`/suppliers/${r.id}`}
-                        aria-label={`Open supplier profile: ${rName}`}
-                        className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
-                          <img
-                            src={r.heroImage}
-                            alt={`${r.productFocus[0]?.species ?? "Seafood"} reference image for ${rName}`}
-                            loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
-                          />
-                          <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
-                            <span aria-hidden className="text-sm leading-none">
-                              {rFlag || "🌐"}
-                            </span>
-                            <span>{r.country}</span>
-                          </div>
-                          {r.verificationLevel === "documents_reviewed" && (
-                            <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
-                              <BadgeCheck className="h-3 w-3" aria-hidden />
-                              Reviewed
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                            {supplierTypeLabel[r.supplierType]} · {r.city}
-                          </p>
-                          <h3 className="mt-1.5 font-heading text-base font-semibold leading-snug text-foreground break-words [overflow-wrap:anywhere]">
-                            {rName}
-                          </h3>
-                          {isMasked && (
-                            <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                              <Lock className="h-3 w-3" aria-hidden />
-                              Identity restricted
-                            </p>
-                          )}
-                          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-foreground/80">
-                            {r.shortDescription}
-                          </p>
-                          {r.certificationBadges.length > 0 && (
-                            <ul className="mt-3 flex flex-wrap gap-1">
-                              {r.certificationBadges.slice(0, 4).map((c) => (
-                                <li
-                                  key={c.code}
-                                  className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-foreground/75"
-                                >
-                                  {c.label}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                          <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                            <span className="inline-flex items-center gap-1">
-                              <Package className="h-3 w-3" aria-hidden />
-                              {r.productFocus[0]?.species}
-                            </span>
-                            <span className="font-medium text-primary group-hover:underline">
-                              Open profile →
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+                <div>
+                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Supplier type
+                  </dt>
+                  <dd className="mt-1 text-sm font-medium text-foreground">
+                    {supplierTypeLabel[supplier.supplierType]}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Origin
+                  </dt>
+                  <dd className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-foreground">
+                    <span aria-hidden className="text-base leading-none">
+                      {flag || "🌐"}
+                    </span>
+                    {supplier.country} · {supplier.city}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Export readiness
+                  </dt>
+                  <dd className="mt-1 text-sm font-medium text-foreground">
+                    {supplier.documentReadiness === "ready"
+                      ? "Export documents on file"
+                      : supplier.documentReadiness === "partial"
+                        ? "Partial export documents"
+                        : "Export documents on request"}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="mt-4">
+                <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <Globe2 className="h-3 w-3" aria-hidden />
+                  {isUnlocked ? "Delivery markets" : "Delivery preview"}
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                  {previewDeliveries.map((d) => (
+                    <li
+                      key={d.code}
+                      className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-foreground/85"
+                      title={d.name}
+                    >
+                      <span aria-hidden className="text-sm leading-none">
+                        {countryCodeToFlag(d.code) || "🌐"}
+                      </span>
+                      <span>{d.name}</span>
                     </li>
-                  );
-                })}
+                  ))}
+                </ul>
+                {showDeliveryTeaser && (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Full delivery geography after supplier approval
+                  </p>
+                )}
+              </div>
+            </article>
+
+            {/* 4. Documents and certifications */}
+            <article
+              aria-labelledby="profile-documents"
+              data-testid="supplier-profile-documents"
+              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            >
+              <h2
+                id="profile-documents"
+                className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+              >
+                <FileCheck2
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden
+                />
+                Documents and certifications
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Document availability is indicative. Exact files are shared
+                after the supplier approves your access.
+              </p>
+              <ul className="mt-3 divide-y divide-border rounded-md border border-border bg-background">
+                {(() => {
+                  type DocStatus =
+                    | "ready"
+                    | "partial"
+                    | "on_request"
+                    | "after_approval";
+                  const statusLabel: Record<DocStatus, string> = {
+                    ready: "Ready for review",
+                    partial: "Partial",
+                    on_request: "Available on request",
+                    after_approval: "Available after supplier approval",
+                  };
+                  const statusTone: Record<DocStatus, string> = {
+                    ready:
+                      "border-emerald-200 bg-emerald-50 text-emerald-900",
+                    partial:
+                      "border-amber-200 bg-amber-50 text-amber-900",
+                    on_request:
+                      "border-slate-200 bg-slate-50 text-slate-900",
+                    after_approval:
+                      "border-border bg-muted text-muted-foreground",
+                  };
+
+                  const baseFor = (
+                    kind:
+                      | "health"
+                      | "haccp"
+                      | "iuu"
+                      | "sustainability"
+                      | "packing"
+                      | "traceability",
+                  ): DocStatus => {
+                    if (!isUnlocked) return "after_approval";
+                    const r = supplier.documentReadiness;
+                    if (r === "ready") {
+                      if (kind === "sustainability") {
+                        const hasSus = supplier.certifications.some((c) =>
+                          /asc|msc|bap|iceland responsible/i.test(c),
+                        );
+                        return hasSus ? "ready" : "on_request";
+                      }
+                      return "ready";
+                    }
+                    if (r === "partial") {
+                      if (kind === "health" || kind === "haccp")
+                        return "ready";
+                      return "partial";
+                    }
+                    return "on_request";
+                  };
+
+                  const items: {
+                    key: string;
+                    label: string;
+                    status: DocStatus;
+                  }[] = [
+                    {
+                      key: "health",
+                      label: "Health certificate",
+                      status: baseFor("health"),
+                    },
+                    {
+                      key: "haccp",
+                      label: "HACCP / food safety",
+                      status: baseFor("haccp"),
+                    },
+                    {
+                      key: "iuu",
+                      label: "Catch / IUU declaration",
+                      status: baseFor("iuu"),
+                    },
+                    {
+                      key: "sustainability",
+                      label: "Sustainability certificate",
+                      status: baseFor("sustainability"),
+                    },
+                    {
+                      key: "packing",
+                      label: "Packing list",
+                      status: baseFor("packing"),
+                    },
+                    {
+                      key: "traceability",
+                      label: "Traceability data",
+                      status: baseFor("traceability"),
+                    },
+                  ];
+
+                  return items.map((it) => (
+                    <li
+                      key={it.key}
+                      data-testid={`doc-row-${it.key}`}
+                      className="flex items-center justify-between gap-3 px-3 py-2.5"
+                    >
+                      <span className="inline-flex items-center gap-2 text-sm text-foreground">
+                        <FileCheck2
+                          className="h-3.5 w-3.5 text-muted-foreground"
+                          aria-hidden
+                        />
+                        {it.label}
+                      </span>
+                      <span
+                        data-testid={`doc-status-${it.key}`}
+                        className={cn(
+                          "inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+                          statusTone[it.status],
+                        )}
+                      >
+                        {statusLabel[it.status]}
+                      </span>
+                    </li>
+                  ));
+                })()}
               </ul>
+              {!isUnlocked && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Document files and identifiers are not exposed in the
+                  preview. They become available after the supplier
+                  approves your buyer access.
+                </p>
+              )}
+            </article>
+
+            {/* 5. Trust evidence */}
+            <article
+              aria-labelledby="profile-trust"
+              className="rounded-lg border border-border bg-card p-5 shadow-sm"
+            >
+              <h2
+                id="profile-trust"
+                className="flex items-center gap-2 font-heading text-base font-semibold text-foreground"
+              >
+                <ShieldCheck
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden
+                />
+                Trust evidence
+              </h2>
+              <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-md border border-border bg-background p-3">
+                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Verification
+                  </dt>
+                  <dd className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <BadgeCheck
+                      className="h-4 w-4 text-primary"
+                      aria-hidden
+                    />
+                    {verificationLabel(supplier.verificationLevel)}
+                  </dd>
+                </div>
+                <div className="rounded-md border border-border bg-background p-3">
+                  <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Active offers on YORSO
+                  </dt>
+                  <dd className="mt-1 text-sm font-medium text-foreground tabular-nums">
+                    {isUnlocked
+                      ? supplier.activeOffersCount
+                      : "Available after supplier approval"}
+                  </dd>
+                </div>
+              </dl>
+
+              {supplier.certificationBadges.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Certifications
+                  </p>
+                  <ul className="mt-2 flex flex-wrap gap-1.5">
+                    {supplier.certificationBadges.map((c) => (
+                      <li
+                        key={c.code}
+                        className="inline-flex items-center rounded border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-semibold tracking-wide text-foreground/80"
+                        title={c.label}
+                      >
+                        {c.label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+
+        {/* 6. Active offers from this supplier */}
+        {supplierOffers.length > 0 && (
+          <article
+            aria-labelledby="profile-active-offers"
+            className="rounded-lg border border-border bg-card p-5 shadow-sm"
+          >
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h2
+                  id="profile-active-offers"
+                  className="font-heading text-base font-semibold text-foreground"
+                >
+                  Active offers from this supplier
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {isUnlocked
+                    ? `${supplier.activeOffersCount} active offers in total. Recent listings below.`
+                    : "Recent listings matching this supplier's product focus and origin."}
+                </p>
+              </div>
+              <Link
+                to="/offers"
+                className="hidden text-sm font-medium text-primary hover:underline md:inline"
+              >
+                All offers →
+              </Link>
             </div>
-          </section>
+
+            <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {supplierOffers.map((o) => {
+                const priceVisible = isUnlocked;
+                return (
+                  <li key={o.id}>
+                    <Link
+                      to={`/offers/${o.id}`}
+                      aria-label={`Open offer: ${o.productName}`}
+                      className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                        <img
+                          src={o.image}
+                          alt={`${o.productName} product image`}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                          <span aria-hidden className="text-sm leading-none">
+                            {o.originFlag}
+                          </span>
+                          <span>{o.origin}</span>
+                        </div>
+                        <div className="absolute right-2 top-2 inline-flex items-center rounded border border-border bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-foreground shadow-sm backdrop-blur-sm">
+                          {o.format}
+                        </div>
+                      </div>
+                      <div className="p-3.5">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                          {o.species} · {o.cutType}
+                        </p>
+                        <h3
+                          className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground"
+                          title={o.productName}
+                        >
+                          {o.productName}
+                        </h3>
+                        <div className="mt-3 flex items-baseline justify-between gap-2 text-xs">
+                          {priceVisible ? (
+                            <span className="font-semibold text-foreground tabular-nums">
+                              {o.priceRange}
+                              <span className="ml-1 font-normal text-muted-foreground">
+                                {o.priceUnit}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-muted-foreground">
+                              <Lock className="h-3 w-3" aria-hidden />
+                              Price after access
+                            </span>
+                          )}
+                          <span className="text-muted-foreground">{o.moq}</span>
+                        </div>
+                        <div className="mt-2 text-[11px] font-medium text-primary group-hover:underline">
+                          View offer →
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+            {!isUnlocked && (
+              <p className="mt-4 text-xs text-muted-foreground">
+                Exact prices and full offer terms become visible after the
+                supplier approves your buyer access.
+              </p>
+            )}
+          </article>
         )}
+
+        {/* 7. Similar suppliers */}
+        {related.length > 0 && (
+          <article
+            aria-labelledby="profile-related"
+            className="rounded-lg border border-border bg-card p-5 shadow-sm"
+          >
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h2
+                  id="profile-related"
+                  className="font-heading text-base font-semibold text-foreground"
+                >
+                  Similar suppliers
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Other suppliers with overlapping product focus or origin.
+                </p>
+              </div>
+              <Link
+                to="/suppliers"
+                className="hidden text-sm font-medium text-primary hover:underline md:inline"
+              >
+                All suppliers →
+              </Link>
+            </div>
+
+            <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((r) => {
+                const rName = isMasked ? r.maskedName : r.companyName;
+                const rFlag = countryCodeToFlag(r.countryCode);
+                return (
+                  <li key={r.id}>
+                    <Link
+                      to={`/suppliers/${r.id}`}
+                      aria-label={`Open supplier profile: ${rName}`}
+                      className="group block h-full overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-foreground/20 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+                        <img
+                          src={r.heroImage}
+                          alt={`${r.productFocus[0]?.species ?? "Seafood"} reference image for ${rName}`}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
+                          <span aria-hidden className="text-sm leading-none">
+                            {rFlag || "🌐"}
+                          </span>
+                          <span>{r.country}</span>
+                        </div>
+                        {r.verificationLevel === "documents_reviewed" && (
+                          <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
+                            <BadgeCheck className="h-3 w-3" aria-hidden />
+                            Reviewed
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                          {supplierTypeLabel[r.supplierType]} · {r.city}
+                        </p>
+                        <h3 className="mt-1.5 font-heading text-base font-semibold leading-snug text-foreground break-words [overflow-wrap:anywhere]">
+                          {rName}
+                        </h3>
+                        {isMasked && (
+                          <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                            <Lock className="h-3 w-3" aria-hidden />
+                            Identity restricted
+                          </p>
+                        )}
+                        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-foreground/80">
+                          {r.shortDescription}
+                        </p>
+                        {r.certificationBadges.length > 0 && (
+                          <ul className="mt-3 flex flex-wrap gap-1">
+                            {r.certificationBadges.slice(0, 4).map((c) => (
+                              <li
+                                key={c.code}
+                                className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-foreground/75"
+                              >
+                                {c.label}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <Package className="h-3 w-3" aria-hidden />
+                            {r.productFocus[0]?.species}
+                          </span>
+                          <span className="font-medium text-primary group-hover:underline">
+                            Open profile →
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </article>
+        )}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

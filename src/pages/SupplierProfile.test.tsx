@@ -63,7 +63,7 @@ describe("SupplierProfile — access gating", () => {
     renderAt(`/suppliers/${supplier.id}`);
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /product focus/i }),
+      screen.getByRole("heading", { name: /product catalog preview/i }),
     ).toBeInTheDocument();
   });
 
@@ -798,5 +798,76 @@ describe("SupplierProfile — Commercial fit section", () => {
     renderAt(`/suppliers/${supplier.id}`);
     const section = screen.getByTestId("supplier-profile-commercial-fit");
     expect(section.textContent ?? "").not.toContain("—");
+  });
+});
+
+describe("SupplierProfile — IA Skeleton v1", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  const supplier = mockSuppliers[0];
+
+  it("renders dossier hero, access panel, and main content wrappers", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.getByTestId("supplier-profile-dossier-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("supplier-profile-access-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("supplier-profile-main-content")).toBeInTheDocument();
+  });
+
+  it("does not render the legacy 'Quick procurement summary' heading", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.queryByRole("heading", { name: /quick procurement summary/i })).toBeNull();
+  });
+
+  it("renders all required main-content section headings in order", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const main = screen.getByTestId("supplier-profile-main-content");
+    const expected = [
+      /product catalog preview/i,
+      /commercial fit/i,
+      /trade and delivery/i,
+      /documents and certifications/i,
+      /trust evidence/i,
+      /active offers from this supplier/i,
+      /similar suppliers/i,
+    ];
+    for (const re of expected) {
+      expect(within(main).getByRole("heading", { name: re })).toBeInTheDocument();
+    }
+    // Order check: collect heading text positions.
+    const headings = within(main).getAllByRole("heading");
+    const texts = headings.map((h) => h.textContent ?? "");
+    const indexOf = (re: RegExp) => texts.findIndex((t) => re.test(t));
+    const order = expected.map(indexOf);
+    for (let i = 1; i < order.length; i++) {
+      expect(order[i]).toBeGreaterThan(order[i - 1]);
+    }
+  });
+
+  it("locked profile in IA skeleton: still hides companyName, website, whatsapp, exact counts", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    const body = document.body.textContent ?? "";
+    expect(body).not.toContain(supplier.companyName);
+    if (supplier.website) expect(body).not.toContain(supplier.website);
+    if (supplier.whatsapp) expect(body).not.toContain(supplier.whatsapp);
+    expect(body).not.toContain(`${supplier.totalProductsCount} products`);
+    expect(body).not.toContain(`${supplier.deliveryCountriesTotal} markets`);
+  });
+
+  it("qualified profile in IA skeleton: shows allowed identity and contact channels", () => {
+    seedQualifiedSession();
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(screen.getAllByText(supplier.companyName).length).toBeGreaterThan(0);
+    if (supplier.website) {
+      expect(screen.getByRole("link", { name: /website/i })).toBeInTheDocument();
+    }
+  });
+
+  it("no invalid interactive nesting: button button = 0 and a button = 0", () => {
+    renderAt(`/suppliers/${supplier.id}`);
+    expect(document.querySelectorAll("button button").length).toBe(0);
+    expect(document.querySelectorAll("a button").length).toBe(0);
   });
 });
