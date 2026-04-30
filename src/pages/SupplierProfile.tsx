@@ -1324,7 +1324,7 @@ const SupplierProfile = () => {
                               {interpolate(t[c.titleKey] as string, { product: c.product })}
                             </h3>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {t[c.dateKey] as string} ·{" "}
+                              {formatMonthYear(lang as AppLang, c.dateISO)} ·{" "}
                               {t[c.destinationKey] as string} ·{" "}
                               {t[c.buyerTypeKey] as string}
                             </p>
@@ -1338,7 +1338,7 @@ const SupplierProfile = () => {
                           <FactCell label={t.supplier_cases_factProduct} value={c.product} />
                           <FactCell
                             label={t.supplier_cases_factVolume}
-                            value={interpolate(t.supplier_cases_volumeTons, { n: c.volumeTons })}
+                            value={formatTons(lang as AppLang, c.volumeTons)}
                           />
                           <FactCell label={t.supplier_cases_factBasis} value={c.incoterm} />
                         </dl>
