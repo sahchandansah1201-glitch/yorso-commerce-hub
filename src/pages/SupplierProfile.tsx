@@ -714,7 +714,7 @@ const SupplierProfile = () => {
                 </p>
               </div>
 
-              <div className="flex shrink-0 md:mt-16 md:justify-end">
+              <div className="flex shrink-0 md:mt-[70px] md:justify-end">
                 <Button
                   type="button"
                   variant="outline"
