@@ -120,6 +120,67 @@ const CertificationsBlock = ({
 
 /** Карточка «Основания надёжности». estimate-метки обязательны. */
 /** Юридические реквизиты компании — для верификации контрагента. */
+/** Инициалы компании для fallback-логотипа. Берём первые буквы 1-2 слов. */
+const getCompanyInitials = (name: string): string => {
+  const words = name
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((w) => !/^(as|asa|sa|sl|gmbh|ltd|llc|co|inc|bv|ehf|ab|aps|srl|sarl|pvt|sac|sas|ooo)$/i.test(w));
+  if (words.length === 0) return name.slice(0, 2).toUpperCase();
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+};
+
+/**
+ * Карточка-логотип поставщика.
+ * Рендерит реальный logoImage если задан, иначе — монограмму на брендовом фоне.
+ */
+const SupplierLogoCard = ({
+  supplier,
+  size = 80,
+  className = "",
+}: {
+  supplier: MockSupplier;
+  size?: 28 | 40 | 80;
+  className?: string;
+}) => {
+  const initials = getCompanyInitials(supplier.companyName);
+  const dim = `${size}px`;
+  const radius = size >= 80 ? "rounded-xl" : size >= 40 ? "rounded-lg" : "rounded-md";
+  const textSize =
+    size >= 80 ? "text-2xl" : size >= 40 ? "text-sm" : "text-[11px]";
+  const ring =
+    size >= 80
+      ? "ring-4 ring-background shadow-lg"
+      : "ring-2 ring-background shadow-sm";
+
+  return (
+    <div
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${className}`}
+      style={{ width: dim, height: dim }}
+      aria-label={`Логотип ${supplier.companyName}`}
+    >
+      {supplier.logoImage ? (
+        <img
+          src={supplier.logoImage}
+          alt={`${supplier.companyName} logo`}
+          className="h-full w-full object-contain p-1"
+          loading="lazy"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80">
+          <span
+            className={`font-heading font-bold tracking-tight text-primary-foreground ${textSize}`}
+          >
+            {initials}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const legal = getSupplierLegalDetails(supplier);
   const founded = formatFoundedDate(legal.foundedDate);
