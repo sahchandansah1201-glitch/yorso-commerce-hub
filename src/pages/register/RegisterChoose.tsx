@@ -1,15 +1,40 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegistration } from "@/contexts/RegistrationContext";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import TrustMicroText from "@/components/registration/TrustMicroText";
 import { Building2, ShoppingCart } from "lucide-react";
 import analytics from "@/lib/analytics";
+import {
+  readPreviewAttribution,
+  clearPreviewAttribution,
+} from "@/lib/preview-attribution";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 const RegisterChoose = () => {
   const navigate = useNavigate();
   const { setField } = useRegistration();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const attr = readPreviewAttribution();
+    if (attr) {
+      analytics.track("registration_start", {
+        source: "supplier_preview",
+        supplier_id: attr.supplier_id,
+        species: attr.species,
+        form: attr.form,
+        href: attr.href,
+        access_level: attr.access_level,
+      });
+      // Clear so we don't double-attribute on a later visit.
+      clearPreviewAttribution();
+    } else {
+      analytics.track("registration_start", { source: "direct" });
+    }
+    // Run once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const roleCards = [
     {
