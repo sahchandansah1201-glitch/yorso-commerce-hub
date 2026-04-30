@@ -248,10 +248,10 @@ const Offers = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-background">
+    <div className="flex min-h-screen flex-col overflow-x-clip bg-background">
       <Header />
 
-      <main className="container overflow-x-clip py-6 md:py-8 pb-32">
+      <main className="container flex-1 overflow-x-clip py-6 md:py-8 pb-32">
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}
