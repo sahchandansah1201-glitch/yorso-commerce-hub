@@ -3145,6 +3145,7 @@ const ru: TranslationKeys = {
   supplier_seo_titleSuffix: "Поставщик",
   supplier_seo_descriptionFallback: "{company} — проверенный поставщик морепродуктов из {country} на B2B-маркетплейсе YORSO.",
   supplier_seo_orgDescription: "{company} — {type} из {country}. Проверенный B2B-поставщик морепродуктов на YORSO.",
+  supplier_seo_itemListName: "{company} — каталог продукции",
   supplier_logo_aria: "Логотип {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} на рынке",
