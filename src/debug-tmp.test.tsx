@@ -26,7 +26,10 @@ describe("debug", () => {
     // Find lines with 't' suffix patterns near digits
     const matches = text.match(/.{0,20}\d[^a-zA-Zа-я]{0,8}t[^a-zA-Z].{0,10}/g);
     console.log("MATCHES:", matches);
-    console.log("HAS_VOLUME:", text.includes("Volume"));
+    console.log("HAS_BATCH:", text.includes("Batch"));
     console.log("HAS_DOTS:", text.includes("•"));
-  });
+    console.log("DOTS_COUNT:", (text.match(/•/g) || []).length);
+    // dump segments around 'Batch'
+    const idx = text.indexOf("Batch");
+    console.log("BATCH_CTX:", text.slice(idx, idx + 100));
 });
