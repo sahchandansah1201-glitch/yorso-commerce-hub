@@ -145,6 +145,7 @@ describe("SupplierProfile · e2e переключение языка и форм
 
     it("ru: каждое значение тонн использует именно кириллическое 'т' как unit", () => {
       renderApp("ru");
+      activateCasesTab("ru");
       const ru = collectTonStrings("т");
       expect(ru.length).toBeGreaterThan(0);
       for (const s of ru) {
