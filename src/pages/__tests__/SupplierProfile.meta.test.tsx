@@ -19,7 +19,6 @@ import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import type { Language } from "@/i18n/translations";
-import type { Language } from "@/i18n/translations";
 
 const SUPPLIER_ID = "sup-no-001";
 
