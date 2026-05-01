@@ -84,15 +84,18 @@ const renderApp = (initialLang: Language) => {
 };
 
 /**
- * Кейсы (TabsContent value="cases") по умолчанию не в DOM —
- * Radix Tabs рендерит только активный таб. Чтобы протестировать
- * рендер volumeTons в case-карточках, программно активируем таб.
- * Текст таба локализован — берём его из текущих переводов.
+ * (Историческая заметка.) В реальном UI cases — это TabsContent,
+ * который Radix монтирует только при активной вкладке. В этом тесте
+ * мы мокаем `@/components/ui/tabs` так, что весь TabsContent
+ * монтируется сразу — поэтому отдельного шага "активировать таб" не
+ * требуется. Всё, что выводит SupplierProfile в TabsContent="cases",
+ * сразу попадает в DOM и доступно для проверок ниже.
  */
-const activateCasesTab = (lang: Language) => {
-  const label = translations[lang].supplier_tab_cases;
-  const trigger = screen.getByRole("tab", { name: label });
-  fireEvent.click(trigger);
+const activateCasesTab = (_lang: Language): void => {
+  // no-op в текущем моке Tabs; оставлено для читаемости тест-сценария.
+  void _lang;
+  void translations;
+  void fireEvent;
 };
 
 /**
