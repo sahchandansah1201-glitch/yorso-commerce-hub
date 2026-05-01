@@ -29,6 +29,7 @@ const renderWithLang = (lang: Language, supplierId = SUPPLIER_ID) => {
   // Сброс <head> между тестами — иначе предыдущие meta/JSON-LD протекают.
   document.head.querySelectorAll('script[id^="org-jsonld-"]').forEach((s) => s.remove());
   document.head.querySelectorAll('script[id^="faq-jsonld-"]').forEach((s) => s.remove());
+  document.head.querySelectorAll('script[id^="itemlist-jsonld-"]').forEach((s) => s.remove());
 
   return render(
     <MemoryRouter initialEntries={[`/suppliers/${supplierId}`]}>
@@ -43,11 +44,21 @@ const renderWithLang = (lang: Language, supplierId = SUPPLIER_ID) => {
   );
 };
 
-const getOrgJsonLd = (supplierId = SUPPLIER_ID) => {
-  const el = document.getElementById(`org-jsonld-${supplierId}`);
-  expect(el, "Organization JSON-LD должен быть в <head>").not.toBeNull();
+const getJsonLdById = (id: string, label: string) => {
+  const el = document.getElementById(id);
+  expect(el, `${label} JSON-LD должен быть в <head>`).not.toBeNull();
+  expect(el!.getAttribute("type")).toBe("application/ld+json");
   return JSON.parse(el!.textContent ?? "{}");
 };
+
+const getOrgJsonLd = (supplierId = SUPPLIER_ID) =>
+  getJsonLdById(`org-jsonld-${supplierId}`, "Organization");
+
+const getFaqJsonLd = (supplierId = SUPPLIER_ID) =>
+  getJsonLdById(`faq-jsonld-${supplierId}`, "FAQPage");
+
+const getItemListJsonLd = (supplierId = SUPPLIER_ID) =>
+  getJsonLdById(`itemlist-jsonld-${supplierId}`, "ItemList");
 
 describe("SupplierProfile · локализация RU/ES/EN", () => {
   beforeEach(() => {
