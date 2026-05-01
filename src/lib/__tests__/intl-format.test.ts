@@ -142,3 +142,103 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
     },
   );
 });
+
+describe("formatTons · BCP47-теги локалей и группировка тысяч", () => {
+  // Эти тесты проверяют, что AppLang ('en'|'ru'|'es') корректно мапится
+  // на BCP47-теги en-US / ru-RU / es-ES и что выходная строка
+  // использует именно те разделители тысяч, которые ICU выдаёт для
+  // этих тегов. Тесты идут БЕЗ моков Intl — это «реальное» окружение.
+  //
+  // Важно: в Node/jsdom Intl.NumberFormat({ unit: 'metric-ton' })
+  // бросает RangeError, поэтому formatTons автоматически идёт через
+  // фолбек (formatNumber + локализованный суффикс). Это даёт нам
+  // детерминированные строки для assert'ов в этих средах.
+  // Если когда-то ICU начнёт поддерживать 'metric-ton' нативно —
+  // часть жёстких equals можно будет ослабить до regex.
+
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it("en → en-US: запятая как разделитель тысяч", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", 12000)).toBe("12,000\u00A0t");
+    expect(formatTons("en", 1234567)).toBe("1,234,567\u00A0t");
+  });
+
+  it("ru → ru-RU: пробел (NBSP/обычный) как разделитель тысяч", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    const out12k = formatTons("ru", 12000);
+    const out1_2m = formatTons("ru", 1234567);
+    // ICU для ru-RU использует пробел (в разных версиях это
+    // U+0020 / U+00A0 / U+202F тонкий пробел) — допускаем любой.
+    expect(out12k).toMatch(/^12[\u0020\u00A0\u202F]000\u00A0т$/);
+    expect(out1_2m).toMatch(/^1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/);
+  });
+
+  it("es → es-ES: точка как разделитель тысяч (для чисел ≥ 10 000)", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    // ICU для es-ES не группирует 4-значные числа (1234 → "1234"),
+    // зато группирует от 5 цифр (12000 → "12.000").
+    expect(formatTons("es", 12000)).toBe("12.000\u00A0t");
+    expect(formatTons("es", 1234567)).toBe("1.234.567\u00A0t");
+  });
+
+  it("малые числа (< 1000) не получают группировки ни в одной локали", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", 5)).toBe("5\u00A0t");
+    expect(formatTons("ru", 5)).toBe("5\u00A0т");
+    expect(formatTons("es", 5)).toBe("5\u00A0t");
+    expect(formatTons("en", 999)).toBe("999\u00A0t");
+    expect(formatTons("ru", 999)).toBe("999\u00A0т");
+    expect(formatTons("es", 999)).toBe("999\u00A0t");
+  });
+
+  it("ноль форматируется без группировки и со стабильным суффиксом", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", 0)).toBe("0\u00A0t");
+    expect(formatTons("ru", 0)).toBe("0\u00A0т");
+    expect(formatTons("es", 0)).toBe("0\u00A0t");
+  });
+
+  it("отрицательные числа сохраняют локаль-специфичный знак минуса", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    // Все три локали используют ASCII «-» для коротких чисел.
+    expect(formatTons("en", -20)).toBe("-20\u00A0t");
+    expect(formatTons("ru", -20)).toBe("-20\u00A0т");
+    expect(formatTons("es", -20)).toBe("-20\u00A0t");
+  });
+
+  it("группировка крупных чисел совпадает с эталонным Intl(<tag>) тех же локалей", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    const cases: Array<{ lang: AppLang; tag: string }> = [
+      { lang: "en", tag: "en-US" },
+      { lang: "ru", tag: "ru-RU" },
+      { lang: "es", tag: "es-ES" },
+    ];
+    for (const { lang, tag } of cases) {
+      const expectedNumber = new Intl.NumberFormat(tag).format(1234567);
+      // Извлекаем числовую часть formatTons (всё до последнего NBSP).
+      const out = formatTons(lang, 1234567);
+      const numericPart = out.slice(0, out.lastIndexOf("\u00A0"));
+      expect(numericPart).toBe(expectedNumber);
+    }
+  });
+
+  it("разделители тысяч различаются между en/ru/es для одного и того же числа", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    const en = formatTons("en", 12000); // "12,000 t"
+    const ru = formatTons("ru", 12000); // "12 000 т"
+    const es = formatTons("es", 12000); // "12.000 t"
+    // Разделитель = третий символ ("12X000…").
+    const sepEn = en[2];
+    const sepRu = ru[2];
+    const sepEs = es[2];
+    expect(sepEn).toBe(",");
+    expect(sepEs).toBe(".");
+    expect([" ", "\u00A0", "\u202F"]).toContain(sepRu);
+    // Все три разделителя — разные.
+    expect(new Set([sepEn, sepRu, sepEs]).size).toBe(3);
+  });
+});
+
