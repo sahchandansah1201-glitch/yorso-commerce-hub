@@ -419,10 +419,10 @@ describe("formatTons · граничные значения (0, отрицате
     const { formatTons } = await import("@/lib/intl-format");
     // EN/ES — десятичный разделитель «.»/«,», но в любом случае
     // дробная часть должна остаться, и суффикс — в конце.
-    expect(formatTons("en", 20.7)).toBe("20.7\u00A0t");
-    expect(formatTons("es", 20.7)).toBe("20,7\u00A0t");
+    expect(formatTons("en", 20.7)).toMatch(tonsRegexFraction("en", "20", "7"));
+    expect(formatTons("es", 20.7)).toMatch(tonsRegexFraction("es", "20", "7"));
     // RU использует «,» как десятичный разделитель.
-    expect(formatTons("ru", 20.7)).toBe("20,7\u00A0т");
+    expect(formatTons("ru", 20.7)).toMatch(tonsRegexFraction("ru", "20", "7"));
   });
 
   it("дробное число не нарушает суффикс ни в одной локали", async () => {
