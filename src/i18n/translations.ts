@@ -3186,6 +3186,7 @@ const ru: TranslationKeys = {
   supplier_locked_anonCtaButton: "Создать аккаунт покупателя",
   supplier_locked_legalHidden: "Юридические реквизиты откроются после доступа к цене",
   supplier_locked_offersCountHidden: "Количество активных предложений откроется после доступа к цене",
+  supplier_locked_passportHint: "Доступно после открытия цены",
   supplier_type_producer: "Производитель",
   supplier_type_processor: "Переработчик",
   supplier_type_exporter: "Экспортёр",
