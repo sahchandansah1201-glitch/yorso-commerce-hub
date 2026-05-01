@@ -34,7 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, countryCodeToFlag, type MockSupplier } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
-import { mockOffers } from "@/data/mockOffers";
+import { getOffersForSupplier } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
@@ -54,6 +54,16 @@ import {
 } from "@/lib/supplier-content";
 import { interpolate, pluralize, formatLocalizedDate } from "@/lib/supplier-i18n";
 import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/intl-format";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
+import {
+  getSupplierAccessRequest,
+  type SupplierAccessRequest,
+} from "@/lib/supplier-access-requests";
+import {
+  SupplierAccessRequestPanel,
+  SupplierAccessRequestSent,
+} from "@/components/suppliers/SupplierAccessRequestPanel";
+import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -190,13 +200,18 @@ const SupplierLogoCard = ({
   size = 80,
   className = "",
   priority = "lazy",
+  displayName,
+  showLogoImage = true,
 }: {
   supplier: MockSupplier;
   size?: 28 | 40 | 80 | 86;
   className?: string;
   priority?: "hero" | "mini" | "lazy";
+  displayName?: string;
+  showLogoImage?: boolean;
 }) => {
-  const initials = getCompanyInitials(supplier.companyName);
+  const nameForLabel = displayName ?? supplier.companyName;
+  const initials = getCompanyInitials(nameForLabel);
   // Hero — 80→86px. Mini — 28→32px (sticky-хедер). Плавный переход на md.
   const isHero = priority === "hero";
   const isMini = priority === "mini";
@@ -226,25 +241,15 @@ const SupplierLogoCard = ({
         : "ring-2 ring-background shadow-sm";
 
   const status = useLogoStatus(supplier.logoImage);
-  const showImage = !!supplier.logoImage && status !== "error";
+  const showImage = showLogoImage && !!supplier.logoImage && status !== "error";
   const showSkeleton = showImage && status !== "loaded";
 
-  // Адаптивные размеры:
-  //  - hero: 80 → md:86 (площадь +15%)
-  //  - mini: 28 → md:32 (sticky-хедер, читается рядом со Smart-link)
-  // Скелетон растягивается inset-0 синхронно с родителем,
-  // поэтому смена брейкпоинта не вызывает «дёрганья».
   const sizeClasses = isHero
     ? "h-20 w-20 md:h-[86px] md:w-[86px] transition-[width,height,box-shadow] duration-300 ease-out [will-change:width,height]"
     : isMini
       ? "h-7 w-7 md:h-8 md:w-8 transition-[width,height] duration-200 ease-out"
       : "";
 
-  // Reduced motion: жёстко отключаем ВСЕ transitions/animations внутри
-  // карточки одним каскадным правилом — включая box-shadow (ring),
-  // opacity на <img> (fade-in после loaded) и pulse скелетона.
-  // Без этого reduced-motion-пользователь мог увидеть частичные эффекты
-  // (текст/ring без анимации, но image fade-in остался).
   const motionReduceLockdown =
     "motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:![animation-duration:0ms] motion-reduce:!transition-none motion-reduce:![animation-duration:0ms]";
 
@@ -256,22 +261,19 @@ const SupplierLogoCard = ({
     <div
       className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${motionReduceLockdown} ${className}`}
       style={sizeStyle}
-      aria-label={`Логотип ${supplier.companyName}`}
+      aria-label={`Логотип ${nameForLabel}`}
     >
       {showImage ? (
         <>
           {showSkeleton && (
             <Skeleton
               aria-hidden
-              // transition-none — скелетон сам не анимирует свои размеры,
-              // он просто растягивается inset-0 вместе с родителем, поэтому
-              // pulse не «дёргается» во время resize/rotate-перехода.
               className="absolute inset-0 h-full w-full rounded-none transition-none"
             />
           )}
           <img
             src={supplier.logoImage}
-            alt={`${supplier.companyName} logo`}
+            alt={`${nameForLabel} logo`}
             className={`h-full w-full object-contain p-1 transition-opacity duration-200 ${
               status === "loaded" ? "opacity-100" : "opacity-0"
             }`}
@@ -374,7 +376,13 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   );
 };
 
-const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+const TrustFactsBlock = ({
+  supplier,
+  unlocked = true,
+}: {
+  supplier: MockSupplier;
+  unlocked?: boolean;
+}) => {
   const { t, lang } = useLanguage();
 
   const responseLabel =
@@ -394,10 +402,17 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
+  // Exact active offer count is identity-adjacent (helps fingerprint a
+  // supplier in a small market). Hide the precise number until access is
+  // approved; show a coarse "available after price access" placeholder.
+  const offersValue = unlocked
+    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
+    : t.supplier_locked_offersCountHidden;
+
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
     { label: t.supplier_trust_type, value: typeValue },
     { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
-    { label: t.supplier_trust_activeOffers, value: formatNumber(lang as AppLang, supplier.activeOffersCount) },
+    { label: t.supplier_trust_activeOffers, value: offersValue },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
@@ -483,12 +498,57 @@ const SupplierProfile = () => {
     [baseSupplier, lang],
   );
 
+
+  // ---- Access gating ----
+  // Pull the global access level (anonymous / registered / qualified) and
+  // check whether THIS supplier has an approved access request. The profile
+  // unlocks for either condition; legacy global qualification keeps working,
+  // and a per-supplier mock approval grants access without a global flag.
+  const { level: globalLevel } = useAccessLevel();
+  // Process pending mock approvals as soon as the profile mounts so that a
+  // returning visitor sees the approved state immediately (the global
+  // SupplierApprovalNotifier also runs, but it polls every 2s — running it
+  // here removes the visible flash on first paint).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    processSupplierAccessRequests();
+  }, [supplierId]);
+  const [accessRequest, setAccessRequest] = useState<SupplierAccessRequest | null>(
+    () => (supplierId ? getSupplierAccessRequest(supplierId) : null),
+  );
+  // Refresh request state when the supplier changes or storage emits.
+  useEffect(() => {
+    if (!supplierId) return;
+    setAccessRequest(getSupplierAccessRequest(supplierId));
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes("supplier_access_requests")) {
+        setAccessRequest(getSupplierAccessRequest(supplierId));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [supplierId]);
+  const effectiveAccess: AccessLevel =
+    accessRequest?.status === "approved"
+      ? "qualified_unlocked"
+      : globalLevel;
+  const isUnlocked = effectiveAccess === "qualified_unlocked";
+  const isAnonymous = effectiveAccess === "anonymous_locked";
+  const isRegisteredLocked = effectiveAccess === "registered_locked";
+  // The single string used everywhere the profile would show identity.
+  const displayName = isUnlocked
+    ? supplier?.companyName ?? ""
+    : supplier?.maskedName ?? "";
+
+  // Catalog: use origin/species mapping instead of index slicing so the
+  // profile of e.g. Nordfjord Sjømat AS never shows offers belonging to
+  // other suppliers. Always lookup against the EN baseline so origin/species
+  // strings match the offer data (which is EN-only).
   const supplierOffers = useMemo(() => {
-    if (!supplier) return [];
-    const idx = mockSuppliers.findIndex((s) => s.id === supplier.id);
-    const start = (idx * 2) % Math.max(mockOffers.length - 2, 1);
-    return mockOffers.slice(start, start + 2);
-  }, [supplier]);
+    if (!baseSupplier) return [];
+    const species = baseSupplier.productFocus.map((p) => p.species);
+    return getOffersForSupplier(baseSupplier.country, species, 4);
+  }, [baseSupplier]);
 
   const production = useMemo(() => (supplier ? buildProductionFacts(supplier) : null), [supplier]);
   const logistics = useMemo(() => (supplier ? buildLogisticsFacts(supplier) : null), [supplier]);
@@ -542,27 +602,26 @@ const SupplierProfile = () => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
     const suffix = t.supplier_seo_titleSuffix;
-    const pageTitle = `${supplier.companyName} — ${suffix} · YORSO`;
+    // Page title MUST NOT leak the supplier's real legal name when the
+    // visitor has not been granted access. Use the masked label instead.
+    const titleName = isUnlocked ? supplier.companyName : supplier.maskedName;
+    const pageTitle = `${titleName} — ${suffix} · YORSO`;
     document.title = pageTitle;
-    // На первом монтировании родительский LanguageProvider запускает свой
-    // useEffect ПОСЛЕ нашего (эффекты выполняются bottom-up) и затирает
-    // page-title дефолтным «site title». Чтобы наш SEO-тайтл всё-таки
-    // оказался в DOM, переустанавливаем его в следующий microtask —
-    // когда вся цепочка mount-эффектов уже отработала.
     queueMicrotask(() => {
       if (document.title !== pageTitle) document.title = pageTitle;
     });
+    // Description: same gating. shortDescription is intentionally a safe
+    // preview (no legal/contact details) so it stays on for all states.
     const description =
       supplier.shortDescription ||
       interpolate(t.supplier_seo_descriptionFallback, {
-        company: supplier.companyName,
+        company: titleName,
         country: supplier.country,
       });
     upsertMeta('meta[name="description"]', {
       name: "description",
       content: description,
     });
-    // og:locale для соцсетей
     const ogLocaleMap: Record<string, string> = {
       en: "en_US",
       ru: "ru_RU",
@@ -572,18 +631,21 @@ const SupplierProfile = () => {
       property: "og:locale",
       content: ogLocaleMap[lang] ?? "en_US",
     });
-    // <html lang="..."> для корректной индексации
     if (document.documentElement) {
       document.documentElement.lang = lang;
     }
     return () => {
       document.title = prev;
     };
-  }, [supplier, t, lang]);
+  }, [supplier, t, lang, isUnlocked]);
 
   // Organization + FAQPage JSON-LD для SEO (локализованные)
   useEffect(() => {
     if (!supplier || typeof document === "undefined") return;
+
+    // Identity gating mirrors the visible UI: locked states must not leak
+    // the supplier's real legal name into structured data.
+    const orgName = isUnlocked ? supplier.companyName : supplier.maskedName;
 
     // Organization
     const orgId = `org-jsonld-${supplier.id}`;
@@ -599,11 +661,11 @@ const SupplierProfile = () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": `${window.location.origin}/suppliers/${supplier.id}`,
-      name: supplier.companyName,
+      name: orgName,
       url: `${window.location.origin}/suppliers/${supplier.id}`,
-      logo: supplier.logoImage,
+      ...(isUnlocked && supplier.logoImage ? { logo: supplier.logoImage } : {}),
       description: interpolate(t.supplier_seo_orgDescription, {
-        company: supplier.companyName,
+        company: orgName,
         type: typeLabel,
         country: supplier.country,
       }),
@@ -642,13 +704,13 @@ const SupplierProfile = () => {
       });
     }
 
-    // ItemList — превью каталога продуктов поставщика (локализованное).
-    // Помогает поисковикам распознать страницу как каталог Organization'а
-    // и сразу видеть основные продукты на нужном языке.
+    // ItemList — каталог продуктов. Эмитим только когда профиль разблокирован,
+    // чтобы не привязывать имена продуктов к реальному названию компании
+    // через brand.name в структурированных данных.
     const listId = `itemlist-jsonld-${supplier.id}`;
     let listScript: HTMLScriptElement | null = null;
     const previewItems = supplier.productCatalogPreview ?? [];
-    if (previewItems.length > 0) {
+    if (isUnlocked && previewItems.length > 0) {
       listScript = document.getElementById(listId) as HTMLScriptElement | null;
       if (!listScript) {
         listScript = document.createElement("script");
@@ -663,7 +725,7 @@ const SupplierProfile = () => {
         "@id": `${supplierUrl}#catalog`,
         inLanguage: lang,
         name: interpolate(t.supplier_seo_itemListName, {
-          company: supplier.companyName,
+          company: orgName,
         }),
         numberOfItems: previewItems.length,
         itemListElement: previewItems.map((item, idx) => ({
@@ -676,11 +738,16 @@ const SupplierProfile = () => {
             ...(item.image ? { image: item.image } : {}),
             brand: {
               "@type": "Organization",
-              name: supplier.companyName,
+              name: orgName,
             },
           },
         })),
       });
+    } else {
+      // Если ранее (в unlocked-сессии) ItemList был отрисован, удалим его,
+      // чтобы при downgrade access он не оставался в <head>.
+      const existing = document.getElementById(listId);
+      if (existing) existing.remove();
     }
 
     return () => {
@@ -688,7 +755,7 @@ const SupplierProfile = () => {
       faqScript?.remove();
       listScript?.remove();
     };
-  }, [supplier, faqItems, t, lang]);
+  }, [supplier, faqItems, t, lang, isUnlocked]);
 
   if (!supplier) {
     return (
@@ -756,7 +823,7 @@ const SupplierProfile = () => {
                 {t.supplier_breadcrumb_suppliers}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
-              <span className="font-medium text-foreground">{supplier.companyName}</span>
+              <span className="font-medium text-foreground" data-testid="supplier-breadcrumb-name">{displayName}</span>
             </nav>
           </div>
         </div>
@@ -777,10 +844,19 @@ const SupplierProfile = () => {
           <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard supplier={supplier} size={86} priority="hero" />
+                <SupplierLogoCard
+                  supplier={supplier}
+                  size={86}
+                  priority="hero"
+                  displayName={displayName}
+                  showLogoImage={isUnlocked}
+                />
 
-                <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  {supplier.companyName}
+                <h1
+                  className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
+                  data-testid="supplier-display-name"
+                >
+                  {displayName}
                 </h1>
 
                 <p className="mt-2 text-sm text-foreground/80">
@@ -797,9 +873,12 @@ const SupplierProfile = () => {
                         many: t.supplier_yearsOnMarket_pluralMany,
                       }),
                     });
-                    const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
-                    });
+                    // Hide exact active-offer count for locked states.
+                    const offersStr = isUnlocked
+                      ? interpolate(t.supplier_activeOffers, {
+                          n: formatNumber(lang as AppLang, supplier.activeOffersCount),
+                        })
+                      : t.supplier_locked_offersCountHidden;
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
                       years: yearsStr,
@@ -807,6 +886,11 @@ const SupplierProfile = () => {
                     });
                   })()}
                 </p>
+                {!isUnlocked && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t.supplier_locked_identityHint}
+                  </p>
+                )}
               </div>
 
               <div className="flex shrink-0 md:mt-[70px] md:justify-end">
@@ -841,7 +925,7 @@ const SupplierProfile = () => {
                     <span aria-hidden>{countryCodeToFlag(supplier.countryCode)}</span>
                   </span>
                 </li>
-                {supplier.website && (
+                {isUnlocked && supplier.website && (
                   <li className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" aria-hidden />
                     <a
@@ -860,39 +944,80 @@ const SupplierProfile = () => {
                 {supplier.shortDescription}
               </p>
 
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Button
-                  type="button"
-                  size="lg"
-                  className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={() =>
-                    toast({
-                      title: t.supplier_sendMessage_toast_title,
-                      description: t.supplier_sendMessage_toast_desc,
-                    })
-                  }
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  {t.supplier_sendMessage}
-                </Button>
-                {supplier.whatsapp && (
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="outline"
-                    className="gap-2 border-primary text-primary hover:bg-primary/5"
-                    asChild
-                  >
-                    <a
-                      href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+              {/* Access-aware CTA block. Locked states never expose direct
+                  contact actions; they only offer the registration / access
+                  request path documented in mockSuppliers.ts. */}
+              <div className="mt-5 flex flex-wrap gap-3" data-testid="supplier-cta-block">
+                {isUnlocked ? (
+                  <>
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() =>
+                        toast({
+                          title: t.supplier_sendMessage_toast_title,
+                          description: t.supplier_sendMessage_toast_desc,
+                        })
+                      }
                     >
-                      <WhatsAppIcon className="h-4 w-4" />
-                      WhatsApp
-                    </a>
-                  </Button>
-                )}
+                      <MessageCircle className="h-4 w-4" />
+                      {t.supplier_sendMessage}
+                    </Button>
+                    {supplier.whatsapp && (
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="gap-2 border-primary text-primary hover:bg-primary/5"
+                        asChild
+                      >
+                        <a
+                          href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <WhatsAppIcon className="h-4 w-4" />
+                          WhatsApp
+                        </a>
+                      </Button>
+                    )}
+                  </>
+                ) : isAnonymous ? (
+                  <div
+                    className="w-full max-w-md space-y-3 rounded-md border border-border bg-background p-4"
+                    data-testid="supplier-anon-cta"
+                  >
+                    <div>
+                      <h3 className="font-heading text-sm font-semibold text-foreground">
+                        {t.supplier_locked_anonCtaTitle}
+                      </h3>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t.supplier_locked_anonCtaBody}
+                      </p>
+                    </div>
+                    <Button asChild size="lg" className="w-full">
+                      <Link to="/register">
+                        {t.supplier_locked_anonCtaButton}
+                      </Link>
+                    </Button>
+                  </div>
+                ) : isRegisteredLocked && supplier ? (
+                  <div className="w-full max-w-md">
+                    {accessRequest ? (
+                      <SupplierAccessRequestSent
+                        request={accessRequest}
+                        supplierMaskedName={supplier.maskedName}
+                      />
+                    ) : (
+                      <SupplierAccessRequestPanel
+                        supplierId={supplier.id}
+                        supplierMaskedName={supplier.maskedName}
+                        onSent={(saved) => setAccessRequest(saved)}
+                      />
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
             <div ref={heroSentinelRef} aria-hidden className="h-px w-full" />
@@ -910,10 +1035,16 @@ const SupplierProfile = () => {
         >
           <div className="container flex items-center justify-between gap-4 py-2.5">
             <div className="flex min-w-0 items-center gap-2.5">
-              <SupplierLogoCard supplier={supplier} size={28} priority="mini" />
+              <SupplierLogoCard
+                supplier={supplier}
+                size={28}
+                priority="mini"
+                displayName={displayName}
+                showLogoImage={isUnlocked}
+              />
               <div className="min-w-0">
                 <p className="truncate font-heading text-sm font-semibold text-foreground">
-                  {supplier.companyName}
+                  {displayName}
                 </p>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {countryCodeToFlag(supplier.countryCode)} {supplier.country} ·{" "}
@@ -965,7 +1096,7 @@ const SupplierProfile = () => {
                         {t.supplier_about_company}
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-                        {supplier.about}
+                        {isUnlocked ? supplier.about : t.supplier_locked_aboutPlaceholder}
                       </p>
                     </div>
 
@@ -990,7 +1121,24 @@ const SupplierProfile = () => {
                   </div>
 
                   <aside className="space-y-6">
-                    <LegalDetailsBlock supplier={supplier} />
+                    {isUnlocked ? (
+                      <LegalDetailsBlock supplier={supplier} />
+                    ) : (
+                      <div
+                        className="rounded-xl border border-border bg-card p-6"
+                        data-testid="supplier-legal-locked"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileBadge className="h-4 w-4 text-primary" aria-hidden />
+                          <h3 className="font-heading text-base font-semibold text-foreground">
+                            {t.supplier_legal_title}
+                          </h3>
+                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {t.supplier_locked_legalHidden}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="rounded-xl border border-border bg-card p-6">
                       <div className="flex items-center gap-2">
@@ -1000,7 +1148,7 @@ const SupplierProfile = () => {
                         </h3>
                       </div>
                       <div className="mt-3">
-                        <TrustFactsBlock supplier={supplier} />
+                        <TrustFactsBlock supplier={supplier} unlocked={isUnlocked} />
                       </div>
                     </div>
 
@@ -1057,7 +1205,7 @@ const SupplierProfile = () => {
                         </h3>
                       </div>
                       <div className="mt-3">
-                        <TrustFactsBlock supplier={supplier} />
+                        <TrustFactsBlock supplier={supplier} unlocked={isUnlocked} />
                       </div>
                     </div>
 
@@ -1173,9 +1321,13 @@ const SupplierProfile = () => {
                               />
                               <FactCell
                                 label={t.supplier_passport_production_catalog}
-                                value={interpolate(t.supplier_passport_production_catalogValue, {
-                                  n: supplier.totalProductsCount,
-                                })}
+                                value={
+                                  isUnlocked
+                                    ? interpolate(t.supplier_passport_production_catalogValue, {
+                                        n: supplier.totalProductsCount,
+                                      })
+                                    : t.supplier_locked_offersCountHidden
+                                }
                               />
                             </dl>
                           </div>

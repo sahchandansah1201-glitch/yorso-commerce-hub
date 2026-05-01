@@ -925,6 +925,14 @@ type TranslationKeys = {
   supplier_sendMessage_toast_title: string;
   supplier_sendMessage_toast_desc: string;
   supplier_writeToSupplier: string;
+  // Supplier Profile — locked-state previews / access gating
+  supplier_locked_identityHint: string;
+  supplier_locked_aboutPlaceholder: string;
+  supplier_locked_anonCtaTitle: string;
+  supplier_locked_anonCtaBody: string;
+  supplier_locked_anonCtaButton: string;
+  supplier_locked_legalHidden: string;
+  supplier_locked_offersCountHidden: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
@@ -2054,6 +2062,13 @@ const en: TranslationKeys = {
   supplier_sendMessage_toast_title: "Message to supplier",
   supplier_sendMessage_toast_desc: "Request prepared. A manager will contact you.",
   supplier_writeToSupplier: "Message supplier",
+  supplier_locked_identityHint: "Supplier identity unlocks after price access is approved.",
+  supplier_locked_aboutPlaceholder: "Full company description, legal details and contact channels are available after price access is approved.",
+  supplier_locked_anonCtaTitle: "Create a buyer account to request price access",
+  supplier_locked_anonCtaBody: "Registered buyers can request supplier and exact price access in one click.",
+  supplier_locked_anonCtaButton: "Create buyer account",
+  supplier_locked_legalHidden: "Legal details available after price access",
+  supplier_locked_offersCountHidden: "Active offers available after price access",
   supplier_type_producer: "Producer",
   supplier_type_processor: "Processor",
   supplier_type_exporter: "Exporter",
@@ -3162,6 +3177,13 @@ const ru: TranslationKeys = {
   supplier_sendMessage_toast_title: "Сообщение поставщику",
   supplier_sendMessage_toast_desc: "Запрос подготовлен. Менеджер свяжется с вами.",
   supplier_writeToSupplier: "Написать поставщику",
+  supplier_locked_identityHint: "Название поставщика откроется после одобрения доступа к цене.",
+  supplier_locked_aboutPlaceholder: "Полное описание компании, юридические реквизиты и контакты доступны после одобрения доступа к цене.",
+  supplier_locked_anonCtaTitle: "Создайте аккаунт покупателя, чтобы запросить доступ к цене",
+  supplier_locked_anonCtaBody: "Зарегистрированные покупатели запрашивают доступ к поставщику и точной цене в один клик.",
+  supplier_locked_anonCtaButton: "Создать аккаунт покупателя",
+  supplier_locked_legalHidden: "Юридические реквизиты откроются после доступа к цене",
+  supplier_locked_offersCountHidden: "Количество активных предложений откроется после доступа к цене",
   supplier_type_producer: "Производитель",
   supplier_type_processor: "Переработчик",
   supplier_type_exporter: "Экспортёр",
@@ -4270,6 +4292,13 @@ const es: TranslationKeys = {
   supplier_sendMessage_toast_title: "Mensaje al proveedor",
   supplier_sendMessage_toast_desc: "Solicitud preparada. Un gestor te contactará.",
   supplier_writeToSupplier: "Escribir al proveedor",
+  supplier_locked_identityHint: "La identidad del proveedor se revela tras aprobar el acceso al precio.",
+  supplier_locked_aboutPlaceholder: "La descripción completa, los datos legales y los contactos estarán disponibles tras aprobar el acceso al precio.",
+  supplier_locked_anonCtaTitle: "Crea una cuenta de comprador para solicitar acceso al precio",
+  supplier_locked_anonCtaBody: "Los compradores registrados solicitan acceso al proveedor y al precio exacto con un solo clic.",
+  supplier_locked_anonCtaButton: "Crear cuenta de comprador",
+  supplier_locked_legalHidden: "Datos legales disponibles tras el acceso al precio",
+  supplier_locked_offersCountHidden: "Ofertas activas disponibles tras el acceso al precio",
   supplier_type_producer: "Productor",
   supplier_type_processor: "Procesador",
   supplier_type_exporter: "Exportador",
