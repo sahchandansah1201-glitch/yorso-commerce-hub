@@ -907,6 +907,7 @@ type TranslationKeys = {
   supplier_seo_titleSuffix: string; // e.g. "Supplier" / "Поставщик" / "Proveedor"
   supplier_seo_descriptionFallback: string; // {company} {country}
   supplier_seo_orgDescription: string; // {company} — {type} from {country}
+  supplier_seo_itemListName: string; // ItemList (catalog preview) name, {company}
   // Supplier Profile — hero / identity
   supplier_logo_aria: string;
   supplier_identity_subline: string; // {type} · {years} · {offers}
@@ -2036,6 +2037,7 @@ const en: TranslationKeys = {
   supplier_seo_titleSuffix: "Supplier",
   supplier_seo_descriptionFallback: "{company} — verified seafood supplier from {country} on YORSO B2B marketplace.",
   supplier_seo_orgDescription: "{company} — {type} from {country}. Verified B2B seafood supplier on YORSO.",
+  supplier_seo_itemListName: "{company} — product catalog",
   supplier_logo_aria: "{name} logo",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} on the market",
@@ -3143,6 +3145,7 @@ const ru: TranslationKeys = {
   supplier_seo_titleSuffix: "Поставщик",
   supplier_seo_descriptionFallback: "{company} — проверенный поставщик морепродуктов из {country} на B2B-маркетплейсе YORSO.",
   supplier_seo_orgDescription: "{company} — {type} из {country}. Проверенный B2B-поставщик морепродуктов на YORSO.",
+  supplier_seo_itemListName: "{company} — каталог продукции",
   supplier_logo_aria: "Логотип {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} на рынке",
@@ -4250,6 +4253,7 @@ const es: TranslationKeys = {
   supplier_seo_titleSuffix: "Proveedor",
   supplier_seo_descriptionFallback: "{company} — proveedor verificado de productos del mar desde {country} en el marketplace B2B YORSO.",
   supplier_seo_orgDescription: "{company} — {type} de {country}. Proveedor B2B verificado de productos del mar en YORSO.",
+  supplier_seo_itemListName: "{company} — catálogo de productos",
   supplier_logo_aria: "Logotipo de {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} en el mercado",
