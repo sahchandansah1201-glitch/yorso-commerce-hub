@@ -26,6 +26,13 @@ const renderWithLang = (lang: Language, supplierId = SUPPLIER_ID) => {
   cleanup();
   // LanguageProvider читает выбранный язык из localStorage в инициализаторе.
   localStorage.setItem("yorso-lang", lang);
+  // SupplierProfile теперь применяет access gating. Эти i18n-тесты
+  // проверяют ИМЕННО локализацию полностью разблокированного профиля,
+  // поэтому грантим qualified-доступ перед маунтом.
+  sessionStorage.setItem(
+    "yorso_buyer_qualification",
+    JSON.stringify({ companyName: "", approvedAt: new Date().toISOString() }),
+  );
   // Сброс <head> между тестами — иначе предыдущие meta/JSON-LD протекают.
   document.head.querySelectorAll('script[id^="org-jsonld-"]').forEach((s) => s.remove());
   document.head.querySelectorAll('script[id^="faq-jsonld-"]').forEach((s) => s.remove());
