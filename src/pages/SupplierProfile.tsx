@@ -1096,9 +1096,32 @@ const SupplierProfile = () => {
                       <h2 className="font-heading text-lg font-semibold text-foreground">
                         {t.supplier_about_company}
                       </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-                        {isUnlocked ? supplier.about : t.supplier_locked_aboutPlaceholder}
-                      </p>
+                      {isUnlocked ? (
+                        <p className="mt-3 text-sm leading-relaxed text-foreground/80">
+                          {supplier.about}
+                        </p>
+                      ) : (
+                        <div
+                          className="relative mt-3 overflow-hidden rounded-lg"
+                          data-testid="supplier-about-locked"
+                        >
+                          <p
+                            aria-hidden="true"
+                            className="pointer-events-none select-none text-sm leading-relaxed text-foreground/80 blur-[2.5px]"
+                          >
+                            {supplier.about}
+                          </p>
+                          <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
+                            <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
+                              <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
+                              <span className="text-xs font-medium text-foreground">
+                                {t.supplier_locked_aboutPlaceholder}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="sr-only">{t.supplier_locked_aboutPlaceholder}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="rounded-xl border border-border bg-card p-6">
