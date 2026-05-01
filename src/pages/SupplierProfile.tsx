@@ -1121,7 +1121,24 @@ const SupplierProfile = () => {
                   </div>
 
                   <aside className="space-y-6">
-                    <LegalDetailsBlock supplier={supplier} />
+                    {isUnlocked ? (
+                      <LegalDetailsBlock supplier={supplier} />
+                    ) : (
+                      <div
+                        className="rounded-xl border border-border bg-card p-6"
+                        data-testid="supplier-legal-locked"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileBadge className="h-4 w-4 text-primary" aria-hidden />
+                          <h3 className="font-heading text-base font-semibold text-foreground">
+                            {t.supplier_legal_title}
+                          </h3>
+                        </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {t.supplier_locked_legalHidden}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="rounded-xl border border-border bg-card p-6">
                       <div className="flex items-center gap-2">
@@ -1131,7 +1148,7 @@ const SupplierProfile = () => {
                         </h3>
                       </div>
                       <div className="mt-3">
-                        <TrustFactsBlock supplier={supplier} />
+                        <TrustFactsBlock supplier={supplier} unlocked={isUnlocked} />
                       </div>
                     </div>
 
