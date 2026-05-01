@@ -2070,6 +2070,7 @@ const en: TranslationKeys = {
   supplier_locked_anonCtaButton: "Create buyer account",
   supplier_locked_legalHidden: "Legal details available after price access",
   supplier_locked_offersCountHidden: "Active offers available after price access",
+  supplier_locked_passportHint: "Available after price access",
   supplier_type_producer: "Producer",
   supplier_type_processor: "Processor",
   supplier_type_exporter: "Exporter",
