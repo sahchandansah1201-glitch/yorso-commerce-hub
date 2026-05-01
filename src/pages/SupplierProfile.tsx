@@ -902,43 +902,11 @@ const SupplierProfile = () => {
                     const offersStr = interpolate(t.supplier_activeOffers, {
                       n: formatNumber(lang as AppLang, supplier.activeOffersCount),
                     });
-                    if (isUnlocked) {
-                      return interpolate(t.supplier_identity_subline, {
-                        type: typeStr,
-                        years: yearsStr,
-                        offers: offersStr,
-                      });
-                    }
-                    // Locked: render layout with offers blurred + small lock badge.
-                    const tpl = t.supplier_identity_subline;
-                    const parts = tpl.split(/\{offers\}/);
-                    const before = interpolate(parts[0] ?? "", { type: typeStr, years: yearsStr });
-                    const after = interpolate(parts[1] ?? "", { type: typeStr, years: yearsStr });
-                    return (
-                      <>
-                        {before}
-                        <span
-                          className="relative mx-0.5 inline-flex items-center align-middle"
-                          aria-hidden="true"
-                          data-testid="supplier-hero-offers-locked"
-                        >
-                          <span
-                            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-foreground/70 blur-[3px] [user-select:none]"
-                            onCopy={(e) => e.preventDefault()}
-                            onContextMenu={(e) => e.preventDefault()}
-                          >
-                            {offersStr}
-                          </span>
-                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
-                              <Lock className="h-3 w-3 text-primary" aria-hidden />
-                            </span>
-                          </span>
-                        </span>
-                        <span className="sr-only">{t.supplier_locked_offersCountHidden}</span>
-                        {after}
-                      </>
-                    );
+                    return interpolate(t.supplier_identity_subline, {
+                      type: typeStr,
+                      years: yearsStr,
+                      offers: offersStr,
+                    });
                   })()}
                 </p>
                 {!isUnlocked && (
