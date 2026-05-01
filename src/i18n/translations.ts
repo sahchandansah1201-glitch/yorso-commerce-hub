@@ -933,6 +933,7 @@ type TranslationKeys = {
   supplier_locked_anonCtaButton: string;
   supplier_locked_legalHidden: string;
   supplier_locked_offersCountHidden: string;
+  supplier_locked_passportHint: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
