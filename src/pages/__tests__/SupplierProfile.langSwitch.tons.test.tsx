@@ -200,6 +200,7 @@ describe("SupplierProfile · e2e переключение языка и форм
   describe("Связка: первый case на странице форматирует volume через активную локаль", () => {
     it("ru показывает 'т', en показывает 't' для одного и того же кейса", () => {
       renderApp("en");
+      activateCasesTab("en");
       // Берём первую карточку с заголовком 'Case' (анкер не используем —
       // достаточно проверить, что хотя бы одна dt с label volume имеет
       // соседнее значение, оканчивающееся на " t" в EN).
@@ -209,6 +210,7 @@ describe("SupplierProfile · e2e переключение языка и форм
       expect(enFirst.endsWith("t")).toBe(true);
 
       act(() => switchLangFromTest!("ru"));
+      activateCasesTab("ru");
       const ruUnits = collectTonStrings("т");
       const ruFirst = ruUnits[0];
       expect(ruFirst, "RU: должен быть первый блок тонн").toBeDefined();
