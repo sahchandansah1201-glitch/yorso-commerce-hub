@@ -21,16 +21,17 @@ describe("debug", () => {
       </MemoryRouter>,
     );
     const trig = screen.getByRole("tab", { name: /Shipment reports/i });
+    // Radix Tabs activates on pointerdown by default in @radix-ui
+    fireEvent.pointerDown(trig, { button: 0, ctrlKey: false });
+    fireEvent.mouseDown(trig, { button: 0 });
     fireEvent.click(trig);
+    fireEvent.keyDown(trig, { key: "Enter" });
+    fireEvent.keyDown(trig, { key: " " });
     const text = document.body.textContent ?? "";
-    // ищем «X t» через любые пробелы
-    const matches = text.match(/\d+[\s\u00A0\u202F][a-zA-Zа-яА-Я]+/g) ?? [];
-    console.log("MATCHES:", JSON.stringify(matches.slice(0, 30)));
-    // и подстроки с " t" / " т"
-    const tMatch = text.match(/\d[^\s]{0,8}[\s\u00A0\u202F]t\b/gu);
-    console.log("T-MATCH:", JSON.stringify(tMatch));
-    // surrounding "ton" word
     const idx = text.indexOf("Volume");
-    console.log("Volume context:", JSON.stringify(text.slice(idx, idx + 200)));
+    console.log("Volume idx:", idx, "context:", JSON.stringify(text.slice(Math.max(0,idx-20), idx + 200)));
+    console.log("Cases title present?", text.includes("Shipment reports"));
+    console.log("aria-selected:", trig.getAttribute("aria-selected"));
+    console.log("data-state:", trig.getAttribute("data-state"));
   });
 });
