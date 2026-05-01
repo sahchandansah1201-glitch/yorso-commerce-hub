@@ -196,7 +196,9 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
         expect(json["@id"]).toContain(`/suppliers/${SUPPLIER_ID}`);
         expect(json.name).toBe(baseSupplier!.companyName);
       }
+    });
   });
+
 
   describe("FAQPage JSON-LD во всех локалях", () => {
     const langCases: Array<{ lang: Language; questionMatch: RegExp }> = [
