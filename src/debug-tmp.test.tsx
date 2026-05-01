@@ -32,4 +32,5 @@ describe("debug", () => {
     // dump segments around 'Batch'
     const idx = text.indexOf("Batch");
     console.log("BATCH_CTX:", text.slice(idx, idx + 100));
+  });
 });
