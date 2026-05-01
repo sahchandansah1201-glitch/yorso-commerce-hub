@@ -642,9 +642,51 @@ const SupplierProfile = () => {
       });
     }
 
+    // ItemList — превью каталога продуктов поставщика (локализованное).
+    // Помогает поисковикам распознать страницу как каталог Organization'а
+    // и сразу видеть основные продукты на нужном языке.
+    const listId = `itemlist-jsonld-${supplier.id}`;
+    let listScript: HTMLScriptElement | null = null;
+    const previewItems = supplier.productCatalogPreview ?? [];
+    if (previewItems.length > 0) {
+      listScript = document.getElementById(listId) as HTMLScriptElement | null;
+      if (!listScript) {
+        listScript = document.createElement("script");
+        listScript.type = "application/ld+json";
+        listScript.id = listId;
+        document.head.appendChild(listScript);
+      }
+      const supplierUrl = `${window.location.origin}/suppliers/${supplier.id}`;
+      listScript.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "@id": `${supplierUrl}#catalog`,
+        inLanguage: lang,
+        name: interpolate(t.supplier_seo_itemListName, {
+          company: supplier.companyName,
+        }),
+        numberOfItems: previewItems.length,
+        itemListElement: previewItems.map((item, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          item: {
+            "@type": "Product",
+            name: item.name,
+            category: item.species,
+            ...(item.image ? { image: item.image } : {}),
+            brand: {
+              "@type": "Organization",
+              name: supplier.companyName,
+            },
+          },
+        })),
+      });
+    }
+
     return () => {
       orgScript?.remove();
       faqScript?.remove();
+      listScript?.remove();
     };
   }, [supplier, faqItems, t, lang]);
 
