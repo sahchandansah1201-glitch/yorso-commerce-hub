@@ -1126,17 +1126,17 @@ const SupplierProfile = () => {
                       <LegalDetailsBlock supplier={supplier} />
                     ) : (
                       <div
-                        className="relative"
+                        className="relative overflow-hidden rounded-xl border border-border bg-card"
                         data-testid="supplier-legal-locked"
                       >
                         <div
                           aria-hidden="true"
-                          className="pointer-events-none select-none blur-[6px]"
+                          className="pointer-events-none select-none blur-[2.5px]"
                         >
                           <LegalDetailsBlock supplier={supplier} />
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/40 p-4">
-                          <div className="flex max-w-[80%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
+                        <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
+                          <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
                             <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
                             <span className="text-xs font-medium text-foreground">
                               {t.supplier_locked_legalHidden}
