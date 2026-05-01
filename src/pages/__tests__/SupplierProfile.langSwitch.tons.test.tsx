@@ -133,12 +133,14 @@ const collectTonStrings = (unit: "t" | "т"): string[] => {
 describe("SupplierProfile · e2e переключение языка и форматирование тонн", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     switchLangFromTest = null;
   });
 
   afterEach(() => {
     cleanup();
     localStorage.clear();
+    sessionStorage.clear();
     switchLangFromTest = null;
   });
 
