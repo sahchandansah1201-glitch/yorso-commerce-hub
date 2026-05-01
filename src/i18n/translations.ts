@@ -933,6 +933,7 @@ type TranslationKeys = {
   supplier_locked_anonCtaButton: string;
   supplier_locked_legalHidden: string;
   supplier_locked_offersCountHidden: string;
+  supplier_locked_passportHint: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
@@ -2069,6 +2070,7 @@ const en: TranslationKeys = {
   supplier_locked_anonCtaButton: "Create buyer account",
   supplier_locked_legalHidden: "Legal details available after price access",
   supplier_locked_offersCountHidden: "Active offers available after price access",
+  supplier_locked_passportHint: "Available after price access",
   supplier_type_producer: "Producer",
   supplier_type_processor: "Processor",
   supplier_type_exporter: "Exporter",
@@ -3184,6 +3186,7 @@ const ru: TranslationKeys = {
   supplier_locked_anonCtaButton: "Создать аккаунт покупателя",
   supplier_locked_legalHidden: "Юридические реквизиты откроются после доступа к цене",
   supplier_locked_offersCountHidden: "Количество активных предложений откроется после доступа к цене",
+  supplier_locked_passportHint: "Доступно после открытия цены",
   supplier_type_producer: "Производитель",
   supplier_type_processor: "Переработчик",
   supplier_type_exporter: "Экспортёр",
@@ -4299,6 +4302,7 @@ const es: TranslationKeys = {
   supplier_locked_anonCtaButton: "Crear cuenta de comprador",
   supplier_locked_legalHidden: "Datos legales disponibles tras el acceso al precio",
   supplier_locked_offersCountHidden: "Ofertas activas disponibles tras el acceso al precio",
+  supplier_locked_passportHint: "Disponible tras abrir el precio",
   supplier_type_producer: "Productor",
   supplier_type_processor: "Procesador",
   supplier_type_exporter: "Exportador",

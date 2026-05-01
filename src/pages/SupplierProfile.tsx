@@ -20,6 +20,7 @@ import {
   Clock,
   Building2,
   FileBadge,
+  Lock,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -1307,10 +1308,14 @@ const SupplierProfile = () => {
                                   n: production.dailyTons,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_lines}
                                 value={String(production.lines)}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_staff}
@@ -1318,16 +1323,16 @@ const SupplierProfile = () => {
                                   n: production.staff,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_catalog}
-                                value={
-                                  isUnlocked
-                                    ? interpolate(t.supplier_passport_production_catalogValue, {
-                                        n: supplier.totalProductsCount,
-                                      })
-                                    : t.supplier_locked_offersCountHidden
-                                }
+                                value={interpolate(t.supplier_passport_production_catalogValue, {
+                                  n: supplier.totalProductsCount,
+                                })}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                             </dl>
                           </div>
@@ -1346,6 +1351,8 @@ const SupplierProfile = () => {
                                   n: production.coldStorageT,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_cold_blast}
@@ -1353,6 +1360,8 @@ const SupplierProfile = () => {
                                   n: production.blastFreezerT,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_cold_temp} value="−18 °C … −24 °C" />
                               <FactCell label={t.supplier_passport_cold_glaze} value={t.supplier_passport_cold_glazeValue} />
@@ -1423,6 +1432,8 @@ const SupplierProfile = () => {
                                 value={interpolate(t.supplier_passport_logistics_minBatchValue, {
                                   n: logistics.minBatchTons,
                                 })}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_logistics_transit}
@@ -1431,6 +1442,8 @@ const SupplierProfile = () => {
                                   max: logistics.transitDaysMax,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_logistics_containers} value={logistics.containers.join(", ")} />
                             </dl>
@@ -1647,26 +1660,53 @@ const SupplierProfile = () => {
   );
 };
 
-/** Унифицированная ячейка факта с опциональной estimate-меткой. */
+/** Унифицированная ячейка факта с опциональной estimate-меткой и locked-маской. */
 const FactCell = ({
   label,
   value,
   estimate,
+  locked,
+  lockedHint,
 }: {
   label: string;
   value: string;
   estimate?: boolean;
+  /** Если true — значение скрывается размытым плейсхолдером. */
+  locked?: boolean;
+  /** Локализованная подсказка доступа, объявляется screen reader'ом. */
+  lockedHint?: string;
 }) => (
   <div>
     <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
-    <dd className="mt-0.5 text-sm font-medium text-foreground">
-      {value}
-      {estimate && (
-        <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
-          est.
+    {locked ? (
+      <dd className="mt-0.5">
+        <span
+          // Маска: размытие + неинтерактивная пилюля. Скрыта от screen readers.
+          aria-hidden="true"
+          className="inline-block min-w-[5.5rem] select-none rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-foreground/40 blur-[5px] [user-select:none]"
+          // Не даём выделять/копировать содержимое.
+          onCopy={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          •••••
         </span>
-      )}
-    </dd>
+        {lockedHint && (
+          <span className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Lock className="h-3 w-3" aria-hidden />
+            <span>{lockedHint}</span>
+          </span>
+        )}
+      </dd>
+    ) : (
+      <dd className="mt-0.5 text-sm font-medium text-foreground">
+        {value}
+        {estimate && (
+          <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+            est.
+          </span>
+        )}
+      </dd>
+    )}
   </div>
 );
 
