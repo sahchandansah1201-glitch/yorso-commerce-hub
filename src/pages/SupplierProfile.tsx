@@ -1321,9 +1321,13 @@ const SupplierProfile = () => {
                               />
                               <FactCell
                                 label={t.supplier_passport_production_catalog}
-                                value={interpolate(t.supplier_passport_production_catalogValue, {
-                                  n: supplier.totalProductsCount,
-                                })}
+                                value={
+                                  isUnlocked
+                                    ? interpolate(t.supplier_passport_production_catalogValue, {
+                                        n: supplier.totalProductsCount,
+                                      })
+                                    : t.supplier_locked_offersCountHidden
+                                }
                               />
                             </dl>
                           </div>
