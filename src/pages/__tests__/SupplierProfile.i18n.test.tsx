@@ -196,6 +196,138 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
         expect(json["@id"]).toContain(`/suppliers/${SUPPLIER_ID}`);
         expect(json.name).toBe(baseSupplier!.companyName);
       }
+  });
+
+  describe("FAQPage JSON-LD во всех локалях", () => {
+    const langCases: Array<{ lang: Language; questionMatch: RegExp }> = [
+      // q1 — про MOQ. EN/RU/ES версии содержат разные характерные слова.
+      { lang: "en", questionMatch: /minimum|MOQ/i },
+      { lang: "ru", questionMatch: /минимальн|партии/i },
+      { lang: "es", questionMatch: /mínim|pedido/i },
+    ];
+
+    for (const { lang, questionMatch } of langCases) {
+      it(`сериализует FAQPage с inLanguage=${lang} и локализованными Q/A`, () => {
+        renderWithLang(lang);
+        const json = getFaqJsonLd();
+
+        expect(json["@type"]).toBe("FAQPage");
+        expect(json.inLanguage).toBe(lang);
+        expect(Array.isArray(json.mainEntity)).toBe(true);
+        expect(json.mainEntity.length).toBeGreaterThan(0);
+
+        // Каждая запись — Question с непустым acceptedAnswer.text.
+        for (const entry of json.mainEntity) {
+          expect(entry["@type"]).toBe("Question");
+          expect(typeof entry.name).toBe("string");
+          expect(entry.name.length).toBeGreaterThan(0);
+          expect(entry.acceptedAnswer?.["@type"]).toBe("Answer");
+          expect(typeof entry.acceptedAnswer?.text).toBe("string");
+          expect(entry.acceptedAnswer.text.length).toBeGreaterThan(0);
+        }
+
+        // Первый вопрос должен соответствовать характерной лексике локали.
+        expect(json.mainEntity[0].name).toMatch(questionMatch);
+
+        // Параметризованный ответ (a1 содержит {n}) — после интерполяции
+        // не должно остаться плейсхолдеров.
+        const a1 = json.mainEntity[0].acceptedAnswer.text as string;
+        expect(a1).not.toMatch(/\{n\}/);
+      });
+    }
+  });
+
+  describe("ItemList JSON-LD (каталог поставщика) во всех локалях", () => {
+    const langCases: Array<{ lang: Language; nameMatch: RegExp }> = [
+      { lang: "en", nameMatch: /catalog/i },
+      { lang: "ru", nameMatch: /каталог/i },
+      { lang: "es", nameMatch: /catálogo/i },
+    ];
+
+    for (const { lang, nameMatch } of langCases) {
+      it(`сериализует ItemList с inLanguage=${lang} и локализованным name`, () => {
+        renderWithLang(lang);
+        const json = getItemListJsonLd();
+        const baseSupplier = mockSuppliers.find((s) => s.id === SUPPLIER_ID)!;
+
+        expect(json["@type"]).toBe("ItemList");
+        expect(json.inLanguage).toBe(lang);
+        expect(json["@id"]).toContain(`/suppliers/${SUPPLIER_ID}#catalog`);
+        expect(json.name).toMatch(nameMatch);
+        expect(json.name).toContain(baseSupplier.companyName);
+
+        // numberOfItems должен совпадать с длиной itemListElement
+        // и с реальным каталогом превью.
+        expect(json.numberOfItems).toBe(baseSupplier.productCatalogPreview.length);
+        expect(Array.isArray(json.itemListElement)).toBe(true);
+        expect(json.itemListElement).toHaveLength(json.numberOfItems);
+
+        // Каждая запись — корректный ListItem → Product.
+        json.itemListElement.forEach((entry: Record<string, unknown>, idx: number) => {
+          expect(entry["@type"]).toBe("ListItem");
+          expect(entry.position).toBe(idx + 1);
+          const item = entry.item as Record<string, unknown>;
+          expect(item["@type"]).toBe("Product");
+          expect(typeof item.name).toBe("string");
+          expect((item.name as string).length).toBeGreaterThan(0);
+          const brand = item.brand as Record<string, unknown>;
+          expect(brand["@type"]).toBe("Organization");
+          expect(brand.name).toBe(baseSupplier.companyName);
+        });
+      });
+    }
+
+    it("RU: первый продукт переведён через localizeSupplier (не EN baseline)", () => {
+      renderWithLang("ru");
+      const json = getItemListJsonLd();
+      const baseSupplier = mockSuppliers.find((s) => s.id === SUPPLIER_ID)!;
+      const enFirst = baseSupplier.productCatalogPreview[0]?.name;
+      const ruFirst = json.itemListElement[0].item.name as string;
+      // Если для этого поставщика есть RU-патч продукта — RU значение
+      // должно отличаться от EN. Если патча нет — fallback к EN допустим
+      // (это явно описано в mockSuppliersI18n), и тест мягко это допускает.
+      expect(typeof ruFirst).toBe("string");
+      expect(ruFirst.length).toBeGreaterThan(0);
+      // Хотя бы один продукт в списке должен отличаться от своего EN-имени —
+      // иначе локализация каталога не работает.
+      const anyTranslated = json.itemListElement.some(
+        (entry: { item: { name: string } }, i: number) =>
+          entry.item.name !== baseSupplier.productCatalogPreview[i]?.name,
+      );
+      expect(anyTranslated, `Хотя бы один продукт RU должен отличаться от EN (${enFirst})`).toBe(true);
+    });
+  });
+
+  describe("Все три JSON-LD блока сосуществуют без конфликтов", () => {
+    for (const lang of ["en", "ru", "es"] as Language[]) {
+      it(`в <head> присутствуют Organization, FAQPage и ItemList для ${lang}`, () => {
+        renderWithLang(lang);
+        const org = getOrgJsonLd();
+        const faq = getFaqJsonLd();
+        const list = getItemListJsonLd();
+
+        expect(org["@type"]).toBe("Organization");
+        expect(faq["@type"]).toBe("FAQPage");
+        expect(list["@type"]).toBe("ItemList");
+
+        // Все три должны декларировать одинаковый язык.
+        expect(org.inLanguage).toBe(lang);
+        expect(faq.inLanguage).toBe(lang);
+        expect(list.inLanguage).toBe(lang);
+      });
+    }
+
+    it("при размонтировании все три блока удаляются из <head>", () => {
+      const { unmount } = renderWithLang("en");
+      expect(document.getElementById(`org-jsonld-${SUPPLIER_ID}`)).not.toBeNull();
+      expect(document.getElementById(`faq-jsonld-${SUPPLIER_ID}`)).not.toBeNull();
+      expect(document.getElementById(`itemlist-jsonld-${SUPPLIER_ID}`)).not.toBeNull();
+
+      unmount();
+
+      expect(document.getElementById(`org-jsonld-${SUPPLIER_ID}`)).toBeNull();
+      expect(document.getElementById(`faq-jsonld-${SUPPLIER_ID}`)).toBeNull();
+      expect(document.getElementById(`itemlist-jsonld-${SUPPLIER_ID}`)).toBeNull();
     });
   });
 });
