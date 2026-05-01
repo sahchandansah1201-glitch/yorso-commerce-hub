@@ -403,9 +403,7 @@ const TrustFactsBlock = ({
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
-  // Exact active offer count is identity-adjacent (helps fingerprint a
-  // supplier in a small market). Hide the precise number until access is
-  // approved; show real value blurred with a small lock badge instead.
+  // Active offer count is public information — show real value to all users.
   const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
 
   const facts: Array<{
@@ -420,8 +418,6 @@ const TrustFactsBlock = ({
     {
       label: t.supplier_trust_activeOffers,
       value: offersValue,
-      locked: !unlocked,
-      lockedHint: t.supplier_locked_offersCountHidden,
     },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
@@ -874,20 +870,74 @@ const SupplierProfile = () => {
           <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard
-                  supplier={supplier}
-                  size={86}
-                  priority="hero"
-                  displayName={displayName}
-                  showLogoImage={isUnlocked}
-                />
+                {isUnlocked ? (
+                  <>
+                    <SupplierLogoCard
+                      supplier={supplier}
+                      size={86}
+                      priority="hero"
+                      displayName={displayName}
+                      showLogoImage
+                    />
+                    <h1
+                      className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
+                      data-testid="supplier-display-name"
+                    >
+                      {displayName}
+                    </h1>
+                  </>
+                ) : (
+                  <>
+                    {/* Локированный логотип: монограмма под блюром + замочек поверх. */}
+                    <div
+                      className="relative inline-block"
+                      data-testid="supplier-hero-logo-locked"
+                    >
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none select-none blur-[4px]"
+                      >
+                        <SupplierLogoCard
+                          supplier={supplier}
+                          size={86}
+                          priority="hero"
+                          displayName={displayName}
+                          showLogoImage={false}
+                        />
+                      </div>
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-md">
+                          <Lock className="h-4 w-4 text-primary" aria-hidden />
+                        </span>
+                      </span>
+                    </div>
 
-                <h1
-                  className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
-                  data-testid="supplier-display-name"
-                >
-                  {displayName}
-                </h1>
+                    {/* Локированный заголовок (maskedName с номером завода) под блюром. */}
+                    <div
+                      className="relative mt-5 inline-block max-w-full"
+                      data-testid="supplier-hero-name-locked"
+                    >
+                      <h1
+                        aria-hidden="true"
+                        className="pointer-events-none select-none font-heading text-3xl font-bold tracking-tight text-foreground blur-[5px] md:text-4xl"
+                        data-testid="supplier-display-name"
+                        onCopy={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                      >
+                        {displayName}
+                      </h1>
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <span className="flex items-center gap-1.5 rounded-full border border-border bg-card/95 px-3 py-1 shadow-sm">
+                          <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
+                          <span className="text-xs font-medium text-foreground">
+                            {t.supplier_locked_identityHint}
+                          </span>
+                        </span>
+                      </span>
+                      <span className="sr-only">{t.supplier_locked_identityHint}</span>
+                    </div>
+                  </>
+                )}
 
                 <p className="mt-2 text-sm text-foreground/80">
                   {(() => {
@@ -906,43 +956,11 @@ const SupplierProfile = () => {
                     const offersStr = interpolate(t.supplier_activeOffers, {
                       n: formatNumber(lang as AppLang, supplier.activeOffersCount),
                     });
-                    if (isUnlocked) {
-                      return interpolate(t.supplier_identity_subline, {
-                        type: typeStr,
-                        years: yearsStr,
-                        offers: offersStr,
-                      });
-                    }
-                    // Locked: render layout with offers blurred + small lock badge.
-                    const tpl = t.supplier_identity_subline;
-                    const parts = tpl.split(/\{offers\}/);
-                    const before = interpolate(parts[0] ?? "", { type: typeStr, years: yearsStr });
-                    const after = interpolate(parts[1] ?? "", { type: typeStr, years: yearsStr });
-                    return (
-                      <>
-                        {before}
-                        <span
-                          className="relative mx-0.5 inline-flex items-center align-middle"
-                          aria-hidden="true"
-                          data-testid="supplier-hero-offers-locked"
-                        >
-                          <span
-                            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-foreground/70 blur-[3px] [user-select:none]"
-                            onCopy={(e) => e.preventDefault()}
-                            onContextMenu={(e) => e.preventDefault()}
-                          >
-                            {offersStr}
-                          </span>
-                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
-                              <Lock className="h-3 w-3 text-primary" aria-hidden />
-                            </span>
-                          </span>
-                        </span>
-                        <span className="sr-only">{t.supplier_locked_offersCountHidden}</span>
-                        {after}
-                      </>
-                    );
+                    return interpolate(t.supplier_identity_subline, {
+                      type: typeStr,
+                      years: yearsStr,
+                      offers: offersStr,
+                    });
                   })()}
                 </p>
                 {!isUnlocked && (
