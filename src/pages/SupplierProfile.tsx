@@ -925,7 +925,7 @@ const SupplierProfile = () => {
                     <span aria-hidden>{countryCodeToFlag(supplier.countryCode)}</span>
                   </span>
                 </li>
-                {supplier.website && (
+                {isUnlocked && supplier.website && (
                   <li className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" aria-hidden />
                     <a
@@ -944,39 +944,80 @@ const SupplierProfile = () => {
                 {supplier.shortDescription}
               </p>
 
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Button
-                  type="button"
-                  size="lg"
-                  className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={() =>
-                    toast({
-                      title: t.supplier_sendMessage_toast_title,
-                      description: t.supplier_sendMessage_toast_desc,
-                    })
-                  }
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  {t.supplier_sendMessage}
-                </Button>
-                {supplier.whatsapp && (
-                  <Button
-                    type="button"
-                    size="lg"
-                    variant="outline"
-                    className="gap-2 border-primary text-primary hover:bg-primary/5"
-                    asChild
-                  >
-                    <a
-                      href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+              {/* Access-aware CTA block. Locked states never expose direct
+                  contact actions; they only offer the registration / access
+                  request path documented in mockSuppliers.ts. */}
+              <div className="mt-5 flex flex-wrap gap-3" data-testid="supplier-cta-block">
+                {isUnlocked ? (
+                  <>
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                      onClick={() =>
+                        toast({
+                          title: t.supplier_sendMessage_toast_title,
+                          description: t.supplier_sendMessage_toast_desc,
+                        })
+                      }
                     >
-                      <WhatsAppIcon className="h-4 w-4" />
-                      WhatsApp
-                    </a>
-                  </Button>
-                )}
+                      <MessageCircle className="h-4 w-4" />
+                      {t.supplier_sendMessage}
+                    </Button>
+                    {supplier.whatsapp && (
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="outline"
+                        className="gap-2 border-primary text-primary hover:bg-primary/5"
+                        asChild
+                      >
+                        <a
+                          href={`https://wa.me/${supplier.whatsapp.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <WhatsAppIcon className="h-4 w-4" />
+                          WhatsApp
+                        </a>
+                      </Button>
+                    )}
+                  </>
+                ) : isAnonymous ? (
+                  <div
+                    className="w-full max-w-md space-y-3 rounded-md border border-border bg-background p-4"
+                    data-testid="supplier-anon-cta"
+                  >
+                    <div>
+                      <h3 className="font-heading text-sm font-semibold text-foreground">
+                        {t.supplier_locked_anonCtaTitle}
+                      </h3>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t.supplier_locked_anonCtaBody}
+                      </p>
+                    </div>
+                    <Button asChild size="lg" className="w-full">
+                      <Link to="/register">
+                        {t.supplier_locked_anonCtaButton}
+                      </Link>
+                    </Button>
+                  </div>
+                ) : isRegisteredLocked && supplier ? (
+                  <div className="w-full max-w-md">
+                    {accessRequest ? (
+                      <SupplierAccessRequestSent
+                        request={accessRequest}
+                        supplierMaskedName={supplier.maskedName}
+                      />
+                    ) : (
+                      <SupplierAccessRequestPanel
+                        supplierId={supplier.id}
+                        supplierMaskedName={supplier.maskedName}
+                        onSent={(saved) => setAccessRequest(saved)}
+                      />
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
             <div ref={heroSentinelRef} aria-hidden className="h-px w-full" />
