@@ -1035,10 +1035,16 @@ const SupplierProfile = () => {
         >
           <div className="container flex items-center justify-between gap-4 py-2.5">
             <div className="flex min-w-0 items-center gap-2.5">
-              <SupplierLogoCard supplier={supplier} size={28} priority="mini" />
+              <SupplierLogoCard
+                supplier={supplier}
+                size={28}
+                priority="mini"
+                displayName={displayName}
+                showLogoImage={isUnlocked}
+              />
               <div className="min-w-0">
                 <p className="truncate font-heading text-sm font-semibold text-foreground">
-                  {supplier.companyName}
+                  {displayName}
                 </p>
                 <p className="truncate text-[11px] text-muted-foreground">
                   {countryCodeToFlag(supplier.countryCode)} {supplier.country} ·{" "}
@@ -1090,7 +1096,7 @@ const SupplierProfile = () => {
                         {t.supplier_about_company}
                       </h2>
                       <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-                        {supplier.about}
+                        {isUnlocked ? supplier.about : t.supplier_locked_aboutPlaceholder}
                       </p>
                     </div>
 
