@@ -925,6 +925,14 @@ type TranslationKeys = {
   supplier_sendMessage_toast_title: string;
   supplier_sendMessage_toast_desc: string;
   supplier_writeToSupplier: string;
+  // Supplier Profile — locked-state previews / access gating
+  supplier_locked_identityHint: string;
+  supplier_locked_aboutPlaceholder: string;
+  supplier_locked_anonCtaTitle: string;
+  supplier_locked_anonCtaBody: string;
+  supplier_locked_anonCtaButton: string;
+  supplier_locked_legalHidden: string;
+  supplier_locked_offersCountHidden: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
