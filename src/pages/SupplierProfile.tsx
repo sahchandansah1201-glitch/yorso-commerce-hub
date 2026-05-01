@@ -405,15 +405,24 @@ const TrustFactsBlock = ({
 
   // Exact active offer count is identity-adjacent (helps fingerprint a
   // supplier in a small market). Hide the precise number until access is
-  // approved; show a coarse "available after price access" placeholder.
-  const offersValue = unlocked
-    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
-    : t.supplier_locked_offersCountHidden;
+  // approved; show real value blurred with a small lock badge instead.
+  const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
 
-  const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
+  const facts: Array<{
+    label: string;
+    value: string;
+    estimate?: boolean;
+    locked?: boolean;
+    lockedHint?: string;
+  }> = [
     { label: t.supplier_trust_type, value: typeValue },
     { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
-    { label: t.supplier_trust_activeOffers, value: offersValue },
+    {
+      label: t.supplier_trust_activeOffers,
+      value: offersValue,
+      locked: !unlocked,
+      lockedHint: t.supplier_locked_offersCountHidden,
+    },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
@@ -430,14 +439,34 @@ const TrustFactsBlock = ({
           <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
             {f.label}
           </dt>
-          <dd className="mt-0.5 font-medium text-foreground">
-            {f.value}
-            {f.estimate && (
-              <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
-                est.
+          {f.locked ? (
+            <dd className="mt-0.5">
+              <span className="relative inline-flex items-center" aria-hidden="true">
+                <span
+                  className="inline-block min-w-[3rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
+                  onCopy={(e) => e.preventDefault()}
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  {f.value}
+                </span>
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                    <Lock className="h-3 w-3 text-primary" aria-hidden />
+                  </span>
+                </span>
               </span>
-            )}
-          </dd>
+              {f.lockedHint && <span className="sr-only">{f.lockedHint}</span>}
+            </dd>
+          ) : (
+            <dd className="mt-0.5 font-medium text-foreground">
+              {f.value}
+              {f.estimate && (
+                <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                  est.
+                </span>
+              )}
+            </dd>
+          )}
         </div>
       ))}
     </dl>
