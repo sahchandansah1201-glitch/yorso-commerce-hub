@@ -403,9 +403,7 @@ const TrustFactsBlock = ({
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
-  // Exact active offer count is identity-adjacent (helps fingerprint a
-  // supplier in a small market). Hide the precise number until access is
-  // approved; show real value blurred with a small lock badge instead.
+  // Active offer count is public information — show real value to all users.
   const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
 
   const facts: Array<{
@@ -420,8 +418,6 @@ const TrustFactsBlock = ({
     {
       label: t.supplier_trust_activeOffers,
       value: offersValue,
-      locked: !unlocked,
-      lockedHint: t.supplier_locked_offersCountHidden,
     },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
