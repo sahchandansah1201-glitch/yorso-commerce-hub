@@ -1687,21 +1687,25 @@ const FactCell = ({
     {locked ? (
       <dd className="mt-0.5">
         <span
-          // Маска: размытие + неинтерактивная пилюля. Скрыта от screen readers.
+          className="relative inline-flex items-center"
+          // Скрываем от screen readers — вместо значения они услышат lockedHint ниже.
           aria-hidden="true"
-          className="inline-block min-w-[5.5rem] select-none rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-foreground/40 blur-[5px] [user-select:none]"
-          // Не даём выделять/копировать содержимое.
-          onCopy={(e) => e.preventDefault()}
-          onContextMenu={(e) => e.preventDefault()}
         >
-          •••••
-        </span>
-        {lockedHint && (
-          <span className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Lock className="h-3 w-3" aria-hidden />
-            <span>{lockedHint}</span>
+          <span
+            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
+            onCopy={(e) => e.preventDefault()}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            {value || "•••••"}
           </span>
-        )}
+          {/* Замочек поверх блюра — для небольших полей. */}
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+              <Lock className="h-3 w-3 text-primary" aria-hidden />
+            </span>
+          </span>
+        </span>
+        {lockedHint && <span className="sr-only">{lockedHint}</span>}
       </dd>
     ) : (
       <dd className="mt-0.5 text-sm font-medium text-foreground">
