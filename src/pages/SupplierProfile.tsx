@@ -1648,26 +1648,53 @@ const SupplierProfile = () => {
   );
 };
 
-/** Унифицированная ячейка факта с опциональной estimate-меткой. */
+/** Унифицированная ячейка факта с опциональной estimate-меткой и locked-маской. */
 const FactCell = ({
   label,
   value,
   estimate,
+  locked,
+  lockedHint,
 }: {
   label: string;
   value: string;
   estimate?: boolean;
+  /** Если true — значение скрывается размытым плейсхолдером. */
+  locked?: boolean;
+  /** Локализованная подсказка доступа, объявляется screen reader'ом. */
+  lockedHint?: string;
 }) => (
   <div>
     <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
-    <dd className="mt-0.5 text-sm font-medium text-foreground">
-      {value}
-      {estimate && (
-        <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
-          est.
+    {locked ? (
+      <dd className="mt-0.5">
+        <span
+          // Маска: размытие + неинтерактивная пилюля. Скрыта от screen readers.
+          aria-hidden="true"
+          className="inline-block min-w-[5.5rem] select-none rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-foreground/40 blur-[5px] [user-select:none]"
+          // Не даём выделять/копировать содержимое.
+          onCopy={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          •••••
         </span>
-      )}
-    </dd>
+        {lockedHint && (
+          <span className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Lock className="h-3 w-3" aria-hidden />
+            <span>{lockedHint}</span>
+          </span>
+        )}
+      </dd>
+    ) : (
+      <dd className="mt-0.5 text-sm font-medium text-foreground">
+        {value}
+        {estimate && (
+          <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+            est.
+          </span>
+        )}
+      </dd>
+    )}
   </div>
 );
 
