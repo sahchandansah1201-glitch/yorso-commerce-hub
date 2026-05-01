@@ -229,51 +229,47 @@ describe("formatTons · BCP47-теги локалей и группировка 
 
   it("en → en-US: запятая как разделитель тысяч", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 12000)).toBe("12,000\u00A0t");
-    expect(formatTons("en", 1234567)).toBe("1,234,567\u00A0t");
+    expect(formatTons("en", 12000)).toMatch(tonsRegex("en", ["12", "000"]));
+    expect(formatTons("en", 1234567)).toMatch(tonsRegex("en", ["1", "234", "567"]));
   });
 
-  it("ru → ru-RU: пробел (NBSP/обычный) как разделитель тысяч", async () => {
+  it("ru → ru-RU: пробел (NBSP/обычный/тонкий) как разделитель тысяч", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    const out12k = formatTons("ru", 12000);
-    const out1_2m = formatTons("ru", 1234567);
-    // ICU для ru-RU использует пробел (в разных версиях это
-    // U+0020 / U+00A0 / U+202F тонкий пробел) — допускаем любой.
-    expect(out12k).toMatch(/^12[\u0020\u00A0\u202F]000\u00A0т$/);
-    expect(out1_2m).toMatch(/^1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/);
+    expect(formatTons("ru", 12000)).toMatch(tonsRegex("ru", ["12", "000"]));
+    expect(formatTons("ru", 1234567)).toMatch(tonsRegex("ru", ["1", "234", "567"]));
   });
 
   it("es → es-ES: точка как разделитель тысяч (для чисел ≥ 10 000)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     // ICU для es-ES не группирует 4-значные числа (1234 → "1234"),
     // зато группирует от 5 цифр (12000 → "12.000").
-    expect(formatTons("es", 12000)).toBe("12.000\u00A0t");
-    expect(formatTons("es", 1234567)).toBe("1.234.567\u00A0t");
+    expect(formatTons("es", 12000)).toMatch(tonsRegex("es", ["12", "000"]));
+    expect(formatTons("es", 1234567)).toMatch(tonsRegex("es", ["1", "234", "567"]));
   });
 
   it("малые числа (< 1000) не получают группировки ни в одной локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 5)).toBe("5\u00A0t");
-    expect(formatTons("ru", 5)).toBe("5\u00A0т");
-    expect(formatTons("es", 5)).toBe("5\u00A0t");
-    expect(formatTons("en", 999)).toBe("999\u00A0t");
-    expect(formatTons("ru", 999)).toBe("999\u00A0т");
-    expect(formatTons("es", 999)).toBe("999\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, 5)).toMatch(tonsRegexSmall(lang, 5));
+      expect(formatTons(lang, 999)).toMatch(tonsRegexSmall(lang, 999));
+    }
   });
 
   it("ноль форматируется без группировки и со стабильным суффиксом", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 0)).toBe("0\u00A0t");
-    expect(formatTons("ru", 0)).toBe("0\u00A0т");
-    expect(formatTons("es", 0)).toBe("0\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, 0)).toMatch(tonsRegexSmall(lang, 0));
+    }
   });
 
   it("отрицательные числа сохраняют локаль-специфичный знак минуса", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     // Все три локали используют ASCII «-» для коротких чисел.
-    expect(formatTons("en", -20)).toBe("-20\u00A0t");
-    expect(formatTons("ru", -20)).toBe("-20\u00A0т");
-    expect(formatTons("es", -20)).toBe("-20\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, -20)).toMatch(
+        new RegExp(`^-20${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u"),
+      );
+    }
   });
 
   it("группировка крупных чисел совпадает с эталонным Intl(<tag>) тех же локалей", async () => {
@@ -285,10 +281,12 @@ describe("formatTons · BCP47-теги локалей и группировка 
     ];
     for (const { lang, tag } of cases) {
       const expectedNumber = new Intl.NumberFormat(tag).format(1234567);
-      // Извлекаем числовую часть formatTons (всё до последнего NBSP).
+      // Извлекаем числовую часть formatTons (всё до последнего пробельного
+      // разделителя — NBSP/NNBSP/SP — между числом и суффиксом).
       const out = formatTons(lang, 1234567);
-      const numericPart = out.slice(0, out.lastIndexOf("\u00A0"));
-      expect(numericPart).toBe(expectedNumber);
+      const m = out.match(new RegExp(`^(.*)${NUM_UNIT_SEP}\\S+$`, "u"));
+      expect(m, `formatTons(${lang}, 1234567) = ${JSON.stringify(out)}`).not.toBeNull();
+      expect(m![1]).toBe(expectedNumber);
     }
   });
 
