@@ -1351,6 +1351,8 @@ const SupplierProfile = () => {
                                   n: production.coldStorageT,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_cold_blast}
@@ -1358,6 +1360,8 @@ const SupplierProfile = () => {
                                   n: production.blastFreezerT,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_cold_temp} value="−18 °C … −24 °C" />
                               <FactCell label={t.supplier_passport_cold_glaze} value={t.supplier_passport_cold_glazeValue} />
