@@ -4302,6 +4302,7 @@ const es: TranslationKeys = {
   supplier_locked_anonCtaButton: "Crear cuenta de comprador",
   supplier_locked_legalHidden: "Datos legales disponibles tras el acceso al precio",
   supplier_locked_offersCountHidden: "Ofertas activas disponibles tras el acceso al precio",
+  supplier_locked_passportHint: "Disponible tras abrir el precio",
   supplier_type_producer: "Productor",
   supplier_type_processor: "Procesador",
   supplier_type_exporter: "Exportador",
