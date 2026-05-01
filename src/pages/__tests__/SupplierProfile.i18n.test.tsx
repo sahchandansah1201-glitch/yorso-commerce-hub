@@ -12,7 +12,7 @@
  * это публичный контракт провайдера (см. LanguageContext).
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider } from "@/i18n/LanguageContext";
