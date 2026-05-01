@@ -18,6 +18,7 @@
  *  3) Маленькие значения тонн из supplier-content (10..32) не получают
  *     разделителя тысяч ни в одной локали.
  */
+import * as React from "react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, within, fireEvent } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
