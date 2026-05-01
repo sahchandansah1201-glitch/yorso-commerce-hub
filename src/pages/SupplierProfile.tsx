@@ -1126,18 +1126,24 @@ const SupplierProfile = () => {
                       <LegalDetailsBlock supplier={supplier} />
                     ) : (
                       <div
-                        className="rounded-xl border border-border bg-card p-6"
+                        className="relative"
                         data-testid="supplier-legal-locked"
                       >
-                        <div className="flex items-center gap-2">
-                          <FileBadge className="h-4 w-4 text-primary" aria-hidden />
-                          <h3 className="font-heading text-base font-semibold text-foreground">
-                            {t.supplier_legal_title}
-                          </h3>
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none select-none blur-[6px]"
+                        >
+                          <LegalDetailsBlock supplier={supplier} />
                         </div>
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {t.supplier_locked_legalHidden}
-                        </p>
+                        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/40 p-4">
+                          <div className="flex max-w-[80%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
+                            <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
+                            <span className="text-xs font-medium text-foreground">
+                              {t.supplier_locked_legalHidden}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="sr-only">{t.supplier_locked_legalHidden}</span>
                       </div>
                     )}
 
