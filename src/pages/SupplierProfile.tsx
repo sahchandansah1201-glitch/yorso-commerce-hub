@@ -870,20 +870,74 @@ const SupplierProfile = () => {
           <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard
-                  supplier={supplier}
-                  size={86}
-                  priority="hero"
-                  displayName={displayName}
-                  showLogoImage={isUnlocked}
-                />
+                {isUnlocked ? (
+                  <>
+                    <SupplierLogoCard
+                      supplier={supplier}
+                      size={86}
+                      priority="hero"
+                      displayName={displayName}
+                      showLogoImage
+                    />
+                    <h1
+                      className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
+                      data-testid="supplier-display-name"
+                    >
+                      {displayName}
+                    </h1>
+                  </>
+                ) : (
+                  <>
+                    {/* Локированный логотип: монограмма под блюром + замочек поверх. */}
+                    <div
+                      className="relative inline-block"
+                      data-testid="supplier-hero-logo-locked"
+                    >
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none select-none blur-[4px]"
+                      >
+                        <SupplierLogoCard
+                          supplier={supplier}
+                          size={86}
+                          priority="hero"
+                          displayName={displayName}
+                          showLogoImage={false}
+                        />
+                      </div>
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-md">
+                          <Lock className="h-4 w-4 text-primary" aria-hidden />
+                        </span>
+                      </span>
+                    </div>
 
-                <h1
-                  className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
-                  data-testid="supplier-display-name"
-                >
-                  {displayName}
-                </h1>
+                    {/* Локированный заголовок (maskedName с номером завода) под блюром. */}
+                    <div
+                      className="relative mt-5 inline-block max-w-full"
+                      data-testid="supplier-hero-name-locked"
+                    >
+                      <h1
+                        aria-hidden="true"
+                        className="pointer-events-none select-none font-heading text-3xl font-bold tracking-tight text-foreground blur-[5px] md:text-4xl"
+                        data-testid="supplier-display-name"
+                        onCopy={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                      >
+                        {displayName}
+                      </h1>
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <span className="flex items-center gap-1.5 rounded-full border border-border bg-card/95 px-3 py-1 shadow-sm">
+                          <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
+                          <span className="text-xs font-medium text-foreground">
+                            {t.supplier_locked_identityHint}
+                          </span>
+                        </span>
+                      </span>
+                      <span className="sr-only">{t.supplier_locked_identityHint}</span>
+                    </div>
+                  </>
+                )}
 
                 <p className="mt-2 text-sm text-foreground/80">
                   {(() => {
