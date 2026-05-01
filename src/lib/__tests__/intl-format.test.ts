@@ -408,3 +408,408 @@ describe("formatTons · граничные значения (0, отрицате
   );
 });
 
+describe("formatTons · паритет округления Intl ↔ фолбек на дробных", () => {
+  // Контекст:
+  //   • Нативная ветка создаёт Intl.NumberFormat({
+  //       style: 'unit', unit: 'metric-ton', maximumFractionDigits: 0
+  //     }) — то есть всегда округляет до целых.
+  //   • Фолбек-ветка использует formatNumber(), который под капотом
+  //     зовёт Intl.NumberFormat(BCP47[lang]) БЕЗ maximumFractionDigits —
+  //     то есть СОХРАНЯЕТ дробную часть.
+  //
+  // Эти тесты делают расхождение явным: фиксируют, что нативная ветка
+  // округляет, а фолбек — нет, на одних и тех же входах. Если паритет
+  // будет починен (фолбек тоже добавит maximumFractionDigits=0),
+  // it «РАСХОЖДЕНИЕ» упадёт с понятным diff'ом — это и есть сигнал
+  // переписать его как проверку паритета.
+  //
+  // Чтобы ПРОГРАММНО получить нативную ветку в Node/jsdom (где ICU
+  // не знает 'metric-ton'), мы патчим Intl.NumberFormat так, чтобы
+  // запрос unit:'metric-ton' маппился на поддерживаемый юнит ('meter').
+  // Численные опции (maximumFractionDigits и т.п.) сохраняются —
+  // нам важна именно числовая часть, а не лексема суффикса.
+
+  const OriginalNumberFormat = Intl.NumberFormat;
+
+  /** Возвращает formatTons из ветки с реальным unit-formatter'ом. */
+  const importNative = async () => {
+    vi.resetModules();
+    const PatchedNumberFormat = function (
+      this: unknown,
+      locales?: string | string[],
+      options?: Intl.NumberFormatOptions,
+    ) {
+      if (options && options.style === "unit" && options.unit === "metric-ton") {
+        return new OriginalNumberFormat(locales, { ...options, unit: "meter" });
+      }
+      return new OriginalNumberFormat(locales, options);
+    } as unknown as typeof Intl.NumberFormat;
+    Object.setPrototypeOf(PatchedNumberFormat, OriginalNumberFormat);
+    (PatchedNumberFormat as unknown as { prototype: unknown }).prototype =
+      OriginalNumberFormat.prototype;
+    (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat =
+      PatchedNumberFormat;
+    return (await import("@/lib/intl-format")).formatTons;
+  };
+
+  /** Возвращает formatTons из фолбек-ветки (style:'unit' кидает RangeError). */
+  const importFallback = async () => {
+    vi.resetModules();
+    const PatchedNumberFormat = function (
+      this: unknown,
+      locales?: string | string[],
+      options?: Intl.NumberFormatOptions,
+    ) {
+      if (options && options.style === "unit") {
+        throw new RangeError("Invalid unit argument for Intl.NumberFormat()");
+      }
+      return new OriginalNumberFormat(locales, options);
+    } as unknown as typeof Intl.NumberFormat;
+    Object.setPrototypeOf(PatchedNumberFormat, OriginalNumberFormat);
+    (PatchedNumberFormat as unknown as { prototype: unknown }).prototype =
+      OriginalNumberFormat.prototype;
+    (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat =
+      PatchedNumberFormat;
+    return (await import("@/lib/intl-format")).formatTons;
+  };
+
+  /** Числовая часть formatTons-выхода (всё до последнего «пробельного» разделителя
+   * между числом и суффиксом — это может быть U+0020, U+00A0 или U+202F
+   * в зависимости от ветки и движка ICU). */
+  const numericPart = (s: string): string => {
+    const m = s.match(/^(.*?)[\u0020\u00A0\u202F][^\u0020\u00A0\u202F\d-]+$/);
+    return m ? m[1] : s;
+  };
+
+  afterEach(() => {
+    (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat =
+      OriginalNumberFormat;
+  });
+
+  // ----- нативная ветка: округление до целых -----
+
+  it("native EN: дробные округляются до целых для типичных значений", async () => {
+    const formatTons = await importNative();
+    expect(numericPart(formatTons("en", 20.4))).toBe("20");
+    expect(numericPart(formatTons("en", 20.7))).toBe("21");
+    expect(numericPart(formatTons("en", 0.4))).toBe("0");
+    expect(numericPart(formatTons("en", 0.6))).toBe("1");
+    expect(numericPart(formatTons("en", -0.6))).toBe("-1");
+    expect(numericPart(formatTons("en", 1234.567))).toBe("1,235");
+  });
+
+  it("native: maximumFractionDigits=0 действует во всех трёх локалях", async () => {
+    const formatTons = await importNative();
+    for (const lang of langs) {
+      const num = numericPart(formatTons(lang, 20.7));
+      expect(num).not.toMatch(/[.,]\d/);
+    }
+  });
+
+  // ----- фолбек-ветка: дробная часть СОХРАНЯЕТСЯ -----
+
+  it.each([
+    [20.4, "20.4"],
+    [20.7, "20.7"],
+    [20.45, "20.45"],
+    [0.5, "0.5"],
+    [-0.5, "-0.5"],
+    [1234.567, "1,234.567"],
+  ])("fallback EN: %f → числовая часть = %s (без округления)", async (input, expected) => {
+    const formatTons = await importFallback();
+    expect(numericPart(formatTons("en", input))).toBe(expected);
+  });
+
+  it("fallback RU использует «,» как десятичный разделитель", async () => {
+    const formatTons = await importFallback();
+    expect(numericPart(formatTons("ru", 20.7))).toBe("20,7");
+    expect(numericPart(formatTons("ru", 0.05))).toBe("0,05");
+  });
+
+  it("fallback ES использует «,» как десятичный разделитель", async () => {
+    const formatTons = await importFallback();
+    expect(numericPart(formatTons("es", 20.7))).toBe("20,7");
+    expect(numericPart(formatTons("es", 0.05))).toBe("0,05");
+  });
+
+  // ----- паритет vs расхождение между ветками -----
+
+  it("ПАРИТЕТ: целые числа форматируются одинаково в обеих ветках (числовая часть)", async () => {
+    for (const value of [0, 1, 20, 999, 12_000, 1_234_567]) {
+      for (const lang of langs) {
+        const native = await importNative();
+        const nativeOut = numericPart(native(lang, value));
+        const fallback = await importFallback();
+        const fallbackOut = numericPart(fallback(lang, value));
+        expect(
+          fallbackOut,
+          `lang=${lang}, value=${value}: native="${nativeOut}", fallback="${fallbackOut}"`,
+        ).toBe(nativeOut);
+      }
+    }
+  });
+
+  it("РАСХОЖДЕНИЕ (известное): дробные округляются в нативной ветке и НЕ округляются в фолбеке", async () => {
+    // ВАЖНО: formatTons лениво создаёт unit-formatter при первом вызове,
+    // поэтому patch на Intl должен быть активен В МОМЕНТ вызова.
+    // Прогоняем нативную ветку полностью прежде, чем переключаться на фолбек.
+    const nativeOuts: Record<string, string> = {};
+    const native = await importNative();
+    for (const lang of langs) {
+      nativeOuts[lang] = numericPart(native(lang, 20.7));
+    }
+
+    const fallbackOuts: Record<string, string> = {};
+    const fallback = await importFallback();
+    for (const lang of langs) {
+      fallbackOuts[lang] = numericPart(fallback(lang, 20.7));
+    }
+
+    for (const lang of langs) {
+      expect(nativeOuts[lang], `native ${lang}`).not.toMatch(/[.,]\d/);
+      expect(fallbackOuts[lang], `fallback ${lang}`).toMatch(/[.,]\d/);
+      expect(fallbackOuts[lang]).not.toBe(nativeOuts[lang]);
+    }
+  });
+
+  it("оба варианта НИКОГДА не уходят в expo-нотацию даже на дробных больших числах", async () => {
+    const value = 1_234_567.89;
+    const nativeOuts: string[] = [];
+    const native = await importNative();
+    for (const lang of langs) nativeOuts.push(native(lang, value));
+
+    const fallbackOuts: string[] = [];
+    const fallback = await importFallback();
+    for (const lang of langs) fallbackOuts.push(fallback(lang, value));
+
+    for (const out of [...nativeOuts, ...fallbackOuts]) {
+      expect(out).not.toMatch(/[eE][+-]?\d/);
+    }
+  });
+
+  it("фолбек: суффикс t/т остаётся правильным на дробных значениях", async () => {
+    const fallback = await importFallback();
+    for (const value of [0.5, 20.7, 1234.567]) {
+      expect(fallback("en", value).endsWith("\u00A0t")).toBe(true);
+      expect(fallback("ru", value).endsWith("\u00A0т")).toBe(true);
+      expect(fallback("es", value).endsWith("\u00A0t")).toBe(true);
+    }
+  });
+});
+
+describe("AppLang → BCP47 маппинг", () => {
+  // Маппинг BCP47 — приватная константа в intl-format.ts, поэтому
+  // тестируем его через НАБЛЮДАЕМОЕ поведение: шпионим конструктор
+  // Intl.NumberFormat и Intl.DateTimeFormat и проверяем, с каким
+  // первым аргументом (locales) он был вызван для каждого AppLang.
+  //
+  // Ожидаемый контракт:
+  //   en → "en-US"
+  //   ru → "ru-RU"
+  //   es → "es-ES"
+  // Неизвестные значения (вне union AppLang) → BCP47[lang] = undefined,
+  // что для Intl означает «системная локаль» — конструктор НЕ должен
+  // падать. Это и есть «корректный фолбек» для неизвестного языка.
+
+  const OriginalNumberFormat = Intl.NumberFormat;
+  const OriginalDateTimeFormat = Intl.DateTimeFormat;
+
+  /** Список (locales, options) всех вызовов конструктора в этом тесте. */
+  type Call = { locales: unknown; options?: Intl.NumberFormatOptions };
+
+  /** Подменяет Intl.NumberFormat на прокси, фиксирующий каждый вызов
+   * и делегирующий в оригинал (без изменения поведения). */
+  const spyNumberFormat = (): Call[] => {
+    const calls: Call[] = [];
+    const Spy = function (
+      this: unknown,
+      locales?: string | string[],
+      options?: Intl.NumberFormatOptions,
+    ) {
+      calls.push({ locales, options });
+      return new OriginalNumberFormat(locales, options);
+    } as unknown as typeof Intl.NumberFormat;
+    Object.setPrototypeOf(Spy, OriginalNumberFormat);
+    (Spy as unknown as { prototype: unknown }).prototype = OriginalNumberFormat.prototype;
+    (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat = Spy;
+    return calls;
+  };
+
+  /** Аналогично для Intl.DateTimeFormat. */
+  const spyDateTimeFormat = (): Call[] => {
+    const calls: Call[] = [];
+    const Spy = function (
+      this: unknown,
+      locales?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) {
+      calls.push({ locales, options });
+      return new OriginalDateTimeFormat(locales, options);
+    } as unknown as typeof Intl.DateTimeFormat;
+    Object.setPrototypeOf(Spy, OriginalDateTimeFormat);
+    (Spy as unknown as { prototype: unknown }).prototype = OriginalDateTimeFormat.prototype;
+    (Intl as unknown as { DateTimeFormat: typeof Intl.DateTimeFormat }).DateTimeFormat = Spy;
+    return calls;
+  };
+
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat =
+      OriginalNumberFormat;
+    (Intl as unknown as { DateTimeFormat: typeof Intl.DateTimeFormat }).DateTimeFormat =
+      OriginalDateTimeFormat;
+  });
+
+  it.each([
+    ["en", "en-US"],
+    ["ru", "ru-RU"],
+    ["es", "es-ES"],
+  ] as Array<[AppLang, string]>)(
+    "formatNumber: %s → конструктор Intl.NumberFormat вызван с '%s'",
+    async (lang, expectedTag) => {
+      const calls = spyNumberFormat();
+      const { formatNumber } = await import("@/lib/intl-format");
+      formatNumber(lang, 12345);
+
+      // Хотя бы один вызов с ожидаемым BCP47-тегом.
+      const tags = calls.map((c) => c.locales);
+      expect(tags, JSON.stringify(tags)).toContain(expectedTag);
+    },
+  );
+
+  it.each([
+    ["en", "en-US"],
+    ["ru", "ru-RU"],
+    ["es", "es-ES"],
+  ] as Array<[AppLang, string]>)(
+    "formatTons: %s → Intl.NumberFormat (любой ветки) вызван с '%s'",
+    async (lang, expectedTag) => {
+      const calls = spyNumberFormat();
+      const { formatTons } = await import("@/lib/intl-format");
+      formatTons(lang, 20);
+
+      // formatTons делает 1-2 вызова конструктора:
+      //   • попытка unit:'metric-ton' (может бросить);
+      //   • затем formatNumber для группировки (если фолбек).
+      // Все они должны идти с тем же BCP47-тегом.
+      const tags = calls.map((c) => c.locales);
+      expect(tags.length).toBeGreaterThan(0);
+      for (const tag of tags) {
+        expect(tag).toBe(expectedTag);
+      }
+    },
+  );
+
+  it.each([
+    ["en", "en-US"],
+    ["ru", "ru-RU"],
+    ["es", "es-ES"],
+  ] as Array<[AppLang, string]>)(
+    "formatMonthYear: %s → Intl.DateTimeFormat вызван с '%s'",
+    async (lang, expectedTag) => {
+      const calls = spyDateTimeFormat();
+      const { formatMonthYear } = await import("@/lib/intl-format");
+      formatMonthYear(lang, "2024-10-15");
+
+      const tags = calls.map((c) => c.locales);
+      expect(tags).toContain(expectedTag);
+    },
+  );
+
+  it("formatFullDate использует тот же BCP47-маппинг, что и formatMonthYear", async () => {
+    const calls = spyDateTimeFormat();
+    const { formatFullDate } = await import("@/lib/intl-format");
+    formatFullDate("ru", "2024-10-15");
+
+    const tags = calls.map((c) => c.locales);
+    expect(tags).toContain("ru-RU");
+    // Это именно DateTimeFormat (не NumberFormat) — проверяем,
+    // что хотя бы один вызов был с DateTime-опцией month/day/year.
+    const hasDateOptions = calls.some((c) => {
+      const o = c.options as Intl.DateTimeFormatOptions | undefined;
+      return Boolean(o && (o.day || o.month || o.year));
+    });
+    expect(hasDateOptions).toBe(true);
+  });
+
+  it("маппинг стабилен между вызовами (кэш formatter'ов не теряет язык)", async () => {
+    const calls = spyNumberFormat();
+    const { formatNumber } = await import("@/lib/intl-format");
+
+    formatNumber("ru", 1);
+    formatNumber("ru", 2);
+    formatNumber("ru", 3);
+
+    // Все вызовы конструктора (если они были — кэш может сэкономить
+    // повторные) шли только с "ru-RU", без случайных перескоков.
+    for (const c of calls) {
+      expect(c.locales).toBe("ru-RU");
+    }
+    // И как минимум первый вызов точно произошёл.
+    expect(calls.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ----- неизвестные / некорректные значения -----
+
+  it("неизвестный AppLang: BCP47[lang] = undefined → Intl получает undefined и не падает", async () => {
+    const calls = spyNumberFormat();
+    const { formatNumber } = await import("@/lib/intl-format");
+
+    // Намеренно выходим за тип AppLang, имитируя «битый» вход
+    // (например, забытое значение в БД или стороннюю ошибку).
+    const out = formatNumber("xx" as AppLang, 1234);
+
+    // Не упало, вернуло строку, содержащую цифры.
+    expect(typeof out).toBe("string");
+    expect(out).toMatch(/1.*2.*3.*4/);
+
+    // Конструктор был вызван с locales=undefined (это и есть фолбек:
+    // Intl выбирает системную локаль, что безопасно).
+    expect(calls.some((c) => c.locales === undefined)).toBe(true);
+  });
+
+  it("неизвестный AppLang: formatTons не падает и заканчивается каким-то суффиксом", async () => {
+    spyNumberFormat();
+    const { formatTons } = await import("@/lib/intl-format");
+
+    const out = formatTons("zz" as AppLang, 20);
+    expect(typeof out).toBe("string");
+    // Между числом и суффиксом обязан стоять разделитель (NBSP в фолбеке).
+    expect(out).toMatch(/20[\u0020\u00A0\u202F]\S+$/);
+    // Должен заканчиваться буквой, а не цифрой.
+    expect(out).toMatch(/[A-Za-zА-Яа-я]$/);
+  });
+
+  it("неизвестный AppLang: formatMonthYear/formatFullDate не падают", async () => {
+    spyDateTimeFormat();
+    const { formatMonthYear, formatFullDate } = await import("@/lib/intl-format");
+
+    expect(() => formatMonthYear("qq" as AppLang, "2024-10-15")).not.toThrow();
+    expect(() => formatFullDate("qq" as AppLang, "2024-10-15")).not.toThrow();
+
+    const m = formatMonthYear("qq" as AppLang, "2024-10-15");
+    const d = formatFullDate("qq" as AppLang, "2024-10-15");
+    expect(typeof m).toBe("string");
+    expect(typeof d).toBe("string");
+    expect(m.length).toBeGreaterThan(0);
+    expect(d.length).toBeGreaterThan(0);
+  });
+
+  it("известные локали маппятся РАЗНО (en/ru/es дают разные locales-аргументы)", async () => {
+    const calls = spyNumberFormat();
+    const { formatNumber } = await import("@/lib/intl-format");
+
+    formatNumber("en", 1);
+    formatNumber("ru", 1);
+    formatNumber("es", 1);
+
+    const seen = new Set(calls.map((c) => c.locales));
+    expect(seen.has("en-US")).toBe(true);
+    expect(seen.has("ru-RU")).toBe(true);
+    expect(seen.has("es-ES")).toBe(true);
+  });
+});
+
