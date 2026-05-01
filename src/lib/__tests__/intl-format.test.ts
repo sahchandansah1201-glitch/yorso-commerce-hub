@@ -16,6 +16,73 @@ import type { AppLang } from "@/lib/intl-format";
 
 const langs: AppLang[] = ["en", "ru", "es"];
 
+/* ============================================================
+ *  ICU-толерантные шаблоны
+ * ------------------------------------------------------------
+ *  Между числом и суффиксом ICU разных версий вставляет либо
+ *  NBSP (U+00A0), либо NNBSP/тонкий неразрывный (U+202F),
+ *  иногда — обычный пробел (U+0020). Все три считаем валидными.
+ *
+ *  Внутри числа разделитель тысяч у ru-RU тоже колеблется между
+ *  U+0020/U+00A0/U+202F, у es-ES исторически "." но в будущих
+ *  версиях ICU теоретически возможен пробельный разделитель
+ *  (мы не закладываемся на это, см. esThousandsClass ниже).
+ *
+ *  Эти константы используются вместо жёстких equals "12,000\u00A0t",
+ *  чтобы тесты не ломались при апдейте ICU/Node.
+ * ============================================================ */
+
+/** Класс символов, который ICU может поставить между числом и суффиксом. */
+const NUM_UNIT_SEP = "[\\u0020\\u00A0\\u202F]";
+
+/** Класс «пробельных» разделителей тысяч (для ru-RU и любой будущей es-ES вариации). */
+const SPACE_GROUP_SEP = "[\\u0020\\u00A0\\u202F]";
+
+/** Суффикс единицы тонн по локали. */
+const tonsSuffix = (lang: AppLang): "t" | "т" => (lang === "ru" ? "т" : "t");
+
+/** Десятичный разделитель по локали (стабильный контракт ICU). */
+const decimalSep = (lang: AppLang): "." | "," => (lang === "en" ? "." : ",");
+
+/**
+ * Экранирует regex-метасимвол. Достаточно для одиночного символа,
+ * который мы вставляем как литерал (точка, запятая).
+ */
+const reEscape = (ch: string): string => ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Строит regex для строки вида "<integer><sep>тонн-суффикс".
+ * Группы тысяч задаются массивом; между ними — локаль-специфичный
+ * разделитель тысяч (или его класс для пробельных локалей).
+ *
+ * Пример: tonsRegex("ru", ["1","234","567"]) →
+ *   /^1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567[\u0020\u00A0\u202F]т$/
+ */
+const tonsRegex = (
+  lang: AppLang,
+  groups: string[],
+  opts: { negative?: boolean } = {},
+): RegExp => {
+  const sign = opts.negative ? "-" : "";
+  let groupSep: string;
+  if (lang === "ru") groupSep = SPACE_GROUP_SEP;
+  else if (lang === "es") groupSep = "\\."; // ICU es-ES today
+  else groupSep = ","; // en-US
+  const number = groups.join(groupSep);
+  return new RegExp(`^${sign}${number}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u");
+};
+
+/** Тот же шаблон, но без знака и без группировки — для значений < 1000. */
+const tonsRegexSmall = (lang: AppLang, n: number): RegExp =>
+  new RegExp(`^${n}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u");
+
+/** Шаблон для дробного значения: "<int><dec><frac><sep><suffix>". */
+const tonsRegexFraction = (lang: AppLang, intPart: string, fracPart: string): RegExp =>
+  new RegExp(
+    `^${intPart}${reEscape(decimalSep(lang))}${fracPart}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`,
+    "u",
+  );
+
 describe("formatTons · нативный Intl (happy path)", () => {
   beforeEach(() => {
     vi.resetModules();
