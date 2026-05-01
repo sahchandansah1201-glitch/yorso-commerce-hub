@@ -19,7 +19,8 @@
  *     разделителя тысяч ни в одной локали.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, act, within } from "@testing-library/react";
+import { render, screen, cleanup, act, within, fireEvent } from "@testing-library/react";
+import { translations } from "@/i18n/translations";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
