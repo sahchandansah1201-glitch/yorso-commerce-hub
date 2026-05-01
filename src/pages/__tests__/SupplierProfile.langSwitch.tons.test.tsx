@@ -105,6 +105,7 @@ describe("SupplierProfile · e2e переключение языка и форм
   describe("Сценарий: пользователь монтирует страницу и переключает язык", () => {
     it("en → ru → es: суффикс единицы тонн в case-карточках меняется t → т → t", () => {
       renderApp("en");
+      activateCasesTab("en");
 
       // EN: должны быть значения в тоннах с суффиксом "t" (а не "т").
       const en = collectTonStrings("t");
@@ -115,6 +116,7 @@ describe("SupplierProfile · e2e переключение языка и форм
       // Переключаем язык через публичное API контекста.
       expect(switchLangFromTest).toBeTypeOf("function");
       act(() => switchLangFromTest!("ru"));
+      activateCasesTab("ru");
 
       const ru = collectTonStrings("т");
       expect(ru.length, "RU: ожидаются значения тонн с суффиксом т").toBeGreaterThan(0);
@@ -123,6 +125,7 @@ describe("SupplierProfile · e2e переключение языка и форм
       expect(collectTonStrings("t")).toHaveLength(0);
 
       act(() => switchLangFromTest!("es"));
+      activateCasesTab("es");
 
       const es = collectTonStrings("t");
       expect(es.length, "ES: ожидаются значения тонн с суффиксом t").toBeGreaterThan(0);
