@@ -542,7 +542,16 @@ const SupplierProfile = () => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
     const suffix = t.supplier_seo_titleSuffix;
-    document.title = `${supplier.companyName} — ${suffix} · YORSO`;
+    const pageTitle = `${supplier.companyName} — ${suffix} · YORSO`;
+    document.title = pageTitle;
+    // На первом монтировании родительский LanguageProvider запускает свой
+    // useEffect ПОСЛЕ нашего (эффекты выполняются bottom-up) и затирает
+    // page-title дефолтным «site title». Чтобы наш SEO-тайтл всё-таки
+    // оказался в DOM, переустанавливаем его в следующий microtask —
+    // когда вся цепочка mount-эффектов уже отработала.
+    queueMicrotask(() => {
+      if (document.title !== pageTitle) document.title = pageTitle;
+    });
     const description =
       supplier.shortDescription ||
       interpolate(t.supplier_seo_descriptionFallback, {
