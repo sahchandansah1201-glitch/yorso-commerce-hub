@@ -64,6 +64,18 @@ const renderApp = (initialLang: Language) => {
 };
 
 /**
+ * Кейсы (TabsContent value="cases") по умолчанию не в DOM —
+ * Radix Tabs рендерит только активный таб. Чтобы протестировать
+ * рендер volumeTons в case-карточках, программно активируем таб.
+ * Текст таба локализован — берём его из текущих переводов.
+ */
+const activateCasesTab = (lang: Language) => {
+  const label = translations[lang].supplier_tab_cases;
+  const trigger = screen.getByRole("tab", { name: label });
+  fireEvent.click(trigger);
+};
+
+/**
  * Ищем все вхождения строк вида "<число><sep><unit>" с целевым unit
  * (t или т) и возвращаем сами совпадения. Нужен непустой результат —
  * иначе значит, что страница не отрисовала тонны в этой локали.
