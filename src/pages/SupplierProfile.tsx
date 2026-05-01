@@ -34,7 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, countryCodeToFlag, type MockSupplier } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
-import { mockOffers } from "@/data/mockOffers";
+import { mockOffers, getOffersForSupplier } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
@@ -54,6 +54,16 @@ import {
 } from "@/lib/supplier-content";
 import { interpolate, pluralize, formatLocalizedDate } from "@/lib/supplier-i18n";
 import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/intl-format";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
+import {
+  getSupplierAccessRequest,
+  type SupplierAccessRequest,
+} from "@/lib/supplier-access-requests";
+import {
+  SupplierAccessRequestPanel,
+  SupplierAccessRequestSent,
+} from "@/components/suppliers/SupplierAccessRequestPanel";
+import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
