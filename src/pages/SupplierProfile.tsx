@@ -376,7 +376,13 @@ const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   );
 };
 
-const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+const TrustFactsBlock = ({
+  supplier,
+  unlocked = true,
+}: {
+  supplier: MockSupplier;
+  unlocked?: boolean;
+}) => {
   const { t, lang } = useLanguage();
 
   const responseLabel =
@@ -396,10 +402,17 @@ const TrustFactsBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
+  // Exact active offer count is identity-adjacent (helps fingerprint a
+  // supplier in a small market). Hide the precise number until access is
+  // approved; show a coarse "available after price access" placeholder.
+  const offersValue = unlocked
+    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
+    : t.supplier_locked_offersCountHidden;
+
   const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
     { label: t.supplier_trust_type, value: typeValue },
     { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
-    { label: t.supplier_trust_activeOffers, value: formatNumber(lang as AppLang, supplier.activeOffersCount) },
+    { label: t.supplier_trust_activeOffers, value: offersValue },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
