@@ -37,11 +37,22 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Синхронизируем метаданные документа с текущей локалью.
+  // ВАЖНО: title здесь — дефолтный «сайт»-тайтл. Если конкретная страница
+  // (например, SupplierProfile) уже установила свой title, перезаписывать
+  // его нельзя — иначе SEO-тайтл страницы мерцает или теряется.
+  // Поэтому держим last-known site title и обновляем document.title только
+  // если он совпадает с прошлым site title (или пуст).
   useEffect(() => {
     if (typeof document === "undefined") return;
     const t = translations[lang];
     document.documentElement.setAttribute("lang", lang);
-    document.title = t.meta_siteTitle;
+    const prevSiteTitle = (window as Window & { __yorsoSiteTitle?: string })
+      .__yorsoSiteTitle;
+    if (!document.title || document.title === prevSiteTitle) {
+      document.title = t.meta_siteTitle;
+    }
+    (window as Window & { __yorsoSiteTitle?: string }).__yorsoSiteTitle =
+      t.meta_siteTitle;
     let descTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (!descTag) {
       descTag = document.createElement("meta");
