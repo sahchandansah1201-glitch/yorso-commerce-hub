@@ -173,17 +173,17 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
   it("использует локальные группировщики тысяч в фолбеке (RU)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     const out = formatTons("ru", 12000);
-    // Суффикс — стабильный «т», между числом и суффиксом —
-    // именно неразрывный пробел \u00A0 (а не обычный).
-    expect(out.endsWith("\u00A0т")).toBe(true);
-    expect(out).toMatch(/^12[\s\u00A0\u202F]?000\u00A0т$/);
+    // Суффикс — стабильный «т», между числом и суффиксом — какой-то
+    // из неразрывных пробелов (NBSP/NNBSP) — оба валидны для ICU ru-RU.
+    expect(out).toMatch(new RegExp(`${NUM_UNIT_SEP}т$`, "u"));
+    expect(out).toMatch(tonsRegex("ru", ["12", "000"]));
   });
 
   it("использует локальные группировщики тысяч в фолбеке (EN)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     const out = formatTons("en", 12000);
-    expect(out.endsWith("\u00A0t")).toBe(true);
-    expect(out).toMatch(/^12,000\u00A0t$/);
+    expect(out).toMatch(new RegExp(`${NUM_UNIT_SEP}t$`, "u"));
+    expect(out).toMatch(tonsRegex("en", ["12", "000"]));
   });
 
   it("кэширует результат: повторный вызов не пытается снова создать unit-formatter", async () => {
@@ -194,18 +194,18 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
     const a = formatTons("ru", 7);
     const b = formatTons("ru", 7);
     expect(a).toBe(b);
-    expect(a).toBe("7\u00A0т");
+    expect(a).toMatch(tonsRegexSmall("ru", 7));
   });
 
   it.each(langs)(
-    "%s: между числом и суффиксом стоит именно \\u00A0, а не обычный пробел",
+    "%s: между числом и суффиксом стоит неразрывный/тонкий пробел (NBSP|NNBSP), не обычный",
     async (lang) => {
       const { formatTons } = await import("@/lib/intl-format");
       const out = formatTons(lang, 5);
-      // Не должно быть последовательности «обычный пробел + буква»:
-      // только NBSP допустим как разделитель.
+      // Допустимы NBSP и NNBSP. Обычный пробел перед буквой —
+      // признак того, что суффикс «отвалился» от числа в HTML.
       expect(out).not.toMatch(/5 [a-zA-Zа-яА-Я]/);
-      expect(out).toMatch(/5\u00A0[a-zA-Zа-яА-Я]/);
+      expect(out).toMatch(/5[\u00A0\u202F][a-zA-Zа-яА-Я]/u);
     },
   );
 });
