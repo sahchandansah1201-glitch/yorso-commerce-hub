@@ -4253,6 +4253,7 @@ const es: TranslationKeys = {
   supplier_seo_titleSuffix: "Proveedor",
   supplier_seo_descriptionFallback: "{company} — proveedor verificado de productos del mar desde {country} en el marketplace B2B YORSO.",
   supplier_seo_orgDescription: "{company} — {type} de {country}. Proveedor B2B verificado de productos del mar en YORSO.",
+  supplier_seo_itemListName: "{company} — catálogo de productos",
   supplier_logo_aria: "Logotipo de {name}",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} en el mercado",
