@@ -200,13 +200,18 @@ const SupplierLogoCard = ({
   size = 80,
   className = "",
   priority = "lazy",
+  displayName,
+  showLogoImage = true,
 }: {
   supplier: MockSupplier;
   size?: 28 | 40 | 80 | 86;
   className?: string;
   priority?: "hero" | "mini" | "lazy";
+  displayName?: string;
+  showLogoImage?: boolean;
 }) => {
-  const initials = getCompanyInitials(supplier.companyName);
+  const nameForLabel = displayName ?? supplier.companyName;
+  const initials = getCompanyInitials(nameForLabel);
   // Hero — 80→86px. Mini — 28→32px (sticky-хедер). Плавный переход на md.
   const isHero = priority === "hero";
   const isMini = priority === "mini";
@@ -236,25 +241,15 @@ const SupplierLogoCard = ({
         : "ring-2 ring-background shadow-sm";
 
   const status = useLogoStatus(supplier.logoImage);
-  const showImage = !!supplier.logoImage && status !== "error";
+  const showImage = showLogoImage && !!supplier.logoImage && status !== "error";
   const showSkeleton = showImage && status !== "loaded";
 
-  // Адаптивные размеры:
-  //  - hero: 80 → md:86 (площадь +15%)
-  //  - mini: 28 → md:32 (sticky-хедер, читается рядом со Smart-link)
-  // Скелетон растягивается inset-0 синхронно с родителем,
-  // поэтому смена брейкпоинта не вызывает «дёрганья».
   const sizeClasses = isHero
     ? "h-20 w-20 md:h-[86px] md:w-[86px] transition-[width,height,box-shadow] duration-300 ease-out [will-change:width,height]"
     : isMini
       ? "h-7 w-7 md:h-8 md:w-8 transition-[width,height] duration-200 ease-out"
       : "";
 
-  // Reduced motion: жёстко отключаем ВСЕ transitions/animations внутри
-  // карточки одним каскадным правилом — включая box-shadow (ring),
-  // opacity на <img> (fade-in после loaded) и pulse скелетона.
-  // Без этого reduced-motion-пользователь мог увидеть частичные эффекты
-  // (текст/ring без анимации, но image fade-in остался).
   const motionReduceLockdown =
     "motion-reduce:[&_*]:!transition-none motion-reduce:[&_*]:![animation-duration:0ms] motion-reduce:!transition-none motion-reduce:![animation-duration:0ms]";
 
@@ -266,22 +261,19 @@ const SupplierLogoCard = ({
     <div
       className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${motionReduceLockdown} ${className}`}
       style={sizeStyle}
-      aria-label={`Логотип ${supplier.companyName}`}
+      aria-label={`Логотип ${nameForLabel}`}
     >
       {showImage ? (
         <>
           {showSkeleton && (
             <Skeleton
               aria-hidden
-              // transition-none — скелетон сам не анимирует свои размеры,
-              // он просто растягивается inset-0 вместе с родителем, поэтому
-              // pulse не «дёргается» во время resize/rotate-перехода.
               className="absolute inset-0 h-full w-full rounded-none transition-none"
             />
           )}
           <img
             src={supplier.logoImage}
-            alt={`${supplier.companyName} logo`}
+            alt={`${nameForLabel} logo`}
             className={`h-full w-full object-contain p-1 transition-opacity duration-200 ${
               status === "loaded" ? "opacity-100" : "opacity-0"
             }`}
