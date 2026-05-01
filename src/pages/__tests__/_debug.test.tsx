@@ -21,17 +21,14 @@ describe("debug", () => {
       </MemoryRouter>,
     );
     const trig = screen.getByRole("tab", { name: /Shipment reports/i });
-    // Radix Tabs activates on pointerdown by default in @radix-ui
-    fireEvent.pointerDown(trig, { button: 0, ctrlKey: false });
-    fireEvent.mouseDown(trig, { button: 0 });
+    fireEvent.pointerDown(trig, { button: 0 });
     fireEvent.click(trig);
-    fireEvent.keyDown(trig, { key: "Enter" });
-    fireEvent.keyDown(trig, { key: " " });
     const text = document.body.textContent ?? "";
-    const idx = text.indexOf("Volume");
-    console.log("Volume idx:", idx, "context:", JSON.stringify(text.slice(Math.max(0,idx-20), idx + 200)));
-    console.log("Cases title present?", text.includes("Shipment reports"));
-    console.log("aria-selected:", trig.getAttribute("aria-selected"));
-    console.log("data-state:", trig.getAttribute("data-state"));
+    console.log("Has 'Batch volume':", text.includes("Batch volume"));
+    const idx = text.indexOf("Batch volume");
+    console.log("ctx:", JSON.stringify(text.slice(idx, idx + 80)));
+    // Поищем все числа с " t" / NBSP+t в конце
+    const re = /\d[\d,. \u00A0\u202F]*[\u0020\u00A0\u202F]t(?![a-zA-Z])/gu;
+    console.log("ton-like:", JSON.stringify(text.match(re)));
   });
 });
