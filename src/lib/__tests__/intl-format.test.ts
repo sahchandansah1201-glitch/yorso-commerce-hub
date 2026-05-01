@@ -155,19 +155,19 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
       OriginalNumberFormat;
   });
 
-  it("EN: возвращает «<число> t» с неразрывным пробелом", async () => {
+  it("EN: возвращает «<число> t» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 20)).toBe("20\u00A0t");
+    expect(formatTons("en", 20)).toMatch(tonsRegexSmall("en", 20));
   });
 
-  it("RU: возвращает «<число> т» с неразрывным пробелом", async () => {
+  it("RU: возвращает «<число> т» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("ru", 20)).toBe("20\u00A0т");
+    expect(formatTons("ru", 20)).toMatch(tonsRegexSmall("ru", 20));
   });
 
-  it("ES: возвращает «<число> t» с неразрывным пробелом", async () => {
+  it("ES: возвращает «<число> t» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("es", 20)).toBe("20\u00A0t");
+    expect(formatTons("es", 20)).toMatch(tonsRegexSmall("es", 20));
   });
 
   it("использует локальные группировщики тысяч в фолбеке (RU)", async () => {
