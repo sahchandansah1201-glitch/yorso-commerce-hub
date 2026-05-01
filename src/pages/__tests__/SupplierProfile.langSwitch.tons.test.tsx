@@ -18,7 +18,7 @@
  *  3) Маленькие значения тонн из supplier-content (10..32) не получают
  *     разделителя тысяч ни в одной локали.
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act, within, fireEvent } from "@testing-library/react";
 import { translations } from "@/i18n/translations";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -27,6 +27,25 @@ import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { formatTons, type AppLang } from "@/lib/intl-format";
 import type { Language } from "@/i18n/translations";
+
+/**
+ * Radix Tabs в jsdom не активирует TabsContent через fireEvent.click —
+ * требуется реальный pointer-event-стек, недоступный без user-event.
+ * Чтобы тест мог проверить рендер тонн в case-карточках, заменяем
+ * Tabs/TabsContent на наивный пропускающий враппер: вся вкладка
+ * (включая cases с volumeTons) монтируется сразу.
+ */
+vi.mock("@/components/ui/tabs", () => {
+  const Pass = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+  return {
+    Tabs: Pass,
+    TabsList: Pass,
+    TabsTrigger: ({ children }: { children?: React.ReactNode }) => (
+      <button type="button">{children}</button>
+    ),
+    TabsContent: Pass,
+  };
+});
 
 const SUPPLIER_ID = "sup-no-001";
 
