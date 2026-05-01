@@ -1432,6 +1432,8 @@ const SupplierProfile = () => {
                                 value={interpolate(t.supplier_passport_logistics_minBatchValue, {
                                   n: logistics.minBatchTons,
                                 })}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_logistics_transit}
@@ -1440,6 +1442,8 @@ const SupplierProfile = () => {
                                   max: logistics.transitDaysMax,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_logistics_containers} value={logistics.containers.join(", ")} />
                             </dl>
