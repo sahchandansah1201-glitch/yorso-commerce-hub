@@ -76,7 +76,8 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
     } as unknown as typeof Intl.NumberFormat;
     // Сохраняем статические методы (supportedLocalesOf и т.п.).
     Object.setPrototypeOf(PatchedNumberFormat, OriginalNumberFormat);
-    PatchedNumberFormat.prototype = OriginalNumberFormat.prototype;
+    (PatchedNumberFormat as unknown as { prototype: unknown }).prototype =
+      OriginalNumberFormat.prototype;
 
     (Intl as unknown as { NumberFormat: typeof Intl.NumberFormat }).NumberFormat =
       PatchedNumberFormat;
