@@ -73,10 +73,14 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
       expect(screen.getAllByText(/Nordfjord Sjømat AS/).length).toBeGreaterThan(0);
     });
 
-    it("устанавливает document.title и <html lang> для en", () => {
+    it("устанавливает document.title и <html lang> для en", async () => {
       renderWithLang("en");
       expect(document.documentElement.lang).toBe("en");
-      expect(document.title).toContain("Nordfjord Sjømat AS");
+      // title применяется в microtask, чтобы выиграть гонку
+      // с LanguageProvider — ждём через waitFor.
+      await waitFor(() => {
+        expect(document.title).toContain("Nordfjord Sjømat AS");
+      });
       expect(document.title).toContain("Supplier");
       expect(document.title).toContain("YORSO");
     });
@@ -108,10 +112,12 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
       expect(screen.getByText("Поставщики")).toBeInTheDocument();
     });
 
-    it("устанавливает document.title с RU-суффиксом и <html lang=ru>", () => {
+    it("устанавливает document.title с RU-суффиксом и <html lang=ru>", async () => {
       renderWithLang("ru");
       expect(document.documentElement.lang).toBe("ru");
-      expect(document.title).toContain("Поставщик");
+      await waitFor(() => {
+        expect(document.title).toContain("Поставщик");
+      });
       expect(document.title).toContain("Nordfjord Sjømat AS");
     });
 
@@ -140,10 +146,12 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
       expect(screen.queryByText("Norway")).toBeNull();
     });
 
-    it("устанавливает document.title с ES-суффиксом и <html lang=es>", () => {
+    it("устанавливает document.title с ES-суффиксом и <html lang=es>", async () => {
       renderWithLang("es");
       expect(document.documentElement.lang).toBe("es");
-      expect(document.title).toContain("Proveedor");
+      await waitFor(() => {
+        expect(document.title).toContain("Proveedor");
+      });
       expect(document.title).toContain("Nordfjord Sjømat AS");
     });
 
