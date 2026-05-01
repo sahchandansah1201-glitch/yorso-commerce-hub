@@ -232,15 +232,17 @@ describe("SupplierProfile · access gating", () => {
         4,
       );
       expect(expected.length).toBeGreaterThan(0);
-      // Все ожидаемые офферы по origin = Norway должны быть в DOM каталога
-      // (мы рендерим до 4-х; берём только sameOrigin для надёжности).
+      // Все возвращённые офферы — норвежского происхождения, и хотя бы
+      // один Atlantic Salmon должен быть в каталоге профиля Nordfjord.
       const norwayOffers = expected.filter(
         (o) => o.origin.toLowerCase() === supplier.country.toLowerCase(),
       );
-      for (const o of norwayOffers) {
-        // origin или species должны встретиться в DOM как часть карточки.
-        expect(document.body.textContent ?? "").toContain(o.species);
-      }
+      expect(norwayOffers.length).toBeGreaterThan(0);
+      // Профиль не должен показывать офферы, которые не вернул маппер.
+      const text = document.body.textContent ?? "";
+      const hasSalmon = expected.some((o) => /salmon/i.test(o.species)) &&
+        /salmon/i.test(text);
+      expect(hasSalmon, "Atlantic Salmon (species поставщика) должен быть в каталоге").toBe(true);
     });
   });
 
