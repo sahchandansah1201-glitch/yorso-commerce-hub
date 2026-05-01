@@ -589,27 +589,26 @@ const SupplierProfile = () => {
     if (!supplier || typeof document === "undefined") return;
     const prev = document.title;
     const suffix = t.supplier_seo_titleSuffix;
-    const pageTitle = `${supplier.companyName} — ${suffix} · YORSO`;
+    // Page title MUST NOT leak the supplier's real legal name when the
+    // visitor has not been granted access. Use the masked label instead.
+    const titleName = isUnlocked ? supplier.companyName : supplier.maskedName;
+    const pageTitle = `${titleName} — ${suffix} · YORSO`;
     document.title = pageTitle;
-    // На первом монтировании родительский LanguageProvider запускает свой
-    // useEffect ПОСЛЕ нашего (эффекты выполняются bottom-up) и затирает
-    // page-title дефолтным «site title». Чтобы наш SEO-тайтл всё-таки
-    // оказался в DOM, переустанавливаем его в следующий microtask —
-    // когда вся цепочка mount-эффектов уже отработала.
     queueMicrotask(() => {
       if (document.title !== pageTitle) document.title = pageTitle;
     });
+    // Description: same gating. shortDescription is intentionally a safe
+    // preview (no legal/contact details) so it stays on for all states.
     const description =
       supplier.shortDescription ||
       interpolate(t.supplier_seo_descriptionFallback, {
-        company: supplier.companyName,
+        company: titleName,
         country: supplier.country,
       });
     upsertMeta('meta[name="description"]', {
       name: "description",
       content: description,
     });
-    // og:locale для соцсетей
     const ogLocaleMap: Record<string, string> = {
       en: "en_US",
       ru: "ru_RU",
@@ -619,18 +618,21 @@ const SupplierProfile = () => {
       property: "og:locale",
       content: ogLocaleMap[lang] ?? "en_US",
     });
-    // <html lang="..."> для корректной индексации
     if (document.documentElement) {
       document.documentElement.lang = lang;
     }
     return () => {
       document.title = prev;
     };
-  }, [supplier, t, lang]);
+  }, [supplier, t, lang, isUnlocked]);
 
   // Organization + FAQPage JSON-LD для SEO (локализованные)
   useEffect(() => {
     if (!supplier || typeof document === "undefined") return;
+
+    // Identity gating mirrors the visible UI: locked states must not leak
+    // the supplier's real legal name into structured data.
+    const orgName = isUnlocked ? supplier.companyName : supplier.maskedName;
 
     // Organization
     const orgId = `org-jsonld-${supplier.id}`;
@@ -646,11 +648,11 @@ const SupplierProfile = () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       "@id": `${window.location.origin}/suppliers/${supplier.id}`,
-      name: supplier.companyName,
+      name: orgName,
       url: `${window.location.origin}/suppliers/${supplier.id}`,
-      logo: supplier.logoImage,
+      ...(isUnlocked && supplier.logoImage ? { logo: supplier.logoImage } : {}),
       description: interpolate(t.supplier_seo_orgDescription, {
-        company: supplier.companyName,
+        company: orgName,
         type: typeLabel,
         country: supplier.country,
       }),
@@ -689,13 +691,13 @@ const SupplierProfile = () => {
       });
     }
 
-    // ItemList — превью каталога продуктов поставщика (локализованное).
-    // Помогает поисковикам распознать страницу как каталог Organization'а
-    // и сразу видеть основные продукты на нужном языке.
+    // ItemList — каталог продуктов. Эмитим только когда профиль разблокирован,
+    // чтобы не привязывать имена продуктов к реальному названию компании
+    // через brand.name в структурированных данных.
     const listId = `itemlist-jsonld-${supplier.id}`;
     let listScript: HTMLScriptElement | null = null;
     const previewItems = supplier.productCatalogPreview ?? [];
-    if (previewItems.length > 0) {
+    if (isUnlocked && previewItems.length > 0) {
       listScript = document.getElementById(listId) as HTMLScriptElement | null;
       if (!listScript) {
         listScript = document.createElement("script");
@@ -710,7 +712,7 @@ const SupplierProfile = () => {
         "@id": `${supplierUrl}#catalog`,
         inLanguage: lang,
         name: interpolate(t.supplier_seo_itemListName, {
-          company: supplier.companyName,
+          company: orgName,
         }),
         numberOfItems: previewItems.length,
         itemListElement: previewItems.map((item, idx) => ({
@@ -723,11 +725,16 @@ const SupplierProfile = () => {
             ...(item.image ? { image: item.image } : {}),
             brand: {
               "@type": "Organization",
-              name: supplier.companyName,
+              name: orgName,
             },
           },
         })),
       });
+    } else {
+      // Если ранее (в unlocked-сессии) ItemList был отрисован, удалим его,
+      // чтобы при downgrade access он не оставался в <head>.
+      const existing = document.getElementById(listId);
+      if (existing) existing.remove();
     }
 
     return () => {
@@ -735,7 +742,7 @@ const SupplierProfile = () => {
       faqScript?.remove();
       listScript?.remove();
     };
-  }, [supplier, faqItems, t, lang]);
+  }, [supplier, faqItems, t, lang, isUnlocked]);
 
   if (!supplier) {
     return (
