@@ -1205,7 +1205,7 @@ const SupplierProfile = () => {
                         </h3>
                       </div>
                       <div className="mt-3">
-                        <TrustFactsBlock supplier={supplier} />
+                        <TrustFactsBlock supplier={supplier} unlocked={isUnlocked} />
                       </div>
                     </div>
 
