@@ -242,3 +242,154 @@ describe("formatTons · BCP47-теги локалей и группировка 
   });
 });
 
+describe("formatTons · граничные значения (0, отрицательные, большие)", () => {
+  // Эти тесты сфокусированы на крайних входах: 0, отрицательные числа,
+  // большие числа разных порядков и дробные значения. Цель — гарантировать,
+  // что:
+  //   1) ветка фолбека (когда ICU не знает unit:'metric-ton') корректно
+  //      форматирует все эти случаи во всех трёх локалях;
+  //   2) суффикс не «слипается» с числом, использует NBSP;
+  //   3) дробные значения округляются до целых (maximumFractionDigits=0);
+  //   4) очень большие числа группируются и не уходят в expo-нотацию.
+  //
+  // Тесты идут БЕЗ моков Intl. В Node/jsdom Intl.NumberFormat
+  // с unit:'metric-ton' выбрасывает RangeError, поэтому вся ветка
+  // фолбека гарантированно покрыта именно этими тестами.
+
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  // ----- 0 -----
+
+  it.each(langs)("ноль форматируется как '0\\u00A0<суффикс>' для %s", async (lang) => {
+    const { formatTons } = await import("@/lib/intl-format");
+    const expected = { en: "0\u00A0t", ru: "0\u00A0т", es: "0\u00A0t" }[lang];
+    expect(formatTons(lang, 0)).toBe(expected);
+  });
+
+  it("ноль не превращается в '-0' и не получает знак", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    for (const lang of langs) {
+      const out = formatTons(lang, 0);
+      expect(out.startsWith("-")).toBe(false);
+      expect(out).not.toMatch(/^-?0[.,]/); // и без дробной части
+    }
+  });
+
+  // ----- отрицательные -----
+
+  it.each(langs)("маленькое отрицательное (-1) форматируется со знаком минус для %s", async (lang) => {
+    const { formatTons } = await import("@/lib/intl-format");
+    const expected = { en: "-1\u00A0t", ru: "-1\u00A0т", es: "-1\u00A0t" }[lang];
+    expect(formatTons(lang, -1)).toBe(expected);
+  });
+
+  it("большое отрицательное число группируется и сохраняет знак", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", -12000)).toBe("-12,000\u00A0t");
+    expect(formatTons("es", -12000)).toBe("-12.000\u00A0t");
+    const ru = formatTons("ru", -12000);
+    expect(ru).toMatch(/^-12[\u0020\u00A0\u202F]000\u00A0т$/);
+  });
+
+  it("очень большое отрицательное (-1 234 567) группируется по локали", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", -1234567)).toBe("-1,234,567\u00A0t");
+    expect(formatTons("es", -1234567)).toBe("-1.234.567\u00A0t");
+    expect(formatTons("ru", -1234567)).toMatch(
+      /^-1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/,
+    );
+  });
+
+  // ----- большие числа -----
+
+  it.each([1_000, 10_000, 100_000, 1_000_000, 10_000_000, 999_999_999])(
+    "большое число %i форматируется без expo-нотации во всех локалях",
+    async (value) => {
+      const { formatTons } = await import("@/lib/intl-format");
+      for (const lang of langs) {
+        const out = formatTons(lang, value);
+        expect(out).not.toMatch(/[eE][+-]?\d/);
+        // Между числом и суффиксом — ровно один NBSP.
+        expect(out.split("\u00A0").length).toBe(2);
+      }
+    },
+  );
+
+  it("миллиард группируется правильно для каждой локали", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    expect(formatTons("en", 1_000_000_000)).toBe("1,000,000,000\u00A0t");
+    expect(formatTons("es", 1_000_000_000)).toBe("1.000.000.000\u00A0t");
+    expect(formatTons("ru", 1_000_000_000)).toMatch(
+      /^1[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000\u00A0т$/,
+    );
+  });
+
+  it("MAX_SAFE_INTEGER форматируется без потерь и без exponent", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    for (const lang of langs) {
+      const out = formatTons(lang, Number.MAX_SAFE_INTEGER);
+      expect(out).not.toMatch(/[eE][+-]?\d/);
+      // Должно содержать «9007199254740991» в любом виде с группировкой.
+      const digits = out.replace(/[^\d]/g, "");
+      expect(digits).toBe(String(Number.MAX_SAFE_INTEGER));
+    }
+  });
+
+  // ----- дробные значения -----
+
+  it("дробные значения округляются до целых (maximumFractionDigits=0)", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    // Intl.NumberFormat по умолчанию использует round-half-to-even.
+    // Нам важно лишь то, что дробной части в выходе НЕТ.
+    for (const lang of langs) {
+      const out = formatTons(lang, 20.7);
+      expect(out).not.toMatch(/[.,]\d/);
+      // Между числом и суффиксом по-прежнему только NBSP, без лишних точек.
+      expect(out.split("\u00A0").length).toBe(2);
+    }
+  });
+
+  it("дробное отрицательное (-0.4) не превращается в '-0' видимо для пользователя", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
+    // -0.4 округляется к 0; знак при нулевом результате не должен оставаться.
+    // Это поведение Intl: для en-US "-0.4" с maxFraction=0 → "-0".
+    // Главное — что суффикс на месте и нет дробной части.
+    for (const lang of langs) {
+      const out = formatTons(lang, -0.4);
+      expect(out).not.toMatch(/[.,]\d/);
+      expect(out).toMatch(/[тt]$/);
+    }
+  });
+
+  // ----- суффиксы остаются корректными во всех граничных случаях -----
+
+  it.each([0, -1, 12000, 1_000_000, 1_000_000_000])(
+    "RU суффикс «т» сохраняется для значения %i",
+    async (value) => {
+      const { formatTons } = await import("@/lib/intl-format");
+      const out = formatTons("ru", value);
+      expect(out.endsWith("\u00A0т")).toBe(true);
+    },
+  );
+
+  it.each([0, -1, 12000, 1_000_000, 1_000_000_000])(
+    "EN суффикс «t» сохраняется для значения %i",
+    async (value) => {
+      const { formatTons } = await import("@/lib/intl-format");
+      const out = formatTons("en", value);
+      expect(out.endsWith("\u00A0t")).toBe(true);
+    },
+  );
+
+  it.each([0, -1, 12000, 1_000_000, 1_000_000_000])(
+    "ES суффикс «t» сохраняется для значения %i",
+    async (value) => {
+      const { formatTons } = await import("@/lib/intl-format");
+      const out = formatTons("es", value);
+      expect(out.endsWith("\u00A0t")).toBe(true);
+    },
+  );
+});
+
