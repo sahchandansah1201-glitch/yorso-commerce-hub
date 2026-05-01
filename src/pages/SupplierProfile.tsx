@@ -34,7 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, countryCodeToFlag, type MockSupplier } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
-import { mockOffers, getOffersForSupplier } from "@/data/mockOffers";
+import { getOffersForSupplier } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
