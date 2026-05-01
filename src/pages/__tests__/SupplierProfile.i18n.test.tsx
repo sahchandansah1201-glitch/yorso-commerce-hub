@@ -28,7 +28,17 @@ const renderWithLang = (lang: Language, supplierId = SUPPLIER_ID) => {
   localStorage.setItem("yorso-lang", lang);
   // SupplierProfile теперь применяет access gating. Эти i18n-тесты
   // проверяют ИМЕННО локализацию полностью разблокированного профиля,
-  // поэтому грантим qualified-доступ перед маунтом.
+  // поэтому грантим session + qualified-доступ перед маунтом.
+  sessionStorage.setItem(
+    "yorso_buyer_session",
+    JSON.stringify({
+      id: "b_test",
+      identifier: "tester@example.com",
+      method: "email",
+      signedInAt: new Date().toISOString(),
+      displayName: "tester",
+    }),
+  );
   sessionStorage.setItem(
     "yorso_buyer_qualification",
     JSON.stringify({ companyName: "", approvedAt: new Date().toISOString() }),
