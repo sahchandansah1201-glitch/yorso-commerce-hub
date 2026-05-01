@@ -1308,10 +1308,14 @@ const SupplierProfile = () => {
                                   n: production.dailyTons,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_lines}
                                 value={String(production.lines)}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_staff}
@@ -1319,16 +1323,16 @@ const SupplierProfile = () => {
                                   n: production.staff,
                                 })}
                                 estimate
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_catalog}
-                                value={
-                                  isUnlocked
-                                    ? interpolate(t.supplier_passport_production_catalogValue, {
-                                        n: supplier.totalProductsCount,
-                                      })
-                                    : t.supplier_locked_offersCountHidden
-                                }
+                                value={interpolate(t.supplier_passport_production_catalogValue, {
+                                  n: supplier.totalProductsCount,
+                                })}
+                                locked={!isUnlocked}
+                                lockedHint={t.supplier_locked_passportHint}
                               />
                             </dl>
                           </div>
