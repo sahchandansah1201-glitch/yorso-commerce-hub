@@ -20,6 +20,7 @@ import {
   Clock,
   Building2,
   FileBadge,
+  Lock,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
