@@ -405,15 +405,24 @@ const TrustFactsBlock = ({
 
   // Exact active offer count is identity-adjacent (helps fingerprint a
   // supplier in a small market). Hide the precise number until access is
-  // approved; show a coarse "available after price access" placeholder.
-  const offersValue = unlocked
-    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
-    : t.supplier_locked_offersCountHidden;
+  // approved; show real value blurred with a small lock badge instead.
+  const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
 
-  const facts: Array<{ label: string; value: string; estimate?: boolean }> = [
+  const facts: Array<{
+    label: string;
+    value: string;
+    estimate?: boolean;
+    locked?: boolean;
+    lockedHint?: string;
+  }> = [
     { label: t.supplier_trust_type, value: typeValue },
     { label: t.supplier_trust_yearsOnMarket, value: formatNumber(lang as AppLang, supplier.yearsInBusiness) },
-    { label: t.supplier_trust_activeOffers, value: offersValue },
+    {
+      label: t.supplier_trust_activeOffers,
+      value: offersValue,
+      locked: !unlocked,
+      lockedHint: t.supplier_locked_offersCountHidden,
+    },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
     {
@@ -430,14 +439,34 @@ const TrustFactsBlock = ({
           <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
             {f.label}
           </dt>
-          <dd className="mt-0.5 font-medium text-foreground">
-            {f.value}
-            {f.estimate && (
-              <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
-                est.
+          {f.locked ? (
+            <dd className="mt-0.5">
+              <span className="relative inline-flex items-center" aria-hidden="true">
+                <span
+                  className="inline-block min-w-[3rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
+                  onCopy={(e) => e.preventDefault()}
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  {f.value}
+                </span>
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                    <Lock className="h-3 w-3 text-primary" aria-hidden />
+                  </span>
+                </span>
               </span>
-            )}
-          </dd>
+              {f.lockedHint && <span className="sr-only">{f.lockedHint}</span>}
+            </dd>
+          ) : (
+            <dd className="mt-0.5 font-medium text-foreground">
+              {f.value}
+              {f.estimate && (
+                <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+                  est.
+                </span>
+              )}
+            </dd>
+          )}
         </div>
       ))}
     </dl>
@@ -874,17 +903,46 @@ const SupplierProfile = () => {
                         many: t.supplier_yearsOnMarket_pluralMany,
                       }),
                     });
-                    // Hide exact active-offer count for locked states.
-                    const offersStr = isUnlocked
-                      ? interpolate(t.supplier_activeOffers, {
-                          n: formatNumber(lang as AppLang, supplier.activeOffersCount),
-                        })
-                      : t.supplier_locked_offersCountHidden;
-                    return interpolate(t.supplier_identity_subline, {
-                      type: typeStr,
-                      years: yearsStr,
-                      offers: offersStr,
+                    const offersStr = interpolate(t.supplier_activeOffers, {
+                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
                     });
+                    if (isUnlocked) {
+                      return interpolate(t.supplier_identity_subline, {
+                        type: typeStr,
+                        years: yearsStr,
+                        offers: offersStr,
+                      });
+                    }
+                    // Locked: render layout with offers blurred + small lock badge.
+                    const tpl = t.supplier_identity_subline;
+                    const parts = tpl.split(/\{offers\}/);
+                    const before = interpolate(parts[0] ?? "", { type: typeStr, years: yearsStr });
+                    const after = interpolate(parts[1] ?? "", { type: typeStr, years: yearsStr });
+                    return (
+                      <>
+                        {before}
+                        <span
+                          className="relative mx-0.5 inline-flex items-center align-middle"
+                          aria-hidden="true"
+                          data-testid="supplier-hero-offers-locked"
+                        >
+                          <span
+                            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-foreground/70 blur-[3px] [user-select:none]"
+                            onCopy={(e) => e.preventDefault()}
+                            onContextMenu={(e) => e.preventDefault()}
+                          >
+                            {offersStr}
+                          </span>
+                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                              <Lock className="h-3 w-3 text-primary" aria-hidden />
+                            </span>
+                          </span>
+                        </span>
+                        <span className="sr-only">{t.supplier_locked_offersCountHidden}</span>
+                        {after}
+                      </>
+                    );
                   })()}
                 </p>
                 {!isUnlocked && (
@@ -1096,9 +1154,32 @@ const SupplierProfile = () => {
                       <h2 className="font-heading text-lg font-semibold text-foreground">
                         {t.supplier_about_company}
                       </h2>
-                      <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-                        {isUnlocked ? supplier.about : t.supplier_locked_aboutPlaceholder}
-                      </p>
+                      {isUnlocked ? (
+                        <p className="mt-3 text-sm leading-relaxed text-foreground/80">
+                          {supplier.about}
+                        </p>
+                      ) : (
+                        <div
+                          className="relative mt-3 overflow-hidden rounded-lg"
+                          data-testid="supplier-about-locked"
+                        >
+                          <p
+                            aria-hidden="true"
+                            className="pointer-events-none select-none text-sm leading-relaxed text-foreground/80 blur-[2.5px]"
+                          >
+                            {supplier.about}
+                          </p>
+                          <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
+                            <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
+                              <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
+                              <span className="text-xs font-medium text-foreground">
+                                {t.supplier_locked_aboutPlaceholder}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="sr-only">{t.supplier_locked_aboutPlaceholder}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="rounded-xl border border-border bg-card p-6">
@@ -1687,21 +1768,25 @@ const FactCell = ({
     {locked ? (
       <dd className="mt-0.5">
         <span
-          // Маска: размытие + неинтерактивная пилюля. Скрыта от screen readers.
+          className="relative inline-flex items-center"
+          // Скрываем от screen readers — вместо значения они услышат lockedHint ниже.
           aria-hidden="true"
-          className="inline-block min-w-[5.5rem] select-none rounded-md bg-muted px-2 py-0.5 text-sm font-medium text-foreground/40 blur-[5px] [user-select:none]"
-          // Не даём выделять/копировать содержимое.
-          onCopy={(e) => e.preventDefault()}
-          onContextMenu={(e) => e.preventDefault()}
         >
-          •••••
-        </span>
-        {lockedHint && (
-          <span className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Lock className="h-3 w-3" aria-hidden />
-            <span>{lockedHint}</span>
+          <span
+            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
+            onCopy={(e) => e.preventDefault()}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            {value || "•••••"}
           </span>
-        )}
+          {/* Замочек поверх блюра — для небольших полей. */}
+          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+              <Lock className="h-3 w-3 text-primary" aria-hidden />
+            </span>
+          </span>
+        </span>
+        {lockedHint && <span className="sr-only">{lockedHint}</span>}
       </dd>
     ) : (
       <dd className="mt-0.5 text-sm font-medium text-foreground">
