@@ -16,7 +16,17 @@ const BCP47: Record<AppLang, string> = {
 const dateMonthYearCache = new Map<AppLang, Intl.DateTimeFormat>();
 const dateFullCache = new Map<AppLang, Intl.DateTimeFormat>();
 const numberCache = new Map<AppLang, Intl.NumberFormat>();
-const tonsCache = new Map<AppLang, Intl.NumberFormat>();
+// null = ICU данной среды не знает unit:'metric-ton' (старые движки, jsdom).
+// В этом случае используем фолбек на formatNumber + локализованный суффикс.
+const tonsCache = new Map<AppLang, Intl.NumberFormat | null>();
+
+// Локализованный короткий суффикс «т» — используется только в фолбеке,
+// когда Intl.NumberFormat({ unit: 'metric-ton' }) бросает RangeError.
+const TON_SUFFIX_FALLBACK: Record<AppLang, string> = {
+  en: "t",
+  ru: "т",
+  es: "t",
+};
 
 const getMonthYearFormatter = (lang: AppLang): Intl.DateTimeFormat => {
   let f = dateMonthYearCache.get(lang);
@@ -49,19 +59,24 @@ const getNumberFormatter = (lang: AppLang): Intl.NumberFormat => {
   return f;
 };
 
-const getTonsFormatter = (lang: AppLang): Intl.NumberFormat => {
-  let f = tonsCache.get(lang);
-  if (!f) {
+const getTonsFormatter = (lang: AppLang): Intl.NumberFormat | null => {
+  if (tonsCache.has(lang)) return tonsCache.get(lang) ?? null;
+  try {
     // unit: 'metric-ton' даёт "10 t" / "10 т" / "10 t" по локали.
-    f = new Intl.NumberFormat(BCP47[lang], {
+    const f = new Intl.NumberFormat(BCP47[lang], {
       style: "unit",
       unit: "metric-ton",
       unitDisplay: "short",
       maximumFractionDigits: 0,
     });
     tonsCache.set(lang, f);
+    return f;
+  } catch {
+    // Старые ICU (jsdom, некоторые мобильные браузеры) не знают 'metric-ton'.
+    // Кэшируем null и далее идём через фолбек на formatNumber + суффикс.
+    tonsCache.set(lang, null);
+    return null;
   }
-  return f;
 };
 
 /** "Окт 2024" / "Oct 2024" / "oct 2024" из ISO-строки. */
@@ -84,9 +99,12 @@ export const formatFullDate = (lang: AppLang, iso: string): string => {
 export const formatNumber = (lang: AppLang, n: number): string =>
   getNumberFormatter(lang).format(n);
 
-/** Тонны: "20 t" / "20 т" / "20 t". */
-export const formatTons = (lang: AppLang, n: number): string =>
-  getTonsFormatter(lang).format(n);
+/** Тонны: "20 t" / "20 т" / "20 t" — с фолбеком, если ICU не знает unit. */
+export const formatTons = (lang: AppLang, n: number): string => {
+  const f = getTonsFormatter(lang);
+  if (f) return f.format(n);
+  return `${formatNumber(lang, n)}\u00A0${TON_SUFFIX_FALLBACK[lang]}`;
+};
 
 /** Год — без форматирования (4 цифры одинаково везде), но через Intl для NaN-safety. */
 export const formatYear = (lang: AppLang, year: number): string =>
