@@ -80,11 +80,13 @@ const getItemListJsonLd = (supplierId = SUPPLIER_ID) =>
 describe("SupplierProfile · локализация RU/ES/EN", () => {
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   afterEach(() => {
     cleanup();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   describe("EN baseline", () => {
