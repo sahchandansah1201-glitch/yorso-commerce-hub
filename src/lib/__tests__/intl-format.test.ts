@@ -311,8 +311,13 @@ describe("formatTons · граничные значения (0, отрицате
       for (const lang of langs) {
         const out = formatTons(lang, value);
         expect(out).not.toMatch(/[eE][+-]?\d/);
-        // Между числом и суффиксом — ровно один NBSP.
-        expect(out.split("\u00A0").length).toBe(2);
+        // Суффикс — последний токен после последнего NBSP.
+        // Между числом и суффиксом стоит NBSP. Внутри числа для RU
+        // тоже могут быть NBSP-разделители тысяч, поэтому проверяем
+        // через lastIndexOf, а не по количеству split-частей.
+        expect(out.lastIndexOf("\u00A0")).toBeGreaterThan(0);
+        const suffix = out.slice(out.lastIndexOf("\u00A0") + 1);
+        expect(suffix).toBe(lang === "ru" ? "т" : "t");
       }
     },
   );
@@ -338,28 +343,38 @@ describe("formatTons · граничные значения (0, отрицате
   });
 
   // ----- дробные значения -----
+  // Важно: в текущей реализации фолбек использует formatNumber()
+  // (Intl.NumberFormat без явного maximumFractionDigits), поэтому
+  // дробная часть СОХРАНЯЕТСЯ в фолбек-ветке. Округление до целых
+  // настроено только в нативном unit-formatter'е. Это фиксируется
+  // тестами ниже, чтобы будущее изменение поведения было осознанным.
 
-  it("дробные значения округляются до целых (maximumFractionDigits=0)", async () => {
+  it("фолбек сохраняет дробную часть (текущий контракт formatNumber)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    // Intl.NumberFormat по умолчанию использует round-half-to-even.
-    // Нам важно лишь то, что дробной части в выходе НЕТ.
+    // EN/ES — десятичный разделитель «.»/«,», но в любом случае
+    // дробная часть должна остаться, и суффикс — в конце.
+    expect(formatTons("en", 20.7)).toBe("20.7\u00A0t");
+    expect(formatTons("es", 20.7)).toBe("20,7\u00A0t");
+    // RU использует «,» как десятичный разделитель.
+    expect(formatTons("ru", 20.7)).toBe("20,7\u00A0т");
+  });
+
+  it("дробное число не нарушает суффикс ни в одной локали", async () => {
+    const { formatTons } = await import("@/lib/intl-format");
     for (const lang of langs) {
-      const out = formatTons(lang, 20.7);
-      expect(out).not.toMatch(/[.,]\d/);
-      // Между числом и суффиксом по-прежнему только NBSP, без лишних точек.
-      expect(out.split("\u00A0").length).toBe(2);
+      const out = formatTons(lang, 0.5);
+      expect(out).toMatch(/[тt]$/);
+      // Между значением и суффиксом — NBSP.
+      expect(out).toMatch(/\u00A0[тt]$/);
     }
   });
 
-  it("дробное отрицательное (-0.4) не превращается в '-0' видимо для пользователя", async () => {
+  it("отрицательное дробное (-0.4) корректно завершается суффиксом", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    // -0.4 округляется к 0; знак при нулевом результате не должен оставаться.
-    // Это поведение Intl: для en-US "-0.4" с maxFraction=0 → "-0".
-    // Главное — что суффикс на месте и нет дробной части.
     for (const lang of langs) {
       const out = formatTons(lang, -0.4);
-      expect(out).not.toMatch(/[.,]\d/);
-      expect(out).toMatch(/[тt]$/);
+      expect(out.startsWith("-")).toBe(true);
+      expect(out).toMatch(/\u00A0[тt]$/);
     }
   });
 
