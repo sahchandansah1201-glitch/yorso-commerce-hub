@@ -327,10 +327,9 @@ describe("formatTons · граничные значения (0, отрицате
 
   // ----- 0 -----
 
-  it.each(langs)("ноль форматируется как '0\\u00A0<суффикс>' для %s", async (lang) => {
+  it.each(langs)("ноль форматируется как '0<sep><суффикс>' для %s", async (lang) => {
     const { formatTons } = await import("@/lib/intl-format");
-    const expected = { en: "0\u00A0t", ru: "0\u00A0т", es: "0\u00A0t" }[lang];
-    expect(formatTons(lang, 0)).toBe(expected);
+    expect(formatTons(lang, 0)).toMatch(tonsRegexSmall(lang, 0));
   });
 
   it("ноль не превращается в '-0' и не получает знак", async () => {
@@ -346,25 +345,27 @@ describe("formatTons · граничные значения (0, отрицате
 
   it.each(langs)("маленькое отрицательное (-1) форматируется со знаком минус для %s", async (lang) => {
     const { formatTons } = await import("@/lib/intl-format");
-    const expected = { en: "-1\u00A0t", ru: "-1\u00A0т", es: "-1\u00A0t" }[lang];
-    expect(formatTons(lang, -1)).toBe(expected);
+    expect(formatTons(lang, -1)).toMatch(
+      new RegExp(`^-1${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u"),
+    );
   });
 
   it("большое отрицательное число группируется и сохраняет знак", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", -12000)).toBe("-12,000\u00A0t");
-    expect(formatTons("es", -12000)).toBe("-12.000\u00A0t");
-    const ru = formatTons("ru", -12000);
-    expect(ru).toMatch(/^-12[\u0020\u00A0\u202F]000\u00A0т$/);
+    for (const lang of langs) {
+      expect(formatTons(lang, -12000)).toMatch(
+        tonsRegex(lang, ["12", "000"], { negative: true }),
+      );
+    }
   });
 
   it("очень большое отрицательное (-1 234 567) группируется по локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", -1234567)).toBe("-1,234,567\u00A0t");
-    expect(formatTons("es", -1234567)).toBe("-1.234.567\u00A0t");
-    expect(formatTons("ru", -1234567)).toMatch(
-      /^-1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/,
-    );
+    for (const lang of langs) {
+      expect(formatTons(lang, -1234567)).toMatch(
+        tonsRegex(lang, ["1", "234", "567"], { negative: true }),
+      );
+    }
   });
 
   // ----- большие числа -----
@@ -376,24 +377,24 @@ describe("formatTons · граничные значения (0, отрицате
       for (const lang of langs) {
         const out = formatTons(lang, value);
         expect(out).not.toMatch(/[eE][+-]?\d/);
-        // Суффикс — последний токен после последнего NBSP.
-        // Между числом и суффиксом стоит NBSP. Внутри числа для RU
-        // тоже могут быть NBSP-разделители тысяч, поэтому проверяем
-        // через lastIndexOf, а не по количеству split-частей.
-        expect(out.lastIndexOf("\u00A0")).toBeGreaterThan(0);
-        const suffix = out.slice(out.lastIndexOf("\u00A0") + 1);
-        expect(suffix).toBe(lang === "ru" ? "т" : "t");
+        // Суффикс — последний токен после последнего «пробельного»
+        // разделителя (NBSP/NNBSP/SP — зависит от ICU). Внутри числа
+        // для RU тоже могут быть такие же разделители тысяч, поэтому
+        // ищем именно последний.
+        const m = out.match(new RegExp(`^(.*)${NUM_UNIT_SEP}(\\S+)$`, "u"));
+        expect(m, `formatTons(${lang}, ${value}) = ${JSON.stringify(out)}`).not.toBeNull();
+        expect(m![2]).toBe(tonsSuffix(lang));
       }
     },
   );
 
   it("миллиард группируется правильно для каждой локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 1_000_000_000)).toBe("1,000,000,000\u00A0t");
-    expect(formatTons("es", 1_000_000_000)).toBe("1.000.000.000\u00A0t");
-    expect(formatTons("ru", 1_000_000_000)).toMatch(
-      /^1[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000\u00A0т$/,
-    );
+    for (const lang of langs) {
+      expect(formatTons(lang, 1_000_000_000)).toMatch(
+        tonsRegex(lang, ["1", "000", "000", "000"]),
+      );
+    }
   });
 
   it("MAX_SAFE_INTEGER форматируется без потерь и без exponent", async () => {
