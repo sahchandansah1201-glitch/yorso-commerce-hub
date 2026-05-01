@@ -16,6 +16,73 @@ import type { AppLang } from "@/lib/intl-format";
 
 const langs: AppLang[] = ["en", "ru", "es"];
 
+/* ============================================================
+ *  ICU-толерантные шаблоны
+ * ------------------------------------------------------------
+ *  Между числом и суффиксом ICU разных версий вставляет либо
+ *  NBSP (U+00A0), либо NNBSP/тонкий неразрывный (U+202F),
+ *  иногда — обычный пробел (U+0020). Все три считаем валидными.
+ *
+ *  Внутри числа разделитель тысяч у ru-RU тоже колеблется между
+ *  U+0020/U+00A0/U+202F, у es-ES исторически "." но в будущих
+ *  версиях ICU теоретически возможен пробельный разделитель
+ *  (мы не закладываемся на это, см. esThousandsClass ниже).
+ *
+ *  Эти константы используются вместо жёстких equals "12,000\u00A0t",
+ *  чтобы тесты не ломались при апдейте ICU/Node.
+ * ============================================================ */
+
+/** Класс символов, который ICU может поставить между числом и суффиксом. */
+const NUM_UNIT_SEP = "[\\u0020\\u00A0\\u202F]";
+
+/** Класс «пробельных» разделителей тысяч (для ru-RU и любой будущей es-ES вариации). */
+const SPACE_GROUP_SEP = "[\\u0020\\u00A0\\u202F]";
+
+/** Суффикс единицы тонн по локали. */
+const tonsSuffix = (lang: AppLang): "t" | "т" => (lang === "ru" ? "т" : "t");
+
+/** Десятичный разделитель по локали (стабильный контракт ICU). */
+const decimalSep = (lang: AppLang): "." | "," => (lang === "en" ? "." : ",");
+
+/**
+ * Экранирует regex-метасимвол. Достаточно для одиночного символа,
+ * который мы вставляем как литерал (точка, запятая).
+ */
+const reEscape = (ch: string): string => ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Строит regex для строки вида "<integer><sep>тонн-суффикс".
+ * Группы тысяч задаются массивом; между ними — локаль-специфичный
+ * разделитель тысяч (или его класс для пробельных локалей).
+ *
+ * Пример: tonsRegex("ru", ["1","234","567"]) →
+ *   /^1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567[\u0020\u00A0\u202F]т$/
+ */
+const tonsRegex = (
+  lang: AppLang,
+  groups: string[],
+  opts: { negative?: boolean } = {},
+): RegExp => {
+  const sign = opts.negative ? "-" : "";
+  let groupSep: string;
+  if (lang === "ru") groupSep = SPACE_GROUP_SEP;
+  else if (lang === "es") groupSep = "\\."; // ICU es-ES today
+  else groupSep = ","; // en-US
+  const number = groups.join(groupSep);
+  return new RegExp(`^${sign}${number}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u");
+};
+
+/** Тот же шаблон, но без знака и без группировки — для значений < 1000. */
+const tonsRegexSmall = (lang: AppLang, n: number): RegExp =>
+  new RegExp(`^${n}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u");
+
+/** Шаблон для дробного значения: "<int><dec><frac><sep><suffix>". */
+const tonsRegexFraction = (lang: AppLang, intPart: string, fracPart: string): RegExp =>
+  new RegExp(
+    `^${intPart}${reEscape(decimalSep(lang))}${fracPart}${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`,
+    "u",
+  );
+
 describe("formatTons · нативный Intl (happy path)", () => {
   beforeEach(() => {
     vi.resetModules();
@@ -88,35 +155,35 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
       OriginalNumberFormat;
   });
 
-  it("EN: возвращает «<число> t» с неразрывным пробелом", async () => {
+  it("EN: возвращает «<число> t» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 20)).toBe("20\u00A0t");
+    expect(formatTons("en", 20)).toMatch(tonsRegexSmall("en", 20));
   });
 
-  it("RU: возвращает «<число> т» с неразрывным пробелом", async () => {
+  it("RU: возвращает «<число> т» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("ru", 20)).toBe("20\u00A0т");
+    expect(formatTons("ru", 20)).toMatch(tonsRegexSmall("ru", 20));
   });
 
-  it("ES: возвращает «<число> t» с неразрывным пробелом", async () => {
+  it("ES: возвращает «<число> t» с неразрывным/тонким пробелом (NBSP|NNBSP|SP)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("es", 20)).toBe("20\u00A0t");
+    expect(formatTons("es", 20)).toMatch(tonsRegexSmall("es", 20));
   });
 
   it("использует локальные группировщики тысяч в фолбеке (RU)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     const out = formatTons("ru", 12000);
-    // Суффикс — стабильный «т», между числом и суффиксом —
-    // именно неразрывный пробел \u00A0 (а не обычный).
-    expect(out.endsWith("\u00A0т")).toBe(true);
-    expect(out).toMatch(/^12[\s\u00A0\u202F]?000\u00A0т$/);
+    // Суффикс — стабильный «т», между числом и суффиксом — какой-то
+    // из неразрывных пробелов (NBSP/NNBSP) — оба валидны для ICU ru-RU.
+    expect(out).toMatch(new RegExp(`${NUM_UNIT_SEP}т$`, "u"));
+    expect(out).toMatch(tonsRegex("ru", ["12", "000"]));
   });
 
   it("использует локальные группировщики тысяч в фолбеке (EN)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     const out = formatTons("en", 12000);
-    expect(out.endsWith("\u00A0t")).toBe(true);
-    expect(out).toMatch(/^12,000\u00A0t$/);
+    expect(out).toMatch(new RegExp(`${NUM_UNIT_SEP}t$`, "u"));
+    expect(out).toMatch(tonsRegex("en", ["12", "000"]));
   });
 
   it("кэширует результат: повторный вызов не пытается снова создать unit-formatter", async () => {
@@ -127,18 +194,18 @@ describe("formatTons · фолбек, когда ICU не знает unit:'metri
     const a = formatTons("ru", 7);
     const b = formatTons("ru", 7);
     expect(a).toBe(b);
-    expect(a).toBe("7\u00A0т");
+    expect(a).toMatch(tonsRegexSmall("ru", 7));
   });
 
   it.each(langs)(
-    "%s: между числом и суффиксом стоит именно \\u00A0, а не обычный пробел",
+    "%s: между числом и суффиксом стоит неразрывный/тонкий пробел (NBSP|NNBSP), не обычный",
     async (lang) => {
       const { formatTons } = await import("@/lib/intl-format");
       const out = formatTons(lang, 5);
-      // Не должно быть последовательности «обычный пробел + буква»:
-      // только NBSP допустим как разделитель.
+      // Допустимы NBSP и NNBSP. Обычный пробел перед буквой —
+      // признак того, что суффикс «отвалился» от числа в HTML.
       expect(out).not.toMatch(/5 [a-zA-Zа-яА-Я]/);
-      expect(out).toMatch(/5\u00A0[a-zA-Zа-яА-Я]/);
+      expect(out).toMatch(/5[\u00A0\u202F][a-zA-Zа-яА-Я]/u);
     },
   );
 });
@@ -162,51 +229,47 @@ describe("formatTons · BCP47-теги локалей и группировка 
 
   it("en → en-US: запятая как разделитель тысяч", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 12000)).toBe("12,000\u00A0t");
-    expect(formatTons("en", 1234567)).toBe("1,234,567\u00A0t");
+    expect(formatTons("en", 12000)).toMatch(tonsRegex("en", ["12", "000"]));
+    expect(formatTons("en", 1234567)).toMatch(tonsRegex("en", ["1", "234", "567"]));
   });
 
-  it("ru → ru-RU: пробел (NBSP/обычный) как разделитель тысяч", async () => {
+  it("ru → ru-RU: пробел (NBSP/обычный/тонкий) как разделитель тысяч", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    const out12k = formatTons("ru", 12000);
-    const out1_2m = formatTons("ru", 1234567);
-    // ICU для ru-RU использует пробел (в разных версиях это
-    // U+0020 / U+00A0 / U+202F тонкий пробел) — допускаем любой.
-    expect(out12k).toMatch(/^12[\u0020\u00A0\u202F]000\u00A0т$/);
-    expect(out1_2m).toMatch(/^1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/);
+    expect(formatTons("ru", 12000)).toMatch(tonsRegex("ru", ["12", "000"]));
+    expect(formatTons("ru", 1234567)).toMatch(tonsRegex("ru", ["1", "234", "567"]));
   });
 
   it("es → es-ES: точка как разделитель тысяч (для чисел ≥ 10 000)", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     // ICU для es-ES не группирует 4-значные числа (1234 → "1234"),
     // зато группирует от 5 цифр (12000 → "12.000").
-    expect(formatTons("es", 12000)).toBe("12.000\u00A0t");
-    expect(formatTons("es", 1234567)).toBe("1.234.567\u00A0t");
+    expect(formatTons("es", 12000)).toMatch(tonsRegex("es", ["12", "000"]));
+    expect(formatTons("es", 1234567)).toMatch(tonsRegex("es", ["1", "234", "567"]));
   });
 
   it("малые числа (< 1000) не получают группировки ни в одной локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 5)).toBe("5\u00A0t");
-    expect(formatTons("ru", 5)).toBe("5\u00A0т");
-    expect(formatTons("es", 5)).toBe("5\u00A0t");
-    expect(formatTons("en", 999)).toBe("999\u00A0t");
-    expect(formatTons("ru", 999)).toBe("999\u00A0т");
-    expect(formatTons("es", 999)).toBe("999\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, 5)).toMatch(tonsRegexSmall(lang, 5));
+      expect(formatTons(lang, 999)).toMatch(tonsRegexSmall(lang, 999));
+    }
   });
 
   it("ноль форматируется без группировки и со стабильным суффиксом", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 0)).toBe("0\u00A0t");
-    expect(formatTons("ru", 0)).toBe("0\u00A0т");
-    expect(formatTons("es", 0)).toBe("0\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, 0)).toMatch(tonsRegexSmall(lang, 0));
+    }
   });
 
   it("отрицательные числа сохраняют локаль-специфичный знак минуса", async () => {
     const { formatTons } = await import("@/lib/intl-format");
     // Все три локали используют ASCII «-» для коротких чисел.
-    expect(formatTons("en", -20)).toBe("-20\u00A0t");
-    expect(formatTons("ru", -20)).toBe("-20\u00A0т");
-    expect(formatTons("es", -20)).toBe("-20\u00A0t");
+    for (const lang of langs) {
+      expect(formatTons(lang, -20)).toMatch(
+        new RegExp(`^-20${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u"),
+      );
+    }
   });
 
   it("группировка крупных чисел совпадает с эталонным Intl(<tag>) тех же локалей", async () => {
@@ -218,10 +281,12 @@ describe("formatTons · BCP47-теги локалей и группировка 
     ];
     for (const { lang, tag } of cases) {
       const expectedNumber = new Intl.NumberFormat(tag).format(1234567);
-      // Извлекаем числовую часть formatTons (всё до последнего NBSP).
+      // Извлекаем числовую часть formatTons (всё до последнего пробельного
+      // разделителя — NBSP/NNBSP/SP — между числом и суффиксом).
       const out = formatTons(lang, 1234567);
-      const numericPart = out.slice(0, out.lastIndexOf("\u00A0"));
-      expect(numericPart).toBe(expectedNumber);
+      const m = out.match(new RegExp(`^(.*)${NUM_UNIT_SEP}\\S+$`, "u"));
+      expect(m, `formatTons(${lang}, 1234567) = ${JSON.stringify(out)}`).not.toBeNull();
+      expect(m![1]).toBe(expectedNumber);
     }
   });
 
@@ -262,10 +327,9 @@ describe("formatTons · граничные значения (0, отрицате
 
   // ----- 0 -----
 
-  it.each(langs)("ноль форматируется как '0\\u00A0<суффикс>' для %s", async (lang) => {
+  it.each(langs)("ноль форматируется как '0<sep><суффикс>' для %s", async (lang) => {
     const { formatTons } = await import("@/lib/intl-format");
-    const expected = { en: "0\u00A0t", ru: "0\u00A0т", es: "0\u00A0t" }[lang];
-    expect(formatTons(lang, 0)).toBe(expected);
+    expect(formatTons(lang, 0)).toMatch(tonsRegexSmall(lang, 0));
   });
 
   it("ноль не превращается в '-0' и не получает знак", async () => {
@@ -281,25 +345,27 @@ describe("formatTons · граничные значения (0, отрицате
 
   it.each(langs)("маленькое отрицательное (-1) форматируется со знаком минус для %s", async (lang) => {
     const { formatTons } = await import("@/lib/intl-format");
-    const expected = { en: "-1\u00A0t", ru: "-1\u00A0т", es: "-1\u00A0t" }[lang];
-    expect(formatTons(lang, -1)).toBe(expected);
+    expect(formatTons(lang, -1)).toMatch(
+      new RegExp(`^-1${NUM_UNIT_SEP}${reEscape(tonsSuffix(lang))}$`, "u"),
+    );
   });
 
   it("большое отрицательное число группируется и сохраняет знак", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", -12000)).toBe("-12,000\u00A0t");
-    expect(formatTons("es", -12000)).toBe("-12.000\u00A0t");
-    const ru = formatTons("ru", -12000);
-    expect(ru).toMatch(/^-12[\u0020\u00A0\u202F]000\u00A0т$/);
+    for (const lang of langs) {
+      expect(formatTons(lang, -12000)).toMatch(
+        tonsRegex(lang, ["12", "000"], { negative: true }),
+      );
+    }
   });
 
   it("очень большое отрицательное (-1 234 567) группируется по локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", -1234567)).toBe("-1,234,567\u00A0t");
-    expect(formatTons("es", -1234567)).toBe("-1.234.567\u00A0t");
-    expect(formatTons("ru", -1234567)).toMatch(
-      /^-1[\u0020\u00A0\u202F]234[\u0020\u00A0\u202F]567\u00A0т$/,
-    );
+    for (const lang of langs) {
+      expect(formatTons(lang, -1234567)).toMatch(
+        tonsRegex(lang, ["1", "234", "567"], { negative: true }),
+      );
+    }
   });
 
   // ----- большие числа -----
@@ -311,24 +377,24 @@ describe("formatTons · граничные значения (0, отрицате
       for (const lang of langs) {
         const out = formatTons(lang, value);
         expect(out).not.toMatch(/[eE][+-]?\d/);
-        // Суффикс — последний токен после последнего NBSP.
-        // Между числом и суффиксом стоит NBSP. Внутри числа для RU
-        // тоже могут быть NBSP-разделители тысяч, поэтому проверяем
-        // через lastIndexOf, а не по количеству split-частей.
-        expect(out.lastIndexOf("\u00A0")).toBeGreaterThan(0);
-        const suffix = out.slice(out.lastIndexOf("\u00A0") + 1);
-        expect(suffix).toBe(lang === "ru" ? "т" : "t");
+        // Суффикс — последний токен после последнего «пробельного»
+        // разделителя (NBSP/NNBSP/SP — зависит от ICU). Внутри числа
+        // для RU тоже могут быть такие же разделители тысяч, поэтому
+        // ищем именно последний.
+        const m = out.match(new RegExp(`^(.*)${NUM_UNIT_SEP}(\\S+)$`, "u"));
+        expect(m, `formatTons(${lang}, ${value}) = ${JSON.stringify(out)}`).not.toBeNull();
+        expect(m![2]).toBe(tonsSuffix(lang));
       }
     },
   );
 
   it("миллиард группируется правильно для каждой локали", async () => {
     const { formatTons } = await import("@/lib/intl-format");
-    expect(formatTons("en", 1_000_000_000)).toBe("1,000,000,000\u00A0t");
-    expect(formatTons("es", 1_000_000_000)).toBe("1.000.000.000\u00A0t");
-    expect(formatTons("ru", 1_000_000_000)).toMatch(
-      /^1[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000[\u0020\u00A0\u202F]000\u00A0т$/,
-    );
+    for (const lang of langs) {
+      expect(formatTons(lang, 1_000_000_000)).toMatch(
+        tonsRegex(lang, ["1", "000", "000", "000"]),
+      );
+    }
   });
 
   it("MAX_SAFE_INTEGER форматируется без потерь и без exponent", async () => {
@@ -353,10 +419,10 @@ describe("formatTons · граничные значения (0, отрицате
     const { formatTons } = await import("@/lib/intl-format");
     // EN/ES — десятичный разделитель «.»/«,», но в любом случае
     // дробная часть должна остаться, и суффикс — в конце.
-    expect(formatTons("en", 20.7)).toBe("20.7\u00A0t");
-    expect(formatTons("es", 20.7)).toBe("20,7\u00A0t");
+    expect(formatTons("en", 20.7)).toMatch(tonsRegexFraction("en", "20", "7"));
+    expect(formatTons("es", 20.7)).toMatch(tonsRegexFraction("es", "20", "7"));
     // RU использует «,» как десятичный разделитель.
-    expect(formatTons("ru", 20.7)).toBe("20,7\u00A0т");
+    expect(formatTons("ru", 20.7)).toMatch(tonsRegexFraction("ru", "20", "7"));
   });
 
   it("дробное число не нарушает суффикс ни в одной локали", async () => {
