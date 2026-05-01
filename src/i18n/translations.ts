@@ -2037,6 +2037,7 @@ const en: TranslationKeys = {
   supplier_seo_titleSuffix: "Supplier",
   supplier_seo_descriptionFallback: "{company} — verified seafood supplier from {country} on YORSO B2B marketplace.",
   supplier_seo_orgDescription: "{company} — {type} from {country}. Verified B2B seafood supplier on YORSO.",
+  supplier_seo_itemListName: "{company} — product catalog",
   supplier_logo_aria: "{name} logo",
   supplier_identity_subline: "{type} · {years} · {offers}",
   supplier_yearsOnMarket: "{n} {plural} on the market",
