@@ -485,12 +485,57 @@ const SupplierProfile = () => {
     [baseSupplier, lang],
   );
 
+
+  // ---- Access gating ----
+  // Pull the global access level (anonymous / registered / qualified) and
+  // check whether THIS supplier has an approved access request. The profile
+  // unlocks for either condition; legacy global qualification keeps working,
+  // and a per-supplier mock approval grants access without a global flag.
+  const { level: globalLevel } = useAccessLevel();
+  // Process pending mock approvals as soon as the profile mounts so that a
+  // returning visitor sees the approved state immediately (the global
+  // SupplierApprovalNotifier also runs, but it polls every 2s — running it
+  // here removes the visible flash on first paint).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    processSupplierAccessRequests();
+  }, [supplierId]);
+  const [accessRequest, setAccessRequest] = useState<SupplierAccessRequest | null>(
+    () => (supplierId ? getSupplierAccessRequest(supplierId) : null),
+  );
+  // Refresh request state when the supplier changes or storage emits.
+  useEffect(() => {
+    if (!supplierId) return;
+    setAccessRequest(getSupplierAccessRequest(supplierId));
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes("supplier_access_requests")) {
+        setAccessRequest(getSupplierAccessRequest(supplierId));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [supplierId]);
+  const effectiveAccess: AccessLevel =
+    accessRequest?.status === "approved"
+      ? "qualified_unlocked"
+      : globalLevel;
+  const isUnlocked = effectiveAccess === "qualified_unlocked";
+  const isAnonymous = effectiveAccess === "anonymous_locked";
+  const isRegisteredLocked = effectiveAccess === "registered_locked";
+  // The single string used everywhere the profile would show identity.
+  const displayName = isUnlocked
+    ? supplier?.companyName ?? ""
+    : supplier?.maskedName ?? "";
+
+  // Catalog: use origin/species mapping instead of index slicing so the
+  // profile of e.g. Nordfjord Sjømat AS never shows offers belonging to
+  // other suppliers. Always lookup against the EN baseline so origin/species
+  // strings match the offer data (which is EN-only).
   const supplierOffers = useMemo(() => {
-    if (!supplier) return [];
-    const idx = mockSuppliers.findIndex((s) => s.id === supplier.id);
-    const start = (idx * 2) % Math.max(mockOffers.length - 2, 1);
-    return mockOffers.slice(start, start + 2);
-  }, [supplier]);
+    if (!baseSupplier) return [];
+    const species = baseSupplier.productFocus.map((p) => p.species);
+    return getOffersForSupplier(baseSupplier.country, species, 4);
+  }, [baseSupplier]);
 
   const production = useMemo(() => (supplier ? buildProductionFacts(supplier) : null), [supplier]);
   const logistics = useMemo(() => (supplier ? buildLogisticsFacts(supplier) : null), [supplier]);
