@@ -65,6 +65,23 @@ const LangProbe = () => {
 const renderApp = (initialLang: Language) => {
   cleanup();
   localStorage.setItem("yorso-lang", initialLang);
+  // Тест нацелен на форматирование чисел в активной локали — поэтому
+  // открываем профиль в qualified_unlocked, чтобы паспортные тонны
+  // не были замаскированы blur-плейсхолдером.
+  sessionStorage.setItem(
+    "yorso_buyer_session",
+    JSON.stringify({
+      id: "b_lang",
+      identifier: "lang@example.com",
+      method: "email",
+      signedInAt: new Date().toISOString(),
+      displayName: "lang",
+    }),
+  );
+  sessionStorage.setItem(
+    "yorso_buyer_qualification",
+    JSON.stringify({ companyName: "Lang Test", approvedAt: new Date().toISOString() }),
+  );
   document.head.querySelectorAll('script[id^="org-jsonld-"]').forEach((s) => s.remove());
   document.head.querySelectorAll('script[id^="faq-jsonld-"]').forEach((s) => s.remove());
   document.head.querySelectorAll('script[id^="itemlist-jsonld-"]').forEach((s) => s.remove());
