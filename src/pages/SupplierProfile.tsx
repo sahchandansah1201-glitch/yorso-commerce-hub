@@ -823,7 +823,7 @@ const SupplierProfile = () => {
                 {t.supplier_breadcrumb_suppliers}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
-              <span className="font-medium text-foreground">{supplier.companyName}</span>
+              <span className="font-medium text-foreground" data-testid="supplier-breadcrumb-name">{displayName}</span>
             </nav>
           </div>
         </div>
@@ -844,10 +844,19 @@ const SupplierProfile = () => {
           <div className="container -mt-10 pb-6 md:-mt-[43px]">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-3xl flex-1">
-                <SupplierLogoCard supplier={supplier} size={86} priority="hero" />
+                <SupplierLogoCard
+                  supplier={supplier}
+                  size={86}
+                  priority="hero"
+                  displayName={displayName}
+                  showLogoImage={isUnlocked}
+                />
 
-                <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                  {supplier.companyName}
+                <h1
+                  className="mt-5 font-heading text-3xl font-bold tracking-tight text-foreground md:text-4xl"
+                  data-testid="supplier-display-name"
+                >
+                  {displayName}
                 </h1>
 
                 <p className="mt-2 text-sm text-foreground/80">
@@ -864,9 +873,12 @@ const SupplierProfile = () => {
                         many: t.supplier_yearsOnMarket_pluralMany,
                       }),
                     });
-                    const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
-                    });
+                    // Hide exact active-offer count for locked states.
+                    const offersStr = isUnlocked
+                      ? interpolate(t.supplier_activeOffers, {
+                          n: formatNumber(lang as AppLang, supplier.activeOffersCount),
+                        })
+                      : t.supplier_locked_offersCountHidden;
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
                       years: yearsStr,
@@ -874,6 +886,11 @@ const SupplierProfile = () => {
                     });
                   })()}
                 </p>
+                {!isUnlocked && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {t.supplier_locked_identityHint}
+                  </p>
+                )}
               </div>
 
               <div className="flex shrink-0 md:mt-[70px] md:justify-end">
