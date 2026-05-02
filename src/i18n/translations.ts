@@ -945,6 +945,9 @@ type TranslationKeys = {
   supplier_locked_offersAvailable: string;
   /** Visible placeholder rendered inside FactCell / TrustFacts pills instead of real sensitive values. */
   supplier_locked_valueMask: string;
+  /** Locked catalog preview: notice that price/supplier are hidden. */
+  supplier_locked_catalogPriceHidden: string;
+  supplier_locked_catalogSupplierHidden: string;
   // Supplier Access Request Panel — fully localized strings
   supplier_accessPanel_title: string;
   supplier_accessPanel_supplierLabel: string;
