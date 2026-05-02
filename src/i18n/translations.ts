@@ -927,9 +927,6 @@ type TranslationKeys = {
   supplier_writeToSupplier: string;
   // Supplier Profile — locked-state previews / access gating
   supplier_locked_identityHint: string;
-  supplier_hero_cta_anon: string;
-  supplier_hero_cta_request: string;
-  supplier_hero_cta_pending: string;
   supplier_locked_aboutPlaceholder: string;
   supplier_locked_anonCtaTitle: string;
   supplier_locked_anonCtaBody: string;
@@ -2070,9 +2067,6 @@ const en: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Request prepared. A manager will contact you.",
   supplier_writeToSupplier: "Message supplier",
   supplier_locked_identityHint: "Hidden — access on request",
-  supplier_hero_cta_anon: "Access after registration",
-  supplier_hero_cta_request: "Request access to information",
-  supplier_hero_cta_pending: "Request sent · awaiting approval",
   supplier_locked_aboutPlaceholder: "Full company description, legal details and contact channels are available after access is granted.",
   supplier_locked_anonCtaTitle: "Register to request access to information",
   supplier_locked_anonCtaBody: "Registered buyers can request supplier and exact price access in one click.",
