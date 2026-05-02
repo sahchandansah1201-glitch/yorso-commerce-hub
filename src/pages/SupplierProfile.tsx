@@ -1317,20 +1317,85 @@ const SupplierProfile = () => {
                   <div className="space-y-4">
                     {supplierOffers.map((offer) => (
                       <div key={offer.id}>
-                        <div className="sm:hidden">
-                          <MobileOfferCard
-                            offer={offer}
-                            isSelected={false}
-                            onSelect={() => {}}
-                          />
-                        </div>
-                        <div className="hidden sm:block">
-                          <CatalogOfferRow
-                            offer={offer}
-                            isSelected={false}
-                            onSelect={() => {}}
-                          />
-                        </div>
+                        {isUnlocked ? (
+                          <>
+                            <div className="sm:hidden">
+                              <MobileOfferCard
+                                offer={offer}
+                                isSelected={false}
+                                onSelect={() => {}}
+                              />
+                            </div>
+                            <div className="hidden sm:block">
+                              <CatalogOfferRow
+                                offer={offer}
+                                isSelected={false}
+                                onSelect={() => {}}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <article
+                            className="rounded-xl border border-border bg-card p-4 sm:p-5"
+                            data-testid="supplier-catalog-locked-row"
+                          >
+                            <div className="flex gap-4">
+                              <div
+                                className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-cool-gray/40 sm:h-24 sm:w-24"
+                                aria-hidden
+                              >
+                                {offer.image && (
+                                  <img
+                                    src={offer.image}
+                                    alt=""
+                                    loading="lazy"
+                                    className="h-full w-full object-cover"
+                                  />
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-heading text-sm font-semibold text-foreground sm:text-base">
+                                  {offer.productName}
+                                </h3>
+                                <p className="mt-0.5 text-xs italic text-muted-foreground">
+                                  {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
+                                </p>
+                                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-foreground/80">
+                                  <span aria-hidden>{offer.originFlag}</span>
+                                  <span>{offer.origin}</span>
+                                  {offer.commercial?.incoterm && (
+                                    <>
+                                      <span aria-hidden>·</span>
+                                      <span>{offer.commercial.incoterm}</span>
+                                    </>
+                                  )}
+                                </p>
+                                {offer.certifications && offer.certifications.length > 0 && (
+                                  <ul className="mt-2 flex flex-wrap gap-1">
+                                    {offer.certifications.slice(0, 3).map((c) => (
+                                      <li
+                                        key={c}
+                                        className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-foreground/80"
+                                      >
+                                        {c}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+                            <div className="mt-3 grid gap-2 border-t border-border pt-3 text-xs sm:grid-cols-2">
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Lock className="h-3 w-3 text-primary" aria-hidden />
+                                <span>{t.supplier_locked_catalogPriceHidden}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Lock className="h-3 w-3 text-primary" aria-hidden />
+                                <span>{t.supplier_locked_catalogSupplierHidden}</span>
+                              </div>
+                            </div>
+                          </article>
+                        )}
                       </div>
                     ))}
                     {supplierOffers.length === 0 && (
