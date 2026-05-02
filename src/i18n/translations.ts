@@ -3743,6 +3743,13 @@ const es: TranslationKeys = {
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
   offerDetail_backToCatalog: "Volver al panel de compras",
   offerDetail_backToCatalogShort: "Volver al panel",
+  offerDetail_loadError_title: "No se pudo cargar la oferta",
+  offerDetail_loadError_body: "El servicio de catálogo no está disponible temporalmente. Inténtalo de nuevo en un momento o explora otras ofertas en el catálogo.",
+  offerDetail_loadError_attempts: "Intentos fallidos: {count}",
+  offerDetail_loadError_code: "Código de error: {code}",
+  offerDetail_loadError_retry: "Reintentar",
+  offerDetail_loadError_retrying: "Reintentando…",
+  offerDetail_loadError_goCatalog: "Ir al catálogo",
 
   // 404 / Not Found
   notFound_title: "404",
