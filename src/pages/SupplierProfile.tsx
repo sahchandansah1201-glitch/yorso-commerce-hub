@@ -1221,7 +1221,7 @@ const SupplierProfile = () => {
                               </span>
                             </div>
                           </div>
-                          <span className="sr-only">{t.supplier_locked_aboutPlaceholder}</span>
+                          
                         </div>
                       )}
                     </div>
