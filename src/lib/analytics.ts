@@ -479,6 +479,26 @@ export interface EventPayloadMap {
 
   // Legacy (kept for backward compat — remove during cleanup) ───
   registration_complete_mock: Empty;
+
+  // ─── Catalog API privilege diagnostics ────────────────────────
+  /** Один инцидент 42501 (insufficient_privilege) на любой операции каталога. */
+  catalog_privilege_error: {
+    operation: "fetchOffers" | "fetchOfferById" | "get_qualified_offers" | "get_qualified_offer";
+    offer_id?: string;
+    access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    pg_code: string;
+    message: string;
+    hint?: string;
+    details?: string;
+  };
+  /** Алерт: повторяющиеся 42501 в окне (по умолчанию ≥3 за 5 минут). */
+  catalog_privilege_alert: {
+    operation: string;
+    access_level: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
+    incidents_in_window: number;
+    window_seconds: number;
+    last_message: string;
+  };
 }
 
 export type AnalyticsEvent = keyof EventPayloadMap;
