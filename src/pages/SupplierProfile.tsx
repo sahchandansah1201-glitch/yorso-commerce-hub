@@ -436,8 +436,12 @@ const TrustFactsBlock = ({
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
-  // Active offer count is public information — show real value to all users.
-  const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
+  // Active offer count is supplier-specific operational data — must NOT be
+  // rendered in DOM for locked viewers. We pass the masked placeholder
+  // instead and rely on `lockedHint` for the SR message.
+  const offersValue = unlocked
+    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
+    : t.supplier_locked_valueMask;
 
   const facts: Array<{
     label: string;
@@ -451,6 +455,8 @@ const TrustFactsBlock = ({
     {
       label: t.supplier_trust_activeOffers,
       value: offersValue,
+      locked: !unlocked,
+      lockedHint: t.supplier_locked_offersAvailable,
     },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
@@ -476,7 +482,10 @@ const TrustFactsBlock = ({
                   onCopy={(e) => e.preventDefault()}
                   onContextMenu={(e) => e.preventDefault()}
                 >
-                  {f.value}
+                  {/* Real value is intentionally NOT rendered when locked.
+                      We blur a non-sensitive placeholder so the DOM never
+                      contains the supplier-specific exact figure. */}
+                  {t.supplier_locked_valueMask}
                 </span>
                 <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
@@ -993,9 +1002,14 @@ const SupplierProfile = () => {
                         many: t.supplier_yearsOnMarket_pluralMany,
                       }),
                     });
-                    const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
-                    });
+                    // Active offer count is supplier-specific. Locked viewers
+                    // must see a non-exact access message instead of the real
+                    // number — the exact value must not exist in DOM.
+                    const offersStr = isUnlocked
+                      ? interpolate(t.supplier_activeOffers, {
+                          n: formatNumber(lang as AppLang, supplier.activeOffersCount),
+                        })
+                      : t.supplier_locked_offersAvailable;
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
                       years: yearsStr,
@@ -1792,7 +1806,14 @@ const SupplierProfile = () => {
   );
 };
 
-/** Унифицированная ячейка факта с опциональной estimate-меткой и locked-маской. */
+/** Унифицированная ячейка факта с опциональной estimate-меткой и locked-маской.
+ *
+ * Locked-режим намеренно НЕ передаёт реальное `value` в DOM —
+ * вместо него рендерится локализованный placeholder (`••••••`), а
+ * настоящее значение полностью игнорируется. Это гарантирует, что точные
+ * supplier-specific цифры (объёмы / дни транзита / SKU) не утекают в
+ * `textContent`, `innerHTML`, `aria-label`, `title` и копи-буфер.
+ */
 const FactCell = ({
   label,
   value,
@@ -1803,47 +1824,55 @@ const FactCell = ({
   label: string;
   value: string;
   estimate?: boolean;
-  /** Если true — значение скрывается размытым плейсхолдером. */
+  /** Если true — реальное value игнорируется, рендерится только маска. */
   locked?: boolean;
   /** Локализованная подсказка доступа, объявляется screen reader'ом. */
   lockedHint?: string;
-}) => (
-  <div>
-    <dt className="text-xs text-muted-foreground">{label}</dt>
-    {locked ? (
-      <dd className="mt-0.5">
-        <span
-          className="relative inline-flex items-center"
-          // Скрываем от screen readers — вместо значения они услышат lockedHint ниже.
-          aria-hidden="true"
-        >
+}) => {
+  // Real value is intentionally dropped on the floor when locked.
+  // The placeholder string is the only thing that ever reaches the DOM.
+  // Keeping this lookup local (not a hook) so the component still renders
+  // identically on the server / first paint.
+  return (
+    <div>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      {locked ? (
+        <dd className="mt-0.5">
           <span
-            className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
-            onCopy={(e) => e.preventDefault()}
-            onContextMenu={(e) => e.preventDefault()}
+            className="relative inline-flex items-center"
+            // Скрываем от screen readers — вместо значения они услышат lockedHint ниже.
+            aria-hidden="true"
           >
-            {value || "•••••"}
-          </span>
-          {/* Замочек поверх блюра — для небольших полей. */}
-          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
-              <Lock className="h-3 w-3 text-primary" aria-hidden />
+            <span
+              className="inline-block min-w-[3.5rem] select-none rounded-md bg-muted/60 px-2 py-0.5 text-sm font-medium text-foreground/70 blur-[3px] [user-select:none]"
+              onCopy={(e) => e.preventDefault()}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              {/* DO NOT render `value` here. Real sensitive numbers must
+                  not exist in DOM under locked state. */}
+              {"••••••"}
+            </span>
+            {/* Замочек поверх блюра — для небольших полей. */}
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                <Lock className="h-3 w-3 text-primary" aria-hidden />
+              </span>
             </span>
           </span>
-        </span>
-        {lockedHint && <span className="sr-only">{lockedHint}</span>}
-      </dd>
-    ) : (
-      <dd className="mt-0.5 text-sm font-medium text-foreground">
-        {value}
-        {estimate && (
-          <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
-            est.
-          </span>
-        )}
-      </dd>
-    )}
-  </div>
-);
+          {lockedHint && <span className="sr-only">{lockedHint}</span>}
+        </dd>
+      ) : (
+        <dd className="mt-0.5 text-sm font-medium text-foreground">
+          {value}
+          {estimate && (
+            <span className="ml-1 align-middle text-[10px] font-normal uppercase tracking-wide text-muted-foreground">
+              est.
+            </span>
+          )}
+        </dd>
+      )}
+    </div>
+  );
+};
 
 export default SupplierProfile;

@@ -941,6 +941,25 @@ type TranslationKeys = {
   supplier_locked_legalHidden: string;
   supplier_locked_offersCountHidden: string;
   supplier_locked_passportHint: string;
+  /** Non-exact replacement string used in subline / TrustFacts when the offers count must stay hidden. */
+  supplier_locked_offersAvailable: string;
+  /** Visible placeholder rendered inside FactCell / TrustFacts pills instead of real sensitive values. */
+  supplier_locked_valueMask: string;
+  // Supplier Access Request Panel — fully localized strings
+  supplier_accessPanel_title: string;
+  supplier_accessPanel_supplierLabel: string;
+  supplier_accessPanel_explainer: string;
+  supplier_accessPanel_cta: string;
+  supplier_accessPanel_toastTitle: string;
+  supplier_accessPanel_toastDesc: string;
+  supplier_accessPanel_status_sent: string;
+  supplier_accessPanel_status_pending: string;
+  supplier_accessPanel_status_approved: string;
+  supplier_accessPanel_nextStep_sent: string;
+  supplier_accessPanel_nextStep_pending: string;
+  supplier_accessPanel_nextStep_approved: string;
+  supplier_accessPanel_srSent: string;
+  supplier_accessPanel_sentLabel: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
@@ -2087,6 +2106,27 @@ const en: TranslationKeys = {
   supplier_locked_legalHidden: "Hidden — access on request",
   supplier_locked_offersCountHidden: "Hidden — access on request",
   supplier_locked_passportHint: "Hidden — access on request",
+  supplier_locked_offersAvailable: "Active offers available after price access",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Request price access",
+  supplier_accessPanel_supplierLabel: "Supplier",
+  supplier_accessPanel_explainer:
+    "The supplier reviews your buyer profile before sharing exact prices, contact channel, and full catalog.",
+  supplier_accessPanel_cta: "Request price access",
+  supplier_accessPanel_toastTitle: "Access request sent",
+  supplier_accessPanel_toastDesc:
+    "Supplier review is pending. You will be notified when access is granted.",
+  supplier_accessPanel_status_sent: "Request sent",
+  supplier_accessPanel_status_pending: "Supplier review pending",
+  supplier_accessPanel_status_approved: "Price access approved",
+  supplier_accessPanel_nextStep_sent:
+    "We forwarded your request. The supplier will respond shortly.",
+  supplier_accessPanel_nextStep_pending:
+    "The supplier is reviewing your buyer profile. You will be notified when access is granted.",
+  supplier_accessPanel_nextStep_approved:
+    "You can now view exact prices and supplier details on this profile.",
+  supplier_accessPanel_srSent: "Access request sent",
+  supplier_accessPanel_sentLabel: "Sent",
   supplier_type_producer: "Producer",
   supplier_type_processor: "Processor",
   supplier_type_exporter: "Exporter",
@@ -3212,6 +3252,27 @@ const ru: TranslationKeys = {
   supplier_locked_legalHidden: "Скрыто — доступ по запросу",
   supplier_locked_offersCountHidden: "Скрыто — доступ по запросу",
   supplier_locked_passportHint: "Скрыто — доступ по запросу",
+  supplier_locked_offersAvailable: "Офферы доступны после открытия цены",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Запросить доступ к цене",
+  supplier_accessPanel_supplierLabel: "Поставщик",
+  supplier_accessPanel_explainer:
+    "Поставщик проверит ваш профиль покупателя перед тем, как открыть точные цены, контакт и полный каталог.",
+  supplier_accessPanel_cta: "Запросить доступ к цене",
+  supplier_accessPanel_toastTitle: "Запрос доступа отправлен",
+  supplier_accessPanel_toastDesc:
+    "Поставщик рассматривает заявку. Мы уведомим вас, как только доступ будет открыт.",
+  supplier_accessPanel_status_sent: "Запрос отправлен",
+  supplier_accessPanel_status_pending: "На рассмотрении у поставщика",
+  supplier_accessPanel_status_approved: "Доступ к цене открыт",
+  supplier_accessPanel_nextStep_sent:
+    "Мы передали запрос. Поставщик ответит в ближайшее время.",
+  supplier_accessPanel_nextStep_pending:
+    "Поставщик проверяет ваш профиль покупателя. Мы уведомим вас, как только доступ будет открыт.",
+  supplier_accessPanel_nextStep_approved:
+    "Теперь в этом профиле видны точные цены и данные поставщика.",
+  supplier_accessPanel_srSent: "Запрос доступа отправлен",
+  supplier_accessPanel_sentLabel: "Отправлено",
   supplier_type_producer: "Производитель",
   supplier_type_processor: "Переработчик",
   supplier_type_exporter: "Экспортёр",
@@ -4337,6 +4398,27 @@ const es: TranslationKeys = {
   supplier_locked_legalHidden: "Oculto — acceso bajo solicitud",
   supplier_locked_offersCountHidden: "Oculto — acceso bajo solicitud",
   supplier_locked_passportHint: "Oculto — acceso bajo solicitud",
+  supplier_locked_offersAvailable: "Ofertas disponibles tras abrir el precio",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Solicitar acceso al precio",
+  supplier_accessPanel_supplierLabel: "Proveedor",
+  supplier_accessPanel_explainer:
+    "El proveedor revisa tu perfil de comprador antes de compartir los precios exactos, el canal de contacto y el catálogo completo.",
+  supplier_accessPanel_cta: "Solicitar acceso al precio",
+  supplier_accessPanel_toastTitle: "Solicitud de acceso enviada",
+  supplier_accessPanel_toastDesc:
+    "La revisión por parte del proveedor está pendiente. Te avisaremos cuando se conceda el acceso.",
+  supplier_accessPanel_status_sent: "Solicitud enviada",
+  supplier_accessPanel_status_pending: "Revisión del proveedor pendiente",
+  supplier_accessPanel_status_approved: "Acceso al precio aprobado",
+  supplier_accessPanel_nextStep_sent:
+    "Hemos enviado tu solicitud. El proveedor responderá pronto.",
+  supplier_accessPanel_nextStep_pending:
+    "El proveedor está revisando tu perfil de comprador. Te avisaremos cuando se conceda el acceso.",
+  supplier_accessPanel_nextStep_approved:
+    "Ahora puedes ver los precios exactos y los datos del proveedor en este perfil.",
+  supplier_accessPanel_srSent: "Solicitud de acceso enviada",
+  supplier_accessPanel_sentLabel: "Enviado",
   supplier_type_producer: "Productor",
   supplier_type_processor: "Procesador",
   supplier_type_exporter: "Exportador",
