@@ -201,38 +201,35 @@ const Suppliers = () => {
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <Link to="/" className="hover:text-foreground">
-                Home
+                {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
-              <span className="font-medium text-foreground">Suppliers</span>
+              <span className="font-medium text-foreground">{t.suppliersPage_breadcrumb}</span>
             </nav>
           </div>
         </div>
 
-        {/* Page header */}
         <section className="border-b border-border bg-background">
           <div className="container py-6 md:py-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="max-w-2xl">
                 <h1 className="font-heading text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[34px]">
-                  Seafood suppliers
+                  {t.suppliersPage_title}
                 </h1>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-                  Discover producers, processors, exporters and traders across key seafood
-                  origins. Review trust evidence and request access on your terms.
+                  {t.suppliersPage_subtitle}
                 </p>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>
-                  <span className="font-semibold text-foreground tabular-nums">
-                    {filtered.length}
-                  </span>{" "}
-                  / {mockSuppliers.length} suppliers
+                  {interpolate(t.suppliersPage_countSuffix, {
+                    visible: filtered.length,
+                    total: mockSuppliers.length,
+                  })}
                 </span>
               </div>
             </div>
 
-            {/* Search */}
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
               <div className="relative flex-1">
                 <Search
@@ -243,9 +240,9 @@ const Suppliers = () => {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search supplier, species, country, certification..."
+                  placeholder={t.suppliersPage_searchPlaceholder}
                   className="h-11 pl-9"
-                  aria-label="Search suppliers"
+                  aria-label={t.suppliersPage_searchAriaLabel}
                 />
               </div>
               {(activeFilter || query) && (
@@ -259,15 +256,20 @@ const Suppliers = () => {
                   }}
                   className="self-start md:self-auto"
                 >
-                  Clear filters
+                  {t.suppliersPage_clearFilters}
                 </Button>
               )}
             </div>
 
-            {/* Quick chips */}
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Quick filters">
+            <div
+              className="mt-3 flex flex-wrap gap-2"
+              role="group"
+              aria-label={t.suppliersPage_quickFiltersAria}
+            >
               {QUICK_FILTERS.map((f) => {
                 const active = activeFilter === f.id;
+                const labelKey = FILTER_LABEL_KEYS[f.id];
+                const label = labelKey ? (t[labelKey] as string) : f.label;
                 return (
                   <button
                     key={f.id}
@@ -281,7 +283,7 @@ const Suppliers = () => {
                         : "border-border bg-background text-foreground/80 hover:border-foreground/30",
                     )}
                   >
-                    {f.label}
+                    {label}
                   </button>
                 );
               })}
@@ -289,19 +291,17 @@ const Suppliers = () => {
           </div>
         </section>
 
-        {/* Workspace */}
         <section className="bg-cool-gray/40">
           <div className="container py-6 md:py-8">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-              {/* Supplier list */}
-              <div>
+              <div className="min-w-0">
                 {filtered.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
                     <p className="text-sm font-medium text-foreground">
-                      No suppliers match your filters
+                      {t.suppliersPage_emptyTitle}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Try a different species, country, or clear the active filter.
+                      {t.suppliersPage_emptyBody}
                     </p>
                   </div>
                 ) : (
