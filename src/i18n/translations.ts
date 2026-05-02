@@ -927,6 +927,9 @@ type TranslationKeys = {
   supplier_writeToSupplier: string;
   // Supplier Profile — locked-state previews / access gating
   supplier_locked_identityHint: string;
+  supplier_hero_cta_anon: string;
+  supplier_hero_cta_request: string;
+  supplier_hero_cta_pending: string;
   supplier_locked_aboutPlaceholder: string;
   supplier_locked_anonCtaTitle: string;
   supplier_locked_anonCtaBody: string;
