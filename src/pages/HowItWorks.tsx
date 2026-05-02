@@ -19,6 +19,7 @@ import {
   Scale,
   FileCheck2,
   HelpCircle,
+  ChevronRight,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -61,7 +62,7 @@ const upsertLink = (rel: string, href: string) => {
 
 const HowItWorks = () => {
   const t = useHowItWorks();
-  const { lang } = useLanguage();
+  const { lang, t: tCommon } = useLanguage();
 
   useEffect(() => {
     const prevTitle = document.title;
