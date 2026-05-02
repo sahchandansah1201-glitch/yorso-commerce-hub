@@ -146,8 +146,8 @@ describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
     // Локализованный locked-hint должен присутствовать
     expect(text).toContain("Active offers available after price access");
     // Trust pill использует mask вместо реального числа.
-    const trustPill = screen.queryByText("••••••");
-    expect(trustPill).not.toBeNull();
+    const trustPills = screen.queryAllByText("••••••");
+    expect(trustPills.length).toBeGreaterThan(0);
   });
 
   it("anonymous_locked: about / legal / catalog offer-leaks отсутствуют", () => {
