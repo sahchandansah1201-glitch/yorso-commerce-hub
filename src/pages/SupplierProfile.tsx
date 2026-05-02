@@ -1002,9 +1002,14 @@ const SupplierProfile = () => {
                         many: t.supplier_yearsOnMarket_pluralMany,
                       }),
                     });
-                    const offersStr = interpolate(t.supplier_activeOffers, {
-                      n: formatNumber(lang as AppLang, supplier.activeOffersCount),
-                    });
+                    // Active offer count is supplier-specific. Locked viewers
+                    // must see a non-exact access message instead of the real
+                    // number — the exact value must not exist in DOM.
+                    const offersStr = isUnlocked
+                      ? interpolate(t.supplier_activeOffers, {
+                          n: formatNumber(lang as AppLang, supplier.activeOffersCount),
+                        })
+                      : t.supplier_locked_offersAvailable;
                     return interpolate(t.supplier_identity_subline, {
                       type: typeStr,
                       years: yearsStr,
