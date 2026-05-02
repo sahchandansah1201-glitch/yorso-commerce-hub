@@ -927,6 +927,9 @@ type TranslationKeys = {
   supplier_writeToSupplier: string;
   // Supplier Profile — locked-state previews / access gating
   supplier_locked_identityHint: string;
+  supplier_hero_cta_anon: string;
+  supplier_hero_cta_request: string;
+  supplier_hero_cta_pending: string;
   supplier_locked_aboutPlaceholder: string;
   supplier_locked_anonCtaTitle: string;
   supplier_locked_anonCtaBody: string;
@@ -2067,6 +2070,9 @@ const en: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Request prepared. A manager will contact you.",
   supplier_writeToSupplier: "Message supplier",
   supplier_locked_identityHint: "Supplier identity unlocks after price access is approved.",
+  supplier_hero_cta_anon: "Create account to request access",
+  supplier_hero_cta_request: "Request supplier approval",
+  supplier_hero_cta_pending: "Request sent · awaiting approval",
   supplier_locked_aboutPlaceholder: "Full company description, legal details and contact channels are available after price access is approved.",
   supplier_locked_anonCtaTitle: "Create a buyer account to request price access",
   supplier_locked_anonCtaBody: "Registered buyers can request supplier and exact price access in one click.",
@@ -3186,6 +3192,9 @@ const ru: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Запрос подготовлен. Менеджер свяжется с вами.",
   supplier_writeToSupplier: "Написать поставщику",
   supplier_locked_identityHint: "Название поставщика откроется после одобрения доступа к цене.",
+  supplier_hero_cta_anon: "Создать аккаунт, чтобы запросить доступ",
+  supplier_hero_cta_request: "Запросить подтверждение поставщика",
+  supplier_hero_cta_pending: "Заявка отправлена · ожидает одобрения",
   supplier_locked_aboutPlaceholder: "Полное описание компании, юридические реквизиты и контакты доступны после одобрения доступа к цене.",
   supplier_locked_anonCtaTitle: "Создайте аккаунт покупателя, чтобы запросить доступ к цене",
   supplier_locked_anonCtaBody: "Зарегистрированные покупатели запрашивают доступ к поставщику и точной цене в один клик.",
@@ -4305,6 +4314,9 @@ const es: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Solicitud preparada. Un gestor te contactará.",
   supplier_writeToSupplier: "Escribir al proveedor",
   supplier_locked_identityHint: "La identidad del proveedor se revela tras aprobar el acceso al precio.",
+  supplier_hero_cta_anon: "Crear cuenta para solicitar acceso",
+  supplier_hero_cta_request: "Solicitar aprobación del proveedor",
+  supplier_hero_cta_pending: "Solicitud enviada · pendiente de aprobación",
   supplier_locked_aboutPlaceholder: "La descripción completa, los datos legales y los contactos estarán disponibles tras aprobar el acceso al precio.",
   supplier_locked_anonCtaTitle: "Crea una cuenta de comprador para solicitar acceso al precio",
   supplier_locked_anonCtaBody: "Los compradores registrados solicitan acceso al proveedor y al precio exacto con un solo clic.",
