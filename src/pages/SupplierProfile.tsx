@@ -1218,16 +1218,13 @@ const SupplierProfile = () => {
                         </p>
                       ) : (
                         <div
-                          className="relative mt-3 overflow-hidden rounded-lg"
+                          className="relative mt-3 overflow-hidden rounded-lg border border-dashed border-border bg-muted/20 p-6"
                           data-testid="supplier-about-locked"
                         >
-                          <p
-                            aria-hidden="true"
-                            className="pointer-events-none select-none text-sm leading-relaxed text-foreground/80 blur-[2.5px]"
-                          >
-                            {supplier.about}
-                          </p>
-                          <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
+                          {/* Real `supplier.about` is intentionally NOT rendered
+                              for locked viewers — not even blurred — so the DOM
+                              cannot leak the legal company description. */}
+                          <div className="flex items-center justify-center">
                             <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
                               <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
                               <span className="text-xs font-medium text-foreground">
@@ -1235,7 +1232,6 @@ const SupplierProfile = () => {
                               </span>
                             </div>
                           </div>
-                          
                         </div>
                       )}
                     </div>
