@@ -256,14 +256,20 @@ export const fetchOffers = async (level: AccessLevel): Promise<SeafoodOffer[]> =
       const categoryById = await fetchCategoryMap(categoryIds);
       return rows.map((r) => mapQualifiedRow(r, categoryById));
     }
-    if (error) console.warn("[catalog-api] get_qualified_offers failed, falling back to public", error);
+    if (error) {
+      logCatalogPrivilegeError({ operation: "get_qualified_offers", accessLevel: level, error });
+      console.warn("[catalog-api] get_qualified_offers failed, falling back to public", error);
+    }
   }
   // Anonymous / registered / qualified-без-доступа — публичный view.
   const { data, error } = await supabase
     .from("offers_public")
     .select("*")
     .order("created_at", { ascending: false });
-  if (error) throw error;
+  if (error) {
+    logCatalogPrivilegeError({ operation: "fetchOffers", accessLevel: level, error });
+    throw error;
+  }
   const rows = (data ?? []) as unknown as OfferPublicRow[];
   const categoryIds = Array.from(new Set(rows.map((r) => r.category_id).filter(Boolean) as string[]));
   const categoryById = await fetchCategoryMap(categoryIds);
