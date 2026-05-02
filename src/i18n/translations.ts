@@ -351,6 +351,13 @@ type TranslationKeys = {
   offerDetail_freeRegistration: string;
   offerDetail_backToCatalog: string;
   offerDetail_backToCatalogShort: string;
+  offerDetail_loadError_title: string;
+  offerDetail_loadError_body: string;
+  offerDetail_loadError_attempts: string;
+  offerDetail_loadError_code: string;
+  offerDetail_loadError_retry: string;
+  offerDetail_loadError_retrying: string;
+  offerDetail_loadError_goCatalog: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
