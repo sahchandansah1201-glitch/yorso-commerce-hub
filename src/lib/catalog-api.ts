@@ -284,14 +284,20 @@ export const fetchOfferById = async (id: string, level: AccessLevel): Promise<Se
       const categoryById = await fetchCategoryMap(row.category_id ? [row.category_id] : []);
       return mapQualifiedRow(row, categoryById);
     }
-    if (error) console.warn("[catalog-api] get_qualified_offer failed, falling back to public", error);
+    if (error) {
+      logCatalogPrivilegeError({ operation: "get_qualified_offer", accessLevel: level, offerId: id, error });
+      console.warn("[catalog-api] get_qualified_offer failed, falling back to public", error);
+    }
   }
   const { data, error } = await supabase
     .from("offers_public")
     .select("*")
     .eq("id", id)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    logCatalogPrivilegeError({ operation: "fetchOfferById", accessLevel: level, offerId: id, error });
+    throw error;
+  }
   if (!data) return null;
   const row = data as unknown as OfferPublicRow;
   const categoryById = await fetchCategoryMap(row.category_id ? [row.category_id] : []);
