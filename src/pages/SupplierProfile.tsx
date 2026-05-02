@@ -436,8 +436,12 @@ const TrustFactsBlock = ({
   const typeKey = supplierTypeLabelKey(supplier.supplierType);
   const typeValue = typeKey ? (t[typeKey] as string) : supplier.supplierType;
 
-  // Active offer count is public information — show real value to all users.
-  const offersValue = formatNumber(lang as AppLang, supplier.activeOffersCount);
+  // Active offer count is supplier-specific operational data — must NOT be
+  // rendered in DOM for locked viewers. We pass the masked placeholder
+  // instead and rely on `lockedHint` for the SR message.
+  const offersValue = unlocked
+    ? formatNumber(lang as AppLang, supplier.activeOffersCount)
+    : t.supplier_locked_valueMask;
 
   const facts: Array<{
     label: string;
@@ -451,6 +455,8 @@ const TrustFactsBlock = ({
     {
       label: t.supplier_trust_activeOffers,
       value: offersValue,
+      locked: !unlocked,
+      lockedHint: t.supplier_locked_offersAvailable,
     },
     { label: t.supplier_trust_documents, value: docsLabel },
     { label: t.supplier_trust_responseSpeed, value: responseLabel, estimate: true },
@@ -476,7 +482,10 @@ const TrustFactsBlock = ({
                   onCopy={(e) => e.preventDefault()}
                   onContextMenu={(e) => e.preventDefault()}
                 >
-                  {f.value}
+                  {/* Real value is intentionally NOT rendered when locked.
+                      We blur a non-sensitive placeholder so the DOM never
+                      contains the supplier-specific exact figure. */}
+                  {t.supplier_locked_valueMask}
                 </span>
                 <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
