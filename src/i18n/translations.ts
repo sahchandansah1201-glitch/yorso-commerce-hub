@@ -948,6 +948,88 @@ type TranslationKeys = {
   /** Locked catalog preview: notice that price/supplier are hidden. */
   supplier_locked_catalogPriceHidden: string;
   supplier_locked_catalogSupplierHidden: string;
+  // Suppliers catalog page (/suppliers)
+  suppliersPage_breadcrumb: string;
+  suppliersPage_title: string;
+  suppliersPage_subtitle: string;
+  suppliersPage_countSuffix: string; // "{visible} / {total} suppliers"
+  suppliersPage_searchPlaceholder: string;
+  suppliersPage_searchAriaLabel: string;
+  suppliersPage_clearFilters: string;
+  suppliersPage_quickFiltersAria: string;
+  suppliersPage_filter_salmon: string;
+  suppliersPage_filter_shrimp: string;
+  suppliersPage_filter_tuna: string;
+  suppliersPage_filter_whitefish: string;
+  suppliersPage_filter_crab: string;
+  suppliersPage_filter_squid: string;
+  suppliersPage_filter_certified: string;
+  suppliersPage_emptyTitle: string;
+  suppliersPage_emptyBody: string;
+  suppliersPage_addedShortlist: string;
+  suppliersPage_removedShortlist: string;
+  suppliersPage_accessRequestPreparedTitle: string;
+  suppliersPage_accessRequestPreparedDesc: string;
+  // SupplierRow component
+  supplierRow_identityRestricted: string;
+  supplierRow_inBusinessSince: string; // "In business since {year}"
+  supplierRow_offersHiddenTeaser: string;
+  supplierRow_replyFast: string;
+  supplierRow_replyNormal: string;
+  supplierRow_replySlow: string;
+  supplierRow_docsReady: string;
+  supplierRow_docsPartial: string;
+  supplierRow_docsOnRequest: string;
+  supplierRow_reviewed: string;
+  supplierRow_catalogLabel: string;
+  supplierRow_productsCount: string; // "+{n} products"
+  supplierRow_fullCatalogTeaser: string;
+  supplierRow_deliversTo: string;
+  supplierRow_marketsCount: string; // "+{n} markets"
+  supplierRow_moreDeliveryTeaser: string;
+  supplierRow_ctaCreateAccount: string;
+  supplierRow_ctaRequestAccess: string;
+  supplierRow_ctaOpenProfile: string;
+  supplierRow_openProfile: string;
+  supplierRow_shortlist: string;
+  supplierRow_shortlisted: string;
+  supplierRow_certificationsAria: string; // "Certifications ({n})"
+  supplierRow_moreCertsAria: string; // "{n} more certifications"
+  supplierRow_selectAria: string; // "Select {name} to review details"
+  supplierRow_openProfileAria: string; // "Open supplier profile: {name}"
+  supplierRow_openProfileShortAria: string; // "Open profile: {name}"
+  // Selected supplier panel
+  selectedSupplier_emptyTitle: string;
+  selectedSupplier_emptyBody: string;
+  selectedSupplier_quickPreview: string;
+  selectedSupplier_aboutLabel: string;
+  selectedSupplier_activeOffers: string;
+  selectedSupplier_catalogSize: string;
+  selectedSupplier_catalogPreview: string;
+  selectedSupplier_productsValue: string; // "{n} products"
+  selectedSupplier_previewOnly: string;
+  selectedSupplier_markets: string;
+  selectedSupplier_deliveryPreview: string;
+  selectedSupplier_countriesValue: string; // "{n} countries"
+  selectedSupplier_activityLabel: string;
+  selectedSupplier_trustEvidence: string;
+  selectedSupplier_deliveryMarkets: string;
+  selectedSupplier_fullDeliveryTeaser: string;
+  selectedSupplier_productCatalogPreview: string;
+  selectedSupplier_moreProductsInProfile: string; // "+{n} more products in supplier profile"
+  selectedSupplier_fullCatalogTeaser: string;
+  selectedSupplier_accessLabel: string;
+  selectedSupplier_accessAnonExplainer: string;
+  selectedSupplier_accessRegisteredExplainer: string;
+  selectedSupplier_accessUnlockedExplainer: string;
+  selectedSupplier_website: string;
+  selectedSupplier_whatsapp: string;
+  selectedSupplier_openFullProfile: string;
+  selectedSupplier_shortlistSupplier: string;
+  selectedSupplier_contactChannelsAria: string;
+  // Supplier approval toast
+  supplierApprovalToast_title: string;
+  supplierApprovalToast_desc: string;
   // Supplier Access Request Panel — fully localized strings
   supplier_accessPanel_title: string;
   supplier_accessPanel_supplierLabel: string;
@@ -2115,6 +2197,84 @@ const en: TranslationKeys = {
   supplier_locked_catalogSupplierHidden: "Supplier hidden — request access",
   supplier_accessPanel_title: "Request price access",
   supplier_accessPanel_supplierLabel: "Supplier",
+  suppliersPage_breadcrumb: "Suppliers",
+  suppliersPage_title: "Seafood suppliers",
+  suppliersPage_subtitle: "Discover producers, processors, exporters and traders across key seafood origins. Review trust evidence and request access on your terms.",
+  suppliersPage_countSuffix: "{visible} / {total} suppliers",
+  suppliersPage_searchPlaceholder: "Search supplier, species, country, certification...",
+  suppliersPage_searchAriaLabel: "Search suppliers",
+  suppliersPage_clearFilters: "Clear filters",
+  suppliersPage_quickFiltersAria: "Quick filters",
+  suppliersPage_filter_salmon: "Salmon",
+  suppliersPage_filter_shrimp: "Shrimp",
+  suppliersPage_filter_tuna: "Tuna",
+  suppliersPage_filter_whitefish: "Whitefish",
+  suppliersPage_filter_crab: "Crab",
+  suppliersPage_filter_squid: "Squid",
+  suppliersPage_filter_certified: "Certified suppliers",
+  suppliersPage_emptyTitle: "No suppliers match your filters",
+  suppliersPage_emptyBody: "Try a different species, country, or clear the active filter.",
+  suppliersPage_addedShortlist: "Added to shortlist",
+  suppliersPage_removedShortlist: "Removed from shortlist",
+  suppliersPage_accessRequestPreparedTitle: "Access request prepared",
+  suppliersPage_accessRequestPreparedDesc: "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
+  supplierRow_identityRestricted: "Supplier identity restricted",
+  supplierRow_inBusinessSince: "In business since {year}",
+  supplierRow_offersHiddenTeaser: "Active offers available after supplier approval",
+  supplierRow_replyFast: "Replies within a day",
+  supplierRow_replyNormal: "Replies in 1-3 days",
+  supplierRow_replySlow: "Slower replies",
+  supplierRow_docsReady: "Documents ready",
+  supplierRow_docsPartial: "Some documents on file",
+  supplierRow_docsOnRequest: "Documents on request",
+  supplierRow_reviewed: "Reviewed",
+  supplierRow_catalogLabel: "Catalog",
+  supplierRow_productsCount: "+{n} products",
+  supplierRow_fullCatalogTeaser: "Full catalog after supplier approval",
+  supplierRow_deliversTo: "Delivers to",
+  supplierRow_marketsCount: "+{n} markets",
+  supplierRow_moreDeliveryTeaser: "More delivery markets after supplier approval",
+  supplierRow_ctaCreateAccount: "Create account",
+  supplierRow_ctaRequestAccess: "Request supplier access",
+  supplierRow_ctaOpenProfile: "Open supplier profile",
+  supplierRow_openProfile: "Open profile",
+  supplierRow_shortlist: "Shortlist",
+  supplierRow_shortlisted: "Shortlisted",
+  supplierRow_certificationsAria: "Certifications ({n})",
+  supplierRow_moreCertsAria: "{n} more certifications",
+  supplierRow_selectAria: "Select {name} to review details",
+  supplierRow_openProfileAria: "Open supplier profile: {name}",
+  supplierRow_openProfileShortAria: "Open profile: {name}",
+  selectedSupplier_emptyTitle: "Select a supplier to review details",
+  selectedSupplier_emptyBody: "Select a supplier to review product focus, trust evidence, and access options.",
+  selectedSupplier_quickPreview: "Quick preview",
+  selectedSupplier_aboutLabel: "Selected supplier",
+  selectedSupplier_activeOffers: "Active offers",
+  selectedSupplier_catalogSize: "Catalog size",
+  selectedSupplier_catalogPreview: "Catalog preview",
+  selectedSupplier_productsValue: "{n} products",
+  selectedSupplier_previewOnly: "Preview only",
+  selectedSupplier_markets: "Markets",
+  selectedSupplier_deliveryPreview: "Delivery preview",
+  selectedSupplier_countriesValue: "{n} countries",
+  selectedSupplier_activityLabel: "Activity",
+  selectedSupplier_trustEvidence: "Trust evidence",
+  selectedSupplier_deliveryMarkets: "Delivery markets",
+  selectedSupplier_fullDeliveryTeaser: "Full delivery geography after supplier approval",
+  selectedSupplier_productCatalogPreview: "Product catalog preview",
+  selectedSupplier_moreProductsInProfile: "+{n} more products in supplier profile",
+  selectedSupplier_fullCatalogTeaser: "Full catalog available after supplier approval",
+  selectedSupplier_accessLabel: "Access",
+  selectedSupplier_accessAnonExplainer: "Create an account to request access to supplier identity, documents, contact channel, and the full product catalog.",
+  selectedSupplier_accessRegisteredExplainer: "Send an access request. The supplier reviews your buyer profile before sharing identity, contact channel, and full catalog.",
+  selectedSupplier_accessUnlockedExplainer: "Access granted. You can review the full supplier profile, contact channels, and full product catalog.",
+  selectedSupplier_website: "Website",
+  selectedSupplier_whatsapp: "WhatsApp",
+  selectedSupplier_openFullProfile: "Open full profile",
+  selectedSupplier_shortlistSupplier: "Shortlist supplier",
+  selectedSupplier_contactChannelsAria: "Supplier contact channels",
+  supplierApprovalToast_title: "Price access approved",
+  supplierApprovalToast_desc: "You can now view exact prices and supplier details.",
   supplier_accessPanel_explainer:
     "The supplier reviews your buyer profile before sharing exact prices, contact channel, and full catalog.",
   supplier_accessPanel_cta: "Request price access",
@@ -3263,6 +3423,84 @@ const ru: TranslationKeys = {
   supplier_locked_catalogSupplierHidden: "Поставщик скрыт — запросите доступ",
   supplier_accessPanel_title: "Запросить доступ к цене",
   supplier_accessPanel_supplierLabel: "Поставщик",
+  suppliersPage_breadcrumb: "Поставщики",
+  suppliersPage_title: "Поставщики морепродуктов",
+  suppliersPage_subtitle: "Производители, переработчики, экспортёры и трейдеры из ключевых стран. Изучайте подтверждения и запрашивайте доступ на своих условиях.",
+  suppliersPage_countSuffix: "{visible} / {total} поставщиков",
+  suppliersPage_searchPlaceholder: "Поиск поставщика, вида, страны, сертификата...",
+  suppliersPage_searchAriaLabel: "Поиск поставщиков",
+  suppliersPage_clearFilters: "Сбросить фильтры",
+  suppliersPage_quickFiltersAria: "Быстрые фильтры",
+  suppliersPage_filter_salmon: "Лосось",
+  suppliersPage_filter_shrimp: "Креветка",
+  suppliersPage_filter_tuna: "Тунец",
+  suppliersPage_filter_whitefish: "Белая рыба",
+  suppliersPage_filter_crab: "Краб",
+  suppliersPage_filter_squid: "Кальмар",
+  suppliersPage_filter_certified: "Сертифицированные",
+  suppliersPage_emptyTitle: "Нет поставщиков по выбранным фильтрам",
+  suppliersPage_emptyBody: "Попробуйте другой вид, страну или сбросьте активный фильтр.",
+  suppliersPage_addedShortlist: "Добавлено в шортлист",
+  suppliersPage_removedShortlist: "Удалено из шортлиста",
+  suppliersPage_accessRequestPreparedTitle: "Запрос доступа подготовлен",
+  suppliersPage_accessRequestPreparedDesc: "В прототипе подтверждение поставщика выполняется вручную. Полный сценарий покупателя появится на следующем шаге.",
+  supplierRow_identityRestricted: "Идентификация поставщика скрыта",
+  supplierRow_inBusinessSince: "На рынке с {year}",
+  supplierRow_offersHiddenTeaser: "Офферы доступны после одобрения поставщика",
+  supplierRow_replyFast: "Отвечает в течение дня",
+  supplierRow_replyNormal: "Отвечает за 1-3 дня",
+  supplierRow_replySlow: "Отвечает медленнее",
+  supplierRow_docsReady: "Документы готовы",
+  supplierRow_docsPartial: "Часть документов в наличии",
+  supplierRow_docsOnRequest: "Документы по запросу",
+  supplierRow_reviewed: "Проверено",
+  supplierRow_catalogLabel: "Каталог",
+  supplierRow_productsCount: "+{n} товаров",
+  supplierRow_fullCatalogTeaser: "Полный каталог после одобрения поставщика",
+  supplierRow_deliversTo: "Доставляет в",
+  supplierRow_marketsCount: "+{n} рынков",
+  supplierRow_moreDeliveryTeaser: "Больше рынков доставки после одобрения поставщика",
+  supplierRow_ctaCreateAccount: "Создать аккаунт",
+  supplierRow_ctaRequestAccess: "Запросить доступ к поставщику",
+  supplierRow_ctaOpenProfile: "Открыть профиль поставщика",
+  supplierRow_openProfile: "Открыть профиль",
+  supplierRow_shortlist: "В шортлист",
+  supplierRow_shortlisted: "В шортлисте",
+  supplierRow_certificationsAria: "Сертификаты ({n})",
+  supplierRow_moreCertsAria: "ещё {n} сертификатов",
+  supplierRow_selectAria: "Выбрать {name} для просмотра деталей",
+  supplierRow_openProfileAria: "Открыть профиль поставщика: {name}",
+  supplierRow_openProfileShortAria: "Открыть профиль: {name}",
+  selectedSupplier_emptyTitle: "Выберите поставщика для деталей",
+  selectedSupplier_emptyBody: "Выберите поставщика, чтобы увидеть продуктовый профиль, подтверждения и опции доступа.",
+  selectedSupplier_quickPreview: "Быстрый предпросмотр",
+  selectedSupplier_aboutLabel: "Выбранный поставщик",
+  selectedSupplier_activeOffers: "Активные офферы",
+  selectedSupplier_catalogSize: "Размер каталога",
+  selectedSupplier_catalogPreview: "Превью каталога",
+  selectedSupplier_productsValue: "{n} товаров",
+  selectedSupplier_previewOnly: "Только превью",
+  selectedSupplier_markets: "Рынки",
+  selectedSupplier_deliveryPreview: "Превью доставки",
+  selectedSupplier_countriesValue: "{n} стран",
+  selectedSupplier_activityLabel: "Активность",
+  selectedSupplier_trustEvidence: "Подтверждения",
+  selectedSupplier_deliveryMarkets: "Рынки доставки",
+  selectedSupplier_fullDeliveryTeaser: "Полная география доставки после одобрения поставщика",
+  selectedSupplier_productCatalogPreview: "Превью каталога товаров",
+  selectedSupplier_moreProductsInProfile: "+{n} товаров в профиле поставщика",
+  selectedSupplier_fullCatalogTeaser: "Полный каталог доступен после одобрения поставщика",
+  selectedSupplier_accessLabel: "Доступ",
+  selectedSupplier_accessAnonExplainer: "Создайте аккаунт, чтобы запросить доступ к идентификации поставщика, документам, контактам и полному каталогу.",
+  selectedSupplier_accessRegisteredExplainer: "Отправьте запрос на доступ. Поставщик проверит ваш профиль покупателя перед раскрытием идентификации, контактов и каталога.",
+  selectedSupplier_accessUnlockedExplainer: "Доступ открыт. Вы можете изучить профиль поставщика, контакты и полный каталог.",
+  selectedSupplier_website: "Сайт",
+  selectedSupplier_whatsapp: "WhatsApp",
+  selectedSupplier_openFullProfile: "Открыть полный профиль",
+  selectedSupplier_shortlistSupplier: "Сохранить поставщика",
+  selectedSupplier_contactChannelsAria: "Контакты поставщика",
+  supplierApprovalToast_title: "Доступ к цене открыт",
+  supplierApprovalToast_desc: "Теперь вы видите точные цены и данные поставщика.",
   supplier_accessPanel_explainer:
     "Поставщик проверит ваш профиль покупателя перед тем, как открыть точные цены, контакт и полный каталог.",
   supplier_accessPanel_cta: "Запросить доступ к цене",
@@ -4411,6 +4649,84 @@ const es: TranslationKeys = {
   supplier_locked_catalogSupplierHidden: "Proveedor oculto — solicite acceso",
   supplier_accessPanel_title: "Solicitar acceso al precio",
   supplier_accessPanel_supplierLabel: "Proveedor",
+  suppliersPage_breadcrumb: "Proveedores",
+  suppliersPage_title: "Proveedores de productos del mar",
+  suppliersPage_subtitle: "Productores, procesadores, exportadores y traders de los principales orígenes. Revisa la evidencia de confianza y solicita acceso en tus condiciones.",
+  suppliersPage_countSuffix: "{visible} / {total} proveedores",
+  suppliersPage_searchPlaceholder: "Buscar proveedor, especie, país, certificación...",
+  suppliersPage_searchAriaLabel: "Buscar proveedores",
+  suppliersPage_clearFilters: "Limpiar filtros",
+  suppliersPage_quickFiltersAria: "Filtros rápidos",
+  suppliersPage_filter_salmon: "Salmón",
+  suppliersPage_filter_shrimp: "Camarón",
+  suppliersPage_filter_tuna: "Atún",
+  suppliersPage_filter_whitefish: "Pescado blanco",
+  suppliersPage_filter_crab: "Cangrejo",
+  suppliersPage_filter_squid: "Calamar",
+  suppliersPage_filter_certified: "Proveedores certificados",
+  suppliersPage_emptyTitle: "Ningún proveedor coincide con tus filtros",
+  suppliersPage_emptyBody: "Prueba otra especie, otro país o limpia el filtro activo.",
+  suppliersPage_addedShortlist: "Añadido a la lista corta",
+  suppliersPage_removedShortlist: "Eliminado de la lista corta",
+  suppliersPage_accessRequestPreparedTitle: "Solicitud de acceso preparada",
+  suppliersPage_accessRequestPreparedDesc: "En el prototipo, la revisión por parte del proveedor se hace manualmente. El flujo del comprador se conectará en el siguiente paso.",
+  supplierRow_identityRestricted: "Identidad del proveedor restringida",
+  supplierRow_inBusinessSince: "En el mercado desde {year}",
+  supplierRow_offersHiddenTeaser: "Ofertas disponibles tras la aprobación del proveedor",
+  supplierRow_replyFast: "Responde en un día",
+  supplierRow_replyNormal: "Responde en 1-3 días",
+  supplierRow_replySlow: "Responde más lento",
+  supplierRow_docsReady: "Documentos listos",
+  supplierRow_docsPartial: "Algunos documentos disponibles",
+  supplierRow_docsOnRequest: "Documentos bajo solicitud",
+  supplierRow_reviewed: "Revisado",
+  supplierRow_catalogLabel: "Catálogo",
+  supplierRow_productsCount: "+{n} productos",
+  supplierRow_fullCatalogTeaser: "Catálogo completo tras la aprobación del proveedor",
+  supplierRow_deliversTo: "Entrega en",
+  supplierRow_marketsCount: "+{n} mercados",
+  supplierRow_moreDeliveryTeaser: "Más mercados de entrega tras la aprobación del proveedor",
+  supplierRow_ctaCreateAccount: "Crear cuenta",
+  supplierRow_ctaRequestAccess: "Solicitar acceso al proveedor",
+  supplierRow_ctaOpenProfile: "Abrir perfil del proveedor",
+  supplierRow_openProfile: "Abrir perfil",
+  supplierRow_shortlist: "Lista corta",
+  supplierRow_shortlisted: "En la lista corta",
+  supplierRow_certificationsAria: "Certificaciones ({n})",
+  supplierRow_moreCertsAria: "{n} certificaciones más",
+  supplierRow_selectAria: "Seleccionar {name} para ver detalles",
+  supplierRow_openProfileAria: "Abrir perfil del proveedor: {name}",
+  supplierRow_openProfileShortAria: "Abrir perfil: {name}",
+  selectedSupplier_emptyTitle: "Selecciona un proveedor para ver detalles",
+  selectedSupplier_emptyBody: "Selecciona un proveedor para revisar enfoque de producto, evidencia de confianza y opciones de acceso.",
+  selectedSupplier_quickPreview: "Vista rápida",
+  selectedSupplier_aboutLabel: "Proveedor seleccionado",
+  selectedSupplier_activeOffers: "Ofertas activas",
+  selectedSupplier_catalogSize: "Tamaño del catálogo",
+  selectedSupplier_catalogPreview: "Vista del catálogo",
+  selectedSupplier_productsValue: "{n} productos",
+  selectedSupplier_previewOnly: "Solo vista previa",
+  selectedSupplier_markets: "Mercados",
+  selectedSupplier_deliveryPreview: "Vista de entrega",
+  selectedSupplier_countriesValue: "{n} países",
+  selectedSupplier_activityLabel: "Actividad",
+  selectedSupplier_trustEvidence: "Evidencia de confianza",
+  selectedSupplier_deliveryMarkets: "Mercados de entrega",
+  selectedSupplier_fullDeliveryTeaser: "Geografía de entrega completa tras la aprobación del proveedor",
+  selectedSupplier_productCatalogPreview: "Vista del catálogo de productos",
+  selectedSupplier_moreProductsInProfile: "+{n} productos más en el perfil del proveedor",
+  selectedSupplier_fullCatalogTeaser: "Catálogo completo disponible tras la aprobación del proveedor",
+  selectedSupplier_accessLabel: "Acceso",
+  selectedSupplier_accessAnonExplainer: "Crea una cuenta para solicitar acceso a la identidad del proveedor, documentos, canal de contacto y catálogo completo.",
+  selectedSupplier_accessRegisteredExplainer: "Envía una solicitud de acceso. El proveedor revisa tu perfil de comprador antes de compartir identidad, contacto y catálogo completo.",
+  selectedSupplier_accessUnlockedExplainer: "Acceso concedido. Puedes revisar el perfil completo del proveedor, los canales de contacto y el catálogo completo.",
+  selectedSupplier_website: "Sitio web",
+  selectedSupplier_whatsapp: "WhatsApp",
+  selectedSupplier_openFullProfile: "Abrir perfil completo",
+  selectedSupplier_shortlistSupplier: "Guardar proveedor",
+  selectedSupplier_contactChannelsAria: "Canales de contacto del proveedor",
+  supplierApprovalToast_title: "Acceso al precio aprobado",
+  supplierApprovalToast_desc: "Ahora puedes ver los precios exactos y los datos del proveedor.",
   supplier_accessPanel_explainer:
     "El proveedor revisa tu perfil de comprador antes de compartir los precios exactos, el canal de contacto y el catálogo completo.",
   supplier_accessPanel_cta: "Solicitar acceso al precio",
