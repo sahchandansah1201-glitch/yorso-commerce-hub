@@ -58,7 +58,6 @@ import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/i
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import {
   getSupplierAccessRequest,
-  createSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
 import {
@@ -466,7 +465,7 @@ const TrustFactsBlock = ({
     <dl className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-sm">
       {facts.map((f) => (
         <div key={f.label}>
-          <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <dt className="text-xs text-muted-foreground">
             {f.label}
           </dt>
           {f.locked ? (
@@ -946,7 +945,7 @@ const SupplierProfile = () => {
                       </span>
                     </div>
 
-                    {/* Локированный заголовок (maskedName с номером завода) под блюром. */}
+                    {/* Локированный H1: только blur + нейтральный замочек, без дублирующего текстового бейджа. */}
                     <div
                       className="relative mt-5 inline-block max-w-full"
                       data-testid="supplier-hero-name-locked"
@@ -960,50 +959,15 @@ const SupplierProfile = () => {
                       >
                         {displayName}
                       </h1>
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <span className="flex items-center gap-1.5 rounded-full border border-border bg-card/95 px-3 py-1 shadow-sm">
+                      <span className="pointer-events-none absolute inset-y-0 -right-7 flex items-center">
+                        <span
+                          className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm"
+                          title={t.supplier_locked_identityHint}
+                        >
                           <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
-                          <span className="text-xs font-medium text-foreground">
-                            {t.supplier_locked_identityHint}
-                          </span>
                         </span>
                       </span>
                       <span className="sr-only">{t.supplier_locked_identityHint}</span>
-                    </div>
-
-                    {/* Inline CTA под залюренным H1 — три состояния. */}
-                    <div className="mt-3" data-testid="supplier-hero-inline-cta">
-                      {isAnonymous && (
-                        <Button asChild size="sm" data-testid="supplier-hero-cta-anon">
-                          <Link to="/register">{t.supplier_hero_cta_anon}</Link>
-                        </Button>
-                      )}
-                      {isRegisteredLocked && !accessRequest && (
-                        <Button
-                          type="button"
-                          size="sm"
-                          data-testid="supplier-hero-cta-request"
-                          onClick={() => {
-                            const saved = createSupplierAccessRequest(supplier.id);
-                            setAccessRequest(saved);
-                            toast({
-                              title: t.supplier_hero_cta_pending,
-                            });
-                          }}
-                        >
-                          {t.supplier_hero_cta_request}
-                        </Button>
-                      )}
-                      {isRegisteredLocked && accessRequest && accessRequest.status !== "approved" && (
-                        <span
-                          data-testid="supplier-hero-cta-pending"
-                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground"
-                          aria-live="polite"
-                        >
-                          <Lock className="h-3 w-3" aria-hidden />
-                          {t.supplier_hero_cta_pending}
-                        </span>
-                      )}
                     </div>
                   </>
                 )}
@@ -1032,11 +996,7 @@ const SupplierProfile = () => {
                     });
                   })()}
                 </p>
-                {!isUnlocked && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {t.supplier_locked_identityHint}
-                  </p>
-                )}
+                {/* Hint-строка убрана — единая точка действия в supplier-cta-block ниже. */}
               </div>
 
               <div className="flex shrink-0 md:mt-[70px] md:justify-end">
@@ -1130,23 +1090,13 @@ const SupplierProfile = () => {
                     )}
                   </>
                 ) : isAnonymous ? (
-                  <div
-                    className="w-full max-w-md space-y-3 rounded-md border border-border bg-background p-4"
-                    data-testid="supplier-anon-cta"
-                  >
-                    <div>
-                      <h3 className="font-heading text-sm font-semibold text-foreground">
-                        {t.supplier_locked_anonCtaTitle}
-                      </h3>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {t.supplier_locked_anonCtaBody}
-                      </p>
-                    </div>
+                  <div className="w-full max-w-md" data-testid="supplier-anon-cta">
                     <Button asChild size="lg" className="w-full">
-                      <Link to="/register">
-                        {t.supplier_locked_anonCtaButton}
-                      </Link>
+                      <Link to="/register">{t.supplier_locked_anonCtaButton}</Link>
                     </Button>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {t.supplier_locked_anonCtaBody}
+                    </p>
                   </div>
                 ) : isRegisteredLocked && supplier ? (
                   <div className="w-full max-w-md">
@@ -1304,12 +1254,12 @@ const SupplierProfile = () => {
                           <LegalDetailsBlock supplier={supplier} />
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
-                          <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
-                            <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
-                            <span className="text-xs font-medium text-foreground">
-                              {t.supplier_locked_legalHidden}
-                            </span>
-                          </div>
+                          <span
+                            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm"
+                            title={t.supplier_locked_legalHidden}
+                          >
+                            <Lock className="h-4 w-4 text-primary" aria-hidden />
+                          </span>
                         </div>
                         <span className="sr-only">{t.supplier_locked_legalHidden}</span>
                       </div>
@@ -1851,7 +1801,7 @@ const FactCell = ({
   lockedHint?: string;
 }) => (
   <div>
-    <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
+    <dt className="text-xs text-muted-foreground">{label}</dt>
     {locked ? (
       <dd className="mt-0.5">
         <span
