@@ -1218,16 +1218,13 @@ const SupplierProfile = () => {
                         </p>
                       ) : (
                         <div
-                          className="relative mt-3 overflow-hidden rounded-lg"
+                          className="relative mt-3 overflow-hidden rounded-lg border border-dashed border-border bg-muted/20 p-6"
                           data-testid="supplier-about-locked"
                         >
-                          <p
-                            aria-hidden="true"
-                            className="pointer-events-none select-none text-sm leading-relaxed text-foreground/80 blur-[2.5px]"
-                          >
-                            {supplier.about}
-                          </p>
-                          <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
+                          {/* Real `supplier.about` is intentionally NOT rendered
+                              for locked viewers — not even blurred — so the DOM
+                              cannot leak the legal company description. */}
+                          <div className="flex items-center justify-center">
                             <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-border bg-card/95 px-4 py-2 shadow-sm">
                               <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
                               <span className="text-xs font-medium text-foreground">
@@ -1235,7 +1232,6 @@ const SupplierProfile = () => {
                               </span>
                             </div>
                           </div>
-                          
                         </div>
                       )}
                     </div>
@@ -1265,23 +1261,24 @@ const SupplierProfile = () => {
                       <LegalDetailsBlock supplier={supplier} />
                     ) : (
                       <div
-                        className="relative overflow-hidden rounded-xl border border-border bg-card"
+                        className="rounded-xl border border-border bg-card p-6"
                         data-testid="supplier-legal-locked"
                         role="group"
                         aria-label={t.supplier_locked_legalHidden}
                       >
-                        <div
-                          aria-hidden="true"
-                          className="pointer-events-none select-none blur-[2.5px]"
-                        >
-                          <LegalDetailsBlock supplier={supplier} />
+                        {/* Real LegalDetailsBlock is NOT rendered for locked
+                            viewers — so registration / VAT / EORI / founded
+                            date never reach the DOM. */}
+                        <div className="flex items-center gap-2">
+                          <FileBadge className="h-4 w-4 text-primary" aria-hidden />
+                          <h3 className="font-heading text-base font-semibold text-foreground">
+                            {t.supplier_legal_title}
+                          </h3>
                         </div>
-                        <div
-                          aria-hidden="true"
-                          className="absolute inset-0 flex items-center justify-center bg-background/30 p-4"
-                        >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm transition-all duration-200 ease-out hover:scale-105 hover:border-primary/40 hover:bg-card hover:shadow-md motion-reduce:transition-none motion-reduce:hover:scale-100">
-                            <Lock className="h-4 w-4 text-primary" aria-hidden />
+                        <div className="mt-4 flex items-center justify-center gap-2 rounded-md border border-dashed border-border bg-muted/20 px-4 py-6">
+                          <Lock className="h-4 w-4 text-primary" aria-hidden />
+                          <span className="text-xs font-medium text-foreground">
+                            {t.supplier_locked_legalHidden}
                           </span>
                         </div>
                       </div>
@@ -1320,20 +1317,85 @@ const SupplierProfile = () => {
                   <div className="space-y-4">
                     {supplierOffers.map((offer) => (
                       <div key={offer.id}>
-                        <div className="sm:hidden">
-                          <MobileOfferCard
-                            offer={offer}
-                            isSelected={false}
-                            onSelect={() => {}}
-                          />
-                        </div>
-                        <div className="hidden sm:block">
-                          <CatalogOfferRow
-                            offer={offer}
-                            isSelected={false}
-                            onSelect={() => {}}
-                          />
-                        </div>
+                        {isUnlocked ? (
+                          <>
+                            <div className="sm:hidden">
+                              <MobileOfferCard
+                                offer={offer}
+                                isSelected={false}
+                                onSelect={() => {}}
+                              />
+                            </div>
+                            <div className="hidden sm:block">
+                              <CatalogOfferRow
+                                offer={offer}
+                                isSelected={false}
+                                onSelect={() => {}}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <article
+                            className="rounded-xl border border-border bg-card p-4 sm:p-5"
+                            data-testid="supplier-catalog-locked-row"
+                          >
+                            <div className="flex gap-4">
+                              <div
+                                className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-cool-gray/40 sm:h-24 sm:w-24"
+                                aria-hidden
+                              >
+                                {offer.image && (
+                                  <img
+                                    src={offer.image}
+                                    alt=""
+                                    loading="lazy"
+                                    className="h-full w-full object-cover"
+                                  />
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-heading text-sm font-semibold text-foreground sm:text-base">
+                                  {offer.productName}
+                                </h3>
+                                <p className="mt-0.5 text-xs italic text-muted-foreground">
+                                  {offer.latinName} · {offer.format} · {offer.cutType.split(",")[0]}
+                                </p>
+                                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-foreground/80">
+                                  <span aria-hidden>{offer.originFlag}</span>
+                                  <span>{offer.origin}</span>
+                                  {offer.commercial?.incoterm && (
+                                    <>
+                                      <span aria-hidden>·</span>
+                                      <span>{offer.commercial.incoterm}</span>
+                                    </>
+                                  )}
+                                </p>
+                                {offer.certifications && offer.certifications.length > 0 && (
+                                  <ul className="mt-2 flex flex-wrap gap-1">
+                                    {offer.certifications.slice(0, 3).map((c) => (
+                                      <li
+                                        key={c}
+                                        className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-foreground/80"
+                                      >
+                                        {c}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+                            <div className="mt-3 grid gap-2 border-t border-border pt-3 text-xs sm:grid-cols-2">
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Lock className="h-3 w-3 text-primary" aria-hidden />
+                                <span>{t.supplier_locked_catalogPriceHidden}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Lock className="h-3 w-3 text-primary" aria-hidden />
+                                <span>{t.supplier_locked_catalogSupplierHidden}</span>
+                              </div>
+                            </div>
+                          </article>
+                        )}
                       </div>
                     ))}
                     {supplierOffers.length === 0 && (
