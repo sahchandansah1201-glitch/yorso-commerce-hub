@@ -1493,6 +1493,13 @@ const en: TranslationKeys = {
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
   offerDetail_backToCatalog: "Back to procurement workspace",
   offerDetail_backToCatalogShort: "Back to workspace",
+  offerDetail_loadError_title: "Couldn't load this offer",
+  offerDetail_loadError_body: "The catalog service is temporarily unavailable. Please try again in a moment, or browse other offers in the catalog.",
+  offerDetail_loadError_attempts: "Failed attempts: {count}",
+  offerDetail_loadError_code: "Error code: {code}",
+  offerDetail_loadError_retry: "Try again",
+  offerDetail_loadError_retrying: "Retrying…",
+  offerDetail_loadError_goCatalog: "Go to catalog",
 
   // 404 / Not Found
   notFound_title: "404",
