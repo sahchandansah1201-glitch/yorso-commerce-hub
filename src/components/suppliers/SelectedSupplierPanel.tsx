@@ -22,6 +22,10 @@ import {
   type DocumentReadiness,
 } from "@/data/mockSuppliers";
 import type { AccessLevel } from "@/lib/access-level";
+import { useLanguage } from "@/i18n/LanguageContext";
+import type { translations } from "@/i18n/translations";
+
+type Dict = (typeof translations)["en"];
 
 interface SelectedSupplierPanelProps {
   supplier: MockSupplier | null;
@@ -31,42 +35,49 @@ interface SelectedSupplierPanelProps {
   onPrimaryAction: (supplier: MockSupplier) => void;
 }
 
-const docsLabel: Record<DocumentReadiness, string> = {
-  ready: "Documents ready for review",
-  partial: "Some documents on file, rest on request",
-  on_request: "Documents available on request",
-};
+const docsLabel = (t: Dict, r: DocumentReadiness) =>
+  r === "ready" ? t.supplierRow_docsReady : r === "partial" ? t.supplierRow_docsPartial : t.supplierRow_docsOnRequest;
 
 const docsIcon = (r: DocumentReadiness) =>
   r === "ready" ? FileCheck2 : r === "partial" ? FileClock : FileQuestion;
 
-const accessExplainer = (level: AccessLevel) => {
-  if (level === "anonymous_locked") {
-    return "Create an account to request access to supplier identity, documents, contact channel, and the full product catalog.";
-  }
-  if (level === "registered_locked") {
-    return "Send an access request — the supplier reviews your buyer profile before sharing identity, contact channel, and full catalog.";
-  }
-  return "Access granted. You can review the full supplier profile, contact channels, and full product catalog.";
+const accessExplainer = (t: Dict, level: AccessLevel) => {
+  if (level === "anonymous_locked") return t.selectedSupplier_accessAnonExplainer;
+  if (level === "registered_locked") return t.selectedSupplier_accessRegisteredExplainer;
+  return t.selectedSupplier_accessUnlockedExplainer;
 };
 
-const primaryCtaCopy = (level: AccessLevel) => {
-  if (level === "anonymous_locked") return "Create account";
-  if (level === "registered_locked") return "Request supplier access";
-  return "Open supplier profile";
+const primaryCtaCopy = (t: Dict, level: AccessLevel) => {
+  if (level === "anonymous_locked") return t.supplierRow_ctaCreateAccount;
+  if (level === "registered_locked") return t.supplierRow_ctaRequestAccess;
+  return t.supplierRow_ctaOpenProfile;
 };
 
-const EmptyState = () => (
-  <div className="rounded-lg border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-    <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
-      <Building2 className="h-4 w-4" aria-hidden />
+const supplierTypeLabel = (t: Dict, type: MockSupplier["supplierType"]) => {
+  switch (type) {
+    case "producer": return t.supplier_type_producer;
+    case "processor": return t.supplier_type_processor;
+    case "exporter": return t.supplier_type_exporter;
+    case "distributor": return t.supplier_type_distributor;
+    case "trader": return t.supplier_type_trader;
+  }
+};
+
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+
+const EmptyState = () => {
+  const { t } = useLanguage();
+  return (
+    <div className="rounded-lg border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
+      <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+        <Building2 className="h-4 w-4" aria-hidden />
+      </div>
+      <p className="text-foreground">{t.selectedSupplier_emptyTitle}</p>
+      <p className="mt-1.5 text-xs leading-relaxed">{t.selectedSupplier_emptyBody}</p>
     </div>
-    <p className="text-foreground">Select a supplier to review details</p>
-    <p className="mt-1.5 text-xs leading-relaxed">
-      Select a supplier to review product focus, trust evidence, and access options.
-    </p>
-  </div>
-);
+  );
+};
 
 export const SelectedSupplierPanel = ({
   supplier,
@@ -75,6 +86,7 @@ export const SelectedSupplierPanel = ({
   onShortlist,
   onPrimaryAction,
 }: SelectedSupplierPanelProps) => {
+  const { t } = useLanguage();
   if (!supplier) return <EmptyState />;
 
   const isUnlocked = accessLevel === "qualified_unlocked";
