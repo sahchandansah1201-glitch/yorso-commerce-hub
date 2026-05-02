@@ -1762,7 +1762,7 @@ const en: TranslationKeys = {
   catalog_access_anon_body: "You can explore live offers, filters and market signals. Exact prices and direct supplier contacts are protected to prevent low-intent scraping and to keep supplier data safe.",
   catalog_access_anon_cta: "Sign up to access exact prices",
   catalog_access_reg_title: "You're signed in — full access requires qualification",
-  catalog_access_reg_body: "You can save offers, compare suppliers, request price access and follow suppliers. Exact prices and direct supplier contacts are unlocked once your buyer account is qualified.",
+  catalog_access_reg_body: "You can save offers, compare suppliers, request price access and follow suppliers. Exact prices and direct supplier contacts are unlocked once your account is qualified.",
   catalog_access_reg_cta: "Request qualification",
   catalog_access_qual_title: "Full procurement access",
   catalog_access_qual_body: "You can see exact prices, supplier contacts and the full intelligence layer. Use it for live procurement decisions.",
@@ -1933,7 +1933,7 @@ const en: TranslationKeys = {
   catalog_relatedReq_respond: "Respond",
 
   catalog_recovery_title: "Unlock prices and supplier names",
-  catalog_recovery_body: "Create a buyer account to see exact prices, contact verified suppliers, save offers and compare deals. Takes under a minute · no credit card.",
+  catalog_recovery_body: "Create an account to see exact prices, contact verified suppliers, save offers and compare deals. Takes under a minute · no credit card.",
   catalog_recovery_signup: "Create account",
   catalog_recovery_signin: "Sign in to continue",
 
@@ -4171,7 +4171,7 @@ const es: TranslationKeys = {
   catalog_relatedReq_respond: "Responder",
 
   catalog_recovery_title: "Desbloquea precios y nombres de proveedores",
-  catalog_recovery_body: "Abre una cuenta de comprador para ver precios exactos, contactar con proveedores verificados, guardar ofertas y comparar acuerdos. Menos de un minuto · sin tarjeta.",
+  catalog_recovery_body: "Crea una cuenta para ver precios exactos, contactar con proveedores verificados, guardar ofertas y comparar acuerdos. Menos de un minuto · sin tarjeta.",
   catalog_recovery_signup: "Crear cuenta",
   catalog_recovery_signin: "Iniciar sesión para continuar",
 
