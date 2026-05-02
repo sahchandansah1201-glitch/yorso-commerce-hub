@@ -63,7 +63,7 @@ const supplierTypeLabel: Record<MockSupplier["supplierType"], string> = {
 };
 
 const primaryCtaCopy = (level: AccessLevel) => {
-  if (level === "anonymous_locked") return "Create buyer account";
+  if (level === "anonymous_locked") return "Create account";
   if (level === "registered_locked") return "Request supplier access";
   return "Open supplier profile";
 };

@@ -42,7 +42,7 @@ const docsIcon = (r: DocumentReadiness) =>
 
 const accessExplainer = (level: AccessLevel) => {
   if (level === "anonymous_locked") {
-    return "Create a buyer account to request access to supplier identity, documents, contact channel, and the full product catalog.";
+    return "Create an account to request access to supplier identity, documents, contact channel, and the full product catalog.";
   }
   if (level === "registered_locked") {
     return "Send an access request — the supplier reviews your buyer profile before sharing identity, contact channel, and full catalog.";
@@ -51,7 +51,7 @@ const accessExplainer = (level: AccessLevel) => {
 };
 
 const primaryCtaCopy = (level: AccessLevel) => {
-  if (level === "anonymous_locked") return "Create buyer account";
+  if (level === "anonymous_locked") return "Create account";
   if (level === "registered_locked") return "Request supplier access";
   return "Open supplier profile";
 };
