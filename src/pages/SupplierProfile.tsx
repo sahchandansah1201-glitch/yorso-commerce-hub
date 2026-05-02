@@ -1261,23 +1261,24 @@ const SupplierProfile = () => {
                       <LegalDetailsBlock supplier={supplier} />
                     ) : (
                       <div
-                        className="relative overflow-hidden rounded-xl border border-border bg-card"
+                        className="rounded-xl border border-border bg-card p-6"
                         data-testid="supplier-legal-locked"
                         role="group"
                         aria-label={t.supplier_locked_legalHidden}
                       >
-                        <div
-                          aria-hidden="true"
-                          className="pointer-events-none select-none blur-[2.5px]"
-                        >
-                          <LegalDetailsBlock supplier={supplier} />
+                        {/* Real LegalDetailsBlock is NOT rendered for locked
+                            viewers — so registration / VAT / EORI / founded
+                            date never reach the DOM. */}
+                        <div className="flex items-center gap-2">
+                          <FileBadge className="h-4 w-4 text-primary" aria-hidden />
+                          <h3 className="font-heading text-base font-semibold text-foreground">
+                            {t.supplier_legal_title}
+                          </h3>
                         </div>
-                        <div
-                          aria-hidden="true"
-                          className="absolute inset-0 flex items-center justify-center bg-background/30 p-4"
-                        >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm transition-all duration-200 ease-out hover:scale-105 hover:border-primary/40 hover:bg-card hover:shadow-md motion-reduce:transition-none motion-reduce:hover:scale-100">
-                            <Lock className="h-4 w-4 text-primary" aria-hidden />
+                        <div className="mt-4 flex items-center justify-center gap-2 rounded-md border border-dashed border-border bg-muted/20 px-4 py-6">
+                          <Lock className="h-4 w-4 text-primary" aria-hidden />
+                          <span className="text-xs font-medium text-foreground">
+                            {t.supplier_locked_legalHidden}
                           </span>
                         </div>
                       </div>
