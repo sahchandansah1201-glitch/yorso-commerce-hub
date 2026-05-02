@@ -248,6 +248,7 @@ const SupplierRowImpl = ({
               )}
 
               <div
+                aria-label="Supplier signals"
                 className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 text-xs md:pt-5"
               >
                 {isUnlocked ? (
