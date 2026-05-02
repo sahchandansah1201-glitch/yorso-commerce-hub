@@ -4398,6 +4398,27 @@ const es: TranslationKeys = {
   supplier_locked_legalHidden: "Oculto — acceso bajo solicitud",
   supplier_locked_offersCountHidden: "Oculto — acceso bajo solicitud",
   supplier_locked_passportHint: "Oculto — acceso bajo solicitud",
+  supplier_locked_offersAvailable: "Ofertas disponibles tras abrir el precio",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Solicitar acceso al precio",
+  supplier_accessPanel_supplierLabel: "Proveedor",
+  supplier_accessPanel_explainer:
+    "El proveedor revisa tu perfil de comprador antes de compartir los precios exactos, el canal de contacto y el catálogo completo.",
+  supplier_accessPanel_cta: "Solicitar acceso al precio",
+  supplier_accessPanel_toastTitle: "Solicitud de acceso enviada",
+  supplier_accessPanel_toastDesc:
+    "La revisión por parte del proveedor está pendiente. Te avisaremos cuando se conceda el acceso.",
+  supplier_accessPanel_status_sent: "Solicitud enviada",
+  supplier_accessPanel_status_pending: "Revisión del proveedor pendiente",
+  supplier_accessPanel_status_approved: "Acceso al precio aprobado",
+  supplier_accessPanel_nextStep_sent:
+    "Hemos enviado tu solicitud. El proveedor responderá pronto.",
+  supplier_accessPanel_nextStep_pending:
+    "El proveedor está revisando tu perfil de comprador. Te avisaremos cuando se conceda el acceso.",
+  supplier_accessPanel_nextStep_approved:
+    "Ahora puedes ver los precios exactos y los datos del proveedor en este perfil.",
+  supplier_accessPanel_srSent: "Solicitud de acceso enviada",
+  supplier_accessPanel_sentLabel: "Enviado",
   supplier_type_producer: "Productor",
   supplier_type_processor: "Procesador",
   supplier_type_exporter: "Exportador",
