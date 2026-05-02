@@ -941,6 +941,25 @@ type TranslationKeys = {
   supplier_locked_legalHidden: string;
   supplier_locked_offersCountHidden: string;
   supplier_locked_passportHint: string;
+  /** Non-exact replacement string used in subline / TrustFacts when the offers count must stay hidden. */
+  supplier_locked_offersAvailable: string;
+  /** Visible placeholder rendered inside FactCell / TrustFacts pills instead of real sensitive values. */
+  supplier_locked_valueMask: string;
+  // Supplier Access Request Panel — fully localized strings
+  supplier_accessPanel_title: string;
+  supplier_accessPanel_supplierLabel: string;
+  supplier_accessPanel_explainer: string;
+  supplier_accessPanel_cta: string;
+  supplier_accessPanel_toastTitle: string;
+  supplier_accessPanel_toastDesc: string;
+  supplier_accessPanel_status_sent: string;
+  supplier_accessPanel_status_pending: string;
+  supplier_accessPanel_status_approved: string;
+  supplier_accessPanel_nextStep_sent: string;
+  supplier_accessPanel_nextStep_pending: string;
+  supplier_accessPanel_nextStep_approved: string;
+  supplier_accessPanel_srSent: string;
+  supplier_accessPanel_sentLabel: string;
   // Supplier Profile — supplier types
   supplier_type_producer: string;
   supplier_type_processor: string;
