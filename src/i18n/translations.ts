@@ -2255,6 +2255,7 @@ const en: TranslationKeys = {
   selectedSupplier_quickPreview: "Quick preview",
   selectedSupplier_aboutLabel: "Selected supplier",
   selectedSupplier_activeOffers: "Active offers",
+  selectedSupplier_activeOffersHidden: "Hidden — request access",
   selectedSupplier_catalogSize: "Catalog size",
   selectedSupplier_catalogPreview: "Catalog preview",
   selectedSupplier_productsValue: "{n} products",
