@@ -92,27 +92,43 @@ const OfferDetail = () => {
   }
 
   if (error) {
+    const attemptsText = t.offerDetail_loadError_attempts.replace("{count}", String(failedAttempts));
+    const codeText = lastErrorCode
+      ? t.offerDetail_loadError_code.replace("{code}", String(lastErrorCode))
+      : null;
     return (
       <div className="min-h-screen bg-background font-body flex flex-col">
         <Header />
-        <main className="container py-16 text-center flex-1">
-          <h1 className="font-heading text-2xl font-bold text-foreground">{error}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Сервис временно недоступен. Неудачных попыток: {failedAttempts}
-            {lastErrorCode ? ` · код ошибки: ${lastErrorCode}` : ""}.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Button
-              variant="outline"
-              onClick={handleManualRetry}
-              disabled={retrying}
-              data-testid="offer-detail-error-retry"
-              className="gap-1.5"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
-              {retrying ? "Повтор…" : "Повторить сейчас"}
-            </Button>
-            <Link to="/offers"><Button>{t.offerDetail_browseAll}</Button></Link>
+        <main className="container py-16 flex-1" role="alert" aria-live="assertive">
+          <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" aria-hidden />
+            </div>
+            <h1 className="mt-4 font-heading text-xl font-bold text-foreground">
+              {t.offerDetail_loadError_title}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t.offerDetail_loadError_body}
+            </p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {attemptsText}{codeText ? ` · ${codeText}` : ""}
+            </p>
+            <div className="mt-6 flex flex-col items-stretch justify-center gap-2 sm:flex-row sm:items-center">
+              <Button
+                onClick={handleManualRetry}
+                disabled={retrying}
+                data-testid="offer-detail-error-retry"
+                className="gap-1.5"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
+                {retrying ? t.offerDetail_loadError_retrying : t.offerDetail_loadError_retry}
+              </Button>
+              <Link to="/offers">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {t.offerDetail_loadError_goCatalog}
+                </Button>
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />

@@ -351,6 +351,13 @@ type TranslationKeys = {
   offerDetail_freeRegistration: string;
   offerDetail_backToCatalog: string;
   offerDetail_backToCatalogShort: string;
+  offerDetail_loadError_title: string;
+  offerDetail_loadError_body: string;
+  offerDetail_loadError_attempts: string;
+  offerDetail_loadError_code: string;
+  offerDetail_loadError_retry: string;
+  offerDetail_loadError_retrying: string;
+  offerDetail_loadError_goCatalog: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
@@ -1486,6 +1493,13 @@ const en: TranslationKeys = {
   offerDetail_freeRegistration: "Free registration · Direct supplier access · No commission",
   offerDetail_backToCatalog: "Back to procurement workspace",
   offerDetail_backToCatalogShort: "Back to workspace",
+  offerDetail_loadError_title: "Couldn't load this offer",
+  offerDetail_loadError_body: "The catalog service is temporarily unavailable. Please try again in a moment, or browse other offers in the catalog.",
+  offerDetail_loadError_attempts: "Failed attempts: {count}",
+  offerDetail_loadError_code: "Error code: {code}",
+  offerDetail_loadError_retry: "Try again",
+  offerDetail_loadError_retrying: "Retrying…",
+  offerDetail_loadError_goCatalog: "Go to catalog",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2604,6 +2618,13 @@ const ru: TranslationKeys = {
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
   offerDetail_backToCatalog: "Назад в панель закупок",
   offerDetail_backToCatalogShort: "В панель закупок",
+  offerDetail_loadError_title: "Не удалось загрузить предложение",
+  offerDetail_loadError_body: "Сервис каталога временно недоступен. Попробуйте обновить через минуту или перейдите к другим предложениям в каталоге.",
+  offerDetail_loadError_attempts: "Неудачных попыток: {count}",
+  offerDetail_loadError_code: "Код ошибки: {code}",
+  offerDetail_loadError_retry: "Повторить",
+  offerDetail_loadError_retrying: "Повтор…",
+  offerDetail_loadError_goCatalog: "Перейти к каталогу",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -3722,6 +3743,13 @@ const es: TranslationKeys = {
   offerDetail_freeRegistration: "Registro gratuito · Acceso directo · Sin comisión",
   offerDetail_backToCatalog: "Volver al panel de compras",
   offerDetail_backToCatalogShort: "Volver al panel",
+  offerDetail_loadError_title: "No se pudo cargar la oferta",
+  offerDetail_loadError_body: "El servicio de catálogo no está disponible temporalmente. Inténtalo de nuevo en un momento o explora otras ofertas en el catálogo.",
+  offerDetail_loadError_attempts: "Intentos fallidos: {count}",
+  offerDetail_loadError_code: "Código de error: {code}",
+  offerDetail_loadError_retry: "Reintentar",
+  offerDetail_loadError_retrying: "Reintentando…",
+  offerDetail_loadError_goCatalog: "Ir al catálogo",
 
   // 404 / Not Found
   notFound_title: "404",
