@@ -87,7 +87,7 @@ describe("SupplierRow", () => {
   it("calls onPrimaryAction when the primary CTA is clicked, without onSelect", () => {
     const { onSelect, onPrimaryAction } = renderRow();
     const row = screen.getByTestId("supplier-row");
-    const cta = within(row).getByRole("button", { name: /create buyer account/i });
+    const cta = within(row).getByRole("button", { name: /create account/i });
     fireEvent.click(cta);
 
     expect(onPrimaryAction).toHaveBeenCalledTimes(1);
