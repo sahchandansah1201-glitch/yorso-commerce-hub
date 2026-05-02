@@ -19,6 +19,7 @@ import {
   Scale,
   FileCheck2,
   HelpCircle,
+  ChevronRight,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -61,7 +62,7 @@ const upsertLink = (rel: string, href: string) => {
 
 const HowItWorks = () => {
   const t = useHowItWorks();
-  const { lang } = useLanguage();
+  const { lang, t: tCommon } = useLanguage();
 
   useEffect(() => {
     const prevTitle = document.title;
@@ -87,11 +88,32 @@ const HowItWorks = () => {
     ld.id = "ld-how-it-works";
     ld.text = JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "HowTo",
-      name: t.seo_title,
-      description: t.seo_description,
-      inLanguage: lang,
-      step: t.bj_steps.map((s) => ({ "@type": "HowToStep", name: s.title })),
+      "@graph": [
+        {
+          "@type": "HowTo",
+          name: t.seo_title,
+          description: t.seo_description,
+          inLanguage: lang,
+          step: t.bj_steps.map((s) => ({ "@type": "HowToStep", name: s.title })),
+        },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: tCommon.catalog_breadcrumbHome,
+              item: typeof window !== "undefined" ? window.location.origin + "/" : "/",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: tCommon.nav_howItWorks,
+              item: canonical,
+            },
+          ],
+        },
+      ],
     });
     document.head.appendChild(ld);
 
@@ -105,12 +127,28 @@ const HowItWorks = () => {
       if (prevCanonical) upsertLink("canonical", prevCanonical);
       document.getElementById("ld-how-it-works")?.remove();
     };
-  }, [t, lang]);
+  }, [t, lang, tCommon.catalog_breadcrumbHome, tCommon.nav_howItWorks]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* Breadcrumbs */}
+        <div className="border-b border-border bg-background">
+          <div className="container max-w-6xl py-3">
+            <nav
+              aria-label={tCommon.aria_breadcrumb}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <Link to="/" className="hover:text-foreground">
+                {tCommon.catalog_breadcrumbHome}
+              </Link>
+              <ChevronRight className="h-3 w-3" aria-hidden />
+              <span className="font-medium text-foreground">{tCommon.nav_howItWorks}</span>
+            </nav>
+          </div>
+        </div>
+
         {/* HERO */}
         <section
           id="hero"
