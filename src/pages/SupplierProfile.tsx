@@ -1266,7 +1266,7 @@ const SupplierProfile = () => {
                           aria-hidden="true"
                           className="absolute inset-0 flex items-center justify-center bg-background/30 p-4"
                         >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm transition-all duration-200 ease-out hover:scale-105 hover:border-primary/40 hover:bg-card hover:shadow-md motion-reduce:transition-none motion-reduce:hover:scale-100">
                             <Lock className="h-4 w-4 text-primary" aria-hidden />
                           </span>
                         </div>
