@@ -998,6 +998,11 @@ type TranslationKeys = {
   supplierRow_selectAria: string; // "Select {name} to review details"
   supplierRow_openProfileAria: string; // "Open supplier profile: {name}"
   supplierRow_openProfileShortAria: string; // "Open profile: {name}"
+  supplierRow_activeOffersSuffix: string; // "active offers"
+  supplierRow_activeOffersHidden: string; // "Active offers — request access"
+  supplierRow_moreProductsSr: string; // sr-only — must contain "More products after access" in EN
+  supplierRow_moreMarketsSr: string;  // sr-only — must contain "More markets after access" in EN
+  selectedSupplier_activeOffersHidden: string;
   // Selected supplier panel
   selectedSupplier_emptyTitle: string;
   selectedSupplier_emptyBody: string;
