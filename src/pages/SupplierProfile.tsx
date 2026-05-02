@@ -944,8 +944,8 @@ const SupplierProfile = () => {
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-0 flex items-center justify-center"
                       >
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-md">
-                          <Lock className="h-4 w-4 text-primary" aria-hidden />
+                        <span className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-md transition-all duration-200 ease-out hover:scale-105 hover:border-primary/40 hover:bg-card hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100">
+                          <Lock className="h-4 w-4 text-primary transition-colors duration-200 ease-out group-hover:text-primary" aria-hidden />
                         </span>
                       </span>
                     </div>
@@ -971,7 +971,7 @@ const SupplierProfile = () => {
                         aria-hidden="true"
                         className="pointer-events-none absolute inset-y-0 -right-7 flex items-center"
                       >
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
+                        <span className="pointer-events-auto flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm transition-all duration-200 ease-out hover:scale-110 hover:border-primary/40 hover:bg-card hover:shadow-md motion-reduce:transition-none motion-reduce:hover:scale-100">
                           <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
                         </span>
                       </span>
