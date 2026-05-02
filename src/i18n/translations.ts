@@ -954,6 +954,9 @@ type TranslationKeys = {
   supplier_about_deliveryGeo: string;
   supplier_about_deliveryCountriesCount: string; // Delivery to {n} countries
   supplier_about_deliveryCountriesShown: string; // shown {n}, {rest} more
+  supplier_about_deliveryCountriesShowAll: string; // Show all
+  supplier_about_deliveryCountriesCollapse: string; // Collapse
+  supplier_about_deliveryCountriesOthers: string; // {n} other countries
   supplier_about_catalogEmpty: string;
   // Supplier Profile — legal details
   supplier_legal_title: string;
