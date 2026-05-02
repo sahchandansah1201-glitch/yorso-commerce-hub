@@ -31,7 +31,7 @@ describe("i18n · supplier_locked_* coverage", () => {
   const langs = ["en", "ru", "es"] as const;
 
   it.each(langs)("locale %s содержит все locked ключи и они непустые", (lang) => {
-    const dict = translations[lang] as Record<string, unknown>;
+    const dict = translations[lang] as unknown as Record<string, unknown>;
     for (const key of LOCKED_KEYS) {
       const v = dict[key];
       expect(typeof v, `${lang}.${key} должен быть строкой`).toBe("string");
@@ -42,9 +42,9 @@ describe("i18n · supplier_locked_* coverage", () => {
   it("ru/es значения отличаются от en (нет fallback)", () => {
     for (const key of LOCKED_KEYS) {
       if (SYMBOL_ONLY_KEYS.has(key)) continue;
-      const en = (translations.en as Record<string, string>)[key];
-      const ru = (translations.ru as Record<string, string>)[key];
-      const es = (translations.es as Record<string, string>)[key];
+      const en = (translations.en as unknown as Record<string, string>)[key];
+      const ru = (translations.ru as unknown as Record<string, string>)[key];
+      const es = (translations.es as unknown as Record<string, string>)[key];
       expect(ru, `ru.${key} равен en — похоже на fallback`).not.toBe(en);
       expect(es, `es.${key} равен en — похоже на fallback`).not.toBe(en);
     }
@@ -53,7 +53,7 @@ describe("i18n · supplier_locked_* coverage", () => {
   it("ru локаль содержит кириллицу для текстовых ключей", () => {
     for (const key of LOCKED_KEYS) {
       if (SYMBOL_ONLY_KEYS.has(key)) continue;
-      const ru = (translations.ru as Record<string, string>)[key];
+      const ru = (translations.ru as unknown as Record<string, string>)[key];
       expect(ru, `ru.${key} должен содержать кириллицу`).toMatch(/[А-Яа-яЁё]/);
     }
   });
@@ -63,7 +63,7 @@ describe("i18n · supplier_locked_* coverage", () => {
     const esMarkers = /(acceso|oculto|proveedor|precio|registro|solicit|disponibles|tras|datos|complet)/i;
     for (const key of LOCKED_KEYS) {
       if (SYMBOL_ONLY_KEYS.has(key)) continue;
-      const es = (translations.es as Record<string, string>)[key];
+      const es = (translations.es as unknown as Record<string, string>)[key];
       expect(es, `es.${key} не похож на испанский: "${es}"`).toMatch(esMarkers);
     }
   });
