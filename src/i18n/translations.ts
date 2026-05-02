@@ -2111,6 +2111,8 @@ const en: TranslationKeys = {
   supplier_locked_passportHint: "Hidden — access on request",
   supplier_locked_offersAvailable: "Active offers available after price access",
   supplier_locked_valueMask: "••••••",
+  supplier_locked_catalogPriceHidden: "Exact price hidden — request access",
+  supplier_locked_catalogSupplierHidden: "Supplier hidden — request access",
   supplier_accessPanel_title: "Request price access",
   supplier_accessPanel_supplierLabel: "Supplier",
   supplier_accessPanel_explainer:
@@ -3257,6 +3259,8 @@ const ru: TranslationKeys = {
   supplier_locked_passportHint: "Скрыто — доступ по запросу",
   supplier_locked_offersAvailable: "Офферы доступны после открытия цены",
   supplier_locked_valueMask: "••••••",
+  supplier_locked_catalogPriceHidden: "Точная цена скрыта — запросите доступ",
+  supplier_locked_catalogSupplierHidden: "Поставщик скрыт — запросите доступ",
   supplier_accessPanel_title: "Запросить доступ к цене",
   supplier_accessPanel_supplierLabel: "Поставщик",
   supplier_accessPanel_explainer:
@@ -4403,6 +4407,8 @@ const es: TranslationKeys = {
   supplier_locked_passportHint: "Oculto — acceso bajo solicitud",
   supplier_locked_offersAvailable: "Ofertas disponibles tras abrir el precio",
   supplier_locked_valueMask: "••••••",
+  supplier_locked_catalogPriceHidden: "Precio exacto oculto — solicite acceso",
+  supplier_locked_catalogSupplierHidden: "Proveedor oculto — solicite acceso",
   supplier_accessPanel_title: "Solicitar acceso al precio",
   supplier_accessPanel_supplierLabel: "Proveedor",
   supplier_accessPanel_explainer:
