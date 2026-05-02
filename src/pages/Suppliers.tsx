@@ -75,8 +75,22 @@ const upsertMeta = (selector: string, attrs: Record<string, string>) => {
 
 const SHORTLIST_KEY = "yorso_supplier_shortlist";
 
+const FILTER_LABEL_KEYS: Record<string, keyof ReturnType<typeof useLanguage>["t"]> = {
+  salmon: "suppliersPage_filter_salmon",
+  shrimp: "suppliersPage_filter_shrimp",
+  tuna: "suppliersPage_filter_tuna",
+  whitefish: "suppliersPage_filter_whitefish",
+  crab: "suppliersPage_filter_crab",
+  squid: "suppliersPage_filter_squid",
+  certified: "suppliersPage_filter_certified",
+};
+
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+
 const Suppliers = () => {
   const { level } = useAccessLevel();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -91,21 +105,19 @@ const Suppliers = () => {
     }
   });
 
-  // SEO + page view
+  // SEO + page view (locale-aware)
   useEffect(() => {
     if (typeof document === "undefined") return;
     const prevTitle = document.title;
-    document.title = "Seafood suppliers · YORSO";
+    document.title = `${t.suppliersPage_title} · YORSO`;
     upsertMeta('meta[name="description"]', {
       name: "description",
-      content:
-        "Discover seafood suppliers by country, species, certification and trust evidence. Request supplier access through YORSO.",
+      content: t.suppliersPage_subtitle,
     });
-    
     return () => {
       document.title = prevTitle;
     };
-  }, []);
+  }, [t]);
 
   const persistShortlist = (next: Set<string>) => {
     setShortlist(next);
@@ -135,7 +147,6 @@ const Suppliers = () => {
         s.shortDescription,
       ];
       if (includeCompanyName) {
-        // Only qualified buyers can search by full identity / contact / about.
         fields.push(s.companyName);
         fields.push(s.about);
         if (s.website) fields.push(s.website);
@@ -146,9 +157,6 @@ const Suppliers = () => {
     });
   }, [query, activeFilter, level]);
 
-  // Neutral state stays visible until the user actively selects a supplier.
-  // Filtering away the selected supplier resets selection to null instead of
-  // silently auto-selecting the first remaining row.
   const selected = useMemo(() => {
     if (!selectedId) return null;
     return filtered.find((s) => s.id === selectedId) ?? null;
@@ -158,28 +166,24 @@ const Suppliers = () => {
     const next = new Set(shortlist);
     if (next.has(id)) {
       next.delete(id);
-      toast({ title: "Removed from shortlist" });
+      toast({ title: t.suppliersPage_removedShortlist });
     } else {
       next.add(id);
-      toast({ title: "Added to shortlist" });
+      toast({ title: t.suppliersPage_addedShortlist });
     }
     persistShortlist(next);
-    
   };
 
   const handlePrimaryAction = (supplier: MockSupplier) => {
     if (level === "anonymous_locked") {
-      // The button-as-link variant in the panel handles navigation; rows call this directly.
       window.location.assign("/register");
       return;
     }
     if (level === "registered_locked") {
       toast({
-        title: "Access request prepared",
-        description:
-          "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
+        title: t.suppliersPage_accessRequestPreparedTitle,
+        description: t.suppliersPage_accessRequestPreparedDesc,
       });
-      
       return;
     }
     navigate(`/suppliers/${supplier.id}`);
