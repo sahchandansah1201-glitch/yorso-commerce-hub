@@ -2106,6 +2106,27 @@ const en: TranslationKeys = {
   supplier_locked_legalHidden: "Hidden — access on request",
   supplier_locked_offersCountHidden: "Hidden — access on request",
   supplier_locked_passportHint: "Hidden — access on request",
+  supplier_locked_offersAvailable: "Active offers available after price access",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Request price access",
+  supplier_accessPanel_supplierLabel: "Supplier",
+  supplier_accessPanel_explainer:
+    "The supplier reviews your buyer profile before sharing exact prices, contact channel, and full catalog.",
+  supplier_accessPanel_cta: "Request price access",
+  supplier_accessPanel_toastTitle: "Access request sent",
+  supplier_accessPanel_toastDesc:
+    "Supplier review is pending. You will be notified when access is granted.",
+  supplier_accessPanel_status_sent: "Request sent",
+  supplier_accessPanel_status_pending: "Supplier review pending",
+  supplier_accessPanel_status_approved: "Price access approved",
+  supplier_accessPanel_nextStep_sent:
+    "We forwarded your request. The supplier will respond shortly.",
+  supplier_accessPanel_nextStep_pending:
+    "The supplier is reviewing your buyer profile. You will be notified when access is granted.",
+  supplier_accessPanel_nextStep_approved:
+    "You can now view exact prices and supplier details on this profile.",
+  supplier_accessPanel_srSent: "Access request sent",
+  supplier_accessPanel_sentLabel: "Sent",
   supplier_type_producer: "Producer",
   supplier_type_processor: "Processor",
   supplier_type_exporter: "Exporter",
