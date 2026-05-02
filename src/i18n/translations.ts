@@ -948,6 +948,88 @@ type TranslationKeys = {
   /** Locked catalog preview: notice that price/supplier are hidden. */
   supplier_locked_catalogPriceHidden: string;
   supplier_locked_catalogSupplierHidden: string;
+  // Suppliers catalog page (/suppliers)
+  suppliersPage_breadcrumb: string;
+  suppliersPage_title: string;
+  suppliersPage_subtitle: string;
+  suppliersPage_countSuffix: string; // "{visible} / {total} suppliers"
+  suppliersPage_searchPlaceholder: string;
+  suppliersPage_searchAriaLabel: string;
+  suppliersPage_clearFilters: string;
+  suppliersPage_quickFiltersAria: string;
+  suppliersPage_filter_salmon: string;
+  suppliersPage_filter_shrimp: string;
+  suppliersPage_filter_tuna: string;
+  suppliersPage_filter_whitefish: string;
+  suppliersPage_filter_crab: string;
+  suppliersPage_filter_squid: string;
+  suppliersPage_filter_certified: string;
+  suppliersPage_emptyTitle: string;
+  suppliersPage_emptyBody: string;
+  suppliersPage_addedShortlist: string;
+  suppliersPage_removedShortlist: string;
+  suppliersPage_accessRequestPreparedTitle: string;
+  suppliersPage_accessRequestPreparedDesc: string;
+  // SupplierRow component
+  supplierRow_identityRestricted: string;
+  supplierRow_inBusinessSince: string; // "In business since {year}"
+  supplierRow_offersHiddenTeaser: string;
+  supplierRow_replyFast: string;
+  supplierRow_replyNormal: string;
+  supplierRow_replySlow: string;
+  supplierRow_docsReady: string;
+  supplierRow_docsPartial: string;
+  supplierRow_docsOnRequest: string;
+  supplierRow_reviewed: string;
+  supplierRow_catalogLabel: string;
+  supplierRow_productsCount: string; // "+{n} products"
+  supplierRow_fullCatalogTeaser: string;
+  supplierRow_deliversTo: string;
+  supplierRow_marketsCount: string; // "+{n} markets"
+  supplierRow_moreDeliveryTeaser: string;
+  supplierRow_ctaCreateAccount: string;
+  supplierRow_ctaRequestAccess: string;
+  supplierRow_ctaOpenProfile: string;
+  supplierRow_openProfile: string;
+  supplierRow_shortlist: string;
+  supplierRow_shortlisted: string;
+  supplierRow_certificationsAria: string; // "Certifications ({n})"
+  supplierRow_moreCertsAria: string; // "{n} more certifications"
+  supplierRow_selectAria: string; // "Select {name} to review details"
+  supplierRow_openProfileAria: string; // "Open supplier profile: {name}"
+  supplierRow_openProfileShortAria: string; // "Open profile: {name}"
+  // Selected supplier panel
+  selectedSupplier_emptyTitle: string;
+  selectedSupplier_emptyBody: string;
+  selectedSupplier_quickPreview: string;
+  selectedSupplier_aboutLabel: string;
+  selectedSupplier_activeOffers: string;
+  selectedSupplier_catalogSize: string;
+  selectedSupplier_catalogPreview: string;
+  selectedSupplier_productsValue: string; // "{n} products"
+  selectedSupplier_previewOnly: string;
+  selectedSupplier_markets: string;
+  selectedSupplier_deliveryPreview: string;
+  selectedSupplier_countriesValue: string; // "{n} countries"
+  selectedSupplier_activityLabel: string;
+  selectedSupplier_trustEvidence: string;
+  selectedSupplier_deliveryMarkets: string;
+  selectedSupplier_fullDeliveryTeaser: string;
+  selectedSupplier_productCatalogPreview: string;
+  selectedSupplier_moreProductsInProfile: string; // "+{n} more products in supplier profile"
+  selectedSupplier_fullCatalogTeaser: string;
+  selectedSupplier_accessLabel: string;
+  selectedSupplier_accessAnonExplainer: string;
+  selectedSupplier_accessRegisteredExplainer: string;
+  selectedSupplier_accessUnlockedExplainer: string;
+  selectedSupplier_website: string;
+  selectedSupplier_whatsapp: string;
+  selectedSupplier_openFullProfile: string;
+  selectedSupplier_shortlistSupplier: string;
+  selectedSupplier_contactChannelsAria: string;
+  // Supplier approval toast
+  supplierApprovalToast_title: string;
+  supplierApprovalToast_desc: string;
   // Supplier Access Request Panel — fully localized strings
   supplier_accessPanel_title: string;
   supplier_accessPanel_supplierLabel: string;
