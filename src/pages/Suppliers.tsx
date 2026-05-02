@@ -12,9 +12,6 @@ import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageContext";
-import type { translations as TR } from "@/i18n/translations";
-
-type T = (typeof TR)["en"];
 
 
 interface QuickFilter {
@@ -78,8 +75,22 @@ const upsertMeta = (selector: string, attrs: Record<string, string>) => {
 
 const SHORTLIST_KEY = "yorso_supplier_shortlist";
 
+const FILTER_LABEL_KEYS: Record<string, keyof ReturnType<typeof useLanguage>["t"]> = {
+  salmon: "suppliersPage_filter_salmon",
+  shrimp: "suppliersPage_filter_shrimp",
+  tuna: "suppliersPage_filter_tuna",
+  whitefish: "suppliersPage_filter_whitefish",
+  crab: "suppliersPage_filter_crab",
+  squid: "suppliersPage_filter_squid",
+  certified: "suppliersPage_filter_certified",
+};
+
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+
 const Suppliers = () => {
   const { level } = useAccessLevel();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -94,21 +105,19 @@ const Suppliers = () => {
     }
   });
 
-  // SEO + page view
+  // SEO + page view (locale-aware)
   useEffect(() => {
     if (typeof document === "undefined") return;
     const prevTitle = document.title;
-    document.title = "Seafood suppliers · YORSO";
+    document.title = `${t.suppliersPage_title} · YORSO`;
     upsertMeta('meta[name="description"]', {
       name: "description",
-      content:
-        "Discover seafood suppliers by country, species, certification and trust evidence. Request supplier access through YORSO.",
+      content: t.suppliersPage_subtitle,
     });
-    
     return () => {
       document.title = prevTitle;
     };
-  }, []);
+  }, [t]);
 
   const persistShortlist = (next: Set<string>) => {
     setShortlist(next);
@@ -138,7 +147,6 @@ const Suppliers = () => {
         s.shortDescription,
       ];
       if (includeCompanyName) {
-        // Only qualified buyers can search by full identity / contact / about.
         fields.push(s.companyName);
         fields.push(s.about);
         if (s.website) fields.push(s.website);
@@ -149,9 +157,6 @@ const Suppliers = () => {
     });
   }, [query, activeFilter, level]);
 
-  // Neutral state stays visible until the user actively selects a supplier.
-  // Filtering away the selected supplier resets selection to null instead of
-  // silently auto-selecting the first remaining row.
   const selected = useMemo(() => {
     if (!selectedId) return null;
     return filtered.find((s) => s.id === selectedId) ?? null;
@@ -161,28 +166,24 @@ const Suppliers = () => {
     const next = new Set(shortlist);
     if (next.has(id)) {
       next.delete(id);
-      toast({ title: "Removed from shortlist" });
+      toast({ title: t.suppliersPage_removedShortlist });
     } else {
       next.add(id);
-      toast({ title: "Added to shortlist" });
+      toast({ title: t.suppliersPage_addedShortlist });
     }
     persistShortlist(next);
-    
   };
 
   const handlePrimaryAction = (supplier: MockSupplier) => {
     if (level === "anonymous_locked") {
-      // The button-as-link variant in the panel handles navigation; rows call this directly.
       window.location.assign("/register");
       return;
     }
     if (level === "registered_locked") {
       toast({
-        title: "Access request prepared",
-        description:
-          "In the prototype, supplier review happens manually. The buyer-side workflow will be wired in the next step.",
+        title: t.suppliersPage_accessRequestPreparedTitle,
+        description: t.suppliersPage_accessRequestPreparedDesc,
       });
-      
       return;
     }
     navigate(`/suppliers/${supplier.id}`);
@@ -200,38 +201,35 @@ const Suppliers = () => {
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <Link to="/" className="hover:text-foreground">
-                Home
+                {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
-              <span className="font-medium text-foreground">Suppliers</span>
+              <span className="font-medium text-foreground">{t.suppliersPage_breadcrumb}</span>
             </nav>
           </div>
         </div>
 
-        {/* Page header */}
         <section className="border-b border-border bg-background">
           <div className="container py-6 md:py-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="max-w-2xl">
                 <h1 className="font-heading text-[28px] font-bold leading-tight tracking-tight text-foreground md:text-[34px]">
-                  Seafood suppliers
+                  {t.suppliersPage_title}
                 </h1>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-                  Discover producers, processors, exporters and traders across key seafood
-                  origins. Review trust evidence and request access on your terms.
+                  {t.suppliersPage_subtitle}
                 </p>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>
-                  <span className="font-semibold text-foreground tabular-nums">
-                    {filtered.length}
-                  </span>{" "}
-                  / {mockSuppliers.length} suppliers
+                  {interpolate(t.suppliersPage_countSuffix, {
+                    visible: filtered.length,
+                    total: mockSuppliers.length,
+                  })}
                 </span>
               </div>
             </div>
 
-            {/* Search */}
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center">
               <div className="relative flex-1">
                 <Search
@@ -242,9 +240,9 @@ const Suppliers = () => {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search supplier, species, country, certification..."
+                  placeholder={t.suppliersPage_searchPlaceholder}
                   className="h-11 pl-9"
-                  aria-label="Search suppliers"
+                  aria-label={t.suppliersPage_searchAriaLabel}
                 />
               </div>
               {(activeFilter || query) && (
@@ -258,15 +256,20 @@ const Suppliers = () => {
                   }}
                   className="self-start md:self-auto"
                 >
-                  Clear filters
+                  {t.suppliersPage_clearFilters}
                 </Button>
               )}
             </div>
 
-            {/* Quick chips */}
-            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Quick filters">
+            <div
+              className="mt-3 flex flex-wrap gap-2"
+              role="group"
+              aria-label={t.suppliersPage_quickFiltersAria}
+            >
               {QUICK_FILTERS.map((f) => {
                 const active = activeFilter === f.id;
+                const labelKey = FILTER_LABEL_KEYS[f.id];
+                const label = labelKey ? (t[labelKey] as string) : f.label;
                 return (
                   <button
                     key={f.id}
@@ -280,7 +283,7 @@ const Suppliers = () => {
                         : "border-border bg-background text-foreground/80 hover:border-foreground/30",
                     )}
                   >
-                    {f.label}
+                    {label}
                   </button>
                 );
               })}
@@ -288,19 +291,17 @@ const Suppliers = () => {
           </div>
         </section>
 
-        {/* Workspace */}
         <section className="bg-cool-gray/40">
           <div className="container py-6 md:py-8">
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-              {/* Supplier list */}
-              <div>
+              <div className="min-w-0">
                 {filtered.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
                     <p className="text-sm font-medium text-foreground">
-                      No suppliers match your filters
+                      {t.suppliersPage_emptyTitle}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Try a different species, country, or clear the active filter.
+                      {t.suppliersPage_emptyBody}
                     </p>
                   </div>
                 ) : (

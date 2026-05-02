@@ -998,6 +998,11 @@ type TranslationKeys = {
   supplierRow_selectAria: string; // "Select {name} to review details"
   supplierRow_openProfileAria: string; // "Open supplier profile: {name}"
   supplierRow_openProfileShortAria: string; // "Open profile: {name}"
+  supplierRow_activeOffersSuffix: string; // "active offers"
+  supplierRow_activeOffersHidden: string; // "Active offers — request access"
+  supplierRow_moreProductsSr: string; // sr-only — must contain "More products after access" in EN
+  supplierRow_moreMarketsSr: string;  // sr-only — must contain "More markets after access" in EN
+  selectedSupplier_activeOffersHidden: string;
   // Selected supplier panel
   selectedSupplier_emptyTitle: string;
   selectedSupplier_emptyBody: string;
@@ -2245,11 +2250,16 @@ const en: TranslationKeys = {
   supplierRow_selectAria: "Select {name} to review details",
   supplierRow_openProfileAria: "Open supplier profile: {name}",
   supplierRow_openProfileShortAria: "Open profile: {name}",
+  supplierRow_activeOffersSuffix: "active offers",
+  supplierRow_activeOffersHidden: "Active offers — request access",
+  supplierRow_moreProductsSr: " — More products after access",
+  supplierRow_moreMarketsSr: " — More markets after access",
   selectedSupplier_emptyTitle: "Select a supplier to review details",
   selectedSupplier_emptyBody: "Select a supplier to review product focus, trust evidence, and access options.",
   selectedSupplier_quickPreview: "Quick preview",
   selectedSupplier_aboutLabel: "Selected supplier",
   selectedSupplier_activeOffers: "Active offers",
+  selectedSupplier_activeOffersHidden: "Hidden — request access",
   selectedSupplier_catalogSize: "Catalog size",
   selectedSupplier_catalogPreview: "Catalog preview",
   selectedSupplier_productsValue: "{n} products",
@@ -3471,11 +3481,16 @@ const ru: TranslationKeys = {
   supplierRow_selectAria: "Выбрать {name} для просмотра деталей",
   supplierRow_openProfileAria: "Открыть профиль поставщика: {name}",
   supplierRow_openProfileShortAria: "Открыть профиль: {name}",
+  supplierRow_activeOffersSuffix: "активных офферов",
+  supplierRow_activeOffersHidden: "Активные офферы — запросите доступ",
+  supplierRow_moreProductsSr: " — Больше товаров после получения доступа",
+  supplierRow_moreMarketsSr: " — Больше рынков после получения доступа",
   selectedSupplier_emptyTitle: "Выберите поставщика для деталей",
   selectedSupplier_emptyBody: "Выберите поставщика, чтобы увидеть продуктовый профиль, подтверждения и опции доступа.",
   selectedSupplier_quickPreview: "Быстрый предпросмотр",
   selectedSupplier_aboutLabel: "Выбранный поставщик",
   selectedSupplier_activeOffers: "Активные офферы",
+  selectedSupplier_activeOffersHidden: "Скрыто — запросите доступ",
   selectedSupplier_catalogSize: "Размер каталога",
   selectedSupplier_catalogPreview: "Превью каталога",
   selectedSupplier_productsValue: "{n} товаров",
@@ -4697,11 +4712,16 @@ const es: TranslationKeys = {
   supplierRow_selectAria: "Seleccionar {name} para ver detalles",
   supplierRow_openProfileAria: "Abrir perfil del proveedor: {name}",
   supplierRow_openProfileShortAria: "Abrir perfil: {name}",
+  supplierRow_activeOffersSuffix: "ofertas activas",
+  supplierRow_activeOffersHidden: "Ofertas activas — solicita acceso",
+  supplierRow_moreProductsSr: " — Más productos tras el acceso",
+  supplierRow_moreMarketsSr: " — Más mercados tras el acceso",
   selectedSupplier_emptyTitle: "Selecciona un proveedor para ver detalles",
   selectedSupplier_emptyBody: "Selecciona un proveedor para revisar enfoque de producto, evidencia de confianza y opciones de acceso.",
   selectedSupplier_quickPreview: "Vista rápida",
   selectedSupplier_aboutLabel: "Proveedor seleccionado",
   selectedSupplier_activeOffers: "Ofertas activas",
+  selectedSupplier_activeOffersHidden: "Oculto — solicita acceso",
   selectedSupplier_catalogSize: "Tamaño del catálogo",
   selectedSupplier_catalogPreview: "Vista del catálogo",
   selectedSupplier_productsValue: "{n} productos",

@@ -22,6 +22,10 @@ import {
   type DocumentReadiness,
 } from "@/data/mockSuppliers";
 import type { AccessLevel } from "@/lib/access-level";
+import { useLanguage } from "@/i18n/LanguageContext";
+import type { translations } from "@/i18n/translations";
+
+type Dict = (typeof translations)["en"];
 
 interface SupplierRowProps {
   supplier: MockSupplier;
@@ -33,11 +37,8 @@ interface SupplierRowProps {
   onPrimaryAction: (supplier: MockSupplier) => void;
 }
 
-const responseLabel: Record<ResponseSignal, string> = {
-  fast: "Replies within a day",
-  normal: "Replies in 1–3 days",
-  slow: "Slower replies",
-};
+const responseLabel = (t: Dict, r: ResponseSignal) =>
+  r === "fast" ? t.supplierRow_replyFast : r === "normal" ? t.supplierRow_replyNormal : t.supplierRow_replySlow;
 
 const responseTone: Record<ResponseSignal, string> = {
   fast: "text-success",
@@ -45,28 +46,30 @@ const responseTone: Record<ResponseSignal, string> = {
   slow: "text-muted-foreground",
 };
 
-const docsLabel: Record<DocumentReadiness, string> = {
-  ready: "Documents ready",
-  partial: "Some documents on file",
-  on_request: "Documents on request",
-};
+const docsLabel = (t: Dict, r: DocumentReadiness) =>
+  r === "ready" ? t.supplierRow_docsReady : r === "partial" ? t.supplierRow_docsPartial : t.supplierRow_docsOnRequest;
 
 const docsIcon = (r: DocumentReadiness) =>
   r === "ready" ? FileCheck2 : r === "partial" ? FileClock : FileQuestion;
 
-const supplierTypeLabel: Record<MockSupplier["supplierType"], string> = {
-  producer: "Producer",
-  processor: "Processor",
-  exporter: "Exporter",
-  distributor: "Distributor",
-  trader: "Trader",
+const supplierTypeLabel = (t: Dict, type: MockSupplier["supplierType"]) => {
+  switch (type) {
+    case "producer": return t.supplier_type_producer;
+    case "processor": return t.supplier_type_processor;
+    case "exporter": return t.supplier_type_exporter;
+    case "distributor": return t.supplier_type_distributor;
+    case "trader": return t.supplier_type_trader;
+  }
 };
 
-const primaryCtaCopy = (level: AccessLevel) => {
-  if (level === "anonymous_locked") return "Create account";
-  if (level === "registered_locked") return "Request supplier access";
-  return "Open supplier profile";
+const primaryCtaCopy = (t: Dict, level: AccessLevel) => {
+  if (level === "anonymous_locked") return t.supplierRow_ctaCreateAccount;
+  if (level === "registered_locked") return t.supplierRow_ctaRequestAccess;
+  return t.supplierRow_ctaOpenProfile;
 };
+
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
 
 const SupplierRowImpl = ({
   supplier,
@@ -77,6 +80,7 @@ const SupplierRowImpl = ({
   onShortlist,
   onPrimaryAction,
 }: SupplierRowProps) => {
+  const { t } = useLanguage();
   const isUnlocked = accessLevel === "qualified_unlocked";
   const isMasked = !isUnlocked;
   const displayName = isMasked ? supplier.maskedName : supplier.companyName;
@@ -95,7 +99,6 @@ const SupplierRowImpl = ({
   const showDeliveryTeaser =
     !isUnlocked && supplier.deliveryCountriesTotal > previewDeliveries.length;
 
-  // Two-line about teaser; full about only at qualified_unlocked.
   const aboutTeaser = supplier.shortDescription;
 
   const titleId = `supplier-${supplier.id}-title`;
@@ -135,7 +138,7 @@ const SupplierRowImpl = ({
               {supplier.verificationLevel === "documents_reviewed" && (
                 <div className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
                   <BadgeCheck className="h-3 w-3" aria-hidden />
-                  Reviewed
+                  {t.supplierRow_reviewed}
                 </div>
               )}
               {supplier.logoImage && (
@@ -153,12 +156,10 @@ const SupplierRowImpl = ({
 
           {/* Center + right content */}
           <div className="flex min-w-0 flex-1 flex-col gap-3 p-4 md:flex-row md:gap-5 md:p-5">
-            {/* Identity / about — clickable selection area (div role=button so we can nest a real <Link> for the title) */}
             <div
               role="button"
               tabIndex={0}
               onClick={(e) => {
-                // Don't hijack clicks on inner links/buttons.
                 const target = e.target as HTMLElement;
                 if (target.closest("a, button")) return;
                 onSelect(supplier.id);
@@ -172,7 +173,7 @@ const SupplierRowImpl = ({
                 }
               }}
               aria-pressed={isSelected}
-              aria-label={`Select ${displayName} to review details`}
+              aria-label={interpolate(t.supplierRow_selectAria, { name: displayName })}
               aria-describedby={`${metaId} ${aboutId}`}
               className="flex min-w-0 flex-1 cursor-pointer flex-col rounded-md text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
@@ -184,7 +185,7 @@ const SupplierRowImpl = ({
                   to={`/suppliers/${supplier.id}`}
                   data-testid="supplier-row-title-link"
                   className="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
-                  aria-label={`Open supplier profile: ${displayName}`}
+                  aria-label={interpolate(t.supplierRow_openProfileAria, { name: displayName })}
                 >
                   {displayName}
                 </Link>
@@ -192,42 +193,39 @@ const SupplierRowImpl = ({
               {isMasked && (
                 <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground md:mt-2">
                   <Lock className="h-3 w-3" aria-hidden />
-                  Supplier identity restricted
+                  {t.supplierRow_identityRestricted}
                 </p>
               )}
 
               <div
                 id={metaId}
-                aria-label="Supplier overview"
                 className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground md:mt-2"
               >
                 <span className="font-medium text-foreground/80">
                   {supplier.city}, {supplier.country}
                 </span>
                 <span aria-hidden>·</span>
-                <span>{supplierTypeLabel[supplier.supplierType]}</span>
+                <span>{supplierTypeLabel(t, supplier.supplierType)}</span>
                 <span aria-hidden>·</span>
                 <span className="inline-flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" aria-hidden />
-                  In business since {supplier.inBusinessSinceYear}
+                  {interpolate(t.supplierRow_inBusinessSince, { year: supplier.inBusinessSinceYear })}
                 </span>
               </div>
 
               <p
                 id={aboutId}
-                aria-label="About supplier"
                 className="mt-2.5 line-clamp-2 min-h-[2.6rem] text-sm leading-relaxed text-foreground/85 md:mt-4"
                 title={aboutTeaser}
               >
                 {aboutTeaser}
               </p>
 
-              {/* Certificate badge row */}
               {supplier.certificationBadges.length > 0 && (
                 <ul
                   id={certsId}
                   className="mt-3 flex flex-wrap gap-1.5 md:mt-5"
-                  aria-label={`Certifications (${supplier.certificationBadges.length})`}
+                  aria-label={interpolate(t.supplierRow_certificationsAria, { n: supplier.certificationBadges.length })}
                 >
                   {supplier.certificationBadges.slice(0, 5).map((c) => (
                     <li
@@ -241,7 +239,7 @@ const SupplierRowImpl = ({
                   {supplier.certificationBadges.length > 5 && (
                     <li
                       className="text-[11px] text-muted-foreground"
-                      aria-label={`${supplier.certificationBadges.length - 5} more certifications`}
+                      aria-label={interpolate(t.supplierRow_moreCertsAria, { n: supplier.certificationBadges.length - 5 })}
                     >
                       +{supplier.certificationBadges.length - 5}
                     </li>
@@ -249,23 +247,26 @@ const SupplierRowImpl = ({
                 </ul>
               )}
 
-              {/* Bottom signals */}
               <div
                 aria-label="Supplier signals"
                 className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 text-xs md:pt-5"
               >
-                <span className="inline-flex items-center gap-1 text-foreground/80">
-                  <span className="font-semibold tabular-nums text-foreground">
-                    {supplier.activeOffersCount}
+                {isUnlocked ? (
+                  <span className="inline-flex items-center gap-1 text-foreground/80">
+                    <span className="font-semibold tabular-nums text-foreground">
+                      {supplier.activeOffersCount}
+                    </span>
+                    {t.supplierRow_activeOffersSuffix}
                   </span>
-                  active offers
-                </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-muted-foreground">
+                    <Lock className="h-3 w-3" aria-hidden />
+                    {t.supplierRow_activeOffersHidden}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1 text-foreground/80">
-                  <DocIcon
-                    className="h-3.5 w-3.5 text-muted-foreground"
-                    aria-hidden
-                  />
-                  {docsLabel[supplier.documentReadiness]}
+                  <DocIcon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                  {docsLabel(t, supplier.documentReadiness)}
                 </span>
                 <span
                   className={cn(
@@ -274,14 +275,12 @@ const SupplierRowImpl = ({
                   )}
                 >
                   <Activity className="h-3.5 w-3.5" aria-hidden />
-                  {responseLabel[supplier.responseSignal]}
+                  {responseLabel(t, supplier.responseSignal)}
                 </span>
               </div>
             </div>
 
-            {/* Right-middle: catalog + delivery + actions */}
             <div className="flex shrink-0 flex-col gap-4 md:w-[260px]">
-              {/* Product catalog preview strip */}
               {catalogPreview.length > 0 && (
                 <div>
                   <div
@@ -289,7 +288,7 @@ const SupplierRowImpl = ({
                     aria-hidden
                   >
                     <Package className="h-3 w-3" />
-                    Catalog
+                    {t.supplierRow_catalogLabel}
                   </div>
                   <div
                     className="mt-2 flex items-center gap-2"
@@ -307,20 +306,19 @@ const SupplierRowImpl = ({
                     ))}
                     {catalogRest > 0 && (
                       <span className="inline-flex h-12 min-w-12 shrink-0 items-center justify-center rounded-md border border-dashed border-border bg-muted/40 px-1.5 text-[11px] font-semibold text-foreground/80">
-                        +{catalogRest} products
+                        {interpolate(t.supplierRow_productsCount, { n: catalogRest })}
                       </span>
                     )}
                   </div>
                   {showCatalogTeaser && (
                     <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                      Full catalog after supplier approval
-                      <span className="sr-only"> — More products after access</span>
+                      {t.supplierRow_fullCatalogTeaser}
+                      <span className="sr-only">{t.supplierRow_moreProductsSr}</span>
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Delivery markets preview */}
               {previewDeliveries.length > 0 && (
                 <div>
                   <div
@@ -328,7 +326,7 @@ const SupplierRowImpl = ({
                     aria-hidden
                   >
                     <Globe2 className="h-3 w-3" />
-                    Delivers to
+                    {t.supplierRow_deliversTo}
                   </div>
                   <div
                     className="mt-2 flex flex-wrap items-center gap-1.5 text-xs"
@@ -348,20 +346,19 @@ const SupplierRowImpl = ({
                     ))}
                     {deliveryRest > 0 && (
                       <span className="text-[11px] font-medium text-muted-foreground">
-                        +{deliveryRest} markets
+                        {interpolate(t.supplierRow_marketsCount, { n: deliveryRest })}
                       </span>
                     )}
                   </div>
                   {showDeliveryTeaser && (
                     <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-                      More delivery markets after supplier approval
-                      <span className="sr-only"> — More markets after access</span>
+                      {t.supplierRow_moreDeliveryTeaser}
+                      <span className="sr-only">{t.supplierRow_moreMarketsSr}</span>
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Actions */}
               <div className="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch">
                 <Button
                   type="button"
@@ -369,21 +366,16 @@ const SupplierRowImpl = ({
                   className="gap-2"
                   onClick={() => onPrimaryAction(supplier)}
                 >
-                  {primaryCtaCopy(accessLevel)}
+                  {primaryCtaCopy(t, accessLevel)}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="gap-2"
-                >
+                <Button asChild size="sm" variant="outline" className="gap-2">
                   <Link
                     to={`/suppliers/${supplier.id}`}
                     data-testid="supplier-row-open-profile"
-                    aria-label={`Open profile: ${displayName}`}
+                    aria-label={interpolate(t.supplierRow_openProfileShortAria, { name: displayName })}
                   >
-                    Open profile
+                    {t.supplierRow_openProfile}
                   </Link>
                 </Button>
                 <Button
@@ -397,13 +389,11 @@ const SupplierRowImpl = ({
                   <Star
                     className={cn(
                       "h-4 w-4",
-                      isShortlisted
-                        ? "fill-primary text-primary"
-                        : "text-muted-foreground",
+                      isShortlisted ? "fill-primary text-primary" : "text-muted-foreground",
                     )}
                     aria-hidden
                   />
-                  {isShortlisted ? "Shortlisted" : "Shortlist"}
+                  {isShortlisted ? t.supplierRow_shortlisted : t.supplierRow_shortlist}
                 </Button>
               </div>
             </div>
