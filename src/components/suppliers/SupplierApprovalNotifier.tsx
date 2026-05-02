@@ -10,17 +10,18 @@ import {
   processSupplierAccessRequests,
 } from "@/lib/supplier-access-approval";
 import { toast } from "@/hooks/use-toast";
-
-const showApprovalToast = () => {
-  toast({
-    title: "Price access approved",
-    description: "You can now view exact prices and supplier details.",
-  });
-};
+import { useLanguage } from "@/i18n/LanguageContext";
 
 export const SupplierApprovalNotifier = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   useEffect(() => {
+    const showApprovalToast = () => {
+      toast({
+        title: t.supplierApprovalToast_title,
+        description: t.supplierApprovalToast_desc,
+      });
+    };
     const tick = () => {
       processSupplierAccessRequests();
       drainApprovalNotifications(showApprovalToast);
@@ -28,7 +29,6 @@ export const SupplierApprovalNotifier = () => {
     tick();
     const interval = window.setInterval(tick, 2000);
     return () => window.clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, t]);
   return null;
 };
