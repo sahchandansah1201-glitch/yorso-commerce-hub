@@ -1253,6 +1253,8 @@ const SupplierProfile = () => {
                       <div
                         className="relative overflow-hidden rounded-xl border border-border bg-card"
                         data-testid="supplier-legal-locked"
+                        role="group"
+                        aria-label={t.supplier_locked_legalHidden}
                       >
                         <div
                           aria-hidden="true"
@@ -1260,15 +1262,14 @@ const SupplierProfile = () => {
                         >
                           <LegalDetailsBlock supplier={supplier} />
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-background/30 p-4">
-                          <span
-                            className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm"
-                            title={t.supplier_locked_legalHidden}
-                          >
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 flex items-center justify-center bg-background/30 p-4"
+                        >
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
                             <Lock className="h-4 w-4 text-primary" aria-hidden />
                           </span>
                         </div>
-                        <span className="sr-only">{t.supplier_locked_legalHidden}</span>
                       </div>
                     )}
 
