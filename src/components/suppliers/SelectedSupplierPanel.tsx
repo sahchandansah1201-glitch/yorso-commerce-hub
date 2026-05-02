@@ -131,26 +131,24 @@ export const SelectedSupplierPanel = ({
         {supplier.verificationLevel === "documents_reviewed" && (
           <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded border border-primary/30 bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-primary shadow-sm backdrop-blur-sm">
             <BadgeCheck className="h-3 w-3" aria-hidden />
-            Reviewed
+            {t.supplierRow_reviewed}
           </div>
         )}
       </div>
 
       <div className="p-5">
-        {/* Quick preview label — clarifies this is a side-panel preview, not the standalone profile */}
         <p
           data-testid="selected-supplier-preview-label"
           className="mb-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground"
         >
-          Quick preview
+          {t.selectedSupplier_quickPreview}
         </p>
-        {/* Supplier summary */}
         <h2 className="font-heading text-lg font-semibold leading-tight tracking-tight text-foreground break-words [overflow-wrap:anywhere]">
           <Link
             to={`/suppliers/${supplier.id}`}
             data-testid="selected-supplier-title-link"
             className="hover:text-primary hover:underline"
-            aria-label={`Open supplier profile: ${displayName}`}
+            aria-label={interpolate(t.supplierRow_openProfileAria, { name: displayName })}
           >
             {displayName}
           </Link>
@@ -158,16 +156,16 @@ export const SelectedSupplierPanel = ({
         {isMasked && (
           <p className="mt-1 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
             <Lock className="h-3 w-3" aria-hidden />
-            Supplier identity restricted
+            {t.supplierRow_identityRestricted}
           </p>
         )}
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="capitalize">{supplier.supplierType}</span>
+          <span>{supplierTypeLabel(t, supplier.supplierType)}</span>
           <span aria-hidden>·</span>
           <span className="inline-flex items-center gap-1">
             <CalendarDays className="h-3 w-3" aria-hidden />
-            In business since {supplier.inBusinessSinceYear}
+            {interpolate(t.supplierRow_inBusinessSince, { year: supplier.inBusinessSinceYear })}
           </span>
         </div>
 
@@ -175,51 +173,55 @@ export const SelectedSupplierPanel = ({
           {isUnlocked ? supplier.about : supplier.shortDescription}
         </p>
 
-        {/* Stats grid */}
         <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-y border-border py-4 text-sm">
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              Active offers
+              {t.selectedSupplier_activeOffers}
             </dt>
             <dd className="mt-1 font-medium text-foreground tabular-nums">
-              {supplier.activeOffersCount}
+              {isUnlocked ? supplier.activeOffersCount : t.selectedSupplier_activeOffersHidden}
             </dd>
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              {isUnlocked ? "Catalog size" : "Catalog preview"}
-            </dt>
-            <dd className="mt-1 font-medium text-foreground tabular-nums">
-              {isUnlocked
-                ? `${supplier.totalProductsCount} products`
-                : "Preview only"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              {isUnlocked ? "Markets" : "Delivery preview"}
+              {isUnlocked ? t.selectedSupplier_catalogSize : t.selectedSupplier_catalogPreview}
             </dt>
             <dd className="mt-1 font-medium text-foreground tabular-nums">
               {isUnlocked
-                ? `${supplier.deliveryCountriesTotal} countries`
-                : "Preview only"}
+                ? interpolate(t.selectedSupplier_productsValue, { n: supplier.totalProductsCount })
+                : t.selectedSupplier_previewOnly}
             </dd>
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wider text-muted-foreground">
-              Activity
+              {isUnlocked ? t.selectedSupplier_markets : t.selectedSupplier_deliveryPreview}
+            </dt>
+            <dd className="mt-1 font-medium text-foreground tabular-nums">
+              {isUnlocked
+                ? interpolate(t.selectedSupplier_countriesValue, { n: supplier.deliveryCountriesTotal })
+                : t.selectedSupplier_previewOnly}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+              {t.selectedSupplier_activityLabel}
             </dt>
             <dd className="mt-1 inline-flex items-center gap-1 font-medium text-foreground">
               <Activity className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-              <span className="capitalize">{supplier.responseSignal}</span>
+              <span>
+                {supplier.responseSignal === "fast"
+                  ? t.supplierRow_replyFast
+                  : supplier.responseSignal === "normal"
+                  ? t.supplierRow_replyNormal
+                  : t.supplierRow_replySlow}
+              </span>
             </dd>
           </div>
         </dl>
 
-        {/* Trust evidence */}
         <div className="mt-4">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">
-            Trust evidence
+            {t.selectedSupplier_trustEvidence}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {supplier.certificationBadges.map((c) => (
@@ -233,21 +235,17 @@ export const SelectedSupplierPanel = ({
             ))}
           </div>
           <div className="mt-3 flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3 text-sm">
-            <DocIcon
-              className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
-              aria-hidden
-            />
+            <DocIcon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
             <span className="text-foreground/85">
-              {docsLabel[supplier.documentReadiness]}
+              {docsLabel(t, supplier.documentReadiness)}
             </span>
           </div>
         </div>
 
-        {/* Delivery markets */}
         <div className="mt-4">
           <p className="flex items-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
             <Globe2 className="h-3 w-3" aria-hidden />
-            Delivery markets
+            {t.selectedSupplier_deliveryMarkets}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
             {previewDeliveries.map((d) => (
@@ -264,22 +262,21 @@ export const SelectedSupplierPanel = ({
             ))}
             {deliveryRest > 0 && (
               <span className="text-[11px] font-medium text-muted-foreground">
-                +{deliveryRest} markets
+                {interpolate(t.supplierRow_marketsCount, { n: deliveryRest })}
               </span>
             )}
             {showDeliveryTeaser && (
               <span className="text-[11px] font-medium text-muted-foreground">
-                Full delivery geography after supplier approval
+                {t.selectedSupplier_fullDeliveryTeaser}
               </span>
             )}
           </div>
         </div>
 
-        {/* Product catalog preview */}
         <div className="mt-4">
           <p className="flex items-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
             <Package className="h-3 w-3" aria-hidden />
-            Product catalog preview
+            {t.selectedSupplier_productCatalogPreview}
           </p>
           <ul className="mt-2 grid grid-cols-3 gap-2">
             {catalogVisible.map((item, i) => (
@@ -296,10 +293,7 @@ export const SelectedSupplierPanel = ({
                   />
                 </div>
                 <div className="p-1.5">
-                  <p
-                    className="truncate text-[11px] font-medium text-foreground"
-                    title={item.name}
-                  >
+                  <p className="truncate text-[11px] font-medium text-foreground" title={item.name}>
                     {item.name}
                   </p>
                 </div>
@@ -309,31 +303,29 @@ export const SelectedSupplierPanel = ({
           {isUnlocked ? (
             catalogHidden > 0 && (
               <p className="mt-2 text-[11px] text-muted-foreground">
-                +{catalogHidden} more products in supplier profile
+                {interpolate(t.selectedSupplier_moreProductsInProfile, { n: catalogHidden })}
               </p>
             )
           ) : (
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Full catalog available after supplier approval
+              {t.selectedSupplier_fullCatalogTeaser}
             </p>
           )}
         </div>
 
-        {/* Access / next action */}
         <div className="mt-5 rounded-md border border-border bg-background p-4">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
-            Access
+            {t.selectedSupplier_accessLabel}
           </div>
           <p className="mt-2 text-sm leading-relaxed text-foreground/85">
-            {accessExplainer(accessLevel)}
+            {accessExplainer(t, accessLevel)}
           </p>
 
-          {/* Contact channels — qualified_unlocked only */}
           {isUnlocked && (supplier.website || supplier.whatsapp) && (
             <div
               className="mt-3 flex flex-wrap gap-2"
-              aria-label="Supplier contact channels"
+              aria-label={t.selectedSupplier_contactChannelsAria}
             >
               {supplier.website && (
                 <a
@@ -343,7 +335,7 @@ export const SelectedSupplierPanel = ({
                   className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
                 >
                   <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                  Website
+                  {t.selectedSupplier_website}
                 </a>
               )}
               {supplier.whatsapp && (
@@ -354,7 +346,7 @@ export const SelectedSupplierPanel = ({
                   className="inline-flex items-center gap-1.5 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:border-foreground/30"
                 >
                   <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-                  WhatsApp
+                  {t.selectedSupplier_whatsapp}
                 </a>
               )}
             </div>
@@ -363,7 +355,7 @@ export const SelectedSupplierPanel = ({
           <div className="mt-3 flex flex-col gap-2">
             {accessLevel === "anonymous_locked" ? (
               <Button asChild type="button" className="w-full gap-2">
-                <Link to="/register">{primaryCtaCopy(accessLevel)}</Link>
+                <Link to="/register">{primaryCtaCopy(t, accessLevel)}</Link>
               </Button>
             ) : (
               <Button
@@ -371,20 +363,16 @@ export const SelectedSupplierPanel = ({
                 className="w-full gap-2"
                 onClick={() => onPrimaryAction(supplier)}
               >
-                {primaryCtaCopy(accessLevel)}
+                {primaryCtaCopy(t, accessLevel)}
               </Button>
             )}
-            <Button
-              asChild
-              variant="outline"
-              className="w-full gap-2"
-            >
+            <Button asChild variant="outline" className="w-full gap-2">
               <Link
                 to={`/suppliers/${supplier.id}`}
                 data-testid="selected-supplier-open-profile"
-                aria-label={`Open full supplier profile: ${displayName}`}
+                aria-label={interpolate(t.supplierRow_openProfileAria, { name: displayName })}
               >
-                Open full profile
+                {t.selectedSupplier_openFullProfile}
               </Link>
             </Button>
             <Button
@@ -401,7 +389,7 @@ export const SelectedSupplierPanel = ({
                 )}
                 aria-hidden
               />
-              {isShortlisted ? "Shortlisted" : "Shortlist supplier"}
+              {isShortlisted ? t.supplierRow_shortlisted : t.selectedSupplier_shortlistSupplier}
             </Button>
           </div>
         </div>
