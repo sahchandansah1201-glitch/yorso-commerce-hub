@@ -3252,6 +3252,27 @@ const ru: TranslationKeys = {
   supplier_locked_legalHidden: "Скрыто — доступ по запросу",
   supplier_locked_offersCountHidden: "Скрыто — доступ по запросу",
   supplier_locked_passportHint: "Скрыто — доступ по запросу",
+  supplier_locked_offersAvailable: "Офферы доступны после открытия цены",
+  supplier_locked_valueMask: "••••••",
+  supplier_accessPanel_title: "Запросить доступ к цене",
+  supplier_accessPanel_supplierLabel: "Поставщик",
+  supplier_accessPanel_explainer:
+    "Поставщик проверит ваш профиль покупателя перед тем, как открыть точные цены, контакт и полный каталог.",
+  supplier_accessPanel_cta: "Запросить доступ к цене",
+  supplier_accessPanel_toastTitle: "Запрос доступа отправлен",
+  supplier_accessPanel_toastDesc:
+    "Поставщик рассматривает заявку. Мы уведомим вас, как только доступ будет открыт.",
+  supplier_accessPanel_status_sent: "Запрос отправлен",
+  supplier_accessPanel_status_pending: "На рассмотрении у поставщика",
+  supplier_accessPanel_status_approved: "Доступ к цене открыт",
+  supplier_accessPanel_nextStep_sent:
+    "Мы передали запрос. Поставщик ответит в ближайшее время.",
+  supplier_accessPanel_nextStep_pending:
+    "Поставщик проверяет ваш профиль покупателя. Мы уведомим вас, как только доступ будет открыт.",
+  supplier_accessPanel_nextStep_approved:
+    "Теперь в этом профиле видны точные цены и данные поставщика.",
+  supplier_accessPanel_srSent: "Запрос доступа отправлен",
+  supplier_accessPanel_sentLabel: "Отправлено",
   supplier_type_producer: "Производитель",
   supplier_type_processor: "Переработчик",
   supplier_type_exporter: "Экспортёр",
