@@ -12,9 +12,6 @@ import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageContext";
-import type { translations as TR } from "@/i18n/translations";
-
-type T = (typeof TR)["en"];
 
 
 interface QuickFilter {
