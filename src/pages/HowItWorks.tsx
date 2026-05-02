@@ -127,12 +127,28 @@ const HowItWorks = () => {
       if (prevCanonical) upsertLink("canonical", prevCanonical);
       document.getElementById("ld-how-it-works")?.remove();
     };
-  }, [t, lang]);
+  }, [t, lang, tCommon.catalog_breadcrumbHome, tCommon.nav_howItWorks]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
+        {/* Breadcrumbs */}
+        <div className="border-b border-border bg-background">
+          <div className="container max-w-6xl py-3">
+            <nav
+              aria-label={tCommon.aria_breadcrumb}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+            >
+              <Link to="/" className="hover:text-foreground">
+                {tCommon.catalog_breadcrumbHome}
+              </Link>
+              <ChevronRight className="h-3 w-3" aria-hidden />
+              <span className="font-medium text-foreground">{tCommon.nav_howItWorks}</span>
+            </nav>
+          </div>
+        </div>
+
         {/* HERO */}
         <section
           id="hero"
