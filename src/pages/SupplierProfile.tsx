@@ -970,6 +970,41 @@ const SupplierProfile = () => {
                       </span>
                       <span className="sr-only">{t.supplier_locked_identityHint}</span>
                     </div>
+
+                    {/* Inline CTA под залюренным H1 — три состояния. */}
+                    <div className="mt-3" data-testid="supplier-hero-inline-cta">
+                      {isAnonymous && (
+                        <Button asChild size="sm" data-testid="supplier-hero-cta-anon">
+                          <Link to="/register">{t.supplier_hero_cta_anon}</Link>
+                        </Button>
+                      )}
+                      {isRegisteredLocked && !accessRequest && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          data-testid="supplier-hero-cta-request"
+                          onClick={() => {
+                            const saved = createSupplierAccessRequest(supplier.id);
+                            setAccessRequest(saved);
+                            toast({
+                              title: t.supplier_hero_cta_pending,
+                            });
+                          }}
+                        >
+                          {t.supplier_hero_cta_request}
+                        </Button>
+                      )}
+                      {isRegisteredLocked && accessRequest && accessRequest.status !== "approved" && (
+                        <span
+                          data-testid="supplier-hero-cta-pending"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground"
+                          aria-live="polite"
+                        >
+                          <Lock className="h-3 w-3" aria-hidden />
+                          {t.supplier_hero_cta_pending}
+                        </span>
+                      )}
+                    </div>
                   </>
                 )}
 
