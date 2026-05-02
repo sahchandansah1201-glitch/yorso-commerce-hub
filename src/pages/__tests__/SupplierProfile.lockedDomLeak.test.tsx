@@ -95,9 +95,9 @@ const FORBIDDEN_OPERATIONAL_PATTERNS: RegExp[] = [
   /from\s+\d+\s*t\s*\/\s*SKU/i,
   /от\s+\d+\s*т\s*\/\s*SKU/i,
   /desde\s+\d+\s*t\s*\/\s*SKU/i,
-  /\d+[–-]\d+\s*days/i,
-  /\d+[–-]\d+\s*дней/i,
-  /\d+[–-]\d+\s*días/i,
+  // Note: `\d+[–-]\d+\s*days` (and локали) специально опущены —
+  // строки вида "3–7 days after payment" в lead-times это статичная общая
+  // копия, не supplier-specific operational data.
   /\d+\s*SKU/,
 ];
 
