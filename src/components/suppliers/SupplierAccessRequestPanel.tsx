@@ -3,13 +3,16 @@
  *
  * The previous version asked the buyer to pick reasons. In v1 we removed
  * that step: a registered_locked buyer presses one CTA and the request
- * is created with `intent: "exact_price"`. This file now exports two
+ * is created with `intent: "exact_price"`. This file exports two
  * components used by SupplierProfile:
  *
  *   SupplierAccessRequestPanel  - the unsent state (CTA + supporting copy)
  *   SupplierAccessRequestSent   - the sent / pending / approved status card
  *
  * No supplier company name is exposed before approval.
+ *
+ * All visible and accessibility strings are localized via useLanguage().
+ * No hardcoded English copy may live in this file.
  */
 import { CheckCircle2, Clock, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +22,7 @@ import {
   type SupplierAccessStatus,
 } from "@/lib/supplier-access-requests";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface PanelProps {
   supplierId: string;
@@ -26,17 +30,35 @@ interface PanelProps {
   onSent: (req: SupplierAccessRequest) => void;
 }
 
+const LOCALE_MAP: Record<string, string> = {
+  en: "en-US",
+  ru: "ru-RU",
+  es: "es-ES",
+};
+
+const formatSentDate = (iso: string, lang: string): string => {
+  try {
+    const locale = LOCALE_MAP[lang] ?? "en-US";
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+};
+
 export const SupplierAccessRequestPanel = ({
   supplierId,
   supplierMaskedName,
   onSent,
 }: PanelProps) => {
+  const { t } = useLanguage();
   const handleClick = () => {
     const saved = createSupplierAccessRequest(supplierId);
     toast({
-      title: "Access request sent",
-      description:
-        "Supplier review is pending. You will be notified when access is granted.",
+      title: t.supplier_accessPanel_toastTitle,
+      description: t.supplier_accessPanel_toastDesc,
     });
     onSent(saved);
   };
@@ -45,18 +67,17 @@ export const SupplierAccessRequestPanel = ({
     <div className="space-y-3 rounded-md border border-border bg-background p-4">
       <div>
         <h3 className="font-heading text-sm font-semibold text-foreground">
-          Request price access
+          {t.supplier_accessPanel_title}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Supplier:{" "}
+          {t.supplier_accessPanel_supplierLabel}:{" "}
           <span className="font-medium text-foreground">
             {supplierMaskedName}
           </span>
         </p>
       </div>
       <p className="text-xs leading-relaxed text-foreground/80">
-        The supplier reviews your buyer profile before sharing exact prices,
-        contact channel, and full catalog.
+        {t.supplier_accessPanel_explainer}
       </p>
       <Button
         type="button"
@@ -65,24 +86,10 @@ export const SupplierAccessRequestPanel = ({
         data-testid="supplier-request-price-access"
       >
         <Send className="h-4 w-4" aria-hidden />
-        Request price access
+        {t.supplier_accessPanel_cta}
       </Button>
     </div>
   );
-};
-
-const STATUS_LABEL: Record<SupplierAccessStatus, string> = {
-  sent: "Request sent",
-  pending: "Supplier review pending",
-  approved: "Price access approved",
-};
-
-const NEXT_STEP: Record<SupplierAccessStatus, string> = {
-  sent: "We forwarded your request. The supplier will respond shortly.",
-  pending:
-    "The supplier is reviewing your buyer profile. You will be notified when access is granted.",
-  approved:
-    "You can now view exact prices and supplier details on this profile.",
 };
 
 const STATUS_TONE: Record<SupplierAccessStatus, string> = {
@@ -100,13 +107,20 @@ export const SupplierAccessRequestSent = ({
   request,
   supplierMaskedName,
 }: SentProps) => {
-  const sentDate = (() => {
-    try {
-      return new Date(request.sentAt).toLocaleString();
-    } catch {
-      return request.sentAt;
-    }
-  })();
+  const { t, lang } = useLanguage();
+  const sentDate = formatSentDate(request.sentAt, lang);
+
+  const statusLabel: Record<SupplierAccessStatus, string> = {
+    sent: t.supplier_accessPanel_status_sent,
+    pending: t.supplier_accessPanel_status_pending,
+    approved: t.supplier_accessPanel_status_approved,
+  };
+  const nextStep: Record<SupplierAccessStatus, string> = {
+    sent: t.supplier_accessPanel_nextStep_sent,
+    pending: t.supplier_accessPanel_nextStep_pending,
+    approved: t.supplier_accessPanel_nextStep_approved,
+  };
+
   const Icon =
     request.status === "approved"
       ? CheckCircle2
@@ -129,20 +143,20 @@ export const SupplierAccessRequestSent = ({
           aria-hidden
         />
         <div className="min-w-0">
-          <p className="text-sm font-semibold">
-            {STATUS_LABEL[request.status]}
-          </p>
-          <p className="mt-1 text-xs opacity-90">
-            {NEXT_STEP[request.status]}
-          </p>
-          <p className="sr-only">Access request sent</p>
+          <p className="text-sm font-semibold">{statusLabel[request.status]}</p>
+          <p className="mt-1 text-xs opacity-90">{nextStep[request.status]}</p>
+          <p className="sr-only">{t.supplier_accessPanel_srSent}</p>
           <dl className="mt-3 space-y-1 text-[11px] opacity-80">
             <div>
-              <dt className="inline opacity-70">Supplier: </dt>
+              <dt className="inline opacity-70">
+                {t.supplier_accessPanel_supplierLabel}:{" "}
+              </dt>
               <dd className="inline font-medium">{supplierMaskedName}</dd>
             </div>
             <div>
-              <dt className="inline opacity-70">Sent: </dt>
+              <dt className="inline opacity-70">
+                {t.supplier_accessPanel_sentLabel}:{" "}
+              </dt>
               <dd className="inline font-medium">{sentDate}</dd>
             </div>
           </dl>
