@@ -925,6 +925,8 @@ const SupplierProfile = () => {
                     <div
                       className="relative inline-block"
                       data-testid="supplier-hero-logo-locked"
+                      role="img"
+                      aria-label={t.supplier_locked_identityHint}
                     >
                       <div
                         aria-hidden="true"
@@ -938,19 +940,25 @@ const SupplierProfile = () => {
                           showLogoImage={false}
                         />
                       </div>
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                      >
                         <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/95 shadow-md">
                           <Lock className="h-4 w-4 text-primary" aria-hidden />
                         </span>
                       </span>
                     </div>
 
-                    {/* Локированный H1: только blur + нейтральный замочек, без дублирующего текстового бейджа. */}
+                    {/* Локированный H1: blur скрыт от SR; для скринридера — отдельный sr-only H1 с masked-именем и lock-подсказкой. */}
                     <div
                       className="relative mt-5 inline-block max-w-full"
                       data-testid="supplier-hero-name-locked"
                     >
-                      <h1
+                      <h1 className="sr-only" data-testid="supplier-display-name-sr">
+                        {`${displayName} — ${t.supplier_locked_identityHint}`}
+                      </h1>
+                      <div
                         aria-hidden="true"
                         className="pointer-events-none select-none font-heading text-3xl font-bold tracking-tight text-foreground blur-[5px] md:text-4xl"
                         data-testid="supplier-display-name"
@@ -958,16 +966,15 @@ const SupplierProfile = () => {
                         onContextMenu={(e) => e.preventDefault()}
                       >
                         {displayName}
-                      </h1>
-                      <span className="pointer-events-none absolute inset-y-0 -right-7 flex items-center">
-                        <span
-                          className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm"
-                          title={t.supplier_locked_identityHint}
-                        >
+                      </div>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 -right-7 flex items-center"
+                      >
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card/95 shadow-sm">
                           <Lock className="h-3.5 w-3.5 text-primary" aria-hidden />
                         </span>
                       </span>
-                      <span className="sr-only">{t.supplier_locked_identityHint}</span>
                     </div>
                   </>
                 )}
