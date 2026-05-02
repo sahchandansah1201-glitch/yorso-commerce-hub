@@ -3490,6 +3490,7 @@ const ru: TranslationKeys = {
   selectedSupplier_quickPreview: "Быстрый предпросмотр",
   selectedSupplier_aboutLabel: "Выбранный поставщик",
   selectedSupplier_activeOffers: "Активные офферы",
+  selectedSupplier_activeOffersHidden: "Скрыто — запросите доступ",
   selectedSupplier_catalogSize: "Размер каталога",
   selectedSupplier_catalogPreview: "Превью каталога",
   selectedSupplier_productsValue: "{n} товаров",
