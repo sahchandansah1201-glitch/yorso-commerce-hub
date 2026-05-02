@@ -80,12 +80,19 @@ const upsertMeta = (selector: string, attrs: Record<string, string>) => {
 /** Компактный блок «Страны доставки» (используется в рельсе и в досье). */
 const DeliveryCountriesBlock = ({ supplier }: { supplier: MockSupplier }) => {
   const { t } = useLanguage();
-  const preview = supplier.deliveryCountries.slice(0, 15);
-  const remaining = Math.max(supplier.deliveryCountriesTotal - preview.length, 0);
+  const [expanded, setExpanded] = useState(false);
+  const COLLAPSED_LIMIT = 8;
+  const known = supplier.deliveryCountries;
+  const total = supplier.deliveryCountriesTotal;
+  const unknownCount = Math.max(total - known.length, 0);
+  const visibleKnown = expanded ? known : known.slice(0, COLLAPSED_LIMIT);
+  const hiddenKnown = Math.max(known.length - visibleKnown.length, 0);
+  const canExpand = hiddenKnown > 0 || unknownCount > 0;
+
   return (
     <div>
       <ul className="grid grid-cols-5 gap-2">
-        {preview.map((c) => (
+        {visibleKnown.map((c) => (
           <li
             key={c.code}
             className="flex h-8 items-center justify-center rounded border border-border bg-background text-lg"
@@ -95,21 +102,47 @@ const DeliveryCountriesBlock = ({ supplier }: { supplier: MockSupplier }) => {
             <span aria-hidden>{countryCodeToFlag(c.code)}</span>
           </li>
         ))}
+        {expanded &&
+          unknownCount > 0 &&
+          Array.from({ length: unknownCount }).map((_, i) => (
+            <li
+              key={`unknown-${i}`}
+              className="flex h-8 items-center justify-center rounded border border-dashed border-border bg-muted/40 text-sm text-muted-foreground"
+              aria-label={t.supplier_about_deliveryCountriesOthers.replace("{n}", "1")}
+              title={interpolate(t.supplier_about_deliveryCountriesOthers, { n: unknownCount })}
+            >
+              <span aria-hidden>🌐</span>
+            </li>
+          ))}
       </ul>
-      <p className="mt-2 text-xs text-muted-foreground">
-        {interpolate(t.supplier_about_deliveryCountriesCount, {
-          n: supplier.deliveryCountriesTotal,
-        })}
-        {remaining > 0 && (
-          <>
-            {" · "}
-            {interpolate(t.supplier_about_deliveryCountriesShown, {
-              n: preview.length,
-              rest: remaining,
-            })}
-          </>
+      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+        <span>
+          {interpolate(t.supplier_about_deliveryCountriesCount, { n: total })}
+        </span>
+        {!expanded && canExpand && (
+          <span aria-hidden>·</span>
         )}
-      </p>
+        {!expanded && canExpand && (
+          <span>
+            {interpolate(t.supplier_about_deliveryCountriesShown, {
+              n: visibleKnown.length,
+              rest: hiddenKnown + unknownCount,
+            })}
+          </span>
+        )}
+        {canExpand && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="ml-auto inline-flex items-center gap-1 rounded text-xs font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-expanded={expanded}
+          >
+            {expanded
+              ? t.supplier_about_deliveryCountriesCollapse
+              : t.supplier_about_deliveryCountriesShowAll}
+          </button>
+        )}
+      </div>
     </div>
   );
 };

@@ -954,6 +954,9 @@ type TranslationKeys = {
   supplier_about_deliveryGeo: string;
   supplier_about_deliveryCountriesCount: string; // Delivery to {n} countries
   supplier_about_deliveryCountriesShown: string; // shown {n}, {rest} more
+  supplier_about_deliveryCountriesShowAll: string; // Show all
+  supplier_about_deliveryCountriesCollapse: string; // Collapse
+  supplier_about_deliveryCountriesOthers: string; // {n} other countries
   supplier_about_catalogEmpty: string;
   // Supplier Profile — legal details
   supplier_legal_title: string;
@@ -2088,6 +2091,9 @@ const en: TranslationKeys = {
   supplier_about_deliveryGeo: "Delivery geography",
   supplier_about_deliveryCountriesCount: "Delivery to {n} countries",
   supplier_about_deliveryCountriesShown: "shown {n}, {rest} more",
+  supplier_about_deliveryCountriesShowAll: "Show all",
+  supplier_about_deliveryCountriesCollapse: "Collapse",
+  supplier_about_deliveryCountriesOthers: "+{n} other countries",
   supplier_about_catalogEmpty: "Catalog has not been published yet.",
   supplier_legal_title: "Legal details",
   supplier_legal_subtitle: "For counterparty verification in national registries",
@@ -3204,6 +3210,9 @@ const ru: TranslationKeys = {
   supplier_about_deliveryGeo: "География поставок",
   supplier_about_deliveryCountriesCount: "Доставка в {n} стран",
   supplier_about_deliveryCountriesShown: "показано {n}, ещё {rest}",
+  supplier_about_deliveryCountriesShowAll: "Показать все",
+  supplier_about_deliveryCountriesCollapse: "Свернуть",
+  supplier_about_deliveryCountriesOthers: "+{n} других стран",
   supplier_about_catalogEmpty: "Каталог пока не опубликован.",
   supplier_legal_title: "Юридические реквизиты",
   supplier_legal_subtitle: "Для проверки контрагента в национальных реестрах",
@@ -4320,6 +4329,9 @@ const es: TranslationKeys = {
   supplier_about_deliveryGeo: "Geografía de entregas",
   supplier_about_deliveryCountriesCount: "Entrega a {n} países",
   supplier_about_deliveryCountriesShown: "mostrados {n}, {rest} más",
+  supplier_about_deliveryCountriesShowAll: "Mostrar todo",
+  supplier_about_deliveryCountriesCollapse: "Contraer",
+  supplier_about_deliveryCountriesOthers: "+{n} otros países",
   supplier_about_catalogEmpty: "El catálogo aún no se ha publicado.",
   supplier_legal_title: "Datos legales",
   supplier_legal_subtitle: "Para verificar la contraparte en registros nacionales",
