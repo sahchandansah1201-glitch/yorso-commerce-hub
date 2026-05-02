@@ -927,9 +927,6 @@ type TranslationKeys = {
   supplier_writeToSupplier: string;
   // Supplier Profile — locked-state previews / access gating
   supplier_locked_identityHint: string;
-  supplier_hero_cta_anon: string;
-  supplier_hero_cta_request: string;
-  supplier_hero_cta_pending: string;
   supplier_locked_aboutPlaceholder: string;
   supplier_locked_anonCtaTitle: string;
   supplier_locked_anonCtaBody: string;
@@ -2070,9 +2067,6 @@ const en: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Request prepared. A manager will contact you.",
   supplier_writeToSupplier: "Message supplier",
   supplier_locked_identityHint: "Hidden — access on request",
-  supplier_hero_cta_anon: "Access after registration",
-  supplier_hero_cta_request: "Request access to information",
-  supplier_hero_cta_pending: "Request sent · awaiting approval",
   supplier_locked_aboutPlaceholder: "Full company description, legal details and contact channels are available after access is granted.",
   supplier_locked_anonCtaTitle: "Register to request access to information",
   supplier_locked_anonCtaBody: "Registered buyers can request supplier and exact price access in one click.",
@@ -3192,9 +3186,6 @@ const ru: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Запрос подготовлен. Менеджер свяжется с вами.",
   supplier_writeToSupplier: "Написать поставщику",
   supplier_locked_identityHint: "Скрыто — доступ по запросу",
-  supplier_hero_cta_anon: "Доступ после регистрации",
-  supplier_hero_cta_request: "Запросить доступ к информации",
-  supplier_hero_cta_pending: "Заявка отправлена · ожидает одобрения",
   supplier_locked_aboutPlaceholder: "Полное описание компании, юридические реквизиты и контакты доступны после получения доступа.",
   supplier_locked_anonCtaTitle: "Зарегистрируйтесь, чтобы запросить доступ к информации",
   supplier_locked_anonCtaBody: "Зарегистрированные покупатели запрашивают доступ к поставщику и точной цене в один клик.",
@@ -4314,9 +4305,6 @@ const es: TranslationKeys = {
   supplier_sendMessage_toast_desc: "Solicitud preparada. Un gestor te contactará.",
   supplier_writeToSupplier: "Escribir al proveedor",
   supplier_locked_identityHint: "Oculto — acceso bajo solicitud",
-  supplier_hero_cta_anon: "Acceso tras el registro",
-  supplier_hero_cta_request: "Solicitar acceso a la información",
-  supplier_hero_cta_pending: "Solicitud enviada · pendiente de aprobación",
   supplier_locked_aboutPlaceholder: "La descripción completa, los datos legales y los contactos estarán disponibles tras obtener el acceso.",
   supplier_locked_anonCtaTitle: "Regístrate para solicitar acceso a la información",
   supplier_locked_anonCtaBody: "Los compradores registrados solicitan acceso al proveedor y al precio exacto con un solo clic.",
