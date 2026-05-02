@@ -25,6 +25,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
+import { logCatalogPrivilegeError } from "@/lib/catalog-privilege-log";
 
 const REDACTED_PRICE = "Цена по запросу";
 const REDACTED_SUPPLIER = "Имя поставщика скрыто";
