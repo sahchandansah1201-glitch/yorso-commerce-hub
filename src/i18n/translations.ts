@@ -2618,6 +2618,13 @@ const ru: TranslationKeys = {
   offerDetail_freeRegistration: "Бесплатная регистрация · Прямой доступ к поставщику · Без комиссии",
   offerDetail_backToCatalog: "Назад в панель закупок",
   offerDetail_backToCatalogShort: "В панель закупок",
+  offerDetail_loadError_title: "Не удалось загрузить предложение",
+  offerDetail_loadError_body: "Сервис каталога временно недоступен. Попробуйте обновить через минуту или перейдите к другим предложениям в каталоге.",
+  offerDetail_loadError_attempts: "Неудачных попыток: {count}",
+  offerDetail_loadError_code: "Код ошибки: {code}",
+  offerDetail_loadError_retry: "Повторить",
+  offerDetail_loadError_retrying: "Повтор…",
+  offerDetail_loadError_goCatalog: "Перейти к каталогу",
 
   // 404 / Not Found
   notFound_title: "404",
