@@ -88,11 +88,32 @@ const HowItWorks = () => {
     ld.id = "ld-how-it-works";
     ld.text = JSON.stringify({
       "@context": "https://schema.org",
-      "@type": "HowTo",
-      name: t.seo_title,
-      description: t.seo_description,
-      inLanguage: lang,
-      step: t.bj_steps.map((s) => ({ "@type": "HowToStep", name: s.title })),
+      "@graph": [
+        {
+          "@type": "HowTo",
+          name: t.seo_title,
+          description: t.seo_description,
+          inLanguage: lang,
+          step: t.bj_steps.map((s) => ({ "@type": "HowToStep", name: s.title })),
+        },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: tCommon.catalog_breadcrumbHome,
+              item: typeof window !== "undefined" ? window.location.origin + "/" : "/",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: tCommon.nav_howItWorks,
+              item: canonical,
+            },
+          ],
+        },
+      ],
     });
     document.head.appendChild(ld);
 
