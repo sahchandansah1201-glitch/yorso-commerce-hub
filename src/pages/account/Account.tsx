@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   validateEmail,
@@ -43,7 +43,7 @@ const VALID: AccountSectionKey[] = [
 
 const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
 
-const Field = ({ label, value }: { label: string; value: string }) => {
+const Field = ({ label, value, badge }: { label: string; value: string; badge?: ReactNode }) => {
   const { t } = useLanguage();
   const isEmpty = !value || !value.trim();
   return (
@@ -54,12 +54,13 @@ const Field = ({ label, value }: { label: string; value: string }) => {
       <dd
         className={
           isEmpty
-            ? "mt-1 truncate text-[15px] italic text-muted-foreground"
-            : "mt-1 truncate text-[15px] font-medium text-foreground"
+            ? "mt-1 flex items-center text-[15px] italic text-muted-foreground"
+            : "mt-1 flex items-center text-[15px] font-medium text-foreground"
         }
         title={isEmpty ? undefined : value}
       >
-        {fallback(value, t.account_value_notSpecified)}
+        <span className="truncate">{fallback(value, t.account_value_notSpecified)}</span>
+        {badge}
       </dd>
     </div>
   );
