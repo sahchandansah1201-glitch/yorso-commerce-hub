@@ -357,7 +357,22 @@ const PersonalSection = ({
               <FieldGroup title={t.account_group_contacts}>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                   <Field label={t.account_personal_email} value={v.email} />
-                  <Field label={t.account_personal_phone} value={v.phone} />
+                  <Field
+                    label={t.account_personal_phone}
+                    value={v.phone}
+                    badge={
+                      v.phone && v.phoneVerified ? (
+                        <span
+                          className="ml-2 inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300"
+                          aria-label={t.account_personal_phone_verified_aria}
+                          data-testid="account-personal-phone-verified-badge"
+                        >
+                          <CheckCircle2 className="h-3 w-3" aria-hidden />
+                          {t.account_personal_phone_verified}
+                        </span>
+                      ) : null
+                    }
+                  />
                 </dl>
               </FieldGroup>
               <FieldGroup title={t.account_group_locale}>
