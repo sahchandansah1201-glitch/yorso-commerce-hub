@@ -66,20 +66,20 @@ describe("UI hint localization", () => {
   describe.each(HINT_KEYS)("ключ %s", (key) => {
     it("определён во всех локалях и не пустой", () => {
       for (const l of LANGS) {
-        const v = (translations[l] as Record<string, string>)[key];
+        const v = (translations[l] as unknown as Record<string, string>)[key];
         expect(typeof v).toBe("string");
         expect(v.trim().length).toBeGreaterThan(0);
       }
     });
 
     it("RU-вариант содержит кириллицу (не остался на английском)", () => {
-      const ru = (translations.ru as Record<string, string>)[key];
+      const ru = (translations.ru as unknown as Record<string, string>)[key];
       expect(ru).toMatch(CYRILLIC);
     });
 
     it("ES-вариант отличается от EN (реально переведён)", () => {
-      const en = (translations.en as Record<string, string>)[key];
-      const es = (translations.es as Record<string, string>)[key];
+      const en = (translations.en as unknown as Record<string, string>)[key];
+      const es = (translations.es as unknown as Record<string, string>)[key];
       // Допускаем равенство только для очень коротких токенов (например, чисел/символов).
       if (en.length > 3) {
         expect(es).not.toBe(en);
