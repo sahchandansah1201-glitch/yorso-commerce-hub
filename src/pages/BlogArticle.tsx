@@ -708,14 +708,14 @@ const BlogArticle = () => {
               <aside className="hidden space-y-5 lg:block lg:sticky lg:top-24 lg:self-start">
                 {toc.length > 0 && (
                   <nav
-                    aria-label="Table of contents"
+                    aria-label={t.blog_onThisPage}
                     data-testid="blog-toc"
                     className="rounded-lg border border-border bg-card p-4"
                   >
                     <div className="flex items-center gap-2">
                       <ListTree className="h-4 w-4 text-primary" aria-hidden />
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                        On this page
+                        {t.blog_onThisPage}
                       </p>
                     </div>
                     <ul className="mt-3 space-y-1.5 text-sm">
