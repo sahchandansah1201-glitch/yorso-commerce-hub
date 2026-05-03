@@ -121,7 +121,8 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-02-04",
     readingTimeMinutes: 7,
     authorName: "YORSO Editorial",
-    heroImage: "/src/assets/salmon-vertical.jpg",
+    heroImage: salmonVerticalImg,
+    heroImageAlt: 'Atlantic salmon fillet on ice illustrating Q1 procurement conditions',
     seoTitle: "Atlantic salmon Q1 price pressure: a procurement view (example)",
     seoDescription:
       "Example market intelligence piece on the supply, demand, and logistics factors that typically influence Atlantic salmon prices in early Q1.",
@@ -170,6 +171,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 6,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Vannamei shrimp catch representing Asian and Latin American supply',
     seoTitle: "Vannamei shrimp supply shifts (example procurement view)",
     seoDescription:
       "Example article describing how shrimp supply patterns from Ecuador, India, Vietnam, and Indonesia typically affect buyers' sourcing decisions.",
@@ -211,6 +213,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 8,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Frozen whitefish blocks of cod and pollock for trade analysis',
     seoTitle: "Cod and pollock trade conditions: example procurement view",
     seoDescription:
       "Example article on the quotas, currency, and processing factors that typically affect cod and pollock procurement decisions.",
@@ -244,6 +247,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 5,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Procurement team reviewing a seafood RFQ on a laptop',
     seoTitle: "How to run a tight seafood RFQ (buyer guide)",
     seoDescription:
       "Buyer guide on scoping a seafood RFQ so suppliers can respond quickly with comparable, decision-ready offers.",
@@ -284,6 +288,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 6,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Buyer reviewing supplier verification and price access on YORSO',
     seoTitle: "Supplier verification and price access: buyer guide",
     seoDescription:
       "Buyer guide on how supplier verification and price access work on YORSO, and why exact prices unlock only after buyer qualification.",
@@ -316,7 +321,8 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-02-03",
     readingTimeMinutes: 5,
     authorName: "YORSO Editorial",
-    heroImage: "/src/assets/og-for-suppliers.jpg",
+    heroImage: suppliersOgImg,
+    heroImageAlt: 'Supplier team reviewing buyer qualification signals',
     seoTitle: "Buyer qualification for seafood suppliers (supplier guide)",
     seoDescription:
       "Supplier guide on the buyer signals YORSO surfaces before access requests reach your inbox, so you can approve serious buyers faster.",
@@ -350,6 +356,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 6,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Seafood product card layout for high-converting supplier listings',
     seoTitle: "Writing seafood product cards that convert (supplier guide)",
     seoDescription:
       "Supplier guide on writing product cards that give buyers everything they need to shortlist or request access in under 30 seconds.",
@@ -389,6 +396,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 3,
     authorName: "YORSO Product",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'YORSO catalog rows showing clearer supplier trust signals',
     seoTitle: "YORSO catalog update: clearer supplier trust signals",
     seoDescription:
       "Product update introducing clearer trust signals on supplier rows so buyers can scan verification, response speed, and document readiness faster.",
@@ -433,6 +441,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 4,
     authorName: "YORSO Product",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Redesigned YORSO supplier profile with masked identity',
     seoTitle: "YORSO supplier profiles redesigned (product update)",
     seoDescription:
       "Product update on the redesigned supplier profile structure: masked identity for locked access, certification grid, and a clearer access request flow.",
@@ -477,6 +486,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 3,
     authorName: "YORSO Product",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Streamlined YORSO price access request form',
     seoTitle: "Simpler price access request flow (YORSO product update)",
     seoDescription:
       "Product update on the streamlined price access request flow that lets qualified buyers request exact prices in fewer steps.",
@@ -522,6 +532,7 @@ export const blogPosts: BlogPost[] = [
     readingTimeMinutes: 9,
     authorName: "YORSO Editorial",
     heroImage: PLACEHOLDER,
+    heroImageAlt: 'Seafood procurement glossary terms reference card',
     seoTitle: "Seafood procurement glossary: 20 essential terms",
     seoDescription:
       "Glossary of common seafood procurement terms used across YORSO offers, supplier profiles, and access requests.",
