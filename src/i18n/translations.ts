@@ -3917,6 +3917,21 @@ const ru: TranslationKeys = {
   blog_cta_productUpdate: "Попробовать сценарий",
   blog_cta_glossary: "Перейти к связанному гайду",
   blog_cta_default: "Продолжить на YORSO",
+  blog_topic_salmonPrices: "Цены на лосось",
+  blog_topic_shrimpImports: "Импорт креветки",
+  blog_topic_supplierVerification: "Верификация поставщиков",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Доступ к ценам",
+  blog_topic_landedCost: "Себестоимость в порту",
+  blog_topic_documentation: "Документация",
+  blog_startHere_catalog_label: "Открыть каталог",
+  blog_startHere_catalog_desc: "Живые предложения, фильтры и закупочный workspace.",
+  blog_startHere_suppliers_label: "Каталог поставщиков",
+  blog_startHere_suppliers_desc: "Проверенные поставщики, идентичность скрыта до получения доступа.",
+  blog_startHere_forSuppliers_label: "Продавать на YORSO",
+  blog_startHere_forSuppliers_desc: "Как поставщики публикуют продукт и одобряют покупателей.",
+  blog_startHere_howItWorks_label: "Как работает YORSO",
+  blog_startHere_howItWorks_desc: "Три уровня доступа и сценарий закупки.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
