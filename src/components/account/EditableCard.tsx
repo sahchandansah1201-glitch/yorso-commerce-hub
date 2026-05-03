@@ -203,15 +203,71 @@ export function EditableCard<T>({
           ) : null}
         </div>
         <div className="flex items-center gap-2">
-          {saveState === "saved" && !editing ? (
+          {(() => {
+            // Status chip: visible in both view and edit modes when relevant
+            const showSaving = isSaving;
+            const showSaved = saveState === "saved";
+            const showError = saveState === "error" && !!(saveError || validationSummary);
+            const showDirty = editing && dirty && saveState === "idle";
+            if (!showSaving && !showSaved && !showError && !showDirty) return null;
+
+            const base =
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium";
+            if (showSaving) {
+              return (
+                <span
+                  className={`${base} border-primary/30 bg-primary/5 text-primary`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-status-saving` : undefined}
+                >
+                  <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+                  {t.account_action_saving}
+                </span>
+              );
+            }
+            if (showError) {
+              return (
+                <span
+                  className={`${base} border-destructive/40 bg-destructive/5 text-destructive`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-status-error` : undefined}
+                >
+                  <AlertCircle className="h-3 w-3" aria-hidden />
+                  {validationSummary ? t.account_save_error_validation : t.account_save_error_storage}
+                </span>
+              );
+            }
+            if (showSaved) {
+              return (
+                <span
+                  className={`${base} border-primary/30 bg-primary/5 text-primary`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-saved-indicator` : undefined}
+                >
+                  <CheckCircle2 className="h-3 w-3" aria-hidden />
+                  {t.account_action_saved}
+                </span>
+              );
+            }
+            // dirty
+            return (
+              <span
+                className={`${base} border-border bg-muted text-muted-foreground`}
+                data-testid={testId ? `${testId}-status-dirty` : undefined}
+              >
+                {t.account_autosave_unsaved}
+              </span>
+            );
+          })()}
+          {editing ? (
             <span
-              className="inline-flex items-center gap-1 text-xs text-primary"
-              data-testid={testId ? `${testId}-saved-indicator` : undefined}
-              role="status"
-              aria-live="polite"
+              className="hidden text-[11px] text-muted-foreground sm:inline"
+              aria-hidden
             >
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-              {t.account_action_saved}
+              · {t.account_autosave_label}
             </span>
           ) : null}
           {!editing ? (
