@@ -181,3 +181,72 @@ describe("Account RU locale enum leaks", () => {
     expect(section.textContent ?? "").not.toMatch(/[—–]/);
   });
 });
+
+describe("Account save UX (indicator + error handling)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    resetAccountProfile();
+  });
+
+  it("validation failure shows inline error summary and keeps edit mode", () => {
+    signIn();
+    renderAt("/account/personal");
+    const card = screen.getByTestId("account-card-personal-basic");
+    fireEvent.click(within(card).getByTestId("account-card-personal-basic-edit"));
+    fireEvent.change(within(card).getByTestId("account-input-firstName"), {
+      target: { value: "" },
+    });
+    fireEvent.click(within(card).getByTestId("account-card-personal-basic-save"));
+    expect(within(card).getByTestId("account-card-personal-basic-error")).toBeInTheDocument();
+    expect(card.getAttribute("data-save-state")).toBe("error");
+    expect(card.getAttribute("data-editing")).toBe("true");
+  });
+
+  it("successful save shows 'Saved' indicator and exits edit mode", async () => {
+    signIn();
+    renderAt("/account/personal");
+    const card = screen.getByTestId("account-card-personal-basic");
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-edit"));
+    });
+    await act(async () => {
+      fireEvent.change(within(card).getByTestId("account-input-firstName"), {
+        target: { value: "Olga" },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-save"));
+    });
+    expect(card.getAttribute("data-editing")).toBe("false");
+    expect(within(card).getByTestId("account-card-personal-basic-saved-indicator")).toBeInTheDocument();
+  });
+
+  it("localStorage write failure surfaces an inline error", async () => {
+    signIn();
+    renderAt("/account/personal");
+    const card = screen.getByTestId("account-card-personal-basic");
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-edit"));
+    });
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = () => {
+      throw new Error("QuotaExceededError");
+    };
+    try {
+      await act(async () => {
+        fireEvent.change(within(card).getByTestId("account-input-firstName"), {
+          target: { value: "Quota" },
+        });
+      });
+      await act(async () => {
+        fireEvent.click(within(card).getByTestId("account-card-personal-basic-save"));
+      });
+      expect(within(card).getByTestId("account-card-personal-basic-error")).toBeInTheDocument();
+      expect(card.getAttribute("data-save-state")).toBe("error");
+      expect(card.getAttribute("data-editing")).toBe("true");
+    } finally {
+      Storage.prototype.setItem = original;
+    }
+  });
+});
