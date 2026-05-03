@@ -1279,6 +1279,23 @@ type TranslationKeys = {
   blog_cta_productUpdate: string;
   blog_cta_glossary: string;
   blog_cta_default: string;
+  // Popular topic chips (Blog index sidebar)
+  blog_topic_salmonPrices: string;
+  blog_topic_shrimpImports: string;
+  blog_topic_supplierVerification: string;
+  blog_topic_rfq: string;
+  blog_topic_priceAccess: string;
+  blog_topic_landedCost: string;
+  blog_topic_documentation: string;
+  // "Start here" cards
+  blog_startHere_catalog_label: string;
+  blog_startHere_catalog_desc: string;
+  blog_startHere_suppliers_label: string;
+  blog_startHere_suppliers_desc: string;
+  blog_startHere_forSuppliers_label: string;
+  blog_startHere_forSuppliers_desc: string;
+  blog_startHere_howItWorks_label: string;
+  blog_startHere_howItWorks_desc: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -2596,6 +2613,21 @@ const en: TranslationKeys = {
   blog_cta_productUpdate: "Try this workflow",
   blog_cta_glossary: "Explore related guide",
   blog_cta_default: "Continue on YORSO",
+  blog_topic_salmonPrices: "Salmon prices",
+  blog_topic_shrimpImports: "Shrimp imports",
+  blog_topic_supplierVerification: "Supplier verification",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Price access",
+  blog_topic_landedCost: "Landed cost",
+  blog_topic_documentation: "Documentation",
+  blog_startHere_catalog_label: "Browse the catalog",
+  blog_startHere_catalog_desc: "Live offers, filters, and procurement workspace.",
+  blog_startHere_suppliers_label: "Supplier directory",
+  blog_startHere_suppliers_desc: "Verified suppliers with masked identity until access.",
+  blog_startHere_forSuppliers_label: "Sell on YORSO",
+  blog_startHere_forSuppliers_desc: "How suppliers list product and approve buyers.",
+  blog_startHere_howItWorks_label: "How YORSO works",
+  blog_startHere_howItWorks_desc: "Three access levels and the procurement flow.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -3900,6 +3932,21 @@ const ru: TranslationKeys = {
   blog_cta_productUpdate: "Попробовать сценарий",
   blog_cta_glossary: "Перейти к связанному гайду",
   blog_cta_default: "Продолжить на YORSO",
+  blog_topic_salmonPrices: "Цены на лосось",
+  blog_topic_shrimpImports: "Импорт креветки",
+  blog_topic_supplierVerification: "Верификация поставщиков",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Доступ к ценам",
+  blog_topic_landedCost: "Себестоимость в порту",
+  blog_topic_documentation: "Документация",
+  blog_startHere_catalog_label: "Открыть каталог",
+  blog_startHere_catalog_desc: "Живые предложения, фильтры и закупочный workspace.",
+  blog_startHere_suppliers_label: "Каталог поставщиков",
+  blog_startHere_suppliers_desc: "Проверенные поставщики, идентичность скрыта до получения доступа.",
+  blog_startHere_forSuppliers_label: "Продавать на YORSO",
+  blog_startHere_forSuppliers_desc: "Как поставщики публикуют продукт и одобряют покупателей.",
+  blog_startHere_howItWorks_label: "Как работает YORSO",
+  blog_startHere_howItWorks_desc: "Три уровня доступа и сценарий закупки.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -5203,6 +5250,21 @@ const es: TranslationKeys = {
   blog_cta_productUpdate: "Probar este flujo",
   blog_cta_glossary: "Explorar guía relacionada",
   blog_cta_default: "Continuar en YORSO",
+  blog_topic_salmonPrices: "Precios del salmón",
+  blog_topic_shrimpImports: "Importaciones de camarón",
+  blog_topic_supplierVerification: "Verificación de proveedores",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Acceso a precios",
+  blog_topic_landedCost: "Coste en destino",
+  blog_topic_documentation: "Documentación",
+  blog_startHere_catalog_label: "Explorar el catálogo",
+  blog_startHere_catalog_desc: "Ofertas en vivo, filtros y espacio de trabajo de compras.",
+  blog_startHere_suppliers_label: "Directorio de proveedores",
+  blog_startHere_suppliers_desc: "Proveedores verificados con identidad oculta hasta el acceso.",
+  blog_startHere_forSuppliers_label: "Vender en YORSO",
+  blog_startHere_forSuppliers_desc: "Cómo los proveedores publican producto y aprueban a compradores.",
+  blog_startHere_howItWorks_label: "Cómo funciona YORSO",
+  blog_startHere_howItWorks_desc: "Tres niveles de acceso y el flujo de compras.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };

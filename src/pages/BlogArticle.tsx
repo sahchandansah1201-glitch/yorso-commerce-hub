@@ -18,46 +18,16 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
+import {
+  applyRouteSeo,
+  upsertJsonLd,
+  removeJsonLd,
+  clearRouteSeoMarker,
+  absoluteUrl,
+} from "@/lib/seo";
 
 const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
-
-const upsertMeta = (selector: string, attrs: Record<string, string>) => {
-  let el = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!el) {
-    el = document.createElement("meta");
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-    document.head.appendChild(el);
-  } else {
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-  }
-};
-
-const upsertLink = (rel: string, href: string) => {
-  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-};
-
-const upsertJsonLd = (id: string, data: unknown) => {
-  let el = document.head.querySelector<HTMLScriptElement>(`script[data-jsonld="${id}"]`);
-  if (!el) {
-    el = document.createElement("script");
-    el.setAttribute("type", "application/ld+json");
-    el.setAttribute("data-jsonld", id);
-    document.head.appendChild(el);
-  }
-  el.text = JSON.stringify(data);
-};
-
-const removeJsonLd = (id: string) => {
-  const el = document.head.querySelector(`script[data-jsonld="${id}"]`);
-  if (el) el.remove();
-};
 
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
@@ -225,56 +195,51 @@ const BlogArticle = () => {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const prevTitle = document.title;
-    const canonicalHref =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/blog/${slug ?? ""}`
-        : `/blog/${slug ?? ""}`;
+    const canonicalHref = absoluteUrl(`/blog/${slug ?? ""}`);
 
     if (post) {
-      document.title = `${post.seoTitle} · YORSO`;
-      upsertMeta('meta[name="description"]', {
-        name: "description",
-        content: post.seoDescription,
-      });
-      upsertLink("canonical", canonicalHref);
-
-      // Open Graph
-      upsertMeta('meta[property="og:type"]', { property: "og:type", content: "article" });
-      upsertMeta('meta[property="og:title"]', { property: "og:title", content: post.seoTitle });
-      upsertMeta('meta[property="og:description"]', {
-        property: "og:description",
-        content: post.seoDescription,
-      });
-      upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonicalHref });
-      if (post.heroImage) {
-        upsertMeta('meta[property="og:image"]', {
-          property: "og:image",
-          content: post.heroImage,
-        });
-      }
-      upsertMeta('meta[name="twitter:card"]', {
-        name: "twitter:card",
-        content: "summary_large_image",
+      const title = `${post.seoTitle} · YORSO`;
+      const ogImage = post.heroImage ? absoluteUrl(post.heroImage) : undefined;
+      applyRouteSeo({
+        title,
+        description: post.seoDescription,
+        canonical: canonicalHref,
+        og: {
+          type: "article",
+          title: post.seoTitle,
+          description: post.seoDescription,
+          url: canonicalHref,
+          image: ogImage,
+        },
       });
 
-      // JSON-LD: Article
+      // JSON-LD: BlogPosting
       upsertJsonLd("article", {
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
         headline: post.title,
         description: post.seoDescription,
         datePublished: post.publishedAt,
         dateModified: post.updatedAt,
         author: { "@type": "Organization", name: post.authorName },
         publisher: { "@type": "Organization", name: "YORSO" },
-        image: post.heroImage ? [post.heroImage] : undefined,
+        image: ogImage ? [ogImage] : undefined,
         mainEntityOfPage: canonicalHref,
         articleSection: post.category,
         keywords: [...(post.speciesTags ?? []), ...(post.countryTags ?? [])].join(", "),
       });
 
-      // JSON-LD: FAQ
+      // JSON-LD: BreadcrumbList
+      upsertJsonLd("breadcrumb", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: t.supplier_breadcrumb_home, item: absoluteUrl("/") },
+          { "@type": "ListItem", position: 2, name: t.blog_breadcrumb, item: absoluteUrl("/blog") },
+          { "@type": "ListItem", position: 3, name: post.title, item: canonicalHref },
+        ],
+      });
+
       if (faq.length) {
         upsertJsonLd("faq", {
           "@context": "https://schema.org",
@@ -289,13 +254,18 @@ const BlogArticle = () => {
         removeJsonLd("faq");
       }
     } else {
-      document.title = `${t.blog_notFoundTitle} · YORSO`;
+      applyRouteSeo({
+        title: `${t.blog_notFoundTitle} · YORSO`,
+        description: t.blog_notFoundBody,
+        canonical: canonicalHref,
+      });
     }
 
     return () => {
-      document.title = prevTitle;
       removeJsonLd("article");
       removeJsonLd("faq");
+      removeJsonLd("breadcrumb");
+      clearRouteSeoMarker();
     };
   }, [post, slug, t, faq]);
 
@@ -479,7 +449,7 @@ const BlogArticle = () => {
                 {post.heroImage && (
                   <img
                     src={post.heroImage}
-                    alt=""
+                    alt={post.heroImageAlt}
                     className="mt-6 aspect-[16/9] w-full rounded-lg border border-border object-cover"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";

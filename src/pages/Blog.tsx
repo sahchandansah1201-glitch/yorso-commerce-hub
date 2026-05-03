@@ -8,20 +8,17 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, type BlogPost, type BlogContentType } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
+import {
+  applyRouteSeo,
+  upsertJsonLd,
+  removeJsonLd,
+  clearRouteSeoMarker,
+  absoluteUrl,
+} from "@/lib/seo";
 
 const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
 
-const upsertMeta = (selector: string, attrs: Record<string, string>) => {
-  let el = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!el) {
-    el = document.createElement("meta");
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-    document.head.appendChild(el);
-  } else {
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-  }
-};
 
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
@@ -63,21 +60,23 @@ const FILTER_KEYS: FilterKey[] = [
   "glossary",
 ];
 
-const POPULAR_TOPICS = [
-  "Salmon prices",
-  "Shrimp imports",
-  "Supplier verification",
-  "RFQ",
-  "Price access",
-  "Landed cost",
-  "Documentation",
+const popularTopics = (t: Translator): string[] => [
+  t.blog_topic_salmonPrices,
+  t.blog_topic_shrimpImports,
+  t.blog_topic_supplierVerification,
+  t.blog_topic_rfq,
+  t.blog_topic_priceAccess,
+  t.blog_topic_landedCost,
+  t.blog_topic_documentation,
 ];
 
-const START_HERE = [
-  { to: "/offers", label: "Browse the catalog", desc: "Live offers, filters, and procurement workspace." },
-  { to: "/suppliers", label: "Supplier directory", desc: "Verified suppliers with masked identity until access." },
-  { to: "/for-suppliers", label: "Sell on YORSO", desc: "How suppliers list product and approve buyers." },
-  { to: "/how-it-works", label: "How YORSO works", desc: "Three access levels and the procurement flow." },
+const startHere = (
+  t: Translator,
+): { to: string; label: string; desc: string }[] => [
+  { to: "/offers", label: t.blog_startHere_catalog_label, desc: t.blog_startHere_catalog_desc },
+  { to: "/suppliers", label: t.blog_startHere_suppliers_label, desc: t.blog_startHere_suppliers_desc },
+  { to: "/for-suppliers", label: t.blog_startHere_forSuppliers_label, desc: t.blog_startHere_forSuppliers_desc },
+  { to: "/how-it-works", label: t.blog_startHere_howItWorks_label, desc: t.blog_startHere_howItWorks_desc },
 ];
 
 const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
@@ -88,16 +87,27 @@ const Blog = () => {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
 
+  const TOPICS = useMemo(() => popularTopics(t), [t]);
+  const START = useMemo(() => startHere(t), [t]);
+
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const prev = document.title;
-    document.title = `${t.blog_pageTitle} · YORSO`;
-    upsertMeta('meta[name="description"]', {
-      name: "description",
-      content: t.blog_pageSubtitle,
+    const canonical = absoluteUrl("/blog");
+    const title = `${t.blog_pageTitle} · YORSO`;
+    applyRouteSeo({
+      title,
+      description: t.blog_pageSubtitle,
+      canonical,
+      og: {
+        type: "website",
+        title,
+        description: t.blog_pageSubtitle,
+        url: canonical,
+      },
     });
     return () => {
-      document.title = prev;
+      removeJsonLd("blog-collection");
+      clearRouteSeoMarker();
     };
   }, [t]);
 
@@ -148,6 +158,37 @@ const Blog = () => {
       }),
     [lang],
   );
+
+  // CollectionPage + ItemList JSON-LD that mirrors visible posts.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const canonical = absoluteUrl("/blog");
+    upsertJsonLd("blog-collection", {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: t.blog_pageTitle,
+      description: t.blog_pageSubtitle,
+      url: canonical,
+      isPartOf: { "@type": "WebSite", name: "YORSO", url: absoluteUrl("/") },
+      publisher: {
+        "@type": "Organization",
+        name: "YORSO",
+        url: absoluteUrl("/"),
+      },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: sortedPosts.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: absoluteUrl(`/blog/${p.slug}`),
+          name: p.title,
+          description: p.seoDescription,
+          datePublished: p.publishedAt,
+          dateModified: p.updatedAt,
+        })),
+      },
+    });
+  }, [t, sortedPosts]);
 
   const onTopicClick = (topic: string) => {
     setQuery(topic);
@@ -226,7 +267,7 @@ const Blog = () => {
                 >
                   <img
                     src={featured.heroImage}
-                    alt=""
+                    alt={featured.heroImageAlt}
                     loading="lazy"
                     className="h-full w-full object-cover"
                     onError={(e) => {
@@ -395,7 +436,7 @@ const Blog = () => {
                             >
                               <img
                                 src={p.heroImage}
-                                alt=""
+                                alt={p.heroImageAlt}
                                 loading="lazy"
                                 className="h-full w-full object-cover transition group-hover:scale-[1.02]"
                                 onError={(e) => {
@@ -508,7 +549,7 @@ const Blog = () => {
                     {t.blog_popularTopics}
                   </h2>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {POPULAR_TOPICS.map((topic) => (
+                    {TOPICS.map((topic) => (
                       <button
                         key={topic}
                         type="button"
@@ -529,7 +570,7 @@ const Blog = () => {
                     </h2>
                   </div>
                   <ul className="mt-3 space-y-3">
-                    {START_HERE.map((s) => (
+                    {START.map((s) => (
                       <li key={s.to}>
                         <Link
                           to={s.to}

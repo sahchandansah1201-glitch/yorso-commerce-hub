@@ -80,7 +80,7 @@ describe("/blog/:slug · article template", () => {
     ) as HTMLScriptElement | null;
     expect(script).not.toBeNull();
     const data = JSON.parse(script!.textContent ?? "{}");
-    expect(data["@type"]).toBe("Article");
+    expect(data["@type"]).toBe("BlogPosting");
     expect(data.headline).toBe(post.title);
   });
 
