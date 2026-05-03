@@ -133,6 +133,7 @@ const Blog = () => {
         title,
         description: t.blog_pageSubtitle,
         url: canonical,
+        image: absoluteUrl("/blog/og-for-suppliers.jpg"),
       },
     });
     return () => {
