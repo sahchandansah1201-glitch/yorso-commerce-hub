@@ -38,7 +38,7 @@ const Field = ({ label, value }: { label: string; value: string }) => {
   const isEmpty = !value || !value.trim();
   return (
     <div className="min-w-0">
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </dt>
       <dd
@@ -116,18 +116,22 @@ const PersonalSection = ({
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
-    el.classList.add("ring-2", "ring-primary/40");
-    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/40"), 1200);
+    el.classList.add("ring-2", "ring-primary/50");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/50"), 1200);
+    el.focus({ preventScroll: true });
   };
 
   return (
     <div className="space-y-4" data-testid="account-section-personal">
       <nav
         aria-label={t.account_personal_jump_aria}
-        className="sticky top-2 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border/60 bg-background/85 px-2 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70"
+        className="sticky top-2 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/95 px-2 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
         data-testid="account-personal-jumpbar"
       >
-        <span className="pl-1 pr-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span
+          id="account-personal-jump-label"
+          className="pl-1 pr-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+        >
           {t.account_personal_jump_label}
         </span>
         {anchors.map((a) => (
@@ -135,14 +139,20 @@ const PersonalSection = ({
             key={a.id}
             type="button"
             onClick={() => jumpTo(a.id)}
-            className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            aria-describedby="account-personal-jump-label"
             data-testid={`account-personal-jump-${a.id}`}
           >
             {a.label}
           </button>
         ))}
       </nav>
-      <div id="personal-basic" className="scroll-mt-24 rounded-lg transition-shadow">
+      <section
+        id="personal-basic"
+        tabIndex={-1}
+        aria-label={t.account_personal_basic_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <EditableCard<UserProfile>
         title={t.account_personal_basic_title}
         description={t.account_personal_basic_desc}
@@ -236,8 +246,13 @@ const PersonalSection = ({
           </div>
         )}
       />
-      </div>
-      <div id="personal-security" className="scroll-mt-24 rounded-lg transition-shadow">
+      </section>
+      <section
+        id="personal-security"
+        tabIndex={-1}
+        aria-label={t.account_personal_security_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <AccountSectionCard
         title={t.account_personal_security_title}
         description={t.account_personal_security_desc}
@@ -245,8 +260,13 @@ const PersonalSection = ({
       >
         <p className="text-sm text-muted-foreground">{t.account_personal_security_placeholder}</p>
       </AccountSectionCard>
-      </div>
-      <div id="personal-membership" className="scroll-mt-24 rounded-lg transition-shadow">
+      </section>
+      <section
+        id="personal-membership"
+        tabIndex={-1}
+        aria-label={t.account_personal_membership_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
@@ -279,7 +299,7 @@ const PersonalSection = ({
           </div>
         </div>
       </AccountSectionCard>
-      </div>
+      </section>
     </div>
   );
 };
