@@ -116,8 +116,9 @@ const PersonalSection = ({
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
-    el.classList.add("ring-2", "ring-primary/40");
-    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/40"), 1200);
+    el.classList.add("ring-2", "ring-primary/50");
+    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/50"), 1200);
+    el.focus({ preventScroll: true });
   };
 
   return (
