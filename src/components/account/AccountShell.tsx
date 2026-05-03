@@ -41,7 +41,7 @@ export const ACCOUNT_SECTIONS: { key: AccountSectionKey; icon: typeof User; labe
   { key: "notifications", icon: Bell, labelKey: "account_nav_notifications" },
 ];
 
-export const AccountShell = ({ active, children }: Props) => {
+export const AccountShell = ({ active, children, profile: profileProp }: Props) => {
   const { t } = useLanguage();
   const { isSignedIn } = useBuyerSession();
 
@@ -70,7 +70,7 @@ export const AccountShell = ({ active, children }: Props) => {
     );
   }
 
-  const profile = getAccountProfile();
+  const profile = profileProp ?? getAccountProfile();
 
   return (
     <div className="min-h-screen bg-background">
