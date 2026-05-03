@@ -461,7 +461,7 @@ const Blog = () => {
                                     </div>
                                   ) : null}
                                   <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                    <span className="font-semibold text-foreground">What changed:</span>{" "}
+                                    <span className="font-semibold text-foreground">{t.blog_pu_whatChanged}:</span>{" "}
                                     {p.excerpt.split(".")[0]}.
                                   </div>
                                   {p.productUpdate?.userBenefit ? (
