@@ -642,7 +642,7 @@ const BlogArticle = () => {
                 {faq.length > 0 && (
                   <div className="mt-10" data-testid="blog-faq">
                     <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                      Frequently asked
+                      {t.blog_frequentlyAsked}
                     </h2>
                     <div className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
                       {faq.map((f, i) => (
