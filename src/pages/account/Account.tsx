@@ -515,9 +515,12 @@ const CompanySection = ({
         initial={c}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.contactEmail.trim()) e.contactEmail = t.account_validation_required;
-          else if (!isEmail(d.contactEmail)) e.contactEmail = t.account_validation_email;
-          if (!d.contactPhone.trim()) e.contactPhone = t.account_validation_required;
+          const em = validateEmail(d.contactEmail, t);
+          if (em) e.contactEmail = em;
+          const ph = validatePhone(d.contactPhone, t, true);
+          if (ph) e.contactPhone = ph;
+          const wa = validatePhone(d.whatsapp, t, false);
+          if (wa) e.whatsapp = wa;
           return e;
         }}
         onSave={saveCompany}
@@ -530,21 +533,45 @@ const CompanySection = ({
         )}
         renderEdit={({ draft, setDraft, errors }) => (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormRow label={t.account_company_contactEmail} required error={errors.contactEmail}>
+            <FormRow
+              label={t.account_company_contactEmail}
+              required
+              error={errors.contactEmail}
+              hint={t.account_hint_email}
+            >
               <Input
                 type="email"
+                inputMode="email"
+                autoComplete="email"
+                maxLength={254}
                 value={draft.contactEmail}
                 onChange={(e) => setDraft({ ...draft, contactEmail: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_company_contactPhone} required error={errors.contactPhone}>
+            <FormRow
+              label={t.account_company_contactPhone}
+              required
+              error={errors.contactPhone}
+              hint={t.account_hint_phone}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                maxLength={32}
                 value={draft.contactPhone}
                 onChange={(e) => setDraft({ ...draft, contactPhone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_company_whatsapp}>
+            <FormRow
+              label={t.account_company_whatsapp}
+              error={errors.whatsapp}
+              hint={t.account_hint_whatsapp}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                maxLength={32}
                 value={draft.whatsapp}
                 onChange={(e) => setDraft({ ...draft, whatsapp: e.target.value })}
               />
