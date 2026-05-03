@@ -161,9 +161,14 @@ export function EditableCard<T>({
         const offset = getStickyOffset();
         const rect = invalid.getBoundingClientRect();
         const target = window.scrollY + rect.top - offset;
-        window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
-        // Defer focus slightly so a quick user click can still cancel us
-        window.setTimeout(() => {
+        const reduceMotion =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({
+          top: Math.max(0, target),
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+        const focusNow = () => {
           if (focusJumpCancelled.current) return;
           try {
             invalid.focus({ preventScroll: true });
@@ -180,7 +185,11 @@ export function EditableCard<T>({
           }
           cancelListenersRef.current?.();
           cancelListenersRef.current = null;
-        }, 120);
+        };
+        // Reduced motion: focus immediately. Otherwise defer slightly so
+        // a quick user click can still cancel the jump mid-scroll.
+        if (reduceMotion) focusNow();
+        else window.setTimeout(focusNow, 120);
       });
     });
   };
