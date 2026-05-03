@@ -455,7 +455,7 @@ const Blog = () => {
                                       </span>
                                       {p.productUpdate.prototype ? (
                                         <span className="rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
-                                          Prototype
+                                          {t.blog_pu_prototypeBadge}
                                         </span>
                                       ) : null}
                                     </div>
