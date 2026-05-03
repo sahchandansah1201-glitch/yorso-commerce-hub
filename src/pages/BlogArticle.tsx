@@ -83,7 +83,10 @@ const resolveCta = (post: BlogPost): ResolvedCta => {
     case "supplier_guide":
       return { to: "/for-suppliers", label: "Open supplier page" };
     case "product_update":
-      return { to: post.relatedCta ?? "/offers", label: "Try this workflow" };
+      return {
+        to: post.productUpdate?.relatedRoute ?? post.relatedCta ?? "/offers",
+        label: "Try this workflow",
+      };
     case "glossary":
       return { to: "/blog", label: "Explore related guide" };
     default:
@@ -480,6 +483,75 @@ const BlogArticle = () => {
                       (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
                     }}
                   />
+                )}
+
+                {/* Product update structured block */}
+                {post.contentType === "product_update" && post.productUpdate && (
+                  <div
+                    data-testid="blog-product-update"
+                    className="mt-8 overflow-hidden rounded-lg border border-border bg-card"
+                  >
+                    <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/40 px-5 py-3">
+                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                        {post.productUpdate.updateType}
+                      </span>
+                      <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {post.productUpdate.affectedArea}
+                      </span>
+                      {post.productUpdate.prototype && (
+                        <span className="rounded-full border border-dashed border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
+                          Prototype update
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid gap-5 p-5 md:grid-cols-2">
+                      <div>
+                        <h2 className="font-heading text-base font-semibold text-foreground">
+                          What changed
+                        </h2>
+                        <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
+                          {post.sections[0]?.paragraphs[0] ?? post.excerpt}
+                        </p>
+                      </div>
+                      <div>
+                        <h2 className="font-heading text-base font-semibold text-foreground">
+                          Who benefits
+                        </h2>
+                        <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
+                          {post.productUpdate.userBenefit}
+                        </p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <h2 className="font-heading text-base font-semibold text-foreground">
+                          How to use it
+                        </h2>
+                        <ol className="mt-2 space-y-1.5 pl-5 text-[14px] leading-relaxed text-foreground/85 list-decimal">
+                          {post.productUpdate.howToUse.map((step, i) => (
+                            <li key={i}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                      <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/40 p-4">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            Related workflow
+                          </p>
+                          <p className="mt-0.5 text-sm font-semibold text-foreground">
+                            {post.productUpdate.relatedRoute}
+                          </p>
+                        </div>
+                        <Button asChild>
+                          <Link
+                            to={post.productUpdate.relatedRoute}
+                            data-testid="blog-product-update-cta"
+                          >
+                            Try this workflow
+                            <ArrowRight className="h-4 w-4" aria-hidden />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Sections */}
