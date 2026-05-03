@@ -81,12 +81,38 @@ export function EditableCard<T>({
     setEditing(false);
   };
 
+  const focusFirstInvalid = () => {
+    // Defer until aria-invalid attributes are applied by React
+    requestAnimationFrame(() => {
+      const root = contentRef.current;
+      if (!root) return;
+      const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
+      if (!invalid) return;
+      invalid.scrollIntoView({ behavior: "smooth", block: "center" });
+      try {
+        invalid.focus({ preventScroll: true });
+      } catch {
+        invalid.focus();
+      }
+      // Briefly highlight enclosing group for context
+      const group = invalid.closest<HTMLElement>('[role="group"]');
+      if (group) {
+        group.classList.add("ring-2", "ring-destructive/50", "rounded-md");
+        window.setTimeout(
+          () => group.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
+          1400,
+        );
+      }
+    });
+  };
+
   const performSave = async (value: T, opts: { auto: boolean }) => {
     const errs = validate ? validate(value) : {};
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       setValidationSummary(t.account_save_error_validation);
       setSaveState("error");
+      focusFirstInvalid();
       return false;
     }
     setErrors({});
@@ -164,9 +190,9 @@ export function EditableCard<T>({
     wasEditing.current = editing;
   }, [editing]);
 
-  // Focus the error region when validation/save error appears so SR users hear it
+  // Focus the error region only for save/storage errors (no invalid field to focus)
   useEffect(() => {
-    if (editing && (validationSummary || saveError)) {
+    if (editing && saveError && !validationSummary) {
       errorRef.current?.focus();
     }
   }, [editing, validationSummary, saveError]);
