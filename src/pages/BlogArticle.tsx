@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
+import { getLocalizedPost, localizedCategoryLabel } from "@/data/blogPostsI18n";
 import { cn } from "@/lib/utils";
 import {
   applyRouteSeo,
@@ -142,7 +143,11 @@ const buildCompactTable = (post: BlogPost): { caption: string; rows: CompactTabl
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const { t, lang } = useLanguage();
-  const post = slug ? getBlogPostBySlug(slug) : undefined;
+  const rawPost = slug ? getBlogPostBySlug(slug) : undefined;
+  const post = useMemo(
+    () => (rawPost ? getLocalizedPost(rawPost, lang) : undefined),
+    [rawPost, lang],
+  );
 
   const [emailDraft, setEmailDraft] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
@@ -164,12 +169,13 @@ const BlogArticle = () => {
 
   const related = useMemo(() => {
     if (!post) return [] as BlogPost[];
-    const sameSpecies = blogPosts.filter(
+    const localized = blogPosts.map((p) => getLocalizedPost(p, lang));
+    const sameSpecies = localized.filter(
       (p) =>
         p.id !== post.id &&
         (p.speciesTags ?? []).some((s) => (post.speciesTags ?? []).includes(s)),
     );
-    const sameType = blogPosts.filter(
+    const sameType = localized.filter(
       (p) => p.id !== post.id && p.contentType === post.contentType,
     );
     const merged: BlogPost[] = [];
@@ -178,14 +184,14 @@ const BlogArticle = () => {
       if (merged.length >= 3) break;
     }
     if (merged.length < 3) {
-      for (const p of blogPosts) {
+      for (const p of localized) {
         if (p.id === post.id) continue;
         if (!merged.find((m) => m.id === p.id)) merged.push(p);
         if (merged.length >= 3) break;
       }
     }
     return merged.slice(0, 3);
-  }, [post]);
+  }, [post, lang]);
 
   const cta = useMemo(() => (post ? resolveCta(t, post) : null), [post, t]);
   const answerCapsule = useMemo(() => (post ? buildAnswerCapsule(post) : ""), [post]);
