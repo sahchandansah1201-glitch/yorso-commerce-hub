@@ -536,7 +536,7 @@ const BlogArticle = () => {
                       <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/40 p-4">
                         <div>
                           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Related workflow
+                            {t.blog_pu_relatedWorkflow}
                           </p>
                           <p className="mt-0.5 text-sm font-semibold text-foreground">
                             {post.productUpdate.relatedRoute}
