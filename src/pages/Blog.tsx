@@ -578,7 +578,7 @@ const Blog = () => {
                   }}
                   className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
                 >
-                  See all updates
+                  {t.blog_pu_seeAllUpdates}
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                 </button>
               </div>
