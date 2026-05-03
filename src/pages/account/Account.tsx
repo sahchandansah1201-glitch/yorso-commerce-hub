@@ -139,8 +139,40 @@ const FormRow = ({
   );
 };
 
-const GroupHeading = ({ children }: { children: ReactNode }) => (
-  <h4 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+const FOCUSABLE_SELECTOR =
+  'input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+const GroupHeading = ({
+  children,
+  onActivate,
+  onArrow,
+  groupId,
+}: {
+  children: ReactNode;
+  onActivate?: () => void;
+  onArrow?: (dir: "next" | "prev") => void;
+  groupId?: string;
+}) => (
+  <h4
+    id={groupId}
+    role="button"
+    tabIndex={0}
+    onClick={onActivate}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
+        e.preventDefault();
+        onActivate?.();
+      } else if (e.key === "ArrowRight" || e.key === "PageDown") {
+        e.preventDefault();
+        onArrow?.("next");
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        onArrow?.("prev");
+      }
+    }}
+    className="cursor-pointer rounded text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+    aria-label={typeof children === "string" ? `${children} — Enter переходит к первому полю, стрелки переключают группы` : undefined}
+  >
     {children}
   </h4>
 );
@@ -151,12 +183,71 @@ const FieldGroup = ({
 }: {
   title: string;
   children: ReactNode;
-}) => (
-  <div className="space-y-3">
-    <GroupHeading>{title}</GroupHeading>
-    {children}
-  </div>
-);
+}) => {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const headingId = useId();
+
+  const focusFirstField = () => {
+    const el = groupRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+    el?.focus();
+  };
+
+  const moveToSiblingGroup = (dir: "next" | "prev") => {
+    const root = groupRef.current?.closest<HTMLElement>("[data-field-group-root]");
+    if (!root) return;
+    const headings = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-group-heading]"),
+    );
+    const current = groupRef.current?.querySelector<HTMLElement>("[data-group-heading]");
+    const idx = current ? headings.indexOf(current) : -1;
+    if (idx === -1) return;
+    const nextIdx = dir === "next" ? idx + 1 : idx - 1;
+    headings[(nextIdx + headings.length) % headings.length]?.focus();
+  };
+
+  const onContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    // Don't hijack typing keys inside text inputs
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    if (target.tagName === "TEXTAREA") return;
+    if (target.tagName === "SELECT") return; // native select uses arrows
+    if (
+      target.tagName === "INPUT" &&
+      !["checkbox", "radio", "button", "submit"].includes(
+        (target as HTMLInputElement).type,
+      )
+    ) {
+      // Allow arrow nav for text inputs only with Alt modifier to avoid conflict with caret
+      if (!e.altKey) return;
+    }
+    const fields = Array.from(
+      groupRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? [],
+    ).filter((el) => !el.hasAttribute("data-group-heading"));
+    if (fields.length === 0) return;
+    const idx = fields.indexOf(target);
+    if (idx === -1) return;
+    e.preventDefault();
+    const nextIdx = e.key === "ArrowDown" ? idx + 1 : idx - 1;
+    fields[(nextIdx + fields.length) % fields.length]?.focus();
+  };
+
+  return (
+    <div ref={groupRef} className="space-y-3" onKeyDown={onContainerKeyDown}>
+      <div data-group-heading>
+        <GroupHeading
+          groupId={headingId}
+          onActivate={focusFirstField}
+          onArrow={moveToSiblingGroup}
+        >
+          {title}
+        </GroupHeading>
+      </div>
+      <div role="group" aria-labelledby={headingId}>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 const splitList = (s: string): string[] =>
   s
