@@ -369,7 +369,7 @@ const Blog = () => {
                           setFilter("all");
                         }}
                       >
-                        Browse all insights
+                        {t.blog_browseAll}
                       </Button>
                     </div>
                   </div>
