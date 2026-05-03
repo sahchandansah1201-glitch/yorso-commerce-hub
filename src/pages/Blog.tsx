@@ -8,20 +8,17 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, type BlogPost, type BlogContentType } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
+import {
+  applyRouteSeo,
+  upsertJsonLd,
+  removeJsonLd,
+  clearRouteSeoMarker,
+  absoluteUrl,
+} from "@/lib/seo";
 
 const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
 
-const upsertMeta = (selector: string, attrs: Record<string, string>) => {
-  let el = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!el) {
-    el = document.createElement("meta");
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-    document.head.appendChild(el);
-  } else {
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-  }
-};
 
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
