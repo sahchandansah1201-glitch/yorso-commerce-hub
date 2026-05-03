@@ -1265,6 +1265,17 @@ type TranslationKeys = {
   blog_pu_tryWorkflow: string;
   blog_pu_prototypeBadge: string;
   blog_pu_genericBadge: string;
+  blog_pu_type_added: string;
+  blog_pu_type_improved: string;
+  blog_pu_type_fixed: string;
+  blog_pu_type_guide: string;
+  blog_pu_area_catalog: string;
+  blog_pu_area_supplierProfiles: string;
+  blog_pu_area_priceAccess: string;
+  blog_pu_area_registration: string;
+  blog_pu_area_requests: string;
+  blog_pu_area_intelligence: string;
+  blog_pu_teaserNeutral: string;
   // Newsletter
   blog_newsletterTitle: string;
   blog_newsletterBody: string;
