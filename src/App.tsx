@@ -89,6 +89,11 @@ const App = () => (
                 <Route path="/account/:section" element={<Account />} />
                 <Route path="/profile" element={<Navigate to="/account/personal" replace />} />
                 <Route path="/profile/personal" element={<Navigate to="/account/personal" replace />} />
+                <Route path="/profile/company" element={<Navigate to="/account/company" replace />} />
+                <Route path="/profile/company-addresses" element={<Navigate to="/account/branches" replace />} />
+                <Route path="/profile/classify" element={<Navigate to="/account/products" replace />} />
+                <Route path="/profile/meta-regions" element={<Navigate to="/account/meta-regions" replace />} />
+                <Route path="/profile/company-spam" element={<Navigate to="/account/notifications" replace />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />

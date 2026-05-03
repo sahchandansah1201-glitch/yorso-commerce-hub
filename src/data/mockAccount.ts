@@ -39,6 +39,12 @@ export interface CompanyProfile {
   paymentTerms: string[];
   supplierPublicationStatus: SupplierPublicationStatus;
   buyerQualificationStatus: BuyerQualificationStatus;
+  logoImageUrl: string;
+  logoAlt: string;
+  logoFit: "contain" | "cover";
+  coverImageUrl: string;
+  coverAlt: string;
+  coverFocalPoint: "center" | "top" | "bottom";
 }
 
 export type BranchType =
@@ -175,6 +181,12 @@ export const mockCompany: CompanyProfile = {
   paymentTerms: ["T/T 30% advance", "Letter of Credit at sight", "CAD"],
   supplierPublicationStatus: "ready_for_review",
   buyerQualificationStatus: "ready",
+  logoImageUrl: "",
+  logoAlt: "",
+  logoFit: "contain",
+  coverImageUrl: "",
+  coverAlt: "",
+  coverFocalPoint: "center",
 };
 
 export const mockBranches: CompanyBranch[] = [

@@ -1430,6 +1430,61 @@ type TranslationKeys = {
   account_notif_event_documentReadiness: string;
   account_notif_event_countryNews: string;
   account_notif_event_supplierReview: string;
+  account_action_edit: string;
+  account_action_save: string;
+  account_action_cancel: string;
+  account_value_notSpecified: string;
+  account_validation_required: string;
+  account_validation_email: string;
+  account_validation_url: string;
+  account_validation_year: string;
+  account_company_role_buyer: string;
+  account_company_role_supplier: string;
+  account_company_role_both: string;
+  account_company_qual_incomplete: string;
+  account_company_qual_ready: string;
+  account_company_qual_qualified: string;
+  account_company_qualification_status: string;
+  account_company_contacts_title: string;
+  account_company_description_title: string;
+  account_company_description_label: string;
+  account_company_productFocus: string;
+  account_company_certificates: string;
+  account_company_paymentTerms: string;
+  account_company_listHelp: string;
+  account_company_whatsapp: string;
+  account_company_contactEmail: string;
+  account_company_contactPhone: string;
+  account_personal_language: string;
+  account_completion_company_logo: string;
+  account_completion_company_cover: string;
+  account_company_media_title: string;
+  account_company_media_desc: string;
+  account_company_media_logo: string;
+  account_company_media_logoHelp: string;
+  account_company_media_logoAlt: string;
+  account_company_media_cover: string;
+  account_company_media_coverHelp: string;
+  account_company_media_coverAlt: string;
+  account_company_media_focal: string;
+  account_company_media_focal_center: string;
+  account_company_media_focal_top: string;
+  account_company_media_focal_bottom: string;
+  account_company_media_logoFit: string;
+  account_company_media_fit_contain: string;
+  account_company_media_fit_cover: string;
+  account_company_media_useUrl: string;
+  account_company_media_choose: string;
+  account_company_media_clear: string;
+  account_supplier_preview_title: string;
+  account_supplier_preview_note: string;
+  account_supplier_preview_emptyLogo: string;
+  account_supplier_preview_emptyCover: string;
+  account_product_state_frozen: string;
+  account_product_state_fresh: string;
+  account_product_state_chilled: string;
+  account_product_state_alive: string;
+  account_product_state_cooked: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -2894,6 +2949,61 @@ const en: TranslationKeys = {
   account_notif_event_documentReadiness: "Document readiness",
   account_notif_event_countryNews: "Country news",
   account_notif_event_supplierReview: "Supplier profile review",
+  account_action_edit: "Edit",
+  account_action_save: "Save",
+  account_action_cancel: "Cancel",
+  account_value_notSpecified: "Not specified yet",
+  account_validation_required: "This field is required",
+  account_validation_email: "Enter a valid email",
+  account_validation_url: "Enter a valid URL",
+  account_validation_year: "Enter a valid year",
+  account_company_role_buyer: "Buyer",
+  account_company_role_supplier: "Supplier",
+  account_company_role_both: "Buyer and supplier",
+  account_company_qual_incomplete: "Incomplete",
+  account_company_qual_ready: "Ready",
+  account_company_qual_qualified: "Qualified",
+  account_company_qualification_status: "Buyer qualification",
+  account_company_contacts_title: "Commercial contacts",
+  account_company_description_title: "Company description",
+  account_company_description_label: "Description",
+  account_company_productFocus: "Product focus",
+  account_company_certificates: "Certificates",
+  account_company_paymentTerms: "Payment terms",
+  account_company_listHelp: "Comma separated values",
+  account_company_whatsapp: "WhatsApp",
+  account_company_contactEmail: "Commercial email",
+  account_company_contactPhone: "Commercial phone",
+  account_personal_language: "Interface language",
+  account_completion_company_logo: "Company logo added",
+  account_completion_company_cover: "Cover image added",
+  account_company_media_title: "Company media",
+  account_company_media_desc: "Logo and cover image used in your future public supplier profile.",
+  account_company_media_logo: "Logo",
+  account_company_media_logoHelp: "Recommended: square PNG or JPG, 400 x 400 px.",
+  account_company_media_logoAlt: "Logo alt text",
+  account_company_media_cover: "Cover image",
+  account_company_media_coverHelp: "Recommended: horizontal image, 1200 x 675 px.",
+  account_company_media_coverAlt: "Cover alt text",
+  account_company_media_focal: "Focal point",
+  account_company_media_focal_center: "Center",
+  account_company_media_focal_top: "Top",
+  account_company_media_focal_bottom: "Bottom",
+  account_company_media_logoFit: "Logo fit",
+  account_company_media_fit_contain: "Contain (no crop)",
+  account_company_media_fit_cover: "Cover (fill)",
+  account_company_media_useUrl: "Image URL",
+  account_company_media_choose: "Choose file",
+  account_company_media_clear: "Remove",
+  account_supplier_preview_title: "Supplier profile preview",
+  account_supplier_preview_note: "Frontend only preview. Public supplier profile will read this data later.",
+  account_supplier_preview_emptyLogo: "No logo",
+  account_supplier_preview_emptyCover: "No cover image",
+  account_product_state_frozen: "Frozen",
+  account_product_state_fresh: "Fresh",
+  account_product_state_chilled: "Chilled",
+  account_product_state_alive: "Live",
+  account_product_state_cooked: "Cooked",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -4345,6 +4455,61 @@ const ru: TranslationKeys = {
   account_notif_event_documentReadiness: "Готовность документов",
   account_notif_event_countryNews: "Новости страны",
   account_notif_event_supplierReview: "Проверка профиля поставщика",
+  account_action_edit: "Редактировать",
+  account_action_save: "Сохранить",
+  account_action_cancel: "Отмена",
+  account_value_notSpecified: "Не указано",
+  account_validation_required: "Обязательное поле",
+  account_validation_email: "Введите корректный email",
+  account_validation_url: "Введите корректный URL",
+  account_validation_year: "Введите корректный год",
+  account_company_role_buyer: "Покупатель",
+  account_company_role_supplier: "Поставщик",
+  account_company_role_both: "Покупатель и поставщик",
+  account_company_qual_incomplete: "Не завершено",
+  account_company_qual_ready: "Готово",
+  account_company_qual_qualified: "Подтверждено",
+  account_company_qualification_status: "Квалификация покупателя",
+  account_company_contacts_title: "Коммерческие контакты",
+  account_company_description_title: "Описание компании",
+  account_company_description_label: "Описание",
+  account_company_productFocus: "Продуктовый фокус",
+  account_company_certificates: "Сертификаты",
+  account_company_paymentTerms: "Условия оплаты",
+  account_company_listHelp: "Значения через запятую",
+  account_company_whatsapp: "WhatsApp",
+  account_company_contactEmail: "Коммерческий email",
+  account_company_contactPhone: "Коммерческий телефон",
+  account_personal_language: "Язык интерфейса",
+  account_completion_company_logo: "Добавлен логотип компании",
+  account_completion_company_cover: "Добавлено обложечное изображение",
+  account_company_media_title: "Медиа компании",
+  account_company_media_desc: "Логотип и обложка для будущего публичного профиля поставщика.",
+  account_company_media_logo: "Логотип",
+  account_company_media_logoHelp: "Рекомендуется: квадратный PNG или JPG, 400 x 400 px.",
+  account_company_media_logoAlt: "Alt-текст логотипа",
+  account_company_media_cover: "Обложка",
+  account_company_media_coverHelp: "Рекомендуется: горизонтальное изображение 1200 x 675 px.",
+  account_company_media_coverAlt: "Alt-текст обложки",
+  account_company_media_focal: "Точка фокусировки",
+  account_company_media_focal_center: "Центр",
+  account_company_media_focal_top: "Сверху",
+  account_company_media_focal_bottom: "Снизу",
+  account_company_media_logoFit: "Заполнение логотипа",
+  account_company_media_fit_contain: "Вписать (без обрезки)",
+  account_company_media_fit_cover: "Заполнить",
+  account_company_media_useUrl: "URL изображения",
+  account_company_media_choose: "Выбрать файл",
+  account_company_media_clear: "Удалить",
+  account_supplier_preview_title: "Предпросмотр профиля поставщика",
+  account_supplier_preview_note: "Только фронтенд-предпросмотр. Публичный профиль поставщика будет использовать эти данные позже.",
+  account_supplier_preview_emptyLogo: "Нет логотипа",
+  account_supplier_preview_emptyCover: "Нет обложки",
+  account_product_state_frozen: "Замороженный",
+  account_product_state_fresh: "Свежий",
+  account_product_state_chilled: "Охлаждённый",
+  account_product_state_alive: "Живой",
+  account_product_state_cooked: "Варёный",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -5795,6 +5960,61 @@ const es: TranslationKeys = {
   account_notif_event_documentReadiness: "Preparación documental",
   account_notif_event_countryNews: "Noticias del país",
   account_notif_event_supplierReview: "Revisión de perfil de proveedor",
+  account_action_edit: "Editar",
+  account_action_save: "Guardar",
+  account_action_cancel: "Cancelar",
+  account_value_notSpecified: "Sin especificar",
+  account_validation_required: "Campo obligatorio",
+  account_validation_email: "Introduce un email válido",
+  account_validation_url: "Introduce una URL válida",
+  account_validation_year: "Introduce un año válido",
+  account_company_role_buyer: "Comprador",
+  account_company_role_supplier: "Proveedor",
+  account_company_role_both: "Comprador y proveedor",
+  account_company_qual_incomplete: "Incompleto",
+  account_company_qual_ready: "Listo",
+  account_company_qual_qualified: "Cualificado",
+  account_company_qualification_status: "Cualificación de comprador",
+  account_company_contacts_title: "Contactos comerciales",
+  account_company_description_title: "Descripción de la empresa",
+  account_company_description_label: "Descripción",
+  account_company_productFocus: "Foco de producto",
+  account_company_certificates: "Certificados",
+  account_company_paymentTerms: "Condiciones de pago",
+  account_company_listHelp: "Valores separados por comas",
+  account_company_whatsapp: "WhatsApp",
+  account_company_contactEmail: "Email comercial",
+  account_company_contactPhone: "Teléfono comercial",
+  account_personal_language: "Idioma de la interfaz",
+  account_completion_company_logo: "Logotipo de empresa añadido",
+  account_completion_company_cover: "Imagen de portada añadida",
+  account_company_media_title: "Medios de la empresa",
+  account_company_media_desc: "Logotipo e imagen de portada usados en tu futuro perfil público de proveedor.",
+  account_company_media_logo: "Logotipo",
+  account_company_media_logoHelp: "Recomendado: PNG o JPG cuadrado, 400 x 400 px.",
+  account_company_media_logoAlt: "Texto alternativo del logo",
+  account_company_media_cover: "Imagen de portada",
+  account_company_media_coverHelp: "Recomendado: imagen horizontal, 1200 x 675 px.",
+  account_company_media_coverAlt: "Texto alternativo de portada",
+  account_company_media_focal: "Punto focal",
+  account_company_media_focal_center: "Centro",
+  account_company_media_focal_top: "Arriba",
+  account_company_media_focal_bottom: "Abajo",
+  account_company_media_logoFit: "Ajuste del logo",
+  account_company_media_fit_contain: "Contener (sin recorte)",
+  account_company_media_fit_cover: "Cubrir",
+  account_company_media_useUrl: "URL de la imagen",
+  account_company_media_choose: "Elegir archivo",
+  account_company_media_clear: "Quitar",
+  account_supplier_preview_title: "Vista previa del perfil de proveedor",
+  account_supplier_preview_note: "Vista previa solo de frontend. El perfil público leerá estos datos más adelante.",
+  account_supplier_preview_emptyLogo: "Sin logotipo",
+  account_supplier_preview_emptyCover: "Sin imagen de portada",
+  account_product_state_frozen: "Congelado",
+  account_product_state_fresh: "Fresco",
+  account_product_state_chilled: "Refrigerado",
+  account_product_state_alive: "Vivo",
+  account_product_state_cooked: "Cocido",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
