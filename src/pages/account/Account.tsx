@@ -236,6 +236,8 @@ const PersonalSection = ({
           </div>
         )}
       />
+      </div>
+      <div id="personal-security" className="scroll-mt-24 rounded-lg transition-shadow">
       <AccountSectionCard
         title={t.account_personal_security_title}
         description={t.account_personal_security_desc}
@@ -243,6 +245,8 @@ const PersonalSection = ({
       >
         <p className="text-sm text-muted-foreground">{t.account_personal_security_placeholder}</p>
       </AccountSectionCard>
+      </div>
+      <div id="personal-membership" className="scroll-mt-24 rounded-lg transition-shadow">
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
