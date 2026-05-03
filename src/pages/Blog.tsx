@@ -80,8 +80,8 @@ const START_HERE = [
   { to: "/how-it-works", label: "How YORSO works", desc: "Three access levels and the procurement flow." },
 ];
 
-const contentTypeLabel = (ct: BlogContentType) =>
-  FILTERS.find((f) => f.key === ct)?.label ?? "Insight";
+const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
+  filterLabel(t, ct);
 
 const Blog = () => {
   const { t, lang } = useLanguage();
