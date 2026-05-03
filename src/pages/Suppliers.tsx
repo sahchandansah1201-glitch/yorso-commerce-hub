@@ -137,10 +137,11 @@ const Suppliers = () => {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const includeCompanyName = level === "qualified_unlocked";
-    return localizedSuppliers.filter((s) => {
+    return localizedSuppliers.filter((s, i) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
-        if (f && !f.match(s)) return false;
+        // match against original (EN) species so regex stays stable across locales
+        if (f && !f.match(mockSuppliers[i])) return false;
       }
       if (!q) return true;
       const fields = [
