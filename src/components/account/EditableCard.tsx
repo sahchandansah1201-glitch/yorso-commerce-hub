@@ -190,9 +190,9 @@ export function EditableCard<T>({
     wasEditing.current = editing;
   }, [editing]);
 
-  // Focus the error region when validation/save error appears so SR users hear it
+  // Focus the error region only for save/storage errors (no invalid field to focus)
   useEffect(() => {
-    if (editing && (validationSummary || saveError)) {
+    if (editing && saveError && !validationSummary) {
       errorRef.current?.focus();
     }
   }, [editing, validationSummary, saveError]);
