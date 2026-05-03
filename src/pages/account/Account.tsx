@@ -38,7 +38,7 @@ const Field = ({ label, value }: { label: string; value: string }) => {
   const isEmpty = !value || !value.trim();
   return (
     <div className="min-w-0">
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </dt>
       <dd
