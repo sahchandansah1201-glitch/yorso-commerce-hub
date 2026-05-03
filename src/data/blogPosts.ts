@@ -11,6 +11,9 @@
  *   - We never imply real-time market data here.
  */
 
+import salmonVerticalImg from "@/assets/salmon-vertical.jpg";
+import suppliersOgImg from "@/assets/og-for-suppliers.jpg";
+
 export type BlogAudience = "buyer" | "supplier" | "both";
 
 export type BlogContentType =
