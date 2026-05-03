@@ -143,7 +143,7 @@ export function EditableCard<T>({
       setErrors(errs);
       setValidationSummary(t.account_save_error_validation);
       setSaveState("error");
-      focusFirstInvalid();
+      if (!opts.auto) focusFirstInvalid();
       return false;
     }
     setErrors({});
