@@ -217,7 +217,7 @@ const BlogArticle = () => {
     return merged.slice(0, 3);
   }, [post]);
 
-  const cta = useMemo(() => (post ? resolveCta(post) : null), [post]);
+  const cta = useMemo(() => (post ? resolveCta(t, post) : null), [post, t]);
   const answerCapsule = useMemo(() => (post ? buildAnswerCapsule(post) : ""), [post]);
   const takeaways = useMemo(() => (post ? buildKeyTakeaways(post) : []), [post]);
   const faq = useMemo(() => (post ? buildFaq(post) : []), [post]);
