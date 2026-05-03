@@ -76,16 +76,40 @@ const FormRow = ({
   required?: boolean;
   error?: string;
   hint?: string;
-  children: (args: {
-    id: string;
-    "aria-invalid": boolean;
-    "aria-describedby": string | undefined;
-  }) => ReactNode;
+  children: React.ReactElement;
 }) => {
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
-  const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+  const describedBy =
+    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+  // Inject id + aria attributes into the single child input/select/textarea
+  const enhancedChild = (() => {
+    try {
+      const childProps = (children.props ?? {}) as Record<string, unknown>;
+      return cloneElement(children, {
+        id: (childProps.id as string | undefined) ?? id,
+        "aria-invalid": !!error || undefined,
+        "aria-describedby":
+          [
+            (childProps["aria-describedby"] as string | undefined) ?? "",
+            describedBy ?? "",
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined,
+        className:
+          [
+            (childProps.className as string | undefined) ?? "",
+            error ? "border-destructive focus-visible:ring-destructive" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .trim() || undefined,
+      } as Record<string, unknown>);
+    } catch {
+      return children;
+    }
+  })();
   return (
     <div className="space-y-1">
       <Label htmlFor={id} className="text-xs">
@@ -96,7 +120,7 @@ const FormRow = ({
           </span>
         ) : null}
       </Label>
-      {children({ id, "aria-invalid": !!error, "aria-describedby": describedBy })}
+      {enhancedChild}
       {error ? (
         <p
           id={errorId}
