@@ -517,7 +517,7 @@ const BlogArticle = () => {
                       </div>
                       <div>
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          Who benefits
+                          {t.blog_pu_whoBenefits}
                         </h2>
                         <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
                           {post.productUpdate.userBenefit}
