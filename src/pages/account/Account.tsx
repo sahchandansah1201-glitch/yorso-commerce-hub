@@ -246,8 +246,13 @@ const PersonalSection = ({
           </div>
         )}
       />
-      </div>
-      <div id="personal-security" className="scroll-mt-24 rounded-lg transition-shadow">
+      </section>
+      <section
+        id="personal-security"
+        tabIndex={-1}
+        aria-label={t.account_personal_security_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <AccountSectionCard
         title={t.account_personal_security_title}
         description={t.account_personal_security_desc}
