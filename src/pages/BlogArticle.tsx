@@ -525,7 +525,7 @@ const BlogArticle = () => {
                       </div>
                       <div className="md:col-span-2">
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          How to use it
+                          {t.blog_pu_howToUse}
                         </h2>
                         <ol className="mt-2 space-y-1.5 pl-5 text-[14px] leading-relaxed text-foreground/85 list-decimal">
                           {post.productUpdate.howToUse.map((step, i) => (
