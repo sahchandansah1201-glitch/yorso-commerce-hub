@@ -1201,6 +1201,33 @@ type TranslationKeys = {
   supplier_faq_a6: string;
   supplier_faq_noAnswerTitle: string;
   supplier_faq_noAnswerBody: string;
+
+  // ─── Blog / Insights ────────────────────────────────────────────
+  nav_blog: string;
+  blog_breadcrumb: string;
+  blog_pageTitle: string;
+  blog_pageSubtitle: string;
+  blog_allCategories: string;
+  blog_searchPlaceholder: string;
+  blog_searchAria: string;
+  blog_emptyTitle: string;
+  blog_emptyBody: string;
+  blog_readMore: string;
+  blog_minutesRead: string; // "{n} min read"
+  blog_audienceBuyer: string;
+  blog_audienceSupplier: string;
+  blog_audienceBoth: string;
+  blog_publishedOn: string; // "Published {date}"
+  blog_updatedOn: string;   // "Updated {date}"
+  blog_byAuthor: string;    // "By {name}"
+  blog_relatedCtaOffers: string;
+  blog_relatedCtaSuppliers: string;
+  blog_relatedCtaForSuppliers: string;
+  blog_relatedCtaRegister: string;
+  blog_mockNotice: string;
+  blog_backToIndex: string;
+  blog_notFoundTitle: string;
+  blog_notFoundBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -1395,6 +1422,7 @@ const en: TranslationKeys = {
       { label: "Supplier directory", href: "/suppliers" },
       { label: "How It Works", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Insights", href: "/blog" },
     ],
     company: [
       { label: "About YORSO", href: "/about" },
@@ -2445,6 +2473,33 @@ const en: TranslationKeys = {
   supplier_faq_a6: "Default 30% prepayment / 70% against copies of documents. For repeat deals — deferred payment or letter of credit (L/C at sight).",
   supplier_faq_noAnswerTitle: "Didn't find the answer?",
   supplier_faq_noAnswerBody: "Send a message to the supplier — a manager will reply during working hours.",
+
+  // Blog / Insights
+  nav_blog: "Insights",
+  blog_breadcrumb: "Insights",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Practical seafood market and product knowledge for buyers and suppliers. Example articles, prototype content, no live data feeds.",
+  blog_allCategories: "All categories",
+  blog_searchPlaceholder: "Search insights",
+  blog_searchAria: "Search insights",
+  blog_emptyTitle: "No articles match your filters",
+  blog_emptyBody: "Try clearing the search query or selecting a different category.",
+  blog_readMore: "Read article",
+  blog_minutesRead: "{n} min read",
+  blog_audienceBuyer: "For buyers",
+  blog_audienceSupplier: "For suppliers",
+  blog_audienceBoth: "For buyers and suppliers",
+  blog_publishedOn: "Published {date}",
+  blog_updatedOn: "Updated {date}",
+  blog_byAuthor: "By {name}",
+  blog_relatedCtaOffers: "Browse the catalog",
+  blog_relatedCtaSuppliers: "Open supplier directory",
+  blog_relatedCtaForSuppliers: "Learn how to sell on YORSO",
+  blog_relatedCtaRegister: "Create a buyer account",
+  blog_mockNotice: "Example article. Prototype content for the YORSO Insights section.",
+  blog_backToIndex: "Back to all insights",
+  blog_notFoundTitle: "Article not found",
+  blog_notFoundBody: "We could not find the article you were looking for. It may have been moved or unpublished.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -2626,6 +2681,7 @@ const ru: TranslationKeys = {
       { label: "Каталог поставщиков", href: "/suppliers" },
       { label: "Как это работает", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Аналитика", href: "/blog" },
     ],
     company: [
       { label: "О YORSO", href: "/about" },
@@ -3676,6 +3732,33 @@ const ru: TranslationKeys = {
   supplier_faq_a6: "Базово 30% предоплата / 70% против копий документов. Для повторных сделок — отсрочка или аккредитив (L/C at sight).",
   supplier_faq_noAnswerTitle: "Не нашли ответ?",
   supplier_faq_noAnswerBody: "Отправьте сообщение поставщику — менеджер ответит в рабочее время.",
+
+  // Blog / Insights
+  nav_blog: "Аналитика",
+  blog_breadcrumb: "Аналитика",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Прикладные знания о рынке морепродуктов и продукте YORSO для покупателей и поставщиков. Прототип контента, без real-time данных.",
+  blog_allCategories: "Все категории",
+  blog_searchPlaceholder: "Поиск по статьям",
+  blog_searchAria: "Поиск по статьям",
+  blog_emptyTitle: "Нет статей по выбранным фильтрам",
+  blog_emptyBody: "Очистите поиск или выберите другую категорию.",
+  blog_readMore: "Читать статью",
+  blog_minutesRead: "{n} мин чтения",
+  blog_audienceBuyer: "Для покупателей",
+  blog_audienceSupplier: "Для поставщиков",
+  blog_audienceBoth: "Для покупателей и поставщиков",
+  blog_publishedOn: "Опубликовано {date}",
+  blog_updatedOn: "Обновлено {date}",
+  blog_byAuthor: "Автор: {name}",
+  blog_relatedCtaOffers: "Перейти в каталог",
+  blog_relatedCtaSuppliers: "Открыть каталог поставщиков",
+  blog_relatedCtaForSuppliers: "Узнать, как продавать на YORSO",
+  blog_relatedCtaRegister: "Создать аккаунт покупателя",
+  blog_mockNotice: "Пример статьи. Прототип контента для раздела YORSO Insights.",
+  blog_backToIndex: "Ко всем статьям",
+  blog_notFoundTitle: "Статья не найдена",
+  blog_notFoundBody: "Не удалось найти эту статью. Возможно, она перемещена или снята с публикации.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -3857,6 +3940,7 @@ const es: TranslationKeys = {
       { label: "Directorio de proveedores", href: "/suppliers" },
       { label: "Cómo funciona", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Insights", href: "/blog" },
     ],
     company: [
       { label: "Sobre YORSO", href: "/about" },
@@ -4906,6 +4990,33 @@ const es: TranslationKeys = {
   supplier_faq_a6: "Por defecto 30% por adelantado / 70% contra copias de documentos. Para operaciones recurrentes — aplazamiento o carta de crédito (L/C at sight).",
   supplier_faq_noAnswerTitle: "¿No encuentras la respuesta?",
   supplier_faq_noAnswerBody: "Envía un mensaje al proveedor: el gestor responderá en horario laboral.",
+
+  // Blog / Insights
+  nav_blog: "Insights",
+  blog_breadcrumb: "Insights",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Conocimiento práctico de mercado y producto para compradores y proveedores. Contenido de prototipo, sin datos en tiempo real.",
+  blog_allCategories: "Todas las categorías",
+  blog_searchPlaceholder: "Buscar artículos",
+  blog_searchAria: "Buscar artículos",
+  blog_emptyTitle: "No hay artículos para estos filtros",
+  blog_emptyBody: "Borra la búsqueda o elige otra categoría.",
+  blog_readMore: "Leer artículo",
+  blog_minutesRead: "{n} min de lectura",
+  blog_audienceBuyer: "Para compradores",
+  blog_audienceSupplier: "Para proveedores",
+  blog_audienceBoth: "Para compradores y proveedores",
+  blog_publishedOn: "Publicado {date}",
+  blog_updatedOn: "Actualizado {date}",
+  blog_byAuthor: "Por {name}",
+  blog_relatedCtaOffers: "Ir al catálogo",
+  blog_relatedCtaSuppliers: "Abrir directorio de proveedores",
+  blog_relatedCtaForSuppliers: "Saber cómo vender en YORSO",
+  blog_relatedCtaRegister: "Crear cuenta de comprador",
+  blog_mockNotice: "Artículo de ejemplo. Contenido de prototipo para YORSO Insights.",
+  blog_backToIndex: "Volver a todos los artículos",
+  blog_notFoundTitle: "Artículo no encontrado",
+  blog_notFoundBody: "No pudimos encontrar el artículo. Puede haber sido movido o despublicado.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
