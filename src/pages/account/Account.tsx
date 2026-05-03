@@ -1,15 +1,25 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
+import { EditableCard } from "@/components/account/EditableCard";
+import { CompanyMediaCard } from "@/components/account/CompanyMediaCard";
+import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
 import { Badge } from "@/components/ui/badge";
-import { getAccountProfile } from "@/lib/account-store";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import type {
+  AccountProfile,
   CompanyBranch,
   CompanyProduct,
+  CompanyProfile,
   MetaRegion,
   NotificationPreference,
+  ProductState,
+  UserProfile,
 } from "@/data/mockAccount";
 
 const VALID: AccountSectionKey[] = [
@@ -21,33 +31,152 @@ const VALID: AccountSectionKey[] = [
   "notifications",
 ];
 
-const Field = ({ label, value }: { label: string; value: string }) => (
-  <div>
-    <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-    <dd className="mt-0.5 text-sm text-foreground">{value || "—"}</dd>
+const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
+
+const Field = ({ label, value }: { label: string; value: string }) => {
+  const { t } = useLanguage();
+  return (
+    <div>
+      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm text-foreground">{fallback(value, t.account_value_notSpecified)}</dd>
+    </div>
+  );
+};
+
+const FormRow = ({
+  label,
+  required,
+  error,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  htmlFor?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-1">
+    <Label htmlFor={htmlFor} className="text-xs">
+      {label} {required ? <span aria-hidden className="text-destructive">*</span> : null}
+    </Label>
+    {children}
+    {error ? <p className="text-xs text-destructive">{error}</p> : null}
   </div>
 );
 
-const PersonalSection = () => {
+const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+const isUrl = (s: string) => {
+  if (!s) return true;
+  try {
+    new URL(s);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const splitList = (s: string): string[] =>
+  s
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+// ─── PERSONAL ──────────────────────────────────────────────────────
+
+const PersonalSection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (p: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   const u = profile.user;
+
   return (
     <div className="space-y-4" data-testid="account-section-personal">
-      <AccountSectionCard
+      <EditableCard<UserProfile>
         title={t.account_personal_basic_title}
         description={t.account_personal_basic_desc}
         testId="account-card-personal-basic"
-      >
-        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={t.account_personal_firstName} value={u.firstName} />
-          <Field label={t.account_personal_lastName} value={u.lastName} />
-          <Field label={t.account_personal_email} value={u.email} />
-          <Field label={t.account_personal_phone} value={u.phone} />
-          <Field label={t.account_personal_role} value={u.roleInCompany} />
-          <Field label={t.account_personal_timezone} value={u.timezone} />
-        </dl>
-      </AccountSectionCard>
+        initial={u}
+        validate={(d) => {
+          const e: Record<string, string> = {};
+          if (!d.firstName.trim()) e.firstName = t.account_validation_required;
+          if (!d.lastName.trim()) e.lastName = t.account_validation_required;
+          if (!d.email.trim()) e.email = t.account_validation_required;
+          else if (!isEmail(d.email)) e.email = t.account_validation_email;
+          return e;
+        }}
+        onSave={(d) => onChange({ ...profile, user: d })}
+        renderView={(v) => (
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label={t.account_personal_firstName} value={v.firstName} />
+            <Field label={t.account_personal_lastName} value={v.lastName} />
+            <Field label={t.account_personal_email} value={v.email} />
+            <Field label={t.account_personal_phone} value={v.phone} />
+            <Field label={t.account_personal_role} value={v.roleInCompany} />
+            <Field label={t.account_personal_timezone} value={v.timezone} />
+            <Field label={t.account_personal_language} value={v.language.toUpperCase()} />
+          </dl>
+        )}
+        renderEdit={({ draft, setDraft, errors }) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
+              <Input
+                value={draft.firstName}
+                onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
+                data-testid="account-input-firstName"
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
+              <Input
+                value={draft.lastName}
+                onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_email} required error={errors.email}>
+              <Input
+                type="email"
+                value={draft.email}
+                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_phone}>
+              <Input
+                value={draft.phone}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_role}>
+              <Input
+                value={draft.roleInCompany}
+                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_timezone}>
+              <Input
+                value={draft.timezone}
+                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_language}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.language}
+                onChange={(e) =>
+                  setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
+                }
+              >
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+                <option value="es">ES</option>
+              </select>
+            </FormRow>
+          </div>
+        )}
+      />
       <AccountSectionCard
         title={t.account_personal_security_title}
         description={t.account_personal_security_desc}
@@ -58,7 +187,6 @@ const PersonalSection = () => {
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
-        editable={false}
       >
         <p className="text-sm">
           {profile.company.tradeName}{" "}
@@ -69,54 +197,351 @@ const PersonalSection = () => {
   );
 };
 
-const CompanySection = () => {
+// ─── COMPANY ───────────────────────────────────────────────────────
+
+const accountRoleLabel = (
+  role: CompanyProfile["accountRole"],
+  t: ReturnType<typeof useLanguage>["t"],
+) =>
+  role === "buyer"
+    ? t.account_company_role_buyer
+    : role === "supplier"
+      ? t.account_company_role_supplier
+      : t.account_company_role_both;
+
+const pubLabelMap = (t: ReturnType<typeof useLanguage>["t"]) => ({
+  draft: t.account_company_pub_draft,
+  ready_for_review: t.account_company_pub_review,
+  published: t.account_company_pub_published,
+});
+
+const qualLabelMap = (t: ReturnType<typeof useLanguage>["t"]) => ({
+  incomplete: t.account_company_qual_incomplete,
+  ready: t.account_company_qual_ready,
+  qualified: t.account_company_qual_qualified,
+});
+
+const CompanySection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (p: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   const c = profile.company;
-  const pubLabel: Record<typeof c.supplierPublicationStatus, string> = {
-    draft: t.account_company_pub_draft,
-    ready_for_review: t.account_company_pub_review,
-    published: t.account_company_pub_published,
-  };
+  const pub = pubLabelMap(t);
+  const qual = qualLabelMap(t);
+
+  const saveCompany = (next: CompanyProfile) => onChange({ ...profile, company: next });
+
   return (
     <div className="space-y-4" data-testid="account-section-company">
-      <AccountSectionCard title={t.account_company_identity_title} testId="account-card-company-identity">
-        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label={t.account_company_legalName} value={c.legalName} />
-          <Field label={t.account_company_tradeName} value={c.tradeName} />
-          <Field label={t.account_company_country} value={c.country} />
-          <Field label={t.account_company_website} value={c.website} />
-          <Field label={t.account_company_yearFounded} value={String(c.yearFounded)} />
-          <Field label={t.account_company_role} value={c.accountRole} />
-        </dl>
-        <p className="mt-3 text-sm text-muted-foreground">{c.description}</p>
-      </AccountSectionCard>
-      <AccountSectionCard title={t.account_company_trust_title}>
-        <div className="flex flex-wrap gap-1.5">
-          {c.certificates.map((x) => (
-            <Badge key={x} variant="secondary">{x}</Badge>
-          ))}
-        </div>
-      </AccountSectionCard>
-      <AccountSectionCard title={t.account_company_payment_title}>
-        <ul className="list-disc pl-5 text-sm space-y-1">
-          {c.paymentTerms.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ul>
-      </AccountSectionCard>
-      <AccountSectionCard
+      <CompanyMediaCard company={c} onSave={saveCompany} />
+
+      <EditableCard<CompanyProfile>
+        title={t.account_company_identity_title}
+        testId="account-card-company-identity"
+        initial={c}
+        validate={(d) => {
+          const e: Record<string, string> = {};
+          if (!d.legalName.trim()) e.legalName = t.account_validation_required;
+          if (!d.tradeName.trim()) e.tradeName = t.account_validation_required;
+          if (!d.country.trim()) e.country = t.account_validation_required;
+          if (d.website && !isUrl(d.website)) e.website = t.account_validation_url;
+          if (
+            d.yearFounded &&
+            (!Number.isFinite(d.yearFounded) ||
+              d.yearFounded < 1800 ||
+              d.yearFounded > new Date().getFullYear())
+          )
+            e.yearFounded = t.account_validation_year;
+          return e;
+        }}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <>
+            <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label={t.account_company_legalName} value={v.legalName} />
+              <Field label={t.account_company_tradeName} value={v.tradeName} />
+              <Field label={t.account_company_country} value={v.country} />
+              <Field label={t.account_company_website} value={v.website} />
+              <Field
+                label={t.account_company_yearFounded}
+                value={v.yearFounded ? String(v.yearFounded) : ""}
+              />
+              <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+            </dl>
+          </>
+        )}
+        renderEdit={({ draft, setDraft, errors }) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormRow label={t.account_company_legalName} required error={errors.legalName}>
+              <Input
+                value={draft.legalName}
+                onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
+              <Input
+                value={draft.tradeName}
+                onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_country} required error={errors.country}>
+              <Input
+                value={draft.country}
+                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_website} error={errors.website}>
+              <Input
+                value={draft.website}
+                onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
+              <Input
+                type="number"
+                value={draft.yearFounded || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
+                }
+              />
+            </FormRow>
+            <FormRow label={t.account_company_role}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.accountRole}
+                onChange={(e) =>
+                  setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
+                }
+                data-testid="account-input-accountRole"
+              >
+                <option value="buyer">{t.account_company_role_buyer}</option>
+                <option value="supplier">{t.account_company_role_supplier}</option>
+                <option value="both">{t.account_company_role_both}</option>
+              </select>
+            </FormRow>
+          </div>
+        )}
+      />
+
+      <EditableCard<CompanyProfile>
+        title={t.account_company_contacts_title}
+        testId="account-card-company-contacts"
+        initial={c}
+        validate={(d) => {
+          const e: Record<string, string> = {};
+          if (!d.contactEmail.trim()) e.contactEmail = t.account_validation_required;
+          else if (!isEmail(d.contactEmail)) e.contactEmail = t.account_validation_email;
+          if (!d.contactPhone.trim()) e.contactPhone = t.account_validation_required;
+          return e;
+        }}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label={t.account_company_contactEmail} value={v.contactEmail} />
+            <Field label={t.account_company_contactPhone} value={v.contactPhone} />
+            <Field label={t.account_company_whatsapp} value={v.whatsapp} />
+          </dl>
+        )}
+        renderEdit={({ draft, setDraft, errors }) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormRow label={t.account_company_contactEmail} required error={errors.contactEmail}>
+              <Input
+                type="email"
+                value={draft.contactEmail}
+                onChange={(e) => setDraft({ ...draft, contactEmail: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_contactPhone} required error={errors.contactPhone}>
+              <Input
+                value={draft.contactPhone}
+                onChange={(e) => setDraft({ ...draft, contactPhone: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_company_whatsapp}>
+              <Input
+                value={draft.whatsapp}
+                onChange={(e) => setDraft({ ...draft, whatsapp: e.target.value })}
+              />
+            </FormRow>
+          </div>
+        )}
+      />
+
+      <EditableCard<CompanyProfile>
+        title={t.account_company_description_title}
+        testId="account-card-company-description"
+        initial={c}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <p className="text-sm text-muted-foreground">
+            {fallback(v.description, t.account_value_notSpecified)}
+          </p>
+        )}
+        renderEdit={({ draft, setDraft }) => (
+          <FormRow label={t.account_company_description_label}>
+            <Textarea
+              rows={4}
+              value={draft.description}
+              onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+            />
+          </FormRow>
+        )}
+      />
+
+      <EditableCard<CompanyProfile>
+        title={t.account_company_trust_title}
+        testId="account-card-company-trust"
+        initial={c}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <div className="space-y-3">
+            <div>
+              <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                {t.account_company_productFocus}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {v.productFocus.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
+                ) : (
+                  v.productFocus.map((x) => (
+                    <Badge key={x} variant="outline">
+                      {x}
+                    </Badge>
+                  ))
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+                {t.account_company_certificates}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {v.certificates.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
+                ) : (
+                  v.certificates.map((x) => (
+                    <Badge key={x} variant="secondary">
+                      {x}
+                    </Badge>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        renderEdit={({ draft, setDraft }) => (
+          <div className="space-y-3">
+            <FormRow label={t.account_company_productFocus}>
+              <Input
+                value={draft.productFocus.join(", ")}
+                onChange={(e) => setDraft({ ...draft, productFocus: splitList(e.target.value) })}
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
+            </FormRow>
+            <FormRow label={t.account_company_certificates}>
+              <Input
+                value={draft.certificates.join(", ")}
+                onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
+            </FormRow>
+          </div>
+        )}
+      />
+
+      <EditableCard<CompanyProfile>
+        title={t.account_company_payment_title}
+        testId="account-card-company-payment"
+        initial={c}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            {v.paymentTerms.length === 0 ? (
+              <li className="list-none text-muted-foreground">{t.account_value_notSpecified}</li>
+            ) : (
+              v.paymentTerms.map((x) => <li key={x}>{x}</li>)
+            )}
+          </ul>
+        )}
+        renderEdit={({ draft, setDraft }) => (
+          <FormRow label={t.account_company_paymentTerms}>
+            <Input
+              value={draft.paymentTerms.join(", ")}
+              onChange={(e) => setDraft({ ...draft, paymentTerms: splitList(e.target.value) })}
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
+          </FormRow>
+        )}
+      />
+
+      <EditableCard<CompanyProfile>
         title={t.account_company_publication_title}
         description={t.account_company_publication_desc}
-      >
-        <p className="text-sm">
-          <span className="text-muted-foreground">{t.account_company_publication_status}: </span>
-          <span className="font-medium">{pubLabel[c.supplierPublicationStatus]}</span>
-        </p>
-      </AccountSectionCard>
+        testId="account-card-company-publication"
+        initial={c}
+        onSave={saveCompany}
+        renderView={(v) => (
+          <div className="space-y-1 text-sm">
+            <p>
+              <span className="text-muted-foreground">{t.account_company_publication_status}: </span>
+              <span className="font-medium">{pub[v.supplierPublicationStatus]}</span>
+            </p>
+            <p>
+              <span className="text-muted-foreground">{t.account_company_qualification_status}: </span>
+              <span className="font-medium">{qual[v.buyerQualificationStatus]}</span>
+            </p>
+          </div>
+        )}
+        renderEdit={({ draft, setDraft }) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FormRow label={t.account_company_publication_status}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.supplierPublicationStatus}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    supplierPublicationStatus: e.target
+                      .value as CompanyProfile["supplierPublicationStatus"],
+                  })
+                }
+              >
+                <option value="draft">{t.account_company_pub_draft}</option>
+                <option value="ready_for_review">{t.account_company_pub_review}</option>
+                <option value="published">{t.account_company_pub_published}</option>
+              </select>
+            </FormRow>
+            <FormRow label={t.account_company_qualification_status}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.buyerQualificationStatus}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    buyerQualificationStatus: e.target
+                      .value as CompanyProfile["buyerQualificationStatus"],
+                  })
+                }
+              >
+                <option value="incomplete">{t.account_company_qual_incomplete}</option>
+                <option value="ready">{t.account_company_qual_ready}</option>
+                <option value="qualified">{t.account_company_qual_qualified}</option>
+              </select>
+            </FormRow>
+          </div>
+        )}
+      />
+
+      <SupplierProfilePreview company={c} />
     </div>
   );
 };
+
+// ─── BRANCHES (read-only as before) ────────────────────────────────
 
 const BranchTypeBadge = ({ type }: { type: CompanyBranch["type"] }) => {
   const { t } = useLanguage();
@@ -131,15 +556,13 @@ const BranchTypeBadge = ({ type }: { type: CompanyBranch["type"] }) => {
   return <Badge variant="outline">{map[type]}</Badge>;
 };
 
-const BranchesSection = () => {
+const BranchesSection = ({ profile }: { profile: AccountProfile }) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   return (
     <div className="space-y-4" data-testid="account-section-branches">
       <AccountSectionCard
         title={t.account_branches_title}
         description={t.account_branches_desc}
-        editable={false}
       >
         <p className="text-sm text-muted-foreground" data-testid="account-branches-explainer">
           {t.account_branches_deliveryBasisExplainer}
@@ -147,7 +570,7 @@ const BranchesSection = () => {
       </AccountSectionCard>
       <div className="grid gap-3 sm:grid-cols-2">
         {profile.branches.map((b) => (
-          <AccountSectionCard key={b.id} title={b.name} editable testId={`account-branch-${b.id}`}>
+          <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
             <div className="space-y-2">
               <BranchTypeBadge type={b.type} />
               <p className="text-sm">
@@ -175,6 +598,8 @@ const BranchesSection = () => {
   );
 };
 
+// ─── PRODUCTS ──────────────────────────────────────────────────────
+
 const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
   const { t } = useLanguage();
   const label =
@@ -193,15 +618,22 @@ const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
   );
 };
 
-const ProductsSection = () => {
+const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
+  ({
+    frozen: t.account_product_state_frozen,
+    fresh: t.account_product_state_fresh,
+    chilled: t.account_product_state_chilled,
+    alive: t.account_product_state_alive,
+    cooked: t.account_product_state_cooked,
+  }[s]);
+
+const ProductsSection = ({ profile }: { profile: AccountProfile }) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   return (
     <div className="space-y-4" data-testid="account-section-products">
       <AccountSectionCard
         title={t.account_products_title}
         description={t.account_products_desc}
-        editable={false}
       >
         <p className="text-sm text-muted-foreground">{t.account_products_matchingExplainer}</p>
       </AccountSectionCard>
@@ -226,7 +658,7 @@ const ProductsSection = () => {
                   <div className="text-xs text-muted-foreground">{p.format}</div>
                 </td>
                 <td className="px-3 py-2 italic text-muted-foreground">{p.latinName}</td>
-                <td className="px-3 py-2 capitalize">{p.state}</td>
+                <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
                 <td className="px-3 py-2"><ProductRoleBadge role={p.role} /></td>
                 <td className="px-3 py-2">{p.monthlyVolume}</td>
                 <td className="px-3 py-2">
@@ -248,9 +680,10 @@ const ProductsSection = () => {
   );
 };
 
-const MetaRegionsSection = () => {
+// ─── META REGIONS ──────────────────────────────────────────────────
+
+const MetaRegionsSection = ({ profile }: { profile: AccountProfile }) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   const reasonLabel: Record<MetaRegion["logisticsReason"], string> = {
     similar_freight_cost: t.account_metaRegion_reason_freight,
     same_customs_zone: t.account_metaRegion_reason_customs,
@@ -270,7 +703,6 @@ const MetaRegionsSection = () => {
       <AccountSectionCard
         title={t.account_metaRegions_title}
         description={t.account_metaRegions_desc}
-        editable={false}
       >
         <p className="text-sm text-muted-foreground">{t.account_metaRegions_explainer}</p>
       </AccountSectionCard>
@@ -303,9 +735,10 @@ const MetaRegionsSection = () => {
   );
 };
 
-const NotificationsSection = () => {
+// ─── NOTIFICATIONS ─────────────────────────────────────────────────
+
+const NotificationsSection = ({ profile }: { profile: AccountProfile }) => {
   const { t } = useLanguage();
-  const profile = getAccountProfile();
   const channelLabel: Record<NotificationPreference["channel"], string> = {
     email: t.account_notif_channel_email,
     messenger: t.account_notif_channel_messenger,
@@ -334,7 +767,6 @@ const NotificationsSection = () => {
       <AccountSectionCard
         title={t.account_notifications_title}
         description={t.account_notifications_desc}
-        editable={false}
       >
         <p className="text-sm text-muted-foreground">{t.account_notifications_disclaimer}</p>
       </AccountSectionCard>
@@ -372,14 +804,7 @@ const NotificationsSection = () => {
   );
 };
 
-const SECTION_RENDERERS: Record<AccountSectionKey, () => JSX.Element> = {
-  personal: PersonalSection,
-  company: CompanySection,
-  branches: BranchesSection,
-  products: ProductsSection,
-  "meta-regions": MetaRegionsSection,
-  notifications: NotificationsSection,
-};
+// ─── ROUTER ────────────────────────────────────────────────────────
 
 const Account = () => {
   const { section } = useParams<{ section?: string }>();
@@ -388,12 +813,40 @@ const Account = () => {
     return (VALID as string[]).includes(section) ? (section as AccountSectionKey) : null;
   }, [section]);
 
+  const [profile, setProfile] = useState<AccountProfile>(() => getAccountProfile());
+
+  const update = (next: AccountProfile) => {
+    setProfile(next);
+    saveAccountProfile(next);
+  };
+
   if (!active) return <Navigate to="/account/personal" replace />;
 
-  const Renderer = SECTION_RENDERERS[active];
+  let content: JSX.Element;
+  switch (active) {
+    case "personal":
+      content = <PersonalSection profile={profile} onChange={update} />;
+      break;
+    case "company":
+      content = <CompanySection profile={profile} onChange={update} />;
+      break;
+    case "branches":
+      content = <BranchesSection profile={profile} />;
+      break;
+    case "products":
+      content = <ProductsSection profile={profile} />;
+      break;
+    case "meta-regions":
+      content = <MetaRegionsSection profile={profile} />;
+      break;
+    case "notifications":
+      content = <NotificationsSection profile={profile} />;
+      break;
+  }
+
   return (
-    <AccountShell active={active}>
-      <Renderer />
+    <AccountShell active={active} profile={profile}>
+      {content}
     </AccountShell>
   );
 };
