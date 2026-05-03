@@ -130,4 +130,37 @@ describe("SEO hardening", () => {
     expect(og).not.toBeNull();
     expect(og!.content).not.toMatch(/\/src\/assets/);
   });
+
+  it("/blog sets a non-Lovable og:image (no /src/assets, no lovable.dev)", () => {
+    renderAt("/blog");
+    const og = document.head.querySelector(
+      'meta[property="og:image"]',
+    ) as HTMLMetaElement | null;
+    expect(og).not.toBeNull();
+    expect(og!.content).not.toMatch(/\/src\/assets/);
+    expect(og!.content).not.toMatch(/lovable\.dev/);
+    expect(og!.content).toMatch(/\/blog\//);
+  });
+
+  it("RU /blog product update teaser does not render English enum values", () => {
+    localStorage.setItem("yorso-lang", "ru");
+    renderAt("/blog");
+    const list = screen.getByTestId("blog-list");
+    expect(within(list).queryByText("IMPROVED")).toBeNull();
+    expect(within(list).queryByText("Improved")).toBeNull();
+    expect(within(list).queryByText("PRICE ACCESS")).toBeNull();
+    expect(within(list).queryByText("Price Access")).toBeNull();
+    expect(within(list).queryByText("Supplier Profiles")).toBeNull();
+  });
+
+  it("RU /blog product update teaser hides English userBenefit text", () => {
+    localStorage.setItem("yorso-lang", "ru");
+    renderAt("/blog");
+    const updates = blogPosts.filter(
+      (p) => p.contentType === "product_update" && p.productUpdate?.userBenefit,
+    );
+    for (const p of updates) {
+      expect(screen.queryByText(p.productUpdate!.userBenefit)).toBeNull();
+    }
+  });
 });
