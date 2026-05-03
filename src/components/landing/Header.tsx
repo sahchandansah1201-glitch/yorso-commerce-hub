@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown, Bell, LogOut } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Bell, LogOut, User } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
@@ -156,6 +156,15 @@ const Header = () => {
                     <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
                     <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
                   </div>
+                  <Link
+                    to="/account"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    data-testid="header-account-link"
+                  >
+                    <User className="h-4 w-4" />
+                    {t.nav_myAccount}
+                  </Link>
                   <button
                     type="button"
                     onClick={() => {
