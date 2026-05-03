@@ -187,4 +187,28 @@ describe("SEO hardening", () => {
       expect(screen.queryByText(p.productUpdate!.userBenefit)).toBeNull();
     }
   });
+
+  it("ES /blog product update teaser does not render English enum values", () => {
+    localStorage.setItem("yorso-lang", "es");
+    renderAt("/blog");
+    const list = screen.getByTestId("blog-list");
+    expect(within(list).queryByText("IMPROVED")).toBeNull();
+    expect(within(list).queryByText("Improved")).toBeNull();
+    expect(within(list).queryByText("PRICE ACCESS")).toBeNull();
+    expect(within(list).queryByText("Price Access")).toBeNull();
+    expect(within(list).queryByText("Supplier Profiles")).toBeNull();
+    expect(within(list).queryByText("What changed")).toBeNull();
+    expect(within(list).queryByText("Who benefits")).toBeNull();
+  });
+
+  it("ES /blog product update teaser hides English userBenefit text", () => {
+    localStorage.setItem("yorso-lang", "es");
+    renderAt("/blog");
+    const updates = blogPosts.filter(
+      (p) => p.contentType === "product_update" && p.productUpdate?.userBenefit,
+    );
+    for (const p of updates) {
+      expect(screen.queryByText(p.productUpdate!.userBenefit)).toBeNull();
+    }
+  });
 });
