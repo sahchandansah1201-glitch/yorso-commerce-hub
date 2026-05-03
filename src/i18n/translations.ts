@@ -2998,6 +2998,7 @@ const en: TranslationKeys = {
   account_company_media_focal_center: "Center",
   account_company_media_focal_top: "Top",
   account_company_media_focal_bottom: "Bottom",
+  account_company_media_focalHelp: "Pick which part of the cover stays visible when the image is cropped.",
   account_company_media_logoFit: "Logo fit",
   account_company_media_fit_contain: "Contain (no crop)",
   account_company_media_fit_cover: "Cover (fill)",
