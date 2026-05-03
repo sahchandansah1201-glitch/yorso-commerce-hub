@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, type MockSupplier } from "@/data/mockSuppliers";
+import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import { useAccessLevel } from "@/lib/access-level";
 import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
@@ -90,7 +91,7 @@ const interpolate = (s: string, vars: Record<string, string | number>) =>
 
 const Suppliers = () => {
   const { level } = useAccessLevel();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -128,13 +129,19 @@ const Suppliers = () => {
     }
   };
 
+  const localizedSuppliers = useMemo(
+    () => mockSuppliers.map((s) => localizeSupplier(s, lang)),
+    [lang],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const includeCompanyName = level === "qualified_unlocked";
-    return mockSuppliers.filter((s) => {
+    return localizedSuppliers.filter((s, i) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
-        if (f && !f.match(s)) return false;
+        // match against original (EN) species so regex stays stable across locales
+        if (f && !f.match(mockSuppliers[i])) return false;
       }
       if (!q) return true;
       const fields = [
@@ -155,7 +162,7 @@ const Suppliers = () => {
       const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, activeFilter, level]);
+  }, [query, activeFilter, level, localizedSuppliers]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
