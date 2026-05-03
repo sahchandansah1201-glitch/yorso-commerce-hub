@@ -101,38 +101,86 @@ export function EditableCard<T>({
     return offset;
   };
 
+  const focusJumpCancelled = useRef(false);
+  const cancelListenersRef = useRef<(() => void) | null>(null);
+
+  const cancelFocusJump = () => {
+    focusJumpCancelled.current = true;
+    cancelListenersRef.current?.();
+    cancelListenersRef.current = null;
+  };
+
+  const armCancelListeners = () => {
+    focusJumpCancelled.current = false;
+    cancelListenersRef.current?.();
+    const root = contentRef.current;
+    if (!root) return;
+    const onInteract = (ev: Event) => {
+      const target = ev.target as HTMLElement | null;
+      if (!target) return;
+      const tag = target.tagName;
+      const isField =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        target.isContentEditable;
+      if (isField) cancelFocusJump();
+    };
+    const onWheel = () => cancelFocusJump();
+    root.addEventListener("pointerdown", onInteract, true);
+    root.addEventListener("keydown", onInteract, true);
+    window.addEventListener("wheel", onWheel, { passive: true });
+    window.addEventListener("touchmove", onWheel, { passive: true });
+    cancelListenersRef.current = () => {
+      root.removeEventListener("pointerdown", onInteract, true);
+      root.removeEventListener("keydown", onInteract, true);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchmove", onWheel);
+    };
+  };
+
   const focusFirstInvalid = () => {
+    armCancelListeners();
     // Wait two frames so React commits the new aria-invalid attributes
-    // before we query for the next first invalid field.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
+        if (focusJumpCancelled.current) return;
         const root = contentRef.current;
         if (!root) return;
-        // Clear any stale highlight from previous attempt
         root
           .querySelectorAll<HTMLElement>(".ring-destructive\\/50")
           .forEach((el) =>
             el.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
           );
         const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
-        if (!invalid) return;
+        if (!invalid) {
+          cancelListenersRef.current?.();
+          cancelListenersRef.current = null;
+          return;
+        }
         const offset = getStickyOffset();
         const rect = invalid.getBoundingClientRect();
         const target = window.scrollY + rect.top - offset;
         window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
-        try {
-          invalid.focus({ preventScroll: true });
-        } catch {
-          invalid.focus();
-        }
-        const group = invalid.closest<HTMLElement>('[role="group"]');
-        if (group) {
-          group.classList.add("ring-2", "ring-destructive/50", "rounded-md");
-          window.setTimeout(
-            () => group.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
-            1400,
-          );
-        }
+        // Defer focus slightly so a quick user click can still cancel us
+        window.setTimeout(() => {
+          if (focusJumpCancelled.current) return;
+          try {
+            invalid.focus({ preventScroll: true });
+          } catch {
+            invalid.focus();
+          }
+          const group = invalid.closest<HTMLElement>('[role="group"]');
+          if (group) {
+            group.classList.add("ring-2", "ring-destructive/50", "rounded-md");
+            window.setTimeout(
+              () => group.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
+              1400,
+            );
+          }
+          cancelListenersRef.current?.();
+          cancelListenersRef.current = null;
+        }, 120);
       });
     });
   };
