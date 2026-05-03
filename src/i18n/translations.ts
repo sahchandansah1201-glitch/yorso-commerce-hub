@@ -1201,6 +1201,33 @@ type TranslationKeys = {
   supplier_faq_a6: string;
   supplier_faq_noAnswerTitle: string;
   supplier_faq_noAnswerBody: string;
+
+  // ─── Blog / Insights ────────────────────────────────────────────
+  nav_blog: string;
+  blog_breadcrumb: string;
+  blog_pageTitle: string;
+  blog_pageSubtitle: string;
+  blog_allCategories: string;
+  blog_searchPlaceholder: string;
+  blog_searchAria: string;
+  blog_emptyTitle: string;
+  blog_emptyBody: string;
+  blog_readMore: string;
+  blog_minutesRead: string; // "{n} min read"
+  blog_audienceBuyer: string;
+  blog_audienceSupplier: string;
+  blog_audienceBoth: string;
+  blog_publishedOn: string; // "Published {date}"
+  blog_updatedOn: string;   // "Updated {date}"
+  blog_byAuthor: string;    // "By {name}"
+  blog_relatedCtaOffers: string;
+  blog_relatedCtaSuppliers: string;
+  blog_relatedCtaForSuppliers: string;
+  blog_relatedCtaRegister: string;
+  blog_mockNotice: string;
+  blog_backToIndex: string;
+  blog_notFoundTitle: string;
+  blog_notFoundBody: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
