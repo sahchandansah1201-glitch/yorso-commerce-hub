@@ -6,7 +6,7 @@ import Footer from "@/components/landing/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { blogPosts, type BlogPost, type BlogContentType } from "@/data/blogPosts";
+import { blogPosts, type BlogPost, type BlogContentType, type ProductUpdateType, type ProductUpdateArea } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
 import {
   applyRouteSeo,
