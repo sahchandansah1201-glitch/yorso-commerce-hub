@@ -195,6 +195,7 @@ const Header = () => {
             <a href="/#categories" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
             <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</Link>
             <Link to="/for-suppliers" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_forSuppliers}</Link>
+            <Link to="/blog" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_blog}</Link>
             <a href="/#faq" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
           </nav>
           <div className="mt-4 flex gap-2">
