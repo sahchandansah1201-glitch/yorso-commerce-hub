@@ -407,7 +407,7 @@ const Blog = () => {
                             <div className="flex flex-1 flex-col gap-3 p-5">
                               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
-                                  {contentTypeLabel(p.contentType)}
+                                  {contentTypeLabel(t, p.contentType)}
                                 </span>
                                 <span>{audienceLabel(t, p.audience)}</span>
                               </div>
