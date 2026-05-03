@@ -73,12 +73,12 @@ const Header = () => {
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-7 md:flex">
           <Link to="/offers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_liveOffers}</Link>
           <a href="/#categories" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_categories}</a>
           <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_howItWorks}</Link>
           <Link to="/for-suppliers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_forSuppliers}</Link>
-          <a href="/#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_faq}</a>
+          <Link to="/blog" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_blog}</Link>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
