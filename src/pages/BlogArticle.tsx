@@ -446,7 +446,7 @@ const BlogArticle = () => {
                   >
                     <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
                       <ListTree className="h-4 w-4 text-primary" aria-hidden />
-                      On this page
+                      {t.blog_onThisPage}
                     </summary>
                     <ul className="mt-3 space-y-1.5 text-sm">
                       {toc.map((item) => (
