@@ -1446,6 +1446,16 @@ type TranslationKeys = {
   account_validation_email: string;
   account_validation_url: string;
   account_validation_year: string;
+  account_validation_email_long: string;
+  account_validation_phone: string;
+  account_validation_phone_long: string;
+  account_validation_name_long: string;
+  account_validation_text_long: string;
+  account_validation_language: string;
+  account_hint_email: string;
+  account_hint_phone: string;
+  account_hint_whatsapp: string;
+  account_hint_website: string;
   account_company_role_buyer: string;
   account_company_role_supplier: string;
   account_company_role_both: string;
@@ -2974,6 +2984,16 @@ const en: TranslationKeys = {
   account_validation_email: "Enter a valid email",
   account_validation_url: "Enter a valid URL",
   account_validation_year: "Enter a valid year",
+  account_validation_email_long: "Email is too long (max 254 characters)",
+  account_validation_phone: "Enter a valid phone number, e.g. +34 600 000 000",
+  account_validation_phone_long: "Phone number is too long (max 32 characters)",
+  account_validation_name_long: "Too long (max 100 characters)",
+  account_validation_text_long: "Too long (max 2000 characters)",
+  account_validation_language: "Select a supported language",
+  account_hint_email: "We use it for sign-in and notifications.",
+  account_hint_phone: "Include the country code, e.g. +34 600 000 000.",
+  account_hint_whatsapp: "Optional. Same format as phone.",
+  account_hint_website: "Full URL with https://",
   account_company_role_buyer: "Buyer",
   account_company_role_supplier: "Supplier",
   account_company_role_both: "Buyer and supplier",
@@ -4489,6 +4509,16 @@ const ru: TranslationKeys = {
   account_validation_email: "Введите корректный email",
   account_validation_url: "Введите корректный URL",
   account_validation_year: "Введите корректный год",
+  account_validation_email_long: "Слишком длинный email (максимум 254 символа)",
+  account_validation_phone: "Введите корректный телефон, например +34 600 000 000",
+  account_validation_phone_long: "Слишком длинный телефон (максимум 32 символа)",
+  account_validation_name_long: "Слишком длинно (максимум 100 символов)",
+  account_validation_text_long: "Слишком длинно (максимум 2000 символов)",
+  account_validation_language: "Выберите поддерживаемый язык",
+  account_hint_email: "Используется для входа и уведомлений.",
+  account_hint_phone: "Укажите с кодом страны, например +34 600 000 000.",
+  account_hint_whatsapp: "Необязательно. Формат как у телефона.",
+  account_hint_website: "Полный URL с https://",
   account_company_role_buyer: "Покупатель",
   account_company_role_supplier: "Поставщик",
   account_company_role_both: "Покупатель и поставщик",
@@ -6003,6 +6033,16 @@ const es: TranslationKeys = {
   account_validation_email: "Introduce un email válido",
   account_validation_url: "Introduce una URL válida",
   account_validation_year: "Introduce un año válido",
+  account_validation_email_long: "El email es demasiado largo (máx. 254 caracteres)",
+  account_validation_phone: "Introduce un teléfono válido, p. ej. +34 600 000 000",
+  account_validation_phone_long: "El teléfono es demasiado largo (máx. 32 caracteres)",
+  account_validation_name_long: "Demasiado largo (máx. 100 caracteres)",
+  account_validation_text_long: "Demasiado largo (máx. 2000 caracteres)",
+  account_validation_language: "Selecciona un idioma admitido",
+  account_hint_email: "Lo usamos para el inicio de sesión y notificaciones.",
+  account_hint_phone: "Incluye el código de país, p. ej. +34 600 000 000.",
+  account_hint_whatsapp: "Opcional. Mismo formato que el teléfono.",
+  account_hint_website: "URL completa con https://",
   account_company_role_buyer: "Comprador",
   account_company_role_supplier: "Proveedor",
   account_company_role_both: "Comprador y proveedor",

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { cloneElement, useId, useMemo, useState, type ReactNode } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
@@ -10,7 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertCircle } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
+import {
+  validateEmail,
+  validateLanguage,
+  validateName,
+  validatePhone,
+  validateText,
+  validateUrl,
+  validateYear,
+} from "@/lib/account-validation";
 import type {
   AccountProfile,
   CompanyBranch,
@@ -59,33 +69,74 @@ const FormRow = ({
   label,
   required,
   error,
-  htmlFor,
+  hint,
   children,
 }: {
   label: string;
   required?: boolean;
   error?: string;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) => (
-  <div className="space-y-1">
-    <Label htmlFor={htmlFor} className="text-xs">
-      {label} {required ? <span aria-hidden className="text-destructive">*</span> : null}
-    </Label>
-    {children}
-    {error ? <p className="text-xs text-destructive">{error}</p> : null}
-  </div>
-);
-
-const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-const isUrl = (s: string) => {
-  if (!s) return true;
-  try {
-    new URL(s);
-    return true;
-  } catch {
-    return false;
-  }
+  hint?: string;
+  children: React.ReactElement;
+}) => {
+  const id = useId();
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
+  const describedBy =
+    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+  // Inject id + aria attributes into the single child input/select/textarea
+  const enhancedChild = (() => {
+    try {
+      const childProps = (children.props ?? {}) as Record<string, unknown>;
+      return cloneElement(children, {
+        id: (childProps.id as string | undefined) ?? id,
+        "aria-invalid": !!error || undefined,
+        "aria-describedby":
+          [
+            (childProps["aria-describedby"] as string | undefined) ?? "",
+            describedBy ?? "",
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined,
+        className:
+          [
+            (childProps.className as string | undefined) ?? "",
+            error ? "border-destructive focus-visible:ring-destructive" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .trim() || undefined,
+      } as Record<string, unknown>);
+    } catch {
+      return children;
+    }
+  })();
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id} className="text-xs">
+        {label}{" "}
+        {required ? (
+          <span aria-hidden className="text-destructive">
+            *
+          </span>
+        ) : null}
+      </Label>
+      {enhancedChild}
+      {error ? (
+        <p
+          id={errorId}
+          className="flex items-start gap-1 text-xs text-destructive"
+          role="alert"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{error}</span>
+        </p>
+      ) : hint ? (
+        <p id={hintId} className="text-[11px] text-muted-foreground">
+          {hint}
+        </p>
+      ) : null}
+    </div>
+  );
 };
 
 const splitList = (s: string): string[] =>
@@ -160,10 +211,18 @@ const PersonalSection = ({
         initial={u}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.firstName.trim()) e.firstName = t.account_validation_required;
-          if (!d.lastName.trim()) e.lastName = t.account_validation_required;
-          if (!d.email.trim()) e.email = t.account_validation_required;
-          else if (!isEmail(d.email)) e.email = t.account_validation_email;
+          const fn = validateName(d.firstName, t);
+          if (fn) e.firstName = fn;
+          const ln = validateName(d.lastName, t);
+          if (ln) e.lastName = ln;
+          const em = validateEmail(d.email, t);
+          if (em) e.email = em;
+          const ph = validatePhone(d.phone, t, false);
+          if (ph) e.phone = ph;
+          const role = validateName(d.roleInCompany, t, false);
+          if (role) e.roleInCompany = role;
+          const lang = validateLanguage(d.language, t);
+          if (lang) e.language = lang;
           return e;
         }}
         onSave={(d) => onChange({ ...profile, user: d })}
@@ -205,21 +264,38 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_email} required error={errors.email}>
+            <FormRow
+              label={t.account_personal_email}
+              required
+              error={errors.email}
+              hint={t.account_hint_email}
+            >
               <Input
                 type="email"
+                inputMode="email"
+                autoComplete="email"
+                maxLength={254}
                 value={draft.email}
                 onChange={(e) => setDraft({ ...draft, email: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_phone}>
+            <FormRow
+              label={t.account_personal_phone}
+              error={errors.phone}
+              hint={t.account_hint_phone}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                maxLength={32}
                 value={draft.phone}
                 onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_role}>
+            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
               <Input
+                maxLength={100}
                 value={draft.roleInCompany}
                 onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
               />
@@ -230,7 +306,7 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_language}>
+            <FormRow label={t.account_personal_language} error={errors.language}>
               <select
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={draft.language}
@@ -238,9 +314,9 @@ const PersonalSection = ({
                   setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
                 }
               >
-                <option value="en">EN</option>
-                <option value="ru">RU</option>
-                <option value="es">ES</option>
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+                <option value="es">Español</option>
               </select>
             </FormRow>
           </div>
@@ -352,17 +428,16 @@ const CompanySection = ({
         initial={c}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.legalName.trim()) e.legalName = t.account_validation_required;
-          if (!d.tradeName.trim()) e.tradeName = t.account_validation_required;
-          if (!d.country.trim()) e.country = t.account_validation_required;
-          if (d.website && !isUrl(d.website)) e.website = t.account_validation_url;
-          if (
-            d.yearFounded &&
-            (!Number.isFinite(d.yearFounded) ||
-              d.yearFounded < 1800 ||
-              d.yearFounded > new Date().getFullYear())
-          )
-            e.yearFounded = t.account_validation_year;
+          const legal = validateName(d.legalName, t);
+          if (legal) e.legalName = legal;
+          const trade = validateName(d.tradeName, t);
+          if (trade) e.tradeName = trade;
+          const country = validateName(d.country, t);
+          if (country) e.country = country;
+          const ws = validateUrl(d.website, t);
+          if (ws) e.website = ws;
+          const yr = validateYear(d.yearFounded, t);
+          if (yr) e.yearFounded = yr;
           return e;
         }}
         onSave={saveCompany}
@@ -440,9 +515,12 @@ const CompanySection = ({
         initial={c}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.contactEmail.trim()) e.contactEmail = t.account_validation_required;
-          else if (!isEmail(d.contactEmail)) e.contactEmail = t.account_validation_email;
-          if (!d.contactPhone.trim()) e.contactPhone = t.account_validation_required;
+          const em = validateEmail(d.contactEmail, t);
+          if (em) e.contactEmail = em;
+          const ph = validatePhone(d.contactPhone, t, true);
+          if (ph) e.contactPhone = ph;
+          const wa = validatePhone(d.whatsapp, t, false);
+          if (wa) e.whatsapp = wa;
           return e;
         }}
         onSave={saveCompany}
@@ -455,21 +533,45 @@ const CompanySection = ({
         )}
         renderEdit={({ draft, setDraft, errors }) => (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormRow label={t.account_company_contactEmail} required error={errors.contactEmail}>
+            <FormRow
+              label={t.account_company_contactEmail}
+              required
+              error={errors.contactEmail}
+              hint={t.account_hint_email}
+            >
               <Input
                 type="email"
+                inputMode="email"
+                autoComplete="email"
+                maxLength={254}
                 value={draft.contactEmail}
                 onChange={(e) => setDraft({ ...draft, contactEmail: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_company_contactPhone} required error={errors.contactPhone}>
+            <FormRow
+              label={t.account_company_contactPhone}
+              required
+              error={errors.contactPhone}
+              hint={t.account_hint_phone}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                maxLength={32}
                 value={draft.contactPhone}
                 onChange={(e) => setDraft({ ...draft, contactPhone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_company_whatsapp}>
+            <FormRow
+              label={t.account_company_whatsapp}
+              error={errors.whatsapp}
+              hint={t.account_hint_whatsapp}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                maxLength={32}
                 value={draft.whatsapp}
                 onChange={(e) => setDraft({ ...draft, whatsapp: e.target.value })}
               />
@@ -542,19 +644,17 @@ const CompanySection = ({
         )}
         renderEdit={({ draft, setDraft }) => (
           <div className="space-y-3">
-            <FormRow label={t.account_company_productFocus}>
+            <FormRow label={t.account_company_productFocus} hint={t.account_company_listHelp}>
               <Input
                 value={draft.productFocus.join(", ")}
                 onChange={(e) => setDraft({ ...draft, productFocus: splitList(e.target.value) })}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
             </FormRow>
-            <FormRow label={t.account_company_certificates}>
+            <FormRow label={t.account_company_certificates} hint={t.account_company_listHelp}>
               <Input
                 value={draft.certificates.join(", ")}
                 onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
             </FormRow>
           </div>
         )}
@@ -575,12 +675,11 @@ const CompanySection = ({
           </ul>
         )}
         renderEdit={({ draft, setDraft }) => (
-          <FormRow label={t.account_company_paymentTerms}>
+          <FormRow label={t.account_company_paymentTerms} hint={t.account_company_listHelp}>
             <Input
               value={draft.paymentTerms.join(", ")}
               onChange={(e) => setDraft({ ...draft, paymentTerms: splitList(e.target.value) })}
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
           </FormRow>
         )}
       />
