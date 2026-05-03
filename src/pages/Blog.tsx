@@ -505,7 +505,7 @@ const Blog = () => {
               <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
                 <div className="rounded-lg border border-border bg-card p-5">
                   <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-                    Popular topics
+                    {t.blog_popularTopics}
                   </h2>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {POPULAR_TOPICS.map((topic) => (
