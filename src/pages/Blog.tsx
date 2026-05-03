@@ -35,13 +35,32 @@ const audienceLabel = (
 
 type FilterKey = "all" | BlogContentType;
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "market_intelligence", label: "Market intelligence" },
-  { key: "buyer_guide", label: "Buyer guides" },
-  { key: "supplier_guide", label: "Supplier guides" },
-  { key: "product_update", label: "Product updates" },
-  { key: "glossary", label: "Glossary" },
+type Translator = ReturnType<typeof useLanguage>["t"];
+
+const filterLabel = (t: Translator, key: FilterKey): string => {
+  switch (key) {
+    case "all":
+      return t.blog_filter_all;
+    case "market_intelligence":
+      return t.blog_filter_marketIntelligence;
+    case "buyer_guide":
+      return t.blog_filter_buyerGuides;
+    case "supplier_guide":
+      return t.blog_filter_supplierGuides;
+    case "product_update":
+      return t.blog_filter_productUpdates;
+    case "glossary":
+      return t.blog_filter_glossary;
+  }
+};
+
+const FILTER_KEYS: FilterKey[] = [
+  "all",
+  "market_intelligence",
+  "buyer_guide",
+  "supplier_guide",
+  "product_update",
+  "glossary",
 ];
 
 const POPULAR_TOPICS = [
