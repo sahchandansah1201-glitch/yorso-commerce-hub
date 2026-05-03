@@ -1438,6 +1438,8 @@ type TranslationKeys = {
   account_action_saved: string;
   account_save_error_storage: string;
   account_save_error_validation: string;
+  account_autosave_unsaved: string;
+  account_autosave_label: string;
   account_action_cancel: string;
   account_value_notSpecified: string;
   account_validation_required: string;
