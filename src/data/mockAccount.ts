@@ -181,6 +181,12 @@ export const mockCompany: CompanyProfile = {
   paymentTerms: ["T/T 30% advance", "Letter of Credit at sight", "CAD"],
   supplierPublicationStatus: "ready_for_review",
   buyerQualificationStatus: "ready",
+  logoImageUrl: "",
+  logoAlt: "",
+  logoFit: "contain",
+  coverImageUrl: "",
+  coverAlt: "",
+  coverFocalPoint: "center",
 };
 
 export const mockBranches: CompanyBranch[] = [
