@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, type MockSupplier } from "@/data/mockSuppliers";
+import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import { useAccessLevel } from "@/lib/access-level";
 import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
