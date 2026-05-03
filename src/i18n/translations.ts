@@ -2681,6 +2681,7 @@ const ru: TranslationKeys = {
       { label: "Каталог поставщиков", href: "/suppliers" },
       { label: "Как это работает", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Аналитика", href: "/blog" },
     ],
     company: [
       { label: "О YORSO", href: "/about" },
