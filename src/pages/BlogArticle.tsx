@@ -624,7 +624,7 @@ const BlogArticle = () => {
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary" aria-hidden />
                       <h2 className="font-heading text-base font-semibold text-foreground">
-                        Key takeaways
+                        {t.blog_keyTakeaways}
                       </h2>
                     </div>
                     <ul className="mt-3 space-y-2 text-[14px] leading-relaxed text-foreground/90">
