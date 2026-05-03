@@ -644,19 +644,17 @@ const CompanySection = ({
         )}
         renderEdit={({ draft, setDraft }) => (
           <div className="space-y-3">
-            <FormRow label={t.account_company_productFocus}>
+            <FormRow label={t.account_company_productFocus} hint={t.account_company_listHelp}>
               <Input
                 value={draft.productFocus.join(", ")}
                 onChange={(e) => setDraft({ ...draft, productFocus: splitList(e.target.value) })}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
             </FormRow>
-            <FormRow label={t.account_company_certificates}>
+            <FormRow label={t.account_company_certificates} hint={t.account_company_listHelp}>
               <Input
                 value={draft.certificates.join(", ")}
                 onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
             </FormRow>
           </div>
         )}
