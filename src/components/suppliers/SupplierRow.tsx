@@ -359,21 +359,22 @@ const SupplierRowImpl = ({
                 </div>
               )}
 
-              <div className="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch">
+              <div className="mt-1 flex flex-col items-stretch gap-2">
                 <Button
                   type="button"
                   size="sm"
-                  className="gap-2"
+                  className="w-full justify-center gap-2"
                   onClick={() => onPrimaryAction(supplier)}
                 >
                   {primaryCtaCopy(t, accessLevel)}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-                <Button asChild size="sm" variant="outline" className="gap-2">
+                <Button asChild size="sm" variant="outline" className="w-full gap-2">
                   <Link
                     to={`/suppliers/${supplier.id}`}
                     data-testid="supplier-row-open-profile"
                     aria-label={interpolate(t.supplierRow_openProfileShortAria, { name: displayName })}
+                    className="justify-center"
                   >
                     {t.supplierRow_openProfile}
                   </Link>
@@ -382,7 +383,7 @@ const SupplierRowImpl = ({
                   type="button"
                   size="sm"
                   variant="ghost"
-                  className="gap-2"
+                  className="w-full justify-center gap-2"
                   onClick={() => onShortlist(supplier.id)}
                   aria-pressed={isShortlisted}
                 >
