@@ -684,10 +684,10 @@ const BlogArticle = () => {
                   >
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Learn more
+                        {t.blog_learnMore}
                       </p>
                       <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
-                        How YORSO works
+                        {t.howItWorks_meta_title ?? "How YORSO works"}
                       </p>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden />
