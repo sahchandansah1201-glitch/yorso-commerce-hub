@@ -35,10 +35,22 @@ const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf)
 
 const Field = ({ label, value }: { label: string; value: string }) => {
   const { t } = useLanguage();
+  const isEmpty = !value || !value.trim();
   return (
-    <div>
-      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-sm text-foreground">{fallback(value, t.account_value_notSpecified)}</dd>
+    <div className="min-w-0">
+      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+        {label}
+      </dt>
+      <dd
+        className={
+          isEmpty
+            ? "mt-1 truncate text-[15px] italic text-muted-foreground"
+            : "mt-1 truncate text-[15px] font-medium text-foreground"
+        }
+        title={isEmpty ? undefined : value}
+      >
+        {fallback(value, t.account_value_notSpecified)}
+      </dd>
     </div>
   );
 };
