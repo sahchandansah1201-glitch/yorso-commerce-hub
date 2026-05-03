@@ -436,7 +436,7 @@ const Blog = () => {
                             >
                               <img
                                 src={p.heroImage}
-                                alt=""
+                                alt={p.heroImageAlt}
                                 loading="lazy"
                                 className="h-full w-full object-cover transition group-hover:scale-[1.02]"
                                 onError={(e) => {
