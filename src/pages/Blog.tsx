@@ -561,10 +561,10 @@ const Blog = () => {
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    Product changelog
+                    {t.blog_pu_changelogEyebrow}
                   </p>
                   <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
-                    Latest product updates
+                    {t.blog_pu_latestUpdates}
                   </h2>
                 </div>
                 <button
