@@ -85,6 +85,8 @@ export interface BlogPost {
    * Hero image URL. Defaults to a safe local placeholder when missing.
    */
   heroImage: string;
+  /** Meaningful alt text for the hero image. Required for editorial images. */
+  heroImageAlt: string;
   seoTitle: string;
   seoDescription: string;
   sections: BlogArticleSection[];
