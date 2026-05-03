@@ -1265,6 +1265,17 @@ type TranslationKeys = {
   blog_pu_tryWorkflow: string;
   blog_pu_prototypeBadge: string;
   blog_pu_genericBadge: string;
+  blog_pu_type_added: string;
+  blog_pu_type_improved: string;
+  blog_pu_type_fixed: string;
+  blog_pu_type_guide: string;
+  blog_pu_area_catalog: string;
+  blog_pu_area_supplierProfiles: string;
+  blog_pu_area_priceAccess: string;
+  blog_pu_area_registration: string;
+  blog_pu_area_requests: string;
+  blog_pu_area_intelligence: string;
+  blog_pu_teaserNeutral: string;
   // Newsletter
   blog_newsletterTitle: string;
   blog_newsletterBody: string;
@@ -2601,6 +2612,17 @@ const en: TranslationKeys = {
   blog_pu_tryWorkflow: "Try this workflow",
   blog_pu_prototypeBadge: "Prototype",
   blog_pu_genericBadge: "Update",
+  blog_pu_type_added: "Added",
+  blog_pu_type_improved: "Improved",
+  blog_pu_type_fixed: "Fixed",
+  blog_pu_type_guide: "Guide",
+  blog_pu_area_catalog: "Catalog",
+  blog_pu_area_supplierProfiles: "Supplier profiles",
+  blog_pu_area_priceAccess: "Price access",
+  blog_pu_area_registration: "Registration",
+  blog_pu_area_requests: "Requests",
+  blog_pu_area_intelligence: "Intelligence",
+  blog_pu_teaserNeutral: "Product update. Read the article for details.",
   blog_newsletterTitle: "Get seafood trade updates",
   blog_newsletterBody: "Prototype only. We do not send emails yet.",
   blog_newsletterSuccess: "Thanks. We will let you know when this is live.",
@@ -3920,6 +3942,17 @@ const ru: TranslationKeys = {
   blog_pu_tryWorkflow: "Попробовать сценарий",
   blog_pu_prototypeBadge: "Прототип",
   blog_pu_genericBadge: "Обновление",
+  blog_pu_type_added: "Добавлено",
+  blog_pu_type_improved: "Улучшено",
+  blog_pu_type_fixed: "Исправлено",
+  blog_pu_type_guide: "Гайд",
+  blog_pu_area_catalog: "Каталог",
+  blog_pu_area_supplierProfiles: "Профили поставщиков",
+  blog_pu_area_priceAccess: "Доступ к ценам",
+  blog_pu_area_registration: "Регистрация",
+  blog_pu_area_requests: "Запросы",
+  blog_pu_area_intelligence: "Аналитика",
+  blog_pu_teaserNeutral: "Обновление продукта. Подробности — в статье.",
   blog_newsletterTitle: "Получать обновления о торговле морепродуктами",
   blog_newsletterBody: "Только прототип. Письма пока не отправляем.",
   blog_newsletterSuccess: "Спасибо. Сообщим, когда это заработает.",
@@ -5238,6 +5271,17 @@ const es: TranslationKeys = {
   blog_pu_tryWorkflow: "Probar este flujo",
   blog_pu_prototypeBadge: "Prototipo",
   blog_pu_genericBadge: "Novedad",
+  blog_pu_type_added: "Añadido",
+  blog_pu_type_improved: "Mejorado",
+  blog_pu_type_fixed: "Corregido",
+  blog_pu_type_guide: "Guía",
+  blog_pu_area_catalog: "Catálogo",
+  blog_pu_area_supplierProfiles: "Perfiles de proveedores",
+  blog_pu_area_priceAccess: "Acceso a precios",
+  blog_pu_area_registration: "Registro",
+  blog_pu_area_requests: "Solicitudes",
+  blog_pu_area_intelligence: "Inteligencia",
+  blog_pu_teaserNeutral: "Novedad del producto. Más detalles en el artículo.",
   blog_newsletterTitle: "Recibir novedades del comercio de mariscos",
   blog_newsletterBody: "Solo prototipo. Aún no enviamos correos.",
   blog_newsletterSuccess: "Gracias. Te avisaremos cuando esté disponible.",

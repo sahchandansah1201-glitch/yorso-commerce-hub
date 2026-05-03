@@ -6,7 +6,7 @@ import Footer from "@/components/landing/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { blogPosts, type BlogPost, type BlogContentType } from "@/data/blogPosts";
+import { blogPosts, type BlogPost, type BlogContentType, type ProductUpdateType, type ProductUpdateArea } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
 import {
   applyRouteSeo,
@@ -82,6 +82,36 @@ const startHere = (
 const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
   filterLabel(t, ct);
 
+const updateTypeLabel = (t: Translator, ut: ProductUpdateType): string => {
+  switch (ut) {
+    case "added":
+      return t.blog_pu_type_added;
+    case "improved":
+      return t.blog_pu_type_improved;
+    case "fixed":
+      return t.blog_pu_type_fixed;
+    case "guide":
+      return t.blog_pu_type_guide;
+  }
+};
+
+const updateAreaLabel = (t: Translator, area: ProductUpdateArea): string => {
+  switch (area) {
+    case "Catalog":
+      return t.blog_pu_area_catalog;
+    case "Supplier Profiles":
+      return t.blog_pu_area_supplierProfiles;
+    case "Price Access":
+      return t.blog_pu_area_priceAccess;
+    case "Registration":
+      return t.blog_pu_area_registration;
+    case "Requests":
+      return t.blog_pu_area_requests;
+    case "Intelligence":
+      return t.blog_pu_area_intelligence;
+  }
+};
+
 const Blog = () => {
   const { t, lang } = useLanguage();
   const [query, setQuery] = useState("");
@@ -103,6 +133,7 @@ const Blog = () => {
         title,
         description: t.blog_pageSubtitle,
         url: canonical,
+        image: absoluteUrl("/blog/og-for-suppliers.jpg"),
       },
     });
     return () => {
@@ -489,10 +520,10 @@ const Blog = () => {
                                   {p.productUpdate ? (
                                     <div className="flex flex-wrap gap-1.5">
                                       <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                                        {p.productUpdate.updateType}
+                                        {updateTypeLabel(t, p.productUpdate.updateType)}
                                       </span>
                                       <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                        {p.productUpdate.affectedArea}
+                                        {updateAreaLabel(t, p.productUpdate.affectedArea)}
                                       </span>
                                       {p.productUpdate.prototype ? (
                                         <span className="rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
@@ -501,16 +532,24 @@ const Blog = () => {
                                       ) : null}
                                     </div>
                                   ) : null}
-                                  <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                    <span className="font-semibold text-foreground">{t.blog_pu_whatChanged}:</span>{" "}
-                                    {p.excerpt.split(".")[0]}.
-                                  </div>
-                                  {p.productUpdate?.userBenefit ? (
-                                    <div className="rounded-md border border-border bg-background px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                      <span className="font-semibold text-foreground">{t.blog_pu_whoBenefits}:</span>{" "}
-                                      {p.productUpdate.userBenefit}
+                                  {lang === "en" ? (
+                                    <>
+                                      <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
+                                        <span className="font-semibold text-foreground">{t.blog_pu_whatChanged}:</span>{" "}
+                                        {p.excerpt.split(".")[0]}.
+                                      </div>
+                                      {p.productUpdate?.userBenefit ? (
+                                        <div className="rounded-md border border-border bg-background px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
+                                          <span className="font-semibold text-foreground">{t.blog_pu_whoBenefits}:</span>{" "}
+                                          {p.productUpdate.userBenefit}
+                                        </div>
+                                      ) : null}
+                                    </>
+                                  ) : (
+                                    <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
+                                      {t.blog_pu_teaserNeutral}
                                     </div>
-                                  ) : null}
+                                  )}
                                 </div>
                               ) : null}
 
@@ -635,10 +674,10 @@ const Blog = () => {
                         {p.productUpdate ? (
                           <>
                             <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                              {p.productUpdate.updateType}
+                              {updateTypeLabel(t, p.productUpdate.updateType)}
                             </span>
                             <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                              {p.productUpdate.affectedArea}
+                              {updateAreaLabel(t, p.productUpdate.affectedArea)}
                             </span>
                           </>
                         ) : (
@@ -651,7 +690,9 @@ const Blog = () => {
                         {p.title}
                       </p>
                       <p className="text-[12px] leading-relaxed text-muted-foreground line-clamp-2">
-                        {p.productUpdate?.userBenefit ?? p.excerpt}
+                        {lang === "en"
+                          ? (p.productUpdate?.userBenefit ?? p.excerpt)
+                          : t.blog_pu_teaserNeutral}
                       </p>
                       <p className="mt-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                         <Calendar className="h-3 w-3" aria-hidden />
