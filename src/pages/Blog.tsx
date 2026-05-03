@@ -537,6 +537,82 @@ const Blog = () => {
       <Footer />
     </div>
   );
+
+        {latestUpdates.length > 0 && (
+          <section
+            data-testid="blog-latest-updates"
+            className="border-t border-border bg-cool-gray/30"
+          >
+            <div className="container py-10 md:py-14">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                    Product changelog
+                  </p>
+                  <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
+                    Latest product updates
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilter("product_update");
+                    setQuery("");
+                    if (typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  See all updates
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+              <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {latestUpdates.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      to={`/blog/${p.slug}`}
+                      data-testid="blog-latest-update-link"
+                      className="group flex h-full flex-col gap-2 rounded-lg border border-border bg-card p-4 transition hover:border-primary"
+                    >
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.productUpdate ? (
+                          <>
+                            <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                              {p.productUpdate.updateType}
+                            </span>
+                            <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {p.productUpdate.affectedArea}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            Update
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
+                        {p.title}
+                      </p>
+                      <p className="text-[12px] leading-relaxed text-muted-foreground line-clamp-2">
+                        {p.productUpdate?.userBenefit ?? p.excerpt}
+                      </p>
+                      <p className="mt-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Calendar className="h-3 w-3" aria-hidden />
+                        {dateFmt.format(new Date(p.publishedAt))}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 export default Blog;
