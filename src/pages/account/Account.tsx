@@ -299,7 +299,7 @@ const PersonalSection = ({
           </div>
         </div>
       </AccountSectionCard>
-      </div>
+      </section>
     </div>
   );
 };
