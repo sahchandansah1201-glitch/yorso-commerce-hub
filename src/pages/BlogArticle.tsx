@@ -502,7 +502,7 @@ const BlogArticle = () => {
                       </span>
                       {post.productUpdate.prototype && (
                         <span className="rounded-full border border-dashed border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
-                          Prototype update
+                          {t.blog_pu_prototypeBadge}
                         </span>
                       )}
                     </div>
