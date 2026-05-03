@@ -675,12 +675,11 @@ const CompanySection = ({
           </ul>
         )}
         renderEdit={({ draft, setDraft }) => (
-          <FormRow label={t.account_company_paymentTerms}>
+          <FormRow label={t.account_company_paymentTerms} hint={t.account_company_listHelp}>
             <Input
               value={draft.paymentTerms.join(", ")}
               onChange={(e) => setDraft({ ...draft, paymentTerms: splitList(e.target.value) })}
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">{t.account_company_listHelp}</p>
           </FormRow>
         )}
       />
