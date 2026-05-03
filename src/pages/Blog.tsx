@@ -213,7 +213,7 @@ const Blog = () => {
             <div className="container py-10 md:py-14">
               <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                Featured market intelligence
+                {t.blog_featuredEyebrow}
               </div>
               <article
                 data-testid="blog-featured"
