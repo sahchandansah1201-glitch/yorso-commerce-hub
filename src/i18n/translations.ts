@@ -5220,6 +5220,21 @@ const es: TranslationKeys = {
   blog_cta_productUpdate: "Probar este flujo",
   blog_cta_glossary: "Explorar guía relacionada",
   blog_cta_default: "Continuar en YORSO",
+  blog_topic_salmonPrices: "Precios del salmón",
+  blog_topic_shrimpImports: "Importaciones de camarón",
+  blog_topic_supplierVerification: "Verificación de proveedores",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Acceso a precios",
+  blog_topic_landedCost: "Coste en destino",
+  blog_topic_documentation: "Documentación",
+  blog_startHere_catalog_label: "Explorar el catálogo",
+  blog_startHere_catalog_desc: "Ofertas en vivo, filtros y espacio de trabajo de compras.",
+  blog_startHere_suppliers_label: "Directorio de proveedores",
+  blog_startHere_suppliers_desc: "Proveedores verificados con identidad oculta hasta el acceso.",
+  blog_startHere_forSuppliers_label: "Vender en YORSO",
+  blog_startHere_forSuppliers_desc: "Cómo los proveedores publican producto y aprueban a compradores.",
+  blog_startHere_howItWorks_label: "Cómo funciona YORSO",
+  blog_startHere_howItWorks_desc: "Tres niveles de acceso y el flujo de compras.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
