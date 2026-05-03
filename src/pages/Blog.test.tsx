@@ -1,13 +1,8 @@
 /**
  * Route rendering tests for the YORSO Insights (/blog) section.
- *
- * Verifies:
- *  - /blog renders the index with the YORSO Insights title and a list of cards.
- *  - /blog/:slug renders an article by slug with title and back link.
- *  - /blog/:slug for an unknown slug renders the in-page not-found state.
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -35,13 +30,46 @@ describe("/blog · YORSO Insights", () => {
     localStorage.setItem("yorso-lang", "en");
   });
 
-  it("renders the index with title and at least one card", () => {
+  it("renders h1, category filters, search and crawlable article links", () => {
     renderAt("/blog");
-    expect(screen.getAllByText("YORSO Insights").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("heading", { level: 1, name: "YORSO Insights" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /content type/i })).toBeInTheDocument();
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
     const list = screen.getByTestId("blog-list");
-    expect(list).toBeInTheDocument();
-    const cards = screen.getAllByTestId("blog-card");
+    const cards = within(list).getAllByTestId("blog-card");
     expect(cards.length).toBe(blogPosts.length);
+    // crawlable: each card contains an anchor to /blog/<slug>
+    const links = within(list).getAllByRole("link");
+    expect(links.some((a) => a.getAttribute("href")?.startsWith("/blog/"))).toBe(true);
+  });
+
+  it("filters by content type", () => {
+    renderAt("/blog");
+    const productUpdates = blogPosts.filter((p) => p.contentType === "product_update");
+    fireEvent.click(screen.getByRole("button", { name: "Product updates" }));
+    const cards = within(screen.getByTestId("blog-list")).getAllByTestId("blog-card");
+    expect(cards.length).toBe(productUpdates.length);
+    cards.forEach((c) => expect(c.getAttribute("data-content-type")).toBe("product_update"));
+  });
+
+  it("search narrows results by tag/title", () => {
+    renderAt("/blog");
+    const search = screen.getByRole("searchbox");
+    fireEvent.change(search, { target: { value: "salmon" } });
+    const cards = within(screen.getByTestId("blog-list")).getAllByTestId("blog-card");
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards.length).toBeLessThan(blogPosts.length);
+  });
+
+  it("shows empty state when nothing matches", () => {
+    renderAt("/blog");
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "zzz-no-match-xyz-123" },
+    });
+    expect(screen.getByTestId("blog-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("blog-list")).not.toBeInTheDocument();
   });
 
   it("renders an article by slug", () => {
