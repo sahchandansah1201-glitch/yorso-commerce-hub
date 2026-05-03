@@ -1345,6 +1345,8 @@ type TranslationKeys = {
   account_completion_notifications_any: string;
   account_personal_basic_title: string;
   account_personal_basic_desc: string;
+  account_personal_jump_label: string;
+  account_personal_jump_aria: string;
   account_personal_firstName: string;
   account_personal_lastName: string;
   account_personal_email: string;
