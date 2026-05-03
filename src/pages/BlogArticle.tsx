@@ -787,20 +787,20 @@ const BlogArticle = () => {
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-primary" aria-hidden />
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                      Get seafood trade updates
+                      {t.blog_newsletterTitle}
                     </p>
                   </div>
                   <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                    Prototype only. We do not send emails yet.
+                    {t.blog_newsletterBody}
                   </p>
                   {emailSubmitted ? (
                     <p className="mt-3 rounded-md bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
-                      Thanks. We will let you know when this is live.
+                      {t.blog_newsletterSuccess}
                     </p>
                   ) : (
                     <div className="mt-3 space-y-2">
                       <label htmlFor="blog-newsletter-email" className="sr-only">
-                        Email
+                        {t.blog_newsletterEmailLabel}
                       </label>
                       <Input
                         id="blog-newsletter-email"
@@ -808,11 +808,11 @@ const BlogArticle = () => {
                         required
                         value={emailDraft}
                         onChange={(e) => setEmailDraft(e.target.value)}
-                        placeholder="you@company.com"
+                        placeholder={t.blog_newsletterEmailPlaceholder}
                         className="h-9"
                       />
                       <Button type="submit" size="sm" className="w-full">
-                        Notify me
+                        {t.blog_newsletterSubmit}
                       </Button>
                     </div>
                   )}
