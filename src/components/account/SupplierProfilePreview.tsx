@@ -56,17 +56,51 @@ export const SupplierProfilePreview = ({ company }: { company: CompanyProfile })
               </div>
             </div>
             {company.productFocus.length > 0 ? (
-              <div className="mb-2 flex flex-wrap gap-1">
-                {company.productFocus.map((p) => (
-                  <Badge key={p} variant="secondary" className="text-[11px]">
-                    {p}
-                  </Badge>
-                ))}
+              <div className="mb-3">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t.account_company_productFocus}
+                </p>
+                <div className="flex flex-wrap gap-1" data-testid="account-supplier-preview-productFocus">
+                  {company.productFocus.map((p) => (
+                    <Badge key={p} variant="secondary" className="text-[11px]">
+                      {p}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             ) : null}
             <p className="text-sm text-muted-foreground">
               {company.description || t.account_value_notSpecified}
             </p>
+            {company.certificates.length > 0 ? (
+              <div className="mt-3">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t.account_company_certificates}
+                </p>
+                <div className="flex flex-wrap gap-1" data-testid="account-supplier-preview-certificates">
+                  {company.certificates.map((cert) => (
+                    <Badge key={cert} variant="outline" className="text-[11px]">
+                      {cert}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {company.paymentTerms.length > 0 ? (
+              <div className="mt-3">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {t.account_company_paymentTerms}
+                </p>
+                <ul
+                  className="space-y-0.5 text-xs text-muted-foreground"
+                  data-testid="account-supplier-preview-paymentTerms"
+                >
+                  {company.paymentTerms.map((term) => (
+                    <li key={term}>• {term}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </div>
       </CardContent>
