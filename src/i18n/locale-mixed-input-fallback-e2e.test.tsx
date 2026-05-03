@@ -152,6 +152,6 @@ describe("E2E: смешанный/мусорный ввод языка → UI о
 
     expect(currentLang).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    expectRuKeyInDom("offersPage_title");
+    expectRuKeyInDom("nav_registerFree");
   });
 });
