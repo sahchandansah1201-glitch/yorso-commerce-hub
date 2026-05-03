@@ -85,6 +85,8 @@ export interface BlogPost {
   seoTitle: string;
   seoDescription: string;
   sections: BlogArticleSection[];
+  /** Structured metadata for product_update posts only. */
+  productUpdate?: ProductUpdateMeta;
 }
 
 const PLACEHOLDER = "/placeholder.svg";
