@@ -85,6 +85,18 @@ export const calculateAccountCompletion = (
       done: (c.description ?? "").trim().length >= 40,
     },
     {
+      id: "c_logo",
+      group: "company_profile",
+      labelKey: "account_completion_company_logo",
+      done: !!c.logoImageUrl,
+    },
+    {
+      id: "c_cover",
+      group: "company_profile",
+      labelKey: "account_completion_company_cover",
+      done: !!c.coverImageUrl,
+    },
+    {
       id: "s_branches",
       group: "supplier_readiness",
       labelKey: "account_completion_supplier_branches",
