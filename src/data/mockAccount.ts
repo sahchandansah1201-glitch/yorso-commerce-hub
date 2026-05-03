@@ -17,6 +17,7 @@ export interface UserProfile {
   lastName: string;
   email: string;
   phone: string;
+  phoneVerified: boolean;
   language: "en" | "ru" | "es";
   roleInCompany: string;
   timezone: string;
