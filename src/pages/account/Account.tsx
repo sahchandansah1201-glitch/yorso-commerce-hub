@@ -273,75 +273,87 @@ const PersonalSection = ({
           );
         }}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
-              <Input
-                value={draft.firstName}
-                onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
-                data-testid="account-input-firstName"
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
-              <Input
-                value={draft.lastName}
-                onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_personal_email}
-              required
-              error={errors.email}
-              hint={t.account_hint_email}
-            >
-              <Input
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                maxLength={254}
-                value={draft.email}
-                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_personal_phone}
-              error={errors.phone}
-              hint={t.account_hint_phone}
-            >
-              <Input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                maxLength={32}
-                value={draft.phone}
-                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
-              <Input
-                maxLength={100}
-                value={draft.roleInCompany}
-                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_timezone}>
-              <Input
-                value={draft.timezone}
-                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_language} error={errors.language}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={draft.language}
-                onChange={(e) =>
-                  setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
-                }
-              >
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-                <option value="es">Español</option>
-              </select>
-            </FormRow>
+          <div className="space-y-6">
+            <FieldGroup title={t.account_group_identity}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
+                  <Input
+                    value={draft.firstName}
+                    onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
+                    data-testid="account-input-firstName"
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
+                  <Input
+                    value={draft.lastName}
+                    onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
+                  <Input
+                    maxLength={100}
+                    value={draft.roleInCompany}
+                    onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_contacts}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow
+                  label={t.account_personal_email}
+                  required
+                  error={errors.email}
+                  hint={t.account_hint_email}
+                >
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    maxLength={254}
+                    value={draft.email}
+                    onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow
+                  label={t.account_personal_phone}
+                  error={errors.phone}
+                  hint={t.account_hint_phone}
+                >
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    maxLength={32}
+                    value={draft.phone}
+                    onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_locale}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_personal_timezone}>
+                  <Input
+                    value={draft.timezone}
+                    onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_language} error={errors.language}>
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={draft.language}
+                    onChange={(e) =>
+                      setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
+                    }
+                  >
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="es">Español</option>
+                  </select>
+                </FormRow>
+              </div>
+            </FieldGroup>
           </div>
         )}
       />
