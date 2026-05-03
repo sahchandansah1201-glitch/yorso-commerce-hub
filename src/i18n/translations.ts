@@ -2472,6 +2472,33 @@ const en: TranslationKeys = {
   supplier_faq_a6: "Default 30% prepayment / 70% against copies of documents. For repeat deals — deferred payment or letter of credit (L/C at sight).",
   supplier_faq_noAnswerTitle: "Didn't find the answer?",
   supplier_faq_noAnswerBody: "Send a message to the supplier — a manager will reply during working hours.",
+
+  // Blog / Insights
+  nav_blog: "Insights",
+  blog_breadcrumb: "Insights",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Practical seafood market and product knowledge for buyers and suppliers. Example articles, prototype content, no live data feeds.",
+  blog_allCategories: "All categories",
+  blog_searchPlaceholder: "Search insights",
+  blog_searchAria: "Search insights",
+  blog_emptyTitle: "No articles match your filters",
+  blog_emptyBody: "Try clearing the search query or selecting a different category.",
+  blog_readMore: "Read article",
+  blog_minutesRead: "{n} min read",
+  blog_audienceBuyer: "For buyers",
+  blog_audienceSupplier: "For suppliers",
+  blog_audienceBoth: "For buyers and suppliers",
+  blog_publishedOn: "Published {date}",
+  blog_updatedOn: "Updated {date}",
+  blog_byAuthor: "By {name}",
+  blog_relatedCtaOffers: "Browse the catalog",
+  blog_relatedCtaSuppliers: "Open supplier directory",
+  blog_relatedCtaForSuppliers: "Learn how to sell on YORSO",
+  blog_relatedCtaRegister: "Create a buyer account",
+  blog_mockNotice: "Example article. Prototype content for the YORSO Insights section.",
+  blog_backToIndex: "Back to all insights",
+  blog_notFoundTitle: "Article not found",
+  blog_notFoundBody: "We could not find the article you were looking for. It may have been moved or unpublished.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
