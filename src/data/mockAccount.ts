@@ -17,6 +17,7 @@ export interface UserProfile {
   lastName: string;
   email: string;
   phone: string;
+  phoneVerified: boolean;
   language: "en" | "ru" | "es";
   roleInCompany: string;
   timezone: string;
@@ -158,6 +159,7 @@ export const mockUser: UserProfile = {
   lastName: "Petrova",
   email: "anna.demo@example.com",
   phone: "+34 600 000 000",
+  phoneVerified: true,
   language: "en",
   roleInCompany: "Procurement Lead",
   timezone: "Europe/Madrid",

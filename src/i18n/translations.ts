@@ -1354,6 +1354,8 @@ type TranslationKeys = {
   account_personal_lastName: string;
   account_personal_email: string;
   account_personal_phone: string;
+  account_personal_phone_verified: string;
+  account_personal_phone_verified_aria: string;
   account_personal_role: string;
   account_personal_timezone: string;
   account_personal_security_title: string;
@@ -2895,6 +2897,8 @@ const en: TranslationKeys = {
   account_personal_lastName: "Last name",
   account_personal_email: "Email",
   account_personal_phone: "Phone",
+  account_personal_phone_verified: "Verified",
+  account_personal_phone_verified_aria: "Phone number verified",
   account_personal_role: "Role in company",
   account_personal_timezone: "Timezone",
   account_personal_security_title: "Security",
@@ -4423,6 +4427,8 @@ const ru: TranslationKeys = {
   account_personal_lastName: "Фамилия",
   account_personal_email: "Эл. почта",
   account_personal_phone: "Телефон",
+  account_personal_phone_verified: "Подтверждён",
+  account_personal_phone_verified_aria: "Телефон подтверждён",
   account_personal_role: "Роль в компании",
   account_personal_timezone: "Часовой пояс",
   account_personal_security_title: "Безопасность",
@@ -5950,6 +5956,8 @@ const es: TranslationKeys = {
   account_personal_lastName: "Apellido",
   account_personal_email: "Correo electrónico",
   account_personal_phone: "Teléfono",
+  account_personal_phone_verified: "Verificado",
+  account_personal_phone_verified_aria: "Teléfono verificado",
   account_personal_role: "Rol en la empresa",
   account_personal_timezone: "Zona horaria",
   account_personal_security_title: "Seguridad",
