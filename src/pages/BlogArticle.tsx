@@ -1,11 +1,23 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronRight, Calendar, Clock, ArrowLeft, AlertCircle } from "lucide-react";
+import {
+  ChevronRight,
+  Calendar,
+  Clock,
+  ArrowLeft,
+  ArrowRight,
+  AlertCircle,
+  Mail,
+  ListTree,
+  Sparkles,
+} from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
+import { blogPosts, getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
+import { cn } from "@/lib/utils";
 
 const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
@@ -21,6 +33,32 @@ const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   }
 };
 
+const upsertLink = (rel: string, href: string) => {
+  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+};
+
+const upsertJsonLd = (id: string, data: unknown) => {
+  let el = document.head.querySelector<HTMLScriptElement>(`script[data-jsonld="${id}"]`);
+  if (!el) {
+    el = document.createElement("script");
+    el.setAttribute("type", "application/ld+json");
+    el.setAttribute("data-jsonld", id);
+    document.head.appendChild(el);
+  }
+  el.text = JSON.stringify(data);
+};
+
+const removeJsonLd = (id: string) => {
+  const el = document.head.querySelector(`script[data-jsonld="${id}"]`);
+  if (el) el.remove();
+};
+
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
   a: BlogPost["audience"],
@@ -31,26 +69,108 @@ const audienceLabel = (
       ? t.blog_audienceSupplier
       : t.blog_audienceBoth;
 
-const ctaLabel = (
-  t: ReturnType<typeof useLanguage>["t"],
-  cta: NonNullable<BlogPost["relatedCta"]>,
-) => {
-  switch (cta) {
-    case "/offers":
-      return t.blog_relatedCtaOffers;
-    case "/suppliers":
-      return t.blog_relatedCtaSuppliers;
-    case "/for-suppliers":
-      return t.blog_relatedCtaForSuppliers;
-    case "/register":
-      return t.blog_relatedCtaRegister;
+interface ResolvedCta {
+  to: string;
+  label: string;
+}
+
+const resolveCta = (post: BlogPost): ResolvedCta => {
+  switch (post.contentType) {
+    case "market_intelligence":
+      return { to: "/offers", label: "View related offers" };
+    case "buyer_guide":
+      return { to: "/offers", label: "Open procurement catalog" };
+    case "supplier_guide":
+      return { to: "/for-suppliers", label: "Open supplier page" };
+    case "product_update":
+      return { to: post.relatedCta ?? "/offers", label: "Try this workflow" };
+    case "glossary":
+      return { to: "/blog", label: "Explore related guide" };
+    default:
+      return { to: post.relatedCta ?? "/offers", label: "Continue on YORSO" };
   }
+};
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const stripPunct = (s: string) => s.replace(/[.!?]+$/g, "");
+
+const buildAnswerCapsule = (post: BlogPost): string => {
+  const first = post.sections[0]?.paragraphs[0] ?? post.excerpt;
+  const words = first.split(/\s+/);
+  if (words.length <= 70) return first;
+  return words.slice(0, 60).join(" ") + ".";
+};
+
+const buildKeyTakeaways = (post: BlogPost): string[] => {
+  const out: string[] = [];
+  for (const s of post.sections) {
+    if (s.bullets && s.bullets.length) {
+      for (const b of s.bullets) {
+        if (out.length < 4) out.push(b);
+      }
+    }
+  }
+  if (out.length < 3) {
+    for (const s of post.sections) {
+      const first = s.paragraphs[0];
+      if (first) {
+        const sentence = first.split(/(?<=[.!?])\s+/)[0];
+        if (sentence && !out.includes(sentence) && out.length < 4) out.push(sentence);
+      }
+    }
+  }
+  return out.slice(0, 4);
+};
+
+const buildFaq = (post: BlogPost): { q: string; a: string }[] => {
+  const useFaq =
+    post.contentType === "buyer_guide" ||
+    post.contentType === "supplier_guide" ||
+    post.contentType === "glossary";
+  if (!useFaq) return [];
+  return post.sections.slice(0, 3).map((s) => ({
+    q: stripPunct(s.heading).endsWith("?") ? s.heading : `${stripPunct(s.heading)}?`,
+    a: s.paragraphs[0] ?? "",
+  }));
+};
+
+interface CompactTableRow {
+  k: string;
+  v: string;
+}
+
+const buildCompactTable = (post: BlogPost): { caption: string; rows: CompactTableRow[] } | null => {
+  const wantTable =
+    post.contentType === "market_intelligence" ||
+    post.contentType === "buyer_guide" ||
+    post.contentType === "supplier_guide";
+  if (!wantTable) return null;
+
+  const sectionWithBullets = post.sections.find((s) => s.bullets && s.bullets.length >= 3);
+  if (!sectionWithBullets || !sectionWithBullets.bullets) return null;
+
+  const rows: CompactTableRow[] = sectionWithBullets.bullets.slice(0, 6).map((b) => {
+    const idx = b.indexOf(":");
+    if (idx > 0) {
+      return { k: b.slice(0, idx).trim(), v: b.slice(idx + 1).trim() };
+    }
+    return { k: b, v: "—" };
+  });
+  return { caption: sectionWithBullets.heading, rows };
 };
 
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const { t, lang } = useLanguage();
   const post = slug ? getBlogPostBySlug(slug) : undefined;
+
+  const [emailDraft, setEmailDraft] = useState("");
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   const dateFmt = useMemo(
     () =>
@@ -62,22 +182,117 @@ const BlogArticle = () => {
     [lang],
   );
 
+  const toc = useMemo(() => {
+    if (!post) return [] as { id: string; heading: string }[];
+    return post.sections.map((s) => ({ id: slugify(s.heading), heading: s.heading }));
+  }, [post]);
+
+  const related = useMemo(() => {
+    if (!post) return [] as BlogPost[];
+    const sameSpecies = blogPosts.filter(
+      (p) =>
+        p.id !== post.id &&
+        (p.speciesTags ?? []).some((s) => (post.speciesTags ?? []).includes(s)),
+    );
+    const sameType = blogPosts.filter(
+      (p) => p.id !== post.id && p.contentType === post.contentType,
+    );
+    const merged: BlogPost[] = [];
+    for (const p of [...sameSpecies, ...sameType]) {
+      if (!merged.find((m) => m.id === p.id)) merged.push(p);
+      if (merged.length >= 3) break;
+    }
+    if (merged.length < 3) {
+      for (const p of blogPosts) {
+        if (p.id === post.id) continue;
+        if (!merged.find((m) => m.id === p.id)) merged.push(p);
+        if (merged.length >= 3) break;
+      }
+    }
+    return merged.slice(0, 3);
+  }, [post]);
+
+  const cta = useMemo(() => (post ? resolveCta(post) : null), [post]);
+  const answerCapsule = useMemo(() => (post ? buildAnswerCapsule(post) : ""), [post]);
+  const takeaways = useMemo(() => (post ? buildKeyTakeaways(post) : []), [post]);
+  const faq = useMemo(() => (post ? buildFaq(post) : []), [post]);
+  const table = useMemo(() => (post ? buildCompactTable(post) : null), [post]);
+
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const prev = document.title;
+    const prevTitle = document.title;
+    const canonicalHref =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/blog/${slug ?? ""}`
+        : `/blog/${slug ?? ""}`;
+
     if (post) {
       document.title = `${post.seoTitle} · YORSO`;
       upsertMeta('meta[name="description"]', {
         name: "description",
         content: post.seoDescription,
       });
+      upsertLink("canonical", canonicalHref);
+
+      // Open Graph
+      upsertMeta('meta[property="og:type"]', { property: "og:type", content: "article" });
+      upsertMeta('meta[property="og:title"]', { property: "og:title", content: post.seoTitle });
+      upsertMeta('meta[property="og:description"]', {
+        property: "og:description",
+        content: post.seoDescription,
+      });
+      upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonicalHref });
+      if (post.heroImage) {
+        upsertMeta('meta[property="og:image"]', {
+          property: "og:image",
+          content: post.heroImage,
+        });
+      }
+      upsertMeta('meta[name="twitter:card"]', {
+        name: "twitter:card",
+        content: "summary_large_image",
+      });
+
+      // JSON-LD: Article
+      upsertJsonLd("article", {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.seoDescription,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt,
+        author: { "@type": "Organization", name: post.authorName },
+        publisher: { "@type": "Organization", name: "YORSO" },
+        image: post.heroImage ? [post.heroImage] : undefined,
+        mainEntityOfPage: canonicalHref,
+        articleSection: post.category,
+        keywords: [...(post.speciesTags ?? []), ...(post.countryTags ?? [])].join(", "),
+      });
+
+      // JSON-LD: FAQ
+      if (faq.length) {
+        upsertJsonLd("faq", {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faq.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        });
+      } else {
+        removeJsonLd("faq");
+      }
     } else {
       document.title = `${t.blog_notFoundTitle} · YORSO`;
     }
+
     return () => {
-      document.title = prev;
+      document.title = prevTitle;
+      removeJsonLd("article");
+      removeJsonLd("faq");
     };
-  }, [post, t]);
+  }, [post, slug, t, faq]);
 
   if (!post) {
     return (
@@ -108,6 +323,11 @@ const BlogArticle = () => {
     );
   }
 
+  const handleSubmitEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailSubmitted(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -122,17 +342,20 @@ const BlogArticle = () => {
               <Link to="/" className="hover:text-foreground">
                 {t.supplier_breadcrumb_home}
               </Link>
-              <ChevronRight className="h-3 w-3" aria-hidden />
+              <ChevronRight className="h-3 w-3 shrink-0" aria-hidden />
               <Link to="/blog" className="hover:text-foreground">
                 {t.blog_breadcrumb}
               </Link>
-              <ChevronRight className="h-3 w-3" aria-hidden />
-              <span className="line-clamp-1 font-medium text-foreground">{post.title}</span>
+              <ChevronRight className="h-3 w-3 shrink-0" aria-hidden />
+              <span className="line-clamp-1 min-w-0 font-medium text-foreground">
+                {post.title}
+              </span>
             </nav>
           </div>
         </div>
 
         <article data-testid="blog-article" className="bg-background">
+          {/* Header */}
           <header className="border-b border-border bg-gradient-to-b from-background to-cool-gray/30">
             <div className="container py-10 md:py-14">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -141,20 +364,24 @@ const BlogArticle = () => {
                 </span>
                 <span>{audienceLabel(t, post.audience)}</span>
               </div>
-              <h1 className="mt-3 max-w-3xl font-heading text-[30px] font-bold leading-tight tracking-tight text-foreground md:text-[40px]">
+              <h1 className="mt-3 max-w-3xl font-heading text-[30px] font-bold leading-tight tracking-tight text-foreground md:text-[42px]">
                 {post.title}
               </h1>
-              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">
                 {post.excerpt}
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" aria-hidden />
-                  {interpolate(t.blog_publishedOn, { date: dateFmt.format(new Date(post.publishedAt)) })}
+                  {interpolate(t.blog_publishedOn, {
+                    date: dateFmt.format(new Date(post.publishedAt)),
+                  })}
                 </span>
                 {post.updatedAt && post.updatedAt !== post.publishedAt && (
                   <span>
-                    {interpolate(t.blog_updatedOn, { date: dateFmt.format(new Date(post.updatedAt)) })}
+                    {interpolate(t.blog_updatedOn, {
+                      date: dateFmt.format(new Date(post.updatedAt)),
+                    })}
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1">
@@ -163,15 +390,86 @@ const BlogArticle = () => {
                 </span>
                 <span>{interpolate(t.blog_byAuthor, { name: post.authorName })}</span>
               </div>
+
+              {(post.speciesTags?.length || post.countryTags?.length) ? (
+                <div className="mt-5 flex flex-wrap gap-1.5">
+                  {(post.speciesTags ?? []).map((s) => (
+                    <span
+                      key={`s-${s}`}
+                      className="rounded border border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] font-semibold text-primary"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                  {(post.countryTags ?? []).map((c) => (
+                    <span
+                      key={`c-${c}`}
+                      className="rounded border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-semibold text-foreground/80"
+                    >
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
+              {cta && (
+                <div className="mt-6">
+                  <Button asChild className="h-11 px-5">
+                    <Link to={cta.to} data-testid="blog-header-cta">
+                      {cta.label}
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </header>
 
+          {/* Body */}
           <div className="container py-8 md:py-12">
-            <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
               <div className="min-w-0">
                 <p className="rounded-md border border-dashed border-border bg-muted/40 p-3 text-xs text-muted-foreground">
                   {t.blog_mockNotice}
                 </p>
+
+                {/* Mobile TOC */}
+                {toc.length > 0 && (
+                  <details
+                    data-testid="blog-toc-mobile"
+                    className="mt-5 rounded-lg border border-border bg-card p-4 lg:hidden"
+                  >
+                    <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
+                      <ListTree className="h-4 w-4 text-primary" aria-hidden />
+                      On this page
+                    </summary>
+                    <ul className="mt-3 space-y-1.5 text-sm">
+                      {toc.map((item) => (
+                        <li key={item.id}>
+                          <a
+                            href={`#${item.id}`}
+                            className="text-muted-foreground hover:text-primary"
+                          >
+                            {item.heading}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
+                {/* Answer capsule */}
+                <div
+                  data-testid="blog-answer-capsule"
+                  className="mt-6 rounded-lg border border-border bg-card p-5"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                    Quick answer
+                  </p>
+                  <p className="mt-2 text-[15px] leading-relaxed text-foreground/90">
+                    {answerCapsule}
+                  </p>
+                </div>
 
                 {post.heroImage && (
                   <img
@@ -184,35 +482,143 @@ const BlogArticle = () => {
                   />
                 )}
 
-                <div className="mt-8 space-y-8">
-                  {post.sections.map((s, i) => (
-                    <section key={i}>
-                      <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                        {s.heading}
-                      </h2>
-                      <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-foreground/90">
-                        {s.paragraphs.map((p, j) => (
-                          <p key={j}>{p}</p>
-                        ))}
-                      </div>
-                      {s.bullets && s.bullets.length > 0 && (
-                        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-foreground/90">
-                          {s.bullets.map((b, j) => (
-                            <li key={j}>{b}</li>
+                {/* Sections */}
+                <div className="mt-8 space-y-10">
+                  {post.sections.map((s, i) => {
+                    const id = slugify(s.heading);
+                    return (
+                      <section key={i} id={id} className="scroll-mt-24">
+                        <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                          {s.heading}
+                        </h2>
+                        <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-foreground/90">
+                          {s.paragraphs.map((p, j) => (
+                            <p key={j}>{p}</p>
                           ))}
-                        </ul>
-                      )}
-                    </section>
-                  ))}
+                        </div>
+                        {s.bullets && s.bullets.length > 0 && (
+                          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[15px] leading-relaxed text-foreground/90">
+                            {s.bullets.map((b, j) => (
+                              <li key={j}>{b}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </section>
+                    );
+                  })}
                 </div>
 
-                {post.relatedCta && (
-                  <div className="mt-10 rounded-lg border border-border bg-card p-5">
-                    <Button asChild className="gap-2">
-                      <Link to={post.relatedCta}>{ctaLabel(t, post.relatedCta)}</Link>
-                    </Button>
+                {/* Compact table */}
+                {table && (
+                  <div
+                    data-testid="blog-compact-table"
+                    className="mt-10 overflow-hidden rounded-lg border border-border"
+                  >
+                    <div className="border-b border-border bg-muted/40 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {table.caption}
+                    </div>
+                    <table className="w-full text-sm">
+                      <tbody>
+                        {table.rows.map((r, i) => (
+                          <tr
+                            key={i}
+                            className={cn(
+                              "border-b border-border last:border-b-0",
+                              i % 2 === 0 ? "bg-background" : "bg-muted/20",
+                            )}
+                          >
+                            <th
+                              scope="row"
+                              className="w-1/3 px-4 py-2.5 text-left align-top font-semibold text-foreground"
+                            >
+                              {r.k}
+                            </th>
+                            <td className="px-4 py-2.5 align-top text-foreground/80">{r.v}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
+
+                {/* Key takeaways */}
+                {takeaways.length > 0 && (
+                  <div
+                    data-testid="blog-takeaways"
+                    className="mt-10 rounded-lg border border-primary/30 bg-primary/5 p-5"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" aria-hidden />
+                      <h2 className="font-heading text-base font-semibold text-foreground">
+                        Key takeaways
+                      </h2>
+                    </div>
+                    <ul className="mt-3 space-y-2 text-[14px] leading-relaxed text-foreground/90">
+                      {takeaways.map((b, i) => (
+                        <li key={i} className="flex gap-2">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* FAQ */}
+                {faq.length > 0 && (
+                  <div className="mt-10" data-testid="blog-faq">
+                    <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                      Frequently asked
+                    </h2>
+                    <div className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
+                      {faq.map((f, i) => (
+                        <details key={i} className="group p-4">
+                          <summary className="flex cursor-pointer items-center justify-between gap-3 text-[15px] font-semibold text-foreground">
+                            {f.q}
+                            <ChevronRight className="h-4 w-4 text-muted-foreground transition group-open:rotate-90" aria-hidden />
+                          </summary>
+                          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                            {f.a}
+                          </p>
+                        </details>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Related YORSO links */}
+                <div className="mt-10 grid gap-3 sm:grid-cols-2">
+                  {cta && (
+                    <Link
+                      to={cta.to}
+                      className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 transition hover:border-primary"
+                    >
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Continue on YORSO
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
+                          {cta.label}
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden />
+                    </Link>
+                  )}
+                  <Link
+                    to="/how-it-works"
+                    className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 transition hover:border-primary"
+                  >
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Learn more
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
+                        How YORSO works
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden />
+                  </Link>
+                </div>
 
                 <div className="mt-10">
                   <Button asChild variant="ghost" size="sm">
@@ -224,45 +630,119 @@ const BlogArticle = () => {
                 </div>
               </div>
 
-              <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-                {(post.speciesTags?.length || post.countryTags?.length) && (
-                  <div className="rounded-lg border border-border bg-card p-4">
-                    {post.speciesTags && post.speciesTags.length > 0 && (
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Species
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {post.speciesTags.map((s) => (
-                            <span
-                              key={s}
-                              className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold text-foreground/80"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {post.countryTags && post.countryTags.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Countries
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {post.countryTags.map((c) => (
-                            <span
-                              key={c}
-                              className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-semibold text-foreground/80"
-                            >
-                              {c}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              {/* Right rail */}
+              <aside className="hidden space-y-5 lg:block lg:sticky lg:top-24 lg:self-start">
+                {toc.length > 0 && (
+                  <nav
+                    aria-label="Table of contents"
+                    data-testid="blog-toc"
+                    className="rounded-lg border border-border bg-card p-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ListTree className="h-4 w-4 text-primary" aria-hidden />
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+                        On this page
+                      </p>
+                    </div>
+                    <ul className="mt-3 space-y-1.5 text-sm">
+                      {toc.map((item) => (
+                        <li key={item.id}>
+                          <a
+                            href={`#${item.id}`}
+                            className="block text-muted-foreground hover:text-primary"
+                          >
+                            {item.heading}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                )}
+
+                {related.length > 0 && (
+                  <div
+                    data-testid="blog-related"
+                    className="rounded-lg border border-border bg-card p-4"
+                  >
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+                      Related articles
+                    </p>
+                    <ul className="mt-3 space-y-3">
+                      {related.map((r) => (
+                        <li key={r.id}>
+                          <Link
+                            to={`/blog/${r.slug}`}
+                            className="group block"
+                          >
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                              {r.category}
+                            </p>
+                            <p className="mt-0.5 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
+                              {r.title}
+                            </p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                              {interpolate(t.blog_minutesRead, { n: r.readingTimeMinutes })}
+                            </p>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
+
+                {cta && (
+                  <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                      Take action
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">{cta.label}</p>
+                    <Button asChild size="sm" className="mt-3 w-full">
+                      <Link to={cta.to}>
+                        Open
+                        <ArrowRight className="h-4 w-4" aria-hidden />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+
+                <form
+                  onSubmit={handleSubmitEmail}
+                  data-testid="blog-newsletter"
+                  className="rounded-lg border border-border bg-card p-4"
+                >
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-primary" aria-hidden />
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+                      Get seafood trade updates
+                    </p>
+                  </div>
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                    Prototype only. We do not send emails yet.
+                  </p>
+                  {emailSubmitted ? (
+                    <p className="mt-3 rounded-md bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
+                      Thanks. We will let you know when this is live.
+                    </p>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      <label htmlFor="blog-newsletter-email" className="sr-only">
+                        Email
+                      </label>
+                      <Input
+                        id="blog-newsletter-email"
+                        type="email"
+                        required
+                        value={emailDraft}
+                        onChange={(e) => setEmailDraft(e.target.value)}
+                        placeholder="you@company.com"
+                        className="h-9"
+                      />
+                      <Button type="submit" size="sm" className="w-full">
+                        Notify me
+                      </Button>
+                    </div>
+                  )}
+                </form>
               </aside>
             </div>
           </div>
