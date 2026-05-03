@@ -449,7 +449,7 @@ const BlogArticle = () => {
                 {post.heroImage && (
                   <img
                     src={post.heroImage}
-                    alt=""
+                    alt={post.heroImageAlt}
                     className="mt-6 aspect-[16/9] w-full rounded-lg border border-border object-cover"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
