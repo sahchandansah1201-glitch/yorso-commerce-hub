@@ -27,18 +27,18 @@ const safeRead = (): AccountProfile | null => {
 
 const safeWrite = (profile: AccountProfile | null): void => {
   if (typeof window === "undefined") return;
-  try {
-    if (profile) localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* swallow */
-  }
+  if (profile) localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  else localStorage.removeItem(STORAGE_KEY);
 };
 
 export const getAccountProfile = (): AccountProfile => {
   return safeRead() ?? mockAccountProfile;
 };
 
+/**
+ * Persists profile to localStorage. Throws on quota / serialization failure
+ * so callers can show a user-facing error.
+ */
 export const saveAccountProfile = (profile: AccountProfile): void => {
   safeWrite(profile);
 };
