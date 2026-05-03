@@ -1422,6 +1422,7 @@ const en: TranslationKeys = {
       { label: "Supplier directory", href: "/suppliers" },
       { label: "How It Works", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Insights", href: "/blog" },
     ],
     company: [
       { label: "About YORSO", href: "/about" },
