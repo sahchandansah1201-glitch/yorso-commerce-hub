@@ -509,7 +509,7 @@ const BlogArticle = () => {
                     <div className="grid gap-5 p-5 md:grid-cols-2">
                       <div>
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          What changed
+                          {t.blog_pu_whatChanged}
                         </h2>
                         <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
                           {post.sections[0]?.paragraphs[0] ?? post.excerpt}
