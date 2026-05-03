@@ -276,7 +276,13 @@ const PersonalSection = ({
   const jumpTo = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const reduceMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
     el.classList.add("ring-2", "ring-primary/50");
     window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/50"), 1200);
     el.focus({ preventScroll: true });
