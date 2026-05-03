@@ -2613,6 +2613,21 @@ const en: TranslationKeys = {
   blog_cta_productUpdate: "Try this workflow",
   blog_cta_glossary: "Explore related guide",
   blog_cta_default: "Continue on YORSO",
+  blog_topic_salmonPrices: "Salmon prices",
+  blog_topic_shrimpImports: "Shrimp imports",
+  blog_topic_supplierVerification: "Supplier verification",
+  blog_topic_rfq: "RFQ",
+  blog_topic_priceAccess: "Price access",
+  blog_topic_landedCost: "Landed cost",
+  blog_topic_documentation: "Documentation",
+  blog_startHere_catalog_label: "Browse the catalog",
+  blog_startHere_catalog_desc: "Live offers, filters, and procurement workspace.",
+  blog_startHere_suppliers_label: "Supplier directory",
+  blog_startHere_suppliers_desc: "Verified suppliers with masked identity until access.",
+  blog_startHere_forSuppliers_label: "Sell on YORSO",
+  blog_startHere_forSuppliers_desc: "How suppliers list product and approve buyers.",
+  blog_startHere_howItWorks_label: "How YORSO works",
+  blog_startHere_howItWorks_desc: "Three access levels and the procurement flow.",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
