@@ -74,23 +74,25 @@ interface ResolvedCta {
   label: string;
 }
 
-const resolveCta = (post: BlogPost): ResolvedCta => {
+type Translator = ReturnType<typeof useLanguage>["t"];
+
+const resolveCta = (t: Translator, post: BlogPost): ResolvedCta => {
   switch (post.contentType) {
     case "market_intelligence":
-      return { to: "/offers", label: "View related offers" };
+      return { to: "/offers", label: t.blog_cta_marketIntel };
     case "buyer_guide":
-      return { to: "/offers", label: "Open procurement catalog" };
+      return { to: "/offers", label: t.blog_cta_buyerGuide };
     case "supplier_guide":
-      return { to: "/for-suppliers", label: "Open supplier page" };
+      return { to: "/for-suppliers", label: t.blog_cta_supplierGuide };
     case "product_update":
       return {
         to: post.productUpdate?.relatedRoute ?? post.relatedCta ?? "/offers",
-        label: "Try this workflow",
+        label: t.blog_cta_productUpdate,
       };
     case "glossary":
-      return { to: "/blog", label: "Explore related guide" };
+      return { to: "/blog", label: t.blog_cta_glossary };
     default:
-      return { to: post.relatedCta ?? "/offers", label: "Continue on YORSO" };
+      return { to: post.relatedCta ?? "/offers", label: t.blog_cta_default };
   }
 };
 
