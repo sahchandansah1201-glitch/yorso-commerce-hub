@@ -159,6 +159,37 @@ const Blog = () => {
     [lang],
   );
 
+  // CollectionPage + ItemList JSON-LD that mirrors visible posts.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const canonical = absoluteUrl("/blog");
+    upsertJsonLd("blog-collection", {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: t.blog_pageTitle,
+      description: t.blog_pageSubtitle,
+      url: canonical,
+      isPartOf: { "@type": "WebSite", name: "YORSO", url: absoluteUrl("/") },
+      publisher: {
+        "@type": "Organization",
+        name: "YORSO",
+        url: absoluteUrl("/"),
+      },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: sortedPosts.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: absoluteUrl(`/blog/${p.slug}`),
+          name: p.title,
+          description: p.seoDescription,
+          datePublished: p.publishedAt,
+          dateModified: p.updatedAt,
+        })),
+      },
+    });
+  }, [t, sortedPosts]);
+
   const onTopicClick = (topic: string) => {
     setQuery(topic);
     setFilter("all");
