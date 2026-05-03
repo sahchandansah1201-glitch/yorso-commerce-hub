@@ -26,6 +26,9 @@ import {
   absoluteUrl,
 } from "@/lib/seo";
 
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
   a: BlogPost["audience"],
