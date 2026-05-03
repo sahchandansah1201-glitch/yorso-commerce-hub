@@ -260,8 +260,13 @@ const PersonalSection = ({
       >
         <p className="text-sm text-muted-foreground">{t.account_personal_security_placeholder}</p>
       </AccountSectionCard>
-      </div>
-      <div id="personal-membership" className="scroll-mt-24 rounded-lg transition-shadow">
+      </section>
+      <section
+        id="personal-membership"
+        tabIndex={-1}
+        aria-label={t.account_personal_membership_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
