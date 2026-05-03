@@ -4384,6 +4384,8 @@ const ru: TranslationKeys = {
   account_completion_notifications_any: "Включён хотя бы один канал уведомлений",
   account_personal_basic_title: "Базовые данные",
   account_personal_basic_desc: "Личная контактная информация.",
+  account_personal_jump_label: "Перейти к",
+  account_personal_jump_aria: "Перейти к разделу",
   account_personal_firstName: "Имя",
   account_personal_lastName: "Фамилия",
   account_personal_email: "Эл. почта",
