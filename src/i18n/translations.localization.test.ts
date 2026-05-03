@@ -56,6 +56,11 @@ const HINT_KEYS = [
 
 const CYRILLIC = /[А-Яа-яЁё]/;
 
+// Ключи, у которых RU-вариант — намеренный акроним/латиница (нет кириллицы по дизайну).
+const RU_LATIN_OK = new Set<string>(["blog_topic_rfq"]);
+// Ключи, у которых EN и ES совпадают намеренно (интернациональный термин/бренд).
+const EN_ES_SAME_OK = new Set<string>(["blog_breadcrumb"]);
+
 describe("UI hint localization", () => {
   it("каждая локаль определена", () => {
     for (const l of LANGS) {
