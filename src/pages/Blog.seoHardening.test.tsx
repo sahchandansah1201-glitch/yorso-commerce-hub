@@ -131,6 +131,30 @@ describe("SEO hardening", () => {
     expect(og!.content).not.toMatch(/\/src\/assets/);
   });
 
+  it("every /blog/:slug sets a safe og:image (no lovable.dev, no /src/assets)", () => {
+    for (const post of blogPosts) {
+      document.head
+        .querySelectorAll(
+          "meta[property^='og:'], script[data-jsonld], meta[name='x-route-seo']",
+        )
+        .forEach((el) => el.remove());
+      localStorage.setItem("yorso-lang", "en");
+
+      const { unmount } = renderAt(`/blog/${post.slug}`);
+      const og = document.head.querySelector(
+        'meta[property="og:image"]',
+      ) as HTMLMetaElement | null;
+      expect(og, `og:image missing for /blog/${post.slug}`).not.toBeNull();
+      expect(og!.content, `bad og:image for /blog/${post.slug}`).not.toMatch(
+        /lovable\.dev/,
+      );
+      expect(og!.content, `bad og:image for /blog/${post.slug}`).not.toMatch(
+        /\/src\/assets/,
+      );
+      unmount();
+    }
+  });
+
   it("/blog sets a non-Lovable og:image (no /src/assets, no lovable.dev)", () => {
     renderAt("/blog");
     const og = document.head.querySelector(
