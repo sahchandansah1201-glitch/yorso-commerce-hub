@@ -102,30 +102,38 @@ export function EditableCard<T>({
   };
 
   const focusFirstInvalid = () => {
-    // Defer until aria-invalid attributes are applied by React
+    // Wait two frames so React commits the new aria-invalid attributes
+    // before we query for the next first invalid field.
     requestAnimationFrame(() => {
-      const root = contentRef.current;
-      if (!root) return;
-      const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
-      if (!invalid) return;
-      const offset = getStickyOffset();
-      const rect = invalid.getBoundingClientRect();
-      const target = window.scrollY + rect.top - offset;
-      window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
-      try {
-        invalid.focus({ preventScroll: true });
-      } catch {
-        invalid.focus();
-      }
-      // Briefly highlight enclosing group for context
-      const group = invalid.closest<HTMLElement>('[role="group"]');
-      if (group) {
-        group.classList.add("ring-2", "ring-destructive/50", "rounded-md");
-        window.setTimeout(
-          () => group.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
-          1400,
-        );
-      }
+      requestAnimationFrame(() => {
+        const root = contentRef.current;
+        if (!root) return;
+        // Clear any stale highlight from previous attempt
+        root
+          .querySelectorAll<HTMLElement>(".ring-destructive\\/50")
+          .forEach((el) =>
+            el.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
+          );
+        const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
+        if (!invalid) return;
+        const offset = getStickyOffset();
+        const rect = invalid.getBoundingClientRect();
+        const target = window.scrollY + rect.top - offset;
+        window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+        try {
+          invalid.focus({ preventScroll: true });
+        } catch {
+          invalid.focus();
+        }
+        const group = invalid.closest<HTMLElement>('[role="group"]');
+        if (group) {
+          group.classList.add("ring-2", "ring-destructive/50", "rounded-md");
+          window.setTimeout(
+            () => group.classList.remove("ring-2", "ring-destructive/50", "rounded-md"),
+            1400,
+          );
+        }
+      });
     });
   };
 
@@ -135,7 +143,7 @@ export function EditableCard<T>({
       setErrors(errs);
       setValidationSummary(t.account_save_error_validation);
       setSaveState("error");
-      focusFirstInvalid();
+      if (!opts.auto) focusFirstInvalid();
       return false;
     }
     setErrors({});
