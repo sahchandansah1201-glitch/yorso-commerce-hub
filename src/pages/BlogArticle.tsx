@@ -341,7 +341,7 @@ const BlogArticle = () => {
             <div className="container py-10 md:py-14">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
-                  {post.category}
+                  {localizedCategoryLabel(t, post.contentType)}
                 </span>
                 <span>{audienceLabel(t, post.audience)}</span>
               </div>
@@ -725,7 +725,7 @@ const BlogArticle = () => {
                             className="group block"
                           >
                             <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                              {r.category}
+                              {localizedCategoryLabel(t, r.contentType)}
                             </p>
                             <p className="mt-0.5 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
                               {r.title}
