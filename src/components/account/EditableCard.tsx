@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface RenderArgs<T> {
