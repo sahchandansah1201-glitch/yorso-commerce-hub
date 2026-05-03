@@ -305,15 +305,15 @@ const Blog = () => {
               <div
                 className="flex flex-wrap gap-2"
                 role="group"
-                aria-label="Content type"
+                aria-label={t.blog_filter_aria}
               >
-                {FILTERS.map((f) => {
-                  const active = filter === f.key;
+                {FILTER_KEYS.map((key) => {
+                  const active = filter === key;
                   return (
                     <button
-                      key={f.key}
+                      key={key}
                       type="button"
-                      onClick={() => setFilter(f.key)}
+                      onClick={() => setFilter(key)}
                       aria-pressed={active}
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition",
@@ -322,7 +322,7 @@ const Blog = () => {
                           : "border-border bg-background text-foreground/80 hover:border-foreground/30",
                       )}
                     >
-                      {f.label}
+                      {filterLabel(t, key)}
                     </button>
                   );
                 })}
