@@ -602,7 +602,7 @@ const Blog = () => {
                           </>
                         ) : (
                           <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Update
+                            {t.blog_pu_genericBadge}
                           </span>
                         )}
                       </div>
