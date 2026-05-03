@@ -428,17 +428,16 @@ const CompanySection = ({
         initial={c}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.legalName.trim()) e.legalName = t.account_validation_required;
-          if (!d.tradeName.trim()) e.tradeName = t.account_validation_required;
-          if (!d.country.trim()) e.country = t.account_validation_required;
-          if (d.website && !isUrl(d.website)) e.website = t.account_validation_url;
-          if (
-            d.yearFounded &&
-            (!Number.isFinite(d.yearFounded) ||
-              d.yearFounded < 1800 ||
-              d.yearFounded > new Date().getFullYear())
-          )
-            e.yearFounded = t.account_validation_year;
+          const legal = validateName(d.legalName, t);
+          if (legal) e.legalName = legal;
+          const trade = validateName(d.tradeName, t);
+          if (trade) e.tradeName = trade;
+          const country = validateName(d.country, t);
+          if (country) e.country = country;
+          const ws = validateUrl(d.website, t);
+          if (ws) e.website = ws;
+          const yr = validateYear(d.yearFounded, t);
+          if (yr) e.yearFounded = yr;
           return e;
         }}
         onSave={saveCompany}
