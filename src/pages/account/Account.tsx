@@ -340,7 +340,7 @@ const PersonalSection = ({
           const langLabel =
             v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
           return (
-            <div className="space-y-6">
+            <div className="space-y-6" data-field-group-root>
               <FieldGroup title={t.account_group_identity}>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                   <Field label={t.account_personal_firstName} value={v.firstName} />
@@ -364,7 +364,7 @@ const PersonalSection = ({
           );
         }}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="space-y-6">
+          <div className="space-y-6" data-field-group-root>
             <FieldGroup title={t.account_group_identity}>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
@@ -568,7 +568,7 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-6">
+          <div className="space-y-6" data-field-group-root>
             <FieldGroup title={t.account_group_identity}>
               <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label={t.account_company_legalName} value={v.legalName} />
@@ -589,7 +589,7 @@ const CompanySection = ({
           </div>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="space-y-6">
+          <div className="space-y-6" data-field-group-root>
             <FieldGroup title={t.account_group_identity}>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <FormRow label={t.account_company_legalName} required error={errors.legalName}>
