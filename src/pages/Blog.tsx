@@ -186,15 +186,14 @@ const Blog = () => {
               {t.blog_pageTitle}
             </h1>
             <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:text-base">
-              Practical market notes, buyer guides, supplier guides, and product
-              updates for seafood trade teams.
+              {t.blog_heroSubtitleLong}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 onClick={() => setFilter("market_intelligence")}
                 className="h-11 px-5"
               >
-                Explore market insights
+                {t.blog_heroPrimaryCta}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
               <Button
@@ -202,7 +201,7 @@ const Blog = () => {
                 onClick={() => setFilter("product_update")}
                 className="h-11 px-5"
               >
-                Read product updates
+                {t.blog_heroSecondaryCta}
               </Button>
             </div>
           </div>
