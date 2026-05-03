@@ -139,6 +139,25 @@ const FormRow = ({
   );
 };
 
+const GroupHeading = ({ children }: { children: ReactNode }) => (
+  <h4 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+    {children}
+  </h4>
+);
+
+const FieldGroup = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => (
+  <div className="space-y-3">
+    <GroupHeading>{title}</GroupHeading>
+    {children}
+  </div>
+);
+
 const splitList = (s: string): string[] =>
   s
     .split(",")
