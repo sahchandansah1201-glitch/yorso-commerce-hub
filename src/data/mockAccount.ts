@@ -39,6 +39,12 @@ export interface CompanyProfile {
   paymentTerms: string[];
   supplierPublicationStatus: SupplierPublicationStatus;
   buyerQualificationStatus: BuyerQualificationStatus;
+  logoImageUrl: string;
+  logoAlt: string;
+  logoFit: "contain" | "cover";
+  coverImageUrl: string;
+  coverAlt: string;
+  coverFocalPoint: "center" | "top" | "bottom";
 }
 
 export type BranchType =
