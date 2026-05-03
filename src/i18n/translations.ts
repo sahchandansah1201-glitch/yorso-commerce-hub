@@ -3940,6 +3940,7 @@ const es: TranslationKeys = {
       { label: "Directorio de proveedores", href: "/suppliers" },
       { label: "Cómo funciona", href: "/how-it-works" },
       { label: "FAQ", href: "/#faq" },
+      { label: "Insights", href: "/blog" },
     ],
     company: [
       { label: "Sobre YORSO", href: "/about" },
