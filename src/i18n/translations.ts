@@ -1432,6 +1432,10 @@ type TranslationKeys = {
   account_notif_event_supplierReview: string;
   account_action_edit: string;
   account_action_save: string;
+  account_action_saving: string;
+  account_action_saved: string;
+  account_save_error_storage: string;
+  account_save_error_validation: string;
   account_action_cancel: string;
   account_value_notSpecified: string;
   account_validation_required: string;
@@ -2951,6 +2955,10 @@ const en: TranslationKeys = {
   account_notif_event_supplierReview: "Supplier profile review",
   account_action_edit: "Edit",
   account_action_save: "Save",
+  account_action_saving: "Saving...",
+  account_action_saved: "Saved",
+  account_save_error_storage: "Could not save locally. Browser storage may be full or blocked.",
+  account_save_error_validation: "Please fix the highlighted fields.",
   account_action_cancel: "Cancel",
   account_value_notSpecified: "Not specified yet",
   account_validation_required: "This field is required",
@@ -4457,6 +4465,10 @@ const ru: TranslationKeys = {
   account_notif_event_supplierReview: "Проверка профиля поставщика",
   account_action_edit: "Редактировать",
   account_action_save: "Сохранить",
+  account_action_saving: "Сохраняем...",
+  account_action_saved: "Сохранено",
+  account_save_error_storage: "Не удалось сохранить локально. Хранилище браузера переполнено или заблокировано.",
+  account_save_error_validation: "Исправьте отмеченные поля.",
   account_action_cancel: "Отмена",
   account_value_notSpecified: "Не указано",
   account_validation_required: "Обязательное поле",
@@ -5962,6 +5974,10 @@ const es: TranslationKeys = {
   account_notif_event_supplierReview: "Revisión de perfil de proveedor",
   account_action_edit: "Editar",
   account_action_save: "Guardar",
+  account_action_saving: "Guardando...",
+  account_action_saved: "Guardado",
+  account_save_error_storage: "No se pudo guardar localmente. El almacenamiento del navegador puede estar lleno o bloqueado.",
+  account_save_error_validation: "Corrige los campos marcados.",
   account_action_cancel: "Cancelar",
   account_value_notSpecified: "Sin especificar",
   account_validation_required: "Campo obligatorio",
