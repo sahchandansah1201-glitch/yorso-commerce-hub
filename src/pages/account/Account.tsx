@@ -264,21 +264,38 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_email} required error={errors.email}>
+            <FormRow
+              label={t.account_personal_email}
+              required
+              error={errors.email}
+              hint={t.account_hint_email}
+            >
               <Input
                 type="email"
+                inputMode="email"
+                autoComplete="email"
+                maxLength={254}
                 value={draft.email}
                 onChange={(e) => setDraft({ ...draft, email: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_phone}>
+            <FormRow
+              label={t.account_personal_phone}
+              error={errors.phone}
+              hint={t.account_hint_phone}
+            >
               <Input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                maxLength={32}
                 value={draft.phone}
                 onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_role}>
+            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
               <Input
+                maxLength={100}
                 value={draft.roleInCompany}
                 onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
               />
@@ -289,7 +306,7 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_language}>
+            <FormRow label={t.account_personal_language} error={errors.language}>
               <select
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={draft.language}
@@ -297,9 +314,9 @@ const PersonalSection = ({
                   setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
                 }
               >
-                <option value="en">EN</option>
-                <option value="ru">RU</option>
-                <option value="es">ES</option>
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+                <option value="es">Español</option>
               </select>
             </FormRow>
           </div>
