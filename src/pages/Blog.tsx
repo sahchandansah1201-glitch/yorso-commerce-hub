@@ -525,7 +525,7 @@ const Blog = () => {
                   <div className="flex items-center gap-2">
                     <Compass className="h-4 w-4 text-primary" aria-hidden />
                     <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-                      Start here
+                      {t.blog_startHere}
                     </h2>
                   </div>
                   <ul className="mt-3 space-y-3">
