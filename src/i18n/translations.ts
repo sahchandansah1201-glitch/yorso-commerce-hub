@@ -4481,6 +4481,8 @@ const ru: TranslationKeys = {
   account_action_saved: "Сохранено",
   account_save_error_storage: "Не удалось сохранить локально. Хранилище браузера переполнено или заблокировано.",
   account_save_error_validation: "Исправьте отмеченные поля.",
+  account_autosave_unsaved: "Есть несохранённые правки",
+  account_autosave_label: "Автосохранение",
   account_action_cancel: "Отмена",
   account_value_notSpecified: "Не указано",
   account_validation_required: "Обязательное поле",
