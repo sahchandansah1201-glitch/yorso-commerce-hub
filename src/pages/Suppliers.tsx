@@ -129,10 +129,15 @@ const Suppliers = () => {
     }
   };
 
+  const localizedSuppliers = useMemo(
+    () => mockSuppliers.map((s) => localizeSupplier(s, lang)),
+    [lang],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const includeCompanyName = level === "qualified_unlocked";
-    return mockSuppliers.filter((s) => {
+    return localizedSuppliers.filter((s) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
         if (f && !f.match(s)) return false;
@@ -156,7 +161,7 @@ const Suppliers = () => {
       const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, activeFilter, level]);
+  }, [query, activeFilter, level, localizedSuppliers]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
