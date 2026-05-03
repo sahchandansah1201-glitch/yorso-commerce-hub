@@ -199,11 +199,34 @@ const PersonalSection = ({
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
+        testId="account-card-personal-membership"
       >
-        <p className="text-sm">
-          {profile.company.tradeName}{" "}
-          <span className="text-muted-foreground">({profile.company.country})</span>
-        </p>
+        <div className="flex items-center gap-3">
+          <div
+            aria-hidden
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-semibold text-primary"
+          >
+            {profile.company.tradeName
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-semibold text-foreground">
+              {profile.company.tradeName}
+            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <Badge variant="outline" className="text-[11px] font-normal">
+                {profile.company.country}
+              </Badge>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                {accountRoleLabel(profile.company.accountRole, t)}
+              </span>
+            </div>
+          </div>
+        </div>
       </AccountSectionCard>
     </div>
   );
