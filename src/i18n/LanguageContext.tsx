@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { translations, type Language } from "./translations";
+import { detectLanguage } from "./detectLanguage";
 
 interface LanguageContextType {
   lang: Language;
@@ -9,13 +10,15 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: "en",
+  lang: "ru",
   setLang: () => {},
   t: translations.en,
 });
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLang] = useState<Language>(() => {
+    // Приоритет: явный выбор пользователя → язык браузера → RU-фолбэк
+    // (правило проекта: подсказки по умолчанию на русском).
     const saved = localStorage.getItem("yorso-lang") as Language | null;
     if (saved && translations[saved]) return saved;
     if (typeof navigator !== "undefined") {
@@ -27,8 +30,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
           return code as Language;
         }
       }
+      // Смешанный/нераспознанный navigator.language — детектор выдаст RU.
+      return detectLanguage(navigator.language, "ru");
     }
-    return "en";
+    return "ru";
   });
 
   const handleSetLang = (newLang: Language) => {
