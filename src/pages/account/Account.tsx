@@ -211,10 +211,18 @@ const PersonalSection = ({
         initial={u}
         validate={(d) => {
           const e: Record<string, string> = {};
-          if (!d.firstName.trim()) e.firstName = t.account_validation_required;
-          if (!d.lastName.trim()) e.lastName = t.account_validation_required;
-          if (!d.email.trim()) e.email = t.account_validation_required;
-          else if (!isEmail(d.email)) e.email = t.account_validation_email;
+          const fn = validateName(d.firstName, t);
+          if (fn) e.firstName = fn;
+          const ln = validateName(d.lastName, t);
+          if (ln) e.lastName = ln;
+          const em = validateEmail(d.email, t);
+          if (em) e.email = em;
+          const ph = validatePhone(d.phone, t, false);
+          if (ph) e.phone = ph;
+          const role = validateName(d.roleInCompany, t, false);
+          if (role) e.roleInCompany = role;
+          const lang = validateLanguage(d.language, t);
+          if (lang) e.language = lang;
           return e;
         }}
         onSave={(d) => onChange({ ...profile, user: d })}
