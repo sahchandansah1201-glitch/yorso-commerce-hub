@@ -1345,6 +1345,8 @@ type TranslationKeys = {
   account_completion_notifications_any: string;
   account_personal_basic_title: string;
   account_personal_basic_desc: string;
+  account_personal_jump_label: string;
+  account_personal_jump_aria: string;
   account_personal_firstName: string;
   account_personal_lastName: string;
   account_personal_email: string;
@@ -2869,6 +2871,8 @@ const en: TranslationKeys = {
   account_completion_notifications_any: "At least one notification channel enabled",
   account_personal_basic_title: "Basic info",
   account_personal_basic_desc: "Personal contact information.",
+  account_personal_jump_label: "Jump to",
+  account_personal_jump_aria: "Jump to section",
   account_personal_firstName: "First name",
   account_personal_lastName: "Last name",
   account_personal_email: "Email",
@@ -4380,6 +4384,8 @@ const ru: TranslationKeys = {
   account_completion_notifications_any: "Включён хотя бы один канал уведомлений",
   account_personal_basic_title: "Базовые данные",
   account_personal_basic_desc: "Личная контактная информация.",
+  account_personal_jump_label: "Перейти к",
+  account_personal_jump_aria: "Перейти к разделу",
   account_personal_firstName: "Имя",
   account_personal_lastName: "Фамилия",
   account_personal_email: "Эл. почта",
@@ -5890,6 +5896,8 @@ const es: TranslationKeys = {
   account_completion_notifications_any: "Al menos un canal de notificación activo",
   account_personal_basic_title: "Datos básicos",
   account_personal_basic_desc: "Información personal de contacto.",
+  account_personal_jump_label: "Ir a",
+  account_personal_jump_aria: "Ir a la sección",
   account_personal_firstName: "Nombre",
   account_personal_lastName: "Apellido",
   account_personal_email: "Correo electrónico",
