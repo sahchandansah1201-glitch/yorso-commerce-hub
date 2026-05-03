@@ -16,6 +16,7 @@ import {
 import Header from "@/components/landing/Header";
 import { AccountOverview } from "./AccountOverview";
 import { getAccountProfile } from "@/lib/account-store";
+import type { AccountProfile } from "@/data/mockAccount";
 
 export type AccountSectionKey =
   | "personal"
@@ -28,6 +29,7 @@ export type AccountSectionKey =
 interface Props {
   active: AccountSectionKey;
   children: ReactNode;
+  profile?: AccountProfile;
 }
 
 export const ACCOUNT_SECTIONS: { key: AccountSectionKey; icon: typeof User; labelKey: string }[] = [
