@@ -113,10 +113,11 @@ export function EditableCard<T>({
             <Button
               size="sm"
               variant="outline"
-              className="text-xs"
+              className="gap-1.5 text-xs"
               onClick={enter}
               data-testid={testId ? `${testId}-edit` : undefined}
             >
+              <Pencil className="h-3.5 w-3.5" aria-hidden />
               {t.account_action_edit}
             </Button>
           ) : (
