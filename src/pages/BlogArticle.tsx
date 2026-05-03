@@ -83,7 +83,10 @@ const resolveCta = (post: BlogPost): ResolvedCta => {
     case "supplier_guide":
       return { to: "/for-suppliers", label: "Open supplier page" };
     case "product_update":
-      return { to: post.relatedCta ?? "/offers", label: "Try this workflow" };
+      return {
+        to: post.productUpdate?.relatedRoute ?? post.relatedCta ?? "/offers",
+        label: "Try this workflow",
+      };
     case "glossary":
       return { to: "/blog", label: "Explore related guide" };
     default:
