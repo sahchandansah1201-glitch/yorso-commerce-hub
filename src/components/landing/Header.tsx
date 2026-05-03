@@ -230,9 +230,15 @@ const Header = () => {
                     <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
                   </div>
                 </div>
+                <Button asChild variant="outline" className="mt-3 w-full gap-2">
+                  <Link to="/account" onClick={() => setMobileOpen(false)}>
+                    <User className="h-4 w-4" />
+                    {t.nav_myAccount}
+                  </Link>
+                </Button>
                 <Button
                   variant="outline"
-                  className="mt-3 w-full gap-2"
+                  className="mt-2 w-full gap-2"
                   onClick={() => {
                     analytics.track("workspace_session_ended");
                     signOut();
