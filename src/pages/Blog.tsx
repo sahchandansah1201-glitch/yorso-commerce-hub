@@ -60,21 +60,23 @@ const FILTER_KEYS: FilterKey[] = [
   "glossary",
 ];
 
-const POPULAR_TOPICS = [
-  "Salmon prices",
-  "Shrimp imports",
-  "Supplier verification",
-  "RFQ",
-  "Price access",
-  "Landed cost",
-  "Documentation",
+const popularTopics = (t: Translator): string[] => [
+  t.blog_topic_salmonPrices,
+  t.blog_topic_shrimpImports,
+  t.blog_topic_supplierVerification,
+  t.blog_topic_rfq,
+  t.blog_topic_priceAccess,
+  t.blog_topic_landedCost,
+  t.blog_topic_documentation,
 ];
 
-const START_HERE = [
-  { to: "/offers", label: "Browse the catalog", desc: "Live offers, filters, and procurement workspace." },
-  { to: "/suppliers", label: "Supplier directory", desc: "Verified suppliers with masked identity until access." },
-  { to: "/for-suppliers", label: "Sell on YORSO", desc: "How suppliers list product and approve buyers." },
-  { to: "/how-it-works", label: "How YORSO works", desc: "Three access levels and the procurement flow." },
+const startHere = (
+  t: Translator,
+): { to: string; label: string; desc: string }[] => [
+  { to: "/offers", label: t.blog_startHere_catalog_label, desc: t.blog_startHere_catalog_desc },
+  { to: "/suppliers", label: t.blog_startHere_suppliers_label, desc: t.blog_startHere_suppliers_desc },
+  { to: "/for-suppliers", label: t.blog_startHere_forSuppliers_label, desc: t.blog_startHere_forSuppliers_desc },
+  { to: "/how-it-works", label: t.blog_startHere_howItWorks_label, desc: t.blog_startHere_howItWorks_desc },
 ];
 
 const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
@@ -85,16 +87,27 @@ const Blog = () => {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
 
+  const TOPICS = useMemo(() => popularTopics(t), [t]);
+  const START = useMemo(() => startHere(t), [t]);
+
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const prev = document.title;
-    document.title = `${t.blog_pageTitle} · YORSO`;
-    upsertMeta('meta[name="description"]', {
-      name: "description",
-      content: t.blog_pageSubtitle,
+    const canonical = absoluteUrl("/blog");
+    const title = `${t.blog_pageTitle} · YORSO`;
+    applyRouteSeo({
+      title,
+      description: t.blog_pageSubtitle,
+      canonical,
+      og: {
+        type: "website",
+        title,
+        description: t.blog_pageSubtitle,
+        url: canonical,
+      },
     });
     return () => {
-      document.title = prev;
+      removeJsonLd("blog-collection");
+      clearRouteSeoMarker();
     };
   }, [t]);
 
