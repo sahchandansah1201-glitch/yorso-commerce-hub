@@ -669,7 +669,7 @@ const BlogArticle = () => {
                     >
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Continue on YORSO
+                          {t.blog_continueOnYorso}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
                           {cta.label}
