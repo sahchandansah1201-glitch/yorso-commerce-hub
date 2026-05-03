@@ -5995,6 +5995,8 @@ const es: TranslationKeys = {
   account_action_saved: "Guardado",
   account_save_error_storage: "No se pudo guardar localmente. El almacenamiento del navegador puede estar lleno o bloqueado.",
   account_save_error_validation: "Corrige los campos marcados.",
+  account_autosave_unsaved: "Cambios sin guardar",
+  account_autosave_label: "Autoguardado",
   account_action_cancel: "Cancelar",
   account_value_notSpecified: "Sin especificar",
   account_validation_required: "Campo obligatorio",
