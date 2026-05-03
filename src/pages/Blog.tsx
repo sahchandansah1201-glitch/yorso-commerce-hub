@@ -96,6 +96,11 @@ const Blog = () => {
     [sortedPosts],
   );
 
+  const latestUpdates = useMemo(
+    () => sortedPosts.filter((p) => p.contentType === "product_update").slice(0, 3),
+    [sortedPosts],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return sortedPosts.filter((p) => {
