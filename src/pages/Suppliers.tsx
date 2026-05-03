@@ -91,7 +91,7 @@ const interpolate = (s: string, vars: Record<string, string | number>) =>
 
 const Suppliers = () => {
   const { level } = useAccessLevel();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
