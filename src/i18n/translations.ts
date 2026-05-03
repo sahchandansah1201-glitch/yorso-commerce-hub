@@ -4987,6 +4987,33 @@ const es: TranslationKeys = {
   supplier_faq_a6: "Por defecto 30% por adelantado / 70% contra copias de documentos. Para operaciones recurrentes — aplazamiento o carta de crédito (L/C at sight).",
   supplier_faq_noAnswerTitle: "¿No encuentras la respuesta?",
   supplier_faq_noAnswerBody: "Envía un mensaje al proveedor: el gestor responderá en horario laboral.",
+
+  // Blog / Insights
+  nav_blog: "Insights",
+  blog_breadcrumb: "Insights",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Conocimiento práctico de mercado y producto para compradores y proveedores. Contenido de prototipo, sin datos en tiempo real.",
+  blog_allCategories: "Todas las categorías",
+  blog_searchPlaceholder: "Buscar artículos",
+  blog_searchAria: "Buscar artículos",
+  blog_emptyTitle: "No hay artículos para estos filtros",
+  blog_emptyBody: "Borra la búsqueda o elige otra categoría.",
+  blog_readMore: "Leer artículo",
+  blog_minutesRead: "{n} min de lectura",
+  blog_audienceBuyer: "Para compradores",
+  blog_audienceSupplier: "Para proveedores",
+  blog_audienceBoth: "Para compradores y proveedores",
+  blog_publishedOn: "Publicado {date}",
+  blog_updatedOn: "Actualizado {date}",
+  blog_byAuthor: "Por {name}",
+  blog_relatedCtaOffers: "Ir al catálogo",
+  blog_relatedCtaSuppliers: "Abrir directorio de proveedores",
+  blog_relatedCtaForSuppliers: "Saber cómo vender en YORSO",
+  blog_relatedCtaRegister: "Crear cuenta de comprador",
+  blog_mockNotice: "Artículo de ejemplo. Contenido de prototipo para YORSO Insights.",
+  blog_backToIndex: "Volver a todos los artículos",
+  blog_notFoundTitle: "Artículo no encontrado",
+  blog_notFoundBody: "No pudimos encontrar el artículo. Puede haber sido movido o despublicado.",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
