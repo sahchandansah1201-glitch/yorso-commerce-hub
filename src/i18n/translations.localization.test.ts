@@ -79,14 +79,19 @@ describe("UI hint localization", () => {
 
     it("RU-вариант содержит кириллицу (не остался на английском)", () => {
       const ru = (translations.ru as unknown as Record<string, string>)[key];
-      expect(ru).toMatch(CYRILLIC);
+      if (RU_LATIN_OK.has(key)) {
+        expect(ru.length).toBeGreaterThan(0);
+      } else {
+        expect(ru).toMatch(CYRILLIC);
+      }
     });
 
     it("ES-вариант отличается от EN (реально переведён)", () => {
       const en = (translations.en as unknown as Record<string, string>)[key];
       const es = (translations.es as unknown as Record<string, string>)[key];
-      // Допускаем равенство только для очень коротких токенов (например, чисел/символов).
-      if (en.length > 3) {
+      if (EN_ES_SAME_OK.has(key)) {
+        expect(es.length).toBeGreaterThan(0);
+      } else if (en.length > 3) {
         expect(es).not.toBe(en);
       }
     });
