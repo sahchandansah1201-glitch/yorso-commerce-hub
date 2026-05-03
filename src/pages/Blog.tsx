@@ -518,7 +518,7 @@ const Blog = () => {
                     {t.blog_popularTopics}
                   </h2>
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {POPULAR_TOPICS.map((topic) => (
+                    {TOPICS.map((topic) => (
                       <button
                         key={topic}
                         type="button"
@@ -539,7 +539,7 @@ const Blog = () => {
                     </h2>
                   </div>
                   <ul className="mt-3 space-y-3">
-                    {START_HERE.map((s) => (
+                    {START.map((s) => (
                       <li key={s.to}>
                         <Link
                           to={s.to}
