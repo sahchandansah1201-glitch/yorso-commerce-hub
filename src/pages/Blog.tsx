@@ -421,9 +421,32 @@ const Blog = () => {
                               ) : null}
 
                               {isPU ? (
-                                <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                  <span className="font-semibold text-foreground">What changed:</span>{" "}
-                                  {p.excerpt.split(".")[0]}.
+                                <div className="space-y-2">
+                                  {p.productUpdate ? (
+                                    <div className="flex flex-wrap gap-1.5">
+                                      <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                                        {p.productUpdate.updateType}
+                                      </span>
+                                      <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                        {p.productUpdate.affectedArea}
+                                      </span>
+                                      {p.productUpdate.prototype ? (
+                                        <span className="rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
+                                          Prototype
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                  <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
+                                    <span className="font-semibold text-foreground">What changed:</span>{" "}
+                                    {p.excerpt.split(".")[0]}.
+                                  </div>
+                                  {p.productUpdate?.userBenefit ? (
+                                    <div className="rounded-md border border-border bg-background px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
+                                      <span className="font-semibold text-foreground">Who benefits:</span>{" "}
+                                      {p.productUpdate.userBenefit}
+                                    </div>
+                                  ) : null}
                                 </div>
                               ) : null}
 
