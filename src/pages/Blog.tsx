@@ -82,6 +82,36 @@ const startHere = (
 const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
   filterLabel(t, ct);
 
+const updateTypeLabel = (t: Translator, ut: ProductUpdateType): string => {
+  switch (ut) {
+    case "added":
+      return t.blog_pu_type_added;
+    case "improved":
+      return t.blog_pu_type_improved;
+    case "fixed":
+      return t.blog_pu_type_fixed;
+    case "guide":
+      return t.blog_pu_type_guide;
+  }
+};
+
+const updateAreaLabel = (t: Translator, area: ProductUpdateArea): string => {
+  switch (area) {
+    case "Catalog":
+      return t.blog_pu_area_catalog;
+    case "Supplier Profiles":
+      return t.blog_pu_area_supplierProfiles;
+    case "Price Access":
+      return t.blog_pu_area_priceAccess;
+    case "Registration":
+      return t.blog_pu_area_registration;
+    case "Requests":
+      return t.blog_pu_area_requests;
+    case "Intelligence":
+      return t.blog_pu_area_intelligence;
+  }
+};
+
 const Blog = () => {
   const { t, lang } = useLanguage();
   const [query, setQuery] = useState("");
