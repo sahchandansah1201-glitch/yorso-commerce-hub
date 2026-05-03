@@ -1228,6 +1228,57 @@ type TranslationKeys = {
   blog_backToIndex: string;
   blog_notFoundTitle: string;
   blog_notFoundBody: string;
+  // Hero CTAs
+  blog_heroPrimaryCta: string;
+  blog_heroSecondaryCta: string;
+  blog_heroSubtitleLong: string;
+  // Categories / filters
+  blog_filter_all: string;
+  blog_filter_marketIntelligence: string;
+  blog_filter_buyerGuides: string;
+  blog_filter_supplierGuides: string;
+  blog_filter_productUpdates: string;
+  blog_filter_glossary: string;
+  blog_filter_aria: string;
+  // Sections
+  blog_featuredEyebrow: string;
+  blog_popularTopics: string;
+  blog_startHere: string;
+  blog_relatedArticles: string;
+  blog_onThisPage: string;
+  blog_quickAnswer: string;
+  blog_keyTakeaways: string;
+  blog_frequentlyAsked: string;
+  blog_continueOnYorso: string;
+  blog_learnMore: string;
+  blog_takeAction: string;
+  blog_open: string;
+  blog_browseAll: string;
+  // Product updates
+  blog_pu_changelogEyebrow: string;
+  blog_pu_latestUpdates: string;
+  blog_pu_seeAllUpdates: string;
+  blog_pu_whatChanged: string;
+  blog_pu_whoBenefits: string;
+  blog_pu_howToUse: string;
+  blog_pu_relatedWorkflow: string;
+  blog_pu_tryWorkflow: string;
+  blog_pu_prototypeBadge: string;
+  blog_pu_genericBadge: string;
+  // Newsletter
+  blog_newsletterTitle: string;
+  blog_newsletterBody: string;
+  blog_newsletterSuccess: string;
+  blog_newsletterEmailLabel: string;
+  blog_newsletterEmailPlaceholder: string;
+  blog_newsletterSubmit: string;
+  // Article CTAs
+  blog_cta_marketIntel: string;
+  blog_cta_buyerGuide: string;
+  blog_cta_supplierGuide: string;
+  blog_cta_productUpdate: string;
+  blog_cta_glossary: string;
+  blog_cta_default: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
