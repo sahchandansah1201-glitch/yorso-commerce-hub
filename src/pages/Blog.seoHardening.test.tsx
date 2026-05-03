@@ -1,8 +1,8 @@
 /**
  * SEO + i18n + image hardening tests for /blog and /blog/:slug.
  */
-import { describe, it, expect, beforeEach, act } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { render, screen, within, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
