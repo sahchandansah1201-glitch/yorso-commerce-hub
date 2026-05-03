@@ -37,18 +37,27 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Синхронизируем метаданные документа с текущей локалью.
+  // Если активный маршрут владеет SEO (см. src/lib/seo.ts), глобальный
+  // title/description не перезаписываем — это сохраняет SEO страницы блога
+  // и статьи при переключении языка.
   useEffect(() => {
     if (typeof document === "undefined") return;
     const t = translations[lang];
     document.documentElement.setAttribute("lang", lang);
-    document.title = t.meta_siteTitle;
-    let descTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    if (!descTag) {
-      descTag = document.createElement("meta");
-      descTag.setAttribute("name", "description");
-      document.head.appendChild(descTag);
+    const routeOwnsSeo =
+      document.head.querySelector('meta[name="x-route-seo"]') !== null;
+    if (!routeOwnsSeo) {
+      document.title = t.meta_siteTitle;
+      let descTag = document.querySelector<HTMLMetaElement>(
+        'meta[name="description"]',
+      );
+      if (!descTag) {
+        descTag = document.createElement("meta");
+        descTag.setAttribute("name", "description");
+        document.head.appendChild(descTag);
+      }
+      descTag.setAttribute("content", t.meta_siteDescription);
     }
-    descTag.setAttribute("content", t.meta_siteDescription);
   }, [lang]);
 
   return (
