@@ -35,13 +35,32 @@ const audienceLabel = (
 
 type FilterKey = "all" | BlogContentType;
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "market_intelligence", label: "Market intelligence" },
-  { key: "buyer_guide", label: "Buyer guides" },
-  { key: "supplier_guide", label: "Supplier guides" },
-  { key: "product_update", label: "Product updates" },
-  { key: "glossary", label: "Glossary" },
+type Translator = ReturnType<typeof useLanguage>["t"];
+
+const filterLabel = (t: Translator, key: FilterKey): string => {
+  switch (key) {
+    case "all":
+      return t.blog_filter_all;
+    case "market_intelligence":
+      return t.blog_filter_marketIntelligence;
+    case "buyer_guide":
+      return t.blog_filter_buyerGuides;
+    case "supplier_guide":
+      return t.blog_filter_supplierGuides;
+    case "product_update":
+      return t.blog_filter_productUpdates;
+    case "glossary":
+      return t.blog_filter_glossary;
+  }
+};
+
+const FILTER_KEYS: FilterKey[] = [
+  "all",
+  "market_intelligence",
+  "buyer_guide",
+  "supplier_guide",
+  "product_update",
+  "glossary",
 ];
 
 const POPULAR_TOPICS = [
@@ -61,8 +80,8 @@ const START_HERE = [
   { to: "/how-it-works", label: "How YORSO works", desc: "Three access levels and the procurement flow." },
 ];
 
-const contentTypeLabel = (ct: BlogContentType) =>
-  FILTERS.find((f) => f.key === ct)?.label ?? "Insight";
+const contentTypeLabel = (t: Translator, ct: BlogContentType): string =>
+  filterLabel(t, ct);
 
 const Blog = () => {
   const { t, lang } = useLanguage();
@@ -167,15 +186,14 @@ const Blog = () => {
               {t.blog_pageTitle}
             </h1>
             <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground md:text-base">
-              Practical market notes, buyer guides, supplier guides, and product
-              updates for seafood trade teams.
+              {t.blog_heroSubtitleLong}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button
                 onClick={() => setFilter("market_intelligence")}
                 className="h-11 px-5"
               >
-                Explore market insights
+                {t.blog_heroPrimaryCta}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
               <Button
@@ -183,7 +201,7 @@ const Blog = () => {
                 onClick={() => setFilter("product_update")}
                 className="h-11 px-5"
               >
-                Read product updates
+                {t.blog_heroSecondaryCta}
               </Button>
             </div>
           </div>
@@ -195,7 +213,7 @@ const Blog = () => {
             <div className="container py-10 md:py-14">
               <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                Featured market intelligence
+                {t.blog_featuredEyebrow}
               </div>
               <article
                 data-testid="blog-featured"
@@ -286,15 +304,15 @@ const Blog = () => {
               <div
                 className="flex flex-wrap gap-2"
                 role="group"
-                aria-label="Content type"
+                aria-label={t.blog_filter_aria}
               >
-                {FILTERS.map((f) => {
-                  const active = filter === f.key;
+                {FILTER_KEYS.map((key) => {
+                  const active = filter === key;
                   return (
                     <button
-                      key={f.key}
+                      key={key}
                       type="button"
-                      onClick={() => setFilter(f.key)}
+                      onClick={() => setFilter(key)}
                       aria-pressed={active}
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition",
@@ -303,7 +321,7 @@ const Blog = () => {
                           : "border-border bg-background text-foreground/80 hover:border-foreground/30",
                       )}
                     >
-                      {f.label}
+                      {filterLabel(t, key)}
                     </button>
                   );
                 })}
@@ -351,7 +369,7 @@ const Blog = () => {
                           setFilter("all");
                         }}
                       >
-                        Browse all insights
+                        {t.blog_browseAll}
                       </Button>
                     </div>
                   </div>
@@ -388,7 +406,7 @@ const Blog = () => {
                             <div className="flex flex-1 flex-col gap-3 p-5">
                               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
-                                  {contentTypeLabel(p.contentType)}
+                                  {contentTypeLabel(t, p.contentType)}
                                 </span>
                                 <span>{audienceLabel(t, p.audience)}</span>
                               </div>
@@ -437,18 +455,18 @@ const Blog = () => {
                                       </span>
                                       {p.productUpdate.prototype ? (
                                         <span className="rounded-full border border-dashed border-border bg-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
-                                          Prototype
+                                          {t.blog_pu_prototypeBadge}
                                         </span>
                                       ) : null}
                                     </div>
                                   ) : null}
                                   <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                    <span className="font-semibold text-foreground">What changed:</span>{" "}
+                                    <span className="font-semibold text-foreground">{t.blog_pu_whatChanged}:</span>{" "}
                                     {p.excerpt.split(".")[0]}.
                                   </div>
                                   {p.productUpdate?.userBenefit ? (
                                     <div className="rounded-md border border-border bg-background px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                      <span className="font-semibold text-foreground">Who benefits:</span>{" "}
+                                      <span className="font-semibold text-foreground">{t.blog_pu_whoBenefits}:</span>{" "}
                                       {p.productUpdate.userBenefit}
                                     </div>
                                   ) : null}
@@ -487,7 +505,7 @@ const Blog = () => {
               <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
                 <div className="rounded-lg border border-border bg-card p-5">
                   <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-                    Popular topics
+                    {t.blog_popularTopics}
                   </h2>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {POPULAR_TOPICS.map((topic) => (
@@ -507,7 +525,7 @@ const Blog = () => {
                   <div className="flex items-center gap-2">
                     <Compass className="h-4 w-4 text-primary" aria-hidden />
                     <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
-                      Start here
+                      {t.blog_startHere}
                     </h2>
                   </div>
                   <ul className="mt-3 space-y-3">
@@ -543,10 +561,10 @@ const Blog = () => {
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    Product changelog
+                    {t.blog_pu_changelogEyebrow}
                   </p>
                   <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight text-foreground md:text-[28px]">
-                    Latest product updates
+                    {t.blog_pu_latestUpdates}
                   </h2>
                 </div>
                 <button
@@ -560,7 +578,7 @@ const Blog = () => {
                   }}
                   className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
                 >
-                  See all updates
+                  {t.blog_pu_seeAllUpdates}
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                 </button>
               </div>
@@ -584,7 +602,7 @@ const Blog = () => {
                           </>
                         ) : (
                           <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Update
+                            {t.blog_pu_genericBadge}
                           </span>
                         )}
                       </div>

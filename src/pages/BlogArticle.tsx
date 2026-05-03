@@ -74,23 +74,25 @@ interface ResolvedCta {
   label: string;
 }
 
-const resolveCta = (post: BlogPost): ResolvedCta => {
+type Translator = ReturnType<typeof useLanguage>["t"];
+
+const resolveCta = (t: Translator, post: BlogPost): ResolvedCta => {
   switch (post.contentType) {
     case "market_intelligence":
-      return { to: "/offers", label: "View related offers" };
+      return { to: "/offers", label: t.blog_cta_marketIntel };
     case "buyer_guide":
-      return { to: "/offers", label: "Open procurement catalog" };
+      return { to: "/offers", label: t.blog_cta_buyerGuide };
     case "supplier_guide":
-      return { to: "/for-suppliers", label: "Open supplier page" };
+      return { to: "/for-suppliers", label: t.blog_cta_supplierGuide };
     case "product_update":
       return {
         to: post.productUpdate?.relatedRoute ?? post.relatedCta ?? "/offers",
-        label: "Try this workflow",
+        label: t.blog_cta_productUpdate,
       };
     case "glossary":
-      return { to: "/blog", label: "Explore related guide" };
+      return { to: "/blog", label: t.blog_cta_glossary };
     default:
-      return { to: post.relatedCta ?? "/offers", label: "Continue on YORSO" };
+      return { to: post.relatedCta ?? "/offers", label: t.blog_cta_default };
   }
 };
 
@@ -215,7 +217,7 @@ const BlogArticle = () => {
     return merged.slice(0, 3);
   }, [post]);
 
-  const cta = useMemo(() => (post ? resolveCta(post) : null), [post]);
+  const cta = useMemo(() => (post ? resolveCta(t, post) : null), [post, t]);
   const answerCapsule = useMemo(() => (post ? buildAnswerCapsule(post) : ""), [post]);
   const takeaways = useMemo(() => (post ? buildKeyTakeaways(post) : []), [post]);
   const faq = useMemo(() => (post ? buildFaq(post) : []), [post]);
@@ -444,7 +446,7 @@ const BlogArticle = () => {
                   >
                     <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
                       <ListTree className="h-4 w-4 text-primary" aria-hidden />
-                      On this page
+                      {t.blog_onThisPage}
                     </summary>
                     <ul className="mt-3 space-y-1.5 text-sm">
                       {toc.map((item) => (
@@ -467,7 +469,7 @@ const BlogArticle = () => {
                   className="mt-6 rounded-lg border border-border bg-card p-5"
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    Quick answer
+                    {t.blog_quickAnswer}
                   </p>
                   <p className="mt-2 text-[15px] leading-relaxed text-foreground/90">
                     {answerCapsule}
@@ -500,14 +502,14 @@ const BlogArticle = () => {
                       </span>
                       {post.productUpdate.prototype && (
                         <span className="rounded-full border border-dashed border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/70">
-                          Prototype update
+                          {t.blog_pu_prototypeBadge}
                         </span>
                       )}
                     </div>
                     <div className="grid gap-5 p-5 md:grid-cols-2">
                       <div>
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          What changed
+                          {t.blog_pu_whatChanged}
                         </h2>
                         <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
                           {post.sections[0]?.paragraphs[0] ?? post.excerpt}
@@ -515,7 +517,7 @@ const BlogArticle = () => {
                       </div>
                       <div>
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          Who benefits
+                          {t.blog_pu_whoBenefits}
                         </h2>
                         <p className="mt-2 text-[14px] leading-relaxed text-foreground/85">
                           {post.productUpdate.userBenefit}
@@ -523,7 +525,7 @@ const BlogArticle = () => {
                       </div>
                       <div className="md:col-span-2">
                         <h2 className="font-heading text-base font-semibold text-foreground">
-                          How to use it
+                          {t.blog_pu_howToUse}
                         </h2>
                         <ol className="mt-2 space-y-1.5 pl-5 text-[14px] leading-relaxed text-foreground/85 list-decimal">
                           {post.productUpdate.howToUse.map((step, i) => (
@@ -534,7 +536,7 @@ const BlogArticle = () => {
                       <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/40 p-4">
                         <div>
                           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Related workflow
+                            {t.blog_pu_relatedWorkflow}
                           </p>
                           <p className="mt-0.5 text-sm font-semibold text-foreground">
                             {post.productUpdate.relatedRoute}
@@ -545,7 +547,7 @@ const BlogArticle = () => {
                             to={post.productUpdate.relatedRoute}
                             data-testid="blog-product-update-cta"
                           >
-                            Try this workflow
+                            {t.blog_pu_tryWorkflow}
                             <ArrowRight className="h-4 w-4" aria-hidden />
                           </Link>
                         </Button>
@@ -622,7 +624,7 @@ const BlogArticle = () => {
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary" aria-hidden />
                       <h2 className="font-heading text-base font-semibold text-foreground">
-                        Key takeaways
+                        {t.blog_keyTakeaways}
                       </h2>
                     </div>
                     <ul className="mt-3 space-y-2 text-[14px] leading-relaxed text-foreground/90">
@@ -640,7 +642,7 @@ const BlogArticle = () => {
                 {faq.length > 0 && (
                   <div className="mt-10" data-testid="blog-faq">
                     <h2 className="font-heading text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                      Frequently asked
+                      {t.blog_frequentlyAsked}
                     </h2>
                     <div className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
                       {faq.map((f, i) => (
@@ -667,7 +669,7 @@ const BlogArticle = () => {
                     >
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          Continue on YORSO
+                          {t.blog_continueOnYorso}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
                           {cta.label}
@@ -682,10 +684,10 @@ const BlogArticle = () => {
                   >
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Learn more
+                        {t.blog_learnMore}
                       </p>
                       <p className="mt-1 text-sm font-semibold text-foreground group-hover:text-primary">
-                        How YORSO works
+                        {t.nav_howItWorks}
                       </p>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden />
@@ -706,14 +708,14 @@ const BlogArticle = () => {
               <aside className="hidden space-y-5 lg:block lg:sticky lg:top-24 lg:self-start">
                 {toc.length > 0 && (
                   <nav
-                    aria-label="Table of contents"
+                    aria-label={t.blog_onThisPage}
                     data-testid="blog-toc"
                     className="rounded-lg border border-border bg-card p-4"
                   >
                     <div className="flex items-center gap-2">
                       <ListTree className="h-4 w-4 text-primary" aria-hidden />
                       <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                        On this page
+                        {t.blog_onThisPage}
                       </p>
                     </div>
                     <ul className="mt-3 space-y-1.5 text-sm">
@@ -737,7 +739,7 @@ const BlogArticle = () => {
                     className="rounded-lg border border-border bg-card p-4"
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                      Related articles
+                      {t.blog_relatedArticles}
                     </p>
                     <ul className="mt-3 space-y-3">
                       {related.map((r) => (
@@ -765,12 +767,12 @@ const BlogArticle = () => {
                 {cta && (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                      Take action
+                      {t.blog_takeAction}
                     </p>
                     <p className="mt-1 text-sm font-semibold text-foreground">{cta.label}</p>
                     <Button asChild size="sm" className="mt-3 w-full">
                       <Link to={cta.to}>
-                        Open
+                        {t.blog_open}
                         <ArrowRight className="h-4 w-4" aria-hidden />
                       </Link>
                     </Button>
@@ -785,20 +787,20 @@ const BlogArticle = () => {
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-primary" aria-hidden />
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                      Get seafood trade updates
+                      {t.blog_newsletterTitle}
                     </p>
                   </div>
                   <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                    Prototype only. We do not send emails yet.
+                    {t.blog_newsletterBody}
                   </p>
                   {emailSubmitted ? (
                     <p className="mt-3 rounded-md bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">
-                      Thanks. We will let you know when this is live.
+                      {t.blog_newsletterSuccess}
                     </p>
                   ) : (
                     <div className="mt-3 space-y-2">
                       <label htmlFor="blog-newsletter-email" className="sr-only">
-                        Email
+                        {t.blog_newsletterEmailLabel}
                       </label>
                       <Input
                         id="blog-newsletter-email"
@@ -806,11 +808,11 @@ const BlogArticle = () => {
                         required
                         value={emailDraft}
                         onChange={(e) => setEmailDraft(e.target.value)}
-                        placeholder="you@company.com"
+                        placeholder={t.blog_newsletterEmailPlaceholder}
                         className="h-9"
                       />
                       <Button type="submit" size="sm" className="w-full">
-                        Notify me
+                        {t.blog_newsletterSubmit}
                       </Button>
                     </div>
                   )}

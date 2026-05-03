@@ -1228,6 +1228,57 @@ type TranslationKeys = {
   blog_backToIndex: string;
   blog_notFoundTitle: string;
   blog_notFoundBody: string;
+  // Hero CTAs
+  blog_heroPrimaryCta: string;
+  blog_heroSecondaryCta: string;
+  blog_heroSubtitleLong: string;
+  // Categories / filters
+  blog_filter_all: string;
+  blog_filter_marketIntelligence: string;
+  blog_filter_buyerGuides: string;
+  blog_filter_supplierGuides: string;
+  blog_filter_productUpdates: string;
+  blog_filter_glossary: string;
+  blog_filter_aria: string;
+  // Sections
+  blog_featuredEyebrow: string;
+  blog_popularTopics: string;
+  blog_startHere: string;
+  blog_relatedArticles: string;
+  blog_onThisPage: string;
+  blog_quickAnswer: string;
+  blog_keyTakeaways: string;
+  blog_frequentlyAsked: string;
+  blog_continueOnYorso: string;
+  blog_learnMore: string;
+  blog_takeAction: string;
+  blog_open: string;
+  blog_browseAll: string;
+  // Product updates
+  blog_pu_changelogEyebrow: string;
+  blog_pu_latestUpdates: string;
+  blog_pu_seeAllUpdates: string;
+  blog_pu_whatChanged: string;
+  blog_pu_whoBenefits: string;
+  blog_pu_howToUse: string;
+  blog_pu_relatedWorkflow: string;
+  blog_pu_tryWorkflow: string;
+  blog_pu_prototypeBadge: string;
+  blog_pu_genericBadge: string;
+  // Newsletter
+  blog_newsletterTitle: string;
+  blog_newsletterBody: string;
+  blog_newsletterSuccess: string;
+  blog_newsletterEmailLabel: string;
+  blog_newsletterEmailPlaceholder: string;
+  blog_newsletterSubmit: string;
+  // Article CTAs
+  blog_cta_marketIntel: string;
+  blog_cta_buyerGuide: string;
+  blog_cta_supplierGuide: string;
+  blog_cta_productUpdate: string;
+  blog_cta_glossary: string;
+  blog_cta_default: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -2500,6 +2551,51 @@ const en: TranslationKeys = {
   blog_backToIndex: "Back to all insights",
   blog_notFoundTitle: "Article not found",
   blog_notFoundBody: "We could not find the article you were looking for. It may have been moved or unpublished.",
+  blog_heroPrimaryCta: "Explore market insights",
+  blog_heroSecondaryCta: "Read product updates",
+  blog_heroSubtitleLong: "Practical market notes, buyer guides, supplier guides, and product updates for seafood trade teams.",
+  blog_filter_all: "All",
+  blog_filter_marketIntelligence: "Market intelligence",
+  blog_filter_buyerGuides: "Buyer guides",
+  blog_filter_supplierGuides: "Supplier guides",
+  blog_filter_productUpdates: "Product updates",
+  blog_filter_glossary: "Glossary",
+  blog_filter_aria: "Content type",
+  blog_featuredEyebrow: "Featured market intelligence",
+  blog_popularTopics: "Popular topics",
+  blog_startHere: "Start here",
+  blog_relatedArticles: "Related articles",
+  blog_onThisPage: "On this page",
+  blog_quickAnswer: "Quick answer",
+  blog_keyTakeaways: "Key takeaways",
+  blog_frequentlyAsked: "Frequently asked",
+  blog_continueOnYorso: "Continue on YORSO",
+  blog_learnMore: "Learn more",
+  blog_takeAction: "Take action",
+  blog_open: "Open",
+  blog_browseAll: "Browse all insights",
+  blog_pu_changelogEyebrow: "Product changelog",
+  blog_pu_latestUpdates: "Latest product updates",
+  blog_pu_seeAllUpdates: "See all updates",
+  blog_pu_whatChanged: "What changed",
+  blog_pu_whoBenefits: "Who benefits",
+  blog_pu_howToUse: "How to use it",
+  blog_pu_relatedWorkflow: "Related workflow",
+  blog_pu_tryWorkflow: "Try this workflow",
+  blog_pu_prototypeBadge: "Prototype",
+  blog_pu_genericBadge: "Update",
+  blog_newsletterTitle: "Get seafood trade updates",
+  blog_newsletterBody: "Prototype only. We do not send emails yet.",
+  blog_newsletterSuccess: "Thanks. We will let you know when this is live.",
+  blog_newsletterEmailLabel: "Email",
+  blog_newsletterEmailPlaceholder: "you@company.com",
+  blog_newsletterSubmit: "Notify me",
+  blog_cta_marketIntel: "View related offers",
+  blog_cta_buyerGuide: "Open procurement catalog",
+  blog_cta_supplierGuide: "Open supplier page",
+  blog_cta_productUpdate: "Try this workflow",
+  blog_cta_glossary: "Explore related guide",
+  blog_cta_default: "Continue on YORSO",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -3759,6 +3855,51 @@ const ru: TranslationKeys = {
   blog_backToIndex: "Ко всем статьям",
   blog_notFoundTitle: "Статья не найдена",
   blog_notFoundBody: "Не удалось найти эту статью. Возможно, она перемещена или снята с публикации.",
+  blog_heroPrimaryCta: "Смотреть рыночную аналитику",
+  blog_heroSecondaryCta: "Читать обновления продукта",
+  blog_heroSubtitleLong: "Практические заметки о рынке, гайды для покупателей и поставщиков, обновления продукта для команд по торговле морепродуктами.",
+  blog_filter_all: "Все",
+  blog_filter_marketIntelligence: "Рыночная аналитика",
+  blog_filter_buyerGuides: "Гайды для покупателей",
+  blog_filter_supplierGuides: "Гайды для поставщиков",
+  blog_filter_productUpdates: "Обновления продукта",
+  blog_filter_glossary: "Глоссарий",
+  blog_filter_aria: "Тип материала",
+  blog_featuredEyebrow: "Главная аналитика рынка",
+  blog_popularTopics: "Популярные темы",
+  blog_startHere: "Начните отсюда",
+  blog_relatedArticles: "Похожие материалы",
+  blog_onThisPage: "На этой странице",
+  blog_quickAnswer: "Краткий ответ",
+  blog_keyTakeaways: "Ключевые выводы",
+  blog_frequentlyAsked: "Частые вопросы",
+  blog_continueOnYorso: "Продолжить на YORSO",
+  blog_learnMore: "Узнать больше",
+  blog_takeAction: "Действовать",
+  blog_open: "Открыть",
+  blog_browseAll: "Смотреть все материалы",
+  blog_pu_changelogEyebrow: "Список обновлений",
+  blog_pu_latestUpdates: "Последние обновления продукта",
+  blog_pu_seeAllUpdates: "Все обновления",
+  blog_pu_whatChanged: "Что изменилось",
+  blog_pu_whoBenefits: "Кому это полезно",
+  blog_pu_howToUse: "Как использовать",
+  blog_pu_relatedWorkflow: "Связанный сценарий",
+  blog_pu_tryWorkflow: "Попробовать сценарий",
+  blog_pu_prototypeBadge: "Прототип",
+  blog_pu_genericBadge: "Обновление",
+  blog_newsletterTitle: "Получать обновления о торговле морепродуктами",
+  blog_newsletterBody: "Только прототип. Письма пока не отправляем.",
+  blog_newsletterSuccess: "Спасибо. Сообщим, когда это заработает.",
+  blog_newsletterEmailLabel: "Email",
+  blog_newsletterEmailPlaceholder: "you@company.com",
+  blog_newsletterSubmit: "Сообщить мне",
+  blog_cta_marketIntel: "Смотреть связанные предложения",
+  blog_cta_buyerGuide: "Открыть закупочный каталог",
+  blog_cta_supplierGuide: "Открыть страницу поставщикам",
+  blog_cta_productUpdate: "Попробовать сценарий",
+  blog_cta_glossary: "Перейти к связанному гайду",
+  blog_cta_default: "Продолжить на YORSO",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -5017,6 +5158,51 @@ const es: TranslationKeys = {
   blog_backToIndex: "Volver a todos los artículos",
   blog_notFoundTitle: "Artículo no encontrado",
   blog_notFoundBody: "No pudimos encontrar el artículo. Puede haber sido movido o despublicado.",
+  blog_heroPrimaryCta: "Explorar análisis de mercado",
+  blog_heroSecondaryCta: "Leer novedades del producto",
+  blog_heroSubtitleLong: "Notas prácticas de mercado, guías para compradores, guías para proveedores y novedades del producto para equipos de comercio de productos del mar.",
+  blog_filter_all: "Todo",
+  blog_filter_marketIntelligence: "Análisis de mercado",
+  blog_filter_buyerGuides: "Guías para compradores",
+  blog_filter_supplierGuides: "Guías para proveedores",
+  blog_filter_productUpdates: "Novedades del producto",
+  blog_filter_glossary: "Glosario",
+  blog_filter_aria: "Tipo de contenido",
+  blog_featuredEyebrow: "Análisis de mercado destacado",
+  blog_popularTopics: "Temas populares",
+  blog_startHere: "Empieza aquí",
+  blog_relatedArticles: "Artículos relacionados",
+  blog_onThisPage: "En esta página",
+  blog_quickAnswer: "Respuesta rápida",
+  blog_keyTakeaways: "Conclusiones clave",
+  blog_frequentlyAsked: "Preguntas frecuentes",
+  blog_continueOnYorso: "Continuar en YORSO",
+  blog_learnMore: "Más información",
+  blog_takeAction: "Actuar",
+  blog_open: "Abrir",
+  blog_browseAll: "Ver todos los artículos",
+  blog_pu_changelogEyebrow: "Registro de cambios",
+  blog_pu_latestUpdates: "Últimas novedades del producto",
+  blog_pu_seeAllUpdates: "Ver todas las novedades",
+  blog_pu_whatChanged: "Qué cambió",
+  blog_pu_whoBenefits: "A quién beneficia",
+  blog_pu_howToUse: "Cómo usarlo",
+  blog_pu_relatedWorkflow: "Flujo relacionado",
+  blog_pu_tryWorkflow: "Probar este flujo",
+  blog_pu_prototypeBadge: "Prototipo",
+  blog_pu_genericBadge: "Novedad",
+  blog_newsletterTitle: "Recibir novedades del comercio de mariscos",
+  blog_newsletterBody: "Solo prototipo. Aún no enviamos correos.",
+  blog_newsletterSuccess: "Gracias. Te avisaremos cuando esté disponible.",
+  blog_newsletterEmailLabel: "Correo",
+  blog_newsletterEmailPlaceholder: "tu@empresa.com",
+  blog_newsletterSubmit: "Avisarme",
+  blog_cta_marketIntel: "Ver ofertas relacionadas",
+  blog_cta_buyerGuide: "Abrir catálogo de compras",
+  blog_cta_supplierGuide: "Abrir página para proveedores",
+  blog_cta_productUpdate: "Probar este flujo",
+  blog_cta_glossary: "Explorar guía relacionada",
+  blog_cta_default: "Continuar en YORSO",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
