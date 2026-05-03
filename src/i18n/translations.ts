@@ -1446,6 +1446,16 @@ type TranslationKeys = {
   account_validation_email: string;
   account_validation_url: string;
   account_validation_year: string;
+  account_validation_email_long: string;
+  account_validation_phone: string;
+  account_validation_phone_long: string;
+  account_validation_name_long: string;
+  account_validation_text_long: string;
+  account_validation_language: string;
+  account_hint_email: string;
+  account_hint_phone: string;
+  account_hint_whatsapp: string;
+  account_hint_website: string;
   account_company_role_buyer: string;
   account_company_role_supplier: string;
   account_company_role_both: string;
