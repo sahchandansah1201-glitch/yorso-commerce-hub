@@ -42,6 +42,7 @@ export function EditableCard<T>({
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
   const [validationSummary, setValidationSummary] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
 
   const titleId = useId();
   const descId = useId();
@@ -50,9 +51,16 @@ export function EditableCard<T>({
   const editBtnRef = useRef<HTMLButtonElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const autosaveTimer = useRef<number | null>(null);
+  const latestDraft = useRef<T>(initial);
+  const lastSavedJson = useRef<string>(JSON.stringify(initial));
+  const isAutosaveSave = useRef(false);
 
   const enter = () => {
     setDraft(initial);
+    latestDraft.current = initial;
+    lastSavedJson.current = JSON.stringify(initial);
+    setDirty(false);
     setErrors({});
     setSaveState("idle");
     setSaveError(null);
@@ -60,38 +68,87 @@ export function EditableCard<T>({
     setEditing(true);
   };
   const cancel = () => {
+    if (autosaveTimer.current) {
+      window.clearTimeout(autosaveTimer.current);
+      autosaveTimer.current = null;
+    }
     setDraft(initial);
+    setDirty(false);
     setErrors({});
     setSaveState("idle");
     setSaveError(null);
     setValidationSummary(null);
     setEditing(false);
   };
-  const save = async () => {
-    const errs = validate ? validate(draft) : {};
+
+  const performSave = async (value: T, opts: { auto: boolean }) => {
+    const errs = validate ? validate(value) : {};
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       setValidationSummary(t.account_save_error_validation);
       setSaveState("error");
-      return;
+      return false;
     }
     setErrors({});
     setValidationSummary(null);
     setSaveState("saving");
     setSaveError(null);
     try {
-      await Promise.resolve(onSave(draft));
+      await Promise.resolve(onSave(value));
+      lastSavedJson.current = JSON.stringify(value);
+      setDirty(false);
       setSaveState("saved");
-      toast.success(t.account_action_saved);
-      setEditing(false);
-      setTimeout(() => setSaveState((s) => (s === "saved" ? "idle" : s)), 1500);
+      if (!opts.auto) {
+        toast.success(t.account_action_saved);
+        setEditing(false);
+      }
+      window.setTimeout(
+        () => setSaveState((s) => (s === "saved" ? "idle" : s)),
+        opts.auto ? 1800 : 1500,
+      );
+      return true;
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : t.account_save_error_storage;
       setSaveError(msg);
       setSaveState("error");
-      toast.error(t.account_save_error_storage);
+      if (!opts.auto) toast.error(t.account_save_error_storage);
+      return false;
     }
   };
+
+  const save = () => performSave(latestDraft.current, { auto: false });
+
+  // Autosave on draft change with 800ms debounce while editing
+  useEffect(() => {
+    latestDraft.current = draft;
+    if (!editing) return;
+    const json = JSON.stringify(draft);
+    const isDirty = json !== lastSavedJson.current;
+    setDirty(isDirty);
+    if (!isDirty) return;
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = window.setTimeout(() => {
+      isAutosaveSave.current = true;
+      void performSave(latestDraft.current, { auto: true }).finally(() => {
+        isAutosaveSave.current = false;
+      });
+    }, 800);
+    return () => {
+      if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, editing]);
+
+  // Warn before unloading the page if there are unsaved changes
+  useEffect(() => {
+    if (!editing || !dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [editing, dirty]);
 
   // Focus management: first field when entering edit; restore to Edit btn after exit
   const wasEditing = useRef(editing);
@@ -146,15 +203,71 @@ export function EditableCard<T>({
           ) : null}
         </div>
         <div className="flex items-center gap-2">
-          {saveState === "saved" && !editing ? (
+          {(() => {
+            // Status chip: visible in both view and edit modes when relevant
+            const showSaving = isSaving;
+            const showSaved = saveState === "saved";
+            const showError = saveState === "error" && !!(saveError || validationSummary);
+            const showDirty = editing && dirty && saveState === "idle";
+            if (!showSaving && !showSaved && !showError && !showDirty) return null;
+
+            const base =
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium";
+            if (showSaving) {
+              return (
+                <span
+                  className={`${base} border-primary/30 bg-primary/5 text-primary`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-status-saving` : undefined}
+                >
+                  <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+                  {t.account_action_saving}
+                </span>
+              );
+            }
+            if (showError) {
+              return (
+                <span
+                  className={`${base} border-destructive/40 bg-destructive/5 text-destructive`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-status-error` : undefined}
+                >
+                  <AlertCircle className="h-3 w-3" aria-hidden />
+                  {validationSummary ? t.account_save_error_validation : t.account_save_error_storage}
+                </span>
+              );
+            }
+            if (showSaved) {
+              return (
+                <span
+                  className={`${base} border-primary/30 bg-primary/5 text-primary`}
+                  role="status"
+                  aria-live="polite"
+                  data-testid={testId ? `${testId}-saved-indicator` : undefined}
+                >
+                  <CheckCircle2 className="h-3 w-3" aria-hidden />
+                  {t.account_action_saved}
+                </span>
+              );
+            }
+            // dirty
+            return (
+              <span
+                className={`${base} border-border bg-muted text-muted-foreground`}
+                data-testid={testId ? `${testId}-status-dirty` : undefined}
+              >
+                {t.account_autosave_unsaved}
+              </span>
+            );
+          })()}
+          {editing ? (
             <span
-              className="inline-flex items-center gap-1 text-xs text-primary"
-              data-testid={testId ? `${testId}-saved-indicator` : undefined}
-              role="status"
-              aria-live="polite"
+              className="hidden text-[11px] text-muted-foreground sm:inline"
+              aria-hidden
             >
-              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-              {t.account_action_saved}
+              · {t.account_autosave_label}
             </span>
           ) : null}
           {!editing ? (
