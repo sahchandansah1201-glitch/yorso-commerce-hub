@@ -35,6 +35,8 @@ import Press from "./pages/Press.tsx";
 import Partners from "./pages/Partners.tsx";
 import HowItWorks from "./pages/HowItWorks.tsx";
 import ForSuppliers from "./pages/ForSuppliers.tsx";
+import Blog from "./pages/Blog.tsx";
+import BlogArticle from "./pages/BlogArticle.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
 import TypographyAudit from "./pages/dev/TypographyAudit.tsx";
