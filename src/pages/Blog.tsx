@@ -466,7 +466,7 @@ const Blog = () => {
                                   </div>
                                   {p.productUpdate?.userBenefit ? (
                                     <div className="rounded-md border border-border bg-background px-3 py-2 text-[12px] leading-relaxed text-foreground/80">
-                                      <span className="font-semibold text-foreground">Who benefits:</span>{" "}
+                                      <span className="font-semibold text-foreground">{t.blog_pu_whoBenefits}:</span>{" "}
                                       {p.productUpdate.userBenefit}
                                     </div>
                                   ) : null}
