@@ -147,7 +147,12 @@ const PersonalSection = ({
           </button>
         ))}
       </nav>
-      <div id="personal-basic" className="scroll-mt-24 rounded-lg transition-shadow">
+      <section
+        id="personal-basic"
+        tabIndex={-1}
+        aria-label={t.account_personal_basic_title}
+        className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+      >
       <EditableCard<UserProfile>
         title={t.account_personal_basic_title}
         description={t.account_personal_basic_desc}
