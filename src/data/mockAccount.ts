@@ -159,6 +159,7 @@ export const mockUser: UserProfile = {
   lastName: "Petrova",
   email: "anna.demo@example.com",
   phone: "+34 600 000 000",
+  phoneVerified: true,
   language: "en",
   roleInCompany: "Procurement Lead",
   timezone: "Europe/Madrid",
