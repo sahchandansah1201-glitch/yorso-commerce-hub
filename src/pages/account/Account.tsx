@@ -139,6 +139,25 @@ const FormRow = ({
   );
 };
 
+const GroupHeading = ({ children }: { children: ReactNode }) => (
+  <h4 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+    {children}
+  </h4>
+);
+
+const FieldGroup = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => (
+  <div className="space-y-3">
+    <GroupHeading>{title}</GroupHeading>
+    {children}
+  </div>
+);
+
 const splitList = (s: string): string[] =>
   s
     .split(",")
@@ -230,95 +249,111 @@ const PersonalSection = ({
           const langLabel =
             v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
           return (
-            <div className="space-y-5">
-              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                <Field label={t.account_personal_firstName} value={v.firstName} />
-                <Field label={t.account_personal_lastName} value={v.lastName} />
-                <Field label={t.account_personal_role} value={v.roleInCompany} />
-              </dl>
-              <div className="border-t border-border/60" />
-              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                <Field label={t.account_personal_email} value={v.email} />
-                <Field label={t.account_personal_phone} value={v.phone} />
-              </dl>
-              <div className="border-t border-border/60" />
-              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                <Field label={t.account_personal_timezone} value={v.timezone} />
-                <Field label={t.account_personal_language} value={langLabel} />
-              </dl>
+            <div className="space-y-6">
+              <FieldGroup title={t.account_group_identity}>
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  <Field label={t.account_personal_firstName} value={v.firstName} />
+                  <Field label={t.account_personal_lastName} value={v.lastName} />
+                  <Field label={t.account_personal_role} value={v.roleInCompany} />
+                </dl>
+              </FieldGroup>
+              <FieldGroup title={t.account_group_contacts}>
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  <Field label={t.account_personal_email} value={v.email} />
+                  <Field label={t.account_personal_phone} value={v.phone} />
+                </dl>
+              </FieldGroup>
+              <FieldGroup title={t.account_group_locale}>
+                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                  <Field label={t.account_personal_timezone} value={v.timezone} />
+                  <Field label={t.account_personal_language} value={langLabel} />
+                </dl>
+              </FieldGroup>
             </div>
           );
         }}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
-              <Input
-                value={draft.firstName}
-                onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
-                data-testid="account-input-firstName"
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
-              <Input
-                value={draft.lastName}
-                onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_personal_email}
-              required
-              error={errors.email}
-              hint={t.account_hint_email}
-            >
-              <Input
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                maxLength={254}
-                value={draft.email}
-                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_personal_phone}
-              error={errors.phone}
-              hint={t.account_hint_phone}
-            >
-              <Input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                maxLength={32}
-                value={draft.phone}
-                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
-              <Input
-                maxLength={100}
-                value={draft.roleInCompany}
-                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_timezone}>
-              <Input
-                value={draft.timezone}
-                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_personal_language} error={errors.language}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={draft.language}
-                onChange={(e) =>
-                  setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
-                }
-              >
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-                <option value="es">Español</option>
-              </select>
-            </FormRow>
+          <div className="space-y-6">
+            <FieldGroup title={t.account_group_identity}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
+                  <Input
+                    value={draft.firstName}
+                    onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
+                    data-testid="account-input-firstName"
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
+                  <Input
+                    value={draft.lastName}
+                    onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
+                  <Input
+                    maxLength={100}
+                    value={draft.roleInCompany}
+                    onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_contacts}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow
+                  label={t.account_personal_email}
+                  required
+                  error={errors.email}
+                  hint={t.account_hint_email}
+                >
+                  <Input
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    maxLength={254}
+                    value={draft.email}
+                    onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow
+                  label={t.account_personal_phone}
+                  error={errors.phone}
+                  hint={t.account_hint_phone}
+                >
+                  <Input
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    maxLength={32}
+                    value={draft.phone}
+                    onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_locale}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_personal_timezone}>
+                  <Input
+                    value={draft.timezone}
+                    onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_personal_language} error={errors.language}>
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={draft.language}
+                    onChange={(e) =>
+                      setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
+                    }
+                  >
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="es">Español</option>
+                  </select>
+                </FormRow>
+              </div>
+            </FieldGroup>
           </div>
         )}
       />
@@ -442,69 +477,83 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <>
-            <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field label={t.account_company_legalName} value={v.legalName} />
-              <Field label={t.account_company_tradeName} value={v.tradeName} />
-              <Field label={t.account_company_country} value={v.country} />
-              <Field label={t.account_company_website} value={v.website} />
-              <Field
-                label={t.account_company_yearFounded}
-                value={v.yearFounded ? String(v.yearFounded) : ""}
-              />
-              <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
-            </dl>
-          </>
+          <div className="space-y-6">
+            <FieldGroup title={t.account_group_identity}>
+              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label={t.account_company_legalName} value={v.legalName} />
+                <Field label={t.account_company_tradeName} value={v.tradeName} />
+                <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+                <Field label={t.account_company_website} value={v.website} />
+              </dl>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_locale}>
+              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label={t.account_company_country} value={v.country} />
+                <Field
+                  label={t.account_company_yearFounded}
+                  value={v.yearFounded ? String(v.yearFounded) : ""}
+                />
+              </dl>
+            </FieldGroup>
+          </div>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <FormRow label={t.account_company_legalName} required error={errors.legalName}>
-              <Input
-                value={draft.legalName}
-                onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
-              <Input
-                value={draft.tradeName}
-                onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_company_country} required error={errors.country}>
-              <Input
-                value={draft.country}
-                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_company_website} error={errors.website}>
-              <Input
-                value={draft.website}
-                onChange={(e) => setDraft({ ...draft, website: e.target.value })}
-              />
-            </FormRow>
-            <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
-              <Input
-                type="number"
-                value={draft.yearFounded || ""}
-                onChange={(e) =>
-                  setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
-                }
-              />
-            </FormRow>
-            <FormRow label={t.account_company_role}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={draft.accountRole}
-                onChange={(e) =>
-                  setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
-                }
-                data-testid="account-input-accountRole"
-              >
-                <option value="buyer">{t.account_company_role_buyer}</option>
-                <option value="supplier">{t.account_company_role_supplier}</option>
-                <option value="both">{t.account_company_role_both}</option>
-              </select>
-            </FormRow>
+          <div className="space-y-6">
+            <FieldGroup title={t.account_group_identity}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_company_legalName} required error={errors.legalName}>
+                  <Input
+                    value={draft.legalName}
+                    onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
+                  <Input
+                    value={draft.tradeName}
+                    onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_company_role}>
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={draft.accountRole}
+                    onChange={(e) =>
+                      setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
+                    }
+                    data-testid="account-input-accountRole"
+                  >
+                    <option value="buyer">{t.account_company_role_buyer}</option>
+                    <option value="supplier">{t.account_company_role_supplier}</option>
+                    <option value="both">{t.account_company_role_both}</option>
+                  </select>
+                </FormRow>
+                <FormRow label={t.account_company_website} error={errors.website}>
+                  <Input
+                    value={draft.website}
+                    onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
+            <FieldGroup title={t.account_group_locale}>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <FormRow label={t.account_company_country} required error={errors.country}>
+                  <Input
+                    value={draft.country}
+                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                  />
+                </FormRow>
+                <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
+                  <Input
+                    type="number"
+                    value={draft.yearFounded || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
+                    }
+                  />
+                </FormRow>
+              </div>
+            </FieldGroup>
           </div>
         )}
       />

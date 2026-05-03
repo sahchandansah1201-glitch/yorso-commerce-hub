@@ -1343,6 +1343,9 @@ type TranslationKeys = {
   account_completion_buyer_products: string;
   account_completion_buyer_meta_regions: string;
   account_completion_notifications_any: string;
+  account_group_identity: string;
+  account_group_contacts: string;
+  account_group_locale: string;
   account_personal_basic_title: string;
   account_personal_basic_desc: string;
   account_personal_jump_label: string;
@@ -2881,6 +2884,9 @@ const en: TranslationKeys = {
   account_completion_buyer_products: "Buying products added",
   account_completion_buyer_meta_regions: "Meta-regions defined",
   account_completion_notifications_any: "At least one notification channel enabled",
+  account_group_identity: "Identity",
+  account_group_contacts: "Contacts",
+  account_group_locale: "Locale",
   account_personal_basic_title: "Basic info",
   account_personal_basic_desc: "Personal contact information.",
   account_personal_jump_label: "Jump to",
@@ -4406,6 +4412,9 @@ const ru: TranslationKeys = {
   account_completion_buyer_products: "Добавлены продукты, которые вы покупаете",
   account_completion_buyer_meta_regions: "Заданы мета-регионы",
   account_completion_notifications_any: "Включён хотя бы один канал уведомлений",
+  account_group_identity: "Идентичность",
+  account_group_contacts: "Контакты",
+  account_group_locale: "Локаль",
   account_personal_basic_title: "Базовые данные",
   account_personal_basic_desc: "Личная контактная информация.",
   account_personal_jump_label: "Перейти к",
@@ -5930,6 +5939,9 @@ const es: TranslationKeys = {
   account_completion_buyer_products: "Productos que compras añadidos",
   account_completion_buyer_meta_regions: "Meta-regiones definidas",
   account_completion_notifications_any: "Al menos un canal de notificación activo",
+  account_group_identity: "Identidad",
+  account_group_contacts: "Contactos",
+  account_group_locale: "Configuración regional",
   account_personal_basic_title: "Datos básicos",
   account_personal_basic_desc: "Información personal de contacto.",
   account_personal_jump_label: "Ir a",
