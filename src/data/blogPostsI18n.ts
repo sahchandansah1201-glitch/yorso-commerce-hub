@@ -734,20 +734,21 @@ export const getLocalizedPost = (post: BlogPost, lang: Language): BlogPost => {
 
 /** Локализованная подпись категории по contentType. */
 export const localizedCategoryLabel = (
-  t: { [k: string]: string },
+  t: Record<string, unknown>,
   contentType: BlogPost["contentType"],
 ): string => {
+  const get = (k: string) => (typeof t[k] === "string" ? (t[k] as string) : "");
   switch (contentType) {
     case "market_intelligence":
-      return t.blog_filter_marketIntelligence;
+      return get("blog_filter_marketIntelligence");
     case "buyer_guide":
-      return t.blog_filter_buyerGuides;
+      return get("blog_filter_buyerGuides");
     case "supplier_guide":
-      return t.blog_filter_supplierGuides;
+      return get("blog_filter_supplierGuides");
     case "product_update":
-      return t.blog_filter_productUpdates;
+      return get("blog_filter_productUpdates");
     case "glossary":
-      return t.blog_filter_glossary;
+      return get("blog_filter_glossary");
     default:
       return contentType;
   }
