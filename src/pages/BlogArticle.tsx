@@ -547,7 +547,7 @@ const BlogArticle = () => {
                             to={post.productUpdate.relatedRoute}
                             data-testid="blog-product-update-cta"
                           >
-                            Try this workflow
+                            {t.blog_pu_tryWorkflow}
                             <ArrowRight className="h-4 w-4" aria-hidden />
                           </Link>
                         </Button>
