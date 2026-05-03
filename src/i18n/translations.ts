@@ -2871,6 +2871,8 @@ const en: TranslationKeys = {
   account_completion_notifications_any: "At least one notification channel enabled",
   account_personal_basic_title: "Basic info",
   account_personal_basic_desc: "Personal contact information.",
+  account_personal_jump_label: "Jump to",
+  account_personal_jump_aria: "Jump to section",
   account_personal_firstName: "First name",
   account_personal_lastName: "Last name",
   account_personal_email: "Email",
