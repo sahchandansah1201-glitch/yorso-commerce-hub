@@ -1279,6 +1279,23 @@ type TranslationKeys = {
   blog_cta_productUpdate: string;
   blog_cta_glossary: string;
   blog_cta_default: string;
+  // Popular topic chips (Blog index sidebar)
+  blog_topic_salmonPrices: string;
+  blog_topic_shrimpImports: string;
+  blog_topic_supplierVerification: string;
+  blog_topic_rfq: string;
+  blog_topic_priceAccess: string;
+  blog_topic_landedCost: string;
+  blog_topic_documentation: string;
+  // "Start here" cards
+  blog_startHere_catalog_label: string;
+  blog_startHere_catalog_desc: string;
+  blog_startHere_suppliers_label: string;
+  blog_startHere_suppliers_desc: string;
+  blog_startHere_forSuppliers_label: string;
+  blog_startHere_forSuppliers_desc: string;
+  blog_startHere_howItWorks_label: string;
+  blog_startHere_howItWorks_desc: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
