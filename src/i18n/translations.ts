@@ -2966,6 +2966,8 @@ const en: TranslationKeys = {
   account_action_saved: "Saved",
   account_save_error_storage: "Could not save locally. Browser storage may be full or blocked.",
   account_save_error_validation: "Please fix the highlighted fields.",
+  account_autosave_unsaved: "Unsaved changes",
+  account_autosave_label: "Auto-save",
   account_action_cancel: "Cancel",
   account_value_notSpecified: "Not specified yet",
   account_validation_required: "This field is required",
