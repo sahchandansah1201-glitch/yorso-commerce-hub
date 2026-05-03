@@ -4382,7 +4382,7 @@ const ru: TranslationKeys = {
   account_personal_basic_desc: "Личная контактная информация.",
   account_personal_firstName: "Имя",
   account_personal_lastName: "Фамилия",
-  account_personal_email: "Email",
+  account_personal_email: "Эл. почта",
   account_personal_phone: "Телефон",
   account_personal_role: "Роль в компании",
   account_personal_timezone: "Часовой пояс",

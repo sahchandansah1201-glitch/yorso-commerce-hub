@@ -35,10 +35,22 @@ const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf)
 
 const Field = ({ label, value }: { label: string; value: string }) => {
   const { t } = useLanguage();
+  const isEmpty = !value || !value.trim();
   return (
-    <div>
-      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-sm text-foreground">{fallback(value, t.account_value_notSpecified)}</dd>
+    <div className="min-w-0">
+      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground/80">
+        {label}
+      </dt>
+      <dd
+        className={
+          isEmpty
+            ? "mt-1 truncate text-[15px] italic text-muted-foreground"
+            : "mt-1 truncate text-[15px] font-medium text-foreground"
+        }
+        title={isEmpty ? undefined : value}
+      >
+        {fallback(value, t.account_value_notSpecified)}
+      </dd>
     </div>
   );
 };
@@ -110,17 +122,29 @@ const PersonalSection = ({
           return e;
         }}
         onSave={(d) => onChange({ ...profile, user: d })}
-        renderView={(v) => (
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label={t.account_personal_firstName} value={v.firstName} />
-            <Field label={t.account_personal_lastName} value={v.lastName} />
-            <Field label={t.account_personal_email} value={v.email} />
-            <Field label={t.account_personal_phone} value={v.phone} />
-            <Field label={t.account_personal_role} value={v.roleInCompany} />
-            <Field label={t.account_personal_timezone} value={v.timezone} />
-            <Field label={t.account_personal_language} value={v.language.toUpperCase()} />
-          </dl>
-        )}
+        renderView={(v) => {
+          const langLabel =
+            v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
+          return (
+            <div className="space-y-5">
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_firstName} value={v.firstName} />
+                <Field label={t.account_personal_lastName} value={v.lastName} />
+                <Field label={t.account_personal_role} value={v.roleInCompany} />
+              </dl>
+              <div className="border-t border-border/60" />
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_email} value={v.email} />
+                <Field label={t.account_personal_phone} value={v.phone} />
+              </dl>
+              <div className="border-t border-border/60" />
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_timezone} value={v.timezone} />
+                <Field label={t.account_personal_language} value={langLabel} />
+              </dl>
+            </div>
+          );
+        }}
         renderEdit={({ draft, setDraft, errors }) => (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
@@ -187,11 +211,34 @@ const PersonalSection = ({
       <AccountSectionCard
         title={t.account_personal_membership_title}
         description={t.account_personal_membership_desc}
+        testId="account-card-personal-membership"
       >
-        <p className="text-sm">
-          {profile.company.tradeName}{" "}
-          <span className="text-muted-foreground">({profile.company.country})</span>
-        </p>
+        <div className="flex items-center gap-3">
+          <div
+            aria-hidden
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-sm font-semibold text-primary"
+          >
+            {profile.company.tradeName
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((w) => w[0])
+              .join("")
+              .toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-base font-semibold text-foreground">
+              {profile.company.tradeName}
+            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <Badge variant="outline" className="text-[11px] font-normal">
+                {profile.company.country}
+              </Badge>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                {accountRoleLabel(profile.company.accountRole, t)}
+              </span>
+            </div>
+          </div>
+        </div>
       </AccountSectionCard>
     </div>
   );
