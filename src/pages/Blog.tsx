@@ -533,10 +533,6 @@ const Blog = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
-  );
 
         {latestUpdates.length > 0 && (
           <section
