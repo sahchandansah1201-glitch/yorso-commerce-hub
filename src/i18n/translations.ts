@@ -1474,6 +1474,7 @@ type TranslationKeys = {
   account_company_media_focal_center: string;
   account_company_media_focal_top: string;
   account_company_media_focal_bottom: string;
+  account_company_media_focalHelp: string;
   account_company_media_logoFit: string;
   account_company_media_fit_contain: string;
   account_company_media_fit_cover: string;
