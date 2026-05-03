@@ -445,6 +445,63 @@ export const blogPosts: BlogPost[] = [
         ],
       },
     ],
+    productUpdate: {
+      updateType: "improved",
+      affectedArea: "Supplier Profiles",
+      userBenefit:
+        "Buyers reach the right supplier faster and understand exactly what unlocks after access is granted.",
+      howToUse: [
+        "Open any supplier profile from the directory.",
+        "Review the verified facts and certification grid.",
+        "Use the access request panel to request price and identity access.",
+      ],
+      relatedRoute: "/suppliers",
+    },
+  },
+  {
+    id: "post-011",
+    slug: "yorso-price-access-request-flow",
+    title: "Prototype update: simpler price access request flow",
+    excerpt:
+      "A product update describing the streamlined price access request panel on offer pages and supplier profiles.",
+    category: "Product updates",
+    audience: "buyer",
+    contentType: "product_update",
+    publishedAt: "2026-03-04",
+    updatedAt: "2026-03-04",
+    readingTimeMinutes: 3,
+    authorName: "YORSO Product",
+    heroImage: PLACEHOLDER,
+    seoTitle: "Simpler price access request flow (YORSO product update)",
+    seoDescription:
+      "Product update on the streamlined price access request flow that lets qualified buyers request exact prices in fewer steps.",
+    sections: [
+      {
+        heading: "What changed",
+        paragraphs: [
+          "The price access request panel is now a single short form. Buyers see exactly which fields are required and what the supplier will see before they click submit.",
+        ],
+      },
+      {
+        heading: "Why we changed it",
+        paragraphs: [
+          "Buyers reported that the previous flow asked for fields suppliers do not actually use to qualify a request. We removed those fields and grouped the remaining ones by purpose.",
+        ],
+      },
+    ],
+    productUpdate: {
+      updateType: "improved",
+      affectedArea: "Price Access",
+      userBenefit:
+        "Qualified buyers request exact prices in fewer steps and know in advance what suppliers will see.",
+      howToUse: [
+        "Open an offer in the catalog.",
+        "Click Request price access on the offer panel.",
+        "Confirm volume and destination, then submit.",
+      ],
+      relatedRoute: "/offers",
+      prototype: true,
+    },
   },
   {
     id: "post-010",
