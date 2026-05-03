@@ -36,6 +36,7 @@ import Partners from "./pages/Partners.tsx";
 import HowItWorks from "./pages/HowItWorks.tsx";
 import ForSuppliers from "./pages/ForSuppliers.tsx";
 import Blog from "./pages/Blog.tsx";
+import Account from "./pages/account/Account.tsx";
 import BlogArticle from "./pages/BlogArticle.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
@@ -84,6 +85,10 @@ const App = () => (
                 <Route path="/for-suppliers" element={<ForSuppliers />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogArticle />} />
+                <Route path="/account" element={<Navigate to="/account/personal" replace />} />
+                <Route path="/account/:section" element={<Account />} />
+                <Route path="/profile" element={<Navigate to="/account/personal" replace />} />
+                <Route path="/profile/personal" element={<Navigate to="/account/personal" replace />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />

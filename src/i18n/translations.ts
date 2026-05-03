@@ -1307,6 +1307,129 @@ type TranslationKeys = {
   blog_startHere_forSuppliers_desc: string;
   blog_startHere_howItWorks_label: string;
   blog_startHere_howItWorks_desc: string;
+
+  // Account workspace
+  nav_myAccount: string;
+  account_workspace_title: string;
+  account_workspace_subtitle: string;
+  account_nav_aria: string;
+  account_nav_personal: string;
+  account_nav_company: string;
+  account_nav_branches: string;
+  account_nav_products: string;
+  account_nav_metaRegions: string;
+  account_nav_notifications: string;
+  account_editPlaceholder: string;
+  account_prototype_savedLocally: string;
+  account_signinRequired_title: string;
+  account_signinRequired_body: string;
+  account_signinRequired_cta: string;
+  account_overview_title: string;
+  account_overview_nextAction: string;
+  account_overview_allDone: string;
+  account_overview_group_user: string;
+  account_overview_group_company: string;
+  account_overview_group_supplier: string;
+  account_overview_group_buyer: string;
+  account_overview_group_notifications: string;
+  account_completion_user_basic: string;
+  account_completion_user_phone: string;
+  account_completion_company_identity: string;
+  account_completion_company_contacts: string;
+  account_completion_company_description: string;
+  account_completion_supplier_branches: string;
+  account_completion_supplier_certificates: string;
+  account_completion_supplier_publication: string;
+  account_completion_buyer_products: string;
+  account_completion_buyer_meta_regions: string;
+  account_completion_notifications_any: string;
+  account_personal_basic_title: string;
+  account_personal_basic_desc: string;
+  account_personal_firstName: string;
+  account_personal_lastName: string;
+  account_personal_email: string;
+  account_personal_phone: string;
+  account_personal_role: string;
+  account_personal_timezone: string;
+  account_personal_security_title: string;
+  account_personal_security_desc: string;
+  account_personal_security_placeholder: string;
+  account_personal_membership_title: string;
+  account_personal_membership_desc: string;
+  account_company_identity_title: string;
+  account_company_legalName: string;
+  account_company_tradeName: string;
+  account_company_country: string;
+  account_company_website: string;
+  account_company_yearFounded: string;
+  account_company_role: string;
+  account_company_trust_title: string;
+  account_company_payment_title: string;
+  account_company_publication_title: string;
+  account_company_publication_desc: string;
+  account_company_publication_status: string;
+  account_company_pub_draft: string;
+  account_company_pub_review: string;
+  account_company_pub_published: string;
+  account_branches_title: string;
+  account_branches_desc: string;
+  account_branches_deliveryBasisExplainer: string;
+  account_branch_type_registered: string;
+  account_branch_type_office: string;
+  account_branch_type_warehouse: string;
+  account_branch_type_plant: string;
+  account_branch_type_sales: string;
+  account_branch_type_loading: string;
+  account_branch_incoterms: string;
+  account_branch_pickup: string;
+  account_products_title: string;
+  account_products_desc: string;
+  account_products_matchingExplainer: string;
+  account_product_col_product: string;
+  account_product_col_latin: string;
+  account_product_col_state: string;
+  account_product_col_role: string;
+  account_product_col_volume: string;
+  account_product_col_certs: string;
+  account_product_col_targets: string;
+  account_product_role_buying: string;
+  account_product_role_selling: string;
+  account_product_role_both: string;
+  account_metaRegions_title: string;
+  account_metaRegions_desc: string;
+  account_metaRegions_explainer: string;
+  account_metaRegion_reason: string;
+  account_metaRegion_reason_freight: string;
+  account_metaRegion_reason_customs: string;
+  account_metaRegion_reason_sales: string;
+  account_metaRegion_reason_warehouse: string;
+  account_metaRegion_reason_manual: string;
+  account_metaRegion_use_notifications: string;
+  account_metaRegion_use_priceAccess: string;
+  account_metaRegion_use_campaigns: string;
+  account_metaRegion_use_landedCost: string;
+  account_metaRegion_use_matching: string;
+  account_notifications_title: string;
+  account_notifications_desc: string;
+  account_notifications_disclaimer: string;
+  account_notif_channel_email: string;
+  account_notif_channel_messenger: string;
+  account_notif_channel_inApp: string;
+  account_notif_channel_agent: string;
+  account_notif_enabled: string;
+  account_notif_disabled: string;
+  account_notif_freqLabel: string;
+  account_notif_freq_instant: string;
+  account_notif_freq_daily: string;
+  account_notif_freq_weekly: string;
+  account_notif_eventsLabel: string;
+  account_notif_event_priceAccessApproved: string;
+  account_notif_event_newMatching: string;
+  account_notif_event_rfqResponse: string;
+  account_notif_event_priceMovement: string;
+  account_notif_event_documentReadiness: string;
+  account_notif_event_countryNews: string;
+  account_notif_event_supplierReview: string;
 };
 
 // ─── ENGLISH ─────────────────────────────────────────────────────
@@ -2650,6 +2773,127 @@ const en: TranslationKeys = {
   blog_startHere_forSuppliers_desc: "How suppliers list product and approve buyers.",
   blog_startHere_howItWorks_label: "How YORSO works",
   blog_startHere_howItWorks_desc: "Three access levels and the procurement flow.",
+  nav_myAccount: "My account",
+  account_workspace_title: "My account",
+  account_workspace_subtitle: "Company operating profile. The data here will power the catalog, matching and notifications.",
+  account_nav_aria: "Account navigation",
+  account_nav_personal: "Personal info",
+  account_nav_company: "Company profile",
+  account_nav_branches: "Branches",
+  account_nav_products: "Products",
+  account_nav_metaRegions: "Meta-regions",
+  account_nav_notifications: "Notifications",
+  account_editPlaceholder: "Edit",
+  account_prototype_savedLocally: "Saved locally in this prototype. Backend integration will use this data shape later.",
+  account_signinRequired_title: "Sign in to open your account",
+  account_signinRequired_body: "Your company operating profile is available to signed in users only.",
+  account_signinRequired_cta: "Sign in",
+  account_overview_title: "Account completion",
+  account_overview_nextAction: "Next step",
+  account_overview_allDone: "Your operating profile is complete.",
+  account_overview_group_user: "User profile",
+  account_overview_group_company: "Company profile",
+  account_overview_group_supplier: "Supplier readiness",
+  account_overview_group_buyer: "Buyer matching readiness",
+  account_overview_group_notifications: "Notifications",
+  account_completion_user_basic: "First name, last name and email",
+  account_completion_user_phone: "Contact phone",
+  account_completion_company_identity: "Company identity",
+  account_completion_company_contacts: "Commercial contacts",
+  account_completion_company_description: "Company description",
+  account_completion_supplier_branches: "At least one branch or loading point",
+  account_completion_supplier_certificates: "Company certificates",
+  account_completion_supplier_publication: "Supplier profile ready for review",
+  account_completion_buyer_products: "Buying products added",
+  account_completion_buyer_meta_regions: "Meta-regions defined",
+  account_completion_notifications_any: "At least one notification channel enabled",
+  account_personal_basic_title: "Basic info",
+  account_personal_basic_desc: "Personal contact information.",
+  account_personal_firstName: "First name",
+  account_personal_lastName: "Last name",
+  account_personal_email: "Email",
+  account_personal_phone: "Phone",
+  account_personal_role: "Role in company",
+  account_personal_timezone: "Timezone",
+  account_personal_security_title: "Security",
+  account_personal_security_desc: "Account access settings.",
+  account_personal_security_placeholder: "Password change will connect to the backend later.",
+  account_personal_membership_title: "Company",
+  account_personal_membership_desc: "Company this account belongs to.",
+  account_company_identity_title: "Company identity",
+  account_company_legalName: "Legal name",
+  account_company_tradeName: "Trade name",
+  account_company_country: "Country",
+  account_company_website: "Website",
+  account_company_yearFounded: "Year founded",
+  account_company_role: "Role on YORSO",
+  account_company_trust_title: "Trust and certificates",
+  account_company_payment_title: "Accepted payment terms",
+  account_company_publication_title: "Supplier publication readiness",
+  account_company_publication_desc: "Public supplier profile readiness state.",
+  account_company_publication_status: "Status",
+  account_company_pub_draft: "Draft",
+  account_company_pub_review: "Ready for review",
+  account_company_pub_published: "Published",
+  account_branches_title: "Branches and loading points",
+  account_branches_desc: "Offices, warehouses and processing plants.",
+  account_branches_deliveryBasisExplainer: "Branches will be used as available delivery basis options (Incoterms and port / pickup point) in your offers and requests.",
+  account_branch_type_registered: "Registered address",
+  account_branch_type_office: "Office",
+  account_branch_type_warehouse: "Warehouse",
+  account_branch_type_plant: "Processing plant",
+  account_branch_type_sales: "Sales office",
+  account_branch_type_loading: "Loading point",
+  account_branch_incoterms: "Incoterms",
+  account_branch_pickup: "Port / pickup point",
+  account_products_title: "Product matrix",
+  account_products_desc: "Products you buy and sell.",
+  account_products_matchingExplainer: "Products power buyer-supplier matching and catalog recommendations.",
+  account_product_col_product: "Product",
+  account_product_col_latin: "Latin name",
+  account_product_col_state: "State",
+  account_product_col_role: "Role",
+  account_product_col_volume: "Monthly volume",
+  account_product_col_certs: "Certificates",
+  account_product_col_targets: "Target countries",
+  account_product_role_buying: "Buying",
+  account_product_role_selling: "Selling",
+  account_product_role_both: "Both",
+  account_metaRegions_title: "Meta-regions",
+  account_metaRegions_desc: "Group countries by logistics or commercial logic.",
+  account_metaRegions_explainer: "Meta-regions group countries by logistics, sales market or shared warehouse route.",
+  account_metaRegion_reason: "Logic",
+  account_metaRegion_reason_freight: "Similar freight cost",
+  account_metaRegion_reason_customs: "Same customs zone",
+  account_metaRegion_reason_sales: "Same sales market",
+  account_metaRegion_reason_warehouse: "Same warehouse route",
+  account_metaRegion_reason_manual: "Manual",
+  account_metaRegion_use_notifications: "Notifications",
+  account_metaRegion_use_priceAccess: "Price access",
+  account_metaRegion_use_campaigns: "Campaigns",
+  account_metaRegion_use_landedCost: "Landed cost",
+  account_metaRegion_use_matching: "Supplier matching",
+  account_notifications_title: "Notifications",
+  account_notifications_desc: "How and when to be alerted.",
+  account_notifications_disclaimer: "No real notifications are sent in this prototype. Real integration will connect later.",
+  account_notif_channel_email: "Email",
+  account_notif_channel_messenger: "Messenger",
+  account_notif_channel_inApp: "In app",
+  account_notif_channel_agent: "Personal agent",
+  account_notif_enabled: "Enabled",
+  account_notif_disabled: "Disabled",
+  account_notif_freqLabel: "Frequency",
+  account_notif_freq_instant: "Instant",
+  account_notif_freq_daily: "Daily",
+  account_notif_freq_weekly: "Weekly",
+  account_notif_eventsLabel: "Events",
+  account_notif_event_priceAccessApproved: "Price access approved",
+  account_notif_event_newMatching: "New matching product",
+  account_notif_event_rfqResponse: "RFQ response",
+  account_notif_event_priceMovement: "Price movement",
+  account_notif_event_documentReadiness: "Document readiness",
+  account_notif_event_countryNews: "Country news",
+  account_notif_event_supplierReview: "Supplier profile review",
 };
 
 // ─── RUSSIAN ─────────────────────────────────────────────────────
@@ -3980,6 +4224,127 @@ const ru: TranslationKeys = {
   blog_startHere_forSuppliers_desc: "Как поставщики публикуют продукт и одобряют покупателей.",
   blog_startHere_howItWorks_label: "Как работает YORSO",
   blog_startHere_howItWorks_desc: "Три уровня доступа и сценарий закупки.",
+  nav_myAccount: "Моя учётная запись",
+  account_workspace_title: "Моя учётная запись",
+  account_workspace_subtitle: "Операционный профиль компании: данные, на основе которых работают каталог, матчинг и уведомления.",
+  account_nav_aria: "Навигация по учётной записи",
+  account_nav_personal: "Личные данные",
+  account_nav_company: "Профиль компании",
+  account_nav_branches: "Филиалы",
+  account_nav_products: "Продукты",
+  account_nav_metaRegions: "Мета-регионы",
+  account_nav_notifications: "Уведомления",
+  account_editPlaceholder: "Редактировать",
+  account_prototype_savedLocally: "Сохранено локально в этом прототипе. Интеграция с бэкендом позже использует эту модель данных.",
+  account_signinRequired_title: "Войдите, чтобы открыть учётную запись",
+  account_signinRequired_body: "Ваш операционный профиль доступен только после входа.",
+  account_signinRequired_cta: "Войти",
+  account_overview_title: "Заполненность профиля",
+  account_overview_nextAction: "Следующий шаг",
+  account_overview_allDone: "Операционный профиль заполнен.",
+  account_overview_group_user: "Профиль пользователя",
+  account_overview_group_company: "Профиль компании",
+  account_overview_group_supplier: "Готовность к публикации как поставщик",
+  account_overview_group_buyer: "Готовность к матчингу как покупатель",
+  account_overview_group_notifications: "Уведомления",
+  account_completion_user_basic: "Имя, фамилия и email",
+  account_completion_user_phone: "Контактный телефон",
+  account_completion_company_identity: "Идентификация компании",
+  account_completion_company_contacts: "Коммерческие контакты",
+  account_completion_company_description: "Описание компании",
+  account_completion_supplier_branches: "Хотя бы один филиал или точка отгрузки",
+  account_completion_supplier_certificates: "Сертификации компании",
+  account_completion_supplier_publication: "Профиль поставщика готов к проверке",
+  account_completion_buyer_products: "Добавлены продукты, которые вы покупаете",
+  account_completion_buyer_meta_regions: "Заданы мета-регионы",
+  account_completion_notifications_any: "Включён хотя бы один канал уведомлений",
+  account_personal_basic_title: "Базовые данные",
+  account_personal_basic_desc: "Личная контактная информация.",
+  account_personal_firstName: "Имя",
+  account_personal_lastName: "Фамилия",
+  account_personal_email: "Email",
+  account_personal_phone: "Телефон",
+  account_personal_role: "Роль в компании",
+  account_personal_timezone: "Часовой пояс",
+  account_personal_security_title: "Безопасность",
+  account_personal_security_desc: "Настройки доступа к учётной записи.",
+  account_personal_security_placeholder: "Смена пароля будет подключена к бэкенду позже.",
+  account_personal_membership_title: "Компания",
+  account_personal_membership_desc: "Компания, к которой относится эта учётная запись.",
+  account_company_identity_title: "Идентификация компании",
+  account_company_legalName: "Юридическое название",
+  account_company_tradeName: "Торговое название",
+  account_company_country: "Страна",
+  account_company_website: "Сайт",
+  account_company_yearFounded: "Год основания",
+  account_company_role: "Роль на YORSO",
+  account_company_trust_title: "Доверие и сертификации",
+  account_company_payment_title: "Принимаемые условия оплаты",
+  account_company_publication_title: "Готовность к публикации как поставщик",
+  account_company_publication_desc: "Состояние готовности публичного профиля поставщика.",
+  account_company_publication_status: "Статус",
+  account_company_pub_draft: "Черновик",
+  account_company_pub_review: "Готов к проверке",
+  account_company_pub_published: "Опубликован",
+  account_branches_title: "Филиалы и точки отгрузки",
+  account_branches_desc: "Список офисов, складов и производственных площадок.",
+  account_branches_deliveryBasisExplainer: "Филиалы будут использоваться как доступные базисы поставки (Incoterms и порт/точка отгрузки) в ваших офферах и заявках.",
+  account_branch_type_registered: "Юридический адрес",
+  account_branch_type_office: "Офис",
+  account_branch_type_warehouse: "Склад",
+  account_branch_type_plant: "Производственная площадка",
+  account_branch_type_sales: "Коммерческий офис",
+  account_branch_type_loading: "Точка отгрузки",
+  account_branch_incoterms: "Incoterms",
+  account_branch_pickup: "Порт/точка отгрузки",
+  account_products_title: "Матрица продуктов",
+  account_products_desc: "Продукты, которые вы покупаете и продаёте.",
+  account_products_matchingExplainer: "Продукты используются для матчинга между покупателями и поставщиками и для рекомендаций каталога.",
+  account_product_col_product: "Продукт",
+  account_product_col_latin: "Латинское название",
+  account_product_col_state: "Состояние",
+  account_product_col_role: "Роль",
+  account_product_col_volume: "Объём в месяц",
+  account_product_col_certs: "Сертификации",
+  account_product_col_targets: "Целевые страны",
+  account_product_role_buying: "Покупка",
+  account_product_role_selling: "Продажа",
+  account_product_role_both: "Обе стороны",
+  account_metaRegions_title: "Мета-регионы",
+  account_metaRegions_desc: "Группировка стран по логистической или коммерческой логике.",
+  account_metaRegions_explainer: "Мета-регионы объединяют страны по логистике, рынку или общему складскому маршруту.",
+  account_metaRegion_reason: "Логика",
+  account_metaRegion_reason_freight: "Похожая стоимость фрахта",
+  account_metaRegion_reason_customs: "Одна таможенная зона",
+  account_metaRegion_reason_sales: "Один рынок сбыта",
+  account_metaRegion_reason_warehouse: "Один складской маршрут",
+  account_metaRegion_reason_manual: "Вручную",
+  account_metaRegion_use_notifications: "Уведомления",
+  account_metaRegion_use_priceAccess: "Доступ к цене",
+  account_metaRegion_use_campaigns: "Кампании",
+  account_metaRegion_use_landedCost: "Себестоимость в порту",
+  account_metaRegion_use_matching: "Матчинг поставщиков",
+  account_notifications_title: "Уведомления",
+  account_notifications_desc: "Как и когда получать оповещения.",
+  account_notifications_disclaimer: "В этом прототипе настоящие уведомления не отправляются. Реальная интеграция будет подключена позже.",
+  account_notif_channel_email: "Email",
+  account_notif_channel_messenger: "Мессенджер",
+  account_notif_channel_inApp: "В приложении",
+  account_notif_channel_agent: "Личный агент",
+  account_notif_enabled: "Включено",
+  account_notif_disabled: "Выключено",
+  account_notif_freqLabel: "Частота",
+  account_notif_freq_instant: "Мгновенно",
+  account_notif_freq_daily: "Раз в день",
+  account_notif_freq_weekly: "Раз в неделю",
+  account_notif_eventsLabel: "События",
+  account_notif_event_priceAccessApproved: "Доступ к цене одобрен",
+  account_notif_event_newMatching: "Новый подходящий продукт",
+  account_notif_event_rfqResponse: "Ответ на RFQ",
+  account_notif_event_priceMovement: "Движение цены",
+  account_notif_event_documentReadiness: "Готовность документов",
+  account_notif_event_countryNews: "Новости страны",
+  account_notif_event_supplierReview: "Проверка профиля поставщика",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
@@ -5309,6 +5674,127 @@ const es: TranslationKeys = {
   blog_startHere_forSuppliers_desc: "Cómo los proveedores publican producto y aprueban a compradores.",
   blog_startHere_howItWorks_label: "Cómo funciona YORSO",
   blog_startHere_howItWorks_desc: "Tres niveles de acceso y el flujo de compras.",
+  nav_myAccount: "Mi cuenta",
+  account_workspace_title: "Mi cuenta",
+  account_workspace_subtitle: "Perfil operativo de la empresa: datos que alimentarán el catálogo, el matching y las notificaciones.",
+  account_nav_aria: "Navegación de la cuenta",
+  account_nav_personal: "Datos personales",
+  account_nav_company: "Perfil de empresa",
+  account_nav_branches: "Sucursales",
+  account_nav_products: "Productos",
+  account_nav_metaRegions: "Meta-regiones",
+  account_nav_notifications: "Notificaciones",
+  account_editPlaceholder: "Editar",
+  account_prototype_savedLocally: "Guardado localmente en este prototipo. La integración con el backend usará este modelo de datos más adelante.",
+  account_signinRequired_title: "Inicia sesión para abrir tu cuenta",
+  account_signinRequired_body: "Tu perfil operativo está disponible para usuarios con sesión iniciada.",
+  account_signinRequired_cta: "Iniciar sesión",
+  account_overview_title: "Completitud de la cuenta",
+  account_overview_nextAction: "Siguiente paso",
+  account_overview_allDone: "Tu perfil operativo está completo.",
+  account_overview_group_user: "Perfil de usuario",
+  account_overview_group_company: "Perfil de empresa",
+  account_overview_group_supplier: "Listo para publicar como proveedor",
+  account_overview_group_buyer: "Listo para matching de compras",
+  account_overview_group_notifications: "Notificaciones",
+  account_completion_user_basic: "Nombre, apellido y correo electrónico",
+  account_completion_user_phone: "Teléfono de contacto",
+  account_completion_company_identity: "Identidad de la empresa",
+  account_completion_company_contacts: "Contactos comerciales",
+  account_completion_company_description: "Descripción de la empresa",
+  account_completion_supplier_branches: "Al menos una sucursal o punto de carga",
+  account_completion_supplier_certificates: "Certificaciones de la empresa",
+  account_completion_supplier_publication: "Perfil de proveedor listo para revisión",
+  account_completion_buyer_products: "Productos que compras añadidos",
+  account_completion_buyer_meta_regions: "Meta-regiones definidas",
+  account_completion_notifications_any: "Al menos un canal de notificación activo",
+  account_personal_basic_title: "Datos básicos",
+  account_personal_basic_desc: "Información personal de contacto.",
+  account_personal_firstName: "Nombre",
+  account_personal_lastName: "Apellido",
+  account_personal_email: "Correo electrónico",
+  account_personal_phone: "Teléfono",
+  account_personal_role: "Rol en la empresa",
+  account_personal_timezone: "Zona horaria",
+  account_personal_security_title: "Seguridad",
+  account_personal_security_desc: "Configuración de acceso a la cuenta.",
+  account_personal_security_placeholder: "El cambio de contraseña se conectará con el backend más adelante.",
+  account_personal_membership_title: "Empresa",
+  account_personal_membership_desc: "Empresa a la que pertenece esta cuenta.",
+  account_company_identity_title: "Identidad de la empresa",
+  account_company_legalName: "Razón social",
+  account_company_tradeName: "Nombre comercial",
+  account_company_country: "País",
+  account_company_website: "Sitio web",
+  account_company_yearFounded: "Año de fundación",
+  account_company_role: "Rol en YORSO",
+  account_company_trust_title: "Confianza y certificaciones",
+  account_company_payment_title: "Condiciones de pago aceptadas",
+  account_company_publication_title: "Listo para publicar como proveedor",
+  account_company_publication_desc: "Estado de preparación del perfil público de proveedor.",
+  account_company_publication_status: "Estado",
+  account_company_pub_draft: "Borrador",
+  account_company_pub_review: "Listo para revisión",
+  account_company_pub_published: "Publicado",
+  account_branches_title: "Sucursales y puntos de carga",
+  account_branches_desc: "Lista de oficinas, almacenes y plantas de procesamiento.",
+  account_branches_deliveryBasisExplainer: "Las sucursales se usarán como bases de entrega disponibles (Incoterms y puerto/punto de carga) en tus ofertas y solicitudes.",
+  account_branch_type_registered: "Domicilio social",
+  account_branch_type_office: "Oficina",
+  account_branch_type_warehouse: "Almacén",
+  account_branch_type_plant: "Planta de procesamiento",
+  account_branch_type_sales: "Oficina comercial",
+  account_branch_type_loading: "Punto de carga",
+  account_branch_incoterms: "Incoterms",
+  account_branch_pickup: "Puerto/punto de carga",
+  account_products_title: "Matriz de productos",
+  account_products_desc: "Productos que compras y vendes.",
+  account_products_matchingExplainer: "Los productos alimentan el matching entre compradores y proveedores y las recomendaciones del catálogo.",
+  account_product_col_product: "Producto",
+  account_product_col_latin: "Nombre latino",
+  account_product_col_state: "Estado",
+  account_product_col_role: "Rol",
+  account_product_col_volume: "Volumen mensual",
+  account_product_col_certs: "Certificaciones",
+  account_product_col_targets: "Países objetivo",
+  account_product_role_buying: "Compra",
+  account_product_role_selling: "Venta",
+  account_product_role_both: "Ambos",
+  account_metaRegions_title: "Meta-regiones",
+  account_metaRegions_desc: "Agrupación de países por lógica logística o comercial.",
+  account_metaRegions_explainer: "Las meta-regiones agrupan países por logística, mercado o ruta de almacén común.",
+  account_metaRegion_reason: "Lógica",
+  account_metaRegion_reason_freight: "Coste de flete similar",
+  account_metaRegion_reason_customs: "Misma zona aduanera",
+  account_metaRegion_reason_sales: "Mismo mercado de ventas",
+  account_metaRegion_reason_warehouse: "Misma ruta de almacén",
+  account_metaRegion_reason_manual: "Manual",
+  account_metaRegion_use_notifications: "Notificaciones",
+  account_metaRegion_use_priceAccess: "Acceso a precios",
+  account_metaRegion_use_campaigns: "Campañas",
+  account_metaRegion_use_landedCost: "Coste en destino",
+  account_metaRegion_use_matching: "Matching de proveedores",
+  account_notifications_title: "Notificaciones",
+  account_notifications_desc: "Cómo y cuándo recibir alertas.",
+  account_notifications_disclaimer: "En este prototipo no se envían notificaciones reales. La integración real se conectará más adelante.",
+  account_notif_channel_email: "Correo electrónico",
+  account_notif_channel_messenger: "Mensajería",
+  account_notif_channel_inApp: "En la aplicación",
+  account_notif_channel_agent: "Agente personal",
+  account_notif_enabled: "Activo",
+  account_notif_disabled: "Inactivo",
+  account_notif_freqLabel: "Frecuencia",
+  account_notif_freq_instant: "Al instante",
+  account_notif_freq_daily: "Diario",
+  account_notif_freq_weekly: "Semanal",
+  account_notif_eventsLabel: "Eventos",
+  account_notif_event_priceAccessApproved: "Acceso a precio aprobado",
+  account_notif_event_newMatching: "Nuevo producto coincidente",
+  account_notif_event_rfqResponse: "Respuesta a RFQ",
+  account_notif_event_priceMovement: "Movimiento de precio",
+  account_notif_event_documentReadiness: "Preparación documental",
+  account_notif_event_countryNews: "Noticias del país",
+  account_notif_event_supplierReview: "Revisión de perfil de proveedor",
 };
 
 export const translations: Record<Language, TranslationKeys> = { en, ru, es };
