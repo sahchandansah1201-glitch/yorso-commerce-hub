@@ -1474,6 +1474,7 @@ type TranslationKeys = {
   account_company_media_focal_center: string;
   account_company_media_focal_top: string;
   account_company_media_focal_bottom: string;
+  account_company_media_focalHelp: string;
   account_company_media_logoFit: string;
   account_company_media_fit_contain: string;
   account_company_media_fit_cover: string;
@@ -2997,6 +2998,7 @@ const en: TranslationKeys = {
   account_company_media_focal_center: "Center",
   account_company_media_focal_top: "Top",
   account_company_media_focal_bottom: "Bottom",
+  account_company_media_focalHelp: "Pick which part of the cover stays visible when the image is cropped.",
   account_company_media_logoFit: "Logo fit",
   account_company_media_fit_contain: "Contain (no crop)",
   account_company_media_fit_cover: "Cover (fill)",
@@ -4507,6 +4509,7 @@ const ru: TranslationKeys = {
   account_company_media_focal_center: "Центр",
   account_company_media_focal_top: "Сверху",
   account_company_media_focal_bottom: "Снизу",
+  account_company_media_focalHelp: "Выберите, какая часть обложки останется видимой при кадрировании.",
   account_company_media_logoFit: "Заполнение логотипа",
   account_company_media_fit_contain: "Вписать (без обрезки)",
   account_company_media_fit_cover: "Заполнить",
@@ -6016,6 +6019,7 @@ const es: TranslationKeys = {
   account_company_media_focal_center: "Centro",
   account_company_media_focal_top: "Arriba",
   account_company_media_focal_bottom: "Abajo",
+  account_company_media_focalHelp: "Elige qué parte de la portada se mantiene visible al recortar.",
   account_company_media_logoFit: "Ajuste del logo",
   account_company_media_fit_contain: "Contener (sin recorte)",
   account_company_media_fit_cover: "Cubrir",

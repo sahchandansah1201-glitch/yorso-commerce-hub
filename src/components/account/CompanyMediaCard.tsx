@@ -225,17 +225,67 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
               />
               <div>
                 <Label className="text-xs">{t.account_company_media_focal}</Label>
-                <select
-                  className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
-                  value={draft.coverFocalPoint}
-                  onChange={(e) =>
-                    setDraft({ ...draft, coverFocalPoint: e.target.value as Draft["coverFocalPoint"] })
-                  }
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {t.account_company_media_focalHelp}
+                </p>
+                <div
+                  role="radiogroup"
+                  aria-label={t.account_company_media_focal}
+                  className="mt-2 grid grid-cols-3 gap-2"
                 >
-                  <option value="center">{t.account_company_media_focal_center}</option>
-                  <option value="top">{t.account_company_media_focal_top}</option>
-                  <option value="bottom">{t.account_company_media_focal_bottom}</option>
-                </select>
+                  {(["top", "center", "bottom"] as const).map((pos) => {
+                    const active = draft.coverFocalPoint === pos;
+                    const label =
+                      pos === "top"
+                        ? t.account_company_media_focal_top
+                        : pos === "bottom"
+                          ? t.account_company_media_focal_bottom
+                          : t.account_company_media_focal_center;
+                    return (
+                      <button
+                        key={pos}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        onClick={() => setDraft({ ...draft, coverFocalPoint: pos })}
+                        data-testid={`account-media-focal-${pos}`}
+                        className={
+                          "group flex flex-col items-stretch gap-1 rounded-md border p-1.5 text-left transition " +
+                          (active
+                            ? "border-primary ring-2 ring-primary/30"
+                            : "border-input hover:border-primary/60")
+                        }
+                      >
+                        <div className="aspect-video w-full overflow-hidden rounded-sm bg-muted/40">
+                          {draft.coverImageUrl ? (
+                            <img
+                              src={draft.coverImageUrl}
+                              alt=""
+                              className="h-full w-full object-cover"
+                              style={{ objectPosition: focalToObjectPosition(pos) }}
+                            />
+                          ) : (
+                            <div
+                              className="h-full w-full"
+                              style={{
+                                background:
+                                  "linear-gradient(180deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.15) 50%, hsl(var(--muted)) 100%)",
+                              }}
+                            />
+                          )}
+                        </div>
+                        <span
+                          className={
+                            "text-center text-[11px] " +
+                            (active ? "font-medium text-foreground" : "text-muted-foreground")
+                          }
+                        >
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
