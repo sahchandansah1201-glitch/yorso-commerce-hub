@@ -469,7 +469,7 @@ const BlogArticle = () => {
                   className="mt-6 rounded-lg border border-border bg-card p-5"
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                    Quick answer
+                    {t.blog_quickAnswer}
                   </p>
                   <p className="mt-2 text-[15px] leading-relaxed text-foreground/90">
                     {answerCapsule}
