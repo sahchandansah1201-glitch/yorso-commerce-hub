@@ -81,6 +81,26 @@ export function EditableCard<T>({
     setEditing(false);
   };
 
+  const getStickyOffset = () => {
+    // Sum heights of any fixed/sticky bars above the viewport top so the
+    // focused field doesn't slide under them after scrollIntoView.
+    let offset = 16; // base breathing room
+    const candidates = document.querySelectorAll<HTMLElement>(
+      'header, [data-sticky], [data-testid="account-personal-jumpbar"], .sticky',
+    );
+    candidates.forEach((el) => {
+      const style = window.getComputedStyle(el);
+      const pos = style.position;
+      if (pos !== "fixed" && pos !== "sticky") return;
+      const rect = el.getBoundingClientRect();
+      // Only count bars that are pinned at/near the top of the viewport
+      if (rect.top <= 8 && rect.bottom > 0 && rect.height < 200) {
+        offset = Math.max(offset, rect.bottom + 8);
+      }
+    });
+    return offset;
+  };
+
   const focusFirstInvalid = () => {
     // Defer until aria-invalid attributes are applied by React
     requestAnimationFrame(() => {
@@ -88,7 +108,10 @@ export function EditableCard<T>({
       if (!root) return;
       const invalid = root.querySelector<HTMLElement>('[aria-invalid="true"]');
       if (!invalid) return;
-      invalid.scrollIntoView({ behavior: "smooth", block: "center" });
+      const offset = getStickyOffset();
+      const rect = invalid.getBoundingClientRect();
+      const target = window.scrollY + rect.top - offset;
+      window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
       try {
         invalid.focus({ preventScroll: true });
       } catch {
