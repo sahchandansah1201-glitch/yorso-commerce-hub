@@ -267,7 +267,7 @@ const Blog = () => {
                 >
                   <img
                     src={featured.heroImage}
-                    alt=""
+                    alt={featured.heroImageAlt}
                     loading="lazy"
                     className="h-full w-full object-cover"
                     onError={(e) => {
