@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, type BlogPost, type BlogContentType, type ProductUpdateType, type ProductUpdateArea } from "@/data/blogPosts";
+import { getLocalizedPost, localizedCategoryLabel } from "@/data/blogPostsI18n";
 import { cn } from "@/lib/utils";
 import {
   applyRouteSeo,
@@ -144,10 +145,12 @@ const Blog = () => {
 
   const sortedPosts = useMemo(
     () =>
-      [...blogPosts].sort(
-        (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-      ),
-    [],
+      [...blogPosts]
+        .map((p) => getLocalizedPost(p, lang))
+        .sort(
+          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+        ),
+    [lang],
   );
 
   const featured = useMemo(
@@ -309,7 +312,7 @@ const Blog = () => {
                 <div className="flex flex-col gap-4 p-6 md:p-8">
                   <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-primary">
-                      {featured.category}
+                      {localizedCategoryLabel(t, featured.contentType)}
                     </span>
                     <span>{audienceLabel(t, featured.audience)}</span>
                   </div>

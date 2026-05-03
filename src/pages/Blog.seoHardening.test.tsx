@@ -100,13 +100,17 @@ describe("SEO hardening", () => {
     expect(post.heroImageAlt.length).toBeGreaterThan(8);
   });
 
-  it("/blog/:slug title survives a language switch", () => {
+  it("/blog/:slug title survives a language switch (localized to current lang)", () => {
     const post = blogPosts[0];
     let setLang!: (l: "en" | "ru" | "es") => void;
     renderAt(`/blog/${post.slug}`, (s) => (setLang = s));
     expect(document.title).toContain(post.seoTitle);
     act(() => setLang("ru"));
-    expect(document.title).toContain(post.seoTitle);
+    // После смены языка title локализован: должен НЕ совпадать с английским
+    // и содержать кириллицу + "YORSO".
+    expect(document.title).not.toContain(post.seoTitle);
+    expect(/[А-Яа-яЁё]/.test(document.title)).toBe(true);
+    expect(document.title).toContain("YORSO");
   });
 
   it("/blog/:slug emits BreadcrumbList JSON-LD", () => {

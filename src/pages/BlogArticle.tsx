@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
+import { getLocalizedPost, localizedCategoryLabel } from "@/data/blogPostsI18n";
 import { cn } from "@/lib/utils";
 import {
   applyRouteSeo,
@@ -142,7 +143,11 @@ const buildCompactTable = (post: BlogPost): { caption: string; rows: CompactTabl
 const BlogArticle = () => {
   const { slug } = useParams<{ slug: string }>();
   const { t, lang } = useLanguage();
-  const post = slug ? getBlogPostBySlug(slug) : undefined;
+  const rawPost = slug ? getBlogPostBySlug(slug) : undefined;
+  const post = useMemo(
+    () => (rawPost ? getLocalizedPost(rawPost, lang) : undefined),
+    [rawPost, lang],
+  );
 
   const [emailDraft, setEmailDraft] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
@@ -164,12 +169,13 @@ const BlogArticle = () => {
 
   const related = useMemo(() => {
     if (!post) return [] as BlogPost[];
-    const sameSpecies = blogPosts.filter(
+    const localized = blogPosts.map((p) => getLocalizedPost(p, lang));
+    const sameSpecies = localized.filter(
       (p) =>
         p.id !== post.id &&
         (p.speciesTags ?? []).some((s) => (post.speciesTags ?? []).includes(s)),
     );
-    const sameType = blogPosts.filter(
+    const sameType = localized.filter(
       (p) => p.id !== post.id && p.contentType === post.contentType,
     );
     const merged: BlogPost[] = [];
@@ -178,14 +184,14 @@ const BlogArticle = () => {
       if (merged.length >= 3) break;
     }
     if (merged.length < 3) {
-      for (const p of blogPosts) {
+      for (const p of localized) {
         if (p.id === post.id) continue;
         if (!merged.find((m) => m.id === p.id)) merged.push(p);
         if (merged.length >= 3) break;
       }
     }
     return merged.slice(0, 3);
-  }, [post]);
+  }, [post, lang]);
 
   const cta = useMemo(() => (post ? resolveCta(t, post) : null), [post, t]);
   const answerCapsule = useMemo(() => (post ? buildAnswerCapsule(post) : ""), [post]);
@@ -335,7 +341,7 @@ const BlogArticle = () => {
             <div className="container py-10 md:py-14">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
-                  {post.category}
+                  {localizedCategoryLabel(t, post.contentType)}
                 </span>
                 <span>{audienceLabel(t, post.audience)}</span>
               </div>
@@ -719,7 +725,7 @@ const BlogArticle = () => {
                             className="group block"
                           >
                             <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                              {r.category}
+                              {localizedCategoryLabel(t, r.contentType)}
                             </p>
                             <p className="mt-0.5 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
                               {r.title}
