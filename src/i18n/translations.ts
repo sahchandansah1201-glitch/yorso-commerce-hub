@@ -1343,6 +1343,9 @@ type TranslationKeys = {
   account_completion_buyer_products: string;
   account_completion_buyer_meta_regions: string;
   account_completion_notifications_any: string;
+  account_group_identity: string;
+  account_group_contacts: string;
+  account_group_locale: string;
   account_personal_basic_title: string;
   account_personal_basic_desc: string;
   account_personal_jump_label: string;
