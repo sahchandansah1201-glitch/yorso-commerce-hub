@@ -69,33 +69,50 @@ const FormRow = ({
   label,
   required,
   error,
-  htmlFor,
+  hint,
   children,
 }: {
   label: string;
   required?: boolean;
   error?: string;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) => (
-  <div className="space-y-1">
-    <Label htmlFor={htmlFor} className="text-xs">
-      {label} {required ? <span aria-hidden className="text-destructive">*</span> : null}
-    </Label>
-    {children}
-    {error ? <p className="text-xs text-destructive">{error}</p> : null}
-  </div>
-);
-
-const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-const isUrl = (s: string) => {
-  if (!s) return true;
-  try {
-    new URL(s);
-    return true;
-  } catch {
-    return false;
-  }
+  hint?: string;
+  children: (args: {
+    id: string;
+    "aria-invalid": boolean;
+    "aria-describedby": string | undefined;
+  }) => ReactNode;
+}) => {
+  const id = useId();
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
+  const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={id} className="text-xs">
+        {label}{" "}
+        {required ? (
+          <span aria-hidden className="text-destructive">
+            *
+          </span>
+        ) : null}
+      </Label>
+      {children({ id, "aria-invalid": !!error, "aria-describedby": describedBy })}
+      {error ? (
+        <p
+          id={errorId}
+          className="flex items-start gap-1 text-xs text-destructive"
+          role="alert"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{error}</span>
+        </p>
+      ) : hint ? (
+        <p id={hintId} className="text-[11px] text-muted-foreground">
+          {hint}
+        </p>
+      ) : null}
+    </div>
+  );
 };
 
 const splitList = (s: string): string[] =>
