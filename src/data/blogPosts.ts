@@ -24,7 +24,35 @@ export type BlogRelatedCta =
   | "/offers"
   | "/suppliers"
   | "/for-suppliers"
-  | "/register";
+  | "/register"
+  | "/how-it-works";
+
+export type ProductUpdateType = "added" | "improved" | "fixed" | "guide";
+
+export type ProductUpdateArea =
+  | "Catalog"
+  | "Supplier Profiles"
+  | "Price Access"
+  | "Registration"
+  | "Requests"
+  | "Intelligence";
+
+/**
+ * Optional structured fields used only by product_update posts.
+ * Renderers fall back gracefully when absent.
+ */
+export interface ProductUpdateMeta {
+  updateType: ProductUpdateType;
+  affectedArea: ProductUpdateArea;
+  /** One sentence describing who benefits and how. */
+  userBenefit: string;
+  /** Concrete steps a user can follow today. */
+  howToUse: string[];
+  /** App route the update applies to. */
+  relatedRoute: string;
+  /** True when the change is mock/prototype rather than shipped. */
+  prototype?: boolean;
+}
 
 export interface BlogArticleSection {
   /** Section heading rendered as <h2>. */
