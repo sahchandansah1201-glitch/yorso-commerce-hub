@@ -401,6 +401,18 @@ export const blogPosts: BlogPost[] = [
         ],
       },
     ],
+    productUpdate: {
+      updateType: "improved",
+      affectedArea: "Supplier Profiles",
+      userBenefit:
+        "Buyers scan more suppliers per screen and still see verification, response speed, and document readiness at a glance.",
+      howToUse: [
+        "Open the supplier directory.",
+        "Look at the new compact trust line on each supplier row.",
+        "Filter or shortlist suppliers using the consolidated signals.",
+      ],
+      relatedRoute: "/suppliers",
+    },
   },
   {
     id: "post-009",
