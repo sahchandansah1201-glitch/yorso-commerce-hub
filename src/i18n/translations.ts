@@ -3730,6 +3730,33 @@ const ru: TranslationKeys = {
   supplier_faq_a6: "Базово 30% предоплата / 70% против копий документов. Для повторных сделок — отсрочка или аккредитив (L/C at sight).",
   supplier_faq_noAnswerTitle: "Не нашли ответ?",
   supplier_faq_noAnswerBody: "Отправьте сообщение поставщику — менеджер ответит в рабочее время.",
+
+  // Blog / Insights
+  nav_blog: "Аналитика",
+  blog_breadcrumb: "Аналитика",
+  blog_pageTitle: "YORSO Insights",
+  blog_pageSubtitle: "Прикладные знания о рынке морепродуктов и продукте YORSO для покупателей и поставщиков. Прототип контента, без real-time данных.",
+  blog_allCategories: "Все категории",
+  blog_searchPlaceholder: "Поиск по статьям",
+  blog_searchAria: "Поиск по статьям",
+  blog_emptyTitle: "Нет статей по выбранным фильтрам",
+  blog_emptyBody: "Очистите поиск или выберите другую категорию.",
+  blog_readMore: "Читать статью",
+  blog_minutesRead: "{n} мин чтения",
+  blog_audienceBuyer: "Для покупателей",
+  blog_audienceSupplier: "Для поставщиков",
+  blog_audienceBoth: "Для покупателей и поставщиков",
+  blog_publishedOn: "Опубликовано {date}",
+  blog_updatedOn: "Обновлено {date}",
+  blog_byAuthor: "Автор: {name}",
+  blog_relatedCtaOffers: "Перейти в каталог",
+  blog_relatedCtaSuppliers: "Открыть каталог поставщиков",
+  blog_relatedCtaForSuppliers: "Узнать, как продавать на YORSO",
+  blog_relatedCtaRegister: "Создать аккаунт покупателя",
+  blog_mockNotice: "Пример статьи. Прототип контента для раздела YORSO Insights.",
+  blog_backToIndex: "Ко всем статьям",
+  blog_notFoundTitle: "Статья не найдена",
+  blog_notFoundBody: "Не удалось найти эту статью. Возможно, она перемещена или снята с публикации.",
 };
 
 // ─── SPANISH ─────────────────────────────────────────────────────
