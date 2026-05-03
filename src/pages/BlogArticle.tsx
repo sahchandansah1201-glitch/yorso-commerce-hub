@@ -18,46 +18,13 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { blogPosts, getBlogPostBySlug, type BlogPost } from "@/data/blogPosts";
 import { cn } from "@/lib/utils";
-
-const interpolate = (s: string, vars: Record<string, string | number>) =>
-  s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
-
-const upsertMeta = (selector: string, attrs: Record<string, string>) => {
-  let el = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!el) {
-    el = document.createElement("meta");
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-    document.head.appendChild(el);
-  } else {
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-  }
-};
-
-const upsertLink = (rel: string, href: string) => {
-  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-};
-
-const upsertJsonLd = (id: string, data: unknown) => {
-  let el = document.head.querySelector<HTMLScriptElement>(`script[data-jsonld="${id}"]`);
-  if (!el) {
-    el = document.createElement("script");
-    el.setAttribute("type", "application/ld+json");
-    el.setAttribute("data-jsonld", id);
-    document.head.appendChild(el);
-  }
-  el.text = JSON.stringify(data);
-};
-
-const removeJsonLd = (id: string) => {
-  const el = document.head.querySelector(`script[data-jsonld="${id}"]`);
-  if (el) el.remove();
-};
+import {
+  applyRouteSeo,
+  upsertJsonLd,
+  removeJsonLd,
+  clearRouteSeoMarker,
+  absoluteUrl,
+} from "@/lib/seo";
 
 const audienceLabel = (
   t: ReturnType<typeof useLanguage>["t"],
