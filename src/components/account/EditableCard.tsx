@@ -43,6 +43,14 @@ export function EditableCard<T>({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [validationSummary, setValidationSummary] = useState<string | null>(null);
 
+  const titleId = useId();
+  const descId = useId();
+  const errorId = useId();
+  const liveId = useId();
+  const editBtnRef = useRef<HTMLButtonElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
   const enter = () => {
     setDraft(initial);
     setErrors({});
@@ -76,7 +84,6 @@ export function EditableCard<T>({
       setSaveState("saved");
       toast.success(t.account_action_saved);
       setEditing(false);
-      // brief grace period so the indicator is visible if user reopens edit
       setTimeout(() => setSaveState((s) => (s === "saved" ? "idle" : s)), 1500);
     } catch (err) {
       const msg = err instanceof Error && err.message ? err.message : t.account_save_error_storage;
@@ -86,15 +93,56 @@ export function EditableCard<T>({
     }
   };
 
+  // Focus management: first field when entering edit; restore to Edit btn after exit
+  const wasEditing = useRef(editing);
+  useEffect(() => {
+    if (editing && !wasEditing.current) {
+      const first = contentRef.current?.querySelector<HTMLElement>(
+        "input:not([type='hidden']), textarea, select, [contenteditable='true']",
+      );
+      first?.focus();
+    } else if (!editing && wasEditing.current) {
+      editBtnRef.current?.focus();
+    }
+    wasEditing.current = editing;
+  }, [editing]);
+
+  // Focus the error region when validation/save error appears so SR users hear it
+  useEffect(() => {
+    if (editing && (validationSummary || saveError)) {
+      errorRef.current?.focus();
+    }
+  }, [editing, validationSummary, saveError]);
+
+  // Esc to cancel while editing
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (editing && e.key === "Escape" && !isSaving) {
+      e.stopPropagation();
+      cancel();
+    }
+  };
+
   const isSaving = saveState === "saving";
+  const editAriaLabel = `${t.account_action_edit}: ${title}`;
+  const cancelAriaLabel = `${t.account_action_cancel}: ${title}`;
+  const saveAriaLabel = `${t.account_action_save}: ${title}`;
 
   return (
-    <Card data-testid={testId} data-editing={editing ? "true" : "false"} data-save-state={saveState}>
+    <Card
+      data-testid={testId}
+      data-editing={editing ? "true" : "false"}
+      data-save-state={saveState}
+      onKeyDown={onKeyDown}
+    >
       <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
         <div className="space-y-1">
-          <CardTitle className="text-base font-semibold">{title}</CardTitle>
+          <CardTitle id={titleId} className="text-base font-semibold">
+            {title}
+          </CardTitle>
           {description ? (
-            <p className="text-xs text-muted-foreground">{description}</p>
+            <p id={descId} className="text-xs text-muted-foreground">
+              {description}
+            </p>
           ) : null}
         </div>
         <div className="flex items-center gap-2">
@@ -111,33 +159,39 @@ export function EditableCard<T>({
           ) : null}
           {!editing ? (
             <Button
+              ref={editBtnRef}
               size="sm"
               variant="outline"
-              className="gap-1.5 text-xs"
+              className="gap-1.5 text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               onClick={enter}
+              aria-label={editAriaLabel}
+              aria-controls={liveId}
+              aria-expanded={false}
               data-testid={testId ? `${testId}-edit` : undefined}
             >
               <Pencil className="h-3.5 w-3.5" aria-hidden />
-              {t.account_action_edit}
+              <span aria-hidden>{t.account_action_edit}</span>
             </Button>
           ) : (
             <>
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs"
+                className="text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 onClick={cancel}
                 disabled={isSaving}
+                aria-label={cancelAriaLabel}
                 data-testid={testId ? `${testId}-cancel` : undefined}
               >
                 {t.account_action_cancel}
               </Button>
               <Button
                 size="sm"
-                className="text-xs"
+                className="text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 onClick={save}
                 disabled={isSaving}
                 aria-busy={isSaving}
+                aria-label={saveAriaLabel}
                 data-testid={testId ? `${testId}-save` : undefined}
               >
                 {isSaving ? (
@@ -153,17 +207,36 @@ export function EditableCard<T>({
           )}
         </div>
       </CardHeader>
-      <CardContent className="text-sm text-foreground">
+      <CardContent
+        id={liveId}
+        ref={contentRef}
+        className="text-sm text-foreground"
+        role="region"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descId : undefined}
+      >
         {editing && (validationSummary || saveError) ? (
           <div
-            className="mb-3 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive"
+            id={errorId}
+            ref={errorRef}
+            tabIndex={-1}
+            className="mb-3 flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-2 text-xs text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
             role="alert"
+            aria-live="assertive"
             data-testid={testId ? `${testId}-error` : undefined}
           >
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
             <span>{saveError ?? validationSummary}</span>
           </div>
         ) : null}
+        {/* polite live region for save state */}
+        <span className="sr-only" role="status" aria-live="polite">
+          {isSaving
+            ? t.account_action_saving
+            : saveState === "saved"
+              ? t.account_action_saved
+              : ""}
+        </span>
         {editing ? renderEdit({ draft, setDraft, errors }) : renderView(initial)}
       </CardContent>
     </Card>
