@@ -122,17 +122,29 @@ const PersonalSection = ({
           return e;
         }}
         onSave={(d) => onChange({ ...profile, user: d })}
-        renderView={(v) => (
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field label={t.account_personal_firstName} value={v.firstName} />
-            <Field label={t.account_personal_lastName} value={v.lastName} />
-            <Field label={t.account_personal_email} value={v.email} />
-            <Field label={t.account_personal_phone} value={v.phone} />
-            <Field label={t.account_personal_role} value={v.roleInCompany} />
-            <Field label={t.account_personal_timezone} value={v.timezone} />
-            <Field label={t.account_personal_language} value={v.language.toUpperCase()} />
-          </dl>
-        )}
+        renderView={(v) => {
+          const langLabel =
+            v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
+          return (
+            <div className="space-y-5">
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_firstName} value={v.firstName} />
+                <Field label={t.account_personal_lastName} value={v.lastName} />
+                <Field label={t.account_personal_role} value={v.roleInCompany} />
+              </dl>
+              <div className="border-t border-border/60" />
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_email} value={v.email} />
+                <Field label={t.account_personal_phone} value={v.phone} />
+              </dl>
+              <div className="border-t border-border/60" />
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <Field label={t.account_personal_timezone} value={v.timezone} />
+                <Field label={t.account_personal_language} value={langLabel} />
+              </dl>
+            </div>
+          );
+        }}
         renderEdit={({ draft, setDraft, errors }) => (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
