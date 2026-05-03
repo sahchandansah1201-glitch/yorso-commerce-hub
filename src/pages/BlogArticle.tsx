@@ -739,7 +739,7 @@ const BlogArticle = () => {
                     className="rounded-lg border border-border bg-card p-4"
                   >
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
-                      Related articles
+                      {t.blog_relatedArticles}
                     </p>
                     <ul className="mt-3 space-y-3">
                       {related.map((r) => (
