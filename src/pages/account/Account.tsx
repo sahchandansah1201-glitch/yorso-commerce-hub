@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState, type ReactNode } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
@@ -10,7 +10,17 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AlertCircle } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
+import {
+  validateEmail,
+  validateLanguage,
+  validateName,
+  validatePhone,
+  validateText,
+  validateUrl,
+  validateYear,
+} from "@/lib/account-validation";
 import type {
   AccountProfile,
   CompanyBranch,
