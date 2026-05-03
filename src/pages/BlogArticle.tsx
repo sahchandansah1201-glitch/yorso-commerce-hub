@@ -767,12 +767,12 @@ const BlogArticle = () => {
                 {cta && (
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                      Take action
+                      {t.blog_takeAction}
                     </p>
                     <p className="mt-1 text-sm font-semibold text-foreground">{cta.label}</p>
                     <Button asChild size="sm" className="mt-3 w-full">
                       <Link to={cta.to}>
-                        Open
+                        {t.blog_open}
                         <ArrowRight className="h-4 w-4" aria-hidden />
                       </Link>
                     </Button>
