@@ -1,106 +1,144 @@
-# YORSO Backend Implementation Plan
+# План реализации backend YORSO
 
-Status: planning document
-Frontend source: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
-Architecture workspace: `/Users/istokdmgmail.com/yorso_new`
+Статус: рабочий архитектурный план
+Frontend-репозиторий: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+Архитектурный workspace: `/Users/istokdmgmail.com/yorso_new`
 
-## Purpose
+## 1. Назначение документа
 
-This plan defines how to turn the current YORSO frontend prototype into a real
-working trade system without breaking the product surfaces already built in
-Lovable and Codex.
+Этот документ описывает, как перевести уже созданный frontend YORSO с mock-данных,
+`localStorage` и `sessionStorage` на реальный backend, не ломая разработанные
+страницы, UX-логику и access-модель.
 
-The backend must not invent a separate product. It must become the source of
-truth for the current frontend:
+Значение пункта:
 
-- public landing and SEO pages;
-- registration and sign-in;
-- procurement catalog `/offers`;
-- offer details `/offers/:id`;
-- supplier directory `/suppliers`;
-- supplier profile `/suppliers/:supplierId`;
-- account workspace `/account/*`;
-- supplier access request flow;
-- catalog request and RFQ recovery flow;
-- blog and product update content.
+Backend должен не заменить продукт новой логикой, а стать источником истины для
+того интерфейса, который уже спроектирован и реализован:
 
-## Current Frontend State
+- главная страница и SEO-страницы;
+- регистрация и вход;
+- каталог закупок `/offers`;
+- карточка предложения `/offers/:id`;
+- каталог поставщиков `/suppliers`;
+- профиль поставщика `/suppliers/:supplierId`;
+- личный кабинет `/account/*`;
+- запрос доступа к поставщику и ценам;
+- форма запроса товара, если покупатель ничего не нашел;
+- блог и продуктовые обновления.
 
-The frontend already contains the main public and workspace surfaces:
+Если backend будет проектироваться отдельно от frontend, появятся расхождения:
+интерфейс будет показывать одно, данные будут поддерживать другое. Для YORSO это
+опасно, потому что главный актив продукта - доверие к данным поставщиков,
+ценам, документам и процессам доступа.
 
-- Homepage with live offers, trust sections, supplier verification and product
-  categories.
-- Registration flow with route guards, session persistence and analytics.
-- Sign-in and reset password screens.
-- Catalog workspace with filters, horizontal offer rows, selected offer panel,
-  market intelligence, compare tray and gated price access.
-- Supplier directory with access-aware supplier rows.
-- Dedicated supplier profile page with locked and unlocked states.
-- Blog index and article pages with SEO metadata and structured data.
-- Account workspace with sections for personal profile, company profile,
-  branches, products, meta-regions and notifications.
+## 2. Текущее состояние frontend
 
-The frontend still uses a mixed data model:
+Frontend уже содержит основные публичные и рабочие поверхности:
 
-- `mockOffers`, `mockSuppliers`, `mockIntelligence`, `mockAccount` for most
-  product state;
-- `localStorage` and `sessionStorage` for account, buyer session, access
-  requests and UI state;
-- partial Supabase integration for auth, password reset and catalog reads;
-- Supabase migrations and edge functions already exist locally in the frontend
-  repo.
+- главная страница с live offers, trust-блоками, категориями и supplier
+  verification;
+- регистрационный flow с шагами, route guards, сохранением состояния и
+  аналитикой;
+- sign-in и reset password;
+- каталог закупок с фильтрами, горизонтальными карточками предложений,
+  выбранным предложением справа, market intelligence, compare tray и gated price
+  access;
+- каталог поставщиков с access-aware карточками;
+- отдельная страница поставщика с locked/unlocked состояниями;
+- блог и страницы статей с SEO/meta/structured data;
+- личный кабинет с разделами personal, company, branches, products,
+  meta-regions и notifications.
 
-## Backend Strategy
+Значение пункта:
 
-Use Supabase as the first backend layer.
+Проект уже прошел стадию "нарисовать страницы". Backend должен обслужить эти
+страницы реальными данными. Поэтому приоритет backend определяется не абстрактной
+архитектурой, а тем, какие экраны уже существуют и какие данные они ожидают.
 
-Reasoning:
+Текущие источники данных смешаны:
 
-- Supabase is already present in the frontend codebase.
-- Postgres fits the YORSO domain: companies, offers, branches, documents,
-  access grants, RFQ records and audit logs are relational data.
-- Row Level Security is required because hidden supplier identity and exact
-  price must not be sent to locked users.
-- Supabase Storage can hold logos, cover images, product photos, certificates
-  and company documents.
-- Edge Functions are sufficient for the first version of approvals,
-  notifications, seed scripts and integration webhooks.
-- A custom backend can be added later only when Supabase becomes a constraint.
+- `mockOffers`, `mockSuppliers`, `mockIntelligence`, `mockAccount`;
+- `localStorage` и `sessionStorage`;
+- частичная Supabase-интеграция для auth, password reset и catalog read layer;
+- Supabase migrations и edge functions уже есть локально в frontend-репозитории.
 
-The backend must follow this rule:
+Значение пункта:
 
-> If a user does not have access to data, the backend must not return the real
-> value. Frontend blur is a UX hint, not a security boundary.
+Система уже начала двигаться в сторону Supabase, но не завершила переход. Это
+значит, что backend нужно внедрять не "с нуля", а через постепенную замену
+существующих mock-источников typed adapters и Supabase views.
 
-## Local File Ownership
+## 3. Backend-стратегия
 
-All project files must exist locally on this PC. Cloud services may execute or
-store runtime data, but the project must remain reproducible from local files.
+Рекомендуемый первый backend-слой: Supabase.
 
-Local files that must be stored in Git or local project folders:
+Аргументы:
+
+- Supabase уже подключен в frontend-репозитории.
+- Postgres подходит домену YORSO: компании, продукты, офферы, цены, документы,
+  доступы, RFQ, события и audit logs являются реляционными данными.
+- Row Level Security нужна для физической защиты цены, supplier identity,
+  контактов и документов.
+- Supabase Storage подходит для logo, cover, product photos, certificates и
+  company documents.
+- Edge Functions достаточно для первой версии approvals, notifications, seed
+  scripts и webhook-интеграций.
+- Custom backend можно добавить позже, когда Supabase станет ограничением.
+
+Значение пункта:
+
+На текущем этапе главная задача - быстро получить надежный source of truth и
+правильную модель доступа. Писать отдельный custom backend сейчас дороже и
+медленнее, чем использовать уже подключенный Supabase.
+
+Ключевое правило:
+
+> Если у пользователя нет доступа к данным, backend не должен возвращать
+> реальные значения. Frontend blur - это только UX-подсказка, а не защита.
+
+Значение пункта:
+
+YORSO продает доверие и контролируемый доступ к коммерчески чувствительным
+данным. Если locked-пользователь получает скрытые данные в network response или
+DOM, продуктовая модель доступа сломана, даже если интерфейс визуально блюрит
+текст.
+
+## 4. Локальное хранение файлов проекта
+
+Все проектные файлы должны существовать локально на этом ПК. Cloud-сервисы могут
+исполнять backend или хранить runtime-данные, но проект должен оставаться
+воспроизводимым из локальных файлов.
+
+Локально и в Git должны храниться:
 
 - frontend source;
-- backend docs and contracts;
+- backend docs и contracts;
 - Supabase migrations;
 - Supabase edge functions;
-- seed data for demo and QA;
+- seed data для demo и QA;
 - generated Supabase types;
 - test fixtures;
 - API contracts;
-- prompt and audit history;
+- audit history и prompt history;
 - local runbooks.
 
-Files that must exist locally but should not be committed:
+Локально, но не в Git, должны храниться:
 
 - `.env.local`;
 - Supabase service role keys;
 - API keys;
 - production uploads;
-- private user documents;
-- exported production data;
-- temporary browser/session artifacts.
+- приватные документы пользователей;
+- exports production-данных;
+- временные browser/session artifacts.
 
-Recommended local structure in the frontend repo:
+Значение пункта:
+
+Проект не должен зависеть от того, что "что-то есть в облаке". Backend,
+migrations, functions, seed data и документы должны быть доступны локально,
+чтобы другой агент или разработчик мог продолжить работу без потери контекста.
+
+Рекомендуемая структура frontend-репозитория:
 
 ```text
 docs/
@@ -122,210 +160,264 @@ src/lib/
   supplier-api.ts
   access-api.ts
   rfq-api.ts
+  notification-api.ts
 ```
 
-This current document is stored in `yorso_new` because that workspace is the
-local architecture and steering layer. A copy or synchronized version should be
-added to the frontend repo under `docs/backend/` when backend implementation
-starts.
+Значение пункта:
 
-## Backend Modules Matched To Frontend
+Эта структура отделяет архитектурные решения, backend migrations, runtime API
+adapters и UI-компоненты. Это снижает риск смешивания domain model, frontend UI и
+backend policy logic.
 
-| Frontend surface | Current source | Backend module needed | Priority |
+## 5. Соответствие backend-модулей текущему frontend
+
+| Frontend-раздел | Текущий источник | Нужный backend-модуль | Приоритет |
 |---|---|---|---|
 | `/register` | sessionStorage, mock contracts | auth onboarding, user profile, company draft | P0 |
-| `/signin`, `/reset-password` | Supabase auth partially | Supabase Auth hardening, buyer session bridge | P0 |
+| `/signin`, `/reset-password` | частичный Supabase auth | Supabase Auth hardening, buyer session bridge | P0 |
 | `/account/personal` | localStorage `mockAccount` | user profiles API | P0 |
 | `/account/company` | localStorage `mockAccount` | company profiles, logo, cover, public profile draft | P0 |
 | `/account/branches` | read-only mock | company branches CRUD | P1 |
 | `/account/products` | read-only mock | company product matrix CRUD | P1 |
 | `/account/meta-regions` | read-only mock | meta-region CRUD | P1 |
 | `/account/notifications` | read-only mock | notification preferences API | P1 |
-| `/offers` | mock plus partial Supabase | offer catalog API, public and qualified views | P0 |
+| `/offers` | mock plus partial Supabase | offer catalog API, public/qualified views | P0 |
 | `/offers/:id` | mock plus partial Supabase | offer detail API, documents, related offers | P1 |
 | `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
 | `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
 | Supplier access panel | localStorage mock | access request workflow and audit | P0 |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
-| Blog | static data files | content source, SEO metadata, sitemap/RSS | P2 |
+| Blog | static files | content source, SEO metadata, sitemap/RSS | P2 |
 | Analytics dashboards | mock data | event ingestion, funnel queries | P2 |
 
-## Core Data Model
+Значение пункта:
 
-### Identity
+Таблица задает порядок backend-работы. Сначала нужно перевести на реальные
+данные те экраны, от которых зависит бизнес-модель: account, suppliers, offers и
+access. Блог, аналитика и CMS важны, но они не должны опережать source of truth
+для торговой системы.
 
-Tables:
+## 6. Базовая модель данных
 
-- `profiles`
-- `companies`
-- `company_members`
-- `company_roles`
-- `buyer_qualifications`
-- `supplier_verifications`
+### 6.1 Identity
 
-Purpose:
+Основные таблицы:
 
-- connect every user to a company;
-- support buyer, supplier and mixed roles;
-- avoid treating registration as a single personal account;
-- prepare team accounts and permissions.
+- `profiles`;
+- `companies`;
+- `company_members`;
+- `company_roles`;
+- `buyer_qualifications`;
+- `supplier_verifications`.
 
-Required behavior:
+Что хранится:
 
-- one user can belong to multiple companies later;
-- one company can have multiple users;
-- protected company actions require membership and role checks;
-- buyer qualification and supplier verification are independent states.
+- пользователь;
+- компания;
+- принадлежность пользователя к компании;
+- роль пользователя в компании;
+- статус квалификации покупателя;
+- статус проверки поставщика.
 
-### Company Profile
+Значение пункта:
 
-Tables:
+YORSO - B2B-система. Сделки совершают не отдельные люди, а компании. Поэтому
+backend должен строиться вокруг связки user -> company -> role -> permissions.
+Иначе невозможно корректно управлять доступом к ценам, поставщикам, документам и
+командной работе.
 
-- `company_profiles`
-- `company_media`
-- `company_branches`
-- `company_products`
-- `company_meta_regions`
-- `company_notification_preferences`
+Ключевое поведение:
 
-Purpose:
+- один пользователь позже может состоять в нескольких компаниях;
+- у одной компании может быть несколько пользователей;
+- protected actions требуют проверки membership и role;
+- buyer qualification и supplier verification являются разными статусами.
 
-- make `/account/*` real;
-- allow supplier profile pages to use data filled by the company;
-- allow buyer/supplier matching by product and geography;
-- store logo and cover image metadata.
+### 6.2 Company Profile
+
+Основные таблицы:
+
+- `company_profiles`;
+- `company_media`;
+- `company_branches`;
+- `company_products`;
+- `company_meta_regions`;
+- `company_notification_preferences`.
+
+Что хранится:
+
+- юридическое и торговое название компании;
+- роль компании: buyer, supplier, both;
+- контакты;
+- описание;
+- логотип и cover image;
+- филиалы;
+- продукты, которые компания продает или покупает;
+- мета-регионы;
+- настройки уведомлений.
+
+Значение пункта:
+
+Личный кабинет должен стать источником данных для публичного профиля поставщика,
+supplier matching, offer creation и уведомлений. Если `/account/company` остается
+только локальной формой, профиль поставщика и каталог будут жить отдельно от
+данных, которые заполняет пользователь.
 
 Storage buckets:
 
-- `company-logos`
-- `company-covers`
-- `company-documents`
+- `company-logos`;
+- `company-covers`;
+- `company-documents`.
 
-Important:
+Значение пункта:
 
-- logo and cover must store object path, alt text, fit/focal settings and owner;
-- uploaded files must not be referenced only by temporary local URLs;
-- account edits must write to database, not only localStorage.
+Логотип и cover image нельзя хранить как временный browser URL. Они должны быть
+загружены в Storage, иметь владельца, alt text, fit/focal settings и безопасные
+правила доступа.
 
-### Supplier Directory
+### 6.3 Supplier Directory
 
-Tables and views:
+Основные таблицы и views:
 
-- `supplier_profiles`
-- `supplier_certifications`
-- `supplier_delivery_markets`
-- `supplier_documents`
-- `supplier_product_previews`
-- `suppliers_public`
-- `suppliers_registered`
-- `suppliers_qualified`
-- `suppliers_owner`
+- `supplier_profiles`;
+- `supplier_certifications`;
+- `supplier_delivery_markets`;
+- `supplier_documents`;
+- `supplier_product_previews`;
+- `suppliers_public`;
+- `suppliers_registered`;
+- `suppliers_qualified`;
+- `suppliers_owner`.
 
-Purpose:
+Значение пункта:
 
-- replace `mockSuppliers`;
-- enforce access gating at database level;
-- keep supplier identity hidden until access is granted;
-- allow public discovery without leaking commercial detail.
+Каталог поставщиков должен показывать достаточно информации для доверия и
+интереса, но не раскрывать supplier identity, контакты и чувствительные детали
+до получения доступа.
 
-Access rules:
+Access-логика:
 
-- anonymous users see only public supplier preview;
-- registered users see more non-sensitive evidence, but not real identity or
-  contacts unless approved;
-- qualified users see approved supplier identity, contacts, documents and full
-  catalog preview;
-- supplier owners see their own complete profile.
+- anonymous users видят public-safe supplier preview;
+- registered users видят больше доверительных сигналов, но без реальных
+  контактов и identity, если доступ не одобрен;
+- qualified users видят approved supplier identity, contacts, documents и
+  расширенный catalog preview;
+- supplier owners видят свой полный профиль.
 
-### Offer Catalog
+Значение пункта:
 
-Tables and views:
+Это защищает YORSO от парсинга поставщиков, некачественных лидов и покупателей,
+которые не готовы к реальной сделке.
 
-- `products`
-- `offers`
-- `offer_prices`
-- `offer_media`
-- `offer_delivery_terms`
-- `offer_documents`
-- `offer_volume_breaks`
-- `offers_public`
-- `offers_registered`
-- `offers_qualified`
-- `offers_owner`
+### 6.4 Offer Catalog
 
-Purpose:
+Основные таблицы и views:
 
-- replace `mockOffers`;
-- power `/offers` and `/offers/:id`;
-- keep exact prices and supplier identity locked until access exists;
-- support filters by species, origin, supplier country, state, certifications,
-  incoterms, MOQ and delivery basis.
+- `products`;
+- `offers`;
+- `offer_prices`;
+- `offer_media`;
+- `offer_delivery_terms`;
+- `offer_documents`;
+- `offer_volume_breaks`;
+- `offers_public`;
+- `offers_registered`;
+- `offers_qualified`;
+- `offers_owner`.
 
-Access rules:
+Значение пункта:
 
-- public views must not include `supplier_id`, exact `price_min`,
-  `price_max`, supplier name, website, WhatsApp or contacts;
-- qualified views can include exact prices and supplier identity only when RLS
-  confirms buyer access;
-- owner views expose full offer management to supplier users.
+Каталог закупок - основная рабочая поверхность покупателя. Он должен получать
+данные из backend, фильтроваться на backend и соблюдать access model для цены и
+поставщика.
 
-### Access Requests
+Public response не должен включать:
 
-Tables:
+- `supplier_id`;
+- точные `price_min` и `price_max`;
+- supplier name;
+- website;
+- WhatsApp;
+- email;
+- contacts;
+- документы, закрытые политикой доступа.
 
-- `supplier_access_requests`
-- `price_access_requests`
-- `access_grants`
-- `access_events`
-- `access_notifications`
+Qualified response может включать:
 
-Statuses:
+- точную цену;
+- supplier identity;
+- supplier country;
+- delivery terms;
+- price tiers;
+- landed-cost inputs;
+- documents according to grant scope.
 
-- `sent`
-- `pending`
-- `approved`
-- `rejected`
-- `expired`
+Значение пункта:
 
-Purpose:
+Такой разрыв между public и qualified payload защищает коммерческую ценность
+каталога. Это нельзя реализовать надежно только условиями в React-компонентах.
 
-- replace localStorage mock approval;
-- connect buyer request, supplier decision and buyer notification;
-- create an audit trail for sensitive data access.
+### 6.5 Access Requests
 
-Required behavior:
+Основные таблицы:
 
-- buyer can request access in one click from supplier profile or offer;
-- no extra "reason" step by default;
-- default business intent is price and supplier identity access;
-- supplier/admin can approve or reject;
-- approval creates a grant and queues a notification;
-- next buyer visit shows access approved notification;
-- all views immediately reflect the new grant.
+- `supplier_access_requests`;
+- `price_access_requests`;
+- `access_grants`;
+- `access_events`;
+- `access_notifications`.
 
-### RFQ And Product Requests
+Статусы:
 
-Tables:
+- `sent`;
+- `pending`;
+- `approved`;
+- `rejected`;
+- `expired`.
 
-- `buyer_requests`
-- `buyer_request_items`
-- `buyer_request_destinations`
-- `supplier_responses`
-- `request_events`
-- `request_attachments`
+Значение пункта:
 
-Purpose:
+Access flow - центральный бизнес-механизм YORSO. Он квалифицирует покупателя,
+защищает поставщика и создает понятный путь к цене, контактам и документам.
 
-- replace sessionStorage catalog request form;
-- support the "not found" path;
-- allow suppliers to respond with structured comparable offers.
+Требуемое поведение:
 
-Fields:
+- buyer может запросить доступ в один клик из offer или supplier profile;
+- дополнительный шаг "причина запроса" не нужен в базовом flow;
+- стандартная причина по умолчанию - доступ к цене и supplier identity;
+- supplier owner или admin может approve/reject;
+- approval создает grant;
+- buyer получает уведомление при следующем визите;
+- все действия пишутся в audit log.
+
+Значение пункта:
+
+Пользовательский путь должен быть коротким. Если 95% запросов нужны для цены,
+лишний вопрос о причине ухудшает conversion и не добавляет ценности.
+
+### 6.6 RFQ и Product Requests
+
+Основные таблицы:
+
+- `buyer_requests`;
+- `buyer_request_items`;
+- `buyer_request_destinations`;
+- `supplier_responses`;
+- `request_events`;
+- `request_attachments`.
+
+Значение пункта:
+
+Если покупатель не нашел нужный товар, это не dead end. Это должна быть точка
+создания структурированного RFQ, который поставщики могут обработать и ответить
+сравнимыми предложениями.
+
+Минимальные поля:
 
 - species;
 - Latin name;
-- format and cut;
-- state;
+- format/cut;
+- product state;
 - packaging;
 - volume;
 - destination;
@@ -333,43 +425,42 @@ Fields:
 - target delivery window;
 - certifications;
 - notes;
-- photos or reference files.
+- reference photos or files.
 
-### Procurement Workspace
+### 6.7 Procurement Workspace
 
-Tables:
+Основные таблицы:
 
-- `saved_offers`
-- `shortlisted_suppliers`
-- `watched_products`
-- `watched_countries`
-- `price_alerts`
-- `buyer_activity`
-- `compare_sessions`
+- `saved_offers`;
+- `shortlisted_suppliers`;
+- `watched_products`;
+- `watched_countries`;
+- `price_alerts`;
+- `buyer_activity`;
+- `compare_sessions`.
 
-Purpose:
+Значение пункта:
 
-- make return visits valuable;
-- support retention;
-- replace `mockWorkspace`;
-- connect catalog actions to user history.
+YORSO должен возвращать покупателя в систему не только через каталог. Saved
+offers, watched products, RFQ, access statuses и alerts создают retention и
+делают систему рабочим кабинетом закупщика.
 
-### Notifications
+### 6.8 Notifications
 
-Tables:
+Основные таблицы:
 
-- `notifications`
-- `notification_preferences`
-- `notification_deliveries`
+- `notifications`;
+- `notification_preferences`;
+- `notification_deliveries`.
 
-Channels:
+Каналы:
 
 - in-app;
 - email;
 - messenger-ready placeholder;
 - agent-ready placeholder.
 
-Events:
+События:
 
 - supplier access approved;
 - price access approved;
@@ -380,23 +471,34 @@ Events:
 - document readiness;
 - supplier profile review.
 
-## RLS And Access Design
+Значение пункта:
 
-RLS must be treated as product logic, not as a later security patch.
+Уведомления превращают YORSO из витрины в операционную систему. Пользователь
+должен узнавать о цене, доступе, ответе поставщика и изменениях рынка без
+постоянного ручного поиска.
 
-Minimum RLS policies:
+## 7. RLS и access-дизайн
 
-- user can read and update own profile;
-- company member can read company data according to role;
-- company admin can edit company profile;
-- supplier owner can edit supplier profile and offers;
-- buyer can read public suppliers and offers;
-- buyer can read qualified data only with active grant;
-- public users can read only public-safe views;
-- no policy should expose contact, legal, exact price or full catalog data to
-  locked access states.
+RLS нужно считать частью продукта, а не технической настройкой безопасности.
 
-Recommended access helper functions:
+Минимальные политики:
+
+- user читает и редактирует свой профиль;
+- company member читает данные компании в рамках роли;
+- company admin редактирует company profile;
+- supplier owner редактирует supplier profile и offers;
+- buyer читает public suppliers и offers;
+- buyer читает qualified data только при active grant;
+- public user читает только public-safe views;
+- locked states не получают contacts, legal details, exact prices, full catalog
+  и production-sensitive details.
+
+Значение пункта:
+
+Если правила доступа не закреплены в БД, любая ошибка frontend может раскрыть
+данные. Для YORSO это не просто баг, а удар по доверию поставщиков.
+
+Рекомендуемые helper-функции:
 
 ```sql
 has_company_role(user_id, company_id, role)
@@ -407,169 +509,216 @@ is_supplier_owner(user_id, supplier_id)
 is_admin(user_id)
 ```
 
-## API And Frontend Adapter Migration
+Значение пункта:
 
-Do not rewrite frontend pages first. Replace data sources behind existing
-interfaces.
+Helper-функции уменьшают дублирование RLS-логики и делают правила доступа
+понятными для тестирования.
 
-Recommended adapter files:
+## 8. API adapters и миграция frontend
 
-- `src/lib/account-api.ts`
-- `src/lib/supplier-api.ts`
-- `src/lib/offer-api.ts`
-- `src/lib/access-api.ts`
-- `src/lib/rfq-api.ts`
-- `src/lib/notification-api.ts`
+Frontend-страницы не должны напрямую импортировать database client. Нужны typed
+adapters.
 
-Migration pattern:
+Рекомендуемые файлы:
 
-1. Keep mock fallback for preview stability.
-2. Add Supabase adapter with typed return shape matching existing components.
-3. Add loading, empty and error states.
-4. Add tests for public, registered and qualified access.
-5. Remove direct mock imports from page components.
-6. Keep mock data only as seed fixtures or fallback.
+- `src/lib/account-api.ts`;
+- `src/lib/supplier-api.ts`;
+- `src/lib/offer-api.ts`;
+- `src/lib/access-api.ts`;
+- `src/lib/rfq-api.ts`;
+- `src/lib/notification-api.ts`;
+- `src/lib/content-api.ts`.
 
-## Implementation Phases
+Значение пункта:
 
-### Backend Phase 0: Contract And Gate Fixes
+Adapters позволяют заменить mock на backend без переписывания каждой страницы.
+Компоненты должны получать данные в знакомой форме, а детали Supabase должны
+остаться внутри lib-слоя.
 
-Goal:
+Миграционный паттерн:
 
-Create a stable backend contract before expanding features.
+1. Оставить mock fallback для стабильности preview.
+2. Добавить Supabase adapter с типизированным return shape.
+3. Добавить loading, empty и error states.
+4. Добавить тесты для public, registered и qualified access.
+5. Убрать прямые imports mock data из page components.
+6. Оставить mock data только как seed fixtures или fallback.
 
-Tasks:
+Значение пункта:
 
-- create `docs/backend/frontend-backend-contract.md`;
-- document current frontend data dependencies;
-- fix current `npm test` and `npm run lint` failures before backend expansion;
-- decide which existing Supabase migrations are active and which are legacy;
-- generate or refresh Supabase types;
-- define local seed strategy;
-- define `.env.example`.
+Такой порядок снижает риск сломать Lovable preview и позволяет переносить
+страницы на backend по одной.
 
-Exit criteria:
+## 9. Этапы реализации
 
-- production build passes;
-- lint passes;
-- test suite passes or known failures are explicitly documented;
-- backend contract maps every active frontend page to a data source.
+### Backend Phase 0: Contract и quality gates
 
-### Backend Phase 1: Account Source Of Truth
+Цель:
 
-Goal:
+Зафиксировать backend contract и стабилизировать текущий frontend gate.
 
-Make `/account/*` real.
+Задачи:
 
-Tasks:
+- поддерживать `docs/backend/frontend-backend-contract.md`;
+- описать зависимости frontend от mock/localStorage/sessionStorage;
+- исправить текущие `npm test` и `npm run lint` failures;
+- понять, какие Supabase migrations являются актуальными;
+- обновить generated Supabase types;
+- определить seed strategy;
+- добавить `.env.example`.
 
-- implement profiles and companies tables;
-- implement company media storage;
-- implement branch CRUD;
-- implement product matrix CRUD;
-- implement meta-region CRUD;
-- implement notification preferences CRUD;
-- connect frontend account pages to Supabase adapters.
+Значение пункта:
 
-Exit criteria:
-
-- account data survives browser/device changes;
-- logo and cover are stored in Supabase Storage;
-- supplier profile preview uses saved company data;
-- localStorage is only fallback, not source of truth.
-
-### Backend Phase 2: Supplier Directory And Profile
-
-Goal:
-
-Make supplier discovery real and access-safe.
-
-Tasks:
-
-- migrate supplier data to database;
-- build public and qualified supplier views;
-- connect `/suppliers`;
-- connect `/suppliers/:supplierId`;
-- keep locked DOM free of hidden real values;
-- add supplier owner view for own company.
+Нельзя строить backend поверх красного quality gate. Если тесты и lint уже
+падают, backend-изменения будут смешиваться с существующими регрессиями.
 
 Exit criteria:
 
-- locked users cannot receive hidden supplier fields from backend;
-- qualified users see approved data;
-- supplier owner sees own full profile;
-- browser and DOM leak tests pass.
+- production build проходит;
+- lint проходит;
+- тесты проходят или известные failures явно задокументированы;
+- каждый активный frontend route сопоставлен с будущим backend source.
+
+### Backend Phase 1: Account как source of truth
+
+Цель:
+
+Сделать `/account/*` реальным источником данных компании.
+
+Задачи:
+
+- реализовать `profiles` и `companies`;
+- реализовать company media storage;
+- реализовать branch CRUD;
+- реализовать product matrix CRUD;
+- реализовать meta-region CRUD;
+- реализовать notification preferences CRUD;
+- подключить frontend account pages к Supabase adapters.
+
+Значение пункта:
+
+Компания должна сама заполнять данные, которые потом появятся в supplier profile,
+matching, offers и access flow. Это основа всей B2B-модели.
+
+Exit criteria:
+
+- account data сохраняется между браузерами и устройствами;
+- logo и cover хранятся в Supabase Storage;
+- supplier profile preview использует сохраненные company data;
+- localStorage не является source of truth.
+
+### Backend Phase 2: Supplier Directory и Supplier Profile
+
+Цель:
+
+Сделать поиск и оценку поставщиков реальными и access-safe.
+
+Задачи:
+
+- перенести supplier data в database;
+- создать public и qualified supplier views;
+- подключить `/suppliers`;
+- подключить `/suppliers/:supplierId`;
+- исключить locked DOM/network leaks;
+- добавить owner view для собственной компании поставщика.
+
+Значение пункта:
+
+Поставщики будут доверять YORSO только если их identity, контакты, документы и
+коммерческие детали не раскрываются случайно.
+
+Exit criteria:
+
+- locked users не получают скрытые supplier fields;
+- qualified users видят approved data;
+- supplier owner видит свой полный профиль;
+- browser и DOM leak tests проходят.
 
 ### Backend Phase 3: Offer Catalog
 
-Goal:
+Цель:
 
-Make procurement catalog real.
+Сделать каталог закупок реальным рабочим инструментом.
 
-Tasks:
+Задачи:
 
-- migrate offers, prices, media and terms to database;
-- implement public and qualified offer views;
-- connect filters to backend query;
-- connect offer detail page;
-- connect document readiness and offer media;
-- preserve mock fallback for preview only.
+- перенести offers, prices, media и terms в database;
+- реализовать public и qualified offer views;
+- подключить backend filters;
+- подключить offer detail page;
+- подключить document readiness и offer media;
+- сохранить mock fallback только для preview.
+
+Значение пункта:
+
+Покупатель должен принимать закупочное решение на основании реальных офферов,
+цен, условий и документов, а не mock-карточек.
 
 Exit criteria:
 
-- locked users do not receive exact prices or supplier identity;
-- qualified users receive exact price and supplier details;
-- filters work from backend;
-- offer pages no longer depend on `mockOffers` as primary source.
+- locked users не получают exact prices или supplier identity;
+- qualified users получают exact price и supplier details;
+- фильтры работают от backend;
+- offer pages не зависят от `mockOffers` как primary source.
 
 ### Backend Phase 4: Access Request Workflow
 
-Goal:
+Цель:
 
-Replace localStorage access request simulation.
+Заменить localStorage-симуляцию доступа реальным workflow.
 
-Tasks:
+Задачи:
 
-- implement request tables;
-- implement one-click request from supplier profile and offer page;
-- implement status transitions;
-- implement approval grant;
-- implement next-visit notification;
-- create admin or supplier-side approval placeholder.
+- реализовать request tables;
+- реализовать one-click request из supplier profile и offer page;
+- реализовать status transitions;
+- реализовать approval grant;
+- реализовать next-visit notification;
+- создать supplier/admin approval placeholder.
 
-Exit criteria:
+Значение пункта:
 
-- buyer request persists in database;
-- approval changes frontend access level;
-- buyer receives notification after approval;
-- audit log records all sensitive access changes.
-
-### Backend Phase 5: RFQ And Recovery Flow
-
-Goal:
-
-Turn "not found" into a real procurement request.
-
-Tasks:
-
-- implement structured RFQ tables;
-- connect catalog empty state form;
-- add supplier response model;
-- add buyer request list in workspace;
-- add basic notifications.
+Это главный conversion path: покупатель видит ценность, запрашивает доступ,
+поставщик или YORSO подтверждает, покупатель получает цену и контакты.
 
 Exit criteria:
 
-- buyer can submit request;
-- request is visible in buyer workspace;
-- supplier/admin can respond in a structured format;
-- responses can be compared.
+- buyer request сохраняется в database;
+- approval меняет frontend access level;
+- buyer получает notification после approval;
+- audit log фиксирует изменения доступа.
 
-### Backend Phase 6: Buyer And Supplier Workspaces
+### Backend Phase 5: RFQ и Recovery Flow
 
-Goal:
+Цель:
 
-Create operating workspaces beyond public catalog.
+Превратить "товар не найден" в структурированный запрос.
+
+Задачи:
+
+- реализовать RFQ tables;
+- подключить catalog empty state form;
+- добавить supplier response model;
+- добавить buyer request list в workspace;
+- добавить базовые notifications.
+
+Значение пункта:
+
+Запрос товара создает спрос даже тогда, когда каталога недостаточно. Это важный
+механизм роста предложения и удержания покупателя.
+
+Exit criteria:
+
+- buyer может отправить request;
+- request виден в buyer workspace;
+- supplier/admin может ответить структурированно;
+- responses можно сравнить.
+
+### Backend Phase 6: Buyer Workspace и Supplier Workspace
+
+Цель:
+
+Создать рабочие кабинеты за пределами публичного каталога.
 
 Buyer workspace:
 
@@ -592,40 +741,50 @@ Supplier workspace:
 - documents;
 - visibility analytics.
 
-Exit criteria:
+Значение пункта:
 
-- users can return to ongoing work;
-- suppliers can manage data without developer intervention;
-- procurement activity is not lost between sessions.
-
-### Backend Phase 7: Messaging, Documents And Notifications
-
-Goal:
-
-Support real deal communication.
-
-Tasks:
-
-- implement buyer-supplier threads;
-- implement document requests;
-- implement file storage and access control;
-- implement in-app notifications;
-- add email delivery;
-- prepare messenger integrations.
+Без рабочих кабинетов YORSO остается каталогом. С кабинетами YORSO становится
+операционной системой для закупок и продаж.
 
 Exit criteria:
 
-- buyer and supplier can exchange structured messages;
-- documents are gated and auditable;
-- notifications are tied to real events.
+- пользователи возвращаются к ongoing work;
+- suppliers управляют данными без разработчика;
+- procurement activity не теряется между сессиями.
 
-### Backend Phase 8: Admin And Verification
+### Backend Phase 7: Messaging, Documents и Notifications
 
-Goal:
+Цель:
 
-Make trust operational.
+Поддержать реальную коммуникацию сделки.
 
-Tasks:
+Задачи:
+
+- buyer-supplier threads;
+- document requests;
+- file storage and access control;
+- in-app notifications;
+- email delivery;
+- подготовка messenger integrations.
+
+Значение пункта:
+
+Торговая система должна поддерживать не только поиск, но и коммуникацию,
+документы, уточнения и follow-up.
+
+Exit criteria:
+
+- buyer и supplier могут обмениваться структурированными сообщениями;
+- documents gated and auditable;
+- notifications связаны с реальными событиями.
+
+### Backend Phase 8: Admin и Verification
+
+Цель:
+
+Сделать trust operational, а не декоративным.
+
+Задачи:
 
 - supplier verification console;
 - document review queue;
@@ -634,76 +793,110 @@ Tasks:
 - access audit;
 - support tools.
 
+Значение пункта:
+
+Если verification badges не подкреплены процессом проверки, они становятся
+маркетинговой декорацией. Для YORSO это недопустимо.
+
 Exit criteria:
 
-- supplier trust labels are backed by real review states;
-- admin can approve, reject and audit;
-- public trust claims are defensible.
+- trust labels backed by review states;
+- admin может approve, reject и audit;
+- public trust claims defensible.
 
-## Testing Strategy
+## 10. Стратегия тестирования
 
-Backend work must not rely only on visual checks.
+Backend-работа не должна проверяться только визуально.
 
-Required tests:
+Обязательные тесты:
 
-- RLS tests for anonymous, registered, qualified, supplier owner and admin;
-- adapter tests for each frontend API wrapper;
-- DOM leak tests for locked supplier and offer data;
+- RLS tests для anonymous, registered, qualified, supplier owner и admin;
+- adapter tests для каждого frontend API wrapper;
+- DOM leak tests для locked supplier и offer data;
 - access request lifecycle tests;
 - account persistence tests;
 - upload validation tests;
-- browser-level tests for critical flows;
-- migration tests for seed data.
+- browser-level tests для critical flows;
+- migration tests для seed data.
 
-Current known quality risks from audit:
+Значение пункта:
 
-- full `npm test` is failing;
-- `npm run lint` is failing;
-- SupplierProfile has a hook-order lint error;
-- some i18n tests are outdated or catching regressions;
-- supplier row snapshots need review after layout changes.
+Главные риски YORSO связаны не с кнопками, а с данными и доступом. Поэтому
+тестировать нужно не только UI, но и то, какие значения backend отдает разным
+типам пользователей.
 
-These should be fixed before serious backend expansion.
+Известные риски из аудита:
 
-## Data Migration Rules
+- полный `npm test` сейчас падает;
+- `npm run lint` сейчас падает;
+- в `SupplierProfile` есть hook-order lint error;
+- часть i18n tests устарела или фиксирует реальные регрессии;
+- supplier row snapshots требуют пересмотра после layout changes.
 
-Mock data should become seed data, not disappear immediately.
+Значение пункта:
 
-Rules:
+Перед серьезным backend-расширением нужно закрыть эти gates, иначе новая работа
+будет накапливаться поверх старых регрессий.
 
-- keep `mockOffers` and `mockSuppliers` until Supabase seed parity exists;
-- migrate one frontend surface at a time;
-- avoid big-bang replacement;
-- keep deterministic demo data for Lovable preview;
-- keep locked/qualified cases in seed data;
-- all generated SQL and seed files must be local.
+## 11. Правила миграции данных
 
-## Risk Register
+Mock data должны стать seed data, а не исчезнуть сразу.
 
-| Risk | Why it matters | Mitigation |
+Правила:
+
+- сохранять `mockOffers` и `mockSuppliers`, пока нет Supabase seed parity;
+- переносить по одной frontend surface за раз;
+- избегать big-bang replacement;
+- держать deterministic demo data для Lovable preview;
+- иметь locked/qualified cases в seed data;
+- все SQL и seed files должны храниться локально.
+
+Значение пункта:
+
+Lovable preview и текущие тесты завязаны на предсказуемые данные. Резкое
+удаление mock-слоя сломает разработку. Правильный путь - сначала seed parity,
+потом переключение primary data source.
+
+## 12. Риски
+
+| Риск | Почему важно | Как снижать |
 |---|---|---|
-| Frontend blur used as security | Hidden supplier data can leak through DOM/network | Use RLS and public-safe views |
-| Backend model diverges from frontend | UI breaks or becomes decorative | Frontend-backend contract first |
-| Too much scope at once | Backend stalls and frontend quality regresses | Work by page and adapter |
-| Mock data removed too early | Lovable preview loses stability | Keep fallback until seeded backend is stable |
-| Supplier trust without operations | Verification badges become fake claims | Build admin verification states |
-| Files only in cloud | Project becomes non-reproducible | Store migrations, functions, seed and docs locally |
+| Frontend blur используется как защита | Скрытые данные можно получить через DOM или network | Использовать RLS и public-safe views |
+| Backend расходится с frontend | UI становится декоративным | Сначала frontend-backend contract |
+| Слишком большой scope | Backend застопорится | Работать по страницам и adapters |
+| Mock data удалены слишком рано | Preview и тесты теряют стабильность | Держать fallback до seed parity |
+| Trust без операций | Verification badges становятся фальшивыми | Строить admin verification states |
+| Файлы только в cloud | Проект нельзя восстановить локально | Хранить migrations, functions, seed и docs локально |
 
-## Immediate Next Actions
+Значение пункта:
 
-1. Copy this plan into the frontend repo under `docs/backend/`.
-2. Create `frontend-backend-contract.md` from the active routes and components.
-3. Fix current lint and test failures.
-4. Inventory current Supabase migrations and generated types.
-5. Create Phase 1 schema for account/company data.
-6. Implement account adapters behind existing `/account/*` UI.
-7. Add RLS tests before moving supplier and offer data.
+Эти риски напрямую связаны с доверием, безопасностью данных и скоростью
+разработки. Их нужно учитывать до написания миграций, а не после.
 
-## Decision Summary
+## 13. Ближайшие действия
 
-YORSO should not start backend from orders, payments, CRM or AI agents.
+1. Поддерживать этот план в `docs/backend/`.
+2. Поддерживать `frontend-backend-contract.md` рядом с планом.
+3. Закрыть текущие lint/test failures.
+4. Провести inventory существующих Supabase migrations.
+5. Определить migration baseline.
+6. Добавить `.env.example`.
+7. Обновить generated Supabase types.
+8. Создать Phase 1 schema для account/company.
+9. Создать `account-api.ts`.
+10. Добавить adapter tests для account.
 
-The correct first backend is:
+Значение пункта:
+
+Это минимальный путь к первому реальному backend-инкременту. Начинать нужно с
+account/company, потому что все следующие сущности - suppliers, offers, access,
+RFQ - опираются на компанию и пользователя.
+
+## 14. Решение по порядку разработки
+
+YORSO не должен начинать backend с orders, payments, CRM или AI agents.
+
+Правильный порядок:
 
 1. identity;
 2. company profile;
@@ -711,9 +904,27 @@ The correct first backend is:
 4. offer catalog;
 5. access control;
 6. RFQ;
-7. workspaces;
-8. notifications and documents.
+7. buyer and supplier workspaces;
+8. notifications and documents;
+9. admin verification;
+10. integrations.
 
-This sequence matches the frontend already built and protects the central
-business rule of YORSO: exact price, supplier identity, contacts and commercial
-detail are valuable data and must be disclosed only through controlled access.
+Значение пункта:
+
+Порядок отражает зависимость данных. Нельзя строить сделки, оплату, CRM или AI
+agents, пока нет надежной модели компании, пользователя, предложений, поставщика
+и доступа к чувствительным данным.
+
+## 15. Итоговая позиция
+
+Backend YORSO должен быть построен вокруг трех принципов:
+
+1. Frontend-first compatibility.
+2. Database-enforced access control.
+3. Local reproducibility of all project files.
+
+Значение пункта:
+
+Frontend уже определил продуктовую форму YORSO. Backend должен сделать эту форму
+реальной, защищенной и воспроизводимой. Только после этого YORSO сможет
+развиваться как торговая система, а не как демонстрационный marketplace UI.
