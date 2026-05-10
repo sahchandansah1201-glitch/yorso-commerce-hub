@@ -71,6 +71,9 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
+          <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+            Codex sync
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
