@@ -118,6 +118,11 @@ Adapter progress:
 - `access_events_admin` provides a read-only admin audit view with joined actor,
   target, supplier, offer, request and grant context. Non-admin users receive no
   rows.
+- `npm run check:supabase-types` guards against Supabase generated type drift.
+  `npm run build` runs it through `prebuild`, so access migrations cannot exist
+  while `types.ts` is missing `access_events`, `access_grants`,
+  `supplier_access_requests`, `access_events_admin` or
+  `log_supplier_access_event`.
 
 ## Triage Rule For Future Lovable Suggestions
 
