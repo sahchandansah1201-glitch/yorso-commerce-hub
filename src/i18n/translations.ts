@@ -1399,6 +1399,15 @@ type TranslationKeys = {
   account_product_col_volume: string;
   account_product_col_certs: string;
   account_product_col_targets: string;
+  account_product_col_actions: string;
+  account_product_add: string;
+  account_product_delete: string;
+  account_product_empty: string;
+  account_product_form_title_add: string;
+  account_product_form_title_edit: string;
+  account_product_form_desc: string;
+  account_product_field_category: string;
+  account_product_field_format: string;
   account_product_role_buying: string;
   account_product_role_selling: string;
   account_product_role_both: string;
@@ -2942,6 +2951,15 @@ const en: TranslationKeys = {
   account_product_col_volume: "Monthly volume",
   account_product_col_certs: "Certificates",
   account_product_col_targets: "Target countries",
+  account_product_col_actions: "Actions",
+  account_product_add: "Add product",
+  account_product_delete: "Delete product",
+  account_product_empty: "No products added yet. Add the first product to improve matching.",
+  account_product_form_title_add: "Add product",
+  account_product_form_title_edit: "Edit product",
+  account_product_form_desc: "Keep product names, states, volume and target markets structured for matching.",
+  account_product_field_category: "Category",
+  account_product_field_format: "Format / cut",
   account_product_role_buying: "Buying",
   account_product_role_selling: "Selling",
   account_product_role_both: "Both",
@@ -4472,6 +4490,15 @@ const ru: TranslationKeys = {
   account_product_col_volume: "Объём в месяц",
   account_product_col_certs: "Сертификации",
   account_product_col_targets: "Целевые страны",
+  account_product_col_actions: "Действия",
+  account_product_add: "Добавить продукт",
+  account_product_delete: "Удалить продукт",
+  account_product_empty: "Продукты ещё не добавлены. Добавьте первый продукт для улучшения матчинга.",
+  account_product_form_title_add: "Добавить продукт",
+  account_product_form_title_edit: "Редактировать продукт",
+  account_product_form_desc: "Заполняйте названия, состояние, объём и целевые рынки структурно, чтобы улучшить матчинг.",
+  account_product_field_category: "Категория",
+  account_product_field_format: "Формат / разделка",
   account_product_role_buying: "Покупка",
   account_product_role_selling: "Продажа",
   account_product_role_both: "Обе стороны",
@@ -6001,6 +6028,15 @@ const es: TranslationKeys = {
   account_product_col_volume: "Volumen mensual",
   account_product_col_certs: "Certificaciones",
   account_product_col_targets: "Países objetivo",
+  account_product_col_actions: "Acciones",
+  account_product_add: "Añadir producto",
+  account_product_delete: "Eliminar producto",
+  account_product_empty: "Aún no hay productos. Añade el primer producto para mejorar el matching.",
+  account_product_form_title_add: "Añadir producto",
+  account_product_form_title_edit: "Editar producto",
+  account_product_form_desc: "Mantén nombres, estado, volumen y mercados objetivo estructurados para el matching.",
+  account_product_field_category: "Categoría",
+  account_product_field_format: "Formato / corte",
   account_product_role_buying: "Compra",
   account_product_role_selling: "Venta",
   account_product_role_both: "Ambos",
