@@ -4,8 +4,9 @@
  *
  * Эти тесты страхуют исправления Fix 1 и Fix 2:
  *   • точное число активных офферов (`14 active offers`) не выводится;
- *   • supplier-specific operational значения паспорта (т/сутки, SKU,
- *     дни транзита и т.п.) не присутствуют в DOM в любом текстовом виде.
+ *   • exact catalog breadth остаётся закрытым;
+ *   • public production capability facts и trade/logistics terms видны даже
+ *     locked-пользователю, согласно backend access matrix.
  *
  * А также Fix 3 — английские строки SupplierAccessRequestPanel
  * заменяются на RU / ES при смене языка.
@@ -82,23 +83,12 @@ const renderProfile = (langTo?: "en" | "ru" | "es") => {
   );
 };
 
-// Narrowed: only forbid operational supplier-specific values. The generic
-// `\d+\s*active\s*offers` matcher was removed because innerText concatenates
-// neighbouring labels (e.g. "Years on market22Active offers"), which is a
-// false positive — we keep the exact-count check separately.
-const FORBIDDEN_OPERATIONAL_PATTERNS: RegExp[] = [
+const PUBLIC_PRODUCTION_AND_LOGISTICS_PATTERNS: RegExp[] = [
   /\d+\s*t\s*\/\s*day/i,
-  /\d+\s*т\s*\/\s*сутки/i,
-  /\d+\s*t\s*\/\s*día/i,
   /\d+\s*t\s+simultaneous\s+storage/i,
-  /\d+\s*т\s+единовременного\s+хранения/i,
   /from\s+\d+\s*t\s*\/\s*SKU/i,
-  /от\s+\d+\s*т\s*\/\s*SKU/i,
-  /desde\s+\d+\s*t\s*\/\s*SKU/i,
-  // Note: `\d+[–-]\d+\s*days` (and локали) специально опущены —
-  // строки вида "3–7 days after payment" в lead-times это статичная общая
-  // копия, не supplier-specific operational data.
-  /\d+\s*SKU/,
+  /\d+[–-]\d+\s*days/i,
+  /\b(?:FOB|FCA|CIF|CFR|DAP)\b/,
 ];
 
 // Legal registration values that must not leak in locked DOM. Derived from
@@ -131,21 +121,19 @@ describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
     sessionStorage.clear();
   });
 
-  it("anonymous_locked: точное число активных офферов и supplier operational не утекают", () => {
+  it("anonymous_locked: exact catalog breadth скрыт, public production/logistics facts видны", () => {
     renderProfile();
     const text = document.body.textContent ?? "";
-    const html = document.body.innerHTML;
     // Точное "<count> active offers" должно быть скрыто (TrustFacts pill).
     expect(text).not.toMatch(
       new RegExp(`${supplier.activeOffersCount}\\s*active\\s*offers`, "i"),
     );
-    for (const pattern of FORBIDDEN_OPERATIONAL_PATTERNS) {
-      expect(text, `DOM contains forbidden pattern: ${pattern}`).not.toMatch(pattern);
-      expect(html, `innerHTML contains forbidden pattern: ${pattern}`).not.toMatch(pattern);
+    for (const pattern of PUBLIC_PRODUCTION_AND_LOGISTICS_PATTERNS) {
+      expect(text, `DOM should contain public pattern: ${pattern}`).toMatch(pattern);
     }
     // Локализованный locked-hint должен присутствовать
     expect(text).toContain("Active offers available after price access");
-    // Trust pill использует mask вместо реального числа.
+    // Exact catalog/product count remains masked.
     const trustPills = screen.queryAllByText("••••••");
     expect(trustPills.length).toBeGreaterThan(0);
   });
@@ -176,8 +164,8 @@ describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
     expect(text).not.toMatch(
       new RegExp(`${supplier.activeOffersCount}\\s*active\\s*offers`, "i"),
     );
-    for (const pattern of FORBIDDEN_OPERATIONAL_PATTERNS) {
-      expect(text, `DOM contains forbidden pattern: ${pattern}`).not.toMatch(pattern);
+    for (const pattern of PUBLIC_PRODUCTION_AND_LOGISTICS_PATTERNS) {
+      expect(text, `DOM should contain public pattern: ${pattern}`).toMatch(pattern);
     }
     for (const pattern of FORBIDDEN_LEGAL_PATTERNS) {
       expect(text, `Locked DOM leaks legal: ${pattern}`).not.toMatch(pattern);
@@ -194,7 +182,7 @@ describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
     const text = document.body.textContent ?? "";
     // exact active offers count появляется
     expect(text).toMatch(new RegExp(`${supplier.activeOffersCount}\\s*active\\s*offers`, "i"));
-    // хотя бы один operational pattern (t / day) появляется в паспорте
+    // public production capability facts remain visible in qualified mode too
     expect(text).toMatch(/\d+\s*t\s*\/\s*day/i);
     // Real about copy is now in DOM
     expect(text).toContain("Family-owned Norwegian salmon producer");

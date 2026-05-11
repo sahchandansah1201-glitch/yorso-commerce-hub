@@ -825,6 +825,20 @@ const SupplierProfile = () => {
     };
   }, [supplier, faqItems, t, lang, isUnlocked]);
 
+  // Sticky-хедер: появляется когда основной hero уезжает за viewport.
+  const heroSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  useEffect(() => {
+    const el = heroSentinelRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setShowStickyHeader(!entry.isIntersecting),
+      { rootMargin: "0px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [supplier?.id]);
+
   if (!supplier) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
@@ -857,20 +871,6 @@ const SupplierProfile = () => {
 
   const tabTriggerCls =
     "rounded-full px-5 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background";
-
-  // Sticky-хедер: появляется когда основной hero уезжает за viewport.
-  const heroSentinelRef = useRef<HTMLDivElement | null>(null);
-  const [showStickyHeader, setShowStickyHeader] = useState(false);
-  useEffect(() => {
-    const el = heroSentinelRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      ([entry]) => setShowStickyHeader(!entry.isIntersecting),
-      { rootMargin: "0px 0px 0px 0px", threshold: 0 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [supplier.id]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -1516,14 +1516,10 @@ const SupplierProfile = () => {
                                   n: production.dailyTons,
                                 })}
                                 estimate
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_lines}
                                 value={String(production.lines)}
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_staff}
@@ -1531,8 +1527,6 @@ const SupplierProfile = () => {
                                   n: production.staff,
                                 })}
                                 estimate
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_production_catalog}
@@ -1559,8 +1553,6 @@ const SupplierProfile = () => {
                                   n: production.coldStorageT,
                                 })}
                                 estimate
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_cold_blast}
@@ -1568,8 +1560,6 @@ const SupplierProfile = () => {
                                   n: production.blastFreezerT,
                                 })}
                                 estimate
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_cold_temp} value="−18 °C … −24 °C" />
                               <FactCell label={t.supplier_passport_cold_glaze} value={t.supplier_passport_cold_glazeValue} />
@@ -1640,8 +1630,6 @@ const SupplierProfile = () => {
                                 value={interpolate(t.supplier_passport_logistics_minBatchValue, {
                                   n: logistics.minBatchTons,
                                 })}
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell
                                 label={t.supplier_passport_logistics_transit}
@@ -1650,8 +1638,6 @@ const SupplierProfile = () => {
                                   max: logistics.transitDaysMax,
                                 })}
                                 estimate
-                                locked={!isUnlocked}
-                                lockedHint={t.supplier_locked_passportHint}
                               />
                               <FactCell label={t.supplier_passport_logistics_containers} value={logistics.containers.join(", ")} />
                             </dl>
@@ -1870,11 +1856,14 @@ const SupplierProfile = () => {
 
 /** Унифицированная ячейка факта с опциональной estimate-меткой и locked-маской.
  *
- * Locked-режим намеренно НЕ передаёт реальное `value` в DOM —
- * вместо него рендерится локализованный placeholder (`••••••`), а
- * настоящее значение полностью игнорируется. Это гарантирует, что точные
- * supplier-specific цифры (объёмы / дни транзита / SKU) не утекают в
- * `textContent`, `innerHTML`, `aria-label`, `title` и копи-буфер.
+ * Использовать `locked` только для реально restricted/confidential значений.
+ * Public trade/logistics terms и published production capability facts должны
+ * рендериться открыто даже для locked-пользователей.
+ *
+ * Если `locked` включен, реальное `value` намеренно НЕ передаётся в DOM.
+ * Вместо него рендерится placeholder (`••••••`), а настоящее значение
+ * игнорируется. Это защищает exact catalog breadth и другие закрытые значения
+ * от утечки через `textContent`, `innerHTML`, `aria-label`, `title` и copy.
  */
 const FactCell = ({
   label,
