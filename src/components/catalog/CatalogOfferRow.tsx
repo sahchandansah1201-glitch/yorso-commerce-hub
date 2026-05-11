@@ -250,7 +250,6 @@ const PhotoGallery = ({ offer }: { offer: SeafoodOffer }) => {
   useEffect(() => {
     if (!hasMultiple) return;
     showDots();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, hasMultiple]);
 
   // Cleanup timer on unmount.

@@ -221,7 +221,6 @@ function flushMissingStats(): void {
       calls: s.calls,
       byField: s.byField,
     }));
-  // eslint-disable-next-line no-console
   console.log(
     `[debug] preview_attribution missing-fields summary: ${missingStats.totalIncomplete}/${missingStats.totalCalls} вызовов с пропусками`,
     {
@@ -297,7 +296,6 @@ function validateAttributionShape(
 ): string[] {
   if (!attr) {
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.warn(
         `[debug] ${source}: attribution payload is null/undefined`,
         buildAttributionDebugSummary(["<all>"]),
@@ -315,7 +313,6 @@ function validateAttributionShape(
   }
   if (import.meta.env.DEV) {
     if (missing.length > 0) {
-      // eslint-disable-next-line no-console
       console.warn(
         `[debug] ${source}: preview_attribution неполная — поля ${missing.join(", ")} отсутствуют/пустые`,
         { attr, ...buildAttributionDebugSummary(missing) },
@@ -340,7 +337,6 @@ export function savePreviewAttribution(
     }
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(record));
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.log("[debug] preview_attribution saved:", record);
     }
   } catch {
@@ -362,7 +358,6 @@ export function readPreviewAttribution(): PreviewAttribution | null {
     }
     if (Date.now() - parsed.ts > TTL_MS) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.warn(
           "[debug] preview_attribution EXPIRED — связь клик→регистрация потеряна",
           {
@@ -428,7 +423,6 @@ export function readPendingPreviewAttribution(): PreviewAttribution | null {
     }
     if (Date.now() - parsed.ts > TTL_MS) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.warn(
           "[debug] pending_preview_attribution EXPIRED — registration_complete не получит supplier_id/species/form",
           {
@@ -476,7 +470,6 @@ export function saveRegistrationSource(source: string): void {
     const record: RegistrationSourceRecord = { source, ts: Date.now() };
     sessionStorage.setItem(SOURCE_KEY, JSON.stringify(record));
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.log("[debug] registration_source saved:", record);
     }
   } catch {
@@ -501,7 +494,6 @@ export function readRegistrationSource(): string | null {
     }
     if (Date.now() - parsed.ts > SOURCE_TTL_MS) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.warn(
           "[debug] registration_source EXPIRED — CTA-атрибуция потеряна, registration_start будет direct",
           {
