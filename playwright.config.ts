@@ -1,4 +1,10 @@
 import { defineConfig } from "@playwright/test";
+import { existsSync } from "node:fs";
+
+const systemChromiumPath = "/bin/chromium";
+const chromiumLaunchOptions = existsSync(systemChromiumPath)
+  ? { executablePath: systemChromiumPath }
+  : undefined;
 
 /**
  * Минимальная конфигурация Playwright для E2E против preview-URL.
@@ -28,9 +34,9 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
-        // Используем системный chromium из sandbox-окружения,
-        // чтобы не тянуть deps для playwright-bundled bin.
-        launchOptions: { executablePath: "/bin/chromium" },
+        // В sandbox окружении может быть системный chromium.
+        // Локально и в CI используем bundled Playwright browser, если /bin/chromium отсутствует.
+        launchOptions: chromiumLaunchOptions,
       },
     },
   ],

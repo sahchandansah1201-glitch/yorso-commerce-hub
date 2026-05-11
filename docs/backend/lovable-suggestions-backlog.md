@@ -28,16 +28,16 @@ Default rule:
 |---|---|---|---|---|
 | LVB-001 | Check SupplierProfile SSR leaks | Implemented | Done in PR #8 | Prevents server/head/HTML leakage of locked supplier data. |
 | LVB-002 | Expand locked DOM tests | Implemented | Done in PR #8 | Strengthens the frontend access contract before backend exists. |
-| LVB-003 | Add e2e access check | Implement next | Backlog P1 | Browser-level tests should verify anonymous, registered, qualified and downgrade flows in the real app shell. |
+| LVB-003 | Add e2e access check | Implemented | Done in current PR | Browser-level tests verify anonymous, registered, qualified and downgrade flows in the real app shell. |
 | LVB-004 | Protect access at API level | Defer to backend phase | Backend P0 | Real protection requires API views/RPC, RLS and access-grant checks. Frontend blur is not security. |
 
-## Next P1: E2E Access Check
+## Done: E2E Access Check
 
 Goal:
 
 - verify access behavior in the running application, not only in jsdom tests.
 
-Recommended scope:
+Implemented scope:
 
 - route: `/suppliers/:supplierId`;
 - states: `anonymous_locked`, `registered_locked`, `qualified_unlocked`;
@@ -50,11 +50,11 @@ Recommended scope:
   - qualified state shows real supplier identity and contact actions;
   - downgrade removes stale real identity and ItemList JSON-LD from `<head>`.
 
-Preferred implementation:
+Implementation:
 
-- add a Playwright-style test if the repo has stable browser test plumbing;
-- otherwise add a script-level smoke check that runs against local Vite dev
-  server and inspects DOM/head.
+- Playwright test: `e2e/supplier-profile-access.spec.ts`;
+- Playwright config now uses `/bin/chromium` only when it exists, otherwise it
+  falls back to the bundled Playwright browser.
 
 Acceptance:
 
