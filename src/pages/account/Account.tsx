@@ -618,12 +618,14 @@ const CompanySection = ({
                   <Input
                     value={draft.legalName}
                     onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
+                    data-testid="account-company-legal-name"
                   />
                 </FormRow>
                 <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
                   <Input
                     value={draft.tradeName}
                     onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
+                    data-testid="account-company-trade-name"
                   />
                 </FormRow>
                 <FormRow label={t.account_company_role}>
@@ -644,6 +646,7 @@ const CompanySection = ({
                   <Input
                     value={draft.website}
                     onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+                    data-testid="account-company-website"
                   />
                 </FormRow>
               </div>
@@ -654,6 +657,7 @@ const CompanySection = ({
                   <Input
                     value={draft.country}
                     onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                    data-testid="account-company-country"
                   />
                 </FormRow>
                 <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
@@ -663,6 +667,7 @@ const CompanySection = ({
                     onChange={(e) =>
                       setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
                     }
+                    data-testid="account-company-year-founded"
                   />
                 </FormRow>
               </div>
@@ -708,6 +713,7 @@ const CompanySection = ({
                 maxLength={254}
                 value={draft.contactEmail}
                 onChange={(e) => setDraft({ ...draft, contactEmail: e.target.value })}
+                data-testid="account-company-contact-email"
               />
             </FormRow>
             <FormRow
@@ -723,6 +729,7 @@ const CompanySection = ({
                 maxLength={32}
                 value={draft.contactPhone}
                 onChange={(e) => setDraft({ ...draft, contactPhone: e.target.value })}
+                data-testid="account-company-contact-phone"
               />
             </FormRow>
             <FormRow
@@ -736,6 +743,7 @@ const CompanySection = ({
                 maxLength={32}
                 value={draft.whatsapp}
                 onChange={(e) => setDraft({ ...draft, whatsapp: e.target.value })}
+                data-testid="account-company-whatsapp"
               />
             </FormRow>
           </div>
@@ -758,6 +766,7 @@ const CompanySection = ({
               rows={4}
               value={draft.description}
               onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+              data-testid="account-company-description"
             />
           </FormRow>
         )}
@@ -810,12 +819,14 @@ const CompanySection = ({
               <Input
                 value={draft.productFocus.join(", ")}
                 onChange={(e) => setDraft({ ...draft, productFocus: splitList(e.target.value) })}
+                data-testid="account-company-product-focus"
               />
             </FormRow>
             <FormRow label={t.account_company_certificates} hint={t.account_company_listHelp}>
               <Input
                 value={draft.certificates.join(", ")}
                 onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
+                data-testid="account-company-certificates"
               />
             </FormRow>
           </div>
@@ -841,6 +852,7 @@ const CompanySection = ({
             <Input
               value={draft.paymentTerms.join(", ")}
               onChange={(e) => setDraft({ ...draft, paymentTerms: splitList(e.target.value) })}
+              data-testid="account-company-payment-terms"
             />
           </FormRow>
         )}
@@ -877,6 +889,7 @@ const CompanySection = ({
                       .value as CompanyProfile["supplierPublicationStatus"],
                   })
                 }
+                data-testid="account-company-publication-status"
               >
                 <option value="draft">{t.account_company_pub_draft}</option>
                 <option value="ready_for_review">{t.account_company_pub_review}</option>
@@ -894,6 +907,7 @@ const CompanySection = ({
                       .value as CompanyProfile["buyerQualificationStatus"],
                   })
                 }
+                data-testid="account-company-qualification-status"
               >
                 <option value="incomplete">{t.account_company_qual_incomplete}</option>
                 <option value="ready">{t.account_company_qual_ready}</option>
