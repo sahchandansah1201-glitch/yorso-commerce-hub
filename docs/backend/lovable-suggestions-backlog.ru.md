@@ -1,0 +1,109 @@
+# Backlog предложений Lovable
+
+Статус: active triage log
+Назначение: русская версия для проверки человеком
+Связанные документы:
+
+- `docs/backend/access-control-matrix.ru.md`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+
+## 1. Зачем нужен этот документ
+
+Lovable после синхронизации или тестов часто предлагает дополнительные работы.
+Часть предложений полезна, но их нельзя внедрять автоматически.
+
+Правило:
+
+- внедрять сразу, если предложение маленькое, проверяемое и усиливает текущий
+  access/security contract;
+- переносить в backlog, если оно полезное, но не блокирует текущий этап;
+- переносить в backend phase, если нужна реальная база, RLS, API или storage;
+- отклонять, если это scope creep и не улучшает buyer/supplier workflow.
+
+Значение пункта:
+
+Так мы используем Lovable как источник идей и проверок, но не позволяем ему
+расширять продукт хаотично. Решение о реализации остается за нами.
+
+## 2. Текущие предложения Lovable
+
+| ID | Предложение | Решение | Статус | Почему |
+|---|---|---|---|---|
+| LVB-001 | Проверить SSR leaks SupplierProfile | Внедрено | Done in PR #8 | Защищает от утечек locked supplier data через HTML/head. |
+| LVB-002 | Расширить locked DOM tests | Внедрено | Done in PR #8 | Усиливает frontend access contract до появления backend. |
+| LVB-003 | Добавить e2e access check | Делать следующим | Backlog P1 | Нужно проверить access states в реальном app shell, а не только в jsdom. |
+| LVB-004 | Защитить доступ на уровне API | Перенести в backend phase | Backend P0 | Реальная защита требует API views/RPC, RLS и access grants. |
+
+Значение пункта:
+
+Первые два пункта уже закрыты. Следующий разумный frontend-шаг - e2e проверка
+доступа. API-защиту нельзя полноценно сделать без backend, поэтому она остается
+обязательной задачей backend P0.
+
+## 3. Следующий P1: E2E Access Check
+
+Цель:
+
+- проверить access behavior в запущенном приложении, а не только unit/jsdom
+  тестами.
+
+Рекомендуемый scope:
+
+- route: `/suppliers/:supplierId`;
+- состояния: `anonymous_locked`, `registered_locked`, `qualified_unlocked`;
+- переход: `qualified_unlocked` обратно в `registered_locked`;
+- проверки:
+  - locked states не показывают real company name, website, WhatsApp, legal
+    data, exact active offer count или ItemList JSON-LD;
+  - locked states показывают public production capability facts и public
+    trade/logistics terms;
+  - qualified state показывает real supplier identity и contact actions;
+  - downgrade удаляет stale real identity и ItemList JSON-LD из `<head>`.
+
+Значение пункта:
+
+Unit tests подтверждают компонентную логику. E2E нужен, чтобы поймать ошибки
+реального роутинга, storage, head metadata и состояния страницы в браузере.
+
+## 4. Backend P0: API-Level Access Protection
+
+Цель:
+
+- перенести access enforcement из frontend mock behavior в backend source of
+  truth.
+
+Нужные backend pieces:
+
+- `suppliers_public`, `suppliers_registered`, `suppliers_qualified`,
+  `suppliers_owner`;
+- `offers_public`, `offers_registered`, `offers_qualified`, `offers_owner`;
+- `supplier_access_requests`, `price_access_requests`, `access_grants`,
+  `access_events`;
+- helper functions:
+  - `has_supplier_access(user_id, supplier_id)`;
+  - `has_offer_price_access(user_id, offer_id)`;
+  - `has_document_access(user_id, document_id)`.
+
+Acceptance:
+
+- locked API responses не содержат restricted supplier values;
+- qualified API responses содержат только grant-scoped data;
+- RLS tests покрывают public, registered, qualified, supplier owner и admin;
+- frontend больше не получает raw restricted data для locked states.
+
+Значение пункта:
+
+Frontend blur и DOM tests защищают прототип, но не являются настоящей
+безопасностью. Production-уровень начнется только тогда, когда backend перестанет
+возвращать закрытые данные locked-пользователям.
+
+## 5. Правило triage для будущих предложений Lovable
+
+Каждое новое предложение Lovable нужно классифицировать:
+
+- `Done`: уже внедрено и проверено;
+- `P1`: делать скоро, потому что усиливает trust, access или conversion flow;
+- `P2`: полезно, но не блокирует текущий этап;
+- `Backend P0`: обязательно при старте backend;
+- `Rejected`: scope creep, дубликат или конфликт с Project Knowledge.
