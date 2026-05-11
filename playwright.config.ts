@@ -5,6 +5,9 @@ const systemChromiumPath = "/bin/chromium";
 const chromiumLaunchOptions = existsSync(systemChromiumPath)
   ? { executablePath: systemChromiumPath }
   : undefined;
+const useWebServer = process.env.E2E_USE_WEB_SERVER === "1";
+const webServerUrl = "http://127.0.0.1:4173";
+const baseURL = process.env.E2E_BASE_URL ?? (useWebServer ? webServerUrl : "http://localhost:5173");
 
 /**
  * Минимальная конфигурация Playwright для E2E против preview-URL.
@@ -21,8 +24,18 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
   timeout: 60_000,
+  ...(useWebServer
+    ? {
+        webServer: {
+          command: "npm run preview -- --host 127.0.0.1 --port 4173",
+          url: webServerUrl,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      }
+    : {}),
   use: {
-    baseURL: process.env.E2E_BASE_URL ?? "http://localhost:5173",
+    baseURL,
     headless: true,
     viewport: { width: 1280, height: 800 },
     actionTimeout: 15_000,
