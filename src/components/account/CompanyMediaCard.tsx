@@ -111,6 +111,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     alt={draft.logoAlt}
                     className="h-full w-full"
                     style={{ objectFit: draft.logoFit }}
+                    data-testid="account-media-logo-edit-preview"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[11px] text-muted-foreground">
@@ -139,6 +140,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                       size="sm"
                       variant="ghost"
                       onClick={() => setDraft({ ...draft, logoImageUrl: "" })}
+                      data-testid="account-media-logo-clear"
                     >
                       {t.account_company_media_clear}
                     </Button>
@@ -154,6 +156,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                   placeholder={t.account_company_media_logoAlt}
                   value={draft.logoAlt}
                   onChange={(e) => setDraft({ ...draft, logoAlt: e.target.value })}
+                  data-testid="account-media-logo-alt"
                 />
                 <div>
                   <Label className="text-xs">{t.account_company_media_logoFit}</Label>
@@ -163,6 +166,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     onChange={(e) =>
                       setDraft({ ...draft, logoFit: e.target.value as Draft["logoFit"] })
                     }
+                    data-testid="account-media-logo-fit"
                   >
                     <option value="contain">{t.account_company_media_fit_contain}</option>
                     <option value="cover">{t.account_company_media_fit_cover}</option>
@@ -180,6 +184,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     alt={draft.coverAlt}
                     className="h-full w-full object-cover"
                     style={{ objectPosition: focalToObjectPosition(draft.coverFocalPoint) }}
+                    data-testid="account-media-cover-edit-preview"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[11px] text-muted-foreground">
@@ -207,6 +212,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     size="sm"
                     variant="ghost"
                     onClick={() => setDraft({ ...draft, coverImageUrl: "" })}
+                    data-testid="account-media-cover-clear"
                   >
                     {t.account_company_media_clear}
                   </Button>
@@ -222,6 +228,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                 placeholder={t.account_company_media_coverAlt}
                 value={draft.coverAlt}
                 onChange={(e) => setDraft({ ...draft, coverAlt: e.target.value })}
+                data-testid="account-media-cover-alt"
               />
               <div>
                 <Label className="text-xs">{t.account_company_media_focal}</Label>
