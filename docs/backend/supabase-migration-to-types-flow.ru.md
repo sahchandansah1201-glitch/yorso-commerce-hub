@@ -1,7 +1,7 @@
 # Flow: Supabase Migrations To Generated Types
 
 Статус: процедура backend-readiness
-Project id: `rxjufyldskfkjrpzhloo`
+Project id: `eaasthucczsduwrznrng`
 
 ## Зачем это нужно
 
@@ -34,7 +34,7 @@ npm run supabase:access-preflight
 
 - доступность Supabase CLI;
 - наличие локальных access migration files;
-- связан ли repo с project `rxjufyldskfkjrpzhloo`;
+- связан ли repo с project `eaasthucczsduwrznrng`;
 - видит ли текущий Supabase login этот project;
 - проходит ли strict generated type check.
 
@@ -66,7 +66,7 @@ npm run supabase:types:regen
 Команда запускает:
 
 ```bash
-npx supabase gen types typescript --project-id rxjufyldskfkjrpzhloo --schema public
+npx supabase gen types typescript --project-id eaasthucczsduwrznrng --schema public
 ```
 
 и записывает результат в:

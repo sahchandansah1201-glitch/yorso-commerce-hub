@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
-const projectId = "rxjufyldskfkjrpzhloo";
+const projectId = "eaasthucczsduwrznrng";
 const outputPath = join(root, "src/integrations/supabase/types.ts");
 
 const requiredTypeMarkers = [

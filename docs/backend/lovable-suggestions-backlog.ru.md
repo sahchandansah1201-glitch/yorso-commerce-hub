@@ -153,7 +153,7 @@ model. Но он еще не означает полный production backend: f
   `supplier_access_requests`, `access_events_admin` или
   `log_supplier_access_event`.
 - `npm run supabase:types:regen` регенерирует `types.ts` из project
-  `rxjufyldskfkjrpzhloo` и затем запускает strict check. Перед этим pending
+  `eaasthucczsduwrznrng` и затем запускает strict check. Перед этим pending
   migrations должны быть применены к live Supabase project.
 - `npm run supabase:access-preflight` проверяет Supabase CLI, project link,
   доступ текущего Supabase login и strict type status до любых live migration

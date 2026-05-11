@@ -128,7 +128,7 @@ Adapter progress:
   `access_events`, `access_grants`, `supplier_access_requests`,
   `access_events_admin` or `log_supplier_access_event` are missing.
 - `npm run supabase:types:regen` regenerates `types.ts` from project
-  `rxjufyldskfkjrpzhloo` and then runs the strict check. It requires the live
+  `eaasthucczsduwrznrng` and then runs the strict check. It requires the live
   Supabase project to have pending migrations applied first.
 - `npm run supabase:access-preflight` checks CLI availability, project link,
   current Supabase login access and strict type status before any live migration
