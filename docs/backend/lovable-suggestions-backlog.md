@@ -113,6 +113,8 @@ Adapter progress:
 - `log_supplier_access_event(...)` records supplier access request audit events
   through a controlled SECURITY DEFINER RPC. The frontend adapter calls it after
   backend request creation; local mock fallback does not write audit events.
+- Access event hardening adds composite indexes for request/supplier/actor/target
+  audit queries and rejects non-object RPC metadata payloads.
 
 ## Triage Rule For Future Lovable Suggestions
 

@@ -137,6 +137,8 @@ model. Но он еще не означает полный production backend: f
 - `log_supplier_access_event(...)` пишет audit event для supplier access request
   через контролируемую SECURITY DEFINER RPC. Frontend adapter вызывает ее после
   создания backend-запроса; local mock fallback audit events не пишет.
+- Access event hardening добавляет composite indexes для audit queries по
+  request/supplier/actor/target и отклоняет не-object metadata payloads в RPC.
 
 ## 5. Правило triage для будущих предложений Lovable
 
