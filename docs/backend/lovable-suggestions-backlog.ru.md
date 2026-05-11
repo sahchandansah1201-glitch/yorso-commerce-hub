@@ -6,6 +6,7 @@
 
 - `docs/backend/access-control-matrix.ru.md`
 - `docs/backend/frontend-backend-contract.md`
+- `docs/backend/supabase-migration-to-types-flow.ru.md`
 - `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## 1. Зачем нужен этот документ
@@ -151,6 +152,12 @@ model. Но он еще не означает полный production backend: f
   падает, если отсутствуют `access_events`, `access_grants`,
   `supplier_access_requests`, `access_events_admin` или
   `log_supplier_access_event`.
+- `npm run supabase:types:regen` регенерирует `types.ts` из project
+  `rxjufyldskfkjrpzhloo` и затем запускает strict check. Перед этим pending
+  migrations должны быть применены к live Supabase project.
+- `docs/backend/supabase-migration-to-types-flow.ru.md` фиксирует обязательную
+  последовательность и отдельно запрещает вручную восстанавливать access
+  sections в generated `types.ts`.
 
 ## 5. Правило triage для будущих предложений Lovable
 
