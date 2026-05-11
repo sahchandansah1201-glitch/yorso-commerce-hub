@@ -1,7 +1,7 @@
 # Supabase Migration To Types Flow
 
 Status: backend-readiness procedure
-Project id: `rxjufyldskfkjrpzhloo`
+Project id: `eaasthucczsduwrznrng`
 
 ## Why This Exists
 
@@ -35,7 +35,7 @@ This command does not change the database. It checks:
 
 - Supabase CLI availability;
 - local access migration files;
-- whether the repo is linked to project `rxjufyldskfkjrpzhloo`;
+- whether the repo is linked to project `eaasthucczsduwrznrng`;
 - whether the current Supabase login can see that project;
 - whether strict generated type check already passes.
 
@@ -66,7 +66,7 @@ npm run supabase:types:regen
 This runs:
 
 ```bash
-npx supabase gen types typescript --project-id rxjufyldskfkjrpzhloo --schema public
+npx supabase gen types typescript --project-id eaasthucczsduwrznrng --schema public
 ```
 
 and writes the output to:

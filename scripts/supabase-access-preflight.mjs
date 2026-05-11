@@ -5,7 +5,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const configPath = join(root, "supabase/config.toml");
 const linkedProjectPath = join(root, "supabase/.temp/project-ref");
-const projectIdFallback = "rxjufyldskfkjrpzhloo";
+const projectIdFallback = "eaasthucczsduwrznrng";
 
 const requiredMigrations = [
   "supabase/migrations/20260511130000_backend_access_foundation.sql",

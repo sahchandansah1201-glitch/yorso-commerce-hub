@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 const root = process.cwd();
 const typesPath = join(root, "src/integrations/supabase/types.ts");
-const projectId = "rxjufyldskfkjrpzhloo";
+const projectId = "eaasthucczsduwrznrng";
 const isStrict =
   process.argv.includes("--strict") ||
   process.env.SUPABASE_TYPES_STRICT === "1";
