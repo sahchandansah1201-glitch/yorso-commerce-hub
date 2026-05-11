@@ -144,6 +144,15 @@ const safeWrite = (store: Store) => {
 
 export const getAllSupplierAccessRequests = (): Store => safeRead();
 
+export const persistSupplierAccessRequest = (
+  request: SupplierAccessRequest,
+): SupplierAccessRequest => {
+  const store = safeRead();
+  store[request.supplierId] = request;
+  safeWrite(store);
+  return request;
+};
+
 export const getSupplierAccessRequest = (
   supplierId: string | undefined,
 ): SupplierAccessRequest | null => {
@@ -169,10 +178,7 @@ export const createSupplierAccessRequest = (
     reasons: ["exact_price"],
     message: "",
   };
-  const store = safeRead();
-  store[supplierId] = record;
-  safeWrite(store);
-  return record;
+  return persistSupplierAccessRequest(record);
 };
 
 /** Persist an updated request (used by the approval helper). */

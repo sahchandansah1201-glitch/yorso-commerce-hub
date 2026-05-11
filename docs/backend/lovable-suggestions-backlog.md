@@ -99,10 +99,17 @@ Current foundation:
 
 Remaining work:
 
-- add backend-facing adapters for supplier profile/access request flows;
+- continue expanding backend-facing adapters beyond the Supplier Access Flow;
 - add RLS regression tests against a real Supabase test database;
-- migrate frontend supplier access state from localStorage/sessionStorage to
+- migrate remaining frontend access state from localStorage/sessionStorage to
   backend request/grant status.
+
+Adapter progress:
+
+- `src/lib/supplier-access-api.ts` now bridges Supplier Access Flow to
+  `supplier_access_requests` when a Supabase auth user exists;
+- the same adapter falls back to the existing local mock flow when backend auth
+  is unavailable, preserving the Lovable preview/prototype behavior.
 
 ## Triage Rule For Future Lovable Suggestions
 
