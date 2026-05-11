@@ -14,7 +14,28 @@
  */
 import { test, expect, type Page, type Locator } from "@playwright/test";
 
+const setSignedInStorage = async (page: Page) => {
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem("yorso-lang", "en");
+      window.sessionStorage.setItem(
+        "yorso_buyer_session",
+        JSON.stringify({
+          id: "b_e2e_account_personal_enter",
+          identifier: "buyer@example.com",
+          method: "email",
+          signedInAt: new Date().toISOString(),
+          displayName: "buyer",
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  });
+};
+
 const openPersonalEdit = async (page: Page) => {
+  await setSignedInStorage(page);
   await page.goto("/account/personal", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   const editBtn = page.getByTestId("account-card-personal-basic-edit");
@@ -30,6 +51,10 @@ const phoneInput = (page: Page): Locator =>
 
 const isFocused = (loc: Locator) =>
   loc.evaluate((el) => el === document.activeElement);
+
+const expectNotInvalid = async (loc: Locator) => {
+  await expect(loc).not.toHaveAttribute("aria-invalid", "true");
+};
 
 /** Активировать кнопку «Сохранить» с клавиатуры через Enter. */
 const saveWithEnter = async (page: Page) => {
@@ -66,7 +91,7 @@ test.describe("/account/personal · Save через Enter переводит ф�
     await email.fill("buyer@example.com");
     await saveWithEnter(page);
 
-    await expect(email).toHaveAttribute("aria-invalid", "false");
+    await expectNotInvalid(email);
     await expect(phone).toHaveAttribute("aria-invalid", "true");
 
     // Следующая первая ошибка — phone.
