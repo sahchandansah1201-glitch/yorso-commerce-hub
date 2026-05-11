@@ -60,6 +60,7 @@ import {
   getSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
+import { readSupplierAccessRequest } from "@/lib/supplier-access-api";
 import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
@@ -587,14 +588,24 @@ const SupplierProfile = () => {
   // Refresh request state when the supplier changes or storage emits.
   useEffect(() => {
     if (!supplierId) return;
-    setAccessRequest(getSupplierAccessRequest(supplierId));
+    let cancelled = false;
+    const refresh = () => {
+      setAccessRequest(getSupplierAccessRequest(supplierId));
+      void readSupplierAccessRequest(supplierId).then((request) => {
+        if (!cancelled) setAccessRequest(request);
+      });
+    };
+    refresh();
     const onStorage = (e: StorageEvent) => {
       if (!e.key || e.key.includes("supplier_access_requests")) {
-        setAccessRequest(getSupplierAccessRequest(supplierId));
+        refresh();
       }
     };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("storage", onStorage);
+    };
   }, [supplierId]);
   const effectiveAccess: AccessLevel =
     accessRequest?.status === "approved"

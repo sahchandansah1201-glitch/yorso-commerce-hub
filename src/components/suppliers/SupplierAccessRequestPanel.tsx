@@ -1,5 +1,5 @@
 /**
- * SupplierAccessRequestPanel — one-click frontend-only access flow.
+ * SupplierAccessRequestPanel — one-click supplier access flow.
  *
  * The previous version asked the buyer to pick reasons. In v1 we removed
  * that step: a registered_locked buyer presses one CTA and the request
@@ -9,18 +9,23 @@
  *   SupplierAccessRequestPanel  - the unsent state (CTA + supporting copy)
  *   SupplierAccessRequestSent   - the sent / pending / approved status card
  *
+ * The request is routed through the supplier access adapter. It writes to the
+ * backend when a Supabase auth user exists and falls back to local mock storage
+ * for the frontend prototype.
+ *
  * No supplier company name is exposed before approval.
  *
  * All visible and accessibility strings are localized via useLanguage().
  * No hardcoded English copy may live in this file.
  */
+import { useState } from "react";
 import { CheckCircle2, Clock, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  createSupplierAccessRequest,
   type SupplierAccessRequest,
   type SupplierAccessStatus,
 } from "@/lib/supplier-access-requests";
+import { requestSupplierAccess } from "@/lib/supplier-access-api";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -54,13 +59,21 @@ export const SupplierAccessRequestPanel = ({
   onSent,
 }: PanelProps) => {
   const { t } = useLanguage();
-  const handleClick = () => {
-    const saved = createSupplierAccessRequest(supplierId);
-    toast({
-      title: t.supplier_accessPanel_toastTitle,
-      description: t.supplier_accessPanel_toastDesc,
-    });
-    onSent(saved);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleClick = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const saved = await requestSupplierAccess(supplierId);
+      toast({
+        title: t.supplier_accessPanel_toastTitle,
+        description: t.supplier_accessPanel_toastDesc,
+      });
+      onSent(saved);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -82,10 +95,15 @@ export const SupplierAccessRequestPanel = ({
       <Button
         type="button"
         onClick={handleClick}
+        disabled={isSubmitting}
         className="w-full gap-2"
         data-testid="supplier-request-price-access"
       >
-        <Send className="h-4 w-4" aria-hidden />
+        {isSubmitting ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+        ) : (
+          <Send className="h-4 w-4" aria-hidden />
+        )}
         {t.supplier_accessPanel_cta}
       </Button>
     </div>

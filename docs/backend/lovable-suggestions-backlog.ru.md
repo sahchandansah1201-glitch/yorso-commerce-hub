@@ -128,6 +128,13 @@ model. Но он еще не означает полный production backend: f
 должны быть переведены с localStorage/mock state на реальные request/grant
 статусы.
 
+Прогресс по adapters:
+
+- `src/lib/supplier-access-api.ts` подключает Supplier Access Flow к
+  `supplier_access_requests`, если есть реальный Supabase auth user;
+- при отсутствии backend auth adapter сохраняет текущий local mock fallback,
+  чтобы Lovable preview и прототип не ломались.
+
 ## 5. Правило triage для будущих предложений Lovable
 
 Каждое новое предложение Lovable нужно классифицировать:

@@ -167,13 +167,13 @@ describe("SupplierProfile · access gating", () => {
       expect(document.body.innerHTML).not.toContain(supplier.companyName);
     });
 
-    it("после клика появляется status-карточка sent/pending", () => {
+    it("после клика появляется status-карточка sent/pending", async () => {
       renderProfile();
       const btn = screen.getByTestId("supplier-request-price-access");
       act(() => {
         fireEvent.click(btn);
       });
-      const status = screen.getByTestId("supplier-access-request-status");
+      const status = await screen.findByTestId("supplier-access-request-status");
       expect(status).toBeInTheDocument();
       expect(["sent", "pending"]).toContain(status.getAttribute("data-status"));
     });
