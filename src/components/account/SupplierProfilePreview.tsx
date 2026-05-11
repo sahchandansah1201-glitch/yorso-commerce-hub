@@ -23,6 +23,7 @@ export const SupplierProfilePreview = ({ company }: { company: CompanyProfile })
                 alt={company.coverAlt || company.tradeName}
                 className="h-full w-full object-cover"
                 style={{ objectPosition: focalToObjectPosition(company.coverFocalPoint) }}
+                data-testid="account-supplier-preview-cover"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
@@ -39,6 +40,7 @@ export const SupplierProfilePreview = ({ company }: { company: CompanyProfile })
                     alt={company.logoAlt || company.tradeName}
                     className="h-full w-full"
                     style={{ objectFit: company.logoFit }}
+                    data-testid="account-supplier-preview-logo"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">

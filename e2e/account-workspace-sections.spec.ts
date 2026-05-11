@@ -1,4 +1,16 @@
-import { expect, test, type Page } from "@playwright/test";
+import { Buffer } from "node:buffer";
+import { expect, test, type Locator, type Page } from "@playwright/test";
+
+const LOGO_URL =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmY2YjAwIi8+PC9zdmc+";
+const COVER_URL =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iMjcwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjI3MCIgZmlsbD0iIzE0MmEzYiIvPjwvc3ZnPg==";
+const MEDIA_LOGO_ALT = "Atlantic Bridge orange logo";
+const MEDIA_COVER_ALT = "Atlantic Bridge frozen seafood cover";
+const ONE_PIXEL_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/lM8VxQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 const setSignedInStorage = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
   await page.addInitScript(
@@ -45,6 +57,23 @@ const parseOverviewPercent = async (page: Page) => {
   return Number((raw ?? "").replace(/[^\d]/g, ""));
 };
 
+const openCompanyMediaEdit = async (page: Page): Promise<Locator> => {
+  await openAccount(page, "company");
+  const media = page.getByTestId("account-card-company-media");
+  await media.getByTestId("account-card-company-media-edit").click();
+  await expect(media.getByTestId("account-card-company-media-save")).toBeVisible();
+  return media;
+};
+
+const fillCompanyMedia = async (media: Locator) => {
+  await media.getByTestId("account-media-logo-url").fill(LOGO_URL);
+  await media.getByTestId("account-media-logo-alt").fill(MEDIA_LOGO_ALT);
+  await media.getByTestId("account-media-logo-fit").selectOption("cover");
+  await media.getByTestId("account-media-cover-url").fill(COVER_URL);
+  await media.getByTestId("account-media-cover-alt").fill(MEDIA_COVER_ALT);
+  await media.getByTestId("account-media-focal-bottom").click();
+};
+
 test.describe("/account workspace sections", () => {
   test("signed-out users see the account sign-in gate", async ({ page }) => {
     await page.goto("/account/company", { waitUntil: "domcontentloaded" });
@@ -80,26 +109,150 @@ test.describe("/account workspace sections", () => {
 
     const beforePercent = await parseOverviewPercent(page);
     const media = page.getByTestId("account-card-company-media");
-    const logoUrl =
-      "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmY2YjAwIi8+PC9zdmc+";
-    const coverUrl =
-      "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0ODAiIGhlaWdodD0iMjcwIj48cmVjdCB3aWR0aD0iNDgwIiBoZWlnaHQ9IjI3MCIgZmlsbD0iIzE0MmEzYiIvPjwvc3ZnPg==";
 
     await media.getByTestId("account-card-company-media-edit").click();
-    await media.getByTestId("account-media-logo-url").fill(logoUrl);
-    await media.getByTestId("account-media-cover-url").fill(coverUrl);
-    await media.getByTestId("account-media-focal-bottom").click();
+    await fillCompanyMedia(media);
     await media.getByTestId("account-card-company-media-save").click();
 
     await expect(media.getByTestId("account-card-company-media-edit")).toBeVisible();
-    await expect(media.getByTestId("account-media-logo-preview")).toHaveAttribute("src", logoUrl);
-    await expect(media.getByTestId("account-media-cover-preview")).toHaveAttribute("src", coverUrl);
+    await expect(media.getByTestId("account-media-logo-preview")).toHaveAttribute("src", LOGO_URL);
+    await expect(media.getByTestId("account-media-cover-preview")).toHaveAttribute("src", COVER_URL);
     await expect.poll(() => parseOverviewPercent(page)).toBeGreaterThan(beforePercent);
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-media-logo-preview")).toHaveAttribute("src", logoUrl);
-    await expect(page.getByTestId("account-media-cover-preview")).toHaveAttribute("src", coverUrl);
+    await expect(page.getByTestId("account-media-logo-preview")).toHaveAttribute("src", LOGO_URL);
+    await expect(page.getByTestId("account-media-cover-preview")).toHaveAttribute("src", COVER_URL);
+  });
+
+  test("company media edit previews reflect URL, alt, logo fit and cover focal controls", async ({
+    page,
+  }) => {
+    const media = await openCompanyMediaEdit(page);
+
+    await fillCompanyMedia(media);
+
+    await expect(media.getByTestId("account-media-logo-edit-preview")).toHaveAttribute(
+      "src",
+      LOGO_URL,
+    );
+    await expect(media.getByTestId("account-media-logo-edit-preview")).toHaveAttribute(
+      "alt",
+      MEDIA_LOGO_ALT,
+    );
+    await expect(media.getByTestId("account-media-logo-edit-preview")).toHaveCSS(
+      "object-fit",
+      "cover",
+    );
+    await expect(media.getByTestId("account-media-cover-edit-preview")).toHaveAttribute(
+      "src",
+      COVER_URL,
+    );
+    await expect(media.getByTestId("account-media-cover-edit-preview")).toHaveAttribute(
+      "alt",
+      MEDIA_COVER_ALT,
+    );
+    await expect(media.getByTestId("account-media-cover-edit-preview")).toHaveCSS(
+      "object-position",
+      "50% 100%",
+    );
+    await expect(media.getByTestId("account-media-focal-bottom")).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+  });
+
+  test("saved company media propagates into supplier profile preview", async ({ page }) => {
+    const media = await openCompanyMediaEdit(page);
+
+    await fillCompanyMedia(media);
+    await media.getByTestId("account-card-company-media-save").click();
+
+    const supplierPreview = page.getByTestId("account-supplier-preview");
+    await expect(supplierPreview.getByTestId("account-supplier-preview-logo")).toHaveAttribute(
+      "src",
+      LOGO_URL,
+    );
+    await expect(supplierPreview.getByTestId("account-supplier-preview-logo")).toHaveAttribute(
+      "alt",
+      MEDIA_LOGO_ALT,
+    );
+    await expect(supplierPreview.getByTestId("account-supplier-preview-logo")).toHaveCSS(
+      "object-fit",
+      "cover",
+    );
+    await expect(supplierPreview.getByTestId("account-supplier-preview-cover")).toHaveAttribute(
+      "src",
+      COVER_URL,
+    );
+    await expect(supplierPreview.getByTestId("account-supplier-preview-cover")).toHaveAttribute(
+      "alt",
+      MEDIA_COVER_ALT,
+    );
+    await expect(supplierPreview.getByTestId("account-supplier-preview-cover")).toHaveCSS(
+      "object-position",
+      "50% 100%",
+    );
+  });
+
+  test("media clear controls remove saved logo and cover and reduce completion", async ({
+    page,
+  }) => {
+    const media = await openCompanyMediaEdit(page);
+
+    await fillCompanyMedia(media);
+    await media.getByTestId("account-card-company-media-save").click();
+    const filledPercent = await parseOverviewPercent(page);
+
+    await media.getByTestId("account-card-company-media-edit").click();
+    await media.getByTestId("account-media-logo-clear").click();
+    await media.getByTestId("account-media-cover-clear").click();
+    await media.getByTestId("account-card-company-media-save").click();
+
+    await expect(media.getByTestId("account-media-logo-preview")).toHaveCount(0);
+    await expect(media.getByTestId("account-media-cover-preview")).toHaveCount(0);
+    await expect(page.getByTestId("account-supplier-preview-logo")).toHaveCount(0);
+    await expect(page.getByTestId("account-supplier-preview-cover")).toHaveCount(0);
+    await expect.poll(() => parseOverviewPercent(page)).toBeLessThan(filledPercent);
+  });
+
+  test("company media file upload produces data URLs without stealing focus from save flow", async ({
+    page,
+  }) => {
+    const media = await openCompanyMediaEdit(page);
+
+    await media.getByTestId("account-media-logo-file").setInputFiles({
+      name: "logo.png",
+      mimeType: "image/png",
+      buffer: ONE_PIXEL_PNG,
+    });
+    await media.getByTestId("account-media-cover-file").setInputFiles({
+      name: "cover.png",
+      mimeType: "image/png",
+      buffer: ONE_PIXEL_PNG,
+    });
+
+    await expect(media.getByTestId("account-media-logo-edit-preview")).toHaveAttribute(
+      "src",
+      /^data:image\/png;base64,/,
+    );
+    await expect(media.getByTestId("account-media-cover-edit-preview")).toHaveAttribute(
+      "src",
+      /^data:image\/png;base64,/,
+    );
+
+    await media.getByTestId("account-card-company-media-save").focus();
+    await expect(media.getByTestId("account-card-company-media-save")).toBeFocused();
+    await page.keyboard.press("Enter");
+
+    await expect(media.getByTestId("account-media-logo-preview")).toHaveAttribute(
+      "src",
+      /^data:image\/png;base64,/,
+    );
+    await expect(media.getByTestId("account-media-cover-preview")).toHaveAttribute(
+      "src",
+      /^data:image\/png;base64,/,
+    );
   });
 
   test("supporting sections expose procurement data without raw internal enums", async ({ page }) => {
