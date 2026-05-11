@@ -47,7 +47,7 @@ describe("SelectedOfferPanel — section order", () => {
 
     // Walk forward from trend skipping non-element nodes/comments — the very
     // next element sibling must be the Market signals section.
-    let next: Element | null = trend!.nextElementSibling;
+    const next: Element | null = trend!.nextElementSibling;
     expect(next, "Price trend must have a following sibling").not.toBeNull();
     expect(next).toBe(signals);
   });
