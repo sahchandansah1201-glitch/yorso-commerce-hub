@@ -110,6 +110,9 @@ Adapter progress:
   `supplier_access_requests` when a Supabase auth user exists;
 - the same adapter falls back to the existing local mock flow when backend auth
   is unavailable, preserving the Lovable preview/prototype behavior.
+- `log_supplier_access_event(...)` records supplier access request audit events
+  through a controlled SECURITY DEFINER RPC. The frontend adapter calls it after
+  backend request creation; local mock fallback does not write audit events.
 
 ## Triage Rule For Future Lovable Suggestions
 

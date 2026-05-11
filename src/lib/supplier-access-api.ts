@@ -8,7 +8,7 @@
  * - otherwise keep the current localStorage mock flow working;
  * - never expose supplier identity here. This adapter only carries status.
  */
-import type { Tables } from "@/integrations/supabase/types";
+import type { Json, Tables } from "@/integrations/supabase/types";
 import {
   createSupplierAccessRequest,
   getSupplierAccessRequest,
@@ -19,7 +19,7 @@ import {
 
 type SupplierAccessRequestRow = Pick<
   Tables<"supplier_access_requests">,
-  "supplier_id" | "status" | "created_at" | "updated_at" | "decided_at"
+  "id" | "supplier_id" | "status" | "created_at" | "updated_at" | "decided_at"
 >;
 
 type SupabaseClient = typeof import("@/integrations/supabase/client")["supabase"];
@@ -93,13 +93,28 @@ const selectSupplierAccessRequest = async (
 ): Promise<SupplierAccessRequest | null> => {
   const { data, error } = await supabase
     .from("supplier_access_requests")
-    .select("supplier_id,status,created_at,updated_at,decided_at")
+    .select("id,supplier_id,status,created_at,updated_at,decided_at")
     .eq("supplier_id", supplierId)
     .eq("buyer_user_id", buyerUserId)
     .maybeSingle();
 
   if (error || !data) return null;
   return mapBackendRequest(data as SupplierAccessRequestRow);
+};
+
+const logSupplierAccessRequestEvent = async (
+  supabase: SupabaseClient,
+  requestId: string,
+) => {
+  try {
+    await supabase.rpc("log_supplier_access_event", {
+      p_supplier_access_request_id: requestId,
+      p_event_type: "supplier_access_requested",
+      p_metadata: { source: "supplier_access_api" } satisfies Json,
+    });
+  } catch {
+    // Audit logging must not break the buyer request flow.
+  }
 };
 
 export const readSupplierAccessRequest = async (
@@ -140,10 +155,14 @@ export const requestSupplierAccess = async (
           status: "sent",
           message: "",
         })
-        .select("supplier_id,status,created_at,updated_at,decided_at")
+        .select("id,supplier_id,status,created_at,updated_at,decided_at")
         .single();
 
       if (!error && data) {
+        await logSupplierAccessRequestEvent(
+          supabase,
+          (data as SupplierAccessRequestRow).id,
+        );
         const mapped = mapBackendRequest(data as SupplierAccessRequestRow);
         if (mapped) return mapped;
       }
