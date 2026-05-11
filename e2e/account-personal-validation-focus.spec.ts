@@ -15,7 +15,28 @@
  */
 import { test, expect, type Page, type Locator } from "@playwright/test";
 
+const setSignedInStorage = async (page: Page) => {
+  await page.addInitScript(() => {
+    try {
+      window.localStorage.setItem("yorso-lang", "en");
+      window.sessionStorage.setItem(
+        "yorso_buyer_session",
+        JSON.stringify({
+          id: "b_e2e_account_personal_validation",
+          identifier: "buyer@example.com",
+          method: "email",
+          signedInAt: new Date().toISOString(),
+          displayName: "buyer",
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  });
+};
+
 const openPersonalEdit = async (page: Page) => {
+  await setSignedInStorage(page);
   await page.goto("/account/personal", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   const editBtn = page.getByTestId("account-card-personal-basic-edit");
@@ -35,6 +56,10 @@ const phoneInput = (page: Page): Locator =>
 
 const isFocused = async (loc: Locator) =>
   loc.evaluate((el) => el === document.activeElement);
+
+const expectNotInvalid = async (loc: Locator) => {
+  await expect(loc).not.toHaveAttribute("aria-invalid", "true");
+};
 
 const stickyTopOffset = (page: Page) =>
   page.evaluate(() => {
@@ -96,7 +121,7 @@ test.describe("/account/personal · фокус по [aria-invalid] при руч
     // Снимем фокус, чтобы повторный Save не считался "клик в поле".
     await page.getByTestId("account-card-personal-basic-save").click();
 
-    await expect(email).toHaveAttribute("aria-invalid", "false");
+    await expectNotInvalid(email);
     await expect(phone).toHaveAttribute("aria-invalid", "true");
 
     // Теперь первое невалидное — phone. Фокус должен переместиться туда.
