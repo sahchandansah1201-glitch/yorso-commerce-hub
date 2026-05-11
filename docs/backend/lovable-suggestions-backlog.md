@@ -6,6 +6,7 @@ Related documents:
 
 - `docs/backend/access-control-matrix.md`
 - `docs/backend/frontend-backend-contract.md`
+- `docs/backend/supabase-migration-to-types-flow.md`
 - `docs/backend/yorso-backend-implementation-plan.md`
 
 ## Purpose
@@ -126,6 +127,12 @@ Adapter progress:
   pass after applying migrations and regenerating `types.ts`; it fails if
   `access_events`, `access_grants`, `supplier_access_requests`,
   `access_events_admin` or `log_supplier_access_event` are missing.
+- `npm run supabase:types:regen` regenerates `types.ts` from project
+  `rxjufyldskfkjrpzhloo` and then runs the strict check. It requires the live
+  Supabase project to have pending migrations applied first.
+- `docs/backend/supabase-migration-to-types-flow.md` documents the required
+  sequence and explicitly warns against manually restoring access sections in
+  generated `types.ts`.
 
 ## Triage Rule For Future Lovable Suggestions
 
