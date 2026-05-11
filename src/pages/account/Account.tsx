@@ -7,10 +7,11 @@ import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard } from "@/components/account/CompanyMediaCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   validateEmail,
@@ -1009,16 +1010,220 @@ const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t
     cooked: t.account_product_state_cooked,
   }[s]);
 
-const ProductsSection = ({ profile }: { profile: AccountProfile }) => {
+const createEmptyProduct = (): CompanyProduct => ({
+  id: `product_${Date.now().toString(36)}`,
+  commercialName: "",
+  latinName: "",
+  category: "",
+  state: "frozen",
+  format: "",
+  role: "both",
+  monthlyVolume: "",
+  certificates: [],
+  targetCountries: [],
+});
+
+const validateProductDraft = (
+  draft: CompanyProduct,
+  t: ReturnType<typeof useLanguage>["t"],
+) => {
+  const nextErrors: Record<string, string> = {
+    commercialName: validateName(draft.commercialName, t, true) ?? "",
+    latinName: validateName(draft.latinName, t, true) ?? "",
+    category: validateName(draft.category, t, true) ?? "",
+    format: validateText(draft.format, t, 120) ?? "",
+    monthlyVolume: validateName(draft.monthlyVolume, t, true) ?? "",
+  };
+  return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
+};
+
+const ProductsSection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (next: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
+  const [draft, setDraft] = useState<CompanyProduct | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const startAdd = () => {
+    setDraft(createEmptyProduct());
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const startEdit = (product: CompanyProduct) => {
+    setDraft({
+      ...product,
+      certificates: [...product.certificates],
+      targetCountries: [...product.targetCountries],
+    });
+    setEditingId(product.id);
+    setErrors({});
+  };
+
+  const cancelEdit = () => {
+    setDraft(null);
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const saveDraft = () => {
+    if (!draft) return;
+    const nextErrors = validateProductDraft(draft, t);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
+    const normalized: CompanyProduct = {
+      ...draft,
+      commercialName: draft.commercialName.trim(),
+      latinName: draft.latinName.trim(),
+      category: draft.category.trim(),
+      format: draft.format.trim(),
+      monthlyVolume: draft.monthlyVolume.trim(),
+      certificates: draft.certificates.map((c) => c.trim()).filter(Boolean),
+      targetCountries: draft.targetCountries.map((c) => c.trim()).filter(Boolean),
+    };
+
+    const nextProducts = editingId
+      ? profile.products.map((p) => (p.id === editingId ? normalized : p))
+      : [...profile.products, normalized];
+
+    onChange({ ...profile, products: nextProducts });
+    cancelEdit();
+  };
+
+  const deleteProduct = (productId: string) => {
+    onChange({ ...profile, products: profile.products.filter((p) => p.id !== productId) });
+    if (editingId === productId) cancelEdit();
+  };
+
   return (
     <div className="space-y-4" data-testid="account-section-products">
       <AccountSectionCard
         title={t.account_products_title}
         description={t.account_products_desc}
       >
-        <p className="text-sm text-muted-foreground">{t.account_products_matchingExplainer}</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <p className="text-sm text-muted-foreground">{t.account_products_matchingExplainer}</p>
+          <Button
+            type="button"
+            onClick={startAdd}
+            className="shrink-0"
+            data-testid="account-product-add"
+          >
+            <Plus className="mr-2 h-4 w-4" aria-hidden />
+            {t.account_product_add}
+          </Button>
+        </div>
       </AccountSectionCard>
+      {draft ? (
+        <AccountSectionCard
+          title={editingId ? t.account_product_form_title_edit : t.account_product_form_title_add}
+          description={t.account_product_form_desc}
+          testId="account-product-form"
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <FormRow label={t.account_product_col_product} required error={errors.commercialName}>
+              <Input
+                value={draft.commercialName}
+                onChange={(e) => setDraft({ ...draft, commercialName: e.target.value })}
+                data-testid="account-product-commercial-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_col_latin} required error={errors.latinName}>
+              <Input
+                value={draft.latinName}
+                onChange={(e) => setDraft({ ...draft, latinName: e.target.value })}
+                data-testid="account-product-latin-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_field_category} required error={errors.category}>
+              <Input
+                value={draft.category}
+                onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+                data-testid="account-product-category"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_col_state}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.state}
+                onChange={(e) =>
+                  setDraft({ ...draft, state: e.target.value as CompanyProduct["state"] })
+                }
+                data-testid="account-product-state"
+              >
+                <option value="frozen">{t.account_product_state_frozen}</option>
+                <option value="fresh">{t.account_product_state_fresh}</option>
+                <option value="chilled">{t.account_product_state_chilled}</option>
+                <option value="alive">{t.account_product_state_alive}</option>
+                <option value="cooked">{t.account_product_state_cooked}</option>
+              </select>
+            </FormRow>
+            <FormRow label={t.account_product_col_role}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.role}
+                onChange={(e) =>
+                  setDraft({ ...draft, role: e.target.value as CompanyProduct["role"] })
+                }
+                data-testid="account-product-role"
+              >
+                <option value="buying">{t.account_product_role_buying}</option>
+                <option value="selling">{t.account_product_role_selling}</option>
+                <option value="both">{t.account_product_role_both}</option>
+              </select>
+            </FormRow>
+            <FormRow label={t.account_product_col_volume} required error={errors.monthlyVolume}>
+              <Input
+                value={draft.monthlyVolume}
+                onChange={(e) => setDraft({ ...draft, monthlyVolume: e.target.value })}
+                data-testid="account-product-monthly-volume"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_field_format} error={errors.format}>
+              <Input
+                value={draft.format}
+                onChange={(e) => setDraft({ ...draft, format: e.target.value })}
+                data-testid="account-product-format"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_col_certs}>
+              <Input
+                value={draft.certificates.join(", ")}
+                onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
+                data-testid="account-product-certificates"
+              />
+            </FormRow>
+            <FormRow label={t.account_product_col_targets}>
+              <Input
+                value={draft.targetCountries.join(", ")}
+                onChange={(e) =>
+                  setDraft({ ...draft, targetCountries: splitList(e.target.value) })
+                }
+                data-testid="account-product-target-countries"
+              />
+            </FormRow>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelEdit}
+              data-testid="account-product-cancel"
+            >
+              {t.account_action_cancel}
+            </Button>
+            <Button type="button" onClick={saveDraft} data-testid="account-product-save">
+              {t.account_action_save}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
       <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <table className="w-full text-sm" data-testid="account-products-table">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -1030,31 +1235,72 @@ const ProductsSection = ({ profile }: { profile: AccountProfile }) => {
               <th className="px-3 py-2">{t.account_product_col_volume}</th>
               <th className="px-3 py-2">{t.account_product_col_certs}</th>
               <th className="px-3 py-2">{t.account_product_col_targets}</th>
+              <th className="px-3 py-2 text-right">{t.account_product_col_actions}</th>
             </tr>
           </thead>
           <tbody>
-            {profile.products.map((p: CompanyProduct) => (
-              <tr key={p.id} className="border-t border-border align-top">
-                <td className="px-3 py-2">
-                  <div className="font-medium">{p.commercialName}</div>
-                  <div className="text-xs text-muted-foreground">{p.format}</div>
-                </td>
-                <td className="px-3 py-2 italic text-muted-foreground">{p.latinName}</td>
-                <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
-                <td className="px-3 py-2"><ProductRoleBadge role={p.role} /></td>
-                <td className="px-3 py-2">{p.monthlyVolume}</td>
-                <td className="px-3 py-2">
-                  <div className="flex flex-wrap gap-1">
-                    {p.certificates.map((c) => (
-                      <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">
-                  {p.targetCountries.join(", ")}
+            {profile.products.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  {t.account_product_empty}
                 </td>
               </tr>
-            ))}
+            ) : (
+              profile.products.map((p: CompanyProduct) => (
+                <tr
+                  key={p.id}
+                  className="border-t border-border align-top"
+                  data-testid={`account-product-row-${p.id}`}
+                >
+                  <td className="px-3 py-2">
+                    <div className="font-medium">{p.commercialName}</div>
+                    <div className="text-xs text-muted-foreground">{p.format}</div>
+                  </td>
+                  <td className="px-3 py-2 italic text-muted-foreground">{p.latinName}</td>
+                  <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
+                  <td className="px-3 py-2">
+                    <ProductRoleBadge role={p.role} />
+                  </td>
+                  <td className="px-3 py-2">{p.monthlyVolume}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex flex-wrap gap-1">
+                      {p.certificates.map((c) => (
+                        <Badge key={c} variant="outline" className="text-[10px]">
+                          {c}
+                        </Badge>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                    {p.targetCountries.join(", ")}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEdit(p)}
+                        data-testid={`account-product-edit-${p.id}`}
+                      >
+                        <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                        {t.account_action_edit}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteProduct(p.id)}
+                        aria-label={`${t.account_product_delete}: ${p.commercialName}`}
+                        data-testid={`account-product-delete-${p.id}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -1216,7 +1462,7 @@ const Account = () => {
       content = <BranchesSection profile={profile} />;
       break;
     case "products":
-      content = <ProductsSection profile={profile} />;
+      content = <ProductsSection profile={profile} onChange={update} />;
       break;
     case "meta-regions":
       content = <MetaRegionsSection profile={profile} />;
