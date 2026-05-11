@@ -155,6 +155,9 @@ model. Но он еще не означает полный production backend: f
 - `npm run supabase:types:regen` регенерирует `types.ts` из project
   `rxjufyldskfkjrpzhloo` и затем запускает strict check. Перед этим pending
   migrations должны быть применены к live Supabase project.
+- `npm run supabase:access-preflight` проверяет Supabase CLI, project link,
+  доступ текущего Supabase login и strict type status до любых live migration
+  commands.
 - `docs/backend/supabase-migration-to-types-flow.ru.md` фиксирует обязательную
   последовательность и отдельно запрещает вручную восстанавливать access
   sections в generated `types.ts`.

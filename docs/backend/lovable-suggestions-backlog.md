@@ -130,6 +130,9 @@ Adapter progress:
 - `npm run supabase:types:regen` regenerates `types.ts` from project
   `rxjufyldskfkjrpzhloo` and then runs the strict check. It requires the live
   Supabase project to have pending migrations applied first.
+- `npm run supabase:access-preflight` checks CLI availability, project link,
+  current Supabase login access and strict type status before any live migration
+  command is attempted.
 - `docs/backend/supabase-migration-to-types-flow.md` documents the required
   sequence and explicitly warns against manually restoring access sections in
   generated `types.ts`.

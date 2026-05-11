@@ -25,6 +25,20 @@ This is expected until the live backend is migrated. It is not a frontend bug.
 
 ## Commands
 
+Live migration preflight:
+
+```bash
+npm run supabase:access-preflight
+```
+
+This command does not change the database. It checks:
+
+- Supabase CLI availability;
+- local access migration files;
+- whether the repo is linked to project `rxjufyldskfkjrpzhloo`;
+- whether the current Supabase login can see that project;
+- whether strict generated type check already passes.
+
 Preview-safe check:
 
 ```bash
@@ -72,26 +86,39 @@ Safety behavior:
 
 ## Required Sequence
 
-1. Apply pending migrations to the live Supabase project.
-2. Regenerate Supabase types from the migrated project:
+1. Run preflight:
+
+```bash
+npm run supabase:access-preflight
+```
+
+2. If preflight passes, inspect pending remote migrations:
+
+```bash
+npx supabase db push --dry-run
+```
+
+3. Apply pending migrations to the live Supabase project only after explicit
+   approval.
+4. Regenerate Supabase types from the migrated project:
 
 ```bash
 npm run supabase:types:regen
 ```
 
-3. Verify strict check:
+5. Verify strict check:
 
 ```bash
 npm run check:supabase-types:strict
 ```
 
-4. Verify frontend build:
+6. Verify frontend build:
 
 ```bash
 npm run build
 ```
 
-5. Commit regenerated `src/integrations/supabase/types.ts`.
+7. Commit regenerated `src/integrations/supabase/types.ts`.
 
 ## Do Not Do This
 
