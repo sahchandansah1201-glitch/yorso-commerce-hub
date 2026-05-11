@@ -1310,7 +1310,52 @@ const ProductsSection = ({
 
 // ─── META REGIONS ──────────────────────────────────────────────────
 
-const MetaRegionsSection = ({ profile }: { profile: AccountProfile }) => {
+const META_REGION_REASONS: MetaRegion["logisticsReason"][] = [
+  "similar_freight_cost",
+  "same_customs_zone",
+  "same_sales_market",
+  "same_warehouse_route",
+  "manual",
+];
+
+const META_REGION_USES: Array<MetaRegion["usedFor"][number]> = [
+  "notifications",
+  "price_access",
+  "campaigns",
+  "landed_cost",
+  "supplier_matching",
+];
+
+const createEmptyMetaRegion = (): MetaRegion => ({
+  id: `meta_${Date.now().toString(36)}`,
+  name: "",
+  countries: [],
+  logisticsReason: "similar_freight_cost",
+  defaultCurrency: "EUR",
+  notes: "",
+  usedFor: ["supplier_matching"],
+});
+
+const validateMetaRegionDraft = (
+  draft: MetaRegion,
+  t: ReturnType<typeof useLanguage>["t"],
+) => {
+  const nextErrors: Record<string, string> = {
+    name: validateName(draft.name, t, true) ?? "",
+    countries: draft.countries.length ? "" : t.account_validation_required,
+    defaultCurrency: validateName(draft.defaultCurrency, t, true) ?? "",
+    notes: validateText(draft.notes, t, 500) ?? "",
+  };
+  return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
+};
+
+const MetaRegionsSection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (next: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
   const reasonLabel: Record<MetaRegion["logisticsReason"], string> = {
     similar_freight_cost: t.account_metaRegion_reason_freight,
@@ -1326,38 +1371,246 @@ const MetaRegionsSection = ({ profile }: { profile: AccountProfile }) => {
     landed_cost: t.account_metaRegion_use_landedCost,
     supplier_matching: t.account_metaRegion_use_matching,
   };
+  const [draft, setDraft] = useState<MetaRegion | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const startAdd = () => {
+    setDraft(createEmptyMetaRegion());
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const startEdit = (region: MetaRegion) => {
+    setDraft({
+      ...region,
+      countries: [...region.countries],
+      usedFor: [...region.usedFor],
+    });
+    setEditingId(region.id);
+    setErrors({});
+  };
+
+  const cancelEdit = () => {
+    setDraft(null);
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const toggleUse = (use: MetaRegion["usedFor"][number]) => {
+    if (!draft) return;
+    const usedFor = draft.usedFor.includes(use)
+      ? draft.usedFor.filter((u) => u !== use)
+      : [...draft.usedFor, use];
+    setDraft({ ...draft, usedFor });
+  };
+
+  const saveDraft = () => {
+    if (!draft) return;
+    const nextErrors = validateMetaRegionDraft(draft, t);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
+    const normalized: MetaRegion = {
+      ...draft,
+      name: draft.name.trim(),
+      countries: draft.countries.map((c) => c.trim()).filter(Boolean),
+      defaultCurrency: draft.defaultCurrency.trim().toUpperCase(),
+      notes: draft.notes.trim(),
+      usedFor: draft.usedFor.length ? draft.usedFor : ["supplier_matching"],
+    };
+    const nextRegions = editingId
+      ? profile.metaRegions.map((m) => (m.id === editingId ? normalized : m))
+      : [...profile.metaRegions, normalized];
+    onChange({ ...profile, metaRegions: nextRegions });
+    cancelEdit();
+  };
+
+  const deleteRegion = (regionId: string) => {
+    onChange({ ...profile, metaRegions: profile.metaRegions.filter((m) => m.id !== regionId) });
+    if (editingId === regionId) cancelEdit();
+  };
+
   return (
     <div className="space-y-4" data-testid="account-section-meta-regions">
       <AccountSectionCard
         title={t.account_metaRegions_title}
         description={t.account_metaRegions_desc}
       >
-        <p className="text-sm text-muted-foreground">{t.account_metaRegions_explainer}</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <p className="text-sm text-muted-foreground">{t.account_metaRegions_explainer}</p>
+          <Button
+            type="button"
+            onClick={startAdd}
+            className="shrink-0"
+            data-testid="account-meta-add"
+          >
+            <Plus className="mr-2 h-4 w-4" aria-hidden />
+            {t.account_metaRegion_add}
+          </Button>
+        </div>
       </AccountSectionCard>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {profile.metaRegions.map((m) => (
-          <AccountSectionCard key={m.id} title={m.name} testId={`account-meta-${m.id}`}>
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-1">
-                {m.countries.map((c) => (
-                  <Badge key={c} variant="secondary" className="text-[11px]">{c}</Badge>
+      {draft ? (
+        <AccountSectionCard
+          title={editingId ? t.account_metaRegion_form_title_edit : t.account_metaRegion_form_title_add}
+          description={t.account_metaRegion_form_desc}
+          testId="account-meta-form"
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <FormRow label={t.account_metaRegion_field_name} required error={errors.name}>
+              <Input
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                data-testid="account-meta-name"
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_metaRegion_field_countries}
+              required
+              error={errors.countries}
+            >
+              <Input
+                value={draft.countries.join(", ")}
+                onChange={(e) => setDraft({ ...draft, countries: splitList(e.target.value) })}
+                data-testid="account-meta-countries"
+              />
+            </FormRow>
+            <FormRow label={t.account_metaRegion_reason}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.logisticsReason}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    logisticsReason: e.target.value as MetaRegion["logisticsReason"],
+                  })
+                }
+                data-testid="account-meta-reason"
+              >
+                {META_REGION_REASONS.map((reason) => (
+                  <option key={reason} value={reason}>
+                    {reasonLabel[reason]}
+                  </option>
                 ))}
-              </div>
-              <p className="text-xs">
-                <span className="text-muted-foreground">{t.account_metaRegion_reason}: </span>
-                <span className="font-medium">{reasonLabel[m.logisticsReason]}</span>
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {m.usedFor.map((u) => (
-                  <Badge key={u} variant="outline" className="text-[10px]">
-                    {usedForLabel[u]}
-                  </Badge>
-                ))}
-              </div>
-              {m.notes ? <p className="text-xs text-muted-foreground italic">{m.notes}</p> : null}
+              </select>
+            </FormRow>
+            <FormRow
+              label={t.account_metaRegion_field_currency}
+              required
+              error={errors.defaultCurrency}
+            >
+              <Input
+                value={draft.defaultCurrency}
+                onChange={(e) => setDraft({ ...draft, defaultCurrency: e.target.value })}
+                data-testid="account-meta-currency"
+              />
+            </FormRow>
+            <div className="md:col-span-2">
+              <FormRow label={t.account_metaRegion_field_notes} error={errors.notes}>
+                <Textarea
+                  value={draft.notes}
+                  onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
+                  data-testid="account-meta-notes"
+                />
+              </FormRow>
             </div>
+          </div>
+          <fieldset className="mt-4 rounded-lg border border-border p-3">
+            <legend className="px-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              {t.account_metaRegion_field_usedFor}
+            </legend>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {META_REGION_USES.map((use) => (
+                <label
+                  key={use}
+                  className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={draft.usedFor.includes(use)}
+                    onChange={() => toggleUse(use)}
+                    data-testid={`account-meta-use-${use}`}
+                  />
+                  <span>{usedForLabel[use]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelEdit}
+              data-testid="account-meta-cancel"
+            >
+              {t.account_action_cancel}
+            </Button>
+            <Button type="button" onClick={saveDraft} data-testid="account-meta-save">
+              {t.account_action_save}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {profile.metaRegions.length === 0 ? (
+          <AccountSectionCard title={t.account_metaRegion_empty} testId="account-meta-empty">
+            <p className="text-sm text-muted-foreground">{t.account_metaRegion_empty_desc}</p>
           </AccountSectionCard>
-        ))}
+        ) : (
+          profile.metaRegions.map((m) => (
+            <AccountSectionCard key={m.id} title={m.name} testId={`account-meta-${m.id}`}>
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-1">
+                  {m.countries.map((c) => (
+                    <Badge key={c} variant="secondary" className="text-[11px]">
+                      {c}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-xs">
+                  <span className="text-muted-foreground">{t.account_metaRegion_reason}: </span>
+                  <span className="font-medium">{reasonLabel[m.logisticsReason]}</span>
+                </p>
+                <p className="text-xs">
+                  <span className="text-muted-foreground">
+                    {t.account_metaRegion_field_currency}:{" "}
+                  </span>
+                  <span className="font-medium">{m.defaultCurrency}</span>
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {m.usedFor.map((u) => (
+                    <Badge key={u} variant="outline" className="text-[10px]">
+                      {usedForLabel[u]}
+                    </Badge>
+                  ))}
+                </div>
+                {m.notes ? <p className="text-xs text-muted-foreground italic">{m.notes}</p> : null}
+                <div className="flex justify-end gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEdit(m)}
+                    data-testid={`account-meta-edit-${m.id}`}
+                  >
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                    {t.account_action_edit}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteRegion(m.id)}
+                    aria-label={`${t.account_metaRegion_delete}: ${m.name}`}
+                    data-testid={`account-meta-delete-${m.id}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            </AccountSectionCard>
+          ))
+        )}
       </div>
     </div>
   );
@@ -1465,7 +1718,7 @@ const Account = () => {
       content = <ProductsSection profile={profile} onChange={update} />;
       break;
     case "meta-regions":
-      content = <MetaRegionsSection profile={profile} />;
+      content = <MetaRegionsSection profile={profile} onChange={update} />;
       break;
     case "notifications":
       content = <NotificationsSection profile={profile} />;

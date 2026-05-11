@@ -1425,6 +1425,18 @@ type TranslationKeys = {
   account_metaRegion_use_campaigns: string;
   account_metaRegion_use_landedCost: string;
   account_metaRegion_use_matching: string;
+  account_metaRegion_add: string;
+  account_metaRegion_delete: string;
+  account_metaRegion_empty: string;
+  account_metaRegion_empty_desc: string;
+  account_metaRegion_form_title_add: string;
+  account_metaRegion_form_title_edit: string;
+  account_metaRegion_form_desc: string;
+  account_metaRegion_field_name: string;
+  account_metaRegion_field_countries: string;
+  account_metaRegion_field_currency: string;
+  account_metaRegion_field_notes: string;
+  account_metaRegion_field_usedFor: string;
   account_notifications_title: string;
   account_notifications_desc: string;
   account_notifications_disclaimer: string;
@@ -2977,6 +2989,18 @@ const en: TranslationKeys = {
   account_metaRegion_use_campaigns: "Campaigns",
   account_metaRegion_use_landedCost: "Landed cost",
   account_metaRegion_use_matching: "Supplier matching",
+  account_metaRegion_add: "Add meta-region",
+  account_metaRegion_delete: "Delete meta-region",
+  account_metaRegion_empty: "No meta-regions yet",
+  account_metaRegion_empty_desc: "Create a country group to reuse it in matching, alerts and landed-cost logic.",
+  account_metaRegion_form_title_add: "Add meta-region",
+  account_metaRegion_form_title_edit: "Edit meta-region",
+  account_metaRegion_form_desc: "Group countries by the same logistics or commercial rule. Use comma-separated country names.",
+  account_metaRegion_field_name: "Region name",
+  account_metaRegion_field_countries: "Countries",
+  account_metaRegion_field_currency: "Default currency",
+  account_metaRegion_field_notes: "Notes",
+  account_metaRegion_field_usedFor: "Used for",
   account_notifications_title: "Notifications",
   account_notifications_desc: "How and when to be alerted.",
   account_notifications_disclaimer: "No real notifications are sent in this prototype. Real integration will connect later.",
@@ -4516,6 +4540,18 @@ const ru: TranslationKeys = {
   account_metaRegion_use_campaigns: "Кампании",
   account_metaRegion_use_landedCost: "Себестоимость в порту",
   account_metaRegion_use_matching: "Матчинг поставщиков",
+  account_metaRegion_add: "Добавить мета-регион",
+  account_metaRegion_delete: "Удалить мета-регион",
+  account_metaRegion_empty: "Мета-регионы ещё не добавлены",
+  account_metaRegion_empty_desc: "Создайте группу стран, чтобы использовать её в матчинге, уведомлениях и расчёте логистики.",
+  account_metaRegion_form_title_add: "Добавить мета-регион",
+  account_metaRegion_form_title_edit: "Редактировать мета-регион",
+  account_metaRegion_form_desc: "Группируйте страны по общей логистической или коммерческой логике. Страны указываются через запятую.",
+  account_metaRegion_field_name: "Название региона",
+  account_metaRegion_field_countries: "Страны",
+  account_metaRegion_field_currency: "Валюта по умолчанию",
+  account_metaRegion_field_notes: "Заметки",
+  account_metaRegion_field_usedFor: "Используется для",
   account_notifications_title: "Уведомления",
   account_notifications_desc: "Как и когда получать оповещения.",
   account_notifications_disclaimer: "В этом прототипе настоящие уведомления не отправляются. Реальная интеграция будет подключена позже.",
@@ -6054,6 +6090,18 @@ const es: TranslationKeys = {
   account_metaRegion_use_campaigns: "Campañas",
   account_metaRegion_use_landedCost: "Coste en destino",
   account_metaRegion_use_matching: "Matching de proveedores",
+  account_metaRegion_add: "Añadir meta-región",
+  account_metaRegion_delete: "Eliminar meta-región",
+  account_metaRegion_empty: "Aún no hay meta-regiones",
+  account_metaRegion_empty_desc: "Crea un grupo de países para reutilizarlo en matching, alertas y lógica de coste en destino.",
+  account_metaRegion_form_title_add: "Añadir meta-región",
+  account_metaRegion_form_title_edit: "Editar meta-región",
+  account_metaRegion_form_desc: "Agrupa países por la misma regla logística o comercial. Usa nombres separados por coma.",
+  account_metaRegion_field_name: "Nombre de región",
+  account_metaRegion_field_countries: "Países",
+  account_metaRegion_field_currency: "Moneda predeterminada",
+  account_metaRegion_field_notes: "Notas",
+  account_metaRegion_field_usedFor: "Usado para",
   account_notifications_title: "Notificaciones",
   account_notifications_desc: "Cómo y cuándo recibir alertas.",
   account_notifications_disclaimer: "En este prototipo no se envían notificaciones reales. La integración real se conectará más adelante.",
