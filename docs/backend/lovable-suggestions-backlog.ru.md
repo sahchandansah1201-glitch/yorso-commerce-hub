@@ -143,12 +143,13 @@ model. Но он еще не означает полный production backend: f
 - `access_events_admin` дает read-only admin audit view с контекстом actor,
   target, supplier, offer, request и grant. Non-admin users получают пустой
   результат.
-- `npm run check:supabase-types` теперь является strict gate для generated
-  types, потому что live backend access migrations уже применены. `npm run
-  build` запускает эту strict проверку через `prebuild`, поэтому устаревшие
-  pre-access generated types блокируют сборку.
-- `npm run check:supabase-types:preview` остается non-strict diagnostic command
-  для случаев, когда drift нужно посмотреть без блокировки shell-сессии.
+- `npm run check:supabase-types` остается non-strict preview/build guard,
+  потому что Lovable может регенерировать `types.ts` из своего Supabase schema.
+  Команда сообщает о drift, но не блокирует сборку приложения.
+- `src/lib/supplier-access-api.ts` содержит локальный Supplier Access backend
+  contract и использует untyped Supabase calls для `supplier_access_requests` и
+  `log_supplier_access_event`, поэтому TypeScript не зависит от generated access
+  typings, которые Lovable может удалить.
 - `npm run check:supabase-types:strict` является backend-readiness gate. Он
   должен проходить после применения migrations и регенерации `types.ts`; он
   падает, если отсутствуют `access_events`, `access_grants`,

@@ -32,7 +32,7 @@ const missingMigrations = requiredMigrations.filter(
 
 const driftHeader = [
   "Supabase generated types are out of sync with backend access migrations.",
-  `Mode: ${isStrict ? "strict backend-readiness gate" : "non-strict diagnostic guard"}.`,
+  `Mode: ${isStrict ? "strict backend-readiness gate" : "non-strict preview/build guard"}.`,
   `Project: ${projectId}.`,
 ];
 
@@ -52,7 +52,7 @@ const finishWithDrift = (lines) => {
     process.exit(1);
   }
   console.warn(
-    "Non-strict mode: continuing for diagnostics only.",
+    "Non-strict mode: continuing because Lovable may regenerate Supabase types from its own linked schema.",
   );
   console.warn(
     "Run `npm run check:supabase-types:strict` after applying migrations and regenerating types.",

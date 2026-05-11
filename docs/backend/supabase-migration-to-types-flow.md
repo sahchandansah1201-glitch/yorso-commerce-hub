@@ -39,25 +39,16 @@ This command does not change the database. It checks:
 - whether the current Supabase login can see that project;
 - whether strict generated type check already passes.
 
-Strict generated type check:
+Preview/build check:
 
 ```bash
 npm run check:supabase-types
 ```
 
-This command is now strict because the live Supabase access migrations have been
-applied. It is used by `prebuild`, so Lovable and local builds fail if
-`src/integrations/supabase/types.ts` is regenerated from a stale pre-access
-schema.
-
-Diagnostic non-strict check:
-
-```bash
-npm run check:supabase-types:preview
-```
-
-This command exits `0` and prints a drift warning. Use it only to inspect drift
-without blocking a diagnostic shell session.
+This command is intentionally non-strict. It exits `0` and prints a drift
+warning when `src/integrations/supabase/types.ts` is missing access markers.
+Lovable may regenerate this file from its own linked Supabase schema, so the
+runtime adapter must not depend on generated access table typings.
 
 Strict backend-readiness check:
 
@@ -65,8 +56,9 @@ Strict backend-readiness check:
 npm run check:supabase-types:strict
 ```
 
-This command exits `1` until migrations are applied and types are regenerated.
-It is the gate to use before backend access work is considered complete.
+This command exits `1` until migrations are applied and types are regenerated
+from a schema containing the access tables/RPCs. It is the backend-readiness
+gate, not the Lovable preview/build gate.
 
 Regenerate generated types:
 
@@ -137,17 +129,19 @@ Do not manually restore access sections in `types.ts` after Lovable regenerates
 the file from a pre-access backend. That creates a temporary local illusion but
 does not fix the live schema.
 
-Do not replace `check:supabase-types` with the preview check. Backend access
-migrations are live now, so generated type drift must block builds.
+Do not make `prebuild` depend on the strict check while Lovable can regenerate
+`types.ts` from a different Supabase schema. That recreates the sync loop where
+Lovable removes access markers and the app cannot build.
 
 Do not treat missing access types as a Lovable UI problem. It is a backend schema
 deployment state.
 
 ## Current Meaning Of Drift
 
-If the preview check prints a drift warning, the repository contains backend
+If the default check prints a drift warning, the repository contains backend
 access migrations but the generated types are stale or were regenerated from a
-pre-access schema. Run `npm run supabase:types:regen` and commit the result.
+schema without the access contract. The frontend still builds because the
+Supplier Access adapter owns a local access contract for these backend tables.
 
 If strict check passes, the live backend schema and generated frontend contract
 are aligned for the current access foundation.

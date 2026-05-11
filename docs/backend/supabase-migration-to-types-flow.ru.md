@@ -38,25 +38,16 @@ npm run supabase:access-preflight
 - видит ли текущий Supabase login этот project;
 - проходит ли strict generated type check.
 
-Strict generated type check:
+Preview/build check:
 
 ```bash
 npm run check:supabase-types
 ```
 
-Теперь эта команда строгая, потому что live Supabase access migrations уже
-применены. Она используется в `prebuild`, поэтому Lovable и локальная сборка
-должны падать, если `src/integrations/supabase/types.ts` регенерирован из
-устаревшей pre-access schema.
-
-Diagnostic non-strict check:
-
-```bash
-npm run check:supabase-types:preview
-```
-
-Команда выходит с кодом `0` и печатает drift warning. Использовать только для
-диагностики, когда нужно посмотреть drift без блокировки shell-сессии.
+Команда намеренно non-strict. Она выходит с кодом `0` и печатает drift warning,
+если в `src/integrations/supabase/types.ts` нет access markers. Lovable может
+регенерировать этот файл из своего Supabase schema, поэтому runtime adapter не
+должен зависеть от generated typings для новых access tables.
 
 Strict backend-readiness check:
 
@@ -65,7 +56,8 @@ npm run check:supabase-types:strict
 ```
 
 Команда выходит с кодом `1`, пока migrations не применены и types не
-регенерированы. Это gate перед тем, как считать backend access work завершенным.
+регенерированы из schema, содержащей access tables/RPCs. Это backend-readiness
+gate, а не Lovable preview/build gate.
 
 Regenerate generated types:
 
@@ -136,17 +128,19 @@ npm run build
 регенерировал файл из pre-access backend. Это создает временную локальную
 иллюзию, но не исправляет live schema.
 
-Не заменять `check:supabase-types` на preview check. Backend access migrations
-уже применены, поэтому drift generated types должен блокировать сборку.
+Не завязывать `prebuild` на strict check, пока Lovable может регенерировать
+`types.ts` из другой Supabase schema. Это снова создает sync loop, где Lovable
+удаляет access markers и приложение не собирается.
 
 Не считать отсутствие access types проблемой Lovable UI. Это состояние backend
 schema deployment.
 
 ## Что означает drift сейчас
 
-Если preview check печатает drift warning, в репозитории есть backend access
-migrations, но generated types устарели или были регенерированы из pre-access
-schema. Запустить `npm run supabase:types:regen` и закоммитить результат.
+Если default check печатает drift warning, в репозитории есть backend access
+migrations, но generated types устарели или были регенерированы из schema без
+access contract. Frontend продолжает собираться, потому что Supplier Access
+adapter содержит локальный access contract для этих backend tables.
 
 Если strict check проходит, live backend schema и generated frontend contract
 синхронизированы для текущего access foundation.
