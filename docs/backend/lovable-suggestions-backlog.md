@@ -119,13 +119,13 @@ Adapter progress:
 - `access_events_admin` provides a read-only admin audit view with joined actor,
   target, supplier, offer, request and grant context. Non-admin users receive no
   rows.
-- `npm run check:supabase-types` is now a strict generated-types gate because
-  the live backend access migrations have been applied. `npm run build` runs
-  this strict check through `prebuild`, so stale pre-access generated types block
-  builds.
-- `npm run check:supabase-types:preview` remains available as a non-strict
-  diagnostic command when drift needs to be inspected without blocking a shell
-  session.
+- `npm run check:supabase-types` remains a non-strict preview/build guard
+  because Lovable may regenerate `types.ts` from its own linked Supabase schema.
+  It reports drift without blocking app builds.
+- `src/lib/supplier-access-api.ts` owns a local Supplier Access backend contract
+  and uses untyped Supabase calls for `supplier_access_requests` and
+  `log_supplier_access_event`, so TypeScript does not depend on generated access
+  table typings that Lovable may remove.
 - `npm run check:supabase-types:strict` is the backend-readiness gate. It must
   pass after applying migrations and regenerating `types.ts`; it fails if
   `access_events`, `access_grants`, `supplier_access_requests`,

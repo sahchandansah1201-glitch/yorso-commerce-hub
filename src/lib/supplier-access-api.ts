@@ -8,7 +8,7 @@
  * - otherwise keep the current localStorage mock flow working;
  * - never expose supplier identity here. This adapter only carries status.
  */
-import type { Json, Tables } from "@/integrations/supabase/types";
+import type { Json } from "@/integrations/supabase/types";
 import {
   createSupplierAccessRequest,
   getSupplierAccessRequest,
@@ -17,12 +17,61 @@ import {
   type SupplierAccessStatus,
 } from "@/lib/supplier-access-requests";
 
-type SupplierAccessRequestRow = Pick<
-  Tables<"supplier_access_requests">,
-  "id" | "supplier_id" | "status" | "created_at" | "updated_at" | "decided_at"
->;
+type BackendSupplierAccessStatus =
+  | "sent"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "revoked";
+
+interface SupplierAccessRequestRow {
+  id: string;
+  supplier_id: string;
+  status: BackendSupplierAccessStatus;
+  created_at: string;
+  updated_at: string;
+  decided_at: string | null;
+}
 
 type SupabaseClient = typeof import("@/integrations/supabase/client")["supabase"];
+type SupabaseAccessClient = {
+  from: (table: string) => {
+    select: (columns: string) => {
+      eq: (column: string, value: string) => {
+        eq: (column: string, value: string) => {
+          maybeSingle: () => Promise<{
+            data: SupplierAccessRequestRow | null;
+            error: unknown;
+          }>;
+        };
+      };
+    };
+    insert: (values: {
+      buyer_user_id: string;
+      supplier_id: string;
+      status: "sent";
+      message: string;
+    }) => {
+      select: (columns: string) => {
+        single: () => Promise<{
+          data: SupplierAccessRequestRow | null;
+          error: unknown;
+        }>;
+      };
+    };
+  };
+  rpc: (
+    functionName: string,
+    args: {
+      p_supplier_access_request_id: string;
+      p_event_type: "supplier_access_requested";
+      p_metadata: Json;
+    },
+  ) => Promise<unknown>;
+};
+
+const asAccessClient = (supabase: SupabaseClient): SupabaseAccessClient =>
+  supabase as unknown as SupabaseAccessClient;
 
 const isSupabaseConfigured = (): boolean =>
   Boolean(
@@ -53,7 +102,7 @@ const getCurrentUserId = async (
 };
 
 const mapBackendStatus = (
-  status: Tables<"supplier_access_requests">["status"],
+  status: BackendSupplierAccessStatus,
 ): SupplierAccessStatus | null => {
   if (status === "sent" || status === "pending" || status === "approved") {
     return status;
@@ -91,7 +140,7 @@ const selectSupplierAccessRequest = async (
   supplierId: string,
   buyerUserId: string,
 ): Promise<SupplierAccessRequest | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await asAccessClient(supabase)
     .from("supplier_access_requests")
     .select("id,supplier_id,status,created_at,updated_at,decided_at")
     .eq("supplier_id", supplierId)
@@ -107,7 +156,7 @@ const logSupplierAccessRequestEvent = async (
   requestId: string,
 ) => {
   try {
-    await supabase.rpc("log_supplier_access_event", {
+    await asAccessClient(supabase).rpc("log_supplier_access_event", {
       p_supplier_access_request_id: requestId,
       p_event_type: "supplier_access_requested",
       p_metadata: { source: "supplier_access_api" } satisfies Json,
@@ -147,7 +196,7 @@ export const requestSupplierAccess = async (
     if (existing) return existing;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await asAccessClient(supabase)
         .from("supplier_access_requests")
         .insert({
           buyer_user_id: userId,
