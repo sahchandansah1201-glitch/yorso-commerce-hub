@@ -13,12 +13,14 @@
  */
 import * as React from "react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { act, render, screen, cleanup, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider, useLanguage } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { mockSuppliers } from "@/data/mockSuppliers";
+import { setQualified as setAccessQualified } from "@/lib/access-level";
 
 vi.mock("@/components/ui/tabs", () => {
   const Pass = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
@@ -83,6 +85,35 @@ const renderProfile = (langTo?: "en" | "ru" | "es") => {
   );
 };
 
+const renderProfileToString = () =>
+  withSuppressedServerRenderWarnings(() =>
+    renderToString(
+      <MemoryRouter initialEntries={[`/suppliers/${SUPPLIER_ID}`]}>
+        <LanguageProvider>
+          <BuyerSessionProvider>
+            <Routes>
+              <Route path="/suppliers/:supplierId" element={<SupplierProfile />} />
+            </Routes>
+          </BuyerSessionProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
+    ),
+  );
+
+const withSuppressedServerRenderWarnings = (fn: () => string) => {
+  const spy = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
+    const first = String(args[0] ?? "");
+    if (first.includes("useLayoutEffect does nothing on the server")) return;
+    // Preserve unexpected server-render warnings.
+    process.stderr.write(`${args.map(String).join(" ")}\n`);
+  });
+  try {
+    return fn();
+  } finally {
+    spy.mockRestore();
+  }
+};
+
 const PUBLIC_PRODUCTION_AND_LOGISTICS_PATTERNS: RegExp[] = [
   /\d+\s*t\s*\/\s*day/i,
   /\d+\s*t\s+simultaneous\s+storage/i,
@@ -110,6 +141,27 @@ const assertSensitiveAboutNotInDom = () => {
   expect(text).not.toContain(supplier.about);
 };
 
+const assertNoRestrictedSupplierValues = (text: string) => {
+  expect(text).not.toContain(supplier.companyName);
+  expect(text).not.toContain(supplier.about);
+  if (supplier.website) {
+    expect(text).not.toContain(supplier.website);
+    expect(text).not.toContain(supplier.website.replace(/^https?:\/\//, ""));
+  }
+  if (supplier.whatsapp) {
+    expect(text).not.toContain(supplier.whatsapp);
+    expect(text).not.toContain(supplier.whatsapp.replace(/\D/g, ""));
+  }
+  expect(text).not.toMatch(
+    new RegExp(`${supplier.activeOffersCount}\\s*active\\s*offers`, "i"),
+  );
+  for (const pattern of FORBIDDEN_LEGAL_PATTERNS) {
+    expect(text, `Restricted supplier value leaked: ${pattern}`).not.toMatch(pattern);
+  }
+};
+
+const headSnapshot = () => `${document.title}\n${document.head.innerHTML}`;
+
 describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -136,6 +188,50 @@ describe("SupplierProfile · locked DOM leak (Fix 1 + Fix 2)", () => {
     // Exact catalog/product count remains masked.
     const trustPills = screen.queryAllByText("••••••");
     expect(trustPills.length).toBeGreaterThan(0);
+  });
+
+  it("anonymous_locked SSR-like HTML: restricted supplier values отсутствуют, public facts остаются", () => {
+    const html = renderProfileToString();
+    expect(html).toContain(supplier.maskedName);
+    assertNoRestrictedSupplierValues(html);
+    for (const pattern of PUBLIC_PRODUCTION_AND_LOGISTICS_PATTERNS) {
+      expect(html, `SSR-like HTML should contain public pattern: ${pattern}`).toMatch(pattern);
+    }
+  });
+
+  it("anonymous_locked head/JSON-LD: нет companyName, contacts, legal, ItemList", async () => {
+    renderProfile();
+
+    await waitFor(() => {
+      expect(document.getElementById(`org-jsonld-${SUPPLIER_ID}`)).not.toBeNull();
+    });
+
+    const head = headSnapshot();
+    assertNoRestrictedSupplierValues(head);
+    expect(head).toContain(supplier.maskedName);
+    expect(document.getElementById(`itemlist-jsonld-${SUPPLIER_ID}`)).toBeNull();
+  });
+
+  it("downgrade qualified → registered_locked очищает head от ItemList и real identity", async () => {
+    setSignedIn();
+    setAccessQualified(true, supplier.companyName);
+    renderProfile();
+
+    await waitFor(() => {
+      expect(document.getElementById(`itemlist-jsonld-${SUPPLIER_ID}`)).not.toBeNull();
+    });
+    expect(headSnapshot()).toContain(supplier.companyName);
+
+    act(() => {
+      setAccessQualified(false);
+    });
+
+    await waitFor(() => {
+      expect(document.getElementById(`itemlist-jsonld-${SUPPLIER_ID}`)).toBeNull();
+      expect(headSnapshot()).not.toContain(supplier.companyName);
+    });
+    assertNoRestrictedSupplierValues(headSnapshot());
+    expect(headSnapshot()).toContain(supplier.maskedName);
   });
 
   it("anonymous_locked: about / legal / catalog offer-leaks отсутствуют", () => {
