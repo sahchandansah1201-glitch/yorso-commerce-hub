@@ -115,6 +115,9 @@ Adapter progress:
   backend request creation; local mock fallback does not write audit events.
 - Access event hardening adds composite indexes for request/supplier/actor/target
   audit queries and rejects non-object RPC metadata payloads.
+- `access_events_admin` provides a read-only admin audit view with joined actor,
+  target, supplier, offer, request and grant context. Non-admin users receive no
+  rows.
 
 ## Triage Rule For Future Lovable Suggestions
 

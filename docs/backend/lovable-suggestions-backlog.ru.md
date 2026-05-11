@@ -139,6 +139,9 @@ model. Но он еще не означает полный production backend: f
   создания backend-запроса; local mock fallback audit events не пишет.
 - Access event hardening добавляет composite indexes для audit queries по
   request/supplier/actor/target и отклоняет не-object metadata payloads в RPC.
+- `access_events_admin` дает read-only admin audit view с контекстом actor,
+  target, supplier, offer, request и grant. Non-admin users получают пустой
+  результат.
 
 ## 5. Правило triage для будущих предложений Lovable
 
