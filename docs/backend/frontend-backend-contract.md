@@ -359,7 +359,9 @@ Qualified response:
 - contacts;
 - full document readiness;
 - supplier-specific offers;
-- production and delivery details allowed by grant.
+- restricted production and delivery details allowed by grant;
+- published production capability facts and public trade/logistics terms may be
+  included in locked-safe responses.
 
 Owner response:
 
@@ -371,7 +373,7 @@ Owner response:
 Acceptance:
 
 - no locked DOM or network leak of company name, legal details, contacts,
-  production capacity or exact hidden counts;
+  confidential production notes or exact hidden counts;
 - supplier offers are truly tied to supplier id;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
@@ -559,4 +561,3 @@ Before a backend phase is considered complete:
 - Create account schema migration.
 - Create account API adapter skeleton.
 - Add account adapter tests with mock Supabase responses.
-

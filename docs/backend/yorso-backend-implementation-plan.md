@@ -226,7 +226,8 @@ Purpose:
 - replace `mockSuppliers`;
 - enforce access gating at database level;
 - keep supplier identity hidden until access is granted;
-- allow public discovery without leaking commercial detail.
+- allow public discovery without leaking restricted identity, contact, exact price
+  or document detail.
 
 Access rules:
 
@@ -265,6 +266,9 @@ Access rules:
 
 - public views must not include `supplier_id`, exact `price_min`,
   `price_max`, supplier name, website, WhatsApp or contacts;
+- public views may include payment terms, incoterms, delivery basis and
+  published production capability facts when those fields are explicitly marked
+  public;
 - qualified views can include exact prices and supplier identity only when RLS
   confirms buyer access;
 - owner views expose full offer management to supplier users.
