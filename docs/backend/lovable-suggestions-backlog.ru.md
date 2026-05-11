@@ -134,6 +134,9 @@ model. Но он еще не означает полный production backend: f
   `supplier_access_requests`, если есть реальный Supabase auth user;
 - при отсутствии backend auth adapter сохраняет текущий local mock fallback,
   чтобы Lovable preview и прототип не ломались.
+- `log_supplier_access_event(...)` пишет audit event для supplier access request
+  через контролируемую SECURITY DEFINER RPC. Frontend adapter вызывает ее после
+  создания backend-запроса; local mock fallback audit events не пишет.
 
 ## 5. Правило triage для будущих предложений Lovable
 
