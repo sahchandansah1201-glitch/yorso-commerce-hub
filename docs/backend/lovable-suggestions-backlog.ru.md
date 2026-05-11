@@ -142,11 +142,15 @@ model. Но он еще не означает полный production backend: f
 - `access_events_admin` дает read-only admin audit view с контекстом actor,
   target, supplier, offer, request и grant. Non-admin users получают пустой
   результат.
-- `npm run check:supabase-types` защищает от рассинхронизации generated Supabase
-  types. `npm run build` запускает проверку через `prebuild`, поэтому access
-  migrations не могут существовать при отсутствии `access_events`,
-  `access_grants`, `supplier_access_requests`, `access_events_admin` или
-  `log_supplier_access_event` в `types.ts`.
+- `npm run check:supabase-types` сообщает о рассинхронизации generated Supabase
+  types, но не блокирует Lovable/local preview, пока live backend остается на
+  pre-access schema. `npm run build` запускает эту non-strict проверку через
+  `prebuild`.
+- `npm run check:supabase-types:strict` является backend-readiness gate. Он
+  должен проходить после применения migrations и регенерации `types.ts`; он
+  падает, если отсутствуют `access_events`, `access_grants`,
+  `supplier_access_requests`, `access_events_admin` или
+  `log_supplier_access_event`.
 
 ## 5. Правило triage для будущих предложений Lovable
 
