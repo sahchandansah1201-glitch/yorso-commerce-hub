@@ -118,11 +118,14 @@ Adapter progress:
 - `access_events_admin` provides a read-only admin audit view with joined actor,
   target, supplier, offer, request and grant context. Non-admin users receive no
   rows.
-- `npm run check:supabase-types` guards against Supabase generated type drift.
-  `npm run build` runs it through `prebuild`, so access migrations cannot exist
-  while `types.ts` is missing `access_events`, `access_grants`,
-  `supplier_access_requests`, `access_events_admin` or
-  `log_supplier_access_event`.
+- `npm run check:supabase-types` reports Supabase generated type drift without
+  blocking Lovable/local preview while the live backend is still on the
+  pre-access schema. `npm run build` runs this non-strict check through
+  `prebuild`.
+- `npm run check:supabase-types:strict` is the backend-readiness gate. It must
+  pass after applying migrations and regenerating `types.ts`; it fails if
+  `access_events`, `access_grants`, `supplier_access_requests`,
+  `access_events_admin` or `log_supplier_access_event` are missing.
 
 ## Triage Rule For Future Lovable Suggestions
 
