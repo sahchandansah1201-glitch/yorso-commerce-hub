@@ -38,15 +38,25 @@ npm run supabase:access-preflight
 - видит ли текущий Supabase login этот project;
 - проходит ли strict generated type check.
 
-Preview-safe check:
+Strict generated type check:
 
 ```bash
 npm run check:supabase-types
 ```
 
-Команда выходит с кодом `0` и печатает drift warning. Она используется в
-`prebuild`, чтобы Lovable preview и локальная сборка продолжали работать до
-применения backend migrations.
+Теперь эта команда строгая, потому что live Supabase access migrations уже
+применены. Она используется в `prebuild`, поэтому Lovable и локальная сборка
+должны падать, если `src/integrations/supabase/types.ts` регенерирован из
+устаревшей pre-access schema.
+
+Diagnostic non-strict check:
+
+```bash
+npm run check:supabase-types:preview
+```
+
+Команда выходит с кодом `0` и печатает drift warning. Использовать только для
+диагностики, когда нужно посмотреть drift без блокировки shell-сессии.
 
 Strict backend-readiness check:
 
@@ -126,16 +136,17 @@ npm run build
 регенерировал файл из pre-access backend. Это создает временную локальную
 иллюзию, но не исправляет live schema.
 
-Не включать strict CI, пока `npm run check:supabase-types:strict` не проходит на
-`main` после применения live migrations.
+Не заменять `check:supabase-types` на preview check. Backend access migrations
+уже применены, поэтому drift generated types должен блокировать сборку.
 
 Не считать отсутствие access types проблемой Lovable UI. Это состояние backend
 schema deployment.
 
 ## Что означает drift сейчас
 
-Если non-strict check печатает drift warning, в репозитории есть backend access
-migrations, но generated types все еще основаны на pre-access live schema.
+Если preview check печатает drift warning, в репозитории есть backend access
+migrations, но generated types устарели или были регенерированы из pre-access
+schema. Запустить `npm run supabase:types:regen` и закоммитить результат.
 
 Если strict check проходит, live backend schema и generated frontend contract
 синхронизированы для текущего access foundation.
