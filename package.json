@@ -20,7 +20,7 @@
     "test:watch": "vitest",
     "test:access-contract": "vitest run src/lib/supplier-access-api.test.ts src/pages/__tests__/SupplierProfile.*.test.tsx",
     "smoke:e2e:core": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts --project=chromium",
-    "smoke:e2e:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts e2e/offer-detail-access.spec.ts e2e/profile-legacy-redirects.spec.ts e2e/account-personal-save-enter-focus.spec.ts e2e/account-personal-autosave-no-focus-steal.spec.ts e2e/account-personal-validation-focus.spec.ts e2e/account-workspace-sections.spec.ts e2e/account-company-edit-contract.spec.ts e2e/account-products-crud.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-locked-i18n.spec.ts e2e/suppliers-no-horizontal-overflow.spec.ts e2e/blog-mobile-locale-390.spec.ts --project=chromium"
+    "smoke:e2e:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts e2e/offer-detail-access.spec.ts e2e/profile-legacy-redirects.spec.ts e2e/account-personal-save-enter-focus.spec.ts e2e/account-personal-autosave-no-focus-steal.spec.ts e2e/account-personal-validation-focus.spec.ts e2e/account-workspace-sections.spec.ts e2e/account-company-edit-contract.spec.ts e2e/account-products-crud.spec.ts e2e/account-meta-regions-crud.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-locked-i18n.spec.ts e2e/suppliers-no-horizontal-overflow.spec.ts e2e/blog-mobile-locale-390.spec.ts --project=chromium"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
