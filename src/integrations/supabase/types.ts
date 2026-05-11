@@ -14,6 +14,167 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_type: Database["public"]["Enums"]["access_event_type"]
+          grant_id: string | null
+          id: string
+          metadata: Json
+          offer_id: string | null
+          price_access_request_id: string | null
+          supplier_access_request_id: string | null
+          supplier_id: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: Database["public"]["Enums"]["access_event_type"]
+          grant_id?: string | null
+          id?: string
+          metadata?: Json
+          offer_id?: string | null
+          price_access_request_id?: string | null
+          supplier_access_request_id?: string | null
+          supplier_id?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["access_event_type"]
+          grant_id?: string | null
+          id?: string
+          metadata?: Json
+          offer_id?: string | null
+          price_access_request_id?: string | null
+          supplier_access_request_id?: string | null
+          supplier_id?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_events_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "access_grants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_events_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_events_price_access_request_id_fkey"
+            columns: ["price_access_request_id"]
+            isOneToOne: false
+            referencedRelation: "price_access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_events_supplier_access_request_id_fkey"
+            columns: ["supplier_access_request_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_events_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_grants: {
+        Row: {
+          created_at: string
+          document_id: string | null
+          expires_at: string | null
+          granted_by: string | null
+          grantee_user_id: string
+          id: string
+          offer_id: string | null
+          reason: string | null
+          revoked_at: string | null
+          scope: Database["public"]["Enums"]["access_grant_scope"]
+          source_price_request_id: string | null
+          source_supplier_request_id: string | null
+          starts_at: string
+          supplier_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_id?: string | null
+          expires_at?: string | null
+          granted_by?: string | null
+          grantee_user_id: string
+          id?: string
+          offer_id?: string | null
+          reason?: string | null
+          revoked_at?: string | null
+          scope: Database["public"]["Enums"]["access_grant_scope"]
+          source_price_request_id?: string | null
+          source_supplier_request_id?: string | null
+          starts_at?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string | null
+          expires_at?: string | null
+          granted_by?: string | null
+          grantee_user_id?: string
+          id?: string
+          offer_id?: string | null
+          reason?: string | null
+          revoked_at?: string | null
+          scope?: Database["public"]["Enums"]["access_grant_scope"]
+          source_price_request_id?: string | null
+          source_supplier_request_id?: string | null
+          starts_at?: string
+          supplier_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_grants_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_grants_source_price_request_id_fkey"
+            columns: ["source_price_request_id"]
+            isOneToOne: false
+            referencedRelation: "price_access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_grants_source_supplier_request_id_fkey"
+            columns: ["source_supplier_request_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_access_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "access_grants_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -359,6 +520,50 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_access_requests: {
+        Row: {
+          buyer_user_id: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          message: string | null
+          status: Database["public"]["Enums"]["access_request_status"]
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_user_id: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          status?: Database["public"]["Enums"]["access_request_status"]
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_user_id?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          message?: string | null
+          status?: Database["public"]["Enums"]["access_request_status"]
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_access_requests_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -382,6 +587,117 @@ export type Database = {
       }
     }
     Views: {
+      access_events_admin: {
+        Row: {
+          actor_company_name: string | null
+          actor_full_name: string | null
+          actor_user_id: string | null
+          created_at: string | null
+          event_type: Database["public"]["Enums"]["access_event_type"] | null
+          grant_expires_at: string | null
+          grant_id: string | null
+          grant_revoked_at: string | null
+          grant_scope: Database["public"]["Enums"]["access_grant_scope"] | null
+          grant_starts_at: string | null
+          id: string | null
+          metadata: Json | null
+          offer_id: string | null
+          offer_origin_country_code: string | null
+          offer_product_name: string | null
+          price_access_request_decided_at: string | null
+          price_access_request_id: string | null
+          price_access_request_status:
+            | Database["public"]["Enums"]["price_access_status"]
+            | null
+          supplier_access_request_decided_at: string | null
+          supplier_access_request_id: string | null
+          supplier_access_request_status:
+            | Database["public"]["Enums"]["access_request_status"]
+            | null
+          supplier_company_name: string | null
+          supplier_country_code: string | null
+          supplier_id: string | null
+          supplier_verification_status:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+          target_company_name: string | null
+          target_full_name: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_company_name?: string | null
+          actor_full_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string | null
+          event_type?: Database["public"]["Enums"]["access_event_type"] | null
+          grant_expires_at?: string | null
+          grant_id?: string | null
+          grant_revoked_at?: string | null
+          grant_scope?: Database["public"]["Enums"]["access_grant_scope"] | null
+          grant_starts_at?: string | null
+          id?: string | null
+          metadata?: Json | null
+          offer_id?: string | null
+          offer_origin_country_code?: string | null
+          offer_product_name?: string | null
+          price_access_request_decided_at?: string | null
+          price_access_request_id?: string | null
+          price_access_request_status?:
+            | Database["public"]["Enums"]["price_access_status"]
+            | null
+          supplier_access_request_decided_at?: string | null
+          supplier_access_request_id?: string | null
+          supplier_access_request_status?:
+            | Database["public"]["Enums"]["access_request_status"]
+            | null
+          supplier_company_name?: string | null
+          supplier_country_code?: string | null
+          supplier_id?: string | null
+          supplier_verification_status?:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+          target_company_name?: string | null
+          target_full_name?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_company_name?: string | null
+          actor_full_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string | null
+          event_type?: Database["public"]["Enums"]["access_event_type"] | null
+          grant_expires_at?: string | null
+          grant_id?: string | null
+          grant_revoked_at?: string | null
+          grant_scope?: Database["public"]["Enums"]["access_grant_scope"] | null
+          grant_starts_at?: string | null
+          id?: string | null
+          metadata?: Json | null
+          offer_id?: string | null
+          offer_origin_country_code?: string | null
+          offer_product_name?: string | null
+          price_access_request_decided_at?: string | null
+          price_access_request_id?: string | null
+          price_access_request_status?:
+            | Database["public"]["Enums"]["price_access_status"]
+            | null
+          supplier_access_request_decided_at?: string | null
+          supplier_access_request_id?: string | null
+          supplier_access_request_status?:
+            | Database["public"]["Enums"]["access_request_status"]
+            | null
+          supplier_company_name?: string | null
+          supplier_country_code?: string | null
+          supplier_id?: string | null
+          supplier_verification_status?:
+            | Database["public"]["Enums"]["supplier_verification_status"]
+            | null
+          target_company_name?: string | null
+          target_full_name?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       offers_public: {
         Row: {
           category_id: string | null
@@ -672,6 +988,10 @@ export type Database = {
         Args: { _offer_id: string; _user_id: string }
         Returns: boolean
       }
+      has_offer_price_access: {
+        Args: { _offer_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -679,8 +999,36 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_supplier_access: {
+        Args: { _supplier_id: string; _user_id: string }
+        Returns: boolean
+      }
+      log_supplier_access_event: {
+        Args: {
+          p_event_type?: Database["public"]["Enums"]["access_event_type"]
+          p_metadata?: Json
+          p_supplier_access_request_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
+      access_event_type:
+        | "supplier_access_requested"
+        | "supplier_access_pending"
+        | "supplier_access_approved"
+        | "supplier_access_rejected"
+        | "supplier_access_revoked"
+        | "offer_price_access_approved"
+        | "access_grant_created"
+        | "access_grant_revoked"
+      access_grant_scope: "supplier" | "offer" | "document"
+      access_request_status:
+        | "sent"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "revoked"
       app_role: "admin" | "buyer" | "supplier"
       offer_status: "draft" | "published" | "archived"
       price_access_status: "pending" | "approved" | "rejected" | "revoked"
@@ -812,6 +1160,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_event_type: [
+        "supplier_access_requested",
+        "supplier_access_pending",
+        "supplier_access_approved",
+        "supplier_access_rejected",
+        "supplier_access_revoked",
+        "offer_price_access_approved",
+        "access_grant_created",
+        "access_grant_revoked",
+      ],
+      access_grant_scope: ["supplier", "offer", "document"],
+      access_request_status: ["sent", "pending", "approved", "rejected", "revoked"],
       app_role: ["admin", "buyer", "supplier"],
       offer_status: ["draft", "published", "archived"],
       price_access_status: ["pending", "approved", "rejected", "revoked"],
