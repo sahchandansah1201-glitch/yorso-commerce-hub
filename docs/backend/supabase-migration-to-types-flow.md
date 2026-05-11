@@ -39,14 +39,25 @@ This command does not change the database. It checks:
 - whether the current Supabase login can see that project;
 - whether strict generated type check already passes.
 
-Preview-safe check:
+Strict generated type check:
 
 ```bash
 npm run check:supabase-types
 ```
 
-This command exits `0` and prints a drift warning. It is used by `prebuild`, so
-Lovable preview and local builds can continue before backend migration.
+This command is now strict because the live Supabase access migrations have been
+applied. It is used by `prebuild`, so Lovable and local builds fail if
+`src/integrations/supabase/types.ts` is regenerated from a stale pre-access
+schema.
+
+Diagnostic non-strict check:
+
+```bash
+npm run check:supabase-types:preview
+```
+
+This command exits `0` and prints a drift warning. Use it only to inspect drift
+without blocking a diagnostic shell session.
 
 Strict backend-readiness check:
 
@@ -126,17 +137,17 @@ Do not manually restore access sections in `types.ts` after Lovable regenerates
 the file from a pre-access backend. That creates a temporary local illusion but
 does not fix the live schema.
 
-Do not enable strict CI until `npm run check:supabase-types:strict` passes on
-`main` after live migrations have been applied.
+Do not replace `check:supabase-types` with the preview check. Backend access
+migrations are live now, so generated type drift must block builds.
 
 Do not treat missing access types as a Lovable UI problem. It is a backend schema
 deployment state.
 
 ## Current Meaning Of Drift
 
-If non-strict check prints a drift warning, the repository contains backend
-access migrations but the generated types are still based on the pre-access live
-schema.
+If the preview check prints a drift warning, the repository contains backend
+access migrations but the generated types are stale or were regenerated from a
+pre-access schema. Run `npm run supabase:types:regen` and commit the result.
 
 If strict check passes, the live backend schema and generated frontend contract
 are aligned for the current access foundation.
