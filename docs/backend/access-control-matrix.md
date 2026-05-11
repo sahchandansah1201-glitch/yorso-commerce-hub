@@ -10,8 +10,11 @@ Related documents:
 ## Purpose
 
 YORSO's backend must protect the commercial value of the marketplace: exact
-prices, supplier identity, supplier contacts, legal details, production capacity,
-documents and full product catalogs.
+prices, private price tiers, supplier identity, supplier contacts, legal
+details, restricted documents and full product catalogs.
+
+Published trade terms and production capability facts are public marketplace
+data unless a supplier or admin explicitly marks a field as confidential.
 
 This matrix defines what each access level can receive from the backend. The
 frontend may visually blur or mask values, but backend responses must already be
@@ -41,11 +44,12 @@ Important:
 |---|---|---|
 | Public product facts | product name, Latin name, format, origin, image, safe MOQ label | low |
 | Public supplier teaser | masked name, country, city when allowed, type, safe trust summary | medium |
-| Exact commercial terms | exact price, price tiers, payment terms, incoterms, delivery basis | high |
+| Exact price and private price tiers | exact price, buyer-specific price tiers, unpublished rebates | high |
+| Public trade and logistics terms | payment terms, incoterms, delivery basis, public MOQ, loading port | low/medium |
 | Supplier identity | company name, legal name, supplier id, profile owner | high |
 | Contact channels | email, phone, WhatsApp, website, direct messenger | high |
 | Legal details | registration number, tax id, legal address, bank-related fields | high |
-| Production details | plant capacity, staff count, cold storage, blast freezing, transit specifics | high |
+| Published production capability facts | plant capacity, staff count, cold storage, blast freezing, transit specifics | low/medium |
 | Documents | certificates, health docs, catch/IUU docs, packing lists, traceability files | high |
 | Activity metrics | exact offer count, exact product count, response history, buyer demand | medium/high |
 | Internal operations | verification notes, risk flags, moderation notes, admin audit | restricted |
@@ -62,6 +66,9 @@ Important:
 8. Public views should be safe even if a user copies the entire response.
 9. Owner and admin views must be separate from buyer-qualified views.
 10. RLS is the source of truth. React conditional rendering is not enough.
+11. Public trade/logistics terms and published production capability facts may
+    be returned to locked users when the field is explicitly classified as
+    public.
 
 ## Surface Access Matrix
 
@@ -89,6 +96,8 @@ Backend target:
 | Product images | allowed | allowed | allowed | allowed | allowed |
 | Safe MOQ label | allowed | allowed | allowed | allowed | allowed |
 | Exact MOQ value | allowed if not sensitive | allowed if not sensitive | allowed | allowed | allowed |
+| Payment terms | allowed | allowed | allowed | allowed | allowed |
+| Incoterms / delivery basis | allowed | allowed | allowed | allowed | allowed |
 | Price range label | allowed | allowed | allowed | allowed | allowed |
 | Exact price min/max | denied | denied unless offer grant exists | allowed by offer/supplier grant | own offers only | allowed |
 | Supplier id | denied | denied unless grant exists | allowed by grant | own company only | allowed |
@@ -110,7 +119,8 @@ Backend target:
 |---|---|---|---|
 | Product detail | allowed | allowed | allowed |
 | Photo gallery | allowed | allowed | allowed |
-| Commercial summary | safe range only | safe range only | exact values by grant |
+| Price summary | safe range only | safe range only | exact values by grant |
+| Payment terms / incoterms / delivery basis | allowed | allowed | allowed |
 | Supplier trust summary | safe summary | safe summary | full trust pack by grant |
 | Supplier profile link | link to masked profile | link to masked profile | full profile by grant |
 | Documents | teaser/status only | teaser/status only | downloadable by document grant |
@@ -157,7 +167,8 @@ Backend target:
 | Real company name | denied | denied | allowed by grant |
 | Legal details | denied | denied | allowed by grant/admin policy |
 | Website/WhatsApp/contact | denied | denied | allowed by grant |
-| Production passport | placeholder only | placeholder only | allowed by grant/admin policy |
+| Published production passport facts | allowed | allowed | allowed |
+| Non-public production notes | denied | denied | allowed by grant/admin policy |
 | Catalog preview | safe teaser only | safe teaser only | full by grant |
 | Supplier offers | safe offer preview | safe offer preview | supplier-specific granted offers |
 | Documents | status only | status only | full/downloadable by grant |
@@ -242,6 +253,8 @@ Locked users may search by:
 - product species;
 - certifications;
 - safe delivery teaser;
+- public trade and logistics terms;
+- published production capability facts;
 - public product fields.
 
 Locked users must not search by:
@@ -253,10 +266,10 @@ Locked users must not search by:
 - legal registration number;
 - hidden product names;
 - hidden document names;
-- exact production capacity.
+- confidential production notes.
 
-Qualified users may search by granted supplier identity and granted commercial
-fields, but only within the scope of their active grants.
+Qualified users may search by granted supplier identity and non-public
+commercial fields, but only within the scope of their active grants.
 
 ## Metadata And SEO Rules
 
@@ -311,11 +324,12 @@ Every backend access implementation must include tests for these cases:
 
 | Test case | Expected result |
 |---|---|
-| anonymous reads offers_public | no exact price, no supplier id, no contacts |
+| anonymous reads offers_public | no exact price, no supplier id, no contacts; public payment terms, incoterms and delivery basis may be returned |
 | registered reads offers_public/registered | no exact price unless grant exists |
 | qualified reads granted offer | exact price and supplier identity returned |
 | qualified reads non-granted offer | fallback to public-safe payload |
 | anonymous reads suppliers_public | no companyName, website, WhatsApp, legal details |
+| anonymous reads published production facts | public plant, staff, storage, freezing and transit facts may be returned when classified public |
 | registered searches supplier real name | no hidden identity result leak |
 | qualified reads granted supplier | full allowed profile returned |
 | supplier owner reads own supplier | full owner profile returned |
@@ -333,6 +347,8 @@ Every backend access implementation must include tests for these cases:
 - Do not use `select *` in public views.
 - Do not pass raw supplier rows to shared frontend components in locked states.
 - Do not reuse owner/admin payloads for buyer views.
+- Classify fields as `public`, `restricted` or `confidential`; do not assume all
+  commercial or production fields are sensitive.
 - Store access decisions as auditable events.
 - Make grants explicit: supplier, offer, document, scope, actor, timestamp and
   expiration if applicable.
