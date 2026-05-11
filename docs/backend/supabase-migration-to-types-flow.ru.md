@@ -24,6 +24,20 @@ Project id: `rxjufyldskfkjrpzhloo`
 
 ## Команды
 
+Live migration preflight:
+
+```bash
+npm run supabase:access-preflight
+```
+
+Команда не меняет базу данных. Она проверяет:
+
+- доступность Supabase CLI;
+- наличие локальных access migration files;
+- связан ли repo с project `rxjufyldskfkjrpzhloo`;
+- видит ли текущий Supabase login этот project;
+- проходит ли strict generated type check.
+
 Preview-safe check:
 
 ```bash
@@ -72,26 +86,39 @@ src/integrations/supabase/types.ts
 
 ## Обязательная последовательность
 
-1. Применить pending migrations к live Supabase project.
-2. Регенерировать Supabase types из migrated project:
+1. Запустить preflight:
+
+```bash
+npm run supabase:access-preflight
+```
+
+2. Если preflight проходит, посмотреть pending remote migrations:
+
+```bash
+npx supabase db push --dry-run
+```
+
+3. Применить pending migrations к live Supabase project только после явного
+   подтверждения.
+4. Регенерировать Supabase types из migrated project:
 
 ```bash
 npm run supabase:types:regen
 ```
 
-3. Проверить strict check:
+5. Проверить strict check:
 
 ```bash
 npm run check:supabase-types:strict
 ```
 
-4. Проверить frontend build:
+6. Проверить frontend build:
 
 ```bash
 npm run build
 ```
 
-5. Закоммитить regenerated `src/integrations/supabase/types.ts`.
+7. Закоммитить regenerated `src/integrations/supabase/types.ts`.
 
 ## Чего не делать
 
