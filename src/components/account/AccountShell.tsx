@@ -4,42 +4,20 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  User,
-  Building2,
-  MapPin,
-  Package,
-  Globe2,
-  Bell,
-  LogIn,
-} from "lucide-react";
+import { LogIn } from "lucide-react";
 import Header from "@/components/landing/Header";
 import { AccountOverview } from "./AccountOverview";
 import { getAccountProfile } from "@/lib/account-store";
 import type { AccountProfile } from "@/data/mockAccount";
+import { ACCOUNT_SECTIONS, type AccountSectionKey } from "./account-sections";
 
-export type AccountSectionKey =
-  | "personal"
-  | "company"
-  | "branches"
-  | "products"
-  | "meta-regions"
-  | "notifications";
+export type { AccountSectionKey };
 
 interface Props {
   active: AccountSectionKey;
   children: ReactNode;
   profile?: AccountProfile;
 }
-
-export const ACCOUNT_SECTIONS: { key: AccountSectionKey; icon: typeof User; labelKey: string }[] = [
-  { key: "personal", icon: User, labelKey: "account_nav_personal" },
-  { key: "company", icon: Building2, labelKey: "account_nav_company" },
-  { key: "branches", icon: MapPin, labelKey: "account_nav_branches" },
-  { key: "products", icon: Package, labelKey: "account_nav_products" },
-  { key: "meta-regions", icon: Globe2, labelKey: "account_nav_metaRegions" },
-  { key: "notifications", icon: Bell, labelKey: "account_nav_notifications" },
-];
 
 export const AccountShell = ({ active, children, profile: profileProp }: Props) => {
   const { t } = useLanguage();

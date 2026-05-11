@@ -192,7 +192,7 @@ const Offers = () => {
       if (m && parseInt(m[1], 10) <= 24) return true;
       return false;
     }).length;
-  }, []);
+  }, [offers]);
 
   const selectedOffer = useMemo(
     () => visible.find((o) => o.id === selectedOfferId) ?? null,
