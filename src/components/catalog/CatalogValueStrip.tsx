@@ -10,7 +10,7 @@ import {
   clearAccessRequest,
   type AccessRequestScope,
 } from "@/lib/catalog-requests";
-import { useCatalogRecoveryVisible } from "./catalog-recovery-visibility";
+import { useCatalogRecoveryVisible } from "./use-catalog-recovery-visible";
 import AccessRequestDialog from "./AccessRequestDialog";
 
 /**
