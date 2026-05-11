@@ -43,19 +43,13 @@ const RegisterChoose = () => {
       : { source: (ctaSource ?? "direct") as RegistrationSource, attempt_id };
 
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.groupCollapsed(
         `[debug] registration_start (${payload.source})`,
       );
-      // eslint-disable-next-line no-console
       console.log("preview_attribution:", attr);
-      // eslint-disable-next-line no-console
       console.log("cta_source:", ctaSource);
-      // eslint-disable-next-line no-console
       console.log("attempt_id:", attempt_id);
-      // eslint-disable-next-line no-console
       console.log("registration_start payload:", payload);
-      // eslint-disable-next-line no-console
       console.groupEnd();
     }
 

@@ -83,15 +83,11 @@ const RegisterReady = () => {
       };
 
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.groupCollapsed(
           `[debug] registration_complete (${completePayload.source})`,
         );
-        // eslint-disable-next-line no-console
         console.log("pending_preview_attribution:", pendingAttr);
-        // eslint-disable-next-line no-console
         console.log("registration_complete payload:", completePayload);
-        // eslint-disable-next-line no-console
         console.groupEnd();
       }
 

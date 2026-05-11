@@ -81,7 +81,6 @@ d("E2E: переход с главной на страницу товара — 
     const failed = results.filter((r) => !r.ok);
     if (failed.length > 0) {
       // Подробный отчёт в случае падения — чтобы было видно, что именно сломалось.
-      // eslint-disable-next-line no-console
       console.error("[e2e-access] anonymous_locked failures:", failed);
     }
     expect(failed.filter((r) => r.errorCode === PG_INSUFFICIENT_PRIVILEGE)).toHaveLength(0);
@@ -92,7 +91,6 @@ d("E2E: переход с главной на страницу товара — 
     const results = await readByLevel("registered_locked");
     const failed = results.filter((r) => !r.ok);
     if (failed.length > 0) {
-      // eslint-disable-next-line no-console
       console.error("[e2e-access] registered_locked failures:", failed);
     }
     expect(failed.filter((r) => r.errorCode === PG_INSUFFICIENT_PRIVILEGE)).toHaveLength(0);

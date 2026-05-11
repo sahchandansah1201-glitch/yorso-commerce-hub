@@ -36,7 +36,6 @@ export function getRegistrationAttemptId(): string {
     const fresh = generateId();
     sessionStorage.setItem(STORAGE_KEY, fresh);
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.log("[debug] registration_attempt_id created:", fresh);
     }
     return fresh;
@@ -70,4 +69,3 @@ export function resetRegistrationAttemptId(): void {
     // silent
   }
 }
-

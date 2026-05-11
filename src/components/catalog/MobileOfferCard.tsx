@@ -239,7 +239,6 @@ const MobileOfferCard = ({
     return () => cancelAnimationFrame(raf);
     // We intentionally exclude `activeIdx` — this effect only fires on
     // breakpoint/width changes, not on every user swipe.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slideFraction, measured, hasMultiple]);
 
   // Per-image orientation + load state. Lets the gallery pick a container

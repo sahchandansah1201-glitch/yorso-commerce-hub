@@ -38,7 +38,6 @@ d("RLS / GRANT для публичных отношений каталога (р
       // Любая другая ошибка (например, временная сеть) — не валим тест жёстко,
       // но 42501 регрессия должна быть пресечена.
       if (error) {
-        // eslint-disable-next-line no-console
         console.warn("[rls-test] offers_public select error (non-42501):", error);
       }
     });
@@ -48,7 +47,6 @@ d("RLS / GRANT для публичных отношений каталога (р
       const { error } = await supabase.from("suppliers_public").select("id").limit(1);
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
       if (error) {
-        // eslint-disable-next-line no-console
         console.warn("[rls-test] suppliers_public select error (non-42501):", error);
       }
     });
@@ -58,7 +56,6 @@ d("RLS / GRANT для публичных отношений каталога (р
       const { error } = await supabase.from("categories").select("id,slug,name").limit(1);
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
       if (error) {
-        // eslint-disable-next-line no-console
         console.warn("[rls-test] categories select error (non-42501):", error);
       }
     });
