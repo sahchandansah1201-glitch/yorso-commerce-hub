@@ -40,6 +40,63 @@ const CATEGORIES = [
   { slug: "surimi", name: "Surimi" },
 ];
 
+type SeedSupplier = {
+  name: string;
+  isVerified: boolean;
+  country: string;
+  countryFlag: string;
+  inBusinessSince: number;
+  responseTime: string;
+  certifications: string[];
+  documentsReviewed: string[];
+  profileSlug: string;
+  verificationScope: string;
+  verificationDate: string;
+};
+
+type SeedOffer = {
+  id: string | number;
+  supplier: SeedSupplier;
+  category: string;
+  productName: string;
+  latinName: string;
+  species: string;
+  origin: string;
+  originFlag: string;
+  format: string;
+  cutType: string;
+  packaging: string;
+  certifications: string[];
+  priceRange: string;
+  moq: string;
+  freshness: string;
+  image: string;
+  images?: string[];
+  gallery?: unknown[];
+  deliveryBasisOptions?: unknown[];
+  volumeBreaks?: unknown[];
+  relatedArticles?: unknown[];
+  specs?: Record<string, unknown>;
+  commercial?: {
+    paymentTerms?: string;
+    incoterm?: string;
+    [key: string]: unknown;
+  };
+  traceability?: string | null;
+  sampleAvailable?: boolean;
+  inspectionAvailable?: boolean;
+  photoSourceLabel?: string;
+  priceMin?: number;
+  priceMax?: number;
+  currency?: string;
+  moqValue?: number;
+};
+
+type SupplierRow = { id: string; profile_slug: string };
+type CategoryRow = { id: string; slug: string };
+
+const seedOffers = mockOffers as SeedOffer[];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -64,7 +121,7 @@ Deno.serve(async (req) => {
     // 2. Suppliers (unique by profile_slug)
     const seenSuppliers = new Set<string>();
     const suppliersPayload: Record<string, unknown>[] = [];
-    for (const o of mockOffers as any[]) {
+    for (const o of seedOffers) {
       const s = o.supplier;
       if (seenSuppliers.has(s.profileSlug)) continue;
       seenSuppliers.add(s.profileSlug);
@@ -91,10 +148,10 @@ Deno.serve(async (req) => {
     const { data: supplierRows } = await admin.from("suppliers").select("id, profile_slug");
     const { data: categoryRows } = await admin.from("categories").select("id, slug");
     const supplierIdBySlug = new Map<string, string>(
-      (supplierRows ?? []).map((r: any) => [r.profile_slug, r.id]),
+      ((supplierRows ?? []) as SupplierRow[]).map((r) => [r.profile_slug, r.id]),
     );
     const categoryIdBySlug = new Map<string, string>(
-      (categoryRows ?? []).map((r: any) => [r.slug, r.id]),
+      ((categoryRows ?? []) as CategoryRow[]).map((r) => [r.slug, r.id]),
     );
 
     // 4. Delete existing demo offers (stable UUIDs starting with 0000…000…)
@@ -104,7 +161,7 @@ Deno.serve(async (req) => {
       .like("id", "00000000-0000-0000-0000-0000000000%");
 
     // 5. Insert offers
-    const offersPayload = (mockOffers as any[]).map((o) => {
+    const offersPayload = seedOffers.map((o) => {
       const stableId = `00000000-0000-0000-0000-${String(Number(o.id)).padStart(12, "0")}`;
       const catSlug = CATEGORY_SLUG[o.category] ?? "shellfish";
       return {
@@ -161,10 +218,11 @@ Deno.serve(async (req) => {
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("seed-catalog error", err);
+    const message = err instanceof Error ? err.message : String(err);
     return new Response(
-      JSON.stringify({ ok: false, error: err.message ?? String(err) }),
+      JSON.stringify({ ok: false, error: message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }

@@ -38,7 +38,7 @@ export interface NormalizedMoq {
   openEnded?: boolean;
 }
 
-const MOQ_PREFIX = /^\s*MOQ\s*[:\-]?\s*/i;
+const MOQ_PREFIX = /^\s*MOQ\s*[:-]?\s*/i;
 // Разделители диапазонов: en-dash, em-dash, ASCII-минус, "to".
 const RANGE_SEP = /\s*(?:–|—|-|to)\s*/i;
 // Извлечение числа: цифры с возможными разделителями (',', '.', ' ', NBSP, NNBSP).
