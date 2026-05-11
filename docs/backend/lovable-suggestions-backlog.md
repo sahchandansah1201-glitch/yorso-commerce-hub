@@ -29,7 +29,7 @@ Default rule:
 | LVB-001 | Check SupplierProfile SSR leaks | Implemented | Done in PR #8 | Prevents server/head/HTML leakage of locked supplier data. |
 | LVB-002 | Expand locked DOM tests | Implemented | Done in PR #8 | Strengthens the frontend access contract before backend exists. |
 | LVB-003 | Add e2e access check | Implemented | Done in current PR | Browser-level tests verify anonymous, registered, qualified and downgrade flows in the real app shell. |
-| LVB-004 | Protect access at API level | Defer to backend phase | Backend P0 | Real protection requires API views/RPC, RLS and access-grant checks. Frontend blur is not security. |
+| LVB-004 | Protect access at API level | Backend foundation started | Backend P0 in progress | Access grant/request/event tables and helper functions are scaffolded, but frontend adapters still need migration to backend APIs. |
 
 ## Done: E2E Access Check
 
@@ -87,6 +87,22 @@ Acceptance:
 - qualified API responses include only grant-scoped data;
 - RLS tests cover public, registered, qualified, supplier owner and admin cases;
 - frontend no longer receives raw restricted data for locked states.
+
+Current foundation:
+
+- migration: `supabase/migrations/20260511130000_backend_access_foundation.sql`;
+- tables: `supplier_access_requests`, `access_grants`, `access_events`;
+- helpers: `has_supplier_access(user_id, supplier_id)`,
+  `has_offer_price_access(user_id, offer_id)`;
+- direct anonymous reads from base `offers` and `suppliers` are revoked, while
+  safe public views remain readable.
+
+Remaining work:
+
+- add backend-facing adapters for supplier profile/access request flows;
+- add RLS regression tests against a real Supabase test database;
+- migrate frontend supplier access state from localStorage/sessionStorage to
+  backend request/grant status.
 
 ## Triage Rule For Future Lovable Suggestions
 
