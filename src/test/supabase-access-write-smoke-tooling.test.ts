@@ -43,6 +43,7 @@ describe("Supabase access write smoke tooling", () => {
     expect(script).toContain("SUPABASE_SMOKE_EMAIL");
     expect(script).toContain("SUPABASE_SMOKE_PASSWORD");
     expect(script).toContain("anon_insert=blocked");
+    expect(script).toContain("request_supplier_access");
     expect(script).toContain("log_supplier_access_event");
     expect(script).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(script).not.toContain("service_role");
