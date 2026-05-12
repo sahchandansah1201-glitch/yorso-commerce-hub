@@ -1448,6 +1448,12 @@ type TranslationKeys = {
   account_product_sort_asc: string;
   account_product_sort_desc: string;
   account_product_sorted_by: string;
+  account_product_page_size_label: string;
+  account_product_page_size_option: string;
+  account_product_page_summary: string;
+  account_product_page_status: string;
+  account_product_page_previous: string;
+  account_product_page_next: string;
   account_product_results_count: string;
   account_product_noResults: string;
   account_product_noResults_desc: string;
@@ -3072,6 +3078,12 @@ const en: TranslationKeys = {
   account_product_sort_asc: "Ascending",
   account_product_sort_desc: "Descending",
   account_product_sorted_by: "Sorted by {field}",
+  account_product_page_size_label: "Rows",
+  account_product_page_size_option: "{count} rows",
+  account_product_page_summary: "Showing {start}-{end} of {total}",
+  account_product_page_status: "Page {current} of {total}",
+  account_product_page_previous: "Previous",
+  account_product_page_next: "Next",
   account_product_results_count: "{visible} of {total} products shown",
   account_product_noResults: "No matching products",
   account_product_noResults_desc: "Clear search or filters to return to the full product matrix.",
@@ -4683,6 +4695,12 @@ const ru: TranslationKeys = {
   account_product_sort_asc: "По возрастанию",
   account_product_sort_desc: "По убыванию",
   account_product_sorted_by: "Сортировка: {field}",
+  account_product_page_size_label: "Строки",
+  account_product_page_size_option: "{count} строк",
+  account_product_page_summary: "Показаны {start}-{end} из {total}",
+  account_product_page_status: "Страница {current} из {total}",
+  account_product_page_previous: "Назад",
+  account_product_page_next: "Вперёд",
   account_product_results_count: "Показано {visible} из {total} продуктов",
   account_product_noResults: "Подходящие продукты не найдены",
   account_product_noResults_desc: "Сбросьте поиск или фильтры, чтобы вернуться к полной матрице продуктов.",
@@ -6293,6 +6311,12 @@ const es: TranslationKeys = {
   account_product_sort_asc: "Ascendente",
   account_product_sort_desc: "Descendente",
   account_product_sorted_by: "Ordenado por {field}",
+  account_product_page_size_label: "Filas",
+  account_product_page_size_option: "{count} filas",
+  account_product_page_summary: "Mostrando {start}-{end} de {total}",
+  account_product_page_status: "Página {current} de {total}",
+  account_product_page_previous: "Anterior",
+  account_product_page_next: "Siguiente",
   account_product_results_count: "{visible} de {total} productos visibles",
   account_product_noResults: "No hay productos coincidentes",
   account_product_noResults_desc: "Limpia la búsqueda o los filtros para volver a la matriz completa.",

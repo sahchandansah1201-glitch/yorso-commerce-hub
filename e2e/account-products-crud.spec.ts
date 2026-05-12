@@ -163,6 +163,76 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-products-table")).toContainText("Mackerel WR");
   });
 
+  test("sort preferences and page size persist after reload without persisting filters", async ({
+    page,
+  }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-sort-key").selectOption("monthlyVolume");
+    await page.getByTestId("account-product-sort-direction").selectOption("desc");
+    await page.getByTestId("account-product-page-size").selectOption("2");
+    await page.getByTestId("account-product-role-filter").selectOption("selling");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("2 of 6");
+    expect(await firstProductRowText(page)).toContain("Mackerel WR");
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const raw = localStorage.getItem("yorso_account_products_view_v1");
+          return raw ? JSON.parse(raw) : null;
+        }),
+      )
+      .toMatchObject({
+        sortKey: "monthlyVolume",
+        sortDirection: "desc",
+        pageSize: 2,
+      });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByTestId("account-product-sort-key")).toHaveValue("monthlyVolume");
+    await expect(page.getByTestId("account-product-sort-direction")).toHaveValue("desc");
+    await expect(page.getByTestId("account-product-page-size")).toHaveValue("2");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 1-2 of 6");
+    expect(await firstProductRowText(page)).toContain("Mackerel WR");
+  });
+
+  test("pagination moves through product pages and resets when filters change", async ({ page }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-page-size").selectOption("2");
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 1-2 of 6");
+    await expect(page.getByTestId("account-product-page-previous")).toBeDisabled();
+    await expect(page.getByTestId("account-product-page-next")).toBeEnabled();
+    await expect(page.locator('[data-testid^="account-product-row-"]')).toHaveCount(2);
+
+    await page.getByTestId("account-product-page-next").click();
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 3-4 of 6");
+    await expect(page.getByTestId("account-product-page-previous")).toBeEnabled();
+
+    await page.getByTestId("account-product-page-next").click();
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 5-6 of 6");
+    await expect(page.getByTestId("account-product-page-next")).toBeDisabled();
+
+    await page.getByTestId("account-product-search").fill("salmon");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 1-1 of 1");
+    await expect(page.locator('[data-testid^="account-product-row-"]')).toHaveCount(1);
+  });
+
+  test("product view controls expose accessible names", async ({ page }) => {
+    await openProducts(page);
+
+    await expect(page.getByLabel("Sort by")).toHaveValue("commercialName");
+    await expect(page.getByLabel("Order")).toHaveValue("asc");
+    await expect(page.getByLabel("Rows")).toHaveValue("10");
+    await page.getByLabel("Rows").selectOption("2");
+    await expect(page.getByRole("button", { name: "Previous" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+  });
+
   test("duplicate guard blocks identical product matching records", async ({ page }) => {
     await openProducts(page);
 
@@ -287,6 +357,7 @@ test.describe("/account/products · editable product matrix", () => {
     expect(text).toContain("Покупка");
     expect(text).toContain("Сортировать по");
     expect(text).toContain("Сортировка: Названию продукта");
+    expect(text).toContain("Показаны 1-7 из 7");
     expect(text).not.toMatch(/\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/);
   });
 });
