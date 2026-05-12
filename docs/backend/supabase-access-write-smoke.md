@@ -81,6 +81,12 @@ access_smoke=ok
 `request_insert=existing` is also acceptable on repeated runs. Each smoke run
 may append one audit event for the existing request.
 
+The audit event is linked through `supplier_access_request_id`. The buyer-side
+RPC intentionally does not write `access_events.supplier_id` directly, because
+that would push an authenticated buyer through the base `suppliers` FK privilege
+boundary. Supplier context should be resolved from the access request in admin
+or backend reporting surfaces.
+
 ## Common precondition failures
 
 - `access_smoke=missing_seed`: run `npm run supabase:access-seed`.
