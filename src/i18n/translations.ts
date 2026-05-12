@@ -1457,6 +1457,11 @@ type TranslationKeys = {
   account_product_clear_filters: string;
   account_product_share_view: string;
   account_product_link_ready: string;
+  account_product_link_copied: string;
+  account_product_link_manual: string;
+  account_product_link_value_label: string;
+  account_product_copy_link: string;
+  account_product_clean_link: string;
   account_product_link_ignored: string;
   account_product_results_count: string;
   account_product_noResults: string;
@@ -3091,6 +3096,11 @@ const en: TranslationKeys = {
   account_product_clear_filters: "Clear filters",
   account_product_share_view: "Share view",
   account_product_link_ready: "Product view link updated in the address bar.",
+  account_product_link_copied: "Product view link copied.",
+  account_product_link_manual: "Product view link is ready. Copy it from the field below.",
+  account_product_link_value_label: "Product view URL",
+  account_product_copy_link: "Copy link",
+  account_product_clean_link: "Clean link",
   account_product_link_ignored: "Some product link parameters were ignored: {params}.",
   account_product_results_count: "{visible} of {total} products shown",
   account_product_noResults: "No matching products",
@@ -4712,6 +4722,11 @@ const ru: TranslationKeys = {
   account_product_clear_filters: "Очистить фильтры",
   account_product_share_view: "Ссылка на вид",
   account_product_link_ready: "Ссылка на текущий вид матрицы продуктов обновлена в адресной строке.",
+  account_product_link_copied: "Ссылка на вид матрицы продуктов скопирована.",
+  account_product_link_manual: "Ссылка на вид матрицы продуктов готова. Скопируйте её из поля ниже.",
+  account_product_link_value_label: "URL вида матрицы продуктов",
+  account_product_copy_link: "Скопировать ссылку",
+  account_product_clean_link: "Очистить ссылку",
   account_product_link_ignored: "Часть параметров ссылки на продукты проигнорирована: {params}.",
   account_product_results_count: "Показано {visible} из {total} продуктов",
   account_product_noResults: "Подходящие продукты не найдены",
@@ -6332,6 +6347,11 @@ const es: TranslationKeys = {
   account_product_clear_filters: "Limpiar filtros",
   account_product_share_view: "Compartir vista",
   account_product_link_ready: "El enlace de la vista de productos se actualizó en la barra de direcciones.",
+  account_product_link_copied: "Enlace de vista de productos copiado.",
+  account_product_link_manual: "El enlace de vista de productos está listo. Cópialo desde el campo inferior.",
+  account_product_link_value_label: "URL de vista de productos",
+  account_product_copy_link: "Copiar enlace",
+  account_product_clean_link: "Limpiar enlace",
   account_product_link_ignored: "Se ignoraron algunos parámetros del enlace de productos: {params}.",
   account_product_results_count: "{visible} de {total} productos visibles",
   account_product_noResults: "No hay productos coincidentes",

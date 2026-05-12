@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   validateEmail,
@@ -1448,6 +1448,7 @@ const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "fresh", "chilled",
 const PRODUCT_ROLES: CompanyProduct["role"][] = ["buying", "selling", "both"];
 type ProductSortKey = "commercialName" | "category" | "state" | "role" | "monthlyVolume";
 type SortDirection = "asc" | "desc";
+type ProductShareStatus = "idle" | "copied" | "manual";
 const PRODUCT_SORT_KEYS: ProductSortKey[] = [
   "commercialName",
   "category",
@@ -1627,10 +1628,13 @@ const ProductsSection = ({
   const [pageSize, setPageSize] = useState<ProductPageSize>(initialView.pageSize);
   const [pageIndex, setPageIndex] = useState(initialView.pageIndex);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [shareStatusVisible, setShareStatusVisible] = useState(false);
+  const [shareStatus, setShareStatus] = useState<ProductShareStatus>("idle");
+  const [shareLinkValue, setShareLinkValue] = useState("");
   const [ignoredLinkParams, setIgnoredLinkParams] = useState(initialView.ignoredParams);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const productViewMountedRef = useRef(false);
+  const shareButtonRef = useRef<HTMLButtonElement>(null);
+  const shareLinkInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1649,8 +1653,36 @@ const ProductsSection = ({
   }, [pageSize, query, roleFilter, sortDirection, sortKey, stateFilter]);
 
   useEffect(() => {
-    setShareStatusVisible(false);
+    setShareStatus("idle");
+    setShareLinkValue("");
   }, [pageIndex, pageSize, query, roleFilter, sortDirection, sortKey, stateFilter]);
+
+  const focusShareLinkInput = () => {
+    window.setTimeout(() => {
+      shareLinkInputRef.current?.focus();
+      shareLinkInputRef.current?.select();
+    }, 0);
+  };
+
+  const buildProductViewParams = () => {
+    const nextParams = new URLSearchParams();
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) nextParams.set("q", trimmedQuery);
+    if (stateFilter !== "all") nextParams.set("state", stateFilter);
+    if (roleFilter !== "all") nextParams.set("role", roleFilter);
+    if (sortKey !== "commercialName") nextParams.set("sort", sortKey);
+    if (sortDirection !== "asc") nextParams.set("dir", sortDirection);
+    if (pageSize !== 10) nextParams.set("rows", String(pageSize));
+    if (safePageIndex > 0) nextParams.set("page", String(safePageIndex + 1));
+    return nextParams;
+  };
+
+  const buildProductViewUrl = (nextParams: URLSearchParams) => {
+    if (typeof window === "undefined") return "";
+    const nextUrl = new URL(window.location.href);
+    nextUrl.search = nextParams.toString();
+    return nextUrl.toString();
+  };
 
   const sortKeyLabel = (key: ProductSortKey) =>
     ({
@@ -1737,19 +1769,43 @@ const ProductsSection = ({
     setSearchParams(nextParams, { replace: true });
   };
 
-  const shareCurrentView = () => {
-    const nextParams = new URLSearchParams();
-    const trimmedQuery = query.trim();
-    if (trimmedQuery) nextParams.set("q", trimmedQuery);
-    if (stateFilter !== "all") nextParams.set("state", stateFilter);
-    if (roleFilter !== "all") nextParams.set("role", roleFilter);
-    if (sortKey !== "commercialName") nextParams.set("sort", sortKey);
-    if (sortDirection !== "asc") nextParams.set("dir", sortDirection);
-    if (pageSize !== 10) nextParams.set("rows", String(pageSize));
-    if (safePageIndex > 0) nextParams.set("page", String(safePageIndex + 1));
+  const copyProductViewLink = async (url: string) => {
+    const clipboard = typeof navigator !== "undefined" ? navigator.clipboard : undefined;
+    if (!clipboard?.writeText) {
+      setShareStatus("manual");
+      focusShareLinkInput();
+      return;
+    }
+
+    try {
+      await clipboard.writeText(url);
+      setShareStatus("copied");
+    } catch {
+      setShareStatus("manual");
+    }
+    focusShareLinkInput();
+  };
+
+  const shareCurrentView = async () => {
+    const nextParams = buildProductViewParams();
+    const nextUrl = buildProductViewUrl(nextParams);
     setIgnoredLinkParams([]);
     setSearchParams(nextParams, { replace: false });
-    setShareStatusVisible(true);
+    setShareLinkValue(nextUrl);
+    await copyProductViewLink(nextUrl);
+  };
+
+  const copyCurrentShareLink = async () => {
+    if (!shareLinkValue) return;
+    await copyProductViewLink(shareLinkValue);
+  };
+
+  const cleanIgnoredLinkParams = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    ignoredLinkParams.forEach((param) => nextParams.delete(param));
+    setIgnoredLinkParams([]);
+    setSearchParams(nextParams, { replace: true });
+    window.setTimeout(() => shareButtonRef.current?.focus(), 0);
   };
 
   const startAdd = () => {
@@ -1942,6 +1998,7 @@ const ProductsSection = ({
               <Button
                 type="button"
                 variant="secondary"
+                ref={shareButtonRef}
                 onClick={shareCurrentView}
                 data-testid="account-product-share-view"
               >
@@ -1966,25 +2023,68 @@ const ProductsSection = ({
               </p>
             ) : null}
           </div>
-          {shareStatusVisible ? (
-            <p
+          {shareStatus !== "idle" ? (
+            <div
               className="mt-2 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground"
               data-testid="account-product-link-status"
               role="status"
               aria-live="polite"
             >
-              {t.account_product_link_ready}
-            </p>
+              <p>
+                {shareStatus === "copied"
+                  ? t.account_product_link_copied
+                  : t.account_product_link_manual}
+              </p>
+              {shareLinkValue ? (
+                <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <Label htmlFor="account-product-share-url" className="sr-only">
+                    {t.account_product_link_value_label}
+                  </Label>
+                  <Input
+                    id="account-product-share-url"
+                    ref={shareLinkInputRef}
+                    readOnly
+                    value={shareLinkValue}
+                    onFocus={(event) => event.currentTarget.select()}
+                    className="h-9 bg-background text-xs"
+                    data-testid="account-product-share-url"
+                    aria-label={t.account_product_link_value_label}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyCurrentShareLink}
+                    data-testid="account-product-copy-link"
+                  >
+                    <Copy className="mr-2 h-3.5 w-3.5" aria-hidden />
+                    {t.account_product_copy_link}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
           ) : null}
           {ignoredLinkParams.length ? (
-            <p
-              className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+            <div
+              className="mt-2 flex flex-col gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 sm:flex-row sm:items-center sm:justify-between"
               data-testid="account-product-link-warning"
               role="status"
               aria-live="polite"
             >
-              {t.account_product_link_ignored.replace("{params}", ignoredLinkParams.join(", "))}
-            </p>
+              <span>
+                {t.account_product_link_ignored.replace("{params}", ignoredLinkParams.join(", "))}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={cleanIgnoredLinkParams}
+                className="border-amber-300 bg-amber-50 text-amber-950 hover:bg-amber-100"
+                data-testid="account-product-clean-link"
+              >
+                {t.account_product_clean_link}
+              </Button>
+            </div>
           ) : null}
         </AccountSectionCard>
       ) : null}
