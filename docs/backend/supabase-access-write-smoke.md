@@ -4,7 +4,7 @@ This smoke verifies the first real backend path for the Supplier Access Flow:
 
 1. anon can read the safe public supplier baseline;
 2. anon cannot insert `supplier_access_requests`;
-3. an authenticated buyer can create or reuse one supplier access request;
+3. an authenticated buyer can create or reuse one supplier access request through `request_supplier_access(...)`;
 4. `log_supplier_access_event(...)` writes an `access_events` row as `SECURITY INVOKER`;
 5. the buyer can read the created audit event through RLS.
 

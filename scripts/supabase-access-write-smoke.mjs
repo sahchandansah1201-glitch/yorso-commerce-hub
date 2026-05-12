@@ -158,14 +158,10 @@ const message = `codex-access-smoke-${new Date().toISOString()}`;
 let requestId;
 
 const inserted = await authed
-  .from("supplier_access_requests")
-  .insert({
-    buyer_user_id: signIn.data.user.id,
-    supplier_id: publicSupplier.data.id,
-    status: "sent",
-    message,
+  .rpc("request_supplier_access", {
+    p_supplier_id: publicSupplier.data.id,
+    p_message: message,
   })
-  .select("id,status,supplier_id,created_at")
   .single();
 
 if (inserted.error?.code === "23505") {
