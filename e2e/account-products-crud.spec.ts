@@ -108,6 +108,69 @@ test.describe("/account/products · editable product matrix", () => {
     expect(await mainText(page)).not.toContain("product_");
   });
 
+  test("search and filters narrow the product matrix without changing storage", async ({
+    page,
+  }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-search").fill("salmon");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic Salmon Fillet");
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Vannamei Shrimp");
+
+    await page.getByTestId("account-product-search").fill("no product match");
+    await expect(page.getByTestId("account-product-no-results")).toBeVisible();
+    await page.getByTestId("account-product-no-results-reset").click();
+    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
+
+    await page.getByTestId("account-product-state-filter").selectOption("alive");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
+    await expect(page.getByTestId("account-products-table")).toContainText("Live Mussels");
+    await page.getByTestId("account-product-state-filter").selectOption("all");
+    await page.getByTestId("account-product-role-filter").selectOption("selling");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("2 of 6");
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic Cod H&G");
+    await expect(page.getByTestId("account-products-table")).toContainText("Mackerel WR");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
+  });
+
+  test("duplicate guard blocks identical product matching records", async ({ page }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-add").click();
+    await fillProductForm(page, {
+      commercialName: " Atlantic Cod H&G ",
+      latinName: "gadus morhua",
+      category: "whitefish",
+      state: "frozen",
+      role: "selling",
+      monthlyVolume: "Duplicate product should not persist",
+      format: "H&G, IQF, 1-2 / 2-4 kg",
+      certificates: "MSC",
+      targetCountries: "Spain",
+    });
+    await page.getByTestId("account-product-save").click();
+
+    await expect(page.getByTestId("account-product-form")).toBeVisible();
+    await expect(page.getByText("This product already exists")).toBeVisible();
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Boolean(
+            localStorage
+              .getItem("yorso_account_profile_v1")
+              ?.includes("Duplicate product should not persist"),
+          ),
+        ),
+      )
+      .toBe(false);
+  });
+
   test("edits an existing product without exposing raw internal state values", async ({ page }) => {
     await openProducts(page);
 
@@ -124,6 +187,27 @@ test.describe("/account/products · editable product matrix", () => {
     expect(text).toContain("Selling");
     expect(text).not.toMatch(/\bfrozen\b|\bchilled\b|\bselling\b/);
     await expectStorageContains(page, "Atlantic Salmon Fillet EU");
+  });
+
+  test("product details panel shows matching profile and can start editing", async ({
+    page,
+  }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-open-p_3").click();
+    const detail = page.getByTestId("account-product-detail-p_3");
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText("Vannamei Shrimp");
+    await expect(detail).toContainText("Litopenaeus vannamei");
+    await expect(detail).toContainText("Ecuador, India, Vietnam, Spain");
+
+    await page.getByTestId("account-product-detail-edit").click();
+    await expect(page.getByTestId("account-product-form")).toBeVisible();
+    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue("Vannamei Shrimp");
+    await page.getByTestId("account-product-cancel").click();
+
+    await page.getByTestId("account-product-close-detail").click();
+    await expect(detail).not.toBeVisible();
   });
 
   test("deletes a product and keeps the removal after reload", async ({ page }) => {

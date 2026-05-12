@@ -1430,6 +1430,22 @@ type TranslationKeys = {
   account_product_add: string;
   account_product_delete: string;
   account_product_empty: string;
+  account_product_search_title: string;
+  account_product_search_desc: string;
+  account_product_search_label: string;
+  account_product_search_placeholder: string;
+  account_product_state_filter_label: string;
+  account_product_state_filter_all: string;
+  account_product_role_filter_label: string;
+  account_product_role_filter_all: string;
+  account_product_results_count: string;
+  account_product_noResults: string;
+  account_product_noResults_desc: string;
+  account_product_duplicate_error: string;
+  account_product_details_open: string;
+  account_product_details_hide: string;
+  account_product_details_title: string;
+  account_product_details_desc: string;
   account_product_form_title_add: string;
   account_product_form_title_edit: string;
   account_product_form_desc: string;
@@ -3028,6 +3044,22 @@ const en: TranslationKeys = {
   account_product_add: "Add product",
   account_product_delete: "Delete product",
   account_product_empty: "No products added yet. Add the first product to improve matching.",
+  account_product_search_title: "Find product",
+  account_product_search_desc: "Filter the product matrix before editing matching data.",
+  account_product_search_label: "Search products",
+  account_product_search_placeholder: "Product, Latin name, category, country...",
+  account_product_state_filter_label: "State",
+  account_product_state_filter_all: "All states",
+  account_product_role_filter_label: "Role",
+  account_product_role_filter_all: "All roles",
+  account_product_results_count: "{visible} of {total} products shown",
+  account_product_noResults: "No matching products",
+  account_product_noResults_desc: "Clear search or filters to return to the full product matrix.",
+  account_product_duplicate_error: "This product already exists. Change the name, Latin name, role or format.",
+  account_product_details_open: "Details",
+  account_product_details_hide: "Hide details",
+  account_product_details_title: "Product matching profile",
+  account_product_details_desc: "Review structured data used later for catalog matching, requests and supplier recommendations.",
   account_product_form_title_add: "Add product",
   account_product_form_title_edit: "Edit product",
   account_product_form_desc: "Keep product names, states, volume and target markets structured for matching.",
@@ -4613,6 +4645,22 @@ const ru: TranslationKeys = {
   account_product_add: "Добавить продукт",
   account_product_delete: "Удалить продукт",
   account_product_empty: "Продукты ещё не добавлены. Добавьте первый продукт для улучшения матчинга.",
+  account_product_search_title: "Найти продукт",
+  account_product_search_desc: "Фильтруйте матрицу продуктов перед редактированием данных для матчинга.",
+  account_product_search_label: "Поиск по продуктам",
+  account_product_search_placeholder: "Продукт, латинское название, категория, страна...",
+  account_product_state_filter_label: "Состояние",
+  account_product_state_filter_all: "Все состояния",
+  account_product_role_filter_label: "Роль",
+  account_product_role_filter_all: "Все роли",
+  account_product_results_count: "Показано {visible} из {total} продуктов",
+  account_product_noResults: "Подходящие продукты не найдены",
+  account_product_noResults_desc: "Сбросьте поиск или фильтры, чтобы вернуться к полной матрице продуктов.",
+  account_product_duplicate_error: "Такой продукт уже есть. Измените название, латинское название, роль или формат.",
+  account_product_details_open: "Детали",
+  account_product_details_hide: "Скрыть детали",
+  account_product_details_title: "Профиль продукта для матчинга",
+  account_product_details_desc: "Проверьте структурированные данные, которые позже будут использоваться в каталоге, заявках и рекомендациях поставщиков.",
   account_product_form_title_add: "Добавить продукт",
   account_product_form_title_edit: "Редактировать продукт",
   account_product_form_desc: "Заполняйте названия, состояние, объём и целевые рынки структурно, чтобы улучшить матчинг.",
@@ -6197,6 +6245,22 @@ const es: TranslationKeys = {
   account_product_add: "Añadir producto",
   account_product_delete: "Eliminar producto",
   account_product_empty: "Aún no hay productos. Añade el primer producto para mejorar el matching.",
+  account_product_search_title: "Buscar producto",
+  account_product_search_desc: "Filtra la matriz de productos antes de editar datos de matching.",
+  account_product_search_label: "Buscar productos",
+  account_product_search_placeholder: "Producto, nombre latino, categoría, país...",
+  account_product_state_filter_label: "Estado",
+  account_product_state_filter_all: "Todos los estados",
+  account_product_role_filter_label: "Rol",
+  account_product_role_filter_all: "Todos los roles",
+  account_product_results_count: "{visible} de {total} productos visibles",
+  account_product_noResults: "No hay productos coincidentes",
+  account_product_noResults_desc: "Limpia la búsqueda o los filtros para volver a la matriz completa.",
+  account_product_duplicate_error: "Este producto ya existe. Cambia el nombre, el nombre latino, el rol o el formato.",
+  account_product_details_open: "Detalles",
+  account_product_details_hide: "Ocultar detalles",
+  account_product_details_title: "Perfil de producto para matching",
+  account_product_details_desc: "Revisa los datos estructurados que se usarán después en catálogo, solicitudes y recomendaciones.",
   account_product_form_title_add: "Añadir producto",
   account_product_form_title_edit: "Editar producto",
   account_product_form_desc: "Mantén nombres, estado, volumen y mercados objetivo estructurados para el matching.",

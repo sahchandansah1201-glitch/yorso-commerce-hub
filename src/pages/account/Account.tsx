@@ -1444,6 +1444,9 @@ const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
   );
 };
 
+const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "fresh", "chilled", "alive", "cooked"];
+const PRODUCT_ROLES: CompanyProduct["role"][] = ["buying", "selling", "both"];
+
 const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
   ({
     frozen: t.account_product_state_frozen,
@@ -1452,6 +1455,13 @@ const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t
     alive: t.account_product_state_alive,
     cooked: t.account_product_state_cooked,
   }[s]);
+
+const productRoleLabel = (role: CompanyProduct["role"], t: ReturnType<typeof useLanguage>["t"]) =>
+  ({
+    buying: t.account_product_role_buying,
+    selling: t.account_product_role_selling,
+    both: t.account_product_role_both,
+  }[role]);
 
 const createEmptyProduct = (): CompanyProduct => ({
   id: `product_${Date.now().toString(36)}`,
@@ -1480,6 +1490,20 @@ const validateProductDraft = (
   return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
 };
 
+const normalizeProductValue = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
+
+const productDuplicateKey = (product: CompanyProduct) =>
+  [
+    product.commercialName,
+    product.latinName,
+    product.category,
+    product.state,
+    product.role,
+    product.format,
+  ]
+    .map(normalizeProductValue)
+    .join("|");
+
 const ProductsSection = ({
   profile,
   onChange,
@@ -1490,7 +1514,46 @@ const ProductsSection = ({
   const { t } = useLanguage();
   const [draft, setDraft] = useState<CompanyProduct | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [stateFilter, setStateFilter] = useState<CompanyProduct["state"] | "all">("all");
+  const [roleFilter, setRoleFilter] = useState<CompanyProduct["role"] | "all">("all");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const visibleProducts = useMemo(() => {
+    const normalizedQuery = normalizeProductValue(query);
+    return profile.products.filter((product) => {
+      if (stateFilter !== "all" && product.state !== stateFilter) return false;
+      if (roleFilter !== "all" && product.role !== roleFilter) return false;
+      if (!normalizedQuery) return true;
+
+      const searchable = [
+        product.commercialName,
+        product.latinName,
+        product.category,
+        productStateLabel(product.state, t),
+        productRoleLabel(product.role, t),
+        product.format,
+        product.monthlyVolume,
+        product.certificates.join(" "),
+        product.targetCountries.join(" "),
+      ]
+        .map(normalizeProductValue)
+        .join(" ");
+
+      return searchable.includes(normalizedQuery);
+    });
+  }, [profile.products, query, roleFilter, stateFilter, t]);
+
+  const selectedProduct = selectedProductId
+    ? profile.products.find((product) => product.id === selectedProductId) ?? null
+    : null;
+
+  const resetFilters = () => {
+    setQuery("");
+    setStateFilter("all");
+    setRoleFilter("all");
+  };
 
   const startAdd = () => {
     setDraft(createEmptyProduct());
@@ -1530,17 +1593,27 @@ const ProductsSection = ({
       certificates: draft.certificates.map((c) => c.trim()).filter(Boolean),
       targetCountries: draft.targetCountries.map((c) => c.trim()).filter(Boolean),
     };
+    const duplicate = profile.products.some(
+      (product) =>
+        product.id !== editingId && productDuplicateKey(product) === productDuplicateKey(normalized),
+    );
+    if (duplicate) {
+      setErrors({ commercialName: t.account_product_duplicate_error });
+      return;
+    }
 
     const nextProducts = editingId
       ? profile.products.map((p) => (p.id === editingId ? normalized : p))
       : [...profile.products, normalized];
 
     onChange({ ...profile, products: nextProducts });
+    setSelectedProductId(normalized.id);
     cancelEdit();
   };
 
   const deleteProduct = (productId: string) => {
     onChange({ ...profile, products: profile.products.filter((p) => p.id !== productId) });
+    if (selectedProductId === productId) setSelectedProductId(null);
     if (editingId === productId) cancelEdit();
   };
 
@@ -1563,6 +1636,80 @@ const ProductsSection = ({
           </Button>
         </div>
       </AccountSectionCard>
+      {profile.products.length > 0 ? (
+        <AccountSectionCard
+          title={t.account_product_search_title}
+          description={t.account_product_search_desc}
+          testId="account-product-search-panel"
+        >
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_180px_180px_auto] xl:items-end">
+            <FormRow label={t.account_product_search_label}>
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="pl-9"
+                  placeholder={t.account_product_search_placeholder}
+                  data-testid="account-product-search"
+                />
+              </div>
+            </FormRow>
+            <FormRow label={t.account_product_state_filter_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={stateFilter}
+                onChange={(event) =>
+                  setStateFilter(event.target.value as CompanyProduct["state"] | "all")
+                }
+                data-testid="account-product-state-filter"
+              >
+                <option value="all">{t.account_product_state_filter_all}</option>
+                {PRODUCT_STATES.map((state) => (
+                  <option key={state} value={state}>
+                    {productStateLabel(state, t)}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+            <FormRow label={t.account_product_role_filter_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={roleFilter}
+                onChange={(event) =>
+                  setRoleFilter(event.target.value as CompanyProduct["role"] | "all")
+                }
+                data-testid="account-product-role-filter"
+              >
+                <option value="all">{t.account_product_role_filter_all}</option>
+                {PRODUCT_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {productRoleLabel(role, t)}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetFilters}
+              disabled={!query && stateFilter === "all" && roleFilter === "all"}
+              data-testid="account-product-search-clear"
+            >
+              <X className="mr-2 h-4 w-4" aria-hidden />
+              {t.account_action_reset}
+            </Button>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground" data-testid="account-product-results-count">
+            {t.account_product_results_count
+              .replace("{visible}", String(visibleProducts.length))
+              .replace("{total}", String(profile.products.length))}
+          </p>
+        </AccountSectionCard>
+      ) : null}
       {draft ? (
         <AccountSectionCard
           title={editingId ? t.account_product_form_title_edit : t.account_product_form_title_add}
@@ -1600,11 +1747,11 @@ const ProductsSection = ({
                 }
                 data-testid="account-product-state"
               >
-                <option value="frozen">{t.account_product_state_frozen}</option>
-                <option value="fresh">{t.account_product_state_fresh}</option>
-                <option value="chilled">{t.account_product_state_chilled}</option>
-                <option value="alive">{t.account_product_state_alive}</option>
-                <option value="cooked">{t.account_product_state_cooked}</option>
+                {PRODUCT_STATES.map((state) => (
+                  <option key={state} value={state}>
+                    {productStateLabel(state, t)}
+                  </option>
+                ))}
               </select>
             </FormRow>
             <FormRow label={t.account_product_col_role}>
@@ -1616,9 +1763,11 @@ const ProductsSection = ({
                 }
                 data-testid="account-product-role"
               >
-                <option value="buying">{t.account_product_role_buying}</option>
-                <option value="selling">{t.account_product_role_selling}</option>
-                <option value="both">{t.account_product_role_both}</option>
+                {PRODUCT_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {productRoleLabel(role, t)}
+                  </option>
+                ))}
               </select>
             </FormRow>
             <FormRow label={t.account_product_col_volume} required error={errors.monthlyVolume}>
@@ -1688,8 +1837,28 @@ const ProductsSection = ({
                   {t.account_product_empty}
                 </td>
               </tr>
+            ) : visibleProducts.length === 0 ? (
+              <tr data-testid="account-product-no-results">
+                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                  <div className="mx-auto flex max-w-md flex-col items-center gap-3">
+                    <div>
+                      <p className="font-medium text-foreground">{t.account_product_noResults}</p>
+                      <p className="mt-1">{t.account_product_noResults_desc}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={resetFilters}
+                      data-testid="account-product-no-results-reset"
+                    >
+                      {t.account_action_reset}
+                    </Button>
+                  </div>
+                </td>
+              </tr>
             ) : (
-              profile.products.map((p: CompanyProduct) => (
+              visibleProducts.map((p: CompanyProduct) => (
                 <tr
                   key={p.id}
                   className="border-t border-border align-top"
@@ -1721,6 +1890,19 @@ const ProductsSection = ({
                     <div className="flex justify-end gap-2">
                       <Button
                         type="button"
+                        variant={selectedProductId === p.id ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={() =>
+                          setSelectedProductId((current) => (current === p.id ? null : p.id))
+                        }
+                        data-testid={`account-product-open-${p.id}`}
+                      >
+                        {selectedProductId === p.id
+                          ? t.account_product_details_hide
+                          : t.account_product_details_open}
+                      </Button>
+                      <Button
+                        type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => startEdit(p)}
@@ -1747,6 +1929,54 @@ const ProductsSection = ({
           </tbody>
         </table>
       </div>
+      {selectedProduct ? (
+        <AccountSectionCard
+          title={t.account_product_details_title}
+          description={t.account_product_details_desc}
+          testId={`account-product-detail-${selectedProduct.id}`}
+        >
+          <div className="grid gap-3 md:grid-cols-2">
+            <Field label={t.account_product_col_product} value={selectedProduct.commercialName} />
+            <Field label={t.account_product_col_latin} value={selectedProduct.latinName} />
+            <Field label={t.account_product_field_category} value={selectedProduct.category} />
+            <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
+            <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
+            <Field label={t.account_product_col_volume} value={selectedProduct.monthlyVolume} />
+            <Field label={t.account_product_field_format} value={selectedProduct.format} />
+            <Field
+              label={t.account_product_col_targets}
+              value={selectedProduct.targetCountries.join(", ")}
+            />
+          </div>
+          {selectedProduct.certificates.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedProduct.certificates.map((certificate) => (
+                <Badge key={certificate} variant="outline">
+                  {certificate}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
+          <div className="mt-4 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSelectedProductId(null)}
+              data-testid="account-product-close-detail"
+            >
+              {t.account_action_close}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => startEdit(selectedProduct)}
+              data-testid="account-product-detail-edit"
+            >
+              <Pencil className="mr-2 h-4 w-4" aria-hidden />
+              {t.account_action_edit}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
     </div>
   );
 };
