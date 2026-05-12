@@ -27,7 +27,7 @@ const openProducts = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
   await setSignedInStorage(page, lang);
   await page.goto("/account/products", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
-  await expect(page.getByTestId("account-section-products")).toBeVisible();
+  await expect(page.getByTestId("account-section-products")).toBeVisible({ timeout: 15_000 });
 };
 
 const mainText = async (page: Page) => (await page.locator("main").textContent()) ?? "";

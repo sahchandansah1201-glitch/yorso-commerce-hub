@@ -1389,6 +1389,19 @@ type TranslationKeys = {
   account_branch_type_loading: string;
   account_branch_incoterms: string;
   account_branch_pickup: string;
+  account_branch_add: string;
+  account_branch_delete: string;
+  account_branch_empty: string;
+  account_branch_empty_desc: string;
+  account_branch_form_title_add: string;
+  account_branch_form_title_edit: string;
+  account_branch_form_desc: string;
+  account_branch_field_name: string;
+  account_branch_field_type: string;
+  account_branch_field_region: string;
+  account_branch_field_city: string;
+  account_branch_field_address: string;
+  account_branch_field_notes: string;
   account_products_title: string;
   account_products_desc: string;
   account_products_matchingExplainer: string;
@@ -2958,6 +2971,19 @@ const en: TranslationKeys = {
   account_branch_type_loading: "Loading point",
   account_branch_incoterms: "Incoterms",
   account_branch_pickup: "Port / pickup point",
+  account_branch_add: "Add branch",
+  account_branch_delete: "Delete branch",
+  account_branch_empty: "No branches yet",
+  account_branch_empty_desc: "Add offices, warehouses, plants or loading points to reuse them as delivery basis options.",
+  account_branch_form_title_add: "Add branch",
+  account_branch_form_title_edit: "Edit branch",
+  account_branch_form_desc: "Branches define where offers can be loaded, stored, processed or managed.",
+  account_branch_field_name: "Branch name",
+  account_branch_field_type: "Branch type",
+  account_branch_field_region: "Region",
+  account_branch_field_city: "City",
+  account_branch_field_address: "Address",
+  account_branch_field_notes: "Notes",
   account_products_title: "Product matrix",
   account_products_desc: "Products you buy and sell.",
   account_products_matchingExplainer: "Products power buyer-supplier matching and catalog recommendations.",
@@ -4514,6 +4540,19 @@ const ru: TranslationKeys = {
   account_branch_type_loading: "Точка отгрузки",
   account_branch_incoterms: "Incoterms",
   account_branch_pickup: "Порт/точка отгрузки",
+  account_branch_add: "Добавить филиал",
+  account_branch_delete: "Удалить филиал",
+  account_branch_empty: "Филиалы ещё не добавлены",
+  account_branch_empty_desc: "Добавьте офисы, склады, производственные площадки или точки отгрузки, чтобы использовать их как базисы поставки.",
+  account_branch_form_title_add: "Добавить филиал",
+  account_branch_form_title_edit: "Редактировать филиал",
+  account_branch_form_desc: "Филиалы определяют, где товар можно отгружать, хранить, перерабатывать или сопровождать коммерчески.",
+  account_branch_field_name: "Название филиала",
+  account_branch_field_type: "Тип филиала",
+  account_branch_field_region: "Регион",
+  account_branch_field_city: "Город",
+  account_branch_field_address: "Адрес",
+  account_branch_field_notes: "Заметки",
   account_products_title: "Матрица продуктов",
   account_products_desc: "Продукты, которые вы покупаете и продаёте.",
   account_products_matchingExplainer: "Продукты используются для матчинга между покупателями и поставщиками и для рекомендаций каталога.",
@@ -6069,6 +6108,19 @@ const es: TranslationKeys = {
   account_branch_type_loading: "Punto de carga",
   account_branch_incoterms: "Incoterms",
   account_branch_pickup: "Puerto/punto de carga",
+  account_branch_add: "Añadir sucursal",
+  account_branch_delete: "Eliminar sucursal",
+  account_branch_empty: "Aún no hay sucursales",
+  account_branch_empty_desc: "Añade oficinas, almacenes, plantas o puntos de carga para reutilizarlos como bases de entrega.",
+  account_branch_form_title_add: "Añadir sucursal",
+  account_branch_form_title_edit: "Editar sucursal",
+  account_branch_form_desc: "Las sucursales definen dónde se puede cargar, almacenar, procesar o gestionar el producto.",
+  account_branch_field_name: "Nombre de sucursal",
+  account_branch_field_type: "Tipo de sucursal",
+  account_branch_field_region: "Región",
+  account_branch_field_city: "Ciudad",
+  account_branch_field_address: "Dirección",
+  account_branch_field_notes: "Notas",
   account_products_title: "Matriz de productos",
   account_products_desc: "Productos que compras y vendes.",
   account_products_matchingExplainer: "Los productos alimentan el matching entre compradores y proveedores y las recomendaciones del catálogo.",

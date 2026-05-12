@@ -924,7 +924,16 @@ const CompanySection = ({
   );
 };
 
-// ─── BRANCHES (read-only as before) ────────────────────────────────
+// ─── BRANCHES ──────────────────────────────────────────────────────
+
+const BRANCH_TYPES: CompanyBranch["type"][] = [
+  "registered_address",
+  "office",
+  "warehouse",
+  "processing_plant",
+  "sales_office",
+  "loading_point",
+];
 
 const BranchTypeBadge = ({ type }: { type: CompanyBranch["type"] }) => {
   const { t } = useLanguage();
@@ -939,43 +948,285 @@ const BranchTypeBadge = ({ type }: { type: CompanyBranch["type"] }) => {
   return <Badge variant="outline">{map[type]}</Badge>;
 };
 
-const BranchesSection = ({ profile }: { profile: AccountProfile }) => {
+const createEmptyBranch = (): CompanyBranch => ({
+  id: `branch_${Date.now().toString(36)}`,
+  name: "",
+  type: "loading_point",
+  country: "",
+  region: "",
+  city: "",
+  addressLine: "",
+  defaultIncoterms: "",
+  portOrPickupPoint: "",
+  notes: "",
+});
+
+const validateBranchDraft = (
+  draft: CompanyBranch,
+  t: ReturnType<typeof useLanguage>["t"],
+) => {
+  const nextErrors: Record<string, string> = {
+    name: validateName(draft.name, t, true) ?? "",
+    country: validateName(draft.country, t, true) ?? "",
+    city: validateName(draft.city, t, true) ?? "",
+    addressLine: validateName(draft.addressLine, t, true) ?? "",
+    defaultIncoterms: validateName(draft.defaultIncoterms, t, true) ?? "",
+    portOrPickupPoint: validateName(draft.portOrPickupPoint, t, true) ?? "",
+    notes: validateText(draft.notes, t, 500) ?? "",
+  };
+  return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
+};
+
+const BranchesSection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (next: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
+  const branchTypeLabel: Record<CompanyBranch["type"], string> = {
+    registered_address: t.account_branch_type_registered,
+    office: t.account_branch_type_office,
+    warehouse: t.account_branch_type_warehouse,
+    processing_plant: t.account_branch_type_plant,
+    sales_office: t.account_branch_type_sales,
+    loading_point: t.account_branch_type_loading,
+  };
+  const [draft, setDraft] = useState<CompanyBranch | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const startAdd = () => {
+    setDraft(createEmptyBranch());
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const startEdit = (branch: CompanyBranch) => {
+    setDraft({ ...branch });
+    setEditingId(branch.id);
+    setErrors({});
+  };
+
+  const cancelEdit = () => {
+    setDraft(null);
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const saveDraft = () => {
+    if (!draft) return;
+    const nextErrors = validateBranchDraft(draft, t);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
+    const normalized: CompanyBranch = {
+      ...draft,
+      name: draft.name.trim(),
+      country: draft.country.trim(),
+      region: draft.region.trim(),
+      city: draft.city.trim(),
+      addressLine: draft.addressLine.trim(),
+      defaultIncoterms: draft.defaultIncoterms.trim().toUpperCase(),
+      portOrPickupPoint: draft.portOrPickupPoint.trim(),
+      notes: draft.notes.trim(),
+    };
+    const nextBranches = editingId
+      ? profile.branches.map((b) => (b.id === editingId ? normalized : b))
+      : [...profile.branches, normalized];
+    onChange({ ...profile, branches: nextBranches });
+    cancelEdit();
+  };
+
+  const deleteBranch = (branchId: string) => {
+    onChange({ ...profile, branches: profile.branches.filter((b) => b.id !== branchId) });
+    if (editingId === branchId) cancelEdit();
+  };
+
   return (
     <div className="space-y-4" data-testid="account-section-branches">
       <AccountSectionCard
         title={t.account_branches_title}
         description={t.account_branches_desc}
       >
-        <p className="text-sm text-muted-foreground" data-testid="account-branches-explainer">
-          {t.account_branches_deliveryBasisExplainer}
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <p className="text-sm text-muted-foreground" data-testid="account-branches-explainer">
+            {t.account_branches_deliveryBasisExplainer}
+          </p>
+          <Button
+            type="button"
+            onClick={startAdd}
+            className="shrink-0"
+            data-testid="account-branch-add"
+          >
+            <Plus className="mr-2 h-4 w-4" aria-hidden />
+            {t.account_branch_add}
+          </Button>
+        </div>
       </AccountSectionCard>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {profile.branches.map((b) => (
-          <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
-            <div className="space-y-2">
-              <BranchTypeBadge type={b.type} />
-              <p className="text-sm">
-                {b.city}, {b.region}, {b.country}
-              </p>
-              <p className="text-xs text-muted-foreground">{b.addressLine}</p>
-              <div className="flex flex-wrap gap-3 text-xs">
-                <span>
-                  <span className="text-muted-foreground">{t.account_branch_incoterms}: </span>
-                  <span className="font-medium">{b.defaultIncoterms}</span>
-                </span>
-                <span>
-                  <span className="text-muted-foreground">{t.account_branch_pickup}: </span>
-                  <span className="font-medium">{b.portOrPickupPoint}</span>
-                </span>
-              </div>
-              {b.notes ? (
-                <p className="text-xs text-muted-foreground italic">{b.notes}</p>
-              ) : null}
+      {draft ? (
+        <AccountSectionCard
+          title={editingId ? t.account_branch_form_title_edit : t.account_branch_form_title_add}
+          description={t.account_branch_form_desc}
+          testId="account-branch-form"
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <FormRow label={t.account_branch_field_name} required error={errors.name}>
+              <Input
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                data-testid="account-branch-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_branch_field_type}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.type}
+                onChange={(e) =>
+                  setDraft({ ...draft, type: e.target.value as CompanyBranch["type"] })
+                }
+                data-testid="account-branch-type"
+              >
+                {BRANCH_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {branchTypeLabel[type]}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+            <FormRow label={t.account_company_country} required error={errors.country}>
+              <Input
+                value={draft.country}
+                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                data-testid="account-branch-country"
+              />
+            </FormRow>
+            <FormRow label={t.account_branch_field_region}>
+              <Input
+                value={draft.region}
+                onChange={(e) => setDraft({ ...draft, region: e.target.value })}
+                data-testid="account-branch-region"
+              />
+            </FormRow>
+            <FormRow label={t.account_branch_field_city} required error={errors.city}>
+              <Input
+                value={draft.city}
+                onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+                data-testid="account-branch-city"
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_branch_field_address}
+              required
+              error={errors.addressLine}
+            >
+              <Input
+                value={draft.addressLine}
+                onChange={(e) => setDraft({ ...draft, addressLine: e.target.value })}
+                data-testid="account-branch-address"
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_branch_incoterms}
+              required
+              error={errors.defaultIncoterms}
+            >
+              <Input
+                value={draft.defaultIncoterms}
+                onChange={(e) => setDraft({ ...draft, defaultIncoterms: e.target.value })}
+                data-testid="account-branch-incoterms"
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_branch_pickup}
+              required
+              error={errors.portOrPickupPoint}
+            >
+              <Input
+                value={draft.portOrPickupPoint}
+                onChange={(e) => setDraft({ ...draft, portOrPickupPoint: e.target.value })}
+                data-testid="account-branch-pickup"
+              />
+            </FormRow>
+            <div className="md:col-span-2">
+              <FormRow label={t.account_branch_field_notes} error={errors.notes}>
+                <Textarea
+                  value={draft.notes}
+                  onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
+                  data-testid="account-branch-notes"
+                />
+              </FormRow>
             </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelEdit}
+              data-testid="account-branch-cancel"
+            >
+              {t.account_action_cancel}
+            </Button>
+            <Button type="button" onClick={saveDraft} data-testid="account-branch-save">
+              {t.account_action_save}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {profile.branches.length === 0 ? (
+          <AccountSectionCard title={t.account_branch_empty} testId="account-branch-empty">
+            <p className="text-sm text-muted-foreground">{t.account_branch_empty_desc}</p>
           </AccountSectionCard>
-        ))}
+        ) : (
+          profile.branches.map((b) => (
+            <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
+              <div className="space-y-3">
+                <BranchTypeBadge type={b.type} />
+                <p className="text-sm">
+                  {[b.city, b.region, b.country].filter(Boolean).join(", ")}
+                </p>
+                <p className="text-xs text-muted-foreground">{b.addressLine}</p>
+                <div className="flex flex-wrap gap-3 text-xs">
+                  <span>
+                    <span className="text-muted-foreground">{t.account_branch_incoterms}: </span>
+                    <span className="font-medium">{b.defaultIncoterms}</span>
+                  </span>
+                  <span>
+                    <span className="text-muted-foreground">{t.account_branch_pickup}: </span>
+                    <span className="font-medium">{b.portOrPickupPoint}</span>
+                  </span>
+                </div>
+                {b.notes ? (
+                  <p className="text-xs text-muted-foreground italic">{b.notes}</p>
+                ) : null}
+                <div className="flex justify-end gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEdit(b)}
+                    data-testid={`account-branch-edit-${b.id}`}
+                  >
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                    {t.account_action_edit}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteBranch(b.id)}
+                    aria-label={`${t.account_branch_delete}: ${b.name}`}
+                    data-testid={`account-branch-delete-${b.id}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                  </Button>
+                </div>
+              </div>
+            </AccountSectionCard>
+          ))
+        )}
       </div>
     </div>
   );
@@ -1887,7 +2138,7 @@ const Account = () => {
       content = <CompanySection profile={profile} onChange={update} />;
       break;
     case "branches":
-      content = <BranchesSection profile={profile} />;
+      content = <BranchesSection profile={profile} onChange={update} />;
       break;
     case "products":
       content = <ProductsSection profile={profile} onChange={update} />;
