@@ -222,6 +222,65 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.locator('[data-testid^="account-product-row-"]')).toHaveCount(1);
   });
 
+  test("URL params hydrate product search, filters, sorting and page size", async ({
+    page,
+  }) => {
+    await setSignedInStorage(page);
+    await page.goto(
+      "/account/products?q=shrimp&state=frozen&role=both&sort=monthlyVolume&dir=desc&rows=2&page=1",
+      { waitUntil: "domcontentloaded" },
+    );
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByTestId("account-section-products")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("account-product-search")).toHaveValue("shrimp");
+    await expect(page.getByTestId("account-product-state-filter")).toHaveValue("frozen");
+    await expect(page.getByTestId("account-product-role-filter")).toHaveValue("both");
+    await expect(page.getByTestId("account-product-sort-key")).toHaveValue("monthlyVolume");
+    await expect(page.getByTestId("account-product-sort-direction")).toHaveValue("desc");
+    await expect(page.getByTestId("account-product-page-size")).toHaveValue("2");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
+    await expect(page.getByTestId("account-product-page-summary")).toContainText("Showing 1-1 of 1");
+    expect(await firstProductRowText(page)).toContain("Vannamei Shrimp");
+  });
+
+  test("share view writes URL params and reset clears filter params", async ({ page }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-search").fill("cod");
+    await page.getByTestId("account-product-state-filter").selectOption("frozen");
+    await page.getByTestId("account-product-role-filter").selectOption("selling");
+    await page.getByTestId("account-product-sort-key").selectOption("monthlyVolume");
+    await page.getByTestId("account-product-sort-direction").selectOption("desc");
+    await page.getByTestId("account-product-page-size").selectOption("2");
+    await page.getByTestId("account-product-share-view").click();
+
+    await expect(page.getByTestId("account-product-link-status")).toBeVisible();
+    const params = await page.evaluate(() => Object.fromEntries(new URL(location.href).searchParams));
+    expect(params).toMatchObject({
+      q: "cod",
+      state: "frozen",
+      role: "selling",
+      sort: "monthlyVolume",
+      dir: "desc",
+      rows: "2",
+    });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("account-product-search")).toHaveValue("cod");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
+    expect(await firstProductRowText(page)).toContain("Atlantic Cod H&G");
+
+    await page.getByTestId("account-product-search-clear").click();
+    const resetParams = await page.evaluate(() =>
+      Object.fromEntries(new URL(location.href).searchParams),
+    );
+    expect(resetParams).not.toHaveProperty("q");
+    expect(resetParams).not.toHaveProperty("state");
+    expect(resetParams).not.toHaveProperty("role");
+  });
+
   test("product view controls expose accessible names", async ({ page }) => {
     await openProducts(page);
 
@@ -229,6 +288,7 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByLabel("Order")).toHaveValue("asc");
     await expect(page.getByLabel("Rows")).toHaveValue("10");
     await page.getByLabel("Rows").selectOption("2");
+    await expect(page.getByRole("button", { name: "Share view" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Previous" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
   });

@@ -1454,6 +1454,8 @@ type TranslationKeys = {
   account_product_page_status: string;
   account_product_page_previous: string;
   account_product_page_next: string;
+  account_product_share_view: string;
+  account_product_link_ready: string;
   account_product_results_count: string;
   account_product_noResults: string;
   account_product_noResults_desc: string;
@@ -3084,6 +3086,8 @@ const en: TranslationKeys = {
   account_product_page_status: "Page {current} of {total}",
   account_product_page_previous: "Previous",
   account_product_page_next: "Next",
+  account_product_share_view: "Share view",
+  account_product_link_ready: "The current product view is now in the page URL.",
   account_product_results_count: "{visible} of {total} products shown",
   account_product_noResults: "No matching products",
   account_product_noResults_desc: "Clear search or filters to return to the full product matrix.",
@@ -4701,6 +4705,8 @@ const ru: TranslationKeys = {
   account_product_page_status: "Страница {current} из {total}",
   account_product_page_previous: "Назад",
   account_product_page_next: "Вперёд",
+  account_product_share_view: "Ссылка на вид",
+  account_product_link_ready: "Текущий вид матрицы продуктов добавлен в адрес страницы.",
   account_product_results_count: "Показано {visible} из {total} продуктов",
   account_product_noResults: "Подходящие продукты не найдены",
   account_product_noResults_desc: "Сбросьте поиск или фильтры, чтобы вернуться к полной матрице продуктов.",
@@ -6317,6 +6323,8 @@ const es: TranslationKeys = {
   account_product_page_status: "Página {current} de {total}",
   account_product_page_previous: "Anterior",
   account_product_page_next: "Siguiente",
+  account_product_share_view: "Compartir vista",
+  account_product_link_ready: "La vista actual de productos ya está en la URL de la página.",
   account_product_results_count: "{visible} de {total} productos visibles",
   account_product_noResults: "No hay productos coincidentes",
   account_product_noResults_desc: "Limpia la búsqueda o los filtros para volver a la matriz completa.",

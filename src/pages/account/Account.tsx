@@ -1,5 +1,5 @@
 import { cloneElement, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
@@ -1468,6 +1468,17 @@ const isSortDirection = (value: unknown): value is SortDirection =>
 const isProductPageSize = (value: unknown): value is ProductPageSize =>
   typeof value === "number" && PRODUCT_PAGE_SIZE_OPTIONS.includes(value as ProductPageSize);
 
+const isProductState = (value: unknown): value is CompanyProduct["state"] =>
+  typeof value === "string" && PRODUCT_STATES.includes(value as CompanyProduct["state"]);
+
+const isProductRole = (value: unknown): value is CompanyProduct["role"] =>
+  typeof value === "string" && PRODUCT_ROLES.includes(value as CompanyProduct["role"]);
+
+const parseProductPageIndex = (value: string | null) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) - 1 : 0;
+};
+
 const readProductViewPrefs = (): {
   sortKey: ProductSortKey;
   sortDirection: SortDirection;
@@ -1494,6 +1505,25 @@ const readProductViewPrefs = (): {
   } catch {
     return fallbackPrefs;
   }
+};
+
+const readProductInitialView = (searchParams: URLSearchParams) => {
+  const storedPrefs = readProductViewPrefs();
+  const sortParam = searchParams.get("sort");
+  const directionParam = searchParams.get("dir");
+  const rowsParam = Number(searchParams.get("rows"));
+  const stateParam = searchParams.get("state");
+  const roleParam = searchParams.get("role");
+
+  return {
+    query: searchParams.get("q") ?? "",
+    stateFilter: isProductState(stateParam) ? stateParam : ("all" as const),
+    roleFilter: isProductRole(roleParam) ? roleParam : ("all" as const),
+    sortKey: isProductSortKey(sortParam) ? sortParam : storedPrefs.sortKey,
+    sortDirection: isSortDirection(directionParam) ? directionParam : storedPrefs.sortDirection,
+    pageSize: isProductPageSize(rowsParam) ? rowsParam : storedPrefs.pageSize,
+    pageIndex: parseProductPageIndex(searchParams.get("page")),
+  };
 };
 
 const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
@@ -1566,20 +1596,25 @@ const ProductsSection = ({
   onChange: (next: AccountProfile) => void;
 }) => {
   const { t } = useLanguage();
-  const initialViewPrefs = useMemo(readProductViewPrefs, []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [initialView] = useState(() => readProductInitialView(searchParams));
   const [draft, setDraft] = useState<CompanyProduct | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [stateFilter, setStateFilter] = useState<CompanyProduct["state"] | "all">("all");
-  const [roleFilter, setRoleFilter] = useState<CompanyProduct["role"] | "all">("all");
-  const [sortKey, setSortKey] = useState<ProductSortKey>(initialViewPrefs.sortKey);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(
-    initialViewPrefs.sortDirection,
+  const [query, setQuery] = useState(initialView.query);
+  const [stateFilter, setStateFilter] = useState<CompanyProduct["state"] | "all">(
+    initialView.stateFilter,
   );
-  const [pageSize, setPageSize] = useState<ProductPageSize>(initialViewPrefs.pageSize);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [roleFilter, setRoleFilter] = useState<CompanyProduct["role"] | "all">(
+    initialView.roleFilter,
+  );
+  const [sortKey, setSortKey] = useState<ProductSortKey>(initialView.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(initialView.sortDirection);
+  const [pageSize, setPageSize] = useState<ProductPageSize>(initialView.pageSize);
+  const [pageIndex, setPageIndex] = useState(initialView.pageIndex);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [shareStatusVisible, setShareStatusVisible] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const productViewMountedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1590,8 +1625,16 @@ const ProductsSection = ({
   }, [pageSize, sortDirection, sortKey]);
 
   useEffect(() => {
+    if (!productViewMountedRef.current) {
+      productViewMountedRef.current = true;
+      return;
+    }
     setPageIndex(0);
   }, [pageSize, query, roleFilter, sortDirection, sortKey, stateFilter]);
+
+  useEffect(() => {
+    setShareStatusVisible(false);
+  }, [pageIndex, pageSize, query, roleFilter, sortDirection, sortKey, stateFilter]);
 
   const sortKeyLabel = (key: ProductSortKey) =>
     ({
@@ -1669,6 +1712,26 @@ const ProductsSection = ({
     setStateFilter("all");
     setRoleFilter("all");
     setPageIndex(0);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("q");
+    nextParams.delete("state");
+    nextParams.delete("role");
+    nextParams.delete("page");
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const shareCurrentView = () => {
+    const nextParams = new URLSearchParams();
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) nextParams.set("q", trimmedQuery);
+    if (stateFilter !== "all") nextParams.set("state", stateFilter);
+    if (roleFilter !== "all") nextParams.set("role", roleFilter);
+    if (sortKey !== "commercialName") nextParams.set("sort", sortKey);
+    if (sortDirection !== "asc") nextParams.set("dir", sortDirection);
+    if (pageSize !== 10) nextParams.set("rows", String(pageSize));
+    if (safePageIndex > 0) nextParams.set("page", String(safePageIndex + 1));
+    setSearchParams(nextParams, { replace: false });
+    setShareStatusVisible(true);
   };
 
   const startAdd = () => {
@@ -1758,7 +1821,7 @@ const ProductsSection = ({
           description={t.account_product_search_desc}
           testId="account-product-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_150px_150px_170px_140px_130px_auto] xl:items-end">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(0,1fr)_150px_150px_170px_140px_130px_auto] 2xl:items-end">
             <FormRow label={t.account_product_search_label}>
               <div className="relative">
                 <Search
@@ -1847,16 +1910,26 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={resetFilters}
-              disabled={!query && stateFilter === "all" && roleFilter === "all"}
-              data-testid="account-product-search-clear"
-            >
-              <X className="mr-2 h-4 w-4" aria-hidden />
-              {t.account_action_reset}
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row 2xl:flex-col">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+                disabled={!query && stateFilter === "all" && roleFilter === "all"}
+                data-testid="account-product-search-clear"
+              >
+                <X className="mr-2 h-4 w-4" aria-hidden />
+                {t.account_action_reset}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={shareCurrentView}
+                data-testid="account-product-share-view"
+              >
+                {t.account_product_share_view}
+              </Button>
+            </div>
           </div>
           <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p data-testid="account-product-results-count" aria-live="polite">
@@ -1875,6 +1948,11 @@ const ProductsSection = ({
               </p>
             ) : null}
           </div>
+          {shareStatusVisible ? (
+            <p className="mt-2 text-xs text-muted-foreground" data-testid="account-product-link-status">
+              {t.account_product_link_ready}
+            </p>
+          ) : null}
         </AccountSectionCard>
       ) : null}
       {draft ? (
