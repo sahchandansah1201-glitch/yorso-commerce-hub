@@ -1438,6 +1438,16 @@ type TranslationKeys = {
   account_product_state_filter_all: string;
   account_product_role_filter_label: string;
   account_product_role_filter_all: string;
+  account_product_sort_label: string;
+  account_product_sort_direction_label: string;
+  account_product_sort_by_product: string;
+  account_product_sort_by_category: string;
+  account_product_sort_by_state: string;
+  account_product_sort_by_role: string;
+  account_product_sort_by_volume: string;
+  account_product_sort_asc: string;
+  account_product_sort_desc: string;
+  account_product_sorted_by: string;
   account_product_results_count: string;
   account_product_noResults: string;
   account_product_noResults_desc: string;
@@ -3052,6 +3062,16 @@ const en: TranslationKeys = {
   account_product_state_filter_all: "All states",
   account_product_role_filter_label: "Role",
   account_product_role_filter_all: "All roles",
+  account_product_sort_label: "Sort by",
+  account_product_sort_direction_label: "Order",
+  account_product_sort_by_product: "Product name",
+  account_product_sort_by_category: "Category",
+  account_product_sort_by_state: "State",
+  account_product_sort_by_role: "Role",
+  account_product_sort_by_volume: "Monthly volume",
+  account_product_sort_asc: "Ascending",
+  account_product_sort_desc: "Descending",
+  account_product_sorted_by: "Sorted by {field}",
   account_product_results_count: "{visible} of {total} products shown",
   account_product_noResults: "No matching products",
   account_product_noResults_desc: "Clear search or filters to return to the full product matrix.",
@@ -4653,6 +4673,16 @@ const ru: TranslationKeys = {
   account_product_state_filter_all: "Все состояния",
   account_product_role_filter_label: "Роль",
   account_product_role_filter_all: "Все роли",
+  account_product_sort_label: "Сортировать по",
+  account_product_sort_direction_label: "Порядок",
+  account_product_sort_by_product: "Названию продукта",
+  account_product_sort_by_category: "Категории",
+  account_product_sort_by_state: "Состоянию",
+  account_product_sort_by_role: "Роли",
+  account_product_sort_by_volume: "Объёму в месяц",
+  account_product_sort_asc: "По возрастанию",
+  account_product_sort_desc: "По убыванию",
+  account_product_sorted_by: "Сортировка: {field}",
   account_product_results_count: "Показано {visible} из {total} продуктов",
   account_product_noResults: "Подходящие продукты не найдены",
   account_product_noResults_desc: "Сбросьте поиск или фильтры, чтобы вернуться к полной матрице продуктов.",
@@ -6253,6 +6283,16 @@ const es: TranslationKeys = {
   account_product_state_filter_all: "Todos los estados",
   account_product_role_filter_label: "Rol",
   account_product_role_filter_all: "Todos los roles",
+  account_product_sort_label: "Ordenar por",
+  account_product_sort_direction_label: "Orden",
+  account_product_sort_by_product: "Nombre de producto",
+  account_product_sort_by_category: "Categoría",
+  account_product_sort_by_state: "Estado",
+  account_product_sort_by_role: "Rol",
+  account_product_sort_by_volume: "Volumen mensual",
+  account_product_sort_asc: "Ascendente",
+  account_product_sort_desc: "Descendente",
+  account_product_sorted_by: "Ordenado por {field}",
   account_product_results_count: "{visible} de {total} productos visibles",
   account_product_noResults: "No hay productos coincidentes",
   account_product_noResults_desc: "Limpia la búsqueda o los filtros para volver a la matriz completa.",
