@@ -244,6 +244,33 @@ test.describe("/account/products · editable product matrix", () => {
     expect(await firstProductRowText(page)).toContain("Vannamei Shrimp");
   });
 
+  test("invalid product URL params fall back safely and show a localized warning", async ({
+    page,
+  }) => {
+    await setSignedInStorage(page);
+    await page.goto(
+      "/account/products?q=&state=invalid-state&role=invalid-role&sort=unknown&dir=sideways&rows=3&page=0",
+      { waitUntil: "domcontentloaded" },
+    );
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByTestId("account-product-state-filter")).toHaveValue("all");
+    await expect(page.getByTestId("account-product-role-filter")).toHaveValue("all");
+    await expect(page.getByTestId("account-product-sort-key")).toHaveValue("commercialName");
+    await expect(page.getByTestId("account-product-sort-direction")).toHaveValue("asc");
+    await expect(page.getByTestId("account-product-page-size")).toHaveValue("10");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
+
+    const warning = page.getByTestId("account-product-link-warning");
+    await expect(warning).toBeVisible();
+    await expect(warning).toContainText("state");
+    await expect(warning).toContainText("role");
+    await expect(warning).toContainText("sort");
+    await expect(warning).toContainText("dir");
+    await expect(warning).toContainText("rows");
+    await expect(warning).toContainText("page");
+  });
+
   test("share view writes URL params and reset clears filter params", async ({ page }) => {
     await openProducts(page);
 
@@ -256,6 +283,9 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-share-view").click();
 
     await expect(page.getByTestId("account-product-link-status")).toBeVisible();
+    await expect(page.getByTestId("account-product-link-status")).toContainText(
+      "Product view link updated",
+    );
     const params = await page.evaluate(() => Object.fromEntries(new URL(location.href).searchParams));
     expect(params).toMatchObject({
       q: "cod",
@@ -288,9 +318,37 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByLabel("Order")).toHaveValue("asc");
     await expect(page.getByLabel("Rows")).toHaveValue("10");
     await page.getByLabel("Rows").selectOption("2");
+    await expect(page.getByRole("button", { name: "Clear filters" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share view" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Previous" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
+  });
+
+  test("product controls are not covered by the right readiness panel at desktop width", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openProducts(page);
+
+    const shareButton = page.getByTestId("account-product-share-view");
+    await shareButton.scrollIntoViewIfNeeded();
+    await expect(shareButton).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const button = document.querySelector<HTMLElement>(
+            '[data-testid="account-product-share-view"]',
+          );
+          if (!button) return false;
+          const rect = button.getBoundingClientRect();
+          const target = document.elementFromPoint(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+          );
+          return Boolean(target && button.contains(target));
+        }),
+      )
+      .toBe(true);
   });
 
   test("duplicate guard blocks identical product matching records", async ({ page }) => {
@@ -418,6 +476,7 @@ test.describe("/account/products · editable product matrix", () => {
     expect(text).toContain("Сортировать по");
     expect(text).toContain("Сортировка: Названию продукта");
     expect(text).toContain("Показаны 1-7 из 7");
+    expect(text).toContain("Очистить фильтры");
     expect(text).not.toMatch(/\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/);
   });
 });

@@ -1474,9 +1474,14 @@ const isProductState = (value: unknown): value is CompanyProduct["state"] =>
 const isProductRole = (value: unknown): value is CompanyProduct["role"] =>
   typeof value === "string" && PRODUCT_ROLES.includes(value as CompanyProduct["role"]);
 
-const parseProductPageIndex = (value: string | null) => {
+const isProductPageParam = (value: string | null) => {
+  if (!value) return false;
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) - 1 : 0;
+  return Number.isFinite(parsed) && parsed > 0;
+};
+
+const parseProductPageIndex = (value: string | null) => {
+  return isProductPageParam(value) ? Math.floor(Number(value)) - 1 : 0;
 };
 
 const readProductViewPrefs = (): {
@@ -1514,6 +1519,15 @@ const readProductInitialView = (searchParams: URLSearchParams) => {
   const rowsParam = Number(searchParams.get("rows"));
   const stateParam = searchParams.get("state");
   const roleParam = searchParams.get("role");
+  const pageParam = searchParams.get("page");
+  const ignoredParams = [
+    stateParam !== null && !isProductState(stateParam) ? "state" : null,
+    roleParam !== null && !isProductRole(roleParam) ? "role" : null,
+    sortParam !== null && !isProductSortKey(sortParam) ? "sort" : null,
+    directionParam !== null && !isSortDirection(directionParam) ? "dir" : null,
+    searchParams.has("rows") && !isProductPageSize(rowsParam) ? "rows" : null,
+    searchParams.has("page") && !isProductPageParam(pageParam) ? "page" : null,
+  ].filter(Boolean) as string[];
 
   return {
     query: searchParams.get("q") ?? "",
@@ -1522,7 +1536,8 @@ const readProductInitialView = (searchParams: URLSearchParams) => {
     sortKey: isProductSortKey(sortParam) ? sortParam : storedPrefs.sortKey,
     sortDirection: isSortDirection(directionParam) ? directionParam : storedPrefs.sortDirection,
     pageSize: isProductPageSize(rowsParam) ? rowsParam : storedPrefs.pageSize,
-    pageIndex: parseProductPageIndex(searchParams.get("page")),
+    pageIndex: parseProductPageIndex(pageParam),
+    ignoredParams,
   };
 };
 
@@ -1613,6 +1628,7 @@ const ProductsSection = ({
   const [pageIndex, setPageIndex] = useState(initialView.pageIndex);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [shareStatusVisible, setShareStatusVisible] = useState(false);
+  const [ignoredLinkParams, setIgnoredLinkParams] = useState(initialView.ignoredParams);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const productViewMountedRef = useRef(false);
 
@@ -1712,6 +1728,7 @@ const ProductsSection = ({
     setStateFilter("all");
     setRoleFilter("all");
     setPageIndex(0);
+    setIgnoredLinkParams([]);
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete("q");
     nextParams.delete("state");
@@ -1730,6 +1747,7 @@ const ProductsSection = ({
     if (sortDirection !== "asc") nextParams.set("dir", sortDirection);
     if (pageSize !== 10) nextParams.set("rows", String(pageSize));
     if (safePageIndex > 0) nextParams.set("page", String(safePageIndex + 1));
+    setIgnoredLinkParams([]);
     setSearchParams(nextParams, { replace: false });
     setShareStatusVisible(true);
   };
@@ -1919,7 +1937,7 @@ const ProductsSection = ({
                 data-testid="account-product-search-clear"
               >
                 <X className="mr-2 h-4 w-4" aria-hidden />
-                {t.account_action_reset}
+                {t.account_product_clear_filters}
               </Button>
               <Button
                 type="button"
@@ -1949,8 +1967,23 @@ const ProductsSection = ({
             ) : null}
           </div>
           {shareStatusVisible ? (
-            <p className="mt-2 text-xs text-muted-foreground" data-testid="account-product-link-status">
+            <p
+              className="mt-2 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground"
+              data-testid="account-product-link-status"
+              role="status"
+              aria-live="polite"
+            >
               {t.account_product_link_ready}
+            </p>
+          ) : null}
+          {ignoredLinkParams.length ? (
+            <p
+              className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+              data-testid="account-product-link-warning"
+              role="status"
+              aria-live="polite"
+            >
+              {t.account_product_link_ignored.replace("{params}", ignoredLinkParams.join(", "))}
             </p>
           ) : null}
         </AccountSectionCard>
@@ -2097,7 +2130,7 @@ const ProductsSection = ({
                       onClick={resetFilters}
                       data-testid="account-product-no-results-reset"
                     >
-                      {t.account_action_reset}
+                      {t.account_product_clear_filters}
                     </Button>
                   </div>
                 </td>
