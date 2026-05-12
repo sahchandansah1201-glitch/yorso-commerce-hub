@@ -30,6 +30,28 @@ const openProducts = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
   await expect(page.getByTestId("account-section-products")).toBeVisible({ timeout: 15_000 });
 };
 
+const mockClipboardSuccess = async (page: Page) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, "clipboard", {
+      configurable: true,
+      get: () => ({
+        writeText: async (text: string) => {
+          window.localStorage.setItem("yorso_e2e_copied_product_link", text);
+        },
+      }),
+    });
+  });
+};
+
+const mockClipboardUnavailable = async (page: Page) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, "clipboard", {
+      configurable: true,
+      get: () => undefined,
+    });
+  });
+};
+
 const mainText = async (page: Page) => (await page.locator("main").textContent()) ?? "";
 
 const firstProductRowText = async (page: Page) =>
@@ -269,9 +291,25 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(warning).toContainText("dir");
     await expect(warning).toContainText("rows");
     await expect(warning).toContainText("page");
+
+    await page.getByTestId("account-product-clean-link").click();
+    await expect(warning).not.toBeVisible();
+    await expect(page.getByTestId("account-product-share-view")).toBeFocused();
+    const cleanParams = await page.evaluate(() =>
+      Object.fromEntries(new URL(location.href).searchParams),
+    );
+    expect(cleanParams).not.toHaveProperty("state");
+    expect(cleanParams).not.toHaveProperty("role");
+    expect(cleanParams).not.toHaveProperty("sort");
+    expect(cleanParams).not.toHaveProperty("dir");
+    expect(cleanParams).not.toHaveProperty("rows");
+    expect(cleanParams).not.toHaveProperty("page");
   });
 
-  test("share view writes URL params and reset clears filter params", async ({ page }) => {
+  test("share view copies URL params, focuses the generated link and reset clears filters", async ({
+    page,
+  }) => {
+    await mockClipboardSuccess(page);
     await openProducts(page);
 
     await page.getByTestId("account-product-search").fill("cod");
@@ -284,8 +322,10 @@ test.describe("/account/products · editable product matrix", () => {
 
     await expect(page.getByTestId("account-product-link-status")).toBeVisible();
     await expect(page.getByTestId("account-product-link-status")).toContainText(
-      "Product view link updated",
+      "Product view link copied",
     );
+    await expect(page.getByTestId("account-product-share-url")).toBeVisible();
+    await expect(page.getByTestId("account-product-share-url")).toBeFocused();
     const params = await page.evaluate(() => Object.fromEntries(new URL(location.href).searchParams));
     expect(params).toMatchObject({
       q: "cod",
@@ -295,6 +335,13 @@ test.describe("/account/products · editable product matrix", () => {
       dir: "desc",
       rows: "2",
     });
+    const generatedUrl = await page.getByTestId("account-product-share-url").inputValue();
+    expect(generatedUrl).toContain("/account/products?");
+    expect(generatedUrl).toContain("q=cod");
+    expect(generatedUrl).toContain("sort=monthlyVolume");
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem("yorso_e2e_copied_product_link")))
+      .toBe(generatedUrl);
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
@@ -311,6 +358,24 @@ test.describe("/account/products · editable product matrix", () => {
     expect(resetParams).not.toHaveProperty("role");
   });
 
+  test("share view exposes a manual copy field when clipboard is unavailable", async ({ page }) => {
+    await mockClipboardUnavailable(page);
+    await openProducts(page);
+
+    await page.getByTestId("account-product-search").fill("mackerel");
+    await page.getByTestId("account-product-share-view").focus();
+    await page.keyboard.press("Enter");
+
+    await expect(page.getByTestId("account-product-link-status")).toContainText(
+      "Product view link is ready",
+    );
+    await expect(page.getByTestId("account-product-share-url")).toBeFocused();
+    await expect(page.getByTestId("account-product-share-url")).toHaveValue(/q=mackerel/);
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem("yorso_e2e_copied_product_link")))
+      .toBeNull();
+  });
+
   test("product view controls expose accessible names", async ({ page }) => {
     await openProducts(page);
 
@@ -320,6 +385,9 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByLabel("Rows").selectOption("2");
     await expect(page.getByRole("button", { name: "Clear filters" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share view" })).toBeVisible();
+    await page.getByRole("button", { name: "Share view" }).click();
+    await expect(page.getByLabel("Product view URL")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copy link" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Previous" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Next" })).toBeEnabled();
   });
@@ -477,6 +545,7 @@ test.describe("/account/products · editable product matrix", () => {
     expect(text).toContain("Сортировка: Названию продукта");
     expect(text).toContain("Показаны 1-7 из 7");
     expect(text).toContain("Очистить фильтры");
+    expect(text).toContain("Ссылка на вид");
     expect(text).not.toMatch(/\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/);
   });
 });
