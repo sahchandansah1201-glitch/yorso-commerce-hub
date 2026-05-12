@@ -1,4 +1,4 @@
-import { cloneElement, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { cloneElement, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
@@ -1455,6 +1455,46 @@ const PRODUCT_SORT_KEYS: ProductSortKey[] = [
   "role",
   "monthlyVolume",
 ];
+const PRODUCT_PAGE_SIZE_OPTIONS = [2, 5, 10, 25] as const;
+type ProductPageSize = (typeof PRODUCT_PAGE_SIZE_OPTIONS)[number];
+const PRODUCT_VIEW_STORAGE_KEY = "yorso_account_products_view_v1";
+
+const isProductSortKey = (value: unknown): value is ProductSortKey =>
+  typeof value === "string" && PRODUCT_SORT_KEYS.includes(value as ProductSortKey);
+
+const isSortDirection = (value: unknown): value is SortDirection =>
+  value === "asc" || value === "desc";
+
+const isProductPageSize = (value: unknown): value is ProductPageSize =>
+  typeof value === "number" && PRODUCT_PAGE_SIZE_OPTIONS.includes(value as ProductPageSize);
+
+const readProductViewPrefs = (): {
+  sortKey: ProductSortKey;
+  sortDirection: SortDirection;
+  pageSize: ProductPageSize;
+} => {
+  const fallbackPrefs = {
+    sortKey: "commercialName" as ProductSortKey,
+    sortDirection: "asc" as SortDirection,
+    pageSize: 10 as ProductPageSize,
+  };
+  if (typeof window === "undefined") return fallbackPrefs;
+
+  try {
+    const raw = window.localStorage.getItem(PRODUCT_VIEW_STORAGE_KEY);
+    if (!raw) return fallbackPrefs;
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return {
+      sortKey: isProductSortKey(parsed.sortKey) ? parsed.sortKey : fallbackPrefs.sortKey,
+      sortDirection: isSortDirection(parsed.sortDirection)
+        ? parsed.sortDirection
+        : fallbackPrefs.sortDirection,
+      pageSize: isProductPageSize(parsed.pageSize) ? parsed.pageSize : fallbackPrefs.pageSize,
+    };
+  } catch {
+    return fallbackPrefs;
+  }
+};
 
 const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
   ({
@@ -1526,15 +1566,32 @@ const ProductsSection = ({
   onChange: (next: AccountProfile) => void;
 }) => {
   const { t } = useLanguage();
+  const initialViewPrefs = useMemo(readProductViewPrefs, []);
   const [draft, setDraft] = useState<CompanyProduct | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [stateFilter, setStateFilter] = useState<CompanyProduct["state"] | "all">("all");
   const [roleFilter, setRoleFilter] = useState<CompanyProduct["role"] | "all">("all");
-  const [sortKey, setSortKey] = useState<ProductSortKey>("commercialName");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortKey, setSortKey] = useState<ProductSortKey>(initialViewPrefs.sortKey);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(
+    initialViewPrefs.sortDirection,
+  );
+  const [pageSize, setPageSize] = useState<ProductPageSize>(initialViewPrefs.pageSize);
+  const [pageIndex, setPageIndex] = useState(0);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      PRODUCT_VIEW_STORAGE_KEY,
+      JSON.stringify({ sortKey, sortDirection, pageSize }),
+    );
+  }, [pageSize, sortDirection, sortKey]);
+
+  useEffect(() => {
+    setPageIndex(0);
+  }, [pageSize, query, roleFilter, sortDirection, sortKey, stateFilter]);
 
   const sortKeyLabel = (key: ProductSortKey) =>
     ({
@@ -1597,6 +1654,12 @@ const ProductsSection = ({
     });
   }, [profile.products, query, roleFilter, sortDirection, sortKey, stateFilter, t]);
 
+  const pageCount = Math.max(1, Math.ceil(visibleProducts.length / pageSize));
+  const safePageIndex = Math.min(pageIndex, pageCount - 1);
+  const pageStart = visibleProducts.length === 0 ? 0 : safePageIndex * pageSize + 1;
+  const pageEnd = Math.min(visibleProducts.length, (safePageIndex + 1) * pageSize);
+  const pagedProducts = visibleProducts.slice(safePageIndex * pageSize, pageEnd);
+
   const selectedProduct = selectedProductId
     ? profile.products.find((product) => product.id === selectedProductId) ?? null
     : null;
@@ -1605,6 +1668,7 @@ const ProductsSection = ({
     setQuery("");
     setStateFilter("all");
     setRoleFilter("all");
+    setPageIndex(0);
   };
 
   const startAdd = () => {
@@ -1694,7 +1758,7 @@ const ProductsSection = ({
           description={t.account_product_search_desc}
           testId="account-product-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_160px_160px_180px_150px_auto] xl:items-end">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_150px_150px_170px_140px_130px_auto] xl:items-end">
             <FormRow label={t.account_product_search_label}>
               <div className="relative">
                 <Search
@@ -1769,6 +1833,20 @@ const ProductsSection = ({
                 <option value="desc">{t.account_product_sort_desc}</option>
               </select>
             </FormRow>
+            <FormRow label={t.account_product_page_size_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={pageSize}
+                onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
+                data-testid="account-product-page-size"
+              >
+                {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
+                  <option key={size} value={size}>
+                    {t.account_product_page_size_option.replace("{count}", String(size))}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
             <Button
               type="button"
               variant="outline"
@@ -1780,13 +1858,23 @@ const ProductsSection = ({
               {t.account_action_reset}
             </Button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground" data-testid="account-product-results-count">
-            {t.account_product_results_count
-              .replace("{visible}", String(visibleProducts.length))
-              .replace("{total}", String(profile.products.length))}
-            {" · "}
-            {t.account_product_sorted_by.replace("{field}", sortKeyLabel(sortKey))}
-          </p>
+          <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+            <p data-testid="account-product-results-count" aria-live="polite">
+              {t.account_product_results_count
+                .replace("{visible}", String(visibleProducts.length))
+                .replace("{total}", String(profile.products.length))}
+              {" · "}
+              {t.account_product_sorted_by.replace("{field}", sortKeyLabel(sortKey))}
+            </p>
+            {visibleProducts.length > 0 ? (
+              <p data-testid="account-product-page-summary" aria-live="polite">
+                {t.account_product_page_summary
+                  .replace("{start}", String(pageStart))
+                  .replace("{end}", String(pageEnd))
+                  .replace("{total}", String(visibleProducts.length))}
+              </p>
+            ) : null}
+          </div>
         </AccountSectionCard>
       ) : null}
       {draft ? (
@@ -1937,7 +2025,7 @@ const ProductsSection = ({
                 </td>
               </tr>
             ) : (
-              visibleProducts.map((p: CompanyProduct) => (
+              pagedProducts.map((p: CompanyProduct) => (
                 <tr
                   key={p.id}
                   className="border-t border-border align-top"
@@ -2008,6 +2096,42 @@ const ProductsSection = ({
           </tbody>
         </table>
       </div>
+      {visibleProducts.length > pageSize ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-border bg-card px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+          data-testid="account-product-pagination"
+        >
+          <p className="text-muted-foreground">
+            {t.account_product_page_status
+              .replace("{current}", String(safePageIndex + 1))
+              .replace("{total}", String(pageCount))}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
+              disabled={safePageIndex === 0}
+              aria-label={t.account_product_page_previous}
+              data-testid="account-product-page-previous"
+            >
+              {t.account_product_page_previous}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPageIndex((current) => Math.min(pageCount - 1, current + 1))}
+              disabled={safePageIndex >= pageCount - 1}
+              aria-label={t.account_product_page_next}
+              data-testid="account-product-page-next"
+            >
+              {t.account_product_page_next}
+            </Button>
+          </div>
+        </div>
+      ) : null}
       {selectedProduct ? (
         <AccountSectionCard
           title={t.account_product_details_title}
