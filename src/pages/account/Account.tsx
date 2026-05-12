@@ -1618,7 +1618,29 @@ const MetaRegionsSection = ({
 
 // ─── NOTIFICATIONS ─────────────────────────────────────────────────
 
-const NotificationsSection = ({ profile }: { profile: AccountProfile }) => {
+const NOTIFICATION_EVENTS: Array<NotificationPreference["events"][number]> = [
+  "price_access_approved",
+  "new_matching_product",
+  "rfq_response",
+  "price_movement",
+  "document_readiness",
+  "country_news",
+  "supplier_profile_review",
+];
+
+const NOTIFICATION_FREQUENCIES: NotificationPreference["frequency"][] = [
+  "instant",
+  "daily",
+  "weekly",
+];
+
+const NotificationsSection = ({
+  profile,
+  onChange,
+}: {
+  profile: AccountProfile;
+  onChange: (next: AccountProfile) => void;
+}) => {
   const { t } = useLanguage();
   const channelLabel: Record<NotificationPreference["channel"], string> = {
     email: t.account_notif_channel_email,
@@ -1643,6 +1665,51 @@ const NotificationsSection = ({ profile }: { profile: AccountProfile }) => {
     daily: t.account_notif_freq_daily,
     weekly: t.account_notif_freq_weekly,
   };
+  const [draft, setDraft] = useState<NotificationPreference | null>(null);
+  const [editingChannel, setEditingChannel] = useState<NotificationPreference["channel"] | null>(
+    null,
+  );
+  const [eventsError, setEventsError] = useState<string | null>(null);
+
+  const startEdit = (preference: NotificationPreference) => {
+    setDraft({ ...preference, events: [...preference.events] });
+    setEditingChannel(preference.channel);
+    setEventsError(null);
+  };
+
+  const cancelEdit = () => {
+    setDraft(null);
+    setEditingChannel(null);
+    setEventsError(null);
+  };
+
+  const toggleEvent = (event: NotificationPreference["events"][number]) => {
+    if (!draft) return;
+    const events = draft.events.includes(event)
+      ? draft.events.filter((e) => e !== event)
+      : [...draft.events, event];
+    setDraft({ ...draft, events });
+    if (events.length) setEventsError(null);
+  };
+
+  const saveDraft = () => {
+    if (!draft || !editingChannel) return;
+    if (draft.enabled && draft.events.length === 0) {
+      setEventsError(t.account_notif_validation_eventsRequired);
+      return;
+    }
+    const nextNotifications = profile.notifications.map((n) =>
+      n.channel === editingChannel
+        ? {
+            ...draft,
+            events: draft.events,
+          }
+        : n,
+    );
+    onChange({ ...profile, notifications: nextNotifications });
+    cancelEdit();
+  };
+
   return (
     <div className="space-y-4" data-testid="account-section-notifications">
       <AccountSectionCard
@@ -1658,7 +1725,7 @@ const NotificationsSection = ({ profile }: { profile: AccountProfile }) => {
             title={channelLabel[n.channel]}
             testId={`account-notif-${n.channel}`}
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant={n.enabled ? "default" : "outline"}>
                   {n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
@@ -1677,10 +1744,118 @@ const NotificationsSection = ({ profile }: { profile: AccountProfile }) => {
                   ))}
                 </ul>
               </div>
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => startEdit(n)}
+                  data-testid={`account-notif-edit-${n.channel}`}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                  {t.account_action_edit}
+                </Button>
+              </div>
             </div>
           </AccountSectionCard>
         ))}
       </div>
+      {draft ? (
+        <AccountSectionCard
+          title={`${t.account_notif_form_title}: ${channelLabel[draft.channel]}`}
+          description={t.account_notif_form_desc}
+          testId="account-notif-form"
+        >
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div className="space-y-3">
+              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                <span>
+                  <span className="font-medium text-foreground">
+                    {t.account_notif_field_enabled}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    {draft.enabled ? t.account_notif_enabled : t.account_notif_disabled}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={draft.enabled}
+                  onChange={(e) => setDraft({ ...draft, enabled: e.target.checked })}
+                  data-testid="account-notif-enabled"
+                />
+              </label>
+              <FormRow label={t.account_notif_field_frequency}>
+                <select
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={draft.frequency}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      frequency: e.target.value as NotificationPreference["frequency"],
+                    })
+                  }
+                  data-testid="account-notif-frequency"
+                >
+                  {NOTIFICATION_FREQUENCIES.map((frequency) => (
+                    <option key={frequency} value={frequency}>
+                      {freqLabel[frequency]}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </div>
+            <fieldset
+              className="rounded-lg border border-border p-3"
+              aria-invalid={!!eventsError || undefined}
+              aria-describedby={eventsError ? "account-notif-events-error" : undefined}
+            >
+              <legend className="px-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.account_notif_eventsLabel}
+              </legend>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {NOTIFICATION_EVENTS.map((event) => (
+                  <label
+                    key={event}
+                    className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={draft.events.includes(event)}
+                      onChange={() => toggleEvent(event)}
+                      data-testid={`account-notif-event-${event}`}
+                    />
+                    <span>{eventLabel(event)}</span>
+                  </label>
+                ))}
+              </div>
+              {eventsError ? (
+                <p
+                  id="account-notif-events-error"
+                  className="mt-2 flex items-start gap-1 text-xs text-destructive"
+                  role="alert"
+                  data-testid="account-notif-events-error"
+                >
+                  <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+                  <span>{eventsError}</span>
+                </p>
+              ) : null}
+            </fieldset>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={cancelEdit}
+              data-testid="account-notif-cancel"
+            >
+              {t.account_action_cancel}
+            </Button>
+            <Button type="button" onClick={saveDraft} data-testid="account-notif-save">
+              {t.account_action_save}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
     </div>
   );
 };
@@ -1721,7 +1896,7 @@ const Account = () => {
       content = <MetaRegionsSection profile={profile} onChange={update} />;
       break;
     case "notifications":
-      content = <NotificationsSection profile={profile} />;
+      content = <NotificationsSection profile={profile} onChange={update} />;
       break;
   }
 

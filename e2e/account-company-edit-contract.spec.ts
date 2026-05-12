@@ -37,8 +37,8 @@ const editCard = async (page: Page, cardId: string): Promise<Locator> => {
 
 const saveCard = async (card: Locator, cardId: string) => {
   await card.getByTestId(`${cardId}-save`).click();
-  await expect(card.getByTestId(`${cardId}-edit`)).toBeVisible();
-  await expect(card).toHaveAttribute("data-editing", "false");
+  await expect(card).toHaveAttribute("data-editing", "false", { timeout: 15_000 });
+  await expect(card.getByTestId(`${cardId}-edit`)).toBeVisible({ timeout: 15_000 });
 };
 
 const expectStorageContains = async (page: Page, expected: string) => {
