@@ -67,6 +67,12 @@ export function EditableCard<T>({
     setValidationSummary(null);
     setEditing(true);
   };
+
+  const updateDraft = (next: T) => {
+    latestDraft.current = next;
+    setDraft(next);
+  };
+
   const cancel = () => {
     if (autosaveTimer.current) {
       window.clearTimeout(autosaveTimer.current);
@@ -464,7 +470,7 @@ export function EditableCard<T>({
               ? t.account_action_saved
               : ""}
         </span>
-        {editing ? renderEdit({ draft, setDraft, errors }) : renderView(initial)}
+        {editing ? renderEdit({ draft, setDraft: updateDraft, errors }) : renderView(initial)}
       </CardContent>
     </Card>
   );
