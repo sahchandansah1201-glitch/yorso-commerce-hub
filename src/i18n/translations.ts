@@ -1393,6 +1393,20 @@ type TranslationKeys = {
   account_branch_delete: string;
   account_branch_empty: string;
   account_branch_empty_desc: string;
+  account_branch_search_title: string;
+  account_branch_search_desc: string;
+  account_branch_search_label: string;
+  account_branch_search_placeholder: string;
+  account_branch_type_filter_label: string;
+  account_branch_type_filter_all: string;
+  account_branch_results_count: string;
+  account_branch_noResults: string;
+  account_branch_noResults_desc: string;
+  account_branch_duplicate_error: string;
+  account_branch_details_open: string;
+  account_branch_details_hide: string;
+  account_branch_details_title: string;
+  account_branch_details_desc: string;
   account_branch_form_title_add: string;
   account_branch_form_title_edit: string;
   account_branch_form_desc: string;
@@ -1480,6 +1494,8 @@ type TranslationKeys = {
   account_action_save: string;
   account_action_saving: string;
   account_action_saved: string;
+  account_action_reset: string;
+  account_action_close: string;
   account_save_error_storage: string;
   account_save_error_validation: string;
   account_autosave_unsaved: string;
@@ -2975,6 +2991,20 @@ const en: TranslationKeys = {
   account_branch_delete: "Delete branch",
   account_branch_empty: "No branches yet",
   account_branch_empty_desc: "Add offices, warehouses, plants or loading points to reuse them as delivery basis options.",
+  account_branch_search_title: "Find branch",
+  account_branch_search_desc: "Filter loading points before editing delivery basis data.",
+  account_branch_search_label: "Search branches",
+  account_branch_search_placeholder: "Name, city, Incoterms, pickup point...",
+  account_branch_type_filter_label: "Branch type",
+  account_branch_type_filter_all: "All branch types",
+  account_branch_results_count: "{visible} of {total} branches shown",
+  account_branch_noResults: "No matching branches",
+  account_branch_noResults_desc: "Clear search or type filter to return to the full branch list.",
+  account_branch_duplicate_error: "This branch already exists. Change the name, address or pickup point.",
+  account_branch_details_open: "Details",
+  account_branch_details_hide: "Hide details",
+  account_branch_details_title: "Branch delivery basis",
+  account_branch_details_desc: "Review the exact branch data used later in offers, RFQs and supplier profile previews.",
   account_branch_form_title_add: "Add branch",
   account_branch_form_title_edit: "Edit branch",
   account_branch_form_desc: "Branches define where offers can be loaded, stored, processed or managed.",
@@ -3062,6 +3092,8 @@ const en: TranslationKeys = {
   account_action_save: "Save",
   account_action_saving: "Saving...",
   account_action_saved: "Saved",
+  account_action_reset: "Reset",
+  account_action_close: "Close",
   account_save_error_storage: "Could not save locally. Browser storage may be full or blocked.",
   account_save_error_validation: "Please fix the highlighted fields.",
   account_autosave_unsaved: "Unsaved changes",
@@ -4544,6 +4576,20 @@ const ru: TranslationKeys = {
   account_branch_delete: "Удалить филиал",
   account_branch_empty: "Филиалы ещё не добавлены",
   account_branch_empty_desc: "Добавьте офисы, склады, производственные площадки или точки отгрузки, чтобы использовать их как базисы поставки.",
+  account_branch_search_title: "Найти филиал",
+  account_branch_search_desc: "Фильтруйте точки отгрузки перед редактированием базиса поставки.",
+  account_branch_search_label: "Поиск по филиалам",
+  account_branch_search_placeholder: "Название, город, Incoterms, точка отгрузки...",
+  account_branch_type_filter_label: "Тип филиала",
+  account_branch_type_filter_all: "Все типы филиалов",
+  account_branch_results_count: "Показано {visible} из {total} филиалов",
+  account_branch_noResults: "Подходящие филиалы не найдены",
+  account_branch_noResults_desc: "Сбросьте поиск или фильтр по типу, чтобы вернуться к полному списку.",
+  account_branch_duplicate_error: "Такой филиал уже есть. Измените название, адрес или точку отгрузки.",
+  account_branch_details_open: "Детали",
+  account_branch_details_hide: "Скрыть детали",
+  account_branch_details_title: "Базис поставки филиала",
+  account_branch_details_desc: "Проверьте данные филиала, которые позже будут использоваться в офферах, RFQ и профиле поставщика.",
   account_branch_form_title_add: "Добавить филиал",
   account_branch_form_title_edit: "Редактировать филиал",
   account_branch_form_desc: "Филиалы определяют, где товар можно отгружать, хранить, перерабатывать или сопровождать коммерчески.",
@@ -4631,6 +4677,8 @@ const ru: TranslationKeys = {
   account_action_save: "Сохранить",
   account_action_saving: "Сохраняем...",
   account_action_saved: "Сохранено",
+  account_action_reset: "Сбросить",
+  account_action_close: "Закрыть",
   account_save_error_storage: "Не удалось сохранить локально. Хранилище браузера переполнено или заблокировано.",
   account_save_error_validation: "Исправьте отмеченные поля.",
   account_autosave_unsaved: "Есть несохранённые правки",
@@ -6112,6 +6160,20 @@ const es: TranslationKeys = {
   account_branch_delete: "Eliminar sucursal",
   account_branch_empty: "Aún no hay sucursales",
   account_branch_empty_desc: "Añade oficinas, almacenes, plantas o puntos de carga para reutilizarlos como bases de entrega.",
+  account_branch_search_title: "Buscar sucursal",
+  account_branch_search_desc: "Filtra puntos de carga antes de editar datos de base de entrega.",
+  account_branch_search_label: "Buscar sucursales",
+  account_branch_search_placeholder: "Nombre, ciudad, Incoterms, punto de carga...",
+  account_branch_type_filter_label: "Tipo de sucursal",
+  account_branch_type_filter_all: "Todos los tipos de sucursal",
+  account_branch_results_count: "{visible} de {total} sucursales visibles",
+  account_branch_noResults: "No hay sucursales coincidentes",
+  account_branch_noResults_desc: "Limpia la búsqueda o el filtro de tipo para volver a la lista completa.",
+  account_branch_duplicate_error: "Esta sucursal ya existe. Cambia el nombre, la dirección o el punto de carga.",
+  account_branch_details_open: "Detalles",
+  account_branch_details_hide: "Ocultar detalles",
+  account_branch_details_title: "Base de entrega de la sucursal",
+  account_branch_details_desc: "Revisa los datos exactos que se usarán después en ofertas, RFQ y vistas de proveedor.",
   account_branch_form_title_add: "Añadir sucursal",
   account_branch_form_title_edit: "Editar sucursal",
   account_branch_form_desc: "Las sucursales definen dónde se puede cargar, almacenar, procesar o gestionar el producto.",
@@ -6199,6 +6261,8 @@ const es: TranslationKeys = {
   account_action_save: "Guardar",
   account_action_saving: "Guardando...",
   account_action_saved: "Guardado",
+  account_action_reset: "Restablecer",
+  account_action_close: "Cerrar",
   account_save_error_storage: "No se pudo guardar localmente. El almacenamiento del navegador puede estar lleno o bloqueado.",
   account_save_error_validation: "Corrige los campos marcados.",
   account_autosave_unsaved: "Cambios sin guardar",

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   validateEmail,
@@ -977,6 +977,21 @@ const validateBranchDraft = (
   return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
 };
 
+const normalizeBranchValue = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
+
+const branchDuplicateKey = (branch: CompanyBranch) =>
+  [
+    branch.name,
+    branch.type,
+    branch.country,
+    branch.city,
+    branch.addressLine,
+    branch.defaultIncoterms,
+    branch.portOrPickupPoint,
+  ]
+    .map(normalizeBranchValue)
+    .join("|");
+
 const BranchesSection = ({
   profile,
   onChange,
@@ -985,17 +1000,57 @@ const BranchesSection = ({
   onChange: (next: AccountProfile) => void;
 }) => {
   const { t } = useLanguage();
-  const branchTypeLabel: Record<CompanyBranch["type"], string> = {
-    registered_address: t.account_branch_type_registered,
-    office: t.account_branch_type_office,
-    warehouse: t.account_branch_type_warehouse,
-    processing_plant: t.account_branch_type_plant,
-    sales_office: t.account_branch_type_sales,
-    loading_point: t.account_branch_type_loading,
-  };
+  const branchTypeLabel = useMemo<Record<CompanyBranch["type"], string>>(
+    () => ({
+      registered_address: t.account_branch_type_registered,
+      office: t.account_branch_type_office,
+      warehouse: t.account_branch_type_warehouse,
+      processing_plant: t.account_branch_type_plant,
+      sales_office: t.account_branch_type_sales,
+      loading_point: t.account_branch_type_loading,
+    }),
+    [t],
+  );
   const [draft, setDraft] = useState<CompanyBranch | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<CompanyBranch["type"] | "all">("all");
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const visibleBranches = useMemo(() => {
+    const normalizedQuery = normalizeBranchValue(query);
+    return profile.branches.filter((branch) => {
+      const matchesType = typeFilter === "all" || branch.type === typeFilter;
+      if (!matchesType) return false;
+      if (!normalizedQuery) return true;
+
+      const searchable = [
+        branch.name,
+        branchTypeLabel[branch.type],
+        branch.country,
+        branch.region,
+        branch.city,
+        branch.addressLine,
+        branch.defaultIncoterms,
+        branch.portOrPickupPoint,
+        branch.notes,
+      ]
+        .map(normalizeBranchValue)
+        .join(" ");
+
+      return searchable.includes(normalizedQuery);
+    });
+  }, [branchTypeLabel, profile.branches, query, typeFilter]);
+
+  const selectedBranch = selectedBranchId
+    ? profile.branches.find((branch) => branch.id === selectedBranchId) ?? null
+    : null;
+
+  const resetFilters = () => {
+    setQuery("");
+    setTypeFilter("all");
+  };
 
   const startAdd = () => {
     setDraft(createEmptyBranch());
@@ -1032,15 +1087,25 @@ const BranchesSection = ({
       portOrPickupPoint: draft.portOrPickupPoint.trim(),
       notes: draft.notes.trim(),
     };
+    const duplicate = profile.branches.some(
+      (branch) => branch.id !== editingId && branchDuplicateKey(branch) === branchDuplicateKey(normalized),
+    );
+    if (duplicate) {
+      setErrors({ name: t.account_branch_duplicate_error });
+      return;
+    }
+
     const nextBranches = editingId
       ? profile.branches.map((b) => (b.id === editingId ? normalized : b))
       : [...profile.branches, normalized];
     onChange({ ...profile, branches: nextBranches });
+    setSelectedBranchId(normalized.id);
     cancelEdit();
   };
 
   const deleteBranch = (branchId: string) => {
     onChange({ ...profile, branches: profile.branches.filter((b) => b.id !== branchId) });
+    if (selectedBranchId === branchId) setSelectedBranchId(null);
     if (editingId === branchId) cancelEdit();
   };
 
@@ -1065,6 +1130,63 @@ const BranchesSection = ({
           </Button>
         </div>
       </AccountSectionCard>
+      {profile.branches.length > 0 ? (
+        <AccountSectionCard
+          title={t.account_branch_search_title}
+          description={t.account_branch_search_desc}
+          testId="account-branch-search-panel"
+        >
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-end">
+            <FormRow label={t.account_branch_search_label}>
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  className="pl-9"
+                  placeholder={t.account_branch_search_placeholder}
+                  data-testid="account-branch-search"
+                />
+              </div>
+            </FormRow>
+            <FormRow label={t.account_branch_type_filter_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={typeFilter}
+                onChange={(event) =>
+                  setTypeFilter(event.target.value as CompanyBranch["type"] | "all")
+                }
+                data-testid="account-branch-type-filter"
+              >
+                <option value="all">{t.account_branch_type_filter_all}</option>
+                {BRANCH_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {branchTypeLabel[type]}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetFilters}
+              disabled={!query && typeFilter === "all"}
+              data-testid="account-branch-search-clear"
+            >
+              <X className="mr-2 h-4 w-4" aria-hidden />
+              {t.account_action_reset}
+            </Button>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground" data-testid="account-branch-results-count">
+            {t.account_branch_results_count
+              .replace("{visible}", String(visibleBranches.length))
+              .replace("{total}", String(profile.branches.length))}
+          </p>
+        </AccountSectionCard>
+      ) : null}
       {draft ? (
         <AccountSectionCard
           title={editingId ? t.account_branch_form_title_edit : t.account_branch_form_title_add}
@@ -1179,8 +1301,23 @@ const BranchesSection = ({
           <AccountSectionCard title={t.account_branch_empty} testId="account-branch-empty">
             <p className="text-sm text-muted-foreground">{t.account_branch_empty_desc}</p>
           </AccountSectionCard>
+        ) : visibleBranches.length === 0 ? (
+          <AccountSectionCard
+            title={t.account_branch_noResults}
+            description={t.account_branch_noResults_desc}
+            testId="account-branch-no-results"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetFilters}
+              data-testid="account-branch-no-results-reset"
+            >
+              {t.account_action_reset}
+            </Button>
+          </AccountSectionCard>
         ) : (
-          profile.branches.map((b) => (
+          visibleBranches.map((b) => (
             <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
               <div className="space-y-3">
                 <BranchTypeBadge type={b.type} />
@@ -1202,6 +1339,17 @@ const BranchesSection = ({
                   <p className="text-xs text-muted-foreground italic">{b.notes}</p>
                 ) : null}
                 <div className="flex justify-end gap-2 pt-1">
+                  <Button
+                    type="button"
+                    variant={selectedBranchId === b.id ? "secondary" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedBranchId((current) => (current === b.id ? null : b.id))}
+                    data-testid={`account-branch-open-${b.id}`}
+                  >
+                    {selectedBranchId === b.id
+                      ? t.account_branch_details_hide
+                      : t.account_branch_details_open}
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
@@ -1228,6 +1376,50 @@ const BranchesSection = ({
           ))
         )}
       </div>
+      {selectedBranch ? (
+        <AccountSectionCard
+          title={t.account_branch_details_title}
+          description={t.account_branch_details_desc}
+          testId={`account-branch-detail-${selectedBranch.id}`}
+        >
+          <div className="grid gap-3 md:grid-cols-2">
+            <Field label={t.account_branch_field_name} value={selectedBranch.name} />
+            <Field
+              label={t.account_branch_field_type}
+              value={branchTypeLabel[selectedBranch.type]}
+            />
+            <Field label={t.account_company_country} value={selectedBranch.country} />
+            <Field label={t.account_branch_field_city} value={selectedBranch.city} />
+            <Field label={t.account_branch_field_region} value={selectedBranch.region} />
+            <Field label={t.account_branch_field_address} value={selectedBranch.addressLine} />
+            <Field label={t.account_branch_incoterms} value={selectedBranch.defaultIncoterms} />
+            <Field label={t.account_branch_pickup} value={selectedBranch.portOrPickupPoint} />
+          </div>
+          {selectedBranch.notes ? (
+            <p className="mt-4 rounded-md bg-muted/45 p-3 text-sm text-muted-foreground">
+              {selectedBranch.notes}
+            </p>
+          ) : null}
+          <div className="mt-4 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSelectedBranchId(null)}
+              data-testid="account-branch-close-detail"
+            >
+              {t.account_action_close}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => startEdit(selectedBranch)}
+              data-testid="account-branch-detail-edit"
+            >
+              <Pencil className="mr-2 h-4 w-4" aria-hidden />
+              {t.account_action_edit}
+            </Button>
+          </div>
+        </AccountSectionCard>
+      ) : null}
     </div>
   );
 };
