@@ -1446,6 +1446,15 @@ const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
 
 const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "fresh", "chilled", "alive", "cooked"];
 const PRODUCT_ROLES: CompanyProduct["role"][] = ["buying", "selling", "both"];
+type ProductSortKey = "commercialName" | "category" | "state" | "role" | "monthlyVolume";
+type SortDirection = "asc" | "desc";
+const PRODUCT_SORT_KEYS: ProductSortKey[] = [
+  "commercialName",
+  "category",
+  "state",
+  "role",
+  "monthlyVolume",
+];
 
 const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
   ({
@@ -1492,6 +1501,11 @@ const validateProductDraft = (
 
 const normalizeProductValue = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
 
+const parseVolume = (value: string) => {
+  const match = value.replace(",", ".").match(/\d+(\.\d+)?/);
+  return match ? Number(match[0]) : 0;
+};
+
 const productDuplicateKey = (product: CompanyProduct) =>
   [
     product.commercialName,
@@ -1517,12 +1531,23 @@ const ProductsSection = ({
   const [query, setQuery] = useState("");
   const [stateFilter, setStateFilter] = useState<CompanyProduct["state"] | "all">("all");
   const [roleFilter, setRoleFilter] = useState<CompanyProduct["role"] | "all">("all");
+  const [sortKey, setSortKey] = useState<ProductSortKey>("commercialName");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const sortKeyLabel = (key: ProductSortKey) =>
+    ({
+      commercialName: t.account_product_sort_by_product,
+      category: t.account_product_sort_by_category,
+      state: t.account_product_sort_by_state,
+      role: t.account_product_sort_by_role,
+      monthlyVolume: t.account_product_sort_by_volume,
+    })[key];
+
   const visibleProducts = useMemo(() => {
     const normalizedQuery = normalizeProductValue(query);
-    return profile.products.filter((product) => {
+    const filtered = profile.products.filter((product) => {
       if (stateFilter !== "all" && product.state !== stateFilter) return false;
       if (roleFilter !== "all" && product.role !== roleFilter) return false;
       if (!normalizedQuery) return true;
@@ -1543,7 +1568,34 @@ const ProductsSection = ({
 
       return searchable.includes(normalizedQuery);
     });
-  }, [profile.products, query, roleFilter, stateFilter, t]);
+
+    return [...filtered].sort((a, b) => {
+      const direction = sortDirection === "asc" ? 1 : -1;
+      if (sortKey === "monthlyVolume") {
+        const diff = parseVolume(a.monthlyVolume) - parseVolume(b.monthlyVolume);
+        if (diff !== 0) return diff * direction;
+      }
+
+      const aValue =
+        sortKey === "state"
+          ? productStateLabel(a.state, t)
+          : sortKey === "role"
+            ? productRoleLabel(a.role, t)
+            : a[sortKey];
+      const bValue =
+        sortKey === "state"
+          ? productStateLabel(b.state, t)
+          : sortKey === "role"
+            ? productRoleLabel(b.role, t)
+            : b[sortKey];
+
+      const result = String(aValue).localeCompare(String(bValue), undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+      return result * direction;
+    });
+  }, [profile.products, query, roleFilter, sortDirection, sortKey, stateFilter, t]);
 
   const selectedProduct = selectedProductId
     ? profile.products.find((product) => product.id === selectedProductId) ?? null
@@ -1642,7 +1694,7 @@ const ProductsSection = ({
           description={t.account_product_search_desc}
           testId="account-product-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_180px_180px_auto] xl:items-end">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_160px_160px_180px_150px_auto] xl:items-end">
             <FormRow label={t.account_product_search_label}>
               <div className="relative">
                 <Search
@@ -1692,6 +1744,31 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
+            <FormRow label={t.account_product_sort_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={sortKey}
+                onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
+                data-testid="account-product-sort-key"
+              >
+                {PRODUCT_SORT_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {sortKeyLabel(key)}
+                  </option>
+                ))}
+              </select>
+            </FormRow>
+            <FormRow label={t.account_product_sort_direction_label}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={sortDirection}
+                onChange={(event) => setSortDirection(event.target.value as SortDirection)}
+                data-testid="account-product-sort-direction"
+              >
+                <option value="asc">{t.account_product_sort_asc}</option>
+                <option value="desc">{t.account_product_sort_desc}</option>
+              </select>
+            </FormRow>
             <Button
               type="button"
               variant="outline"
@@ -1707,6 +1784,8 @@ const ProductsSection = ({
             {t.account_product_results_count
               .replace("{visible}", String(visibleProducts.length))
               .replace("{total}", String(profile.products.length))}
+            {" · "}
+            {t.account_product_sorted_by.replace("{field}", sortKeyLabel(sortKey))}
           </p>
         </AccountSectionCard>
       ) : null}

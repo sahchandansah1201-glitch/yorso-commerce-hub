@@ -32,6 +32,9 @@ const openProducts = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
 
 const mainText = async (page: Page) => (await page.locator("main").textContent()) ?? "";
 
+const firstProductRowText = async (page: Page) =>
+  (await page.locator('[data-testid^="account-product-row-"]').first().textContent()) ?? "";
+
 const expectStorageContains = async (page: Page, expected: string) => {
   await expect
     .poll(async () =>
@@ -135,6 +138,29 @@ test.describe("/account/products · editable product matrix", () => {
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
     await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
+  });
+
+  test("sort controls reorder visible rows without changing product data", async ({ page }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-sort-key").selectOption("commercialName");
+    await page.getByTestId("account-product-sort-direction").selectOption("desc");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("Sorted by Product name");
+    expect(await firstProductRowText(page)).toContain("Vannamei Shrimp");
+
+    await page.getByTestId("account-product-sort-key").selectOption("monthlyVolume");
+    await page.getByTestId("account-product-sort-direction").selectOption("desc");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("Sorted by Monthly volume");
+    expect(await firstProductRowText(page)).toContain("Mackerel WR");
+
+    await page.getByTestId("account-product-role-filter").selectOption("selling");
+    await expect(page.getByTestId("account-product-results-count")).toContainText("2 of 6");
+    expect(await firstProductRowText(page)).toContain("Mackerel WR");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic Cod H&G");
+    await expect(page.getByTestId("account-products-table")).toContainText("Mackerel WR");
   });
 
   test("duplicate guard blocks identical product matching records", async ({ page }) => {
@@ -259,6 +285,8 @@ test.describe("/account/products · editable product matrix", () => {
     expect(text).toContain("Креветка ваннамей HOSO");
     expect(text).toContain("Замороженный");
     expect(text).toContain("Покупка");
-    expect(text).not.toMatch(/\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b/);
+    expect(text).toContain("Сортировать по");
+    expect(text).toContain("Сортировка: Названию продукта");
+    expect(text).not.toMatch(/\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/);
   });
 });
