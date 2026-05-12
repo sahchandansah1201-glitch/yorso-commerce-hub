@@ -10,9 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+*.tsbuildinfo
 playwright-report
 test-results
 *.local
+*.local.save
+.env*.save
 supabase/.temp/
 
 # Editor directories and files
