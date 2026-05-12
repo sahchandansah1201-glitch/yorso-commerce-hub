@@ -112,6 +112,65 @@ test.describe("/account/branches · editable branch and loading point matrix", (
     expect(await mainText(page)).not.toContain("branch_");
   });
 
+  test("search and type filter narrow the branch list without changing stored data", async ({
+    page,
+  }) => {
+    await openBranches(page);
+
+    await page.getByTestId("account-branch-search").fill("klaipeda");
+    await expect(page.getByTestId("account-branch-results-count")).toContainText("1 of 4");
+    await expect(page.getByTestId("account-branch-br_3")).toContainText("Klaipeda Processing");
+    await expect(page.getByTestId("account-section-branches")).not.toContainText("HQ Vigo");
+
+    await page.getByTestId("account-branch-search").fill("no matching loading point");
+    await expect(page.getByTestId("account-branch-no-results")).toBeVisible();
+    await page.getByTestId("account-branch-no-results-reset").click();
+    await expect(page.getByTestId("account-branch-results-count")).toContainText("4 of 4");
+
+    await page.getByTestId("account-branch-type-filter").selectOption("warehouse");
+    await expect(page.getByTestId("account-branch-results-count")).toContainText("1 of 4");
+    await expect(page.getByTestId("account-section-branches")).toContainText("Cold Storage Algeciras");
+    await expect(page.getByTestId("account-section-branches")).not.toContainText("Sales Office Hamburg");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("account-section-branches")).toContainText("Sales Office Hamburg");
+  });
+
+  test("duplicate guard blocks identical branch delivery basis records", async ({ page }) => {
+    await openBranches(page);
+
+    await page.getByTestId("account-branch-add").click();
+    await fillBranchForm(page, {
+      name: " Cold Storage Algeciras ",
+      type: "warehouse",
+      country: "spain",
+      region: "Andalucía",
+      city: "Algeciras",
+      address: "Polígono Cortijo Real",
+      incoterms: "fca",
+      pickup: "Port of Algeciras",
+      notes: "Duplicate test should not persist.",
+    });
+    await page.getByTestId("account-branch-save").click();
+
+    await expect(page.getByTestId("account-branch-form")).toBeVisible();
+    await expect(page.getByText("This branch already exists")).toBeVisible();
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-branch-results-count")).toContainText("4 of 4");
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Boolean(
+            localStorage
+              .getItem("yorso_account_profile_v1")
+              ?.includes("Duplicate test should not persist."),
+          ),
+        ),
+      )
+      .toBe(false);
+  });
+
   test("edits an existing branch without exposing raw branch type values", async ({ page }) => {
     await openBranches(page);
 
@@ -128,6 +187,27 @@ test.describe("/account/branches · editable branch and loading point matrix", (
     expect(text).toContain("DAP");
     expect(text).not.toMatch(/registered_address|processing_plant|sales_office|loading_point/);
     await expectStorageContains(page, "Algeciras Cold Hub");
+  });
+
+  test("branch details panel shows delivery basis and can start editing that branch", async ({
+    page,
+  }) => {
+    await openBranches(page);
+
+    await page.getByTestId("account-branch-open-br_2").click();
+    const detail = page.getByTestId("account-branch-detail-br_2");
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText("Cold Storage Algeciras");
+    await expect(detail).toContainText("Warehouse");
+    await expect(detail).toContainText("Port of Algeciras");
+
+    await page.getByTestId("account-branch-detail-edit").click();
+    await expect(page.getByTestId("account-branch-form")).toBeVisible();
+    await expect(page.getByTestId("account-branch-name")).toHaveValue("Cold Storage Algeciras");
+    await page.getByTestId("account-branch-cancel").click();
+
+    await page.getByTestId("account-branch-close-detail").click();
+    await expect(detail).not.toBeVisible();
   });
 
   test("deletes a branch and keeps the removal after reload", async ({ page }) => {
