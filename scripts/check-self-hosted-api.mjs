@@ -9,6 +9,12 @@ const requiredFiles = [
   "apps/api/src/modules/account/repository.ts",
   "apps/api/src/modules/account/service.ts",
   "apps/api/src/modules/account/routes.ts",
+  "apps/api/src/modules/storage/factory.ts",
+  "apps/api/src/modules/storage/object-storage.ts",
+  "apps/api/src/modules/storage/postgres-repository.ts",
+  "apps/api/src/modules/storage/repository.ts",
+  "apps/api/src/modules/storage/routes.ts",
+  "apps/api/src/modules/storage/service.ts",
   "apps/api/src/config.ts",
   "apps/api/src/http.ts",
   "apps/api/src/routes/health.ts",
@@ -36,6 +42,12 @@ const postgresRepository = read("apps/api/src/modules/account/postgres-repositor
 const accountService = read("apps/api/src/modules/account/service.ts");
 const accountRepository = read("apps/api/src/modules/account/repository.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
+const storageFactory = read("apps/api/src/modules/storage/factory.ts");
+const storageObjectStorage = read("apps/api/src/modules/storage/object-storage.ts");
+const storagePostgresRepository = read("apps/api/src/modules/storage/postgres-repository.ts");
+const storageRepository = read("apps/api/src/modules/storage/repository.ts");
+const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
+const storageService = read("apps/api/src/modules/storage/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
@@ -83,12 +95,17 @@ requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
 requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
 requireText("apps/api/src/server.ts", server, "handleAccountRoute");
+requireText("apps/api/src/server.ts", server, "handleStorageRoute");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
 requireText("apps/api/src/server.ts", server, "createAccountRepository(config)");
+requireText("apps/api/src/server.ts", server, "createFileService(config)");
 requireText("apps/api/src/server.ts", server, "access-control-allow-origin");
 requireText("apps/api/src/server.ts", server, "OPTIONS");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
 requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
+requireText("apps/api/src/config.ts", config, "storageDriver: z.enum([\"local\"])");
+requireText("apps/api/src/config.ts", config, "storageLocalRoot");
+requireText("apps/api/src/config.ts", config, "maxUploadBytes");
 requireText("apps/api/src/config.ts", config, "Supabase env values must stay empty in production self-hosted API config.");
 requireText("apps/api/src/modules/account/factory.ts", accountFactory, "createAccountRepository");
 requireText("apps/api/src/modules/account/factory.ts", accountFactory, "PostgresAccountRepository");
@@ -124,18 +141,40 @@ requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/accoun
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/account/notifications");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "readJsonBody");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "updateCurrentUserProfile");
+requireText("apps/api/src/modules/storage/factory.ts", storageFactory, "createFileService");
+requireText("apps/api/src/modules/storage/factory.ts", storageFactory, "LocalObjectStorage");
+requireText("apps/api/src/modules/storage/factory.ts", storageFactory, "PostgresFileRepository");
+requireText("apps/api/src/modules/storage/object-storage.ts", storageObjectStorage, "class LocalObjectStorage");
+requireText("apps/api/src/modules/storage/object-storage.ts", storageObjectStorage, "putObject");
+requireText("apps/api/src/modules/storage/object-storage.ts", storageObjectStorage, "getObject");
+requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "class PostgresFileRepository");
+requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_file_assets");
+requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_company_documents");
+requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "interface FileRepository");
+requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "class MemoryFileRepository");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/logo");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/cover");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/documents");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/files/");
+requireText("apps/api/src/modules/storage/service.ts", storageService, "class FileService");
+requireText("apps/api/src/modules/storage/service.ts", storageService, "checksumSha256");
+requireText("apps/api/src/modules/storage/service.ts", storageService, "contentBase64");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
 requireText("apps/api/src/routes/account.ts", accountRoute, "UserProfileUpdate");
 requireText("apps/api/src/routes/account.ts", accountRoute, "CompanyBranch");
 requireText("apps/api/src/routes/account.ts", accountRoute, "CompanyProduct");
 requireText("apps/api/src/routes/account.ts", accountRoute, "MetaRegion");
 requireText("apps/api/src/routes/account.ts", accountRoute, "NotificationPreference");
+requireText("apps/api/src/routes/account.ts", accountRoute, "AccountFileAsset");
+requireText("apps/api/src/routes/account.ts", accountRoute, "CompanyDocument");
 requireText("apps/api/src/routes/account.ts", accountRoute, "self-hosted-yorso-api");
 requireText("apps/api/Dockerfile", dockerfile, "FROM node:22-alpine");
 requireText("apps/api/Dockerfile", dockerfile, "RUN npm run api:build");
 requireText("apps/api/Dockerfile", dockerfile, "CMD [\"node\", \"apps/api/dist/index.js\"]");
 requireText("infra/docker-compose.yml", compose, "dockerfile: apps/api/Dockerfile");
 requireText("infra/docker-compose.yml", compose, "VITE_SUPABASE_URL: \"\"");
+requireText("infra/docker-compose.yml", compose, "STORAGE_DRIVER: local");
+requireText("infra/docker-compose.yml", compose, "yorso-api-uploads");
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_API_URL");
@@ -145,6 +184,9 @@ requireText("src/lib/account-api.ts", accountApi, "/v1/account/branches");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/products");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/meta-regions");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/notifications");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/company/media/");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/documents");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/files/");
 requireText("src/lib/account-api.ts", accountApi, "local prototype mode");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
@@ -154,6 +196,12 @@ forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresReposi
 forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/factory.ts", storageFactory, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/object-storage.ts", storageObjectStorage, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/repository.ts", storageRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/storage/service.ts", storageService, "@/integrations/supabase/client");
 forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
 forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
 
@@ -166,5 +214,5 @@ if (failures.length > 0) {
 console.log("Self-hosted API skeleton check passed.");
 console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
-console.log("- PostgresAccountRepository implements account profile reads and writes.");
+console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");

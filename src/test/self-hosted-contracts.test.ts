@@ -2,9 +2,13 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   accountBranchesSchema,
+  accountCompanyDocumentsSchema,
+  accountFileAssetSchema,
+  accountFileUploadPayloadSchema,
   accountMetaRegionsSchema,
   accountNotificationsSchema,
   accountProductsSchema,
+  companyDocumentCreateSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
   userProfileSchema,
@@ -192,6 +196,77 @@ describe("self-hosted account/company contracts", () => {
     ).toThrow(/Enabled notification channels/);
   });
 
+  it("accepts self-hosted file assets and company document payloads", () => {
+    const upload = accountFileUploadPayloadSchema.parse({
+      fileName: "haccp.pdf",
+      contentType: "application/pdf",
+      sizeBytes: 8,
+      contentBase64: "ZG9jdW1lbnQ=",
+    });
+
+    expect(
+      accountFileAssetSchema.parse({
+        id: "22222222-2222-4222-8222-222222222222",
+        companyId: "11111111-1111-4111-8111-111111111111",
+        purpose: "company_document",
+        objectKey: "companies/111/company_document/haccp.pdf",
+        originalFileName: "haccp.pdf",
+        contentType: "application/pdf",
+        sizeBytes: 8,
+        checksumSha256: "a".repeat(64),
+        storageDriver: "local",
+        createdAt: "2026-05-13T08:00:00.000Z",
+      }),
+    ).toMatchObject({
+      purpose: "company_document",
+      storageDriver: "local",
+    });
+
+    expect(
+      companyDocumentCreateSchema.parse({
+        title: "HACCP certificate",
+        documentType: "haccp",
+        visibility: "buyer_qualified",
+        file: upload,
+      }),
+    ).toMatchObject({
+      title: "HACCP certificate",
+      visibility: "buyer_qualified",
+    });
+
+    expect(
+      accountCompanyDocumentsSchema.parse([
+        {
+          id: "33333333-3333-4333-8333-333333333333",
+          companyId: "11111111-1111-4111-8111-111111111111",
+          fileAssetId: "22222222-2222-4222-8222-222222222222",
+          title: "HACCP certificate",
+          documentType: "haccp",
+          visibility: "buyer_qualified",
+          status: "uploaded",
+          fileName: "haccp.pdf",
+          contentType: "application/pdf",
+          sizeBytes: 8,
+          checksumSha256: "b".repeat(64),
+          expiresAt: null,
+          createdAt: "2026-05-13T08:00:00.000Z",
+          updatedAt: "2026-05-13T08:00:00.000Z",
+        },
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it("rejects invalid file upload envelopes before they reach storage", () => {
+    expect(() =>
+      accountFileUploadPayloadSchema.parse({
+        fileName: "bad.pdf",
+        contentType: "application/pdf",
+        sizeBytes: 8,
+        contentBase64: "data:application/pdf;base64,AAAA",
+      }),
+    ).toThrow(/raw base64/);
+  });
+
   it("documents local self-hosted runtime services", () => {
     const compose = readFileSync("infra/docker-compose.yml", "utf8");
     const env = readFileSync(".env.example", "utf8");
@@ -200,7 +275,10 @@ describe("self-hosted account/company contracts", () => {
     expect(compose).toContain("pgbouncer:");
     expect(compose).toContain("redis:");
     expect(compose).toContain("minio:");
+    expect(compose).toContain("STORAGE_DRIVER: local");
     expect(env).toContain("DATABASE_URL=");
+    expect(env).toContain("STORAGE_DRIVER=local");
+    expect(env).toContain("STORAGE_LOCAL_ROOT=");
     expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
     expect(env).toContain("PGBOUNCER_DATABASE_URL=");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);

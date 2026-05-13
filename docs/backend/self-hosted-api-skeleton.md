@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account workspace persistence
-Batch: #26
+Status: first runnable backend process with PostgreSQL account workspace persistence and local file storage
+Batch: #27
 Date: 2026-05-13
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -27,6 +27,11 @@ compiled, started and wired into Docker Compose.
 | `PATCH /v1/account/meta-regions` | Replaces logistics meta-regions through the contract schema. |
 | `GET /v1/account/notifications` | Returns notification channel preferences. |
 | `PATCH /v1/account/notifications` | Replaces notification channel preferences through the contract schema. |
+| `POST /v1/account/company/media/logo` | Uploads a company logo file, stores it in self-hosted storage and updates `company.media.logoObjectKey`. |
+| `POST /v1/account/company/media/cover` | Uploads a company cover file, stores it in self-hosted storage and updates `company.media.coverObjectKey`. |
+| `GET /v1/account/documents` | Returns company document metadata for the current account company. |
+| `POST /v1/account/documents` | Uploads a company document file and creates a linked document record. |
+| `GET /v1/account/files/:assetId` | Streams a stored account file owned by the current account user. |
 
 ## Account Module Boundary
 
@@ -86,6 +91,21 @@ Batch #26 expands the same bridge to the remaining account workspace sections:
   edits complete account-profile sections. Row-level CRUD can be added later
   without changing the page-level adapter contract.
 
+Batch #27 adds the first self-hosted file boundary:
+
+- `packages/db/migrations/0003_account_files_and_documents.sql` adds
+  `yorso_file_assets` and `yorso_company_documents`.
+- `apps/api/src/modules/storage` stores local file bytes, calculates SHA-256
+  checksums and persists metadata through memory/PostgreSQL repositories.
+- Company logo and cover uploads update the existing company media contract
+  instead of leaving images as arbitrary frontend strings.
+- Company documents now have document type, visibility, status, checksum and a
+  download route. This is the base for supplier certificates, trade documents
+  and future access-gated document workflows.
+- The current adapter is `STORAGE_DRIVER=local` for deterministic owned-server
+  deployment. MinIO remains in compose as the S3-compatible target for the next
+  storage driver.
+
 ## Local Build
 
 ```bash
@@ -106,6 +126,11 @@ The local compose baseline includes:
 - `pgbouncer`;
 - `redis`;
 - `minio`.
+
+The API also has a persistent local upload volume (`yorso-api-uploads`) for the
+current `local` storage driver. This is not a CDN setup; it is a safe first
+self-hosted storage boundary that can later be swapped for MinIO/S3 without
+changing the account document DTOs.
 
 The API service connects to PostgreSQL through PgBouncer, not directly to a
 large pool of PostgreSQL connections.

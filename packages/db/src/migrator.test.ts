@@ -14,11 +14,13 @@ describe("self-hosted DB migration planner", () => {
       "0000_migration_registry",
       "0001_account_company_baseline",
       "0002_account_workspace_sections",
+      "0003_account_files_and_documents",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
       "migrations/0001_account_company_baseline.sql",
       "migrations/0002_account_workspace_sections.sql",
+      "migrations/0003_account_files_and_documents.sql",
     ]);
   });
 
@@ -36,12 +38,15 @@ describe("self-hosted DB migration planner", () => {
     const registry = plan.migrations[0];
     const account = plan.migrations[1];
     const workspaceSections = plan.migrations[2];
+    const filesAndDocuments = plan.migrations[3];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
     expect(account.sql).toContain("create table if not exists yorso_companies");
     expect(workspaceSections.dependsOn).toEqual(["0001_account_company_baseline"]);
     expect(workspaceSections.sql).toContain("create table if not exists yorso_company_products");
+    expect(filesAndDocuments.dependsOn).toEqual(["0002_account_workspace_sections"]);
+    expect(filesAndDocuments.sql).toContain("create table if not exists yorso_file_assets");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

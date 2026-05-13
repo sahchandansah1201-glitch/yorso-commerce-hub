@@ -99,6 +99,73 @@ interface BackendNotificationsResponse {
   requestId: string;
 }
 
+export interface AccountFileUploadPayload {
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  contentBase64: string;
+}
+
+export interface AccountFileAsset {
+  id: string;
+  companyId: string | null;
+  purpose: "company_logo" | "company_cover" | "company_document" | "supplier_certificate" | "supplier_trade_document";
+  objectKey: string;
+  originalFileName: string;
+  contentType: string;
+  sizeBytes: number;
+  checksumSha256: string;
+  storageDriver: "local" | "s3";
+  createdAt: string;
+}
+
+export interface CompanyDocument {
+  id: string;
+  companyId: string;
+  fileAssetId: string;
+  title: string;
+  documentType:
+    | "business_license"
+    | "facility_approval"
+    | "haccp"
+    | "msc"
+    | "asc"
+    | "brc"
+    | "ifs"
+    | "health_certificate"
+    | "origin_certificate"
+    | "packing_list"
+    | "other";
+  visibility: "private" | "buyer_qualified" | "public_teaser";
+  status: "draft" | "uploaded" | "review" | "approved" | "rejected" | "expired";
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  checksumSha256: string;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendCompanyMediaUploadResponse {
+  ok: true;
+  asset: AccountFileAsset;
+  company: BackendCompanyProfile;
+  requestId: string;
+}
+
+interface BackendCompanyDocumentsResponse {
+  ok: true;
+  documents: CompanyDocument[];
+  requestId: string;
+}
+
+interface BackendCompanyDocumentCreateResponse {
+  ok: true;
+  document: CompanyDocument;
+  requestId: string;
+}
+
 export type AccountApiSyncState = "disabled" | "synced" | "failed";
 
 export const ACCOUNT_API_SYNC_STORAGE_KEY = "yorso_account_api_sync_v1";
@@ -410,6 +477,48 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
         metaRegions: metaRegionsResponse.metaRegions,
         notifications: notificationsResponse.notifications,
       });
+    },
+    async uploadCompanyMedia(
+      slot: "logo" | "cover",
+      upload: AccountFileUploadPayload & { alt?: string | null },
+      localProfile: AccountProfile,
+    ): Promise<{ profile: AccountProfile; asset: AccountFileAsset }> {
+      const response = await request<BackendCompanyMediaUploadResponse>(
+        `/v1/account/company/media/${slot}`,
+        {
+          method: "POST",
+          body: JSON.stringify(upload),
+        },
+      );
+      return {
+        profile: mergeBackendAccountProfile(localProfile, {
+          ...localProfile.user,
+          preferredLanguage: localProfile.user.language,
+          updatedAt: new Date().toISOString(),
+        }, response.company),
+        asset: response.asset,
+      };
+    },
+    async listCompanyDocuments(): Promise<CompanyDocument[]> {
+      const response = await request<BackendCompanyDocumentsResponse>("/v1/account/documents");
+      return response.documents;
+    },
+    async createCompanyDocument(payload: {
+      title: CompanyDocument["title"];
+      documentType: CompanyDocument["documentType"];
+      visibility?: CompanyDocument["visibility"];
+      expiresAt?: string | null;
+      file: AccountFileUploadPayload;
+    }): Promise<CompanyDocument> {
+      const response = await request<BackendCompanyDocumentCreateResponse>("/v1/account/documents", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      return response.document;
+    },
+    fileUrl(assetId: string): string {
+      if (!baseUrl) return "";
+      return `${baseUrl}/v1/account/files/${encodeURIComponent(assetId)}`;
     },
   };
 }

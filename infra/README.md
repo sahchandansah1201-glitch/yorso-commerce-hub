@@ -9,6 +9,8 @@ Current scope:
 - PgBouncer for connection pooling.
 - Redis for cache, sessions, rate limits and short-lived workflow state.
 - MinIO as local S3-compatible object storage.
+- `yorso-api-uploads` as the current local file-storage volume for API-managed
+  uploads until the S3 driver is added.
 
 Start locally after copying `.env.example` to `.env.local` and choosing local-only secrets:
 

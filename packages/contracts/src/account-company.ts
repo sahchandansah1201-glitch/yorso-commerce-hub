@@ -38,6 +38,28 @@ export const notificationEventSchema = z.enum([
   "supplier_profile_review",
 ]);
 export const notificationFrequencySchema = z.enum(["instant", "daily", "weekly"]);
+export const accountFilePurposeSchema = z.enum([
+  "company_logo",
+  "company_cover",
+  "company_document",
+  "supplier_certificate",
+  "supplier_trade_document",
+]);
+export const companyDocumentTypeSchema = z.enum([
+  "business_license",
+  "facility_approval",
+  "haccp",
+  "msc",
+  "asc",
+  "brc",
+  "ifs",
+  "health_certificate",
+  "origin_certificate",
+  "packing_list",
+  "other",
+]);
+export const companyDocumentVisibilitySchema = z.enum(["private", "buyer_qualified", "public_teaser"]);
+export const companyDocumentStatusSchema = z.enum(["draft", "uploaded", "review", "approved", "rejected", "expired"]);
 
 export const companyMediaSchema = z.object({
   logoObjectKey: z.string().min(1).nullable(),
@@ -71,8 +93,11 @@ export const companyProfileSchema = z.object({
 });
 
 export const companyProfileUpdateSchema = companyProfileSchema
-  .omit({ id: true, updatedAt: true })
+  .omit({ id: true, updatedAt: true, media: true })
   .partial()
+  .extend({
+    media: companyMediaSchema.partial().optional(),
+  })
   .refine((value) => Object.keys(value).length > 0, {
     message: "At least one company profile field must be provided.",
   });
@@ -150,8 +175,67 @@ export const accountProductsSchema = z.array(companyProductSchema).max(300);
 export const accountMetaRegionsSchema = z.array(metaRegionSchema).max(80);
 export const accountNotificationsSchema = z.array(notificationPreferenceSchema).max(20);
 
+const base64Schema = z.string().min(1).refine((value) => /^[A-Za-z0-9+/]+={0,2}$/.test(value), {
+  message: "File content must be raw base64 without a data URL prefix.",
+});
+
+export const accountFileUploadPayloadSchema = z.object({
+  fileName: z.string().min(1).max(180),
+  contentType: z.string().min(3).max(120).regex(/^[a-z0-9][a-z0-9.+-]*\/[a-z0-9][a-z0-9.+-]*$/i),
+  sizeBytes: z.number().int().min(1).max(8 * 1024 * 1024),
+  contentBase64: base64Schema,
+});
+
+export const companyMediaUploadSchema = accountFileUploadPayloadSchema.extend({
+  alt: z.string().max(160).nullable().optional(),
+});
+
+export const accountFileAssetSchema = z.object({
+  id: z.string().uuid(),
+  companyId: z.string().uuid().nullable(),
+  purpose: accountFilePurposeSchema,
+  objectKey: z.string().min(1).max(500),
+  originalFileName: z.string().min(1).max(180),
+  contentType: z.string().min(3).max(120),
+  sizeBytes: z.number().int().min(1),
+  checksumSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  storageDriver: z.enum(["local", "s3"]),
+  createdAt: z.string().datetime(),
+});
+
+export const companyDocumentSchema = z.object({
+  id: z.string().uuid(),
+  companyId: z.string().uuid(),
+  fileAssetId: z.string().uuid(),
+  title: z.string().min(2).max(180),
+  documentType: companyDocumentTypeSchema,
+  visibility: companyDocumentVisibilitySchema,
+  status: companyDocumentStatusSchema,
+  fileName: z.string().min(1).max(180),
+  contentType: z.string().min(3).max(120),
+  sizeBytes: z.number().int().min(1),
+  checksumSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  expiresAt: z.string().date().nullable(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const companyDocumentCreateSchema = z.object({
+  title: z.string().min(2).max(180),
+  documentType: companyDocumentTypeSchema,
+  visibility: companyDocumentVisibilitySchema.default("private"),
+  expiresAt: z.string().date().nullable().optional(),
+  file: accountFileUploadPayloadSchema,
+});
+
+export const accountCompanyDocumentsSchema = z.array(companyDocumentSchema).max(300);
+
 export type AccountRole = z.infer<typeof accountRoleSchema>;
 export type AccountBranchesUpdate = z.infer<typeof accountBranchesSchema>;
+export type AccountCompanyDocuments = z.infer<typeof accountCompanyDocumentsSchema>;
+export type AccountFileAsset = z.infer<typeof accountFileAssetSchema>;
+export type AccountFilePurpose = z.infer<typeof accountFilePurposeSchema>;
+export type AccountFileUploadPayload = z.infer<typeof accountFileUploadPayloadSchema>;
 export type AccountMetaRegionsUpdate = z.infer<typeof accountMetaRegionsSchema>;
 export type AccountNotificationsUpdate = z.infer<typeof accountNotificationsSchema>;
 export type AccountProductsUpdate = z.infer<typeof accountProductsSchema>;
@@ -159,6 +243,12 @@ export type BranchType = z.infer<typeof branchTypeSchema>;
 export type BuyerQualificationStatus = z.infer<typeof buyerQualificationStatusSchema>;
 export type CompanyBranch = z.infer<typeof companyBranchSchema>;
 export type CompanyMedia = z.infer<typeof companyMediaSchema>;
+export type CompanyMediaUpload = z.infer<typeof companyMediaUploadSchema>;
+export type CompanyDocument = z.infer<typeof companyDocumentSchema>;
+export type CompanyDocumentCreate = z.infer<typeof companyDocumentCreateSchema>;
+export type CompanyDocumentStatus = z.infer<typeof companyDocumentStatusSchema>;
+export type CompanyDocumentType = z.infer<typeof companyDocumentTypeSchema>;
+export type CompanyDocumentVisibility = z.infer<typeof companyDocumentVisibilitySchema>;
 export type CompanyProduct = z.infer<typeof companyProductSchema>;
 export type CompanyProfile = z.infer<typeof companyProfileSchema>;
 export type CompanyProfileUpdate = z.infer<typeof companyProfileUpdateSchema>;
