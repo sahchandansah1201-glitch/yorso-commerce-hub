@@ -23,6 +23,7 @@ const forbidPattern = (name, text, pattern, label = pattern.toString()) => {
 };
 
 const requiredServices = [
+  ["api", /(^|\n)  api:\n/],
   ["postgres", /(^|\n)  postgres:\n/],
   ["pgbouncer", /(^|\n)  pgbouncer:\n/],
   ["redis", /(^|\n)  redis:\n/],
@@ -34,6 +35,13 @@ for (const [service, pattern] of requiredServices) {
 }
 
 const requiredComposeMarkers = [
+  "dockerfile: apps/api/Dockerfile",
+  "YORSO_API_HOST: 0.0.0.0",
+  "DATABASE_URL: postgres://${POSTGRES_USER",
+  "REDIS_URL: redis://redis:6379",
+  "S3_ENDPOINT: http://minio:9000",
+  "VITE_SUPABASE_URL: \"\"",
+  "VITE_SUPABASE_PUBLISHABLE_KEY: \"\"",
   "image: postgres:17-alpine",
   "image: edoburu/pgbouncer:",
   "image: redis:7-alpine",
@@ -101,6 +109,6 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted infra check passed.");
-console.log("- infra/docker-compose.yml: postgres, PgBouncer, Redis and MinIO are declared.");
+console.log("- infra/docker-compose.yml: API, postgres, PgBouncer, Redis and MinIO are declared.");
 console.log("- .env.example: self-hosted runtime keys are present and Supabase values are empty.");
 console.log("- docs: self-hosted production direction is documented.");

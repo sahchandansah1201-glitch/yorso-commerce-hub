@@ -7,6 +7,8 @@ const files = [
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
   "docs/backend/self-hosted-backend-architecture.md",
+  "docs/backend/self-hosted-api-skeleton.md",
+  "docs/backend/self-hosted-validation.md",
 ];
 
 const requiredMarkers = [
@@ -36,6 +38,20 @@ const requiredMarkers = [
     markers: [
       "YORSO production backend must be self-hosted",
       "Supabase is not the future production backend.",
+    ],
+  },
+  {
+    file: "docs/backend/self-hosted-api-skeleton.md",
+    markers: [
+      "`apps/api` is the first concrete backend service",
+      "The API skeleton does not import the Supabase client.",
+    ],
+  },
+  {
+    file: "docs/backend/self-hosted-validation.md",
+    markers: [
+      "one deployable YORSO product",
+      "`check:self-hosted-api` validates",
     ],
   },
 ];

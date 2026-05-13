@@ -127,6 +127,9 @@ The self-hosted direction is enforced by repository checks:
 npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-infra
+npm run check:self-hosted-api
+npm run api:build
+npm run test:api
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -135,6 +138,11 @@ npm run ci:core
 Compose baseline, required environment keys and the Supabase prototype boundary
 without starting Docker. Details are documented in
 `docs/backend/self-hosted-validation.md`.
+
+`apps/api` is the first self-hosted backend process. It currently exposes
+health endpoints and the account/company contract boundary. It must remain
+deployable through `apps/api/Dockerfile` and the `api` service in
+`infra/docker-compose.yml`.
 
 ## Access Control Rule
 

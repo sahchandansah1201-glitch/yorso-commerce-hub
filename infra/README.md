@@ -4,6 +4,7 @@ This directory is the starting point for running YORSO without Supabase as a pro
 
 Current scope:
 
+- YORSO API as the first self-hosted backend process.
 - PostgreSQL for transactional data.
 - PgBouncer for connection pooling.
 - Redis for cache, sessions, rate limits and short-lived workflow state.
@@ -21,6 +22,7 @@ Validate the static self-hosted baseline without starting Docker:
 
 ```bash
 npm run check:self-hosted-infra
+npm run check:self-hosted-api
 ```
 
 The full validation flow is documented in

@@ -9,7 +9,7 @@ describe("self-hosted infra validation", () => {
     const output = runNode(["scripts/check-self-hosted-infra.mjs"]);
 
     expect(output).toContain("Self-hosted infra check passed");
-    expect(output).toContain("postgres, PgBouncer, Redis and MinIO");
+    expect(output).toContain("API, postgres, PgBouncer, Redis and MinIO");
     expect(output).toContain("Supabase values are empty");
   });
 
@@ -17,6 +17,9 @@ describe("self-hosted infra validation", () => {
     const compose = readFileSync("infra/docker-compose.yml", "utf8");
     const env = readFileSync(".env.example", "utf8");
 
+    expect(compose).toContain("api:");
+    expect(compose).toContain("dockerfile: apps/api/Dockerfile");
+    expect(compose).toContain("DATABASE_URL: postgres://${POSTGRES_USER");
     expect(compose).toContain("image: postgres:17-alpine");
     expect(compose).toContain("image: edoburu/pgbouncer:");
     expect(compose).toContain("POOL_MODE: transaction");
