@@ -44,10 +44,21 @@ const makeTempRoot = () => {
 
 const createReport = (
   reportName: keyof typeof reports,
-  options: { invalidPng?: boolean; omitSchema?: boolean; wrongChecksum?: boolean } = {},
+  options: {
+    duplicateScreenshot?: boolean;
+    extraPng?: boolean;
+    invalidPng?: boolean;
+    omitSchema?: boolean;
+    playwrightStatus?: "passed" | "failed" | "timedOut";
+    wrongChecksum?: boolean;
+  } = {},
 ) => {
   const dir = makeTempRoot();
   const report = reports[reportName];
+  const steps = report.steps.map(([name, screenshot], index) => [
+    name,
+    options.duplicateScreenshot && index === 1 ? report.steps[0][1] : screenshot,
+  ]);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "report.md"), `# ${report.title}\n\nResult: passed\n`);
   const screenshotBuffer = options.invalidPng ? Buffer.from("not-png") : pngBytes;
@@ -66,7 +77,7 @@ const createReport = (
         generatedAt: "2026-05-13T00:00:00.000Z",
         passed: report.steps.length,
         failed: 0,
-        steps: report.steps.map(([name, screenshot]) => ({
+        steps: steps.map(([name, screenshot]) => ({
           name,
           screenshot,
           screenshotBytes: screenshotBuffer.byteLength,
@@ -79,13 +90,39 @@ const createReport = (
       2,
     ),
   );
+  const playwrightStatus = options.playwrightStatus ?? "passed";
   writeFileSync(
     join(dir, "playwright-report.json"),
-    JSON.stringify({ suites: [{ title: report.title, specs: [] }] }, null, 2),
+    JSON.stringify(
+      {
+        suites: [
+          {
+            title: `${reportName}.spec.ts`,
+            specs: [
+              {
+                title: "generates screenshots and a machine-readable report",
+                ok: playwrightStatus === "passed",
+                tests: [
+                  {
+                    expectedStatus: "passed",
+                    projectName: "chromium",
+                    results: [{ status: playwrightStatus, errors: [] }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        errors: [],
+      },
+      null,
+      2,
+    ),
   );
   for (const [, screenshot] of report.steps) {
     writeFileSync(join(dir, screenshot), screenshotBuffer);
   }
+  if (options.extraPng) writeFileSync(join(dir, "99-stale-extra.png"), pngBytes);
   return dir;
 };
 
@@ -149,6 +186,30 @@ describe("account report artifact tooling", () => {
     ).toThrow(/screenshotSha256 does not match/);
   });
 
+  it("fails when report.json references a screenshot more than once", () => {
+    const companyRoot = createReport("account-company-save-flow", { duplicateScreenshot: true });
+
+    expect(() =>
+      runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
+    ).toThrow(/references screenshot more than once/);
+  });
+
+  it("fails when the artifact directory contains stale extra PNG files", () => {
+    const companyRoot = createReport("account-company-save-flow", { extraPng: true });
+
+    expect(() =>
+      runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
+    ).toThrow(/unexpected PNG file/);
+  });
+
+  it("fails when Playwright JSON contains a non-passed status", () => {
+    const companyRoot = createReport("account-company-save-flow", { playwrightStatus: "timedOut" });
+
+    expect(() =>
+      runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
+    ).toThrow(/non-passed statuses|failed or timedOut/);
+  });
+
   it("verifies the full account report suite and writes a Markdown summary", () => {
     const companyRoot = createReport("account-company-save-flow");
     const productsRoot = createReport("account-products-save-flow");
@@ -195,6 +256,41 @@ describe("account report artifact tooling", () => {
     expect(companyRoot).toContain("yorso-report-artifacts-");
   });
 
+  it("quick-audits copied account report packs from one local command", () => {
+    const packRoot = resolve(makeTempRoot(), "account-report-packs");
+    const companyRoot = createReport("account-company-save-flow");
+    const productsRoot = createReport("account-products-save-flow");
+    const summaryPath = resolve(makeTempRoot(), "audit-summary.md");
+
+    runNode([
+      "scripts/copy-account-report-pack.mjs",
+      "account-company-save-flow",
+      resolve(packRoot, "account-company-save-flow"),
+      companyRoot,
+    ]);
+    runNode([
+      "scripts/copy-account-report-pack.mjs",
+      "account-products-save-flow",
+      resolve(packRoot, "account-products-save-flow"),
+      productsRoot,
+    ]);
+
+    const output = runNode([
+      "scripts/audit-account-report-packs.mjs",
+      "--root",
+      packRoot,
+      "--summary-output",
+      summaryPath,
+    ]);
+
+    expect(output).toContain("Account Report Pack Audit");
+    expect(output).toContain("checksums=4/4");
+    expect(output).toContain("checksums=9/9");
+    expect(runNode(["-e", `console.log(require('fs').readFileSync(${JSON.stringify(summaryPath)}, 'utf8'))`])).toContain(
+      "Account Report Pack Audit",
+    );
+  });
+
   it("keeps CI wired to Node 24 actions, report suite verification and full CI", () => {
     const workflow = runNode(["-e", "console.log(require('fs').readFileSync('.github/workflows/ci.yml', 'utf8'))"]);
     const playwrightConfig = runNode([
@@ -207,8 +303,10 @@ describe("account report artifact tooling", () => {
     expect(workflow).toContain("Verify downloaded account report suite");
     expect(workflow).toContain("Upload account report summary");
     expect(playwrightConfig).toContain("E2E_WORKERS");
-    expect(playwrightConfig).toContain('useWebServer ? "4" : "6"');
+    expect(playwrightConfig).toContain('useWebServer ? "1" : "6"');
+    expect(playwrightConfig).toContain("retries: useWebServer ? 1 : 0");
     expect(pkg.scripts["account:reports:run"]).toContain("copy-account-report-pack.mjs");
+    expect(pkg.scripts["account:reports:audit"]).toBe("node scripts/audit-account-report-packs.mjs");
     expect(pkg.scripts["account:reports:verify-suite"]).toBe(
       "node scripts/verify-account-report-suite.mjs --company-root account-report-packs/account-company-save-flow --products-root account-report-packs/account-products-save-flow",
     );

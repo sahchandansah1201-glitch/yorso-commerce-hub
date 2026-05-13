@@ -26,6 +26,14 @@ Run both account report packs and verify them as a suite:
 npm run smoke:e2e:account-reports
 ```
 
+Quick-audit existing local report packs without rerunning Playwright:
+
+```bash
+npm run account:reports:audit
+npm run account:reports:audit -- --json
+npm run account:reports:audit -- --summary-output /tmp/account-report-audit.md
+```
+
 Playwright clears `test-results/` at the start of each independent run. The
 suite command copies each generated report into the ignored `account-report-packs/`
 directory before starting the next report run, so both reports remain available
@@ -99,13 +107,16 @@ lifecycle:
 - `report.json` has schema version `1`, expected title, expected artifact subdir and valid timestamp
 - `report.json` exists, is valid JSON and has the expected passed/failed counts
 - `report.json.steps` has the expected step names in order
+- `report.json.steps` does not reference the same screenshot more than once
 - every step is `passed`
 - every step has a meaningful `detail`
 - every expected screenshot is referenced by `report.json`
 - every expected screenshot exists, is non-empty and has a PNG file signature
+- the artifact directory does not contain stale or unexpected PNG files
 - every screenshot has matching byte size and SHA-256 checksum in `report.json`
 - `playwright-report.json` exists, is valid JSON and has at least one suite
-- Playwright JSON does not contain `failed` or `timedOut` statuses
+- Playwright JSON has at least one test result status
+- Playwright JSON does not contain `failed`, `timedOut`, or any other non-`passed` result status
 
 Use verbose or JSON diagnostics when a report fails:
 
