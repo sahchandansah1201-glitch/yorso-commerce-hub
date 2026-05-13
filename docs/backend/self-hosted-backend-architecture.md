@@ -129,9 +129,11 @@ npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
+npm run db:migrations:check
 npm run api:build
 npm run test:api
 npm run test:db-contract
+npm run test:db-migrations
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -152,9 +154,14 @@ intentional seam before adding PostgreSQL storage: HTTP behavior and DTO
 validation should stay stable while the repository implementation changes.
 
 `packages/db` is now the self-hosted PostgreSQL baseline. Its first migration
-defines `yorso_users`, `yorso_companies` and `yorso_company_media`. Supabase SQL
-may still be used as reference material, but the production-direction schema
-must live under `packages/db`.
+defines the `_yorso_migrations` registry, `yorso_users`, `yorso_companies` and
+`yorso_company_media`. Supabase SQL may still be used as reference material, but
+the production-direction schema must live under `packages/db`.
+
+The DB package includes a migration planner. It currently performs static
+planning and validation only: manifest order, dependencies, safe SQL paths and
+SHA-256 checksums. Live database apply is intentionally deferred until the
+planner contract is stable in CI.
 
 ## Access Control Rule
 

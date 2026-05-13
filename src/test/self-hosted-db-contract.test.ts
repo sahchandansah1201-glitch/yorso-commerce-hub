@@ -2,9 +2,19 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const sql = () => readFileSync("packages/db/migrations/0001_account_company_baseline.sql", "utf8");
+const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
 describe("self-hosted PostgreSQL account/company baseline", () => {
+  it("declares a self-hosted migration registry before feature tables", () => {
+    const text = registrySql();
+
+    expect(text).toContain("create table if not exists _yorso_migrations");
+    expect(text).toContain("checksum text not null");
+    expect(text).toContain("idx_yorso_migrations_applied_at");
+    expect(text).toContain("Self-hosted YORSO schema migration registry");
+  });
+
   it("declares account, company and media tables owned by YORSO", () => {
     const text = sql();
 
@@ -35,7 +45,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = sql().toLowerCase();
+    const text = `${registrySql()}\n${sql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -43,15 +53,28 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("is listed in the migration manifest", () => {
-    expect(manifest()).toMatchObject({
+    const data = manifest();
+
+    expect(data).toMatchObject({
       productionTarget: "self-hosted-postgresql",
       supabaseRole: "prototype-reference-only",
-      migrations: [
-        {
+    });
+    expect(data.migrations.map((migration: { id: string }) => migration.id)).toEqual([
+      "0000_migration_registry",
+      "0001_account_company_baseline",
+    ]);
+    expect(data.migrations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "0000_migration_registry",
+          ownedTables: ["_yorso_migrations"],
+        }),
+        expect.objectContaining({
           id: "0001_account_company_baseline",
           ownedTables: ["yorso_users", "yorso_companies", "yorso_company_media"],
-        },
-      ],
-    });
+          dependsOn: ["0000_migration_registry"],
+        }),
+      ]),
+    );
   });
 });

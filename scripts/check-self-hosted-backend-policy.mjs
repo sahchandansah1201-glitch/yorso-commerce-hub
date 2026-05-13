@@ -9,6 +9,7 @@ const files = [
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
+  "docs/backend/self-hosted-db-migrations.md",
 ];
 
 const requiredMarkers = [
@@ -52,6 +53,13 @@ const requiredMarkers = [
     markers: [
       "one deployable YORSO product",
       "`check:self-hosted-api` validates",
+    ],
+  },
+  {
+    file: "docs/backend/self-hosted-db-migrations.md",
+    markers: [
+      "self-hosted PostgreSQL source of truth",
+      "Do not design production migrations around Supabase-specific tables",
     ],
   },
 ];
