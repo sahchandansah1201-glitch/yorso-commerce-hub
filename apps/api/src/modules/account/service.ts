@@ -1,4 +1,8 @@
 import {
+  accountBranchesSchema,
+  accountMetaRegionsSchema,
+  accountNotificationsSchema,
+  accountProductsSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
   userProfileSchema,
@@ -31,5 +35,41 @@ export class AccountService {
     const update = companyProfileUpdateSchema.parse(payload);
     const profile = await this.repository.updateCompanyProfile(userId, update);
     return companyProfileSchema.parse(profile);
+  }
+
+  async getBranches(userId: string) {
+    return accountBranchesSchema.parse(await this.repository.getBranches(userId));
+  }
+
+  async replaceBranches(userId: string, payload: unknown) {
+    const update = accountBranchesSchema.parse(payload);
+    return accountBranchesSchema.parse(await this.repository.replaceBranches(userId, update));
+  }
+
+  async getProducts(userId: string) {
+    return accountProductsSchema.parse(await this.repository.getProducts(userId));
+  }
+
+  async replaceProducts(userId: string, payload: unknown) {
+    const update = accountProductsSchema.parse(payload);
+    return accountProductsSchema.parse(await this.repository.replaceProducts(userId, update));
+  }
+
+  async getMetaRegions(userId: string) {
+    return accountMetaRegionsSchema.parse(await this.repository.getMetaRegions(userId));
+  }
+
+  async replaceMetaRegions(userId: string, payload: unknown) {
+    const update = accountMetaRegionsSchema.parse(payload);
+    return accountMetaRegionsSchema.parse(await this.repository.replaceMetaRegions(userId, update));
+  }
+
+  async getNotifications(userId: string) {
+    return accountNotificationsSchema.parse(await this.repository.getNotifications(userId));
+  }
+
+  async replaceNotifications(userId: string, payload: unknown) {
+    const update = accountNotificationsSchema.parse(payload);
+    return accountNotificationsSchema.parse(await this.repository.replaceNotifications(userId, update));
   }
 }

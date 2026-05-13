@@ -13,6 +13,7 @@ const files = [
   "packages/db/src/runtime.ts",
   "packages/db/migrations/0000_migration_registry.sql",
   "packages/db/migrations/0001_account_company_baseline.sql",
+  "packages/db/migrations/0002_account_workspace_sections.sql",
 ];
 
 const failures = [];
@@ -24,7 +25,8 @@ for (const file of files) {
 const read = (file) => readFileSync(file, "utf8");
 const registrySql = read("packages/db/migrations/0000_migration_registry.sql");
 const baselineSql = read("packages/db/migrations/0001_account_company_baseline.sql");
-const allSql = `${registrySql}\n${baselineSql}`;
+const workspaceSql = read("packages/db/migrations/0002_account_workspace_sections.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -60,6 +62,24 @@ for (const marker of [
   requireText("packages/db/migrations/0001_account_company_baseline.sql", baselineSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_company_branches",
+  "create table if not exists yorso_company_products",
+  "create table if not exists yorso_company_meta_regions",
+  "create table if not exists yorso_notification_preferences",
+  "create type yorso_branch_type",
+  "create type yorso_product_state",
+  "create type yorso_notification_event",
+  "references yorso_companies(id)",
+  "references yorso_users(id)",
+  "idx_yorso_company_products_role",
+  "primary key (company_id, id)",
+  "primary key (user_id, id)",
+  "Self-hosted account",
+]) {
+  requireText("packages/db/migrations/0002_account_workspace_sections.sql", workspaceSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -72,11 +92,17 @@ if (!manifest.migrations?.some((migration) => migration.id === "0000_migration_r
 if (!manifest.migrations?.some((migration) => migration.id === "0001_account_company_baseline")) {
   failures.push("packages/db/migration-manifest.json: missing 0001_account_company_baseline");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0002_account_workspace_sections")) {
+  failures.push("packages/db/migration-manifest.json: missing 0002_account_workspace_sections");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
 if (!manifest.migrations?.[1]?.dependsOn?.includes("0000_migration_registry")) {
   failures.push("packages/db/migration-manifest.json: account baseline must depend on registry migration");
+}
+if (!manifest.migrations?.[2]?.dependsOn?.includes("0001_account_company_baseline")) {
+  failures.push("packages/db/migration-manifest.json: account workspace sections must depend on account baseline");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

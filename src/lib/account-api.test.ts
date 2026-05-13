@@ -4,7 +4,11 @@ import {
   ACCOUNT_API_SYNC_STORAGE_KEY,
   createAccountApiClient,
   hydrateAccountProfileFromApi,
+  mapFrontendBranchesUpdate,
   mapFrontendCompanyUpdate,
+  mapFrontendMetaRegionsUpdate,
+  mapFrontendNotificationsUpdate,
+  mapFrontendProductsUpdate,
   mapFrontendUserUpdate,
   mergeBackendAccountProfile,
   syncAccountProfileToApi,
@@ -56,6 +60,41 @@ const jsonResponse = (body: unknown, status = 200) =>
     headers: { "content-type": "application/json" },
   });
 
+const backendBranches = [
+  {
+    ...mockAccountProfile.branches[0],
+    name: "Backend Branch",
+  },
+];
+const backendProducts = [
+  {
+    ...mockAccountProfile.products[0],
+    commercialName: "Backend Cod",
+  },
+];
+const backendMetaRegions = [
+  {
+    ...mockAccountProfile.metaRegions[0],
+    name: "Backend Region",
+  },
+];
+const backendNotifications = [
+  {
+    ...mockAccountProfile.notifications[0],
+    frequency: "weekly" as const,
+  },
+];
+
+const mockLoadResponses = () =>
+  vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, requestId: "r1" }))
+    .mockResolvedValueOnce(jsonResponse({ ok: true, company: backendCompany, requestId: "r2" }))
+    .mockResolvedValueOnce(jsonResponse({ ok: true, branches: backendBranches, requestId: "r3" }))
+    .mockResolvedValueOnce(jsonResponse({ ok: true, products: backendProducts, requestId: "r4" }))
+    .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegions: backendMetaRegions, requestId: "r5" }))
+    .mockResolvedValueOnce(jsonResponse({ ok: true, notifications: backendNotifications, requestId: "r6" }));
+
 describe("account API adapter", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -87,6 +126,12 @@ describe("account API adapter", () => {
   it("maps frontend profile values to backend PATCH DTOs", () => {
     const userUpdate = mapFrontendUserUpdate(mockAccountProfile.user);
     const companyUpdate = mapFrontendCompanyUpdate(mockAccountProfile.company);
+    const branchUpdate = mapFrontendBranchesUpdate(mockAccountProfile.branches);
+    const productUpdate = mapFrontendProductsUpdate(mockAccountProfile.products);
+    const metaRegionUpdate = mapFrontendMetaRegionsUpdate([
+      { ...mockAccountProfile.metaRegions[0], defaultCurrency: "eur" },
+    ]);
+    const notificationUpdate = mapFrontendNotificationsUpdate(mockAccountProfile.notifications);
 
     expect(userUpdate).toMatchObject({
       firstName: "Anna",
@@ -104,13 +149,14 @@ describe("account API adapter", () => {
         coverFocalY: 0.5,
       },
     });
+    expect(branchUpdate[0].defaultIncoterms).toBe("EXW");
+    expect(productUpdate[0].commercialName).toBe("Atlantic Cod H&G");
+    expect(metaRegionUpdate[0].defaultCurrency).toBe("EUR");
+    expect(notificationUpdate[0].events).toContain("price_access_approved");
   });
 
-  it("loads /v1/account/me and /v1/account/company from the configured self-hosted API", async () => {
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, requestId: "r1" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, company: backendCompany, requestId: "r2" }));
+  it("loads all account workspace sections from the configured self-hosted API", async () => {
+    const fetchImpl = mockLoadResponses();
     const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
 
     const profile = await client.load(mockAccountProfile);
@@ -119,14 +165,19 @@ describe("account API adapter", () => {
     expect(fetchImpl).toHaveBeenNthCalledWith(1, "http://localhost:3000/v1/account/me", expect.any(Object));
     expect(new Headers(firstRequest.headers).get("content-type")).toBe("application/json");
     expect(fetchImpl).toHaveBeenNthCalledWith(2, "http://localhost:3000/v1/account/company", expect.any(Object));
+    expect(fetchImpl).toHaveBeenNthCalledWith(3, "http://localhost:3000/v1/account/branches", expect.any(Object));
+    expect(fetchImpl).toHaveBeenNthCalledWith(4, "http://localhost:3000/v1/account/products", expect.any(Object));
+    expect(fetchImpl).toHaveBeenNthCalledWith(5, "http://localhost:3000/v1/account/meta-regions", expect.any(Object));
+    expect(fetchImpl).toHaveBeenNthCalledWith(6, "http://localhost:3000/v1/account/notifications", expect.any(Object));
     expect(profile.company.tradeName).toBe("Backend Seafood");
+    expect(profile.branches[0].name).toBe("Backend Branch");
+    expect(profile.products[0].commercialName).toBe("Backend Cod");
+    expect(profile.metaRegions[0].name).toBe("Backend Region");
+    expect(profile.notifications[0].frequency).toBe("weekly");
   });
 
-  it("saves user and company profile updates to the self-hosted API", async () => {
-    const fetchImpl = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, requestId: "r1" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, company: backendCompany, requestId: "r2" }));
+  it("saves all account workspace sections to the self-hosted API", async () => {
+    const fetchImpl = mockLoadResponses();
     const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
 
     await client.save(mockAccountProfile);
@@ -145,6 +196,38 @@ describe("account API adapter", () => {
       expect.objectContaining({
         method: "PATCH",
         body: expect.stringContaining("countryCode"),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      3,
+      "http://localhost:3000/v1/account/branches",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("defaultIncoterms"),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      4,
+      "http://localhost:3000/v1/account/products",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("commercialName"),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      5,
+      "http://localhost:3000/v1/account/meta-regions",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("defaultCurrency"),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      6,
+      "http://localhost:3000/v1/account/notifications",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("price_access_approved"),
       }),
     );
   });

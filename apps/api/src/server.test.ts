@@ -88,7 +88,16 @@ describe("YORSO self-hosted API skeleton", () => {
       name: "account-company",
       version: 1,
       source: "packages/contracts/src/account-company.ts",
-      dto: ["CompanyProfile", "CompanyProfileUpdate", "UserProfile", "UserProfileUpdate"],
+      dto: [
+        "CompanyProfile",
+        "CompanyProfileUpdate",
+        "UserProfile",
+        "UserProfileUpdate",
+        "CompanyBranch",
+        "CompanyProduct",
+        "MetaRegion",
+        "NotificationPreference",
+      ],
     });
     expect(body.productionTarget).toMatchObject({
       backend: "self-hosted-yorso-api",
@@ -207,6 +216,121 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("returns and replaces company branches", async () => {
+    const current = await request("/v1/account/branches");
+    expect(current.status).toBe(200);
+    await expect(current.json()).resolves.toMatchObject({
+      ok: true,
+      branches: expect.any(Array),
+    });
+
+    const response = await request("/v1/account/branches", {
+      method: "PATCH",
+      body: JSON.stringify([
+        {
+          id: "br_api",
+          name: "API Loading Point",
+          type: "loading_point",
+          country: "Spain",
+          region: "Galicia",
+          city: "Vigo",
+          addressLine: "Terminal 9",
+          defaultIncoterms: "FCA",
+          portOrPickupPoint: "Vigo terminal",
+          notes: "Saved from API test.",
+        },
+      ]),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.branches).toEqual([
+      expect.objectContaining({
+        id: "br_api",
+        defaultIncoterms: "FCA",
+      }),
+    ]);
+  });
+
+  it("returns and replaces company products", async () => {
+    const response = await request("/v1/account/products", {
+      method: "PATCH",
+      body: JSON.stringify([
+        {
+          id: "p_api",
+          commercialName: "API Mackerel",
+          latinName: "Scomber scombrus",
+          category: "Pelagic",
+          state: "frozen",
+          format: "WR 300-500 g",
+          role: "selling",
+          monthlyVolume: "200 t",
+          certificates: ["MSC"],
+          targetCountries: ["Nigeria", "Vietnam"],
+        },
+      ]),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.products).toEqual([
+      expect.objectContaining({
+        id: "p_api",
+        role: "selling",
+      }),
+    ]);
+  });
+
+  it("returns and replaces company meta-regions", async () => {
+    const response = await request("/v1/account/meta-regions", {
+      method: "PATCH",
+      body: JSON.stringify([
+        {
+          id: "mr_api",
+          name: "API Iberia",
+          countries: ["Spain", "Portugal"],
+          logisticsReason: "same_sales_market",
+          defaultCurrency: "EUR",
+          notes: "Shared buyer market.",
+          usedFor: ["notifications", "supplier_matching"],
+        },
+      ]),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.metaRegions).toEqual([
+      expect.objectContaining({
+        id: "mr_api",
+        defaultCurrency: "EUR",
+      }),
+    ]);
+  });
+
+  it("returns and replaces notification preferences", async () => {
+    const response = await request("/v1/account/notifications", {
+      method: "PATCH",
+      body: JSON.stringify([
+        {
+          id: "n_api",
+          channel: "email",
+          enabled: true,
+          events: ["price_access_approved", "rfq_response"],
+          frequency: "daily",
+        },
+      ]),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.notifications).toEqual([
+      expect.objectContaining({
+        id: "n_api",
+        frequency: "daily",
+      }),
+    ]);
+  });
+
   it("rejects invalid company update payloads", async () => {
     const response = await request("/v1/account/company", {
       method: "PATCH",
@@ -214,6 +338,28 @@ describe("YORSO self-hosted API skeleton", () => {
         countryCode: "NOR",
         website: "not-a-url",
       }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+  });
+
+  it("rejects invalid workspace section payloads", async () => {
+    const response = await request("/v1/account/notifications", {
+      method: "PATCH",
+      body: JSON.stringify([
+        {
+          id: "n_invalid",
+          channel: "email",
+          enabled: true,
+          events: [],
+          frequency: "instant",
+        },
+      ]),
     });
     const body = (await response.json()) as JsonBody;
 
