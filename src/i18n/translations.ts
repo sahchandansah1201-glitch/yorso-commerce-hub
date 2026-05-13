@@ -1596,6 +1596,47 @@ type TranslationKeys = {
   account_company_media_useUrl: string;
   account_company_media_choose: string;
   account_company_media_clear: string;
+  account_company_media_uploading: string;
+  account_company_media_uploadError: string;
+  account_company_documents_title: string;
+  account_company_documents_desc: string;
+  account_company_documents_apiMode: string;
+  account_company_documents_localMode: string;
+  account_company_documents_loadError: string;
+  account_company_documents_uploadError: string;
+  account_company_documents_titleRequired: string;
+  account_company_documents_fileRequired: string;
+  account_company_documents_empty: string;
+  account_company_documents_field_title: string;
+  account_company_documents_field_type: string;
+  account_company_documents_field_visibility: string;
+  account_company_documents_field_file: string;
+  account_company_documents_field_expires: string;
+  account_company_documents_upload: string;
+  account_company_documents_uploading: string;
+  account_company_documents_download: string;
+  account_company_documents_localOnly: string;
+  account_company_documents_expiresOn: string;
+  account_company_doc_visibility_private: string;
+  account_company_doc_visibility_buyer: string;
+  account_company_doc_visibility_teaser: string;
+  account_company_doc_status_draft: string;
+  account_company_doc_status_uploaded: string;
+  account_company_doc_status_review: string;
+  account_company_doc_status_approved: string;
+  account_company_doc_status_rejected: string;
+  account_company_doc_status_expired: string;
+  account_company_doc_type_business_license: string;
+  account_company_doc_type_facility_approval: string;
+  account_company_doc_type_haccp: string;
+  account_company_doc_type_msc: string;
+  account_company_doc_type_asc: string;
+  account_company_doc_type_brc: string;
+  account_company_doc_type_ifs: string;
+  account_company_doc_type_health_certificate: string;
+  account_company_doc_type_origin_certificate: string;
+  account_company_doc_type_packing_list: string;
+  account_company_doc_type_other: string;
   account_supplier_preview_title: string;
   account_supplier_preview_note: string;
   account_supplier_preview_emptyLogo: string;
@@ -3235,6 +3276,47 @@ const en: TranslationKeys = {
   account_company_media_useUrl: "Image URL",
   account_company_media_choose: "Choose file",
   account_company_media_clear: "Remove",
+  account_company_media_uploading: "Uploading...",
+  account_company_media_uploadError: "Could not upload this file. Try another file or use an image URL.",
+  account_company_documents_title: "Company documents",
+  account_company_documents_desc: "Certificates and trade documents that will later support supplier verification and buyer access.",
+  account_company_documents_apiMode: "Self-hosted API",
+  account_company_documents_localMode: "Local prototype",
+  account_company_documents_loadError: "Could not load company documents.",
+  account_company_documents_uploadError: "Could not upload this document.",
+  account_company_documents_titleRequired: "Document title is required.",
+  account_company_documents_fileRequired: "Choose a document file.",
+  account_company_documents_empty: "No company documents added yet.",
+  account_company_documents_field_title: "Document title",
+  account_company_documents_field_type: "Document type",
+  account_company_documents_field_visibility: "Visibility",
+  account_company_documents_field_file: "File",
+  account_company_documents_field_expires: "Expires",
+  account_company_documents_upload: "Add document",
+  account_company_documents_uploading: "Uploading...",
+  account_company_documents_download: "Open file",
+  account_company_documents_localOnly: "Stored locally",
+  account_company_documents_expiresOn: "Expires",
+  account_company_doc_visibility_private: "Private",
+  account_company_doc_visibility_buyer: "Qualified buyers",
+  account_company_doc_visibility_teaser: "Public teaser",
+  account_company_doc_status_draft: "Draft",
+  account_company_doc_status_uploaded: "Uploaded",
+  account_company_doc_status_review: "In review",
+  account_company_doc_status_approved: "Approved",
+  account_company_doc_status_rejected: "Rejected",
+  account_company_doc_status_expired: "Expired",
+  account_company_doc_type_business_license: "Business license",
+  account_company_doc_type_facility_approval: "Facility approval",
+  account_company_doc_type_haccp: "HACCP",
+  account_company_doc_type_msc: "MSC",
+  account_company_doc_type_asc: "ASC",
+  account_company_doc_type_brc: "BRC",
+  account_company_doc_type_ifs: "IFS",
+  account_company_doc_type_health_certificate: "Health certificate",
+  account_company_doc_type_origin_certificate: "Origin certificate",
+  account_company_doc_type_packing_list: "Packing list",
+  account_company_doc_type_other: "Other",
   account_supplier_preview_title: "Supplier profile preview",
   account_supplier_preview_note: "Frontend only preview. Public supplier profile will read this data later.",
   account_supplier_preview_emptyLogo: "No logo",
@@ -4861,6 +4943,47 @@ const ru: TranslationKeys = {
   account_company_media_useUrl: "URL изображения",
   account_company_media_choose: "Выбрать файл",
   account_company_media_clear: "Удалить",
+  account_company_media_uploading: "Загружаем...",
+  account_company_media_uploadError: "Не удалось загрузить файл. Выберите другой файл или укажите URL изображения.",
+  account_company_documents_title: "Документы компании",
+  account_company_documents_desc: "Сертификаты и торговые документы для будущей проверки поставщика и доступа покупателей.",
+  account_company_documents_apiMode: "Self-hosted API",
+  account_company_documents_localMode: "Локальный прототип",
+  account_company_documents_loadError: "Не удалось загрузить документы компании.",
+  account_company_documents_uploadError: "Не удалось загрузить документ.",
+  account_company_documents_titleRequired: "Укажите название документа.",
+  account_company_documents_fileRequired: "Выберите файл документа.",
+  account_company_documents_empty: "Документы компании пока не добавлены.",
+  account_company_documents_field_title: "Название документа",
+  account_company_documents_field_type: "Тип документа",
+  account_company_documents_field_visibility: "Видимость",
+  account_company_documents_field_file: "Файл",
+  account_company_documents_field_expires: "Действует до",
+  account_company_documents_upload: "Добавить документ",
+  account_company_documents_uploading: "Загружаем...",
+  account_company_documents_download: "Открыть файл",
+  account_company_documents_localOnly: "Сохранено локально",
+  account_company_documents_expiresOn: "Действует до",
+  account_company_doc_visibility_private: "Приватно",
+  account_company_doc_visibility_buyer: "Квалифицированные покупатели",
+  account_company_doc_visibility_teaser: "Публичный тизер",
+  account_company_doc_status_draft: "Черновик",
+  account_company_doc_status_uploaded: "Загружен",
+  account_company_doc_status_review: "На проверке",
+  account_company_doc_status_approved: "Подтверждён",
+  account_company_doc_status_rejected: "Отклонён",
+  account_company_doc_status_expired: "Истёк",
+  account_company_doc_type_business_license: "Регистрационные документы",
+  account_company_doc_type_facility_approval: "Разрешение предприятия",
+  account_company_doc_type_haccp: "HACCP",
+  account_company_doc_type_msc: "MSC",
+  account_company_doc_type_asc: "ASC",
+  account_company_doc_type_brc: "BRC",
+  account_company_doc_type_ifs: "IFS",
+  account_company_doc_type_health_certificate: "Ветеринарный сертификат",
+  account_company_doc_type_origin_certificate: "Сертификат происхождения",
+  account_company_doc_type_packing_list: "Упаковочный лист",
+  account_company_doc_type_other: "Другое",
   account_supplier_preview_title: "Предпросмотр профиля поставщика",
   account_supplier_preview_note: "Только фронтенд-предпросмотр. Публичный профиль поставщика будет использовать эти данные позже.",
   account_supplier_preview_emptyLogo: "Нет логотипа",
@@ -6486,6 +6609,47 @@ const es: TranslationKeys = {
   account_company_media_useUrl: "URL de la imagen",
   account_company_media_choose: "Elegir archivo",
   account_company_media_clear: "Quitar",
+  account_company_media_uploading: "Subiendo...",
+  account_company_media_uploadError: "No se pudo subir este archivo. Prueba otro archivo o usa una URL de imagen.",
+  account_company_documents_title: "Documentos de la empresa",
+  account_company_documents_desc: "Certificados y documentos comerciales para verificación de proveedor y acceso de compradores.",
+  account_company_documents_apiMode: "API self-hosted",
+  account_company_documents_localMode: "Prototipo local",
+  account_company_documents_loadError: "No se pudieron cargar los documentos de la empresa.",
+  account_company_documents_uploadError: "No se pudo subir este documento.",
+  account_company_documents_titleRequired: "El título del documento es obligatorio.",
+  account_company_documents_fileRequired: "Elige un archivo de documento.",
+  account_company_documents_empty: "Aún no hay documentos de empresa.",
+  account_company_documents_field_title: "Título del documento",
+  account_company_documents_field_type: "Tipo de documento",
+  account_company_documents_field_visibility: "Visibilidad",
+  account_company_documents_field_file: "Archivo",
+  account_company_documents_field_expires: "Caduca",
+  account_company_documents_upload: "Añadir documento",
+  account_company_documents_uploading: "Subiendo...",
+  account_company_documents_download: "Abrir archivo",
+  account_company_documents_localOnly: "Guardado localmente",
+  account_company_documents_expiresOn: "Caduca",
+  account_company_doc_visibility_private: "Privado",
+  account_company_doc_visibility_buyer: "Compradores cualificados",
+  account_company_doc_visibility_teaser: "Vista pública parcial",
+  account_company_doc_status_draft: "Borrador",
+  account_company_doc_status_uploaded: "Subido",
+  account_company_doc_status_review: "En revisión",
+  account_company_doc_status_approved: "Aprobado",
+  account_company_doc_status_rejected: "Rechazado",
+  account_company_doc_status_expired: "Caducado",
+  account_company_doc_type_business_license: "Licencia comercial",
+  account_company_doc_type_facility_approval: "Aprobación de planta",
+  account_company_doc_type_haccp: "HACCP",
+  account_company_doc_type_msc: "MSC",
+  account_company_doc_type_asc: "ASC",
+  account_company_doc_type_brc: "BRC",
+  account_company_doc_type_ifs: "IFS",
+  account_company_doc_type_health_certificate: "Certificado sanitario",
+  account_company_doc_type_origin_certificate: "Certificado de origen",
+  account_company_doc_type_packing_list: "Packing list",
+  account_company_doc_type_other: "Otro",
   account_supplier_preview_title: "Vista previa del perfil de proveedor",
   account_supplier_preview_note: "Vista previa solo de frontend. El perfil público leerá estos datos más adelante.",
   account_supplier_preview_emptyLogo: "Sin logotipo",

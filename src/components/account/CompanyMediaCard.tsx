@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { EditableCard } from "./EditableCard";
 import { Label } from "@/components/ui/label";
@@ -6,12 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { CompanyProfile } from "@/data/mockAccount";
 
-interface Props {
-  company: CompanyProfile;
-  onSave: (next: CompanyProfile) => void;
-}
-
-type Draft = Pick<
+export type CompanyMediaDraft = Pick<
   CompanyProfile,
   | "logoImageUrl"
   | "logoAlt"
@@ -21,15 +16,29 @@ type Draft = Pick<
   | "coverFocalPoint"
 >;
 
-const focalToObjectPosition = (f: Draft["coverFocalPoint"]) =>
+interface Props {
+  company: CompanyProfile;
+  onSave: (next: CompanyProfile) => void;
+  resolveMediaSrc?: (value: string) => string;
+  onUploadFile?: (slot: "logo" | "cover", file: File, draft: CompanyMediaDraft) => Promise<string>;
+}
+
+const focalToObjectPosition = (f: CompanyMediaDraft["coverFocalPoint"]) =>
   f === "top" ? "center top" : f === "bottom" ? "center bottom" : "center center";
 
-export const CompanyMediaCard = ({ company, onSave }: Props) => {
+export const CompanyMediaCard = ({
+  company,
+  onSave,
+  resolveMediaSrc = (value) => value,
+  onUploadFile,
+}: Props) => {
   const { t } = useLanguage();
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingSlot, setUploadingSlot] = useState<"logo" | "cover" | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const initial: Draft = {
+  const initial: CompanyMediaDraft = {
     logoImageUrl: company.logoImageUrl,
     logoAlt: company.logoAlt,
     logoFit: company.logoFit,
@@ -39,7 +48,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
   };
 
   return (
-    <EditableCard<Draft>
+    <EditableCard<CompanyMediaDraft>
       title={t.account_company_media_title}
       description={t.account_company_media_desc}
       testId="account-card-company-media"
@@ -54,7 +63,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
             <div className="aspect-square w-32 overflow-hidden rounded-md border bg-muted/40">
               {v.logoImageUrl ? (
                 <img
-                  src={v.logoImageUrl}
+                  src={resolveMediaSrc(v.logoImageUrl)}
                   alt={v.logoAlt || t.account_company_media_logo}
                   className="h-full w-full"
                   style={{ objectFit: v.logoFit }}
@@ -74,7 +83,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
             <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted/40">
               {v.coverImageUrl ? (
                 <img
-                  src={v.coverImageUrl}
+                  src={resolveMediaSrc(v.coverImageUrl)}
                   alt={v.coverAlt || t.account_company_media_cover}
                   className="h-full w-full object-cover"
                   style={{ objectPosition: focalToObjectPosition(v.coverFocalPoint) }}
@@ -90,15 +99,34 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
         </div>
       )}
       renderEdit={({ draft, setDraft }) => {
-        const onPickFile = (key: "logoImageUrl" | "coverImageUrl") => (e: React.ChangeEvent<HTMLInputElement>) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = () => {
-            setDraft({ ...draft, [key]: String(reader.result ?? "") });
+        const onPickFile =
+          (slot: "logo" | "cover", key: "logoImageUrl" | "coverImageUrl") =>
+          async (e: ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setUploadError(null);
+
+            if (onUploadFile) {
+              setUploadingSlot(slot);
+              try {
+                const storedValue = await onUploadFile(slot, file, draft);
+                setDraft({ ...draft, [key]: storedValue });
+              } catch {
+                setUploadError(t.account_company_media_uploadError);
+              } finally {
+                setUploadingSlot(null);
+                e.target.value = "";
+              }
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+              setDraft({ ...draft, [key]: String(reader.result ?? "") });
+            };
+            reader.readAsDataURL(file);
+            e.target.value = "";
           };
-          reader.readAsDataURL(file);
-        };
 
         return (
           <div className="space-y-6">
@@ -107,7 +135,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
               <div className="aspect-square w-32 overflow-hidden rounded-md border bg-muted/40">
                 {draft.logoImageUrl ? (
                   <img
-                    src={draft.logoImageUrl}
+                    src={resolveMediaSrc(draft.logoImageUrl)}
                     alt={draft.logoAlt}
                     className="h-full w-full"
                     style={{ objectFit: draft.logoFit }}
@@ -128,11 +156,17 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={onPickFile("logoImageUrl")}
+                    onChange={onPickFile("logo", "logoImageUrl")}
                     data-testid="account-media-logo-file"
                   />
-                  <Button type="button" size="sm" variant="outline" onClick={() => logoInputRef.current?.click()}>
-                    {t.account_company_media_choose}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploadingSlot === "logo"}
+                  >
+                    {uploadingSlot === "logo" ? t.account_company_media_uploading : t.account_company_media_choose}
                   </Button>
                   {draft.logoImageUrl ? (
                     <Button
@@ -164,7 +198,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                     className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
                     value={draft.logoFit}
                     onChange={(e) =>
-                      setDraft({ ...draft, logoFit: e.target.value as Draft["logoFit"] })
+                      setDraft({ ...draft, logoFit: e.target.value as CompanyMediaDraft["logoFit"] })
                     }
                     data-testid="account-media-logo-fit"
                   >
@@ -180,7 +214,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
               <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted/40">
                 {draft.coverImageUrl ? (
                   <img
-                    src={draft.coverImageUrl}
+                    src={resolveMediaSrc(draft.coverImageUrl)}
                     alt={draft.coverAlt}
                     className="h-full w-full object-cover"
                     style={{ objectPosition: focalToObjectPosition(draft.coverFocalPoint) }}
@@ -200,11 +234,17 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={onPickFile("coverImageUrl")}
+                  onChange={onPickFile("cover", "coverImageUrl")}
                   data-testid="account-media-cover-file"
                 />
-                <Button type="button" size="sm" variant="outline" onClick={() => coverInputRef.current?.click()}>
-                  {t.account_company_media_choose}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploadingSlot === "cover"}
+                >
+                  {uploadingSlot === "cover" ? t.account_company_media_uploading : t.account_company_media_choose}
                 </Button>
                 {draft.coverImageUrl ? (
                   <Button
@@ -266,7 +306,7 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                         <div className="aspect-video w-full overflow-hidden rounded-sm bg-muted/40">
                           {draft.coverImageUrl ? (
                             <img
-                              src={draft.coverImageUrl}
+                              src={resolveMediaSrc(draft.coverImageUrl)}
                               alt=""
                               className="h-full w-full object-cover"
                               style={{ objectPosition: focalToObjectPosition(pos) }}
@@ -295,6 +335,11 @@ export const CompanyMediaCard = ({ company, onSave }: Props) => {
                 </div>
               </div>
             </div>
+            {uploadError ? (
+              <p className="text-xs text-destructive" role="alert" data-testid="account-media-upload-error">
+                {uploadError}
+              </p>
+            ) : null}
           </div>
         );
       }}

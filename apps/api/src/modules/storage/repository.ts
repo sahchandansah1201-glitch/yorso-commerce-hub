@@ -30,6 +30,7 @@ export interface CompanyDocumentCreateInput {
 export interface FileRepository {
   createFileAsset(input: FileAssetCreateInput): Promise<AccountFileAsset>;
   getFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null>;
+  getFileAssetByObjectKeyForUser(userId: string, objectKey: string): Promise<AccountFileAsset | null>;
   createCompanyDocument(input: CompanyDocumentCreateInput): Promise<CompanyDocument>;
   listCompanyDocuments(companyId: string): Promise<CompanyDocument[]>;
 }
@@ -60,6 +61,13 @@ export class MemoryFileRepository implements FileRepository {
     const asset = this.assets.get(assetId);
     if (!asset || asset.ownerUserId !== userId) return null;
     return stripOwner(asset);
+  }
+
+  async getFileAssetByObjectKeyForUser(userId: string, objectKey: string): Promise<AccountFileAsset | null> {
+    const asset = [...this.assets.values()].find(
+      (item) => item.ownerUserId === userId && item.objectKey === objectKey,
+    );
+    return asset ? stripOwner(asset) : null;
   }
 
   async createCompanyDocument(input: CompanyDocumentCreateInput): Promise<CompanyDocument> {

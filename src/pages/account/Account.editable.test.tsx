@@ -119,6 +119,28 @@ describe("Account editability", () => {
     renderAt("/account/company");
     expect(screen.getByTestId("account-supplier-preview")).toBeInTheDocument();
   });
+
+  it("Company documents: local fallback adds a document record", async () => {
+    signIn();
+    renderAt("/account/company");
+    const card = screen.getByTestId("account-company-documents");
+
+    await act(async () => {
+      fireEvent.change(within(card).getByTestId("account-company-document-title"), {
+        target: { value: "HACCP certificate" },
+      });
+      fireEvent.change(within(card).getByTestId("account-company-document-file"), {
+        target: {
+          files: [new File(["document-bytes"], "haccp.pdf", { type: "application/pdf" })],
+        },
+      });
+      fireEvent.click(within(card).getByTestId("account-company-document-save"));
+    });
+
+    expect(await within(card).findByText("HACCP certificate")).toBeInTheDocument();
+    expect(within(card).getByText(/haccp\.pdf/i)).toBeInTheDocument();
+    expect(within(card).getByText("Stored locally")).toBeInTheDocument();
+  });
 });
 
 describe("Account legacy /profile redirects", () => {

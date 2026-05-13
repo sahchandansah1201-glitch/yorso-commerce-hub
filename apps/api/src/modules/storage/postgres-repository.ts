@@ -166,6 +166,14 @@ export class PostgresFileRepository implements FileRepository {
     return result.rows[0] ? mapAsset(result.rows[0]) : null;
   }
 
+  async getFileAssetByObjectKeyForUser(userId: string, objectKey: string): Promise<AccountFileAsset | null> {
+    const result = await this.client.query<FileAssetRow>(
+      `${assetSelect} where object_key = $1 and owner_user_id = $2 limit 1`,
+      [objectKey, userId],
+    );
+    return result.rows[0] ? mapAsset(result.rows[0]) : null;
+  }
+
   async createCompanyDocument(input: CompanyDocumentCreateInput): Promise<CompanyDocument> {
     const result = await this.client.query<CompanyDocumentRow>(
       `

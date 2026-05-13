@@ -3,6 +3,7 @@ import { mockAccountProfile } from "@/data/mockAccount";
 import {
   ACCOUNT_API_SYNC_STORAGE_KEY,
   createAccountApiClient,
+  fileToAccountUploadPayload,
   hydrateAccountProfileFromApi,
   mapFrontendBranchesUpdate,
   mapFrontendCompanyUpdate,
@@ -337,6 +338,25 @@ describe("account API adapter", () => {
     expect(client.fileUrl(backendAsset.id)).toBe(
       "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222",
     );
+    expect(client.fileUrlForObjectKey(backendAsset.objectKey)).toBe(
+      "http://localhost:3000/v1/account/files/by-object-key?objectKey=companies%2F111%2Fcompany_logo%2Flogo.svg",
+    );
+    expect(client.resolveStoredFileUrl("https://cdn.example.com/logo.webp")).toBe(
+      "https://cdn.example.com/logo.webp",
+    );
+  });
+
+  it("converts browser File objects into account upload payloads", async () => {
+    const payload = await fileToAccountUploadPayload(
+      new File(["logo-bytes"], "logo.svg", { type: "image/svg+xml" }),
+    );
+
+    expect(payload).toEqual({
+      fileName: "logo.svg",
+      contentType: "image/svg+xml",
+      sizeBytes: 10,
+      contentBase64: "bG9nby1ieXRlcw==",
+    });
   });
 
   it("keeps local prototype mode when API URL is not configured", async () => {

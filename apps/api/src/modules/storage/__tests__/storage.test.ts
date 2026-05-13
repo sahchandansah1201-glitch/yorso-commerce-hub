@@ -56,6 +56,15 @@ describe("self-hosted file storage service", () => {
     expect(asset.objectKey).toContain("company_document");
     expect(asset.checksumSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(file.bytes.toString("utf8")).toBe("document");
+    await expect(
+      service.getFileByObjectKeyForUser(
+        "00000000-0000-4000-8000-000000000001",
+        asset.objectKey,
+      ),
+    ).resolves.toMatchObject({
+      asset: expect.objectContaining({ id: asset.id }),
+      contentType: "application/pdf",
+    });
   });
 
   it("creates company document records linked to stored file assets", async () => {

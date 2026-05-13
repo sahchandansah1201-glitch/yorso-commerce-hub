@@ -4,7 +4,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
-import { CompanyMediaCard } from "@/components/account/CompanyMediaCard";
+import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
+import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
-import { hydrateAccountProfileFromApi, syncAccountProfileToApi } from "@/lib/account-api";
+import {
+  createAccountApiClient,
+  fileToAccountUploadPayload,
+  hydrateAccountProfileFromApi,
+  syncAccountProfileToApi,
+} from "@/lib/account-api";
 import {
   validateEmail,
   validateLanguage,
@@ -42,6 +48,10 @@ const VALID: AccountSectionKey[] = [
   "meta-regions",
   "notifications",
 ];
+
+interface AccountUpdateOptions {
+  syncRemote?: boolean;
+}
 
 const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
 
@@ -559,18 +569,44 @@ const CompanySection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (p: AccountProfile) => void;
+  onChange: (p: AccountProfile, options?: AccountUpdateOptions) => void;
 }) => {
   const { t } = useLanguage();
   const c = profile.company;
   const pub = pubLabelMap(t);
   const qual = qualLabelMap(t);
+  const accountApiClient = useMemo(() => createAccountApiClient(), []);
 
   const saveCompany = (next: CompanyProfile) => onChange({ ...profile, company: next });
+  const resolveMediaSrc = (value: string) => accountApiClient.resolveStoredFileUrl(value);
+  const uploadCompanyMediaFile = async (
+    slot: "logo" | "cover",
+    file: File,
+    draft: CompanyMediaDraft,
+  ) => {
+    const payload = await fileToAccountUploadPayload(file);
+    const result = await accountApiClient.uploadCompanyMedia(
+      slot,
+      {
+        ...payload,
+        alt: slot === "logo" ? draft.logoAlt : draft.coverAlt,
+      },
+      profile,
+    );
+    onChange(result.profile, { syncRemote: false });
+    return result.asset.objectKey;
+  };
 
   return (
     <div className="space-y-4" data-testid="account-section-company">
-      <CompanyMediaCard company={c} onSave={saveCompany} />
+      <CompanyMediaCard
+        company={c}
+        onSave={saveCompany}
+        resolveMediaSrc={resolveMediaSrc}
+        onUploadFile={accountApiClient.enabled ? uploadCompanyMediaFile : undefined}
+      />
+
+      <CompanyDocumentsCard company={c} />
 
       <EditableCard<CompanyProfile>
         title={t.account_company_identity_title}
@@ -920,7 +956,7 @@ const CompanySection = ({
         )}
       />
 
-      <SupplierProfilePreview company={c} />
+      <SupplierProfilePreview company={c} resolveMediaSrc={resolveMediaSrc} />
     </div>
   );
 };
@@ -2976,11 +3012,12 @@ const Account = () => {
     };
   }, []);
 
-  const update = (next: AccountProfile) => {
+  const update = (next: AccountProfile, options: AccountUpdateOptions = {}) => {
     syncVersionRef.current += 1;
     const syncVersion = syncVersionRef.current;
     setProfile(next);
     saveAccountProfile(next);
+    if (options.syncRemote === false) return;
     void syncAccountProfileToApi(next).then((remoteProfile) => {
       if (!remoteProfile || syncVersion !== syncVersionRef.current) return;
       setProfile(remoteProfile);
