@@ -138,4 +138,10 @@ describe("self-hosted account/company contracts", () => {
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
     expect(env).toContain("Supabase prototype only");
   });
+
+  it("keeps contract package exports compatible with Node ESM runtime", () => {
+    const indexSource = readFileSync("packages/contracts/src/index.ts", "utf8");
+
+    expect(indexSource).toContain('export * from "./account-company.js";');
+  });
 });

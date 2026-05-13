@@ -37,7 +37,13 @@ async function request(path: string, init?: RequestInit) {
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Expected server address object.");
 
-  return fetch(`http://127.0.0.1:${address.port}${path}`, init);
+  return fetch(`http://127.0.0.1:${address.port}${path}`, {
+    ...init,
+    headers: {
+      "content-type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
 }
 
 afterEach(async () => {
@@ -102,6 +108,95 @@ describe("YORSO self-hosted API skeleton", () => {
     const invalidMethod = await request("/health/live", { method: "POST" });
     expect(invalidMethod.status).toBe(405);
     expect(invalidMethod.headers.get("allow")).toBe("GET");
+  });
+
+  it("returns the current demo user profile", async () => {
+    const response = await request("/v1/account/me");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.user).toMatchObject({
+      email: "buyer@example.com",
+      preferredLanguage: "en",
+    });
+  });
+
+  it("returns the current company profile", async () => {
+    const response = await request("/v1/account/company");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.company).toMatchObject({
+      tradeName: "Demo Seafood",
+      accountRole: "both",
+      countryCode: "NO",
+    });
+  });
+
+  it("updates the company profile through contract validation", async () => {
+    const response = await request("/v1/account/company", {
+      method: "PATCH",
+      body: JSON.stringify({
+        tradeName: "Updated Buyer Export",
+        countryCode: "ES",
+        productFocus: ["Tuna", "Mackerel"],
+        media: {
+          logoObjectKey: "companies/demo/updated-logo.webp",
+          coverObjectKey: "companies/demo/updated-cover.webp",
+          logoAlt: "Updated logo",
+          coverAlt: "Updated cover",
+          logoFit: "cover",
+          coverFocalX: 0.2,
+          coverFocalY: 0.7,
+        },
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.company).toMatchObject({
+      tradeName: "Updated Buyer Export",
+      countryCode: "ES",
+      productFocus: ["Tuna", "Mackerel"],
+      media: {
+        logoFit: "cover",
+        coverFocalY: 0.7,
+      },
+    });
+  });
+
+  it("rejects invalid company update payloads", async () => {
+    const response = await request("/v1/account/company", {
+      method: "PATCH",
+      body: JSON.stringify({
+        countryCode: "NOR",
+        website: "not-a-url",
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+  });
+
+  it("rejects malformed JSON bodies", async () => {
+    const response = await request("/v1/account/company", {
+      method: "PATCH",
+      body: "{bad-json",
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "invalid_json" },
+    });
   });
 
   it("rejects Supabase production env values", () => {

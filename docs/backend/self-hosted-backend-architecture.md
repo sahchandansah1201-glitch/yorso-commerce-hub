@@ -144,6 +144,11 @@ health endpoints and the account/company contract boundary. It must remain
 deployable through `apps/api/Dockerfile` and the `api` service in
 `infra/docker-compose.yml`.
 
+The account module now has a route/service/repository split. Its current
+repository is in-memory only, so it is not production persistence. This is an
+intentional seam before adding PostgreSQL storage: HTTP behavior and DTO
+validation should stay stable while the repository implementation changes.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.
