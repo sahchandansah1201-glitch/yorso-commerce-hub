@@ -26,6 +26,8 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("image: redis:7-alpine");
     expect(compose).toContain("image: minio/minio:");
     expect(env).toContain("DATABASE_URL=postgres://yorso_app");
+    expect(env).toContain("MIGRATION_DATABASE_URL=postgres://yorso_app");
+    expect(env).toContain("MIGRATION_APPLIED_BY=local-operator");
     expect(env).toContain("PGBOUNCER_DATABASE_URL=postgres://yorso_app");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);

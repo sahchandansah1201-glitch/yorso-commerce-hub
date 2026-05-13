@@ -1,7 +1,7 @@
 # YORSO DB Package
 
 Status: self-hosted PostgreSQL migration runtime baseline
-Batch: #22
+Batch: #23
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
 Supabase migrations may still exist as prototype references, but this package is
@@ -25,19 +25,21 @@ Migration `0001_account_company_baseline.sql` defines:
 
 ## Migration Planner
 
-The package now includes a TypeScript migration planner. It does not apply SQL
-to a live database yet. It validates the manifest, calculates SHA-256 checksums
-and prints the deterministic apply order.
+The package includes a TypeScript migration planner. It validates the manifest,
+calculates SHA-256 checksums and prints the deterministic apply order.
 
 ```bash
 npm run db:migrations:plan
 npm run db:migrations:check
 npm run db:migrations:status
+npm run db:migrations:status:live
 npm run db:migrations:apply:dry-run
+npm run db:migrations:apply:live:dry-run
+npm run db:migrations:apply:live
+npm run db:migrations:smoke:live
 ```
 
-This gives us a stable contract before adding the live PostgreSQL apply command.
-It also keeps the repository aligned with the goal: deploy YORSO as a complete
+This keeps the repository aligned with the goal: deploy YORSO as a complete
 self-hosted product on an owned server.
 
 ## Runtime Layer
@@ -52,9 +54,27 @@ step:
 - executes live migrations transactionally only when a real client is supplied
   and `dryRun: false` is explicitly requested.
 
-The CLI still keeps live apply disabled. `db:migrations:apply:dry-run` is safe
-and static. The future server-side deploy command will wire this runtime to a
-PostgreSQL adapter.
+Static CLI commands stay safe and do not connect to a database.
+`db:migrations:apply:dry-run` is the default non-mutating preview. Live commands
+are available only through the explicit PostgreSQL adapter and
+`MIGRATION_DATABASE_URL`.
+
+## Live PostgreSQL Adapter
+
+Batch #23 adds the `pg`-based adapter in `src/postgres-client.ts`.
+
+Live commands require an explicit migration database target:
+
+```bash
+MIGRATION_DATABASE_URL=postgres://... npm run db:migrations:status:live
+MIGRATION_DATABASE_URL=postgres://... npm run db:migrations:apply:live:dry-run
+MIGRATION_DATABASE_URL=postgres://... npm run db:migrations:smoke:live
+MIGRATION_DATABASE_URL=postgres://... MIGRATION_APPLIED_BY=deploy-operator npm run db:migrations:apply:live
+```
+
+`db:migrations:apply:live` includes `--confirm` in the script. Direct CLI usage
+without `--confirm` exits before connecting. `DATABASE_URL` is intentionally not
+accepted as an implicit migration target.
 
 ## Validation
 
@@ -67,5 +87,5 @@ npm run test:db-contract
 npm run test:db-migrations
 ```
 
-These checks are static and do not require Docker. Runtime migration execution
-will be added after the planner and registry stay stable in CI.
+These checks are static and do not require Docker. Live commands require a
+running PostgreSQL database and are intentionally excluded from default CI.

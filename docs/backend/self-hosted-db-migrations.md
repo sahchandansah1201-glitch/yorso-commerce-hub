@@ -19,6 +19,8 @@ self-hosted PostgreSQL source of truth for deployment on an owned server.
   migration plan.
 - `packages/db/src/runtime.ts` defines the PostgreSQL runtime boundary for
   status, dry-run apply, drift detection and transactional live apply.
+- `packages/db/src/postgres-client.ts` wires the runtime to PostgreSQL through
+  `pg`.
 - `packages/db/src/cli.ts` exposes local commands.
 
 ## Commands
@@ -27,7 +29,11 @@ self-hosted PostgreSQL source of truth for deployment on an owned server.
 npm run db:migrations:plan
 npm run db:migrations:check
 npm run db:migrations:status
+npm run db:migrations:status:live
 npm run db:migrations:apply:dry-run
+npm run db:migrations:apply:live:dry-run
+npm run db:migrations:apply:live
+npm run db:migrations:smoke:live
 npm run test:db-migrations
 ```
 
@@ -53,6 +59,28 @@ command that:
 
 Until then, the repository has a deterministic migration contract without a
 destructive live database path.
+
+## Live Command Contract
+
+Live commands require `MIGRATION_DATABASE_URL`. The CLI does not silently reuse
+`DATABASE_URL`, because application runtime credentials and migration credentials
+should be able to diverge on a real server.
+
+```bash
+MIGRATION_DATABASE_URL=postgres://yorso_app:...@localhost:5432/yorso npm run db:migrations:status:live
+MIGRATION_DATABASE_URL=postgres://yorso_app:...@localhost:5432/yorso npm run db:migrations:apply:live:dry-run
+MIGRATION_DATABASE_URL=postgres://yorso_app:...@localhost:5432/yorso npm run db:migrations:smoke:live
+MIGRATION_DATABASE_URL=postgres://yorso_app:...@localhost:5432/yorso MIGRATION_APPLIED_BY=deploy-operator npm run db:migrations:apply:live
+```
+
+Safety rules:
+
+- live status reads `_yorso_migrations` and reports `pending`, `applied` or
+  `drift`;
+- live dry-run connects but does not apply SQL;
+- live apply requires `--confirm`;
+- applied migration checksum drift fails before execution;
+- each pending migration runs inside its own transaction.
 
 ## Production Rule
 
