@@ -1,9 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
+import { AccountSessionError, resolveAccountSession, sendAccountSessionError } from "../auth/session.js";
 import type { AccountService } from "./service.js";
-
-const getCurrentUserId = (request: IncomingMessage) => request.headers["x-demo-user-id"]?.toString() || "00000000-0000-4000-8000-000000000001";
 
 type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
 
@@ -41,10 +40,10 @@ export async function handleAccountRoute(
   service: AccountService,
   pathname: string,
 ) {
-  const userId = getCurrentUserId(request);
-
   try {
     if (pathname === "/v1/account/me") {
+      const { userId } = resolveAccountSession(request);
+
       if (request.method === "GET") {
         const profile = await service.getCurrentUserProfile(userId);
         sendJson(response, 200, {
@@ -71,6 +70,8 @@ export async function handleAccountRoute(
     }
 
     if (pathname === "/v1/account/company") {
+      const { userId } = resolveAccountSession(request);
+
       if (request.method === "GET") {
         const company = await service.getCompanyProfile(userId);
         sendJson(response, 200, {
@@ -98,6 +99,8 @@ export async function handleAccountRoute(
 
     const collection = accountCollections[pathname as keyof typeof accountCollections];
     if (collection) {
+      const { userId } = resolveAccountSession(request);
+
       if (request.method === "GET") {
         const items = await collection.get(service, userId);
         sendJson(response, 200, {
@@ -123,6 +126,11 @@ export async function handleAccountRoute(
       return true;
     }
   } catch (error) {
+    if (error instanceof AccountSessionError) {
+      sendAccountSessionError(response, context, error);
+      return true;
+    }
+
     if (error instanceof ZodError) {
       sendValidationError(response, context, error);
       return true;

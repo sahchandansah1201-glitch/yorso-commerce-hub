@@ -138,11 +138,16 @@ It verifies:
   contract validation layer.
 - `GET`/`PATCH /v1/account/branches`, `/products`, `/meta-regions` and
   `/notifications` remain behind the contract validation layer.
+- Account JSON routes require explicit `x-yorso-user-id` session headers and
+  must not fall back to a hidden fixed demo user.
 - `POST /v1/account/company/media/logo`, `/cover`, `GET`/`POST
   /v1/account/documents` and `GET /v1/account/files/:assetId` remain behind the
   self-hosted file service.
 - `GET /v1/account/files/by-object-key` remains available for private account
   media previews that store object keys instead of public URLs.
+- File stream routes accept the same account user id by header or query
+  parameter for native browser media requests. This is a temporary bridge, not
+  the final production auth model.
 - File uploads are validated by contract, size checked, checksummed and stored
   through `apps/api/src/modules/storage`, not through Supabase Storage.
 - The API exposes CORS headers for browser calls from the frontend origin.
@@ -164,6 +169,8 @@ The bridge must preserve these rules:
   empty;
 - account UI components use the adapter helpers for media/document uploads and
   stored-file URL resolution instead of importing any storage client directly;
+- account API calls attach `x-yorso-user-id` and optional `x-yorso-session-id`
+  from the frontend account API adapter;
 - if a backend returns only a partial account payload during development,
   local sections must not be discarded accidentally;
 - `.env.example` keeps `VITE_YORSO_API_URL` empty by default so Lovable preview
@@ -179,6 +186,16 @@ Batch #28 frontend checks:
   a local metadata fallback for preview mode.
 - `test:account-workspace` covers account adapter file helpers and the local
   company document fallback.
+
+Batch #29 account session checks:
+
+- Account routes return `401 account_session_required` when the user id header
+  is missing.
+- Account routes return `401 account_session_invalid` when the user id is not a
+  UUID.
+- Frontend account API requests always include the self-hosted account user id
+  header when `VITE_YORSO_API_URL` is configured.
+- CORS allows `x-yorso-user-id` and `x-yorso-session-id`.
 
 ## Production Direction
 

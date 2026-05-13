@@ -5,6 +5,7 @@ import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
 import { AccountService } from "./modules/account/service.js";
+import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
 import type { FileService } from "./modules/storage/service.js";
@@ -101,6 +102,9 @@ function applyCorsHeaders(request: IncomingMessage, response: ServerResponse, co
   }
 
   response.setHeader("access-control-allow-methods", "GET, PATCH, POST, OPTIONS");
-  response.setHeader("access-control-allow-headers", "content-type, x-demo-user-id");
+  response.setHeader(
+    "access-control-allow-headers",
+    `content-type, ${accountUserIdHeaderName}, ${accountSessionIdHeaderName}`,
+  );
   response.setHeader("access-control-max-age", "600");
 }

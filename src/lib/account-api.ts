@@ -15,6 +15,7 @@ import type {
   NotificationPreference,
   UserProfile,
 } from "@/data/mockAccount";
+import { buyerSession } from "@/lib/buyer-session";
 
 type BackendLanguage = "en" | "ru" | "es";
 type BackendAccountRole = "buyer" | "supplier" | "both";
@@ -169,6 +170,9 @@ interface BackendCompanyDocumentCreateResponse {
 export type AccountApiSyncState = "disabled" | "synced" | "failed";
 
 export const ACCOUNT_API_SYNC_STORAGE_KEY = "yorso_account_api_sync_v1";
+export const ACCOUNT_USER_ID_HEADER = "x-yorso-user-id";
+export const ACCOUNT_SESSION_ID_HEADER = "x-yorso-session-id";
+export const DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID = "00000000-0000-4000-8000-000000000001";
 
 const COUNTRY_CODE_TO_NAME: Record<string, string> = {
   AR: "Argentina",
@@ -205,6 +209,10 @@ const normalizeBaseUrl = (value: string | undefined) => value?.trim().replace(/\
 
 export const getConfiguredAccountApiBaseUrl = () =>
   normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
+
+export const getConfiguredAccountUserId = () =>
+  (import.meta.env.VITE_YORSO_ACCOUNT_USER_ID as string | undefined)?.trim() ||
+  DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID;
 
 const isDirectAssetUrl = (value: string) => /^(https?:|data:|blob:)/i.test(value.trim());
 
@@ -406,6 +414,8 @@ export const mapFrontendNotificationsUpdate = (notifications: NotificationPrefer
 interface AccountApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
+  userId?: string;
+  sessionId?: string;
 }
 
 const recordSyncState = (state: AccountApiSyncState, detail?: string) => {
@@ -434,18 +444,29 @@ const readJson = async <T>(response: Response): Promise<T> => {
 export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? getConfiguredAccountApiBaseUrl());
   const fetchImpl = options.fetchImpl ?? fetch;
+  const accountUserId = options.userId?.trim() || getConfiguredAccountUserId();
+  const sessionId = options.sessionId?.trim() || buyerSession.getSession()?.id || "";
 
   const fileUrlForObjectKey = (objectKey: string): string => {
     if (!baseUrl || !objectKey.trim()) return "";
     if (isDirectAssetUrl(objectKey)) return objectKey;
-    return `${baseUrl}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}`;
+    const params = new URLSearchParams({ objectKey, accountUserId });
+    if (sessionId) params.set("accountSessionId", sessionId);
+    return `${baseUrl}/v1/account/files/by-object-key?${params.toString()}`;
+  };
+
+  const accountHeaders = (headers?: HeadersInit) => {
+    const next = jsonHeaders(headers);
+    next.set(ACCOUNT_USER_ID_HEADER, accountUserId);
+    if (sessionId) next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+    return next;
   };
 
   const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     if (!baseUrl) throw new Error("account_api_disabled");
     const response = await fetchImpl(`${baseUrl}${path}`, {
       ...init,
-      headers: jsonHeaders(init?.headers),
+      headers: accountHeaders(init?.headers),
     });
     return readJson<T>(response);
   };
@@ -556,7 +577,9 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
     },
     fileUrl(assetId: string): string {
       if (!baseUrl) return "";
-      return `${baseUrl}/v1/account/files/${encodeURIComponent(assetId)}`;
+      const params = new URLSearchParams({ accountUserId });
+      if (sessionId) params.set("accountSessionId", sessionId);
+      return `${baseUrl}/v1/account/files/${encodeURIComponent(assetId)}?${params.toString()}`;
     },
     fileUrlForObjectKey(objectKey: string): string {
       return fileUrlForObjectKey(objectKey);

@@ -30,6 +30,7 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
     expect(env).toContain("STORAGE_LOCAL_ROOT=.data/api-uploads");
     expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
+    expect(env).toMatch(/^VITE_YORSO_ACCOUNT_USER_ID=00000000-0000-4000-8000-000000000001$/m);
     expect(env).toContain("MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
     expect(env).toContain("MIGRATION_APPLIED_BY=local-operator");
     expect(env).toContain("PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");

@@ -73,6 +73,7 @@ const requiredEnvKeys = [
   "YORSO_PUBLIC_APP_URL",
   "YORSO_API_URL",
   "VITE_YORSO_API_URL",
+  "VITE_YORSO_ACCOUNT_USER_ID",
   "YORSO_API_PORT",
   "ACCOUNT_REPOSITORY",
   "POSTGRES_HOST",
@@ -108,6 +109,7 @@ requireText(".env.example", envExample, "Supabase prototype only. Do not use as 
 requireText(".env.example", envExample, "DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
 requireText(".env.example", envExample, "MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
 requireText(".env.example", envExample, "PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
+requireText(".env.example", envExample, "VITE_YORSO_ACCOUNT_USER_ID=00000000-0000-4000-8000-000000000001");
 requireText(".env.example", envExample, "STORAGE_DRIVER=local");
 requireText(".env.example", envExample, "STORAGE_LOCAL_ROOT=.data/api-uploads");
 requireText("infra/README.md", infraReadme, "running YORSO without Supabase as a production dependency");

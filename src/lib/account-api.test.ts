@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockAccountProfile } from "@/data/mockAccount";
 import {
   ACCOUNT_API_SYNC_STORAGE_KEY,
+  ACCOUNT_SESSION_ID_HEADER,
+  ACCOUNT_USER_ID_HEADER,
+  DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID,
   createAccountApiClient,
   fileToAccountUploadPayload,
   hydrateAccountProfileFromApi,
@@ -195,6 +198,7 @@ describe("account API adapter", () => {
 
     expect(fetchImpl).toHaveBeenNthCalledWith(1, "http://localhost:3000/v1/account/me", expect.any(Object));
     expect(new Headers(firstRequest.headers).get("content-type")).toBe("application/json");
+    expect(new Headers(firstRequest.headers).get(ACCOUNT_USER_ID_HEADER)).toBe(DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID);
     expect(fetchImpl).toHaveBeenNthCalledWith(2, "http://localhost:3000/v1/account/company", expect.any(Object));
     expect(fetchImpl).toHaveBeenNthCalledWith(3, "http://localhost:3000/v1/account/branches", expect.any(Object));
     expect(fetchImpl).toHaveBeenNthCalledWith(4, "http://localhost:3000/v1/account/products", expect.any(Object));
@@ -279,7 +283,12 @@ describe("account API adapter", () => {
         requestId: "r-file",
       }),
     );
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAccountApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl,
+      userId: "44444444-4444-4444-8444-444444444444",
+      sessionId: "session-media-test",
+    });
 
     const result = await client.uploadCompanyMedia(
       "logo",
@@ -300,6 +309,9 @@ describe("account API adapter", () => {
         body: expect.stringContaining("contentBase64"),
       }),
     );
+    const [, uploadRequest] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(new Headers(uploadRequest.headers).get(ACCOUNT_USER_ID_HEADER)).toBe("44444444-4444-4444-8444-444444444444");
+    expect(new Headers(uploadRequest.headers).get(ACCOUNT_SESSION_ID_HEADER)).toBe("session-media-test");
     expect(result.asset.objectKey).toContain("company_logo");
     expect(result.profile.company.logoImageUrl).toBe(backendAsset.objectKey);
   });
@@ -336,10 +348,10 @@ describe("account API adapter", () => {
       expect.objectContaining({ method: "POST" }),
     );
     expect(client.fileUrl(backendAsset.id)).toBe(
-      "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222",
+      "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222?accountUserId=00000000-0000-4000-8000-000000000001",
     );
     expect(client.fileUrlForObjectKey(backendAsset.objectKey)).toBe(
-      "http://localhost:3000/v1/account/files/by-object-key?objectKey=companies%2F111%2Fcompany_logo%2Flogo.svg",
+      "http://localhost:3000/v1/account/files/by-object-key?objectKey=companies%2F111%2Fcompany_logo%2Flogo.svg&accountUserId=00000000-0000-4000-8000-000000000001",
     );
     expect(client.resolveStoredFileUrl("https://cdn.example.com/logo.webp")).toBe(
       "https://cdn.example.com/logo.webp",
