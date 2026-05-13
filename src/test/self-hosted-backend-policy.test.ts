@@ -11,6 +11,7 @@ const policyFiles = [
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
+  "docs/backend/self-hosted-db-migrations.md",
 ];
 
 describe("self-hosted backend policy", () => {
@@ -20,6 +21,7 @@ describe("self-hosted backend policy", () => {
     expect(output).toContain("Self-hosted backend policy check passed");
     expect(output).toContain("self-hosted-backend-architecture.md");
     expect(output).toContain("self-hosted-api-skeleton.md");
+    expect(output).toContain("self-hosted-db-migrations.md");
   });
 
   it("keeps Supabase scoped to prototype/schema validation, not production backend", () => {
@@ -41,6 +43,9 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["check:self-hosted-api"]).toBe("node scripts/check-self-hosted-api.mjs");
     expect(pkg.scripts["check:self-hosted-db"]).toBe("node scripts/check-self-hosted-db.mjs");
     expect(pkg.scripts["contracts:build"]).toBe("tsc -p packages/contracts/tsconfig.json");
+    expect(pkg.scripts["db:build"]).toBe("tsc -p packages/db/tsconfig.json");
+    expect(pkg.scripts["db:migrations:check"]).toContain("packages/db/dist/cli.js check");
+    expect(pkg.scripts["test:db-migrations"]).toContain("packages/db/vitest.config.ts");
     expect(pkg.scripts["api:build"]).toBe("npm run contracts:build && tsc -p apps/api/tsconfig.json");
     expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
     expect(pkg.scripts["test:db-contract"]).toBe("vitest run src/test/self-hosted-db-contract.test.ts");
@@ -49,8 +54,10 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-db");
+    expect(pkg.scripts["ci:core"]).toContain("npm run db:migrations:check");
     expect(pkg.scripts["ci:core"]).toContain("npm run api:build");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:db-contract");
+    expect(pkg.scripts["ci:core"]).toContain("npm run test:db-migrations");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:api");
   });
 

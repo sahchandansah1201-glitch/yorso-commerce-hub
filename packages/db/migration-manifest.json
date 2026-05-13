@@ -4,11 +4,18 @@
   "supabaseRole": "prototype-reference-only",
   "migrations": [
     {
+      "id": "0000_migration_registry",
+      "file": "migrations/0000_migration_registry.sql",
+      "description": "Create the self-hosted YORSO migration registry table.",
+      "ownedTables": ["_yorso_migrations"],
+      "dependsOn": []
+    },
+    {
       "id": "0001_account_company_baseline",
       "file": "migrations/0001_account_company_baseline.sql",
       "description": "Create user, company and company media baseline tables for the self-hosted account API.",
       "ownedTables": ["yorso_users", "yorso_companies", "yorso_company_media"],
-      "dependsOn": []
+      "dependsOn": ["0000_migration_registry"]
     }
   ]
 }

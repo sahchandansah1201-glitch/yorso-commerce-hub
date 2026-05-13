@@ -27,9 +27,11 @@ npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
+npm run db:migrations:check
 npm run api:build
 npm run test:api
 npm run test:db-contract
+npm run test:db-migrations
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -43,9 +45,11 @@ npm run ci:core
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company tables or drifts toward Supabase-owned schema. |
+| `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
+| `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
 | `ci:core` | Runs policy, infra, type, lint, build and contract checks together. |
 
@@ -72,11 +76,17 @@ It verifies:
 `check:self-hosted-db` validates `packages/db` as the self-hosted PostgreSQL
 source of truth. It checks:
 
+- `_yorso_migrations`, the self-hosted schema registry;
 - `yorso_users`, `yorso_companies`, `yorso_company_media`;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace reads;
 - migration manifest ownership;
 - absence of Supabase `auth.users` coupling in the self-hosted baseline.
+
+`db:migrations:check` validates the TypeScript migration planner. It does not
+connect to PostgreSQL yet. It verifies that every manifest entry points to a
+safe SQL file, dependencies sort before dependents, SQL is checksumed, and the
+plan is deterministic.
 
 ## API Skeleton Validation
 
