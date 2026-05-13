@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -90,6 +93,14 @@ jobs:
       - name: Verify downloaded account products save-flow report
         run: node scripts/check-report-artifacts.mjs account-products-save-flow test-results/downloaded/account-products-save-flow
 
+      - name: Verify downloaded account report suite
+        run: |
+          mkdir -p test-results/account-report-summary
+          npm run account:reports:verify-suite -- \
+            --company-root test-results/downloaded/account-company-save-flow \
+            --products-root test-results/downloaded/account-products-save-flow \
+            --summary-output test-results/account-report-summary/verification.md
+
       - name: Write account report summary
         run: |
           mkdir -p test-results/account-report-summary
@@ -119,6 +130,15 @@ jobs:
           else
             gh pr comment "$PR_NUMBER" --body-file "$body_file"
           fi
+
+      - name: Upload account report summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: account-report-summary
+          path: test-results/account-report-summary/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Run browser smoke tests
         run: npm run smoke:e2e:run

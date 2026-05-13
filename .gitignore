@@ -13,6 +13,7 @@ dist-ssr
 *.tsbuildinfo
 playwright-report
 test-results
+account-report-packs
 *.local
 *.local.save
 .env*.save

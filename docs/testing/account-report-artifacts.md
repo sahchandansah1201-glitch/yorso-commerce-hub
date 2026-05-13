@@ -20,10 +20,29 @@ npm run smoke:e2e:account-products:report
 npm run smoke:e2e:account-products:report:verify
 ```
 
+Run both account report packs and verify them as a suite:
+
+```bash
+npm run smoke:e2e:account-reports
+```
+
+Playwright clears `test-results/` at the start of each independent run. The
+suite command copies each generated report into the ignored `account-report-packs/`
+directory before starting the next report run, so both reports remain available
+for one suite verification and summary.
+
+Run the largest local gate before pushing a larger QA/CI change:
+
+```bash
+npm run ci:full
+```
+
 ## Artifact locations
 
 - `test-results/account-company-save-flow/`
 - `test-results/account-products-save-flow/`
+- `account-report-packs/account-company-save-flow/`
+- `account-report-packs/account-products-save-flow/`
 
 Each directory must contain:
 
@@ -67,6 +86,22 @@ lifecycle:
 - `playwright-report.json` exists, is valid JSON and has at least one suite
 - Playwright JSON does not contain `failed` or `timedOut` statuses
 
+Use verbose or JSON diagnostics when a report fails:
+
+```bash
+node scripts/check-report-artifacts.mjs account-company-save-flow --verbose
+node scripts/check-report-artifacts.mjs account-products-save-flow --json
+```
+
+Verify both report directories in one command:
+
+```bash
+npm run account:reports:verify-suite -- \
+  --company-root test-results/account-company-save-flow \
+  --products-root test-results/account-products-save-flow \
+  --summary-output test-results/account-report-summary/verification.md
+```
+
 To create a Markdown summary from local or downloaded report directories:
 
 ```bash
@@ -96,3 +131,7 @@ On pull requests from the same repository, CI also updates a PR comment marked
 with `<!-- yorso-account-report-artifacts -->`. The comment summarizes both
 account report artifacts, step counts, screenshot counts and the GitHub Actions
 run URL.
+
+The workflow sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` so the repository
+tests the upcoming GitHub Actions runtime before GitHub makes Node 24 the
+default for JavaScript actions.
