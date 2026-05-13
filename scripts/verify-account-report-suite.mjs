@@ -36,15 +36,17 @@ const parseArgs = () => {
 const renderSuiteSummary = (results) => [
   "## Account report suite verification",
   "",
-  "Report | Result | Files | Steps | Screenshots | Playwright",
-  "--- | --- | --- | --- | --- | ---",
+  "Report | Result | Schema | Files | Steps | Screenshots | Checksums | Playwright",
+  "--- | --- | --- | --- | --- | --- | --- | ---",
   ...results.map((result) =>
     [
       result.title,
       result.passed ? "passed" : "failed",
+      `v${result.reportJson.schemaVersion ?? "?"}`,
       `${result.fileChecks.filter((file) => file.exists && file.isFile && file.size > 0).length}/${result.requiredFiles.length}`,
       `${result.reportJson.passed}/${result.expectedStepCount}`,
       `${result.screenshotCount}/${result.expectedScreenshotCount}`,
+      `${result.checksumChecks.filter((check) => check.passed).length}/${result.expectedScreenshotCount}`,
       result.playwrightStatus,
     ].join(" | "),
   ),

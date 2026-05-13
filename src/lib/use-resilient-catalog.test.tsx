@@ -204,4 +204,61 @@ describe("useResilientOffer — события деградации/восста
 
     unmount();
   });
+
+  it("маскирует supplier и точную цену в locked fallback для seeded UUID", async () => {
+    const seededUuid = "00000000-0000-0000-0000-000000000001";
+    fetchOfferByIdMock.mockResolvedValue(null);
+
+    const { result, unmount } = renderHook(() =>
+      useResilientOffer(seededUuid, "registered_locked"),
+    );
+
+    await advance(100);
+
+    expect(result.current.usingFallback).toBe(true);
+    expect(result.current.data?.supplierName).toBe("Имя поставщика скрыто");
+    expect(result.current.data?.supplier.name).toBe("Имя поставщика скрыто");
+    expect(result.current.data?.priceRange).toBe("Цена по запросу");
+    expect(result.current.data?.priceMin).toBeUndefined();
+    expect(result.current.data?.supplier.profileSlug).toBe("");
+
+    unmount();
+  });
+
+  it("не маскирует supplier и цену в qualified fallback для seeded UUID", async () => {
+    const seededUuid = "00000000-0000-0000-0000-000000000001";
+    fetchOfferByIdMock.mockResolvedValue(null);
+
+    const { result, unmount } = renderHook(() =>
+      useResilientOffer(seededUuid, "qualified_unlocked"),
+    );
+
+    await advance(100);
+
+    expect(result.current.usingFallback).toBe(true);
+    expect(result.current.data?.supplierName).toBe(mockOffers[0].supplierName);
+    expect(result.current.data?.supplier.name).toBe(mockOffers[0].supplier.name);
+    expect(result.current.data?.priceRange).toBe(mockOffers[0].priceRange);
+    expect(result.current.data?.priceMin).toBe(mockOffers[0].priceMin);
+
+    unmount();
+  });
+
+  it("не подставляет случайный mock offer для неизвестного id", async () => {
+    const unknownId = "00000000-0000-0000-0000-000000009999";
+    fetchOfferByIdMock.mockResolvedValue(null);
+
+    const { result, unmount } = renderHook(() =>
+      useResilientOffer(unknownId, "anonymous_locked"),
+    );
+
+    await advance(100);
+
+    expect(result.current.data).toBeNull();
+    expect(result.current.usingFallback).toBe(false);
+    expect(result.current.error).toBeNull();
+    expect(eventsOf("catalog_soft_fallback_applied")).toHaveLength(0);
+
+    unmount();
+  });
 });

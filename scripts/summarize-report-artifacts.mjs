@@ -51,8 +51,10 @@ const renderSummary = (summaries, runUrl) => {
     [
       summary.title,
       summary.passed ? "passed" : "check",
+      `v${summary.reportJson.schemaVersion ?? "?"}`,
       `${summary.reportJson.passed}/${summary.expectedStepCount}`,
       `${summary.screenshotCount}/${summary.expectedScreenshotCount}`,
+      `${summary.checksumChecks.filter((check) => check.passed).length}/${summary.expectedScreenshotCount}`,
       `\`${summary.artifactName}\``,
     ].join(" | "),
   );
@@ -63,8 +65,10 @@ const renderSummary = (summaries, runUrl) => {
     "",
     `Artifact: \`${summary.artifactName}\``,
     `Root checked: \`${summary.root}\``,
+    `Schema: v${summary.reportJson.schemaVersion ?? "?"}`,
     `Playwright JSON: ${summary.playwrightStatus}`,
     `Files: ${summary.fileChecks.filter((file) => file.exists && file.isFile && file.size > 0).length}/${summary.requiredFiles.length}`,
+    `Screenshot checksums: ${summary.checksumChecks.filter((check) => check.passed).length}/${summary.expectedScreenshotCount}`,
     ...(summary.failures.length > 0
       ? ["", "Failures:", "", ...summary.failures.map((failure) => `- ${failure}`)]
       : []),
@@ -80,8 +84,8 @@ const renderSummary = (summaries, runUrl) => {
     "",
     runUrl ? `Run: [GitHub Actions](${runUrl})` : "Run: local",
     "",
-    "Report | Result | Steps | Screenshots | Artifact",
-    "--- | --- | --- | --- | ---",
+    "Report | Result | Schema | Steps | Screenshots | Checksums | Artifact",
+    "--- | --- | --- | --- | --- | --- | ---",
     ...rows,
     ...details,
     "",
