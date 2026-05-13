@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { installBuyerSession, type E2ELang } from "./helpers/buyer-session";
 
 const LOGO_URL =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZmY2YjAwIi8+PC9zdmc+";
@@ -12,35 +13,15 @@ const ONE_PIXEL_PNG = Buffer.from(
   "base64",
 );
 
-const setSignedInStorage = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
-  await page.addInitScript(
-    ({ language }) => {
-      try {
-        window.localStorage.setItem("yorso-lang", language);
-        window.sessionStorage.setItem(
-          "yorso_buyer_session",
-          JSON.stringify({
-            id: "b_e2e_account_workspace",
-            identifier: "buyer@example.com",
-            method: "email",
-            signedInAt: new Date().toISOString(),
-            displayName: "buyer",
-          }),
-        );
-      } catch {
-        /* ignore */
-      }
-    },
-    { language: lang },
-  );
-};
-
 const openAccount = async (
   page: Page,
   section: string,
-  lang: "en" | "ru" | "es" = "en",
+  lang: E2ELang = "en",
 ) => {
-  await setSignedInStorage(page, lang);
+  await installBuyerSession(page, {
+    id: "b_e2e_account_workspace",
+    lang,
+  });
   await page.goto(`/account/${section}`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("account-content")).toBeVisible();
