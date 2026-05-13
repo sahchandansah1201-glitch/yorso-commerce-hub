@@ -1,22 +1,9 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { installBuyerSession } from "./helpers/buyer-session";
 
 const setSignedInStorage = async (page: Page) => {
-  await page.addInitScript(() => {
-    try {
-      window.localStorage.setItem("yorso-lang", "en");
-      window.sessionStorage.setItem(
-        "yorso_buyer_session",
-        JSON.stringify({
-          id: "b_e2e_account_company_edit",
-          identifier: "buyer@example.com",
-          method: "email",
-          signedInAt: new Date().toISOString(),
-          displayName: "buyer",
-        }),
-      );
-    } catch {
-      /* ignore */
-    }
+  await installBuyerSession(page, {
+    id: "b_e2e_account_company_edit",
   });
 };
 
