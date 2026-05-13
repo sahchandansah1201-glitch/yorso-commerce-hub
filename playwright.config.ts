@@ -8,7 +8,9 @@ const chromiumLaunchOptions = existsSync(systemChromiumPath)
 const useWebServer = process.env.E2E_USE_WEB_SERVER === "1";
 const webServerUrl = "http://127.0.0.1:4173";
 const baseURL = process.env.E2E_BASE_URL ?? (useWebServer ? webServerUrl : "http://localhost:5173");
-const workerCount = Number.parseInt(process.env.E2E_WORKERS ?? (useWebServer ? "4" : "6"), 10);
+// Vite preview is less tolerant of concurrent navigations than the dev server.
+// Keep webServer smoke runs stable by default, while allowing CI/manual overrides.
+const workerCount = Number.parseInt(process.env.E2E_WORKERS ?? (useWebServer ? "1" : "6"), 10);
 
 /**
  * Минимальная конфигурация Playwright для E2E против preview-URL.
@@ -23,7 +25,7 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
   workers: Number.isFinite(workerCount) && workerCount > 0 ? workerCount : undefined,
-  retries: 0,
+  retries: useWebServer ? 1 : 0,
   reporter: [["list"]],
   timeout: 60_000,
   ...(useWebServer

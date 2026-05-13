@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { REPORTS, expectedScreenshotsFor, reportNames } from "./report-artifact-config.mjs";
 
@@ -24,22 +24,54 @@ export const expectedFilesFor = (report) => [
   ...expectedScreenshotsFor(report),
 ];
 
+const collectPlaywrightResultStatuses = (node) => {
+  if (!node || typeof node !== "object") return [];
+  const ownStatuses = [];
+  if (Array.isArray(node.results)) {
+    for (const result of node.results) {
+      if (typeof result?.status === "string") ownStatuses.push(result.status);
+    }
+  }
+  return [
+    ...ownStatuses,
+    ...Object.values(node).flatMap((value) => {
+      if (Array.isArray(value)) return value.flatMap(collectPlaywrightResultStatuses);
+      if (value && typeof value === "object") return collectPlaywrightResultStatuses(value);
+      return [];
+    }),
+  ];
+};
+
 const parsePlaywrightStatus = (playwrightJsonPath, failures) => {
-  if (!existsSync(playwrightJsonPath)) return "missing";
+  if (!existsSync(playwrightJsonPath)) {
+    failures.push(`missing ${playwrightJsonPath}`);
+    return { status: "missing", resultStatuses: [] };
+  }
 
   try {
     const parsed = readJsonFile(playwrightJsonPath);
     const suites = Array.isArray(parsed.suites) ? parsed.suites : [];
     if (suites.length === 0) failures.push("playwright-report.json has no suites");
+    if (Array.isArray(parsed.errors) && parsed.errors.length > 0) {
+      failures.push("playwright-report.json contains top-level errors");
+    }
+    const resultStatuses = collectPlaywrightResultStatuses(parsed);
+    if (resultStatuses.length === 0) {
+      failures.push("playwright-report.json has no test result statuses");
+    }
+    const badStatuses = resultStatuses.filter((status) => status !== "passed");
+    if (badStatuses.length > 0) {
+      failures.push(`playwright-report.json contains non-passed statuses: ${badStatuses.join(", ")}`);
+    }
     const text = JSON.stringify(parsed);
     if (/"status":"failed"/.test(text) || /"status":"timedOut"/.test(text)) {
       failures.push("playwright-report.json contains failed or timedOut status");
-      return "failed";
+      return { status: "failed", resultStatuses };
     }
-    return "passed";
+    return { status: badStatuses.length > 0 ? "failed" : "passed", resultStatuses };
   } catch (error) {
     failures.push(`playwright-report.json is not valid JSON: ${error.message}`);
-    return "invalid";
+    return { status: "invalid", resultStatuses: [] };
   }
 };
 
@@ -52,7 +84,14 @@ export const validateReportArtifact = (reportName, root = defaultReportRoot(repo
   const failures = [];
   const expectedScreenshots = expectedScreenshotsFor(report);
   const requiredFiles = expectedFilesFor(report);
+  const rootFiles = existsSync(root) ? readdirSync(root) : [];
+  const pngFiles = rootFiles.filter((fileName) => fileName.endsWith(".png"));
+  const extraPngFiles = pngFiles.filter((fileName) => !expectedScreenshots.includes(fileName));
   const fileChecks = [];
+
+  for (const fileName of extraPngFiles) {
+    failures.push(`unexpected PNG file ${path.join(root, fileName)}`);
+  }
 
   const requireFile = (fileName) => {
     const filePath = path.join(root, fileName);
@@ -119,7 +158,9 @@ export const validateReportArtifact = (reportName, root = defaultReportRoot(repo
     steps: [],
     screenshotCount: 0,
     playwrightStatus: "missing",
+    playwrightResultStatuses: [],
     checksumChecks: [],
+    extraPngFiles,
   };
 
   if (result.reportJson.exists) {
@@ -161,6 +202,13 @@ export const validateReportArtifact = (reportName, root = defaultReportRoot(repo
       }
 
       const screenshotSet = new Set(steps.map((step) => step.screenshot).filter(Boolean));
+      const screenshotRefs = steps.map((step) => step.screenshot).filter(Boolean);
+      const duplicateScreenshots = screenshotRefs.filter(
+        (screenshot, index) => screenshotRefs.indexOf(screenshot) !== index,
+      );
+      for (const screenshot of new Set(duplicateScreenshots)) {
+        failures.push(`report.json references screenshot more than once: ${screenshot}`);
+      }
       for (const expectedScreenshot of expectedScreenshots) {
         if (!screenshotSet.has(expectedScreenshot)) {
           failures.push(`report.json missing screenshot reference ${expectedScreenshot}`);
@@ -225,10 +273,12 @@ export const validateReportArtifact = (reportName, root = defaultReportRoot(repo
     if (!markdown.includes("Result: passed")) failures.push("report.md does not show passed result");
   }
 
-  result.playwrightStatus = parsePlaywrightStatus(
+  const playwright = parsePlaywrightStatus(
     path.join(root, "playwright-report.json"),
     failures,
   );
+  result.playwrightStatus = playwright.status;
+  result.playwrightResultStatuses = playwright.resultStatuses;
   result.passed = failures.length === 0;
 
   return result;

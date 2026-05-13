@@ -18,6 +18,7 @@
     "smoke:e2e:account-products:report": "npm run build && npm run smoke:e2e:account-products:report:run",
     "smoke:e2e:account-products:report:verify": "node scripts/check-report-artifacts.mjs account-products-save-flow",
     "account:reports:summary": "node scripts/summarize-report-artifacts.mjs",
+    "account:reports:audit": "node scripts/audit-account-report-packs.mjs",
     "supabase:access-preflight": "node scripts/supabase-access-preflight.mjs",
     "supabase:access-seed": "npx supabase db query --linked --file supabase/seeds/access-smoke-baseline.sql",
     "supabase:access-smoke": "node scripts/supabase-access-write-smoke.mjs",
