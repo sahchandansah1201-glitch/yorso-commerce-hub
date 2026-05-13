@@ -16,3 +16,12 @@ docker compose --env-file ../.env.local -f infra/docker-compose.yml up -d
 ```
 
 This is not a full production deployment yet. It is the baseline for future API, migration and storage work.
+
+Validate the static self-hosted baseline without starting Docker:
+
+```bash
+npm run check:self-hosted-infra
+```
+
+The full validation flow is documented in
+`docs/backend/self-hosted-validation.md`.
