@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process
-Batch: #18
+Status: first runnable backend process with PostgreSQL account persistence
+Batch: #24
 Date: 2026-05-13
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -27,19 +27,30 @@ compiled, started and wired into Docker Compose.
 - `service.ts`: validation and business-facing account operations;
 - `repository.ts`: storage interface plus temporary in-memory implementation.
 
-The in-memory repository is not the production storage layer. It exists to make
-the HTTP and contract boundary executable before PostgreSQL persistence is
-added. The next backend increment should replace or complement it with a
-PostgreSQL repository while keeping the route and service contracts stable.
+The in-memory repository is not the production storage layer. It exists only
+for deterministic local tests and offline development. Production-oriented
+account data now goes through `PostgresAccountRepository`, which reads and
+writes the self-hosted PostgreSQL tables from `packages/db/migrations`.
 
 Batch #20 adds the storage switch:
 
 - `ACCOUNT_REPOSITORY=memory` keeps local dev and CI deterministic.
 - `ACCOUNT_REPOSITORY=postgres` selects `PostgresAccountRepository`.
-- `PostgresAccountRepository` is intentionally a skeleton until the PostgreSQL
-  client and migration runner are added.
 - `packages/db/migrations/0001_account_company_baseline.sql` defines the first
   self-hosted PostgreSQL schema for these endpoints.
+
+Batch #24 makes the PostgreSQL repository functional:
+
+- `GET /v1/account/me` reads `yorso_users`.
+- `GET /v1/account/company` reads `yorso_companies` plus
+  `yorso_company_media`.
+- `PATCH /v1/account/company` applies partial scalar updates to
+  `yorso_companies`.
+- `PATCH /v1/account/company` upserts logo/cover media into
+  `yorso_company_media`.
+- The repository returns the same contract DTOs as the memory adapter, so the
+  frontend can switch from prototype storage to the self-hosted API without a
+  new UI contract.
 
 ## Local Build
 

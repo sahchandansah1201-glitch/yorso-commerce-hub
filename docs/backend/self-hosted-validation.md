@@ -112,7 +112,8 @@ npm run db:migrations:smoke:live
 ## API Skeleton Validation
 
 `check:self-hosted-api` validates that `apps/api` is a real Node service, not a
-documentation placeholder.
+documentation placeholder. Batch #24 also makes this guard reject a regression
+back to a placeholder PostgreSQL repository.
 
 It verifies:
 
@@ -123,6 +124,9 @@ It verifies:
 - `infra/docker-compose.yml` wires the API service to PgBouncer, Redis and
   MinIO;
 - Supabase frontend env values stay empty in the API compose service.
+- `PostgresAccountRepository` reads `yorso_users`, reads/updates
+  `yorso_companies`, and upserts `yorso_company_media`.
+- `PostgresAccountRepository` must not contain "not implemented" placeholders.
 
 ## Production Direction
 

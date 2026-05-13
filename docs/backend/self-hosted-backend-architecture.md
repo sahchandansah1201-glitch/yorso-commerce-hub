@@ -145,15 +145,17 @@ Compose baseline, required environment keys and the Supabase prototype boundary
 without starting Docker. Details are documented in
 `docs/backend/self-hosted-validation.md`.
 
-`apps/api` is the first self-hosted backend process. It currently exposes
-health endpoints and the account/company contract boundary. It must remain
-deployable through `apps/api/Dockerfile` and the `api` service in
+`apps/api` is the first self-hosted backend process. It exposes health
+endpoints, the account/company contract boundary and account profile endpoints.
+It must remain deployable through `apps/api/Dockerfile` and the `api` service in
 `infra/docker-compose.yml`.
 
 The account module now has a route/service/repository split. Its current
-repository is in-memory only, so it is not production persistence. This is an
-intentional seam before adding PostgreSQL storage: HTTP behavior and DTO
-validation should stay stable while the repository implementation changes.
+production-direction repository is `PostgresAccountRepository`, backed by
+`yorso_users`, `yorso_companies` and `yorso_company_media`. The in-memory
+repository remains only for deterministic local tests and offline development.
+HTTP behavior and DTO validation must stay stable while storage implementation
+keeps moving toward PostgreSQL.
 
 `packages/db` is now the self-hosted PostgreSQL baseline. Its first migration
 defines the `_yorso_migrations` registry, `yorso_users`, `yorso_companies` and
@@ -235,8 +237,7 @@ Not allowed:
 
 ## First Implementation Increment
 
-The next code increment should not rewrite the app. It should add the backend
-boundary:
+Completed baseline increments added the backend boundary:
 
 - `docs/backend/self-hosted-backend-architecture.md`;
 - a guard script that checks docs do not describe Supabase as the production
@@ -244,3 +245,9 @@ boundary:
 - an API-contract placeholder for account/company DTOs;
 - tests for the guard and contract shape;
 - a Docker Compose skeleton only after the contract guard is green.
+
+Batch #24 continues that direction by replacing the account PostgreSQL
+repository placeholder with a functional adapter. The frontend is still not
+forced to use it directly; the goal is to make the self-hosted API capable of
+serving the existing account/company UI contract when the frontend data gateway
+is switched from local prototype state to `/v1/account/*`.
