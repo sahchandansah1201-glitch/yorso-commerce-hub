@@ -25,6 +25,9 @@ Run these commands before merging backend-direction changes:
 npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-infra
+npm run check:self-hosted-api
+npm run api:build
+npm run test:api
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -36,6 +39,9 @@ npm run ci:core
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
+| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
+| `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
+| `test:api` | Runs API endpoint and config tests. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
 | `ci:core` | Runs policy, infra, type, lint, build and contract checks together. |
 
@@ -46,6 +52,7 @@ does not require Docker Desktop to be running.
 
 It verifies:
 
+- `api` is present as a self-hosted service;
 - `infra/docker-compose.yml` declares PostgreSQL, PgBouncer, Redis and MinIO;
 - PostgreSQL has a healthcheck;
 - PgBouncer depends on healthy PostgreSQL and uses transaction pooling;
@@ -55,6 +62,21 @@ It verifies:
 - `.env.example` keeps Supabase frontend variables empty;
 - `.env.example` does not contain service-role text, JWT-looking tokens or
   Supabase database URLs.
+
+## API Skeleton Validation
+
+`check:self-hosted-api` validates that `apps/api` is a real Node service, not a
+documentation placeholder.
+
+It verifies:
+
+- `apps/api/src/index.ts` starts a standalone HTTP server;
+- `/health/live` and `/health/ready` exist;
+- `/v1/account/company/schema` exposes the account/company contract boundary;
+- `apps/api/Dockerfile` builds and starts `apps/api/dist/index.js`;
+- `infra/docker-compose.yml` wires the API service to PgBouncer, Redis and
+  MinIO;
+- Supabase frontend env values stay empty in the API compose service.
 
 ## Production Direction
 

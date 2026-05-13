@@ -8,9 +8,12 @@
     "prebuild": "npm run check:supabase-types",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "contracts:build": "tsc -p packages/contracts/tsconfig.json",
+    "api:build": "npm run contracts:build && tsc -p apps/api/tsconfig.json",
+    "api:start": "node apps/api/dist/index.js",
     "check:supabase-types": "node scripts/check-supabase-access-types.mjs",
     "check:supabase-types:strict": "node scripts/check-supabase-access-types.mjs --strict",
-    "ci:core": "npm run check:backend-policy && npm run check:supabase-boundary && npm run check:self-hosted-infra && npm run check:supabase-types && npm run lint && tsc -b --noEmit && npm run build && npm run test:access-contract && npm run test:backend-contract && npm run test:tooling",
+    "ci:core": "npm run check:backend-policy && npm run check:supabase-boundary && npm run check:self-hosted-infra && npm run check:self-hosted-api && npm run check:supabase-types && npm run lint && tsc -b --noEmit && npm run api:build && npm run build && npm run test:access-contract && npm run test:backend-contract && npm run test:api && npm run test:tooling",
     "smoke:e2e": "npm run build && npm run smoke:e2e:run",
     "smoke:e2e:account-company": "npm run build && npm run smoke:e2e:account-company:run",
     "smoke:e2e:account-company:report": "npm run build && npm run smoke:e2e:account-company:report:run",
@@ -29,6 +32,7 @@
     "test:watch": "vitest",
     "test:access-contract": "vitest run src/lib/supplier-access-api.test.ts src/pages/__tests__/SupplierProfile.*.test.tsx src/test/supabase-access-write-smoke-tooling.test.ts",
     "test:backend-contract": "vitest run src/test/supabase-*.test.ts src/test/self-hosted-*.test.ts",
+    "test:api": "npm run contracts:build && vitest run --config apps/api/vitest.config.ts",
     "smoke:e2e:core": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts --project=chromium",
     "smoke:e2e:account-company:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/account-company-edit-contract.spec.ts --project=chromium",
     "smoke:e2e:account-company:report:run": "E2E_USE_WEB_SERVER=1 PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/account-company-save-flow/playwright-report.json playwright test e2e/account-company-save-flow-report.spec.ts --project=chromium --reporter=list,json",
@@ -41,7 +45,8 @@
     "ci:full": "npm run ci:core && npm run smoke:e2e && npm run smoke:e2e:account-reports",
     "check:backend-policy": "node scripts/check-self-hosted-backend-policy.mjs",
     "check:supabase-boundary": "node scripts/check-supabase-production-boundary.mjs",
-    "check:self-hosted-infra": "node scripts/check-self-hosted-infra.mjs"
+    "check:self-hosted-infra": "node scripts/check-self-hosted-infra.mjs",
+    "check:self-hosted-api": "node scripts/check-self-hosted-api.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -1,6 +1,33 @@
 name: yorso-self-hosted
 
 services:
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      YORSO_API_HOST: 0.0.0.0
+      YORSO_API_PORT: 3000
+      YORSO_PUBLIC_APP_URL: ${YORSO_PUBLIC_APP_URL:-http://localhost:8080}
+      DATABASE_URL: postgres://${POSTGRES_USER:-yorso_app}:${POSTGRES_PASSWORD:-change-me-local-only}@pgbouncer:5432/${POSTGRES_DB:-yorso}
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: ${S3_BUCKET:-yorso-local}
+      YORSO_SESSION_SECRET: ${YORSO_SESSION_SECRET:-change-me-32-bytes-minimum}
+      YORSO_JWT_SECRET: ${YORSO_JWT_SECRET:-change-me-32-bytes-minimum}
+      VITE_SUPABASE_URL: ""
+      VITE_SUPABASE_PUBLISHABLE_KEY: ""
+    depends_on:
+      pgbouncer:
+        condition: service_started
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
+    ports:
+      - "${YORSO_API_PORT:-3000}:3000"
+
   postgres:
     image: postgres:17-alpine
     environment:

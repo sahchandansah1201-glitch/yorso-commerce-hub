@@ -9,6 +9,8 @@ const policyFiles = [
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
   "docs/backend/self-hosted-backend-architecture.md",
+  "docs/backend/self-hosted-api-skeleton.md",
+  "docs/backend/self-hosted-validation.md",
 ];
 
 describe("self-hosted backend policy", () => {
@@ -17,6 +19,7 @@ describe("self-hosted backend policy", () => {
 
     expect(output).toContain("Self-hosted backend policy check passed");
     expect(output).toContain("self-hosted-backend-architecture.md");
+    expect(output).toContain("self-hosted-api-skeleton.md");
   });
 
   it("keeps Supabase scoped to prototype/schema validation, not production backend", () => {
@@ -35,9 +38,16 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["check:backend-policy"]).toBe("node scripts/check-self-hosted-backend-policy.mjs");
     expect(pkg.scripts["check:supabase-boundary"]).toBe("node scripts/check-supabase-production-boundary.mjs");
     expect(pkg.scripts["check:self-hosted-infra"]).toBe("node scripts/check-self-hosted-infra.mjs");
+    expect(pkg.scripts["check:self-hosted-api"]).toBe("node scripts/check-self-hosted-api.mjs");
+    expect(pkg.scripts["contracts:build"]).toBe("tsc -p packages/contracts/tsconfig.json");
+    expect(pkg.scripts["api:build"]).toBe("npm run contracts:build && tsc -p apps/api/tsconfig.json");
+    expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:backend-policy");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:supabase-boundary");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
+    expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
+    expect(pkg.scripts["ci:core"]).toContain("npm run api:build");
+    expect(pkg.scripts["ci:core"]).toContain("npm run test:api");
   });
 
   it("keeps Supabase direct imports out of new production UI surfaces", () => {

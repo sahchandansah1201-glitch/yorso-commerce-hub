@@ -1,0 +1,90 @@
+#!/usr/bin/env node
+import { existsSync, readFileSync } from "node:fs";
+
+const requiredFiles = [
+  "apps/api/src/index.ts",
+  "apps/api/src/server.ts",
+  "apps/api/src/config.ts",
+  "apps/api/src/http.ts",
+  "apps/api/src/routes/health.ts",
+  "apps/api/src/routes/account.ts",
+  "apps/api/src/server.test.ts",
+  "apps/api/tsconfig.json",
+  "apps/api/vitest.config.ts",
+  "apps/api/Dockerfile",
+];
+
+const failures = [];
+
+for (const file of requiredFiles) {
+  if (!existsSync(file)) failures.push(`missing required API file ${file}`);
+}
+
+const read = (file) => readFileSync(file, "utf8");
+const pkg = JSON.parse(read("package.json"));
+const server = read("apps/api/src/server.ts");
+const config = read("apps/api/src/config.ts");
+const accountRoute = read("apps/api/src/routes/account.ts");
+const dockerfile = read("apps/api/Dockerfile");
+const compose = read("infra/docker-compose.yml");
+const docs = read("docs/backend/self-hosted-backend-architecture.md");
+
+const requireText = (name, text, marker) => {
+  if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
+};
+
+const forbidText = (name, text, marker) => {
+  if (text.includes(marker)) failures.push(`${name}: forbidden ${JSON.stringify(marker)}`);
+};
+
+if (pkg.scripts["contracts:build"] !== "tsc -p packages/contracts/tsconfig.json") {
+  failures.push("package.json: contracts:build must compile packages/contracts/tsconfig.json");
+}
+if (pkg.scripts["api:build"] !== "npm run contracts:build && tsc -p apps/api/tsconfig.json") {
+  failures.push("package.json: api:build must compile contracts before apps/api/tsconfig.json");
+}
+if (pkg.scripts["api:start"] !== "node apps/api/dist/index.js") {
+  failures.push("package.json: api:start must run apps/api/dist/index.js");
+}
+if (pkg.scripts["test:api"] !== "npm run contracts:build && vitest run --config apps/api/vitest.config.ts") {
+  failures.push("package.json: test:api must build contracts before apps/api tests");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run check:self-hosted-api")) {
+  failures.push("package.json: ci:core must run check:self-hosted-api");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
+  failures.push("package.json: ci:core must run api:build");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
+  failures.push("package.json: ci:core must run test:api");
+}
+
+requireText("apps/api/src/server.ts", server, "/health/live");
+requireText("apps/api/src/server.ts", server, "/health/ready");
+requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
+requireText("apps/api/src/server.ts", server, "x-yorso-backend");
+requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
+requireText("apps/api/src/config.ts", config, "Supabase env values must stay empty in production self-hosted API config.");
+requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
+requireText("apps/api/src/routes/account.ts", accountRoute, "self-hosted-yorso-api");
+requireText("apps/api/Dockerfile", dockerfile, "FROM node:22-alpine");
+requireText("apps/api/Dockerfile", dockerfile, "RUN npm run api:build");
+requireText("apps/api/Dockerfile", dockerfile, "CMD [\"node\", \"apps/api/dist/index.js\"]");
+requireText("infra/docker-compose.yml", compose, "dockerfile: apps/api/Dockerfile");
+requireText("infra/docker-compose.yml", compose, "VITE_SUPABASE_URL: \"\"");
+requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
+
+forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
+forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
+forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
+
+if (failures.length > 0) {
+  console.error("Self-hosted API skeleton check failed.");
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log("Self-hosted API skeleton check passed.");
+console.log("- apps/api exposes health and account-contract endpoints.");
+console.log("- apps/api builds as a standalone Node service.");
+console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");
