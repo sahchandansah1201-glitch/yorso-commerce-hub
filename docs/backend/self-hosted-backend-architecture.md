@@ -162,11 +162,11 @@ the production-direction schema must live under `packages/db`.
 
 The DB package includes a migration planner. It currently performs static
 planning and validation only: manifest order, dependencies, safe SQL paths and
-SHA-256 checksums. Batch #22 adds the runtime boundary for status, drift
-detection and transactional apply through an injected PostgreSQL client. The CLI
-still exposes only static status and dry-run apply; live database mutation is
-intentionally deferred until the connection adapter and operator confirmation
-flow exist.
+SHA-256 checksums. Batch #22 added the runtime boundary for status, drift
+detection and transactional apply through an injected PostgreSQL client. Batch
+#23 adds the `pg` adapter and live commands guarded by `MIGRATION_DATABASE_URL`
+and explicit `--confirm` for live apply. Default CI still uses static checks and
+dry-run commands only.
 
 ## Access Control Rule
 

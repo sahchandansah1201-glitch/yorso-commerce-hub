@@ -9,6 +9,7 @@ const files = [
   "packages/db/src/checksum.ts",
   "packages/db/src/cli.ts",
   "packages/db/src/migrator.ts",
+  "packages/db/src/postgres-client.ts",
   "packages/db/src/runtime.ts",
   "packages/db/migrations/0000_migration_registry.sql",
   "packages/db/migrations/0001_account_company_baseline.sql",
@@ -81,9 +82,13 @@ if (!manifest.migrations?.[1]?.dependsOn?.includes("0000_migration_registry")) {
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
 requireText("packages/db/README.md", readme, "Supabase migrations may still exist as prototype references");
 requireText("packages/db/README.md", readme, "db:migrations:plan");
+requireText("packages/db/README.md", readme, "MIGRATION_DATABASE_URL");
 
 if (pkg.scripts["check:self-hosted-db"] !== "node scripts/check-self-hosted-db.mjs") {
   failures.push("package.json: check:self-hosted-db script missing or incorrect");
+}
+if (pkg.dependencies?.pg === undefined) {
+  failures.push("package.json: pg dependency is required for the live PostgreSQL migration adapter");
 }
 if (pkg.scripts["db:build"] !== "tsc -p packages/db/tsconfig.json") {
   failures.push("package.json: db:build script missing or incorrect");
@@ -97,8 +102,20 @@ if (!pkg.scripts["db:migrations:check"]?.includes("packages/db/dist/cli.js check
 if (!pkg.scripts["db:migrations:status"]?.includes("packages/db/dist/cli.js status")) {
   failures.push("package.json: db:migrations:status script missing or incorrect");
 }
+if (!pkg.scripts["db:migrations:status:live"]?.includes("packages/db/dist/cli.js status --live")) {
+  failures.push("package.json: db:migrations:status:live script missing or incorrect");
+}
 if (!pkg.scripts["db:migrations:apply:dry-run"]?.includes("packages/db/dist/cli.js apply --dry-run")) {
   failures.push("package.json: db:migrations:apply:dry-run script missing or incorrect");
+}
+if (!pkg.scripts["db:migrations:apply:live:dry-run"]?.includes("packages/db/dist/cli.js apply --live --dry-run")) {
+  failures.push("package.json: db:migrations:apply:live:dry-run script missing or incorrect");
+}
+if (!pkg.scripts["db:migrations:apply:live"]?.includes("packages/db/dist/cli.js apply --live --confirm")) {
+  failures.push("package.json: db:migrations:apply:live script missing or incorrect");
+}
+if (!pkg.scripts["db:migrations:smoke:live"]?.includes("db:migrations:status:live")) {
+  failures.push("package.json: db:migrations:smoke:live script missing or incorrect");
 }
 if (!pkg.scripts["test:db-migrations"]?.includes("packages/db/vitest.config.ts")) {
   failures.push("package.json: test:db-migrations script missing or incorrect");

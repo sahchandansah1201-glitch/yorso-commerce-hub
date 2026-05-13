@@ -48,8 +48,12 @@ npm run ci:core
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company tables or drifts toward Supabase-owned schema. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
-| `db:migrations:status` | Prints the static local migration status until the PostgreSQL adapter is wired. |
-| `db:migrations:apply:dry-run` | Prints a safe apply preview. Live mutation is disabled in CLI at this stage. |
+| `db:migrations:status` | Prints the static local migration status without requiring PostgreSQL. |
+| `db:migrations:apply:dry-run` | Prints a safe local apply preview without requiring PostgreSQL. |
+| `db:migrations:status:live` | Connects to `MIGRATION_DATABASE_URL` and reads applied migration records. Not part of CI without a database. |
+| `db:migrations:apply:live:dry-run` | Connects to `MIGRATION_DATABASE_URL`, checks drift and previews pending migrations without applying SQL. |
+| `db:migrations:apply:live` | Applies pending migrations only through `--confirm` and `MIGRATION_DATABASE_URL`. Use manually during server deployment. |
+| `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
@@ -92,10 +96,18 @@ connect to PostgreSQL yet. It verifies that every manifest entry points to a
 safe SQL file, dependencies sort before dependents, SQL is checksumed, and the
 plan is deterministic.
 
-`db:migrations:apply:dry-run` validates the next runtime boundary without
-mutating a database. The runtime code can detect applied, pending and drifted
-migrations through a supplied PostgreSQL client, but the CLI does not expose live
-apply until the connection adapter and operator confirmation flow exist.
+`db:migrations:apply:dry-run` validates the runtime boundary without connecting
+to a database. Batch #23 also adds live commands for server deployment. They are
+not part of default CI because they require `MIGRATION_DATABASE_URL`.
+
+Manual server deployment commands:
+
+```bash
+npm run db:migrations:status:live
+npm run db:migrations:apply:live:dry-run
+npm run db:migrations:apply:live
+npm run db:migrations:smoke:live
+```
 
 ## API Skeleton Validation
 

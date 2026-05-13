@@ -68,9 +68,15 @@ export async function ensureMigrationRegistry(client: MigrationClient): Promise<
 }
 
 export async function readAppliedMigrations(client: MigrationClient): Promise<Map<string, AppliedMigrationRecord>> {
-  const result = await client.query<AppliedMigrationRecord>(
-    "select id, checksum, applied_at as \"appliedAt\", execution_ms as \"executionMs\", applied_by as \"appliedBy\" from _yorso_migrations order by id asc",
-  );
+  let result: MigrationQueryResult<AppliedMigrationRecord>;
+  try {
+    result = await client.query<AppliedMigrationRecord>(
+      "select id, checksum, applied_at as \"appliedAt\", execution_ms as \"executionMs\", applied_by as \"appliedBy\" from _yorso_migrations order by id asc",
+    );
+  } catch (error) {
+    if (isMissingMigrationRegistryError(error)) return new Map();
+    throw error;
+  }
 
   return new Map(result.rows.map((row) => [row.id, row]));
 }
@@ -177,4 +183,11 @@ export function formatApplyResult(result: MigrationApplyResult): string[] {
   for (const migration of result.pending) lines.push(`pending ${migration.id}`);
 
   return lines;
+}
+
+function isMissingMigrationRegistryError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const maybeError = error as { code?: unknown; message?: unknown };
+
+  return maybeError.code === "42P01" && String(maybeError.message ?? "").includes("_yorso_migrations");
 }

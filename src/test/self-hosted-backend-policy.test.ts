@@ -46,7 +46,11 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["db:build"]).toBe("tsc -p packages/db/tsconfig.json");
     expect(pkg.scripts["db:migrations:check"]).toContain("packages/db/dist/cli.js check");
     expect(pkg.scripts["db:migrations:status"]).toContain("packages/db/dist/cli.js status");
+    expect(pkg.scripts["db:migrations:status:live"]).toContain("packages/db/dist/cli.js status --live");
     expect(pkg.scripts["db:migrations:apply:dry-run"]).toContain("packages/db/dist/cli.js apply --dry-run");
+    expect(pkg.scripts["db:migrations:apply:live:dry-run"]).toContain("packages/db/dist/cli.js apply --live --dry-run");
+    expect(pkg.scripts["db:migrations:apply:live"]).toContain("packages/db/dist/cli.js apply --live --confirm");
+    expect(pkg.scripts["db:migrations:smoke:live"]).toContain("db:migrations:status:live");
     expect(pkg.scripts["test:db-migrations"]).toContain("packages/db/vitest.config.ts");
     expect(pkg.scripts["api:build"]).toBe("npm run contracts:build && tsc -p apps/api/tsconfig.json");
     expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
