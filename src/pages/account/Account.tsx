@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
+import { hydrateAccountProfileFromApi, syncAccountProfileToApi } from "@/lib/account-api";
 import {
   validateEmail,
   validateLanguage,
@@ -2957,10 +2958,34 @@ const Account = () => {
   }, [section]);
 
   const [profile, setProfile] = useState<AccountProfile>(() => getAccountProfile());
+  const syncVersionRef = useRef(0);
+
+  useEffect(() => {
+    let active = true;
+    const localProfile = getAccountProfile();
+    const hydrationVersion = syncVersionRef.current;
+
+    hydrateAccountProfileFromApi(localProfile).then((remoteProfile) => {
+      if (!active || !remoteProfile || hydrationVersion !== syncVersionRef.current) return;
+      setProfile(remoteProfile);
+      saveAccountProfile(remoteProfile);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const update = (next: AccountProfile) => {
+    syncVersionRef.current += 1;
+    const syncVersion = syncVersionRef.current;
     setProfile(next);
     saveAccountProfile(next);
+    void syncAccountProfileToApi(next).then((remoteProfile) => {
+      if (!remoteProfile || syncVersion !== syncVersionRef.current) return;
+      setProfile(remoteProfile);
+      saveAccountProfile(remoteProfile);
+    });
   };
 
   if (!active) return <Navigate to="/account/personal" replace />;

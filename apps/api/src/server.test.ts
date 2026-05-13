@@ -88,7 +88,7 @@ describe("YORSO self-hosted API skeleton", () => {
       name: "account-company",
       version: 1,
       source: "packages/contracts/src/account-company.ts",
-      dto: ["CompanyProfile", "CompanyProfileUpdate", "UserProfile"],
+      dto: ["CompanyProfile", "CompanyProfileUpdate", "UserProfile", "UserProfileUpdate"],
     });
     expect(body.productionTarget).toMatchObject({
       backend: "self-hosted-yorso-api",
@@ -110,6 +110,21 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(invalidMethod.headers.get("allow")).toBe("GET");
   });
 
+  it("handles browser CORS preflight for account endpoints", async () => {
+    const response = await request("/v1/account/company", {
+      method: "OPTIONS",
+      headers: {
+        origin: "http://localhost:8080",
+        "access-control-request-method": "PATCH",
+      },
+    });
+
+    expect(response.status).toBe(204);
+    expect(response.headers.get("access-control-allow-origin")).toBe("http://localhost:8080");
+    expect(response.headers.get("access-control-allow-methods")).toContain("PATCH");
+    expect(response.headers.get("access-control-allow-headers")).toContain("x-demo-user-id");
+  });
+
   it("returns the current demo user profile", async () => {
     const response = await request("/v1/account/me");
     const body = (await response.json()) as JsonBody;
@@ -119,6 +134,30 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(body.user).toMatchObject({
       email: "buyer@example.com",
       preferredLanguage: "en",
+    });
+  });
+
+  it("updates the current demo user profile", async () => {
+    const response = await request("/v1/account/me", {
+      method: "PATCH",
+      body: JSON.stringify({
+        firstName: "Updated",
+        lastName: "Buyer",
+        email: "updated.buyer@example.com",
+        phone: null,
+        preferredLanguage: "ru",
+        timezone: "Europe/Moscow",
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.user).toMatchObject({
+      firstName: "Updated",
+      email: "updated.buyer@example.com",
+      phone: null,
+      preferredLanguage: "ru",
     });
   });
 

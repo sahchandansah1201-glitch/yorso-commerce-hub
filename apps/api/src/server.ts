@@ -31,8 +31,15 @@ async function routeRequest(
   config: ApiConfig,
   accountService: AccountService,
 ) {
+  applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
   response.setHeader("x-yorso-backend", "self-hosted");
+
+  if (request.method === "OPTIONS") {
+    response.writeHead(204);
+    response.end();
+    return;
+  }
 
   const url = getRequestUrl(request);
 
@@ -66,4 +73,27 @@ async function routeRequest(
   if (await handleAccountRoute(request, response, context, accountService, url.pathname)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);
+}
+
+function applyCorsHeaders(request: IncomingMessage, response: ServerResponse, config: ApiConfig) {
+  const origin = request.headers.origin;
+  const allowedOrigins = new Set([
+    config.publicAppUrl,
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+  ]);
+
+  if (
+    origin &&
+    (allowedOrigins.has(origin) ||
+      (config.nodeEnv !== "production" &&
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)))
+  ) {
+    response.setHeader("access-control-allow-origin", origin);
+    response.setHeader("vary", "Origin");
+  }
+
+  response.setHeader("access-control-allow-methods", "GET, PATCH, OPTIONS");
+  response.setHeader("access-control-allow-headers", "content-type, x-demo-user-id");
+  response.setHeader("access-control-max-age", "600");
 }

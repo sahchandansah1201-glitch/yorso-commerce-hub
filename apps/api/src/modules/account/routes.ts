@@ -16,17 +16,28 @@ export async function handleAccountRoute(
 
   try {
     if (pathname === "/v1/account/me") {
-      if (request.method !== "GET") {
-        methodNotAllowed(response, context);
+      if (request.method === "GET") {
+        const profile = await service.getCurrentUserProfile(userId);
+        sendJson(response, 200, {
+          ok: true,
+          user: profile,
+          requestId: context.requestId,
+        });
         return true;
       }
 
-      const profile = await service.getCurrentUserProfile(userId);
-      sendJson(response, 200, {
-        ok: true,
-        user: profile,
-        requestId: context.requestId,
-      });
+      if (request.method === "PATCH") {
+        const payload = await readJsonBody(request);
+        const profile = await service.updateCurrentUserProfile(userId, payload);
+        sendJson(response, 200, {
+          ok: true,
+          user: profile,
+          requestId: context.requestId,
+        });
+        return true;
+      }
+
+      methodNotAllowed(response, context, "GET, PATCH");
       return true;
     }
 

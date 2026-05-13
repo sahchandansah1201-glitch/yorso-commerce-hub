@@ -16,6 +16,7 @@ compiled, started and wired into Docker Compose.
 | `GET /health/ready` | Confirms self-hosted dependencies are configured. |
 | `GET /v1/account/company/schema` | Exposes the account/company DTO boundary used by frontend work. |
 | `GET /v1/account/me` | Returns the current user profile through the account service. |
+| `PATCH /v1/account/me` | Validates and updates editable user profile fields through the contract schema. |
 | `GET /v1/account/company` | Returns the current company profile through the account service. |
 | `PATCH /v1/account/company` | Validates and updates company profile fields through the contract schema. |
 
@@ -42,6 +43,7 @@ Batch #20 adds the storage switch:
 Batch #24 makes the PostgreSQL repository functional:
 
 - `GET /v1/account/me` reads `yorso_users`.
+- `PATCH /v1/account/me` updates `yorso_users`.
 - `GET /v1/account/company` reads `yorso_companies` plus
   `yorso_company_media`.
 - `PATCH /v1/account/company` applies partial scalar updates to
@@ -51,6 +53,17 @@ Batch #24 makes the PostgreSQL repository functional:
 - The repository returns the same contract DTOs as the memory adapter, so the
   frontend can switch from prototype storage to the self-hosted API without a
   new UI contract.
+
+Batch #25 adds the frontend bridge:
+
+- `src/lib/account-api.ts` maps current account workspace state to the
+  self-hosted API DTOs.
+- The account workspace hydrates from `/v1/account/me` and
+  `/v1/account/company` when `VITE_YORSO_API_URL` is configured.
+- Saves still write local prototype state first, then attempt API sync.
+- If the API is unavailable or not configured, the UI remains usable and records
+  a local sync state instead of failing the form.
+- API CORS allows browser calls from the configured frontend origin.
 
 ## Local Build
 

@@ -53,7 +53,7 @@ type FakeCompanyRow = {
 
 class FakeAccountPgClient implements AccountQueryClient {
   readonly calls: QueryCall[] = [];
-  readonly user: FakeUserRow = {
+  user: FakeUserRow = {
     id: demoUserId,
     first_name: "Demo",
     last_name: "Buyer",
@@ -97,6 +97,33 @@ class FakeAccountPgClient implements AccountQueryClient {
 
     if (normalized.includes("from yorso_users")) {
       return { rows: params[0] === this.user.id ? ([this.user] as unknown as Row[]) : [] };
+    }
+
+    if (normalized.startsWith("update yorso_users")) {
+      const userId = params[params.length - 1];
+      if (userId !== this.user.id) return { rows: [] };
+
+      const assignments = [
+        ["first_name", "first_name"],
+        ["last_name", "last_name"],
+        ["email", "email"],
+        ["phone", "phone"],
+        ["preferred_language", "preferred_language"],
+        ["timezone", "timezone"],
+      ] as const;
+
+      let paramIndex = 0;
+      for (const [column, key] of assignments) {
+        if (!normalized.includes(`${column} = $`)) continue;
+        this.user = {
+          ...this.user,
+          [key]: params[paramIndex],
+          updated_at: new Date("2026-05-13T09:00:00.000Z"),
+        };
+        paramIndex += 1;
+      }
+
+      return { rows: [this.user] as unknown as Row[] };
     }
 
     if (normalized.includes("from yorso_companies") && normalized.includes("left join yorso_company_media")) {
@@ -201,6 +228,20 @@ describe("account repositories", () => {
     expect(reread?.tradeName).toBe("Memory Repo Seafood");
   });
 
+  it("memory repository persists user updates inside one process", async () => {
+    const repository = new MemoryAccountRepository();
+
+    const after = await repository.updateUserProfile(demoUserId, {
+      firstName: "Memory",
+      preferredLanguage: "ru",
+    });
+    const reread = await repository.getUserProfile(demoUserId);
+
+    expect(after.firstName).toBe("Memory");
+    expect(after.preferredLanguage).toBe("ru");
+    expect(reread?.firstName).toBe("Memory");
+  });
+
   it("factory selects memory repository by default", () => {
     const config = loadApiConfig({ NODE_ENV: "test" }, { allowLocalDefaults: true });
     const repository = createAccountRepository(config);
@@ -246,6 +287,27 @@ describe("account repositories", () => {
       updatedAt: "2026-05-13T08:00:00.000Z",
     });
     expect(client.calls.at(-1)?.sql).toContain("from yorso_users");
+  });
+
+  it("postgres repository updates user fields and returns the saved profile", async () => {
+    const { client, repository } = createPostgresRepository();
+
+    const updated = await repository.updateUserProfile(demoUserId, {
+      firstName: "Postgres",
+      lastName: "Buyer",
+      email: "postgres.buyer@example.com",
+      phone: null,
+      preferredLanguage: "ru",
+      timezone: "Europe/Moscow",
+    });
+
+    expect(updated).toMatchObject({
+      firstName: "Postgres",
+      email: "postgres.buyer@example.com",
+      phone: null,
+      preferredLanguage: "ru",
+    });
+    expect(client.calls.some((call) => call.sql.includes("update yorso_users"))).toBe(true);
   });
 
   it("postgres repository maps company and media rows to the account contract", async () => {

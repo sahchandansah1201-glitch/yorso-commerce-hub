@@ -1,7 +1,13 @@
-import type { CompanyProfile, CompanyProfileUpdate, UserProfile } from "../../../../../packages/contracts/dist/index.js";
+import type {
+  CompanyProfile,
+  CompanyProfileUpdate,
+  UserProfile,
+  UserProfileUpdate,
+} from "../../../../../packages/contracts/dist/index.js";
 
 export interface AccountRepository {
   getUserProfile(userId: string): Promise<UserProfile | null>;
+  updateUserProfile(userId: string, update: UserProfileUpdate): Promise<UserProfile>;
   getCompanyProfile(userId: string): Promise<CompanyProfile | null>;
   updateCompanyProfile(userId: string, update: CompanyProfileUpdate): Promise<CompanyProfile>;
 }
@@ -66,6 +72,19 @@ export class MemoryAccountRepository implements AccountRepository {
 
   async getUserProfile(userId: string) {
     return this.users.get(userId) ?? null;
+  }
+
+  async updateUserProfile(userId: string, update: UserProfileUpdate) {
+    const current = this.users.get(userId);
+    if (!current) throw new Error("user_not_found");
+
+    const next: UserProfile = {
+      ...current,
+      ...update,
+      updatedAt: new Date().toISOString(),
+    };
+    this.users.set(userId, next);
+    return next;
   }
 
   async getCompanyProfile(userId: string) {

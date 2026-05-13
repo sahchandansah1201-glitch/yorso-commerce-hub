@@ -1,8 +1,10 @@
 /**
- * Frontend-only account store. localStorage persistence.
+ * Account fallback store. localStorage persistence remains available while
+ * the account workspace progressively syncs user/company fields to the
+ * self-hosted API.
  *
  * Никаких credentials/токенов/паролей здесь не хранится. Это прототип
- * Company Operating Profile для будущей backend-интеграции.
+ * Company Operating Profile fallback for offline/Lovable preview usage.
  */
 import {
   mockAccountProfile,

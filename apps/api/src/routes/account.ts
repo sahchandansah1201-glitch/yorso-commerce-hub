@@ -1,5 +1,10 @@
 import type { ServerResponse } from "node:http";
-import type { CompanyProfile, CompanyProfileUpdate, UserProfile } from "../../../../packages/contracts/dist/index.js";
+import type {
+  CompanyProfile,
+  CompanyProfileUpdate,
+  UserProfile,
+  UserProfileUpdate,
+} from "../../../../packages/contracts/dist/index.js";
 import type { ApiRequestContext } from "../http.js";
 import { sendJson } from "../http.js";
 
@@ -7,6 +12,7 @@ type ContractExample = {
   companyProfile: Pick<CompanyProfile, "accountRole" | "publicationStatus" | "buyerQualificationStatus">;
   companyUpdate: Pick<CompanyProfileUpdate, "media" | "productFocus">;
   userProfile: Pick<UserProfile, "preferredLanguage" | "timezone">;
+  userUpdate: Pick<UserProfileUpdate, "firstName" | "preferredLanguage">;
 };
 
 const contractExample: ContractExample = {
@@ -31,6 +37,10 @@ const contractExample: ContractExample = {
     preferredLanguage: "en",
     timezone: "Europe/Moscow",
   },
+  userUpdate: {
+    firstName: "Anna",
+    preferredLanguage: "en",
+  },
 };
 
 export function handleAccountCompanyContract(response: ServerResponse, context: ApiRequestContext) {
@@ -40,7 +50,7 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
       name: "account-company",
       version: 1,
       source: "packages/contracts/src/account-company.ts",
-      dto: ["CompanyProfile", "CompanyProfileUpdate", "UserProfile"],
+      dto: ["CompanyProfile", "CompanyProfileUpdate", "UserProfile", "UserProfileUpdate"],
       example: contractExample,
     },
     productionTarget: {
