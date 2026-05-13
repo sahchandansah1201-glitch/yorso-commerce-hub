@@ -25,11 +25,15 @@ The backend must preserve the existing frontend product intent:
    production truth.
 3. Hidden values must not be sent to locked users. Frontend blur is only a
    visual affordance.
-4. All backend migrations, functions, generated types, seed data and contracts
-   must exist locally in the repository.
-5. API adapters should return shapes compatible with existing components before
+4. Production backend target is self-hosted YORSO API plus PostgreSQL. Supabase
+   is temporary prototype/schema-validation infrastructure only.
+5. All backend migrations, services, generated types, seed data, infra files and
+   contracts must exist locally in the repository.
+6. API adapters should return shapes compatible with existing components before
    component rewrites are attempted.
-6. Every sensitive workflow needs tests for anonymous, registered, qualified,
+7. Frontend pages must not import Supabase clients as production data gateways.
+   They must call typed YORSO API adapters.
+8. Every sensitive workflow needs tests for anonymous, registered, qualified,
    owner and admin access where relevant.
 
 ## Access Levels
@@ -55,15 +59,15 @@ Required data views:
 | Route | Current frontend role | Current data source | Backend target | Priority |
 |---|---|---|---|---|
 | `/` | Public entry, trust, live offers | landing components, `mockOffers`, partial catalog fetch | public catalog preview, marketplace stats, homepage CMS blocks | P1 |
-| `/register` and steps | Buyer/supplier onboarding | registration context, sessionStorage, mock API contracts | Supabase Auth onboarding, profile draft, company draft | P0 |
-| `/signin` | Sign-in to workspace | Supabase Auth plus buyer-session bridge | Supabase Auth, user-company resolution, role/session adapter | P0 |
-| `/reset-password` | Password recovery | Supabase Auth | Supabase Auth | P0 |
+| `/register` and steps | Buyer/supplier onboarding | registration context, sessionStorage, mock API contracts | self-hosted auth onboarding, profile draft, company draft | P0 |
+| `/signin` | Sign-in to workspace | Supabase Auth plus buyer-session bridge | self-hosted auth/session API, user-company resolution, role/session adapter | P0 |
+| `/reset-password` | Password recovery | Supabase Auth | self-hosted auth recovery flow | P0 |
 | `/offers` | Procurement catalog workspace | `mockOffers`, `catalog-api`, local UI state | offer catalog API, public/qualified views, backend filters | P0 |
 | `/offers/:id` | Offer decision page | mock offer detail plus partial catalog | offer detail API, documents, supplier trust, related offers | P1 |
 | `/suppliers` | Supplier directory | `mockSuppliers`, i18n patches, session shortlist | supplier directory API, public/qualified views, shortlist API | P0 |
 | `/suppliers/:supplierId` | Supplier dossier | `mockSuppliers`, `getOffersForSupplier`, local access request | supplier profile API, supplier offers API, access workflow | P0 |
 | `/account/personal` | User profile | `mockAccount`, localStorage | user profile API | P0 |
-| `/account/company` | Company profile and media | `mockAccount`, localStorage, local file URLs | company profile API, Supabase Storage, publication status | P0 |
+| `/account/company` | Company profile and media | `mockAccount`, localStorage, local file URLs | company profile API, self-hosted object storage, publication status | P0 |
 | `/account/branches` | Branch list | read-only `mockAccount` | branch CRUD API | P1 |
 | `/account/products` | Product matrix | read-only `mockAccount` | company product CRUD API | P1 |
 | `/account/meta-regions` | Logistics grouping | read-only `mockAccount` | meta-region CRUD API | P1 |
@@ -72,7 +76,7 @@ Required data views:
 | `/blog/:slug` | Article page | static `blogPosts` | content source, article metadata, structured data | P2 |
 | `/for-suppliers` | Supplier acquisition landing | static content | CMS-ready static page, conversion events | P3 |
 | `/how-it-works` | Product education | static content | CMS-ready static page | P3 |
-| `/dashboard/registration-funnel` | Analytics demo | deterministic mock | analytics warehouse or Supabase event aggregates | P3 |
+| `/dashboard/registration-funnel` | Analytics demo | deterministic mock | analytics warehouse or event aggregates | P3 |
 | `/dashboard/registration-resend` | Analytics demo | deterministic mock | analytics aggregates | P3 |
 
 ## Data Source Replacement Map
@@ -80,20 +84,28 @@ Required data views:
 | Current file/source | Current role | Backend replacement |
 |---|---|---|
 | `src/data/mockAccount.ts` | account fixtures | `profiles`, `companies`, `company_branches`, `company_products`, `company_meta_regions`, `notification_preferences` |
-| `src/lib/account-store.ts` | local account persistence | `account-api.ts` using Supabase |
+| `src/lib/account-store.ts` | local account persistence | `account-api.ts` using self-hosted YORSO API |
 | `src/data/mockSuppliers.ts` | supplier directory/profile fixtures | `supplier_profiles`, `supplier_certifications`, `supplier_delivery_markets`, `supplier_documents` |
 | `src/data/mockOffers.ts` | catalog and offer fixtures | `products`, `offers`, `offer_prices`, `offer_media`, `offer_delivery_terms`, `offer_documents` |
 | `src/data/mockIntelligence.ts` | price/news/doc readiness fixtures | market intelligence tables or external ingestion later |
 | `src/lib/supplier-access-requests.ts` | local access request state | `supplier_access_requests`, `access_grants`, `access_events` |
 | `src/lib/supplier-access-approval.ts` | mock approval notification | backend status transition and notification queue |
 | `src/lib/catalog-requests.ts` | session RFQ/request state | `buyer_requests`, `buyer_request_items`, `supplier_responses` |
-| `src/lib/buyer-session.ts` | frontend session bridge | Supabase session plus resolved company membership |
+| `src/lib/buyer-session.ts` | frontend session bridge | YORSO API session plus resolved company membership |
 | `src/data/blogPosts.ts` | blog content | content table or local markdown/MDX pipeline with generated metadata |
 | `src/data/mockWorkspace.ts` | buyer workspace fixture | saved offers, price requests, messages, activity tables |
 
 ## Adapter Contract
 
 Frontend pages should not import database clients directly. Use typed adapters.
+
+Production adapter rule:
+
+- page/component code calls `src/lib/*-api.ts`;
+- adapters call the self-hosted YORSO API;
+- Supabase-specific adapters may remain only as temporary prototype bridges;
+- adapter return shapes must not expose restricted fields in locked states;
+- removing Supabase from production must not require page-level rewrites.
 
 Required adapters:
 
@@ -553,11 +565,11 @@ Before a backend phase is considered complete:
 ## Immediate Backend Phase 0 Checklist
 
 - Add this contract under `docs/backend/`.
-- Inventory existing Supabase migrations.
-- Decide migration baseline.
+- Inventory existing Supabase migrations as prototype references only.
+- Decide self-hosted PostgreSQL migration baseline.
 - Add `.env.example`.
-- Generate fresh Supabase types.
+- Generate API/client types from the self-hosted contract.
 - Fix current lint/test failures.
 - Create account schema migration.
 - Create account API adapter skeleton.
-- Add account adapter tests with mock Supabase responses.
+- Add account adapter tests with mocked YORSO API responses.

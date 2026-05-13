@@ -47,25 +47,43 @@ The frontend still uses a mixed data model:
 - `localStorage` and `sessionStorage` for account, buyer session, access
   requests and UI state;
 - partial Supabase integration for auth, password reset and catalog reads;
-- Supabase migrations and edge functions already exist locally in the frontend
-  repo.
+- Supabase migrations and smoke tooling already exist locally, but they are now
+  treated as prototype/schema-validation assets, not as the production backend.
 
 ## Backend Strategy
 
-Use Supabase as the first backend layer.
+Build a self-hosted YORSO backend as the production target. Supabase is no longer the future production backend. It can remain as a temporary prototype,
+schema validation environment and migration reference while the self-hosted
+backend is designed and implemented.
+
+Production target:
+
+- PostgreSQL as the main transactional database.
+- PgBouncer for connection pooling.
+- Backend API service as the only data gateway for the frontend.
+- Redis for cache, sessions, rate limits and short-lived workflow state.
+- Object storage compatible with S3/MinIO for logos, cover images, product
+  photos, certificates and documents.
+- Queue workers for email, notifications, approvals, imports, report generation
+  and future agent jobs.
+- Search service for catalog, supplier and product discovery when Postgres
+  indexes are no longer enough.
+- Docker Compose first, then Kubernetes or managed containers only when load
+  requires it.
 
 Reasoning:
 
-- Supabase is already present in the frontend codebase.
+- YORSO must be deployable as one coherent software system on owned
+  infrastructure.
+- The frontend must not depend on Supabase clients as production data gateways.
 - Postgres fits the YORSO domain: companies, offers, branches, documents,
   access grants, RFQ records and audit logs are relational data.
-- Row Level Security is required because hidden supplier identity and exact
-  price must not be sent to locked users.
-- Supabase Storage can hold logos, cover images, product photos, certificates
-  and company documents.
-- Edge Functions are sufficient for the first version of approvals,
-  notifications, seed scripts and integration webhooks.
-- A custom backend can be added later only when Supabase becomes a constraint.
+- Access control must be enforced in the backend API and database queries, not
+  only by frontend blur or Supabase RLS.
+- Files, migrations, API contracts, seeds and deployment instructions must stay
+  reproducible from this local repository.
+- Supabase has already been useful for validating schema and access ideas, but
+  it should not become a hidden hosting dependency for production.
 
 The backend must follow this rule:
 
@@ -81,10 +99,12 @@ Local files that must be stored in Git or local project folders:
 
 - frontend source;
 - backend docs and contracts;
-- Supabase migrations;
-- Supabase edge functions;
+- self-hosted backend source and API contracts;
+- PostgreSQL migrations;
+- Supabase prototype migrations only while they are useful for schema
+  comparison;
 - seed data for demo and QA;
-- generated Supabase types;
+- generated API/client types;
 - test fixtures;
 - API contracts;
 - prompt and audit history;
@@ -93,7 +113,7 @@ Local files that must be stored in Git or local project folders:
 Files that must exist locally but should not be committed:
 
 - `.env.local`;
-- Supabase service role keys;
+- database credentials;
 - API keys;
 - production uploads;
 - private user documents;
@@ -107,11 +127,23 @@ docs/
   backend/
     frontend-backend-contract.md
     yorso-backend-implementation-plan.md
+    self-hosted-backend-architecture.md
     access-control-matrix.md
     migration-roadmap.md
+apps/
+  api/
+  web/
+packages/
+  contracts/
+  db/
+  core/
+infra/
+  docker-compose.yml
+  postgres/
+  pgbouncer/
+  object-storage/
 supabase/
   migrations/
-  functions/
   seed/
 src/integrations/supabase/
   client.ts
@@ -134,7 +166,7 @@ starts.
 | Frontend surface | Current source | Backend module needed | Priority |
 |---|---|---|---|
 | `/register` | sessionStorage, mock contracts | auth onboarding, user profile, company draft | P0 |
-| `/signin`, `/reset-password` | Supabase auth partially | Supabase Auth hardening, buyer session bridge | P0 |
+| `/signin`, `/reset-password` | Supabase auth partially | self-hosted auth/session API, buyer session bridge | P0 |
 | `/account/personal` | localStorage `mockAccount` | user profiles API | P0 |
 | `/account/company` | localStorage `mockAccount` | company profiles, logo, cover, public profile draft | P0 |
 | `/account/branches` | read-only mock | company branches CRUD | P1 |
@@ -428,7 +460,7 @@ Recommended adapter files:
 Migration pattern:
 
 1. Keep mock fallback for preview stability.
-2. Add Supabase adapter with typed return shape matching existing components.
+2. Add API adapters with typed return shapes matching existing components.
 3. Add loading, empty and error states.
 4. Add tests for public, registered and qualified access.
 5. Remove direct mock imports from page components.
@@ -447,8 +479,8 @@ Tasks:
 - create `docs/backend/frontend-backend-contract.md`;
 - document current frontend data dependencies;
 - fix current `npm test` and `npm run lint` failures before backend expansion;
-- decide which existing Supabase migrations are active and which are legacy;
-- generate or refresh Supabase types;
+- inventory existing Supabase migrations as prototype/schema references only;
+- define self-hosted API contracts and generated client type strategy;
 - define local seed strategy;
 - define `.env.example`.
 
@@ -473,12 +505,12 @@ Tasks:
 - implement product matrix CRUD;
 - implement meta-region CRUD;
 - implement notification preferences CRUD;
-- connect frontend account pages to Supabase adapters.
+- connect frontend account pages to backend API adapters.
 
 Exit criteria:
 
 - account data survives browser/device changes;
-- logo and cover are stored in Supabase Storage;
+- logo and cover are stored in self-hosted object storage;
 - supplier profile preview uses saved company data;
 - localStorage is only fallback, not source of truth.
 
@@ -675,7 +707,7 @@ Mock data should become seed data, not disappear immediately.
 
 Rules:
 
-- keep `mockOffers` and `mockSuppliers` until Supabase seed parity exists;
+- keep `mockOffers` and `mockSuppliers` until self-hosted seed parity exists;
 - migrate one frontend surface at a time;
 - avoid big-bang replacement;
 - keep deterministic demo data for Lovable preview;
@@ -686,7 +718,7 @@ Rules:
 
 | Risk | Why it matters | Mitigation |
 |---|---|---|
-| Frontend blur used as security | Hidden supplier data can leak through DOM/network | Use RLS and public-safe views |
+| Frontend blur used as security | Hidden supplier data can leak through DOM/network | Enforce access in API queries and database views |
 | Backend model diverges from frontend | UI breaks or becomes decorative | Frontend-backend contract first |
 | Too much scope at once | Backend stalls and frontend quality regresses | Work by page and adapter |
 | Mock data removed too early | Lovable preview loses stability | Keep fallback until seeded backend is stable |
@@ -698,10 +730,10 @@ Rules:
 1. Copy this plan into the frontend repo under `docs/backend/`.
 2. Create `frontend-backend-contract.md` from the active routes and components.
 3. Fix current lint and test failures.
-4. Inventory current Supabase migrations and generated types.
+4. Inventory current Supabase migrations as prototype references only.
 5. Create Phase 1 schema for account/company data.
 6. Implement account adapters behind existing `/account/*` UI.
-7. Add RLS tests before moving supplier and offer data.
+7. Add API access tests before moving supplier and offer data.
 
 ## Decision Summary
 
