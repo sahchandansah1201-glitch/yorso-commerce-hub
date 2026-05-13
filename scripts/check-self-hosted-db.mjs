@@ -9,6 +9,7 @@ const files = [
   "packages/db/src/checksum.ts",
   "packages/db/src/cli.ts",
   "packages/db/src/migrator.ts",
+  "packages/db/src/runtime.ts",
   "packages/db/migrations/0000_migration_registry.sql",
   "packages/db/migrations/0001_account_company_baseline.sql",
 ];
@@ -93,6 +94,12 @@ if (!pkg.scripts["db:migrations:plan"]?.includes("packages/db/dist/cli.js plan")
 if (!pkg.scripts["db:migrations:check"]?.includes("packages/db/dist/cli.js check")) {
   failures.push("package.json: db:migrations:check script missing or incorrect");
 }
+if (!pkg.scripts["db:migrations:status"]?.includes("packages/db/dist/cli.js status")) {
+  failures.push("package.json: db:migrations:status script missing or incorrect");
+}
+if (!pkg.scripts["db:migrations:apply:dry-run"]?.includes("packages/db/dist/cli.js apply --dry-run")) {
+  failures.push("package.json: db:migrations:apply:dry-run script missing or incorrect");
+}
 if (!pkg.scripts["test:db-migrations"]?.includes("packages/db/vitest.config.ts")) {
   failures.push("package.json: test:db-migrations script missing or incorrect");
 }
@@ -101,6 +108,12 @@ if (!pkg.scripts["ci:core"]?.includes("npm run check:self-hosted-db")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run db:migrations:check")) {
   failures.push("package.json: ci:core must run db:migrations:check");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run db:migrations:status")) {
+  failures.push("package.json: ci:core must run db:migrations:status");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run db:migrations:apply:dry-run")) {
+  failures.push("package.json: ci:core must run db:migrations:apply:dry-run");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:db-migrations")) {
   failures.push("package.json: ci:core must run test:db-migrations");

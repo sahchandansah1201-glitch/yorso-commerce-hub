@@ -130,6 +130,8 @@ npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run db:migrations:check
+npm run db:migrations:status
+npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
 npm run test:db-contract
@@ -160,8 +162,11 @@ the production-direction schema must live under `packages/db`.
 
 The DB package includes a migration planner. It currently performs static
 planning and validation only: manifest order, dependencies, safe SQL paths and
-SHA-256 checksums. Live database apply is intentionally deferred until the
-planner contract is stable in CI.
+SHA-256 checksums. Batch #22 adds the runtime boundary for status, drift
+detection and transactional apply through an injected PostgreSQL client. The CLI
+still exposes only static status and dry-run apply; live database mutation is
+intentionally deferred until the connection adapter and operator confirmation
+flow exist.
 
 ## Access Control Rule
 

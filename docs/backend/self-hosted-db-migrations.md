@@ -1,7 +1,7 @@
 # Self-Hosted DB Migrations
 
-Status: active planner
-Batch: #21
+Status: active planner and runtime boundary
+Batch: #22
 Date: 2026-05-13
 
 YORSO production database migrations live in `packages/db`. This path is the
@@ -17,6 +17,8 @@ self-hosted PostgreSQL source of truth for deployment on an owned server.
   dependencies.
 - `packages/db/src/migrator.ts` validates the manifest and builds a deterministic
   migration plan.
+- `packages/db/src/runtime.ts` defines the PostgreSQL runtime boundary for
+  status, dry-run apply, drift detection and transactional live apply.
 - `packages/db/src/cli.ts` exposes local commands.
 
 ## Commands
@@ -24,24 +26,30 @@ self-hosted PostgreSQL source of truth for deployment on an owned server.
 ```bash
 npm run db:migrations:plan
 npm run db:migrations:check
+npm run db:migrations:status
+npm run db:migrations:apply:dry-run
 npm run test:db-migrations
 ```
 
 `db:migrations:plan` prints the ordered migration list with SHA-256 checksums.
 `db:migrations:check` exits non-zero if the manifest, dependencies or SQL files
-are unsafe. `test:db-migrations` validates the planner itself.
+are unsafe. `db:migrations:status` and `db:migrations:apply:dry-run` are static,
+safe CLI previews until the real PostgreSQL adapter is connected.
+`test:db-migrations` validates the planner and runtime layer.
 
 ## Current Boundary
 
-The planner does not apply SQL to PostgreSQL yet. This is deliberate. The next
-step is to add an apply command that:
+The runtime can apply SQL through an injected PostgreSQL client, but the CLI does
+not expose live apply yet. This is deliberate. The next step is to add an apply
+command that:
 
 1. connects through PgBouncer or a direct migration role;
 2. creates `_yorso_migrations` if needed;
-3. compares applied checksums with local checksums;
-4. runs pending SQL inside transactions where safe;
-5. records execution timing and applied-by metadata;
-6. refuses checksum drift for already applied migrations.
+3. requires explicit operator confirmation for live mutation;
+4. compares applied checksums with local checksums;
+5. runs pending SQL inside transactions where safe;
+6. records execution timing and applied-by metadata;
+7. refuses checksum drift for already applied migrations.
 
 Until then, the repository has a deterministic migration contract without a
 destructive live database path.
