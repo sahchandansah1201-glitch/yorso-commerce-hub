@@ -82,7 +82,11 @@ requireText("apps/api/src/config.ts", config, "Supabase env values must stay emp
 requireText("apps/api/src/modules/account/factory.ts", accountFactory, "createAccountRepository");
 requireText("apps/api/src/modules/account/factory.ts", accountFactory, "PostgresAccountRepository");
 requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "class PostgresAccountRepository");
-requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "PostgresAccountRepository.getUserProfile is not implemented");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "from yorso_users");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "from yorso_companies c");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "insert into yorso_company_media");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "on conflict (company_id) do update");
+forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "not implemented");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileUpdateSchema.parse");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileSchema.parse");
 requireText("apps/api/src/modules/account/repository.ts", accountRepository, "interface AccountRepository");
@@ -118,4 +122,5 @@ if (failures.length > 0) {
 console.log("Self-hosted API skeleton check passed.");
 console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
+console.log("- PostgresAccountRepository implements account profile reads and writes.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");

@@ -97,6 +97,9 @@ for (const key of requiredEnvKeys) {
 }
 
 requireText(".env.example", envExample, "Supabase prototype only. Do not use as production backend target.");
+requireText(".env.example", envExample, "DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
+requireText(".env.example", envExample, "MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
+requireText(".env.example", envExample, "PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
 requireText("infra/README.md", infraReadme, "running YORSO without Supabase as a production dependency");
 requireText("docs/backend/self-hosted-backend-architecture.md", architecture, "YORSO production backend must be self-hosted");
 
