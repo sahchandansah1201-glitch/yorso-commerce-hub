@@ -18,6 +18,23 @@ export async function handleStorageRoute(
   const userId = getCurrentUserId(request);
 
   try {
+    if (pathname === "/v1/account/files/by-object-key") {
+      if (request.method !== "GET") {
+        methodNotAllowed(response, context, "GET");
+        return true;
+      }
+
+      const objectKey = new URL(request.url ?? "", "http://localhost").searchParams.get("objectKey")?.trim();
+      if (!objectKey) {
+        sendError(response, 400, "missing_object_key", "File object key is required.", context);
+        return true;
+      }
+
+      const file = await fileService.getFileByObjectKeyForUser(userId, objectKey);
+      sendFile(response, context.requestId, file);
+      return true;
+    }
+
     if (pathname === "/v1/account/documents") {
       if (request.method === "GET") {
         const company = await accountService.getCompanyProfile(userId);
@@ -82,14 +99,7 @@ export async function handleStorageRoute(
 
       const assetId = decodeURIComponent(pathname.slice("/v1/account/files/".length));
       const file = await fileService.getFileForUser(userId, assetId);
-      response.writeHead(200, {
-        "content-type": file.contentType,
-        "content-length": String(file.bytes.byteLength),
-        "content-disposition": `inline; filename="${sanitizeHeaderFileName(file.asset.originalFileName)}"`,
-        "cache-control": "private, max-age=300",
-        "x-request-id": context.requestId,
-      });
-      response.end(file.bytes);
+      sendFile(response, context.requestId, file);
       return true;
     }
   } catch (error) {
@@ -125,3 +135,18 @@ export async function handleStorageRoute(
 }
 
 const sanitizeHeaderFileName = (value: string) => value.replace(/["\\\r\n]/g, "_");
+
+const sendFile = (
+  response: ServerResponse,
+  requestId: string,
+  file: Awaited<ReturnType<FileService["getFileForUser"]>>,
+) => {
+  response.writeHead(200, {
+    "content-type": file.contentType,
+    "content-length": String(file.bytes.byteLength),
+    "content-disposition": `inline; filename="${sanitizeHeaderFileName(file.asset.originalFileName)}"`,
+    "cache-control": "private, max-age=300",
+    "x-request-id": requestId,
+  });
+  response.end(file.bytes);
+};

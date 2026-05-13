@@ -6,7 +6,13 @@ import type { CompanyProfile } from "@/data/mockAccount";
 const focalToObjectPosition = (f: CompanyProfile["coverFocalPoint"]) =>
   f === "top" ? "center top" : f === "bottom" ? "center bottom" : "center center";
 
-export const SupplierProfilePreview = ({ company }: { company: CompanyProfile }) => {
+export const SupplierProfilePreview = ({
+  company,
+  resolveMediaSrc = (value) => value,
+}: {
+  company: CompanyProfile;
+  resolveMediaSrc?: (value: string) => string;
+}) => {
   const { t } = useLanguage();
   return (
     <Card data-testid="account-supplier-preview">
@@ -19,7 +25,7 @@ export const SupplierProfilePreview = ({ company }: { company: CompanyProfile })
           <div className="relative aspect-video w-full bg-muted/40">
             {company.coverImageUrl ? (
               <img
-                src={company.coverImageUrl}
+                src={resolveMediaSrc(company.coverImageUrl)}
                 alt={company.coverAlt || company.tradeName}
                 className="h-full w-full object-cover"
                 style={{ objectPosition: focalToObjectPosition(company.coverFocalPoint) }}
@@ -36,7 +42,7 @@ export const SupplierProfilePreview = ({ company }: { company: CompanyProfile })
               <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border bg-card">
                 {company.logoImageUrl ? (
                   <img
-                    src={company.logoImageUrl}
+                    src={resolveMediaSrc(company.logoImageUrl)}
                     alt={company.logoAlt || company.tradeName}
                     className="h-full w-full"
                     style={{ objectFit: company.logoFit }}

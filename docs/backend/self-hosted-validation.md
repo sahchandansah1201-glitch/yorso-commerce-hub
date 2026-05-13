@@ -141,6 +141,8 @@ It verifies:
 - `POST /v1/account/company/media/logo`, `/cover`, `GET`/`POST
   /v1/account/documents` and `GET /v1/account/files/:assetId` remain behind the
   self-hosted file service.
+- `GET /v1/account/files/by-object-key` remains available for private account
+  media previews that store object keys instead of public URLs.
 - File uploads are validated by contract, size checked, checksummed and stored
   through `apps/api/src/modules/storage`, not through Supabase Storage.
 - The API exposes CORS headers for browser calls from the frontend origin.
@@ -160,10 +162,23 @@ The bridge must preserve these rules:
 - company media and document upload helpers map to the self-hosted file
   endpoints while keeping local prototype mode available when the API URL is
   empty;
+- account UI components use the adapter helpers for media/document uploads and
+  stored-file URL resolution instead of importing any storage client directly;
 - if a backend returns only a partial account payload during development,
   local sections must not be discarded accidentally;
 - `.env.example` keeps `VITE_YORSO_API_URL` empty by default so Lovable preview
   works without a running API service.
+
+Batch #28 frontend checks:
+
+- `CompanyMediaCard` uploads logo/cover files through `uploadCompanyMedia`
+  only when the API adapter is enabled.
+- `SupplierProfilePreview` and account media previews resolve object keys
+  through the self-hosted file endpoint while preserving direct prototype URLs.
+- `CompanyDocumentsCard` supports API-backed document upload/list/download and
+  a local metadata fallback for preview mode.
+- `test:account-workspace` covers account adapter file helpers and the local
+  company document fallback.
 
 ## Production Direction
 

@@ -353,7 +353,8 @@ describe("YORSO self-hosted API skeleton", () => {
   });
 
   it("uploads company logo media through the self-hosted file route and updates company media", async () => {
-    const response = await request("/v1/account/company/media/logo", {
+    const fetchApi = await startTestServer();
+    const response = await fetchApi("/v1/account/company/media/logo", {
       method: "POST",
       body: JSON.stringify({
         ...filePayload("logo-bytes", "logo.svg", "image/svg+xml"),
@@ -377,6 +378,12 @@ describe("YORSO self-hosted API skeleton", () => {
         logoObjectKey: expect.stringContaining("company_logo"),
       },
     });
+
+    const objectKey = String((body.asset as JsonBody).objectKey);
+    const file = await fetchApi(`/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}`);
+    expect(file.status).toBe(200);
+    expect(file.headers.get("content-type")).toBe("image/svg+xml");
+    expect(await file.text()).toBe("logo-bytes");
   });
 
   it("creates company documents and serves the stored file back to the account user", async () => {

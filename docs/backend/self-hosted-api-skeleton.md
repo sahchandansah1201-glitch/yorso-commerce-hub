@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account workspace persistence and local file storage
-Batch: #27
+Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage and account UI storage bridge
+Batch: #28
 Date: 2026-05-13
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -32,6 +32,7 @@ compiled, started and wired into Docker Compose.
 | `GET /v1/account/documents` | Returns company document metadata for the current account company. |
 | `POST /v1/account/documents` | Uploads a company document file and creates a linked document record. |
 | `GET /v1/account/files/:assetId` | Streams a stored account file owned by the current account user. |
+| `GET /v1/account/files/by-object-key?objectKey=...` | Streams a stored account file by object key when the object belongs to the current account user. |
 
 ## Account Module Boundary
 
@@ -106,6 +107,23 @@ Batch #27 adds the first self-hosted file boundary:
   deployment. MinIO remains in compose as the S3-compatible target for the next
   storage driver.
 
+Batch #28 connects that storage boundary to the account workspace UI:
+
+- `CompanyMediaCard` can upload logo and cover files through the self-hosted
+  API when `VITE_YORSO_API_URL` is configured.
+- Stored logo and cover object keys are resolved back through
+  `/v1/account/files/by-object-key`, so the UI can display private account
+  media without storing public URLs.
+- `CompanyDocumentsCard` lets a company add supplier/buyer documents from the
+  account profile. API mode uploads and lists documents through
+  `/v1/account/documents`; local prototype mode keeps metadata in localStorage
+  so Lovable preview remains usable without an API process.
+- `src/lib/account-api.ts` is the only browser adapter for these account file
+  operations. Page and component code must not import Supabase as a production
+  storage gateway.
+- The frontend still saves local profile state first. API sync is an upgrade
+  path, not a hard preview dependency.
+
 ## Local Build
 
 ```bash
@@ -132,6 +150,10 @@ current `local` storage driver. This is not a CDN setup; it is a safe first
 self-hosted storage boundary that can later be swapped for MinIO/S3 without
 changing the account document DTOs.
 
+Account UI media previews now resolve stored object keys through the same API
+boundary. Direct `https:`, `data:` and `blob:` image values still render as-is
+for prototype data and manual URL entry.
+
 The API service connects to PostgreSQL through PgBouncer, not directly to a
 large pool of PostgreSQL connections.
 
@@ -148,6 +170,7 @@ npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run api:build
 npm run test:api
+npm run test:account-workspace
 npm run test:db-contract
 npm run ci:core
 ```

@@ -23,8 +23,12 @@ const requiredFiles = [
   "apps/api/tsconfig.json",
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
+  "src/components/account/CompanyDocumentsCard.tsx",
+  "src/components/account/CompanyMediaCard.tsx",
+  "src/components/account/SupplierProfilePreview.tsx",
   "src/lib/account-api.ts",
   "src/lib/account-api.test.ts",
+  "src/lib/account-documents-store.ts",
 ];
 
 const failures = [];
@@ -53,7 +57,11 @@ const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
 const contractsIndex = read("packages/contracts/src/index.ts");
+const companyDocumentsCard = read("src/components/account/CompanyDocumentsCard.tsx");
+const companyMediaCard = read("src/components/account/CompanyMediaCard.tsx");
+const supplierProfilePreview = read("src/components/account/SupplierProfilePreview.tsx");
 const accountApi = read("src/lib/account-api.ts");
+const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -150,15 +158,19 @@ requireText("apps/api/src/modules/storage/object-storage.ts", storageObjectStora
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "class PostgresFileRepository");
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_file_assets");
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_company_documents");
+requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "getFileAssetByObjectKeyForUser");
 requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "interface FileRepository");
 requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "class MemoryFileRepository");
+requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "getFileAssetByObjectKeyForUser");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/logo");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/cover");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/documents");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/files/");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/files/by-object-key");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "class FileService");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "checksumSha256");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "contentBase64");
+requireText("apps/api/src/modules/storage/service.ts", storageService, "getFileByObjectKeyForUser");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
 requireText("apps/api/src/routes/account.ts", accountRoute, "UserProfileUpdate");
 requireText("apps/api/src/routes/account.ts", accountRoute, "CompanyBranch");
@@ -187,7 +199,21 @@ requireText("src/lib/account-api.ts", accountApi, "/v1/account/notifications");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/company/media/");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/documents");
 requireText("src/lib/account-api.ts", accountApi, "/v1/account/files/");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/files/by-object-key");
+requireText("src/lib/account-api.ts", accountApi, "fileToAccountUploadPayload");
+requireText("src/lib/account-api.ts", accountApi, "fileUrlForObjectKey");
+requireText("src/lib/account-api.ts", accountApi, "resolveStoredFileUrl");
 requireText("src/lib/account-api.ts", accountApi, "local prototype mode");
+requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
+requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");
+requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "fileToAccountUploadPayload");
+requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createLocalCompanyDocument");
+requireText("src/components/account/CompanyMediaCard.tsx", companyMediaCard, "onUploadFile");
+requireText("src/components/account/CompanyMediaCard.tsx", companyMediaCard, "resolveMediaSrc");
+requireText("src/components/account/SupplierProfilePreview.tsx", supplierProfilePreview, "resolveMediaSrc");
+requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "ACCOUNT_DOCUMENTS_STORAGE_KEY");
+requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "createLocalCompanyDocument");
+requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "listLocalCompanyDocuments");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
@@ -203,7 +229,11 @@ forbidText("apps/api/src/modules/storage/repository.ts", storageRepository, "@/i
 forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/storage/service.ts", storageService, "@/integrations/supabase/client");
 forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
+forbidText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "@/integrations/supabase/client");
+forbidText("src/components/account/CompanyMediaCard.tsx", companyMediaCard, "@/integrations/supabase/client");
+forbidText("src/components/account/SupplierProfilePreview.tsx", supplierProfilePreview, "@/integrations/supabase/client");
 forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
+forbidText("src/lib/account-documents-store.ts", accountDocumentsStore, "@/integrations/supabase/client");
 
 if (failures.length > 0) {
   console.error("Self-hosted API skeleton check failed.");
@@ -215,4 +245,5 @@ console.log("Self-hosted API skeleton check passed.");
 console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
+console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");

@@ -113,6 +113,17 @@ export class FileService {
     };
   }
 
+  async getFileByObjectKeyForUser(userId: string, objectKey: string) {
+    const asset = await this.repository.getFileAssetByObjectKeyForUser(userId, objectKey);
+    if (!asset) throw new Error("file_asset_not_found");
+    const object = await this.objectStorage.getObject(asset.objectKey);
+    return {
+      asset,
+      bytes: object.bytes,
+      contentType: object.contentType || asset.contentType,
+    };
+  }
+
   private decodeBase64(upload: AccountFileUploadPayload) {
     const bytes = Buffer.from(upload.contentBase64, "base64");
     if (bytes.byteLength !== upload.sizeBytes) {

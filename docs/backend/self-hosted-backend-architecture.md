@@ -271,3 +271,11 @@ next storage driver. The local store remains the fallback because many Lovable
 and local preview runs do not have the API process running. This is intentional:
 the codebase moves toward one deployable product, while each intermediate commit
 stays runnable.
+
+Batch #28 wires that file boundary into the account UI. Company logo and cover
+uploads can now go through the self-hosted API, and stored object keys resolve
+back through an owned file endpoint instead of becoming public asset URLs. The
+same batch adds the company documents card with API-backed upload/list/download
+and a local prototype fallback. This keeps the frontend aligned with the
+self-hosted backend path while Lovable preview remains operational without
+Docker or a running API process.

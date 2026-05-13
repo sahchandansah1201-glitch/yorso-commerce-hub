@@ -206,6 +206,38 @@ const normalizeBaseUrl = (value: string | undefined) => value?.trim().replace(/\
 export const getConfiguredAccountApiBaseUrl = () =>
   normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
 
+const isDirectAssetUrl = (value: string) => /^(https?:|data:|blob:)/i.test(value.trim());
+
+const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
+  }
+  return btoa(binary);
+};
+
+const readFileArrayBuffer = (file: File) => {
+  if (typeof file.arrayBuffer === "function") return file.arrayBuffer();
+  return new Promise<ArrayBuffer>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("file_read_failed"));
+    reader.onload = () => {
+      if (reader.result instanceof ArrayBuffer) resolve(reader.result);
+      else reject(new Error("file_read_failed"));
+    };
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+export const fileToAccountUploadPayload = async (file: File): Promise<AccountFileUploadPayload> => ({
+  fileName: file.name || "file",
+  contentType: file.type || "application/octet-stream",
+  sizeBytes: file.size,
+  contentBase64: arrayBufferToBase64(await readFileArrayBuffer(file)),
+});
+
 const countryDisplayName = (code: string) => COUNTRY_CODE_TO_NAME[code.toUpperCase()] ?? code.toUpperCase();
 
 const countryCode = (value: string) => {
@@ -403,6 +435,12 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? getConfiguredAccountApiBaseUrl());
   const fetchImpl = options.fetchImpl ?? fetch;
 
+  const fileUrlForObjectKey = (objectKey: string): string => {
+    if (!baseUrl || !objectKey.trim()) return "";
+    if (isDirectAssetUrl(objectKey)) return objectKey;
+    return `${baseUrl}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}`;
+  };
+
   const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     if (!baseUrl) throw new Error("account_api_disabled");
     const response = await fetchImpl(`${baseUrl}${path}`, {
@@ -519,6 +557,14 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
     fileUrl(assetId: string): string {
       if (!baseUrl) return "";
       return `${baseUrl}/v1/account/files/${encodeURIComponent(assetId)}`;
+    },
+    fileUrlForObjectKey(objectKey: string): string {
+      return fileUrlForObjectKey(objectKey);
+    },
+    resolveStoredFileUrl(value: string): string {
+      if (!value.trim()) return "";
+      if (isDirectAssetUrl(value)) return value;
+      return fileUrlForObjectKey(value);
     },
   };
 }
