@@ -41,6 +41,9 @@ const requiredComposeMarkers = [
   "DATABASE_URL: postgres://${POSTGRES_USER",
   "REDIS_URL: redis://redis:6379",
   "S3_ENDPOINT: http://minio:9000",
+  "STORAGE_DRIVER: local",
+  "STORAGE_LOCAL_ROOT: /var/lib/yorso/uploads",
+  "YORSO_MAX_UPLOAD_BYTES:",
   "VITE_SUPABASE_URL: \"\"",
   "VITE_SUPABASE_PUBLISHABLE_KEY: \"\"",
   "image: postgres:17-alpine",
@@ -57,6 +60,7 @@ const requiredComposeMarkers = [
   "9000:9000",
   "9001:9001",
   "yorso-postgres-data:",
+  "yorso-api-uploads:",
   "yorso-redis-data:",
   "yorso-minio-data:",
 ];
@@ -87,6 +91,9 @@ const requiredEnvKeys = [
   "S3_BUCKET",
   "S3_ACCESS_KEY_ID",
   "S3_SECRET_ACCESS_KEY",
+  "STORAGE_DRIVER",
+  "STORAGE_LOCAL_ROOT",
+  "YORSO_MAX_UPLOAD_BYTES",
   "YORSO_SESSION_SECRET",
   "YORSO_JWT_SECRET",
   "VITE_SUPABASE_URL",
@@ -101,7 +108,10 @@ requireText(".env.example", envExample, "Supabase prototype only. Do not use as 
 requireText(".env.example", envExample, "DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
 requireText(".env.example", envExample, "MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
 requireText(".env.example", envExample, "PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
+requireText(".env.example", envExample, "STORAGE_DRIVER=local");
+requireText(".env.example", envExample, "STORAGE_LOCAL_ROOT=.data/api-uploads");
 requireText("infra/README.md", infraReadme, "running YORSO without Supabase as a production dependency");
+requireText("infra/README.md", infraReadme, "yorso-api-uploads");
 requireText("docs/backend/self-hosted-backend-architecture.md", architecture, "YORSO production backend must be self-hosted");
 
 forbidPattern(".env.example", envExample, /VITE_SUPABASE_URL=https?:\/\//, "non-empty Supabase URL");
@@ -117,6 +127,6 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted infra check passed.");
-console.log("- infra/docker-compose.yml: API, postgres, PgBouncer, Redis and MinIO are declared.");
+console.log("- infra/docker-compose.yml: API, postgres, PgBouncer, Redis, MinIO and upload volume are declared.");
 console.log("- .env.example: self-hosted runtime keys are present and Supabase values are empty.");
 console.log("- docs: self-hosted production direction is documented.");

@@ -27,6 +27,11 @@ async function closeServer() {
 }
 
 async function request(path: string, init?: RequestInit) {
+  const fetchApi = await startTestServer();
+  return fetchApi(path, init);
+}
+
+async function startTestServer() {
   await closeServer();
   server = createApiServer(config);
 
@@ -37,14 +42,25 @@ async function request(path: string, init?: RequestInit) {
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Expected server address object.");
 
-  return fetch(`http://127.0.0.1:${address.port}${path}`, {
-    ...init,
-    headers: {
-      "content-type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-  });
+  return (path: string, init?: RequestInit) =>
+    fetch(`http://127.0.0.1:${address.port}${path}`, {
+      ...init,
+      headers: {
+        "content-type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
 }
+
+const filePayload = (content: string, fileName = "sample.txt", contentType = "text/plain") => {
+  const bytes = Buffer.from(content, "utf8");
+  return {
+    fileName,
+    contentType,
+    sizeBytes: bytes.byteLength,
+    contentBase64: bytes.toString("base64"),
+  };
+};
 
 afterEach(async () => {
   await closeServer();
@@ -97,6 +113,10 @@ describe("YORSO self-hosted API skeleton", () => {
         "CompanyProduct",
         "MetaRegion",
         "NotificationPreference",
+        "AccountFileUploadPayload",
+        "AccountFileAsset",
+        "CompanyDocument",
+        "CompanyDocumentCreate",
       ],
     });
     expect(body.productionTarget).toMatchObject({
@@ -131,6 +151,7 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(response.status).toBe(204);
     expect(response.headers.get("access-control-allow-origin")).toBe("http://localhost:8080");
     expect(response.headers.get("access-control-allow-methods")).toContain("PATCH");
+    expect(response.headers.get("access-control-allow-methods")).toContain("POST");
     expect(response.headers.get("access-control-allow-headers")).toContain("x-demo-user-id");
   });
 
@@ -331,6 +352,75 @@ describe("YORSO self-hosted API skeleton", () => {
     ]);
   });
 
+  it("uploads company logo media through the self-hosted file route and updates company media", async () => {
+    const response = await request("/v1/account/company/media/logo", {
+      method: "POST",
+      body: JSON.stringify({
+        ...filePayload("logo-bytes", "logo.svg", "image/svg+xml"),
+        alt: "Uploaded company logo",
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(201);
+    expect(body.asset).toMatchObject({
+      purpose: "company_logo",
+      originalFileName: "logo.svg",
+      contentType: "image/svg+xml",
+      sizeBytes: 10,
+      storageDriver: "local",
+    });
+    expect(String((body.asset as JsonBody).checksumSha256)).toMatch(/^[a-f0-9]{64}$/);
+    expect(body.company).toMatchObject({
+      media: {
+        logoAlt: "Uploaded company logo",
+        logoObjectKey: expect.stringContaining("company_logo"),
+      },
+    });
+  });
+
+  it("creates company documents and serves the stored file back to the account user", async () => {
+    const fetchApi = await startTestServer();
+    const created = await fetchApi("/v1/account/documents", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "HACCP certificate",
+        documentType: "haccp",
+        visibility: "buyer_qualified",
+        expiresAt: "2027-05-13",
+        file: filePayload("document-bytes", "haccp.pdf", "application/pdf"),
+      }),
+    });
+    const createdBody = (await created.json()) as JsonBody;
+    const document = createdBody.document as JsonBody;
+
+    expect(created.status).toBe(201);
+    expect(document).toMatchObject({
+      title: "HACCP certificate",
+      documentType: "haccp",
+      visibility: "buyer_qualified",
+      status: "uploaded",
+      fileName: "haccp.pdf",
+      contentType: "application/pdf",
+    });
+
+    const listed = await fetchApi("/v1/account/documents");
+    const listedBody = (await listed.json()) as JsonBody;
+    expect(listed.status).toBe(200);
+    expect(listedBody.documents).toEqual([
+      expect.objectContaining({
+        id: document.id,
+        fileAssetId: document.fileAssetId,
+      }),
+    ]);
+
+    const file = await fetchApi(`/v1/account/files/${document.fileAssetId}`);
+    expect(file.status).toBe(200);
+    expect(file.headers.get("content-type")).toBe("application/pdf");
+    expect(file.headers.get("cache-control")).toContain("private");
+    expect(await file.text()).toBe("document-bytes");
+  });
+
   it("rejects invalid company update payloads", async () => {
     const response = await request("/v1/account/company", {
       method: "PATCH",
@@ -367,6 +457,28 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(body).toMatchObject({
       ok: false,
       error: { code: "validation_error" },
+    });
+  });
+
+  it("rejects malformed file upload payloads before writing storage metadata", async () => {
+    const response = await request("/v1/account/documents", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Broken upload",
+        documentType: "other",
+        visibility: "private",
+        file: {
+          ...filePayload("too-short"),
+          sizeBytes: 999,
+        },
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(400);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "upload_size_mismatch" },
     });
   });
 

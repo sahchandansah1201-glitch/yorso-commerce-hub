@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const sql = () => readFileSync("packages/db/migrations/0001_account_company_baseline.sql", "utf8");
 const workspaceSql = () => readFileSync("packages/db/migrations/0002_account_workspace_sections.sql", "utf8");
+const filesSql = () => readFileSync("packages/db/migrations/0003_account_files_and_documents.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -38,8 +39,21 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("comment on table yorso_company_products is 'Self-hosted company product matching matrix");
   });
 
+  it("declares file asset and company document tables owned by YORSO", () => {
+    const text = filesSql();
+
+    expect(text).toContain("create table if not exists yorso_file_assets");
+    expect(text).toContain("create table if not exists yorso_company_documents");
+    expect(text).toContain("create type yorso_account_file_purpose");
+    expect(text).toContain("create type yorso_company_document_type");
+    expect(text).toContain("checksum_sha256 char(64)");
+    expect(text).toContain("references yorso_file_assets(id)");
+    expect(text).toContain("comment on table yorso_company_documents is 'Self-hosted company document records");
+  });
+
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -49,10 +63,13 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("create type yorso_product_state as enum ('frozen', 'fresh', 'chilled', 'alive', 'cooked')");
     expect(text).toContain("create type yorso_product_role as enum ('buying', 'selling', 'both')");
     expect(text).toContain("create type yorso_notification_frequency as enum ('instant', 'daily', 'weekly')");
+    expect(text).toContain("create type yorso_account_file_purpose as enum");
+    expect(text).toContain("create type yorso_company_document_visibility as enum");
+    expect(text).toContain("create type yorso_company_document_status as enum");
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -61,10 +78,12 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_companies_country_code");
     expect(text).toContain("idx_yorso_company_products_role");
     expect(text).toContain("yorso_notification_enabled_has_events");
+    expect(text).toContain("idx_yorso_file_assets_owner_user_id");
+    expect(text).toContain("idx_yorso_company_documents_status");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -82,6 +101,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0000_migration_registry",
       "0001_account_company_baseline",
       "0002_account_workspace_sections",
+      "0003_account_files_and_documents",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -103,6 +123,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
             "yorso_notification_preferences",
           ],
           dependsOn: ["0001_account_company_baseline"],
+        }),
+        expect.objectContaining({
+          id: "0003_account_files_and_documents",
+          ownedTables: ["yorso_file_assets", "yorso_company_documents"],
+          dependsOn: ["0002_account_workspace_sections"],
         }),
       ]),
     );

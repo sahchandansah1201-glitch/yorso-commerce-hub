@@ -90,6 +90,7 @@ source of truth. It checks:
 - `yorso_users`, `yorso_companies`, `yorso_company_media`;
 - `yorso_company_branches`, `yorso_company_products`,
   `yorso_company_meta_regions`, `yorso_notification_preferences`;
+- `yorso_file_assets`, `yorso_company_documents`;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace reads;
 - migration manifest ownership;
@@ -127,6 +128,8 @@ It verifies:
 - `apps/api/Dockerfile` builds and starts `apps/api/dist/index.js`;
 - `infra/docker-compose.yml` wires the API service to PgBouncer, Redis and
   MinIO;
+- `infra/docker-compose.yml` exposes the current local file-storage volume for
+  API uploads;
 - Supabase frontend env values stay empty in the API compose service.
 - `PostgresAccountRepository` reads `yorso_users`, reads/updates
   `yorso_companies`, and upserts `yorso_company_media`.
@@ -135,6 +138,11 @@ It verifies:
   contract validation layer.
 - `GET`/`PATCH /v1/account/branches`, `/products`, `/meta-regions` and
   `/notifications` remain behind the contract validation layer.
+- `POST /v1/account/company/media/logo`, `/cover`, `GET`/`POST
+  /v1/account/documents` and `GET /v1/account/files/:assetId` remain behind the
+  self-hosted file service.
+- File uploads are validated by contract, size checked, checksummed and stored
+  through `apps/api/src/modules/storage`, not through Supabase Storage.
 - The API exposes CORS headers for browser calls from the frontend origin.
 
 ## Frontend Account API Bridge
@@ -149,6 +157,9 @@ The bridge must preserve these rules:
 - user and company saves map to `/v1/account/me` and `/v1/account/company`;
 - branches, products, meta-regions and notification preferences map to their
   dedicated `/v1/account/*` collection endpoints;
+- company media and document upload helpers map to the self-hosted file
+  endpoints while keeping local prototype mode available when the API URL is
+  empty;
 - if a backend returns only a partial account payload during development,
   local sections must not be discarded accidentally;
 - `.env.example` keeps `VITE_YORSO_API_URL` empty by default so Lovable preview

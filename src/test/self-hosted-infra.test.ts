@@ -9,7 +9,7 @@ describe("self-hosted infra validation", () => {
     const output = runNode(["scripts/check-self-hosted-infra.mjs"]);
 
     expect(output).toContain("Self-hosted infra check passed");
-    expect(output).toContain("API, postgres, PgBouncer, Redis and MinIO");
+    expect(output).toContain("API, postgres, PgBouncer, Redis, MinIO and upload volume");
     expect(output).toContain("Supabase values are empty");
   });
 
@@ -25,7 +25,10 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("POOL_MODE: transaction");
     expect(compose).toContain("image: redis:7-alpine");
     expect(compose).toContain("image: minio/minio:");
+    expect(compose).toContain("STORAGE_DRIVER: local");
+    expect(compose).toContain("yorso-api-uploads:");
     expect(env).toContain("DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
+    expect(env).toContain("STORAGE_LOCAL_ROOT=.data/api-uploads");
     expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
     expect(env).toContain("MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
     expect(env).toContain("MIGRATION_APPLIED_BY=local-operator");

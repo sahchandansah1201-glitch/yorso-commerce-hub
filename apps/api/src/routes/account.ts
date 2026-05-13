@@ -1,9 +1,13 @@
 import type { ServerResponse } from "node:http";
 import type {
   AccountBranchesUpdate,
+  AccountFileAsset,
+  AccountFileUploadPayload,
   AccountMetaRegionsUpdate,
   AccountNotificationsUpdate,
   AccountProductsUpdate,
+  CompanyDocument,
+  CompanyDocumentCreate,
   CompanyProfile,
   CompanyProfileUpdate,
   UserProfile,
@@ -21,6 +25,10 @@ type ContractExample = {
   products: AccountProductsUpdate;
   metaRegions: AccountMetaRegionsUpdate;
   notifications: AccountNotificationsUpdate;
+  fileUpload: AccountFileUploadPayload;
+  fileAsset: Pick<AccountFileAsset, "purpose" | "objectKey" | "contentType" | "storageDriver">;
+  documentCreate: CompanyDocumentCreate;
+  document: Pick<CompanyDocument, "documentType" | "visibility" | "status" | "fileName">;
 };
 
 const contractExample: ContractExample = {
@@ -97,6 +105,36 @@ const contractExample: ContractExample = {
       frequency: "instant",
     },
   ],
+  fileUpload: {
+    fileName: "haccp.pdf",
+    contentType: "application/pdf",
+    sizeBytes: 8,
+    contentBase64: "ZG9jdW1lbnQ=",
+  },
+  fileAsset: {
+    purpose: "company_document",
+    objectKey: "companies/example/company_document/haccp.pdf",
+    contentType: "application/pdf",
+    storageDriver: "local",
+  },
+  documentCreate: {
+    title: "HACCP certificate",
+    documentType: "haccp",
+    visibility: "buyer_qualified",
+    expiresAt: null,
+    file: {
+      fileName: "haccp.pdf",
+      contentType: "application/pdf",
+      sizeBytes: 8,
+      contentBase64: "ZG9jdW1lbnQ=",
+    },
+  },
+  document: {
+    documentType: "haccp",
+    visibility: "buyer_qualified",
+    status: "uploaded",
+    fileName: "haccp.pdf",
+  },
 };
 
 export function handleAccountCompanyContract(response: ServerResponse, context: ApiRequestContext) {
@@ -115,6 +153,10 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
         "CompanyProduct",
         "MetaRegion",
         "NotificationPreference",
+        "AccountFileUploadPayload",
+        "AccountFileAsset",
+        "CompanyDocument",
+        "CompanyDocumentCreate",
       ],
       example: contractExample,
     },

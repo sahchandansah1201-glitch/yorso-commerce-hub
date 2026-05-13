@@ -85,6 +85,36 @@ const backendNotifications = [
   },
 ];
 
+const backendAsset = {
+  id: "22222222-2222-4222-8222-222222222222",
+  companyId: backendCompany.id,
+  purpose: "company_logo" as const,
+  objectKey: "companies/111/company_logo/logo.svg",
+  originalFileName: "logo.svg",
+  contentType: "image/svg+xml",
+  sizeBytes: 10,
+  checksumSha256: "a".repeat(64),
+  storageDriver: "local" as const,
+  createdAt: "2026-05-13T08:00:00.000Z",
+};
+
+const backendDocument = {
+  id: "33333333-3333-4333-8333-333333333333",
+  companyId: backendCompany.id,
+  fileAssetId: backendAsset.id,
+  title: "HACCP certificate",
+  documentType: "haccp" as const,
+  visibility: "buyer_qualified" as const,
+  status: "uploaded" as const,
+  fileName: "haccp.pdf",
+  contentType: "application/pdf",
+  sizeBytes: 10,
+  checksumSha256: "b".repeat(64),
+  expiresAt: null,
+  createdAt: "2026-05-13T08:00:00.000Z",
+  updatedAt: "2026-05-13T08:00:00.000Z",
+};
+
 const mockLoadResponses = () =>
   vi
     .fn<typeof fetch>()
@@ -229,6 +259,83 @@ describe("account API adapter", () => {
         method: "PATCH",
         body: expect.stringContaining("price_access_approved"),
       }),
+    );
+  });
+
+  it("uploads company media through the self-hosted API adapter", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      jsonResponse({
+        ok: true,
+        asset: backendAsset,
+        company: {
+          ...backendCompany,
+          media: {
+            ...backendCompany.media,
+            logoObjectKey: backendAsset.objectKey,
+            logoAlt: "Uploaded logo",
+          },
+        },
+        requestId: "r-file",
+      }),
+    );
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    const result = await client.uploadCompanyMedia(
+      "logo",
+      {
+        fileName: "logo.svg",
+        contentType: "image/svg+xml",
+        sizeBytes: 10,
+        contentBase64: "bG9nby1ieXRlcw==",
+        alt: "Uploaded logo",
+      },
+      mockAccountProfile,
+    );
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/v1/account/company/media/logo",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining("contentBase64"),
+      }),
+    );
+    expect(result.asset.objectKey).toContain("company_logo");
+    expect(result.profile.company.logoImageUrl).toBe(backendAsset.objectKey);
+  });
+
+  it("lists, creates and resolves company document file URLs through the self-hosted API adapter", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, documents: [backendDocument], requestId: "r-docs" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, document: backendDocument, requestId: "r-doc" }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    await expect(client.listCompanyDocuments()).resolves.toEqual([backendDocument]);
+    await expect(
+      client.createCompanyDocument({
+        title: "HACCP certificate",
+        documentType: "haccp",
+        visibility: "buyer_qualified",
+        file: {
+          fileName: "haccp.pdf",
+          contentType: "application/pdf",
+          sizeBytes: 10,
+          contentBase64: "ZG9jdW1lbnQ=",
+        },
+      }),
+    ).resolves.toMatchObject({
+      title: "HACCP certificate",
+      status: "uploaded",
+    });
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(1, "http://localhost:3000/v1/account/documents", expect.any(Object));
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      "http://localhost:3000/v1/account/documents",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(client.fileUrl(backendAsset.id)).toBe(
+      "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222",
     );
   });
 

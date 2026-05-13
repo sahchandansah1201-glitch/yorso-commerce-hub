@@ -28,6 +28,16 @@
         "yorso_notification_preferences"
       ],
       "dependsOn": ["0001_account_company_baseline"]
+    },
+    {
+      "id": "0003_account_files_and_documents",
+      "file": "migrations/0003_account_files_and_documents.sql",
+      "description": "Create file asset metadata and company document records for the self-hosted storage layer.",
+      "ownedTables": [
+        "yorso_file_assets",
+        "yorso_company_documents"
+      ],
+      "dependsOn": ["0002_account_workspace_sections"]
     }
   ]
 }

@@ -1,7 +1,7 @@
 # YORSO DB Package
 
 Status: self-hosted PostgreSQL migration runtime baseline
-Batch: #26
+Batch: #27
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
 Supabase migrations may still exist as prototype references, but this package is
@@ -31,6 +31,14 @@ Migration `0002_account_workspace_sections.sql` defines:
 - `yorso_notification_preferences`;
 - enum types for branch, product, meta-region and notification DTOs;
 - indexes needed by the account workspace collection endpoints.
+
+Migration `0003_account_files_and_documents.sql` defines:
+
+- `yorso_file_assets`;
+- `yorso_company_documents`;
+- enum types for file purpose, document type, visibility and status;
+- checksum and size metadata for self-hosted file storage;
+- indexes needed by media/document lookups.
 
 ## Migration Planner
 

@@ -159,7 +159,8 @@ keeps moving toward PostgreSQL.
 
 `packages/db` is now the self-hosted PostgreSQL baseline. Its migrations define
 the `_yorso_migrations` registry, user/company profile tables, company media,
-branches, product matrix rows, meta-regions and notification preferences.
+branches, product matrix rows, meta-regions, notification preferences, file
+asset metadata and company document records.
 Supabase SQL may still be used as reference material, but the
 production-direction schema must live under `packages/db`.
 
@@ -192,8 +193,8 @@ Build in this order:
 
 1. Identity and sessions.
 2. Company profile. Initial self-hosted API and PostgreSQL persistence exist.
-3. Company media and object storage. Object-key persistence exists; upload
-   pipeline is still pending.
+3. Company media and object storage. Initial self-hosted upload pipeline,
+   file metadata, checksums and company document records exist through the API.
 4. Branches and loading points. Initial self-hosted API and PostgreSQL
    persistence exist.
 5. Product matrix. Initial self-hosted API and PostgreSQL persistence exist.
@@ -258,6 +259,15 @@ is switched from local prototype state to `/v1/account/*`.
 Batch #25 starts that switch without breaking preview mode. The account
 workspace now has a frontend API bridge that hydrates and syncs user/company
 profile data through the self-hosted API when `VITE_YORSO_API_URL` is set. The
-local store remains the fallback because many Lovable and local preview runs do
-not have the API process running. This is intentional: the codebase moves toward
-one deployable product, while each intermediate commit stays runnable.
+bridge stays disabled when the API URL is empty so Lovable preview and local
+prototype mode keep working.
+
+Batch #26 expands account persistence to branches, product matrix rows,
+meta-regions and notification preferences. Batch #27 adds the first file
+storage boundary: logo/cover uploads, company documents, file checksums and
+download-by-asset endpoints. The current driver is local filesystem storage
+inside the API container volume; MinIO remains the S3-compatible target for the
+next storage driver. The local store remains the fallback because many Lovable
+and local preview runs do not have the API process running. This is intentional:
+the codebase moves toward one deployable product, while each intermediate commit
+stays runnable.

@@ -14,6 +14,7 @@ const files = [
   "packages/db/migrations/0000_migration_registry.sql",
   "packages/db/migrations/0001_account_company_baseline.sql",
   "packages/db/migrations/0002_account_workspace_sections.sql",
+  "packages/db/migrations/0003_account_files_and_documents.sql",
 ];
 
 const failures = [];
@@ -26,7 +27,8 @@ const read = (file) => readFileSync(file, "utf8");
 const registrySql = read("packages/db/migrations/0000_migration_registry.sql");
 const baselineSql = read("packages/db/migrations/0001_account_company_baseline.sql");
 const workspaceSql = read("packages/db/migrations/0002_account_workspace_sections.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}`;
+const filesSql = read("packages/db/migrations/0003_account_files_and_documents.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -80,6 +82,24 @@ for (const marker of [
   requireText("packages/db/migrations/0002_account_workspace_sections.sql", workspaceSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_file_assets",
+  "create table if not exists yorso_company_documents",
+  "create type yorso_account_file_purpose",
+  "create type yorso_company_document_type",
+  "create type yorso_company_document_visibility",
+  "create type yorso_company_document_status",
+  "references yorso_users(id)",
+  "references yorso_companies(id)",
+  "references yorso_file_assets(id)",
+  "checksum_sha256 char(64)",
+  "idx_yorso_file_assets_owner_user_id",
+  "idx_yorso_company_documents_status",
+  "Self-hosted file metadata",
+]) {
+  requireText("packages/db/migrations/0003_account_files_and_documents.sql", filesSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -95,6 +115,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0001_account_com
 if (!manifest.migrations?.some((migration) => migration.id === "0002_account_workspace_sections")) {
   failures.push("packages/db/migration-manifest.json: missing 0002_account_workspace_sections");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0003_account_files_and_documents")) {
+  failures.push("packages/db/migration-manifest.json: missing 0003_account_files_and_documents");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -103,6 +126,9 @@ if (!manifest.migrations?.[1]?.dependsOn?.includes("0000_migration_registry")) {
 }
 if (!manifest.migrations?.[2]?.dependsOn?.includes("0001_account_company_baseline")) {
   failures.push("packages/db/migration-manifest.json: account workspace sections must depend on account baseline");
+}
+if (!manifest.migrations?.[3]?.dependsOn?.includes("0002_account_workspace_sections")) {
+  failures.push("packages/db/migration-manifest.json: account files and documents must depend on workspace sections");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
@@ -169,5 +195,5 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted DB check passed.");
-console.log("- packages/db owns the account/company PostgreSQL baseline.");
+console.log("- packages/db owns the account/company/files PostgreSQL baseline.");
 console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");

@@ -1,7 +1,7 @@
 # Self-Hosted DB Migrations
 
 Status: active planner and runtime boundary
-Batch: #22
+Batch: #27
 Date: 2026-05-13
 
 YORSO production database migrations live in `packages/db`. This path is the
@@ -13,6 +13,10 @@ self-hosted PostgreSQL source of truth for deployment on an owned server.
   `_yorso_migrations`.
 - `packages/db/migrations/0001_account_company_baseline.sql` creates user,
   company and company media tables for the account API.
+- `packages/db/migrations/0002_account_workspace_sections.sql` creates
+  branches, product matrix rows, meta-regions and notification preferences.
+- `packages/db/migrations/0003_account_files_and_documents.sql` creates file
+  asset metadata and company document records for the self-hosted storage layer.
 - `packages/db/migration-manifest.json` declares migration order, ownership and
   dependencies.
 - `packages/db/src/migrator.ts` validates the manifest and builds a deterministic
