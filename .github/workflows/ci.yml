@@ -51,6 +51,18 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Run account products save-flow report
+        run: npm run smoke:e2e:account-products:report:run
+
+      - name: Upload account products save-flow report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: account-products-save-flow-report
+          path: test-results/account-products-save-flow/
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Run browser smoke tests
         run: npm run smoke:e2e:run
 
