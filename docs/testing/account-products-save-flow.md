@@ -19,6 +19,12 @@ For CI jobs that already built the Vite bundle, use:
 npm run smoke:e2e:account-products:report:run
 ```
 
+To verify that the generated report artifact is complete, use:
+
+```bash
+npm run smoke:e2e:account-products:report:verify
+```
+
 ## Covered contract
 
 - product matrix opens for a deterministic signed-in buyer
@@ -52,3 +58,7 @@ GitHub Actions runs `Run account products save-flow report` after the company
 report and uploads `account-products-save-flow-report` immediately after that
 step. The upload happens before the broader smoke suite because each Playwright
 run can clean `test-results/`.
+
+Before uploading, CI runs `Verify account products save-flow report` to fail the
+job if `report.md`, `report.json`, Playwright JSON or any expected screenshot is
+missing.

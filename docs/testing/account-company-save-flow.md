@@ -33,6 +33,12 @@ For CI jobs that already built the Vite bundle, use:
 npm run smoke:e2e:account-company:report:run
 ```
 
+To verify that the generated report artifact is complete, use:
+
+```bash
+npm run smoke:e2e:account-company:report:verify
+```
+
 ## Covered contract
 
 - company identity edit persists after reload
@@ -69,3 +75,7 @@ Lovable confirm the save-flow contract without modifying files.
 GitHub Actions also runs `Run account company save-flow report` and uploads
 `account-company-save-flow-report` with the generated screenshots, Markdown
 report, JSON report and Playwright JSON output.
+
+Before uploading, CI runs `Verify account company save-flow report` to fail the
+job if `report.md`, `report.json`, Playwright JSON or any expected screenshot is
+missing.
