@@ -133,6 +133,7 @@ describe("self-hosted account/company contracts", () => {
     expect(compose).toContain("redis:");
     expect(compose).toContain("minio:");
     expect(env).toContain("DATABASE_URL=");
+    expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
     expect(env).toContain("PGBOUNCER_DATABASE_URL=");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);

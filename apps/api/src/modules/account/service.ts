@@ -1,4 +1,9 @@
-import { companyProfileSchema, companyProfileUpdateSchema, userProfileSchema } from "../../../../../packages/contracts/dist/index.js";
+import {
+  companyProfileSchema,
+  companyProfileUpdateSchema,
+  userProfileSchema,
+  userProfileUpdateSchema,
+} from "../../../../../packages/contracts/dist/index.js";
 import type { AccountRepository } from "./repository.js";
 
 export class AccountService {
@@ -7,6 +12,12 @@ export class AccountService {
   async getCurrentUserProfile(userId: string) {
     const profile = await this.repository.getUserProfile(userId);
     if (!profile) throw new Error("user_not_found");
+    return userProfileSchema.parse(profile);
+  }
+
+  async updateCurrentUserProfile(userId: string, payload: unknown) {
+    const update = userProfileUpdateSchema.parse(payload);
+    const profile = await this.repository.updateUserProfile(userId, update);
     return userProfileSchema.parse(profile);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Account workspace shell + section preview tests.
- * Frontend-only — no backend assumptions.
+ * Account workspace shell + self-hosted API fallback assumptions.
  */
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";

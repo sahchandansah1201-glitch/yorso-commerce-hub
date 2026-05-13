@@ -17,6 +17,8 @@ const requiredFiles = [
   "apps/api/tsconfig.json",
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
+  "src/lib/account-api.ts",
+  "src/lib/account-api.test.ts",
 ];
 
 const failures = [];
@@ -39,6 +41,7 @@ const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
 const contractsIndex = read("packages/contracts/src/index.ts");
+const accountApi = read("src/lib/account-api.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -69,6 +72,12 @@ if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
   failures.push("package.json: ci:core must run test:api");
 }
+if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
+  failures.push("package.json: test:account-workspace must cover account API adapter and account workspace tests");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
+  failures.push("package.json: ci:core must run test:account-workspace");
+}
 
 requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
@@ -76,6 +85,8 @@ requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
 requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
 requireText("apps/api/src/server.ts", server, "createAccountRepository(config)");
+requireText("apps/api/src/server.ts", server, "access-control-allow-origin");
+requireText("apps/api/src/server.ts", server, "OPTIONS");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
 requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
 requireText("apps/api/src/config.ts", config, "Supabase env values must stay empty in production self-hosted API config.");
@@ -88,13 +99,17 @@ requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepos
 requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "on conflict (company_id) do update");
 forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "not implemented");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileUpdateSchema.parse");
+requireText("apps/api/src/modules/account/service.ts", accountService, "userProfileUpdateSchema.parse");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileSchema.parse");
+requireText("apps/api/src/modules/account/repository.ts", accountRepository, "updateUserProfile");
 requireText("apps/api/src/modules/account/repository.ts", accountRepository, "interface AccountRepository");
 requireText("apps/api/src/modules/account/repository.ts", accountRepository, "class MemoryAccountRepository");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/account/me");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/account/company");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "readJsonBody");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "updateCurrentUserProfile");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
+requireText("apps/api/src/routes/account.ts", accountRoute, "UserProfileUpdate");
 requireText("apps/api/src/routes/account.ts", accountRoute, "self-hosted-yorso-api");
 requireText("apps/api/Dockerfile", dockerfile, "FROM node:22-alpine");
 requireText("apps/api/Dockerfile", dockerfile, "RUN npm run api:build");
@@ -103,6 +118,10 @@ requireText("infra/docker-compose.yml", compose, "dockerfile: apps/api/Dockerfil
 requireText("infra/docker-compose.yml", compose, "VITE_SUPABASE_URL: \"\"");
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
+requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_API_URL");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/me");
+requireText("src/lib/account-api.ts", accountApi, "/v1/account/company");
+requireText("src/lib/account-api.ts", accountApi, "local prototype mode");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
@@ -112,6 +131,7 @@ forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integra
 forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
+forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
 
 if (failures.length > 0) {
   console.error("Self-hosted API skeleton check failed.");

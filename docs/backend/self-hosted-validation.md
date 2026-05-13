@@ -35,6 +35,7 @@ npm run test:api
 npm run test:db-contract
 npm run test:db-migrations
 npm run test:backend-contract
+npm run test:account-workspace
 npm run ci:core
 ```
 
@@ -56,6 +57,7 @@ npm run ci:core
 | `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
+| `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
@@ -127,6 +129,24 @@ It verifies:
 - `PostgresAccountRepository` reads `yorso_users`, reads/updates
   `yorso_companies`, and upserts `yorso_company_media`.
 - `PostgresAccountRepository` must not contain "not implemented" placeholders.
+- `PATCH /v1/account/me` and `PATCH /v1/account/company` remain behind the
+  contract validation layer.
+- The API exposes CORS headers for browser calls from the frontend origin.
+
+## Frontend Account API Bridge
+
+Batch #25 introduces `src/lib/account-api.ts` as the frontend bridge from the
+current account workspace to the self-hosted API.
+
+The bridge must preserve these rules:
+
+- local prototype persistence remains the fallback;
+- account pages do not import Supabase as a production data gateway;
+- user and company saves map to `/v1/account/me` and `/v1/account/company`;
+- local-only sections such as branches, products, meta-regions and notification
+  preferences must not be discarded when backend user/company data is hydrated;
+- `.env.example` keeps `VITE_YORSO_API_URL` empty by default so Lovable preview
+  works without a running API service.
 
 ## Production Direction
 

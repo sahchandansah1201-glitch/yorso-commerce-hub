@@ -251,3 +251,10 @@ repository placeholder with a functional adapter. The frontend is still not
 forced to use it directly; the goal is to make the self-hosted API capable of
 serving the existing account/company UI contract when the frontend data gateway
 is switched from local prototype state to `/v1/account/*`.
+
+Batch #25 starts that switch without breaking preview mode. The account
+workspace now has a frontend API bridge that hydrates and syncs user/company
+profile data through the self-hosted API when `VITE_YORSO_API_URL` is set. The
+local store remains the fallback because many Lovable and local preview runs do
+not have the API process running. This is intentional: the codebase moves toward
+one deployable product, while each intermediate commit stays runnable.

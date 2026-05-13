@@ -53,6 +53,13 @@ export const userProfileSchema = z.object({
   updatedAt: z.string().datetime(),
 });
 
+export const userProfileUpdateSchema = userProfileSchema
+  .omit({ id: true, updatedAt: true })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, {
+    message: "At least one user profile field must be provided.",
+  });
+
 export type AccountRole = z.infer<typeof accountRoleSchema>;
 export type BuyerQualificationStatus = z.infer<typeof buyerQualificationStatusSchema>;
 export type CompanyMedia = z.infer<typeof companyMediaSchema>;
@@ -60,3 +67,4 @@ export type CompanyProfile = z.infer<typeof companyProfileSchema>;
 export type CompanyProfileUpdate = z.infer<typeof companyProfileUpdateSchema>;
 export type CompanyPublicationStatus = z.infer<typeof companyPublicationStatusSchema>;
 export type UserProfile = z.infer<typeof userProfileSchema>;
+export type UserProfileUpdate = z.infer<typeof userProfileUpdateSchema>;

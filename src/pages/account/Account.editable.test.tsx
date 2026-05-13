@@ -1,6 +1,6 @@
 /**
  * Editability, media, redirects and locale-leak tests for /account.
- * Frontend-only.
+ * Local fallback plus self-hosted API bridge.
  */
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within, fireEvent, act } from "@testing-library/react";

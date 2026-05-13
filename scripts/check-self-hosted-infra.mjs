@@ -68,6 +68,7 @@ for (const marker of requiredComposeMarkers) {
 const requiredEnvKeys = [
   "YORSO_PUBLIC_APP_URL",
   "YORSO_API_URL",
+  "VITE_YORSO_API_URL",
   "YORSO_API_PORT",
   "ACCOUNT_REPOSITORY",
   "POSTGRES_HOST",

@@ -8,6 +8,7 @@ import type {
   CompanyProfileUpdate,
   CompanyPublicationStatus,
   UserProfile,
+  UserProfileUpdate,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { AccountRepository } from "./repository.js";
 
@@ -202,6 +203,47 @@ export class PostgresAccountRepository implements AccountRepository {
     );
 
     return result.rows[0] ? mapUser(result.rows[0]) : null;
+  }
+
+  async updateUserProfile(userId: string, update: UserProfileUpdate): Promise<UserProfile> {
+    const assignments: string[] = [];
+    const values: unknown[] = [];
+
+    const columns: Record<keyof UserProfileUpdate, string> = {
+      firstName: "first_name",
+      lastName: "last_name",
+      email: "email",
+      phone: "phone",
+      preferredLanguage: "preferred_language",
+      timezone: "timezone",
+    };
+
+    for (const [field, column] of Object.entries(columns) as Array<[keyof UserProfileUpdate, string]>) {
+      if (update[field] === undefined) continue;
+      values.push(update[field]);
+      assignments.push(`${column} = $${values.length}`);
+    }
+
+    if (assignments.length === 0) {
+      const current = await this.getUserProfile(userId);
+      if (!current) throw new Error("user_not_found");
+      return current;
+    }
+
+    values.push(userId);
+
+    const result = await this.client.query<UserRow>(
+      `
+        update yorso_users
+        set ${assignments.join(", ")}, updated_at = now()
+        where id = $${values.length}
+        returning id, first_name, last_name, email, phone, preferred_language, timezone, updated_at
+      `,
+      values,
+    );
+
+    if (!result.rows[0]) throw new Error("user_not_found");
+    return mapUser(result.rows[0]);
   }
 
   async getCompanyProfile(userId: string): Promise<CompanyProfile | null> {
