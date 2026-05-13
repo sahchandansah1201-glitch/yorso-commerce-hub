@@ -4,6 +4,12 @@ import { assertSupabaseIsPrototypeOnly, loadApiConfig } from "./config.js";
 import { createApiServer } from "./server.js";
 
 type JsonBody = Record<string, unknown>;
+const testAccountUserId = "00000000-0000-4000-8000-000000000001";
+const testAccountSessionId = "api-test-session";
+const accountSessionHeaders = {
+  "x-yorso-user-id": testAccountUserId,
+  "x-yorso-session-id": testAccountSessionId,
+};
 
 const config = loadApiConfig(
   {
@@ -47,6 +53,7 @@ async function startTestServer() {
       ...init,
       headers: {
         "content-type": "application/json",
+        ...accountSessionHeaders,
         ...(init?.headers ?? {}),
       },
     });
@@ -117,7 +124,12 @@ describe("YORSO self-hosted API skeleton", () => {
         "AccountFileAsset",
         "CompanyDocument",
         "CompanyDocumentCreate",
+        "AccountSessionHeaders",
       ],
+      headers: {
+        userId: "x-yorso-user-id",
+        sessionId: "x-yorso-session-id",
+      },
     });
     expect(body.productionTarget).toMatchObject({
       backend: "self-hosted-yorso-api",
@@ -152,10 +164,33 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(response.headers.get("access-control-allow-origin")).toBe("http://localhost:8080");
     expect(response.headers.get("access-control-allow-methods")).toContain("PATCH");
     expect(response.headers.get("access-control-allow-methods")).toContain("POST");
-    expect(response.headers.get("access-control-allow-headers")).toContain("x-demo-user-id");
+    expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-user-id");
+    expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-session-id");
   });
 
-  it("returns the current demo user profile", async () => {
+  it("requires an explicit account session boundary for account endpoints", async () => {
+    const missing = await request("/v1/account/me", {
+      headers: { "x-yorso-user-id": "" },
+    });
+    const missingBody = (await missing.json()) as JsonBody;
+    expect(missing.status).toBe(401);
+    expect(missingBody).toMatchObject({
+      ok: false,
+      error: { code: "account_session_required" },
+    });
+
+    const invalid = await request("/v1/account/me", {
+      headers: { "x-yorso-user-id": "not-a-uuid" },
+    });
+    const invalidBody = (await invalid.json()) as JsonBody;
+    expect(invalid.status).toBe(401);
+    expect(invalidBody).toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+  });
+
+  it("returns the current account user profile", async () => {
     const response = await request("/v1/account/me");
     const body = (await response.json()) as JsonBody;
 
@@ -167,7 +202,7 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
-  it("updates the current demo user profile", async () => {
+  it("updates the current account user profile", async () => {
     const response = await request("/v1/account/me", {
       method: "PATCH",
       body: JSON.stringify({
@@ -384,6 +419,14 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(file.status).toBe(200);
     expect(file.headers.get("content-type")).toBe("image/svg+xml");
     expect(await file.text()).toBe("logo-bytes");
+
+    const address = server?.address();
+    if (!address || typeof address === "string") throw new Error("Expected server address object.");
+    const fileViaQuerySession = await fetch(
+      `http://127.0.0.1:${address.port}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}&accountUserId=${encodeURIComponent(testAccountUserId)}&accountSessionId=${encodeURIComponent(testAccountSessionId)}`,
+    );
+    expect(fileViaQuerySession.status).toBe(200);
+    expect(await fileViaQuerySession.text()).toBe("logo-bytes");
   });
 
   it("creates company documents and serves the stored file back to the account user", async () => {

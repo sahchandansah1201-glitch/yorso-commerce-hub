@@ -1,8 +1,8 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage and account UI storage bridge
-Batch: #28
-Date: 2026-05-13
+Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and explicit account session boundary
+Batch: #29
+Date: 2026-05-14
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
 direction. It is intentionally small, but it is a real Node process that can be
@@ -124,6 +124,20 @@ Batch #28 connects that storage boundary to the account workspace UI:
 - The frontend still saves local profile state first. API sync is an upgrade
   path, not a hard preview dependency.
 
+Batch #29 adds the first explicit account session boundary:
+
+- Account and storage routes no longer use a hidden fixed demo user fallback.
+- Browser JSON requests must include `x-yorso-user-id`; optional
+  `x-yorso-session-id` carries the current frontend session identifier.
+- Native browser file requests, such as image previews, may pass
+  `accountUserId` and `accountSessionId` query parameters because `<img>` tags
+  cannot attach custom headers. This is a temporary bridge until cookie/JWT
+  auth is implemented.
+- `packages/contracts/src/account-session.ts` owns the header names and
+  validation schema.
+- `src/lib/account-api.ts` is responsible for attaching account session values.
+  Components must not build account auth headers directly.
+
 ## Local Build
 
 ```bash
@@ -134,6 +148,10 @@ npm run api:start
 The API reads configuration from environment variables. Local defaults are
 available for development, but production must provide real secrets and service
 URLs.
+
+For local frontend-to-API testing, `.env.example` includes
+`VITE_YORSO_ACCOUNT_USER_ID=00000000-0000-4000-8000-000000000001`. Production
+must replace this development identity bridge with real account authentication.
 
 ## Docker Compose
 

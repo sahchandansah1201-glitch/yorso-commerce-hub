@@ -2,10 +2,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import type { AccountService } from "../account/service.js";
+import { AccountSessionError, resolveAccountSession, sendAccountSessionError } from "../auth/session.js";
 import type { FileService } from "./service.js";
-
-const getCurrentUserId = (request: IncomingMessage) =>
-  request.headers["x-demo-user-id"]?.toString() || "00000000-0000-4000-8000-000000000001";
 
 export async function handleStorageRoute(
   request: IncomingMessage,
@@ -15,10 +13,10 @@ export async function handleStorageRoute(
   fileService: FileService,
   pathname: string,
 ) {
-  const userId = getCurrentUserId(request);
-
   try {
     if (pathname === "/v1/account/files/by-object-key") {
+      const { userId } = resolveAccountSession(request, { allowQueryUserId: true });
+
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");
         return true;
@@ -36,6 +34,8 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/documents") {
+      const { userId } = resolveAccountSession(request);
+
       if (request.method === "GET") {
         const company = await accountService.getCompanyProfile(userId);
         const documents = await fileService.listCompanyDocuments(company.id);
@@ -56,6 +56,8 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/company/media/logo" || pathname === "/v1/account/company/media/cover") {
+      const { userId } = resolveAccountSession(request);
+
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
         return true;
@@ -92,6 +94,8 @@ export async function handleStorageRoute(
     }
 
     if (pathname.startsWith("/v1/account/files/")) {
+      const { userId } = resolveAccountSession(request, { allowQueryUserId: true });
+
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");
         return true;
@@ -103,6 +107,11 @@ export async function handleStorageRoute(
       return true;
     }
   } catch (error) {
+    if (error instanceof AccountSessionError) {
+      sendAccountSessionError(response, context, error);
+      return true;
+    }
+
     if (error instanceof ZodError) {
       sendValidationError(response, context, error);
       return true;

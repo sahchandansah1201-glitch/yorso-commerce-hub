@@ -279,3 +279,10 @@ same batch adds the company documents card with API-backed upload/list/download
 and a local prototype fallback. This keeps the frontend aligned with the
 self-hosted backend path while Lovable preview remains operational without
 Docker or a running API process.
+
+Batch #29 removes the hidden fixed-user assumption from account routes. The
+self-hosted API now requires an explicit account user id boundary for account
+JSON calls, with a temporary query fallback only for browser-native file
+previews that cannot send custom headers. This is still not final auth, but it
+is a concrete separation between prototype session handling and the production
+authorization layer that will later use server-issued cookies or JWTs.

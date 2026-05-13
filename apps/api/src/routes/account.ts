@@ -6,6 +6,7 @@ import type {
   AccountMetaRegionsUpdate,
   AccountNotificationsUpdate,
   AccountProductsUpdate,
+  AccountSessionHeaders,
   CompanyDocument,
   CompanyDocumentCreate,
   CompanyProfile,
@@ -13,6 +14,7 @@ import type {
   UserProfile,
   UserProfileUpdate,
 } from "../../../../packages/contracts/dist/index.js";
+import { accountSessionIdHeaderName, accountUserIdHeaderName } from "../../../../packages/contracts/dist/index.js";
 import type { ApiRequestContext } from "../http.js";
 import { sendJson } from "../http.js";
 
@@ -29,6 +31,7 @@ type ContractExample = {
   fileAsset: Pick<AccountFileAsset, "purpose" | "objectKey" | "contentType" | "storageDriver">;
   documentCreate: CompanyDocumentCreate;
   document: Pick<CompanyDocument, "documentType" | "visibility" | "status" | "fileName">;
+  accountSession: AccountSessionHeaders;
 };
 
 const contractExample: ContractExample = {
@@ -135,6 +138,10 @@ const contractExample: ContractExample = {
     status: "uploaded",
     fileName: "haccp.pdf",
   },
+  accountSession: {
+    userId: "00000000-0000-4000-8000-000000000001",
+    sessionId: "browser-session_1",
+  },
 };
 
 export function handleAccountCompanyContract(response: ServerResponse, context: ApiRequestContext) {
@@ -157,7 +164,12 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
         "AccountFileAsset",
         "CompanyDocument",
         "CompanyDocumentCreate",
+        "AccountSessionHeaders",
       ],
+      headers: {
+        userId: accountUserIdHeaderName,
+        sessionId: accountSessionIdHeaderName,
+      },
       example: contractExample,
     },
     productionTarget: {

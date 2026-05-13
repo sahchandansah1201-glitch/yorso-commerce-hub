@@ -8,6 +8,9 @@ import {
   accountMetaRegionsSchema,
   accountNotificationsSchema,
   accountProductsSchema,
+  accountSessionHeadersSchema,
+  accountSessionIdHeaderName,
+  accountUserIdHeaderName,
   companyDocumentCreateSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
@@ -130,6 +133,21 @@ describe("self-hosted account/company contracts", () => {
     });
 
     expect(parsed.preferredLanguage).toBe("ru");
+  });
+
+  it("accepts explicit account session headers for the self-hosted API boundary", () => {
+    expect(accountUserIdHeaderName).toBe("x-yorso-user-id");
+    expect(accountSessionIdHeaderName).toBe("x-yorso-session-id");
+    expect(
+      accountSessionHeadersSchema.parse({
+        userId: "00000000-0000-4000-8000-000000000001",
+        sessionId: "browser-session_1",
+      }),
+    ).toEqual({
+      userId: "00000000-0000-4000-8000-000000000001",
+      sessionId: "browser-session_1",
+    });
+    expect(() => accountSessionHeadersSchema.parse({ userId: "usr_demo_1" })).toThrow();
   });
 
   it("accepts account workspace collections needed by /account sections", () => {
@@ -279,6 +297,7 @@ describe("self-hosted account/company contracts", () => {
     expect(env).toContain("DATABASE_URL=");
     expect(env).toContain("STORAGE_DRIVER=local");
     expect(env).toContain("STORAGE_LOCAL_ROOT=");
+    expect(env).toContain("VITE_YORSO_ACCOUNT_USER_ID=");
     expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
     expect(env).toContain("PGBOUNCER_DATABASE_URL=");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
@@ -290,5 +309,6 @@ describe("self-hosted account/company contracts", () => {
     const indexSource = readFileSync("packages/contracts/src/index.ts", "utf8");
 
     expect(indexSource).toContain('export * from "./account-company.js";');
+    expect(indexSource).toContain('export * from "./account-session.js";');
   });
 });
