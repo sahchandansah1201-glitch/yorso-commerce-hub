@@ -34,8 +34,10 @@ describe("self-hosted backend policy", () => {
 
     expect(pkg.scripts["check:backend-policy"]).toBe("node scripts/check-self-hosted-backend-policy.mjs");
     expect(pkg.scripts["check:supabase-boundary"]).toBe("node scripts/check-supabase-production-boundary.mjs");
+    expect(pkg.scripts["check:self-hosted-infra"]).toBe("node scripts/check-self-hosted-infra.mjs");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:backend-policy");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:supabase-boundary");
+    expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
   });
 
   it("keeps Supabase direct imports out of new production UI surfaces", () => {

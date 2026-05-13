@@ -119,6 +119,23 @@ The guard fails if new page/component code imports the Supabase client directly.
 Current direct imports in `SignIn.tsx` and `ResetPassword.tsx` are temporary
 legacy exceptions until the self-hosted auth/session adapter exists.
 
+## Validation Commands
+
+The self-hosted direction is enforced by repository checks:
+
+```bash
+npm run check:backend-policy
+npm run check:supabase-boundary
+npm run check:self-hosted-infra
+npm run test:backend-contract
+npm run ci:core
+```
+
+`check:self-hosted-infra` is a static guard. It validates the local Docker
+Compose baseline, required environment keys and the Supabase prototype boundary
+without starting Docker. Details are documented in
+`docs/backend/self-hosted-validation.md`.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.

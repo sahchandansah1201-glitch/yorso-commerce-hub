@@ -43,6 +43,36 @@ describe("self-hosted account/company contracts", () => {
     });
   });
 
+  it("accepts buyer, supplier and both-role company profiles for the future API", () => {
+    for (const accountRole of ["buyer", "supplier", "both"] as const) {
+      const parsed = companyProfileSchema.parse({
+        ...validCompany,
+        accountRole,
+        publicationStatus: accountRole === "buyer" ? "draft" : "review",
+        buyerQualificationStatus: accountRole === "supplier" ? "not_started" : "pending",
+      });
+
+      expect(parsed.accountRole).toBe(accountRole);
+    }
+  });
+
+  it("accepts partial company media updates for self-hosted object storage", () => {
+    const parsed = companyProfileUpdateSchema.parse({
+      media: {
+        logoObjectKey: "companies/111/new-logo.webp",
+        coverObjectKey: "companies/111/new-cover.webp",
+        logoAlt: "Updated trade name logo",
+        coverAlt: "Updated plant cover",
+        logoFit: "cover",
+        coverFocalX: 0.25,
+        coverFocalY: 0.8,
+      },
+    });
+
+    expect(parsed.media?.logoObjectKey).toBe("companies/111/new-logo.webp");
+    expect(parsed.media?.coverFocalY).toBe(0.8);
+  });
+
   it("rejects invalid object-storage focal points and empty updates", () => {
     expect(() =>
       companyProfileSchema.parse({
@@ -51,6 +81,32 @@ describe("self-hosted account/company contracts", () => {
       }),
     ).toThrow();
     expect(() => companyProfileUpdateSchema.parse({})).toThrow(/At least one company profile field/);
+  });
+
+  it("rejects invalid company DTO values before they reach the self-hosted API", () => {
+    expect(() => companyProfileSchema.parse({ ...validCompany, countryCode: "NOR" })).toThrow();
+    expect(() => companyProfileSchema.parse({ ...validCompany, website: "not-a-url" })).toThrow();
+    expect(() => companyProfileSchema.parse({ ...validCompany, contactEmail: "sales-at-example.com" })).toThrow();
+    expect(() => companyProfileSchema.parse({ ...validCompany, yearFounded: 1799 })).toThrow();
+    expect(() => companyProfileSchema.parse({ ...validCompany, publicationStatus: "live" })).toThrow();
+    expect(() =>
+      companyProfileSchema.parse({
+        ...validCompany,
+        productFocus: Array.from({ length: 21 }, (_, index) => `Product ${index}`),
+      }),
+    ).toThrow();
+    expect(() =>
+      companyProfileSchema.parse({
+        ...validCompany,
+        certificates: Array.from({ length: 31 }, (_, index) => `CERT-${index}`),
+      }),
+    ).toThrow();
+    expect(() =>
+      companyProfileSchema.parse({
+        ...validCompany,
+        paymentTerms: Array.from({ length: 21 }, (_, index) => `Term ${index}`),
+      }),
+    ).toThrow();
   });
 
   it("accepts the user profile shape needed by /account/personal", () => {
@@ -78,6 +134,8 @@ describe("self-hosted account/company contracts", () => {
     expect(compose).toContain("minio:");
     expect(env).toContain("DATABASE_URL=");
     expect(env).toContain("PGBOUNCER_DATABASE_URL=");
+    expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
+    expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
     expect(env).toContain("Supabase prototype only");
   });
 });
