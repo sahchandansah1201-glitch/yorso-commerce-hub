@@ -26,8 +26,10 @@ npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
+npm run check:self-hosted-db
 npm run api:build
 npm run test:api
+npm run test:db-contract
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -40,8 +42,10 @@ npm run ci:core
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
+| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company tables or drifts toward Supabase-owned schema. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
+| `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
 | `ci:core` | Runs policy, infra, type, lint, build and contract checks together. |
 
@@ -62,6 +66,17 @@ It verifies:
 - `.env.example` keeps Supabase frontend variables empty;
 - `.env.example` does not contain service-role text, JWT-looking tokens or
   Supabase database URLs.
+
+## DB Baseline Validation
+
+`check:self-hosted-db` validates `packages/db` as the self-hosted PostgreSQL
+source of truth. It checks:
+
+- `yorso_users`, `yorso_companies`, `yorso_company_media`;
+- enum boundaries matching account/company DTOs;
+- indexes needed by account workspace reads;
+- migration manifest ownership;
+- absence of Supabase `auth.users` coupling in the self-hosted baseline.
 
 ## API Skeleton Validation
 

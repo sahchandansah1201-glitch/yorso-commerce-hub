@@ -82,8 +82,4 @@ export class MemoryAccountRepository implements AccountRepository {
   }
 }
 
-export function createDefaultAccountRepository() {
-  return new MemoryAccountRepository();
-}
-
 export const defaultDemoUserId = demoUserId;

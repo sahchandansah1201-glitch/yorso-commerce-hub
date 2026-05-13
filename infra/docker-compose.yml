@@ -9,6 +9,7 @@ services:
       NODE_ENV: production
       YORSO_API_HOST: 0.0.0.0
       YORSO_API_PORT: 3000
+      ACCOUNT_REPOSITORY: postgres
       YORSO_PUBLIC_APP_URL: ${YORSO_PUBLIC_APP_URL:-http://localhost:8080}
       DATABASE_URL: postgres://${POSTGRES_USER:-yorso_app}:${POSTGRES_PASSWORD:-change-me-local-only}@pgbouncer:5432/${POSTGRES_DB:-yorso}
       REDIS_URL: redis://redis:6379

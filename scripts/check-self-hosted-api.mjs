@@ -4,6 +4,8 @@ import { existsSync, readFileSync } from "node:fs";
 const requiredFiles = [
   "apps/api/src/index.ts",
   "apps/api/src/server.ts",
+  "apps/api/src/modules/account/factory.ts",
+  "apps/api/src/modules/account/postgres-repository.ts",
   "apps/api/src/modules/account/repository.ts",
   "apps/api/src/modules/account/service.ts",
   "apps/api/src/modules/account/routes.ts",
@@ -27,6 +29,8 @@ const read = (file) => readFileSync(file, "utf8");
 const pkg = JSON.parse(read("package.json"));
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
+const accountFactory = read("apps/api/src/modules/account/factory.ts");
+const postgresRepository = read("apps/api/src/modules/account/postgres-repository.ts");
 const accountService = read("apps/api/src/modules/account/service.ts");
 const accountRepository = read("apps/api/src/modules/account/repository.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
@@ -71,8 +75,14 @@ requireText("apps/api/src/server.ts", server, "/health/ready");
 requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
 requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
+requireText("apps/api/src/server.ts", server, "createAccountRepository(config)");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
+requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
 requireText("apps/api/src/config.ts", config, "Supabase env values must stay empty in production self-hosted API config.");
+requireText("apps/api/src/modules/account/factory.ts", accountFactory, "createAccountRepository");
+requireText("apps/api/src/modules/account/factory.ts", accountFactory, "PostgresAccountRepository");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "class PostgresAccountRepository");
+requireText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "PostgresAccountRepository.getUserProfile is not implemented");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileUpdateSchema.parse");
 requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileSchema.parse");
 requireText("apps/api/src/modules/account/repository.ts", accountRepository, "interface AccountRepository");
@@ -92,6 +102,8 @@ requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/account/factory.ts", accountFactory, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");

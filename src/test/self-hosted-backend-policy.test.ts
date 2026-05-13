@@ -39,14 +39,18 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["check:supabase-boundary"]).toBe("node scripts/check-supabase-production-boundary.mjs");
     expect(pkg.scripts["check:self-hosted-infra"]).toBe("node scripts/check-self-hosted-infra.mjs");
     expect(pkg.scripts["check:self-hosted-api"]).toBe("node scripts/check-self-hosted-api.mjs");
+    expect(pkg.scripts["check:self-hosted-db"]).toBe("node scripts/check-self-hosted-db.mjs");
     expect(pkg.scripts["contracts:build"]).toBe("tsc -p packages/contracts/tsconfig.json");
     expect(pkg.scripts["api:build"]).toBe("npm run contracts:build && tsc -p apps/api/tsconfig.json");
     expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
+    expect(pkg.scripts["test:db-contract"]).toBe("vitest run src/test/self-hosted-db-contract.test.ts");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:backend-policy");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:supabase-boundary");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
+    expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-db");
     expect(pkg.scripts["ci:core"]).toContain("npm run api:build");
+    expect(pkg.scripts["ci:core"]).toContain("npm run test:db-contract");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:api");
   });
 
