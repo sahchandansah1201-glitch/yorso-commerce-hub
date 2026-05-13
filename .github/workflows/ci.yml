@@ -42,6 +42,9 @@ jobs:
       - name: Run account company save-flow report
         run: npm run smoke:e2e:account-company:report:run
 
+      - name: Verify account company save-flow report
+        run: npm run smoke:e2e:account-company:report:verify
+
       - name: Upload account company save-flow report
         if: always()
         uses: actions/upload-artifact@v4
@@ -53,6 +56,9 @@ jobs:
 
       - name: Run account products save-flow report
         run: npm run smoke:e2e:account-products:report:run
+
+      - name: Verify account products save-flow report
+        run: npm run smoke:e2e:account-products:report:verify
 
       - name: Upload account products save-flow report
         if: always()
