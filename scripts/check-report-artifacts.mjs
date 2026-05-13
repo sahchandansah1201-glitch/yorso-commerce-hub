@@ -1,35 +1,10 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-
-const REPORTS = {
-  "account-company-save-flow": {
-    title: "Account company save-flow report",
-    expectedScreenshots: [
-      "01-company-profile-loaded.png",
-      "02-contacts-validation-error.png",
-      "03-contacts-saved.png",
-      "04-contacts-after-reload.png",
-    ],
-  },
-  "account-products-save-flow": {
-    title: "Account products matrix save-flow report",
-    expectedScreenshots: [
-      "01-products-matrix-loaded.png",
-      "02-product-validation-error.png",
-      "03-product-added.png",
-      "04-product-duplicate-blocked.png",
-      "05-product-pagination-page-two.png",
-      "06-product-filter-share-link.png",
-      "07-product-detail-edit-saved.png",
-      "08-product-delete-after-reload.png",
-      "09-product-ru-localized.png",
-    ],
-  },
-};
+import { REPORTS, expectedScreenshotsFor, reportNames } from "./lib/report-artifact-config.mjs";
 
 const usage = () => {
-  const names = Object.keys(REPORTS).join(" | ");
+  const names = reportNames.join(" | ");
   console.error(`Usage: node scripts/check-report-artifacts.mjs <${names}> [artifact-root]`);
 };
 
@@ -41,11 +16,12 @@ if (!reportName || !REPORTS[reportName]) {
 
 const root = process.argv[3] ?? path.join("test-results", reportName);
 const report = REPORTS[reportName];
+const expectedScreenshots = expectedScreenshotsFor(report);
 const requiredFiles = [
   "report.md",
   "report.json",
   "playwright-report.json",
-  ...report.expectedScreenshots,
+  ...expectedScreenshots,
 ];
 
 const failures = [];
@@ -63,15 +39,24 @@ const requireFile = (fileName) => {
   return filePath;
 };
 
+const hasPngSignature = (filePath) => {
+  const bytes = readFileSync(filePath).subarray(0, 8);
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  return signature.every((value, index) => bytes[index] === value);
+};
+
 for (const fileName of requiredFiles) {
-  requireFile(fileName);
+  const filePath = requireFile(fileName);
+  if (filePath && fileName.endsWith(".png") && !hasPngSignature(filePath)) {
+    failures.push(`invalid PNG signature ${filePath}`);
+  }
 }
 
 const reportJsonPath = path.join(root, "report.json");
 if (existsSync(reportJsonPath)) {
   try {
     const parsed = JSON.parse(readFileSync(reportJsonPath, "utf8"));
-    const expectedStepCount = report.expectedScreenshots.length;
+    const expectedStepCount = report.expectedSteps.length;
     if (parsed.failed !== 0) failures.push(`report.json failed count is ${parsed.failed}`);
     if (parsed.passed !== expectedStepCount) {
       failures.push(`report.json passed count is ${parsed.passed}, expected ${expectedStepCount}`);
@@ -79,10 +64,31 @@ if (existsSync(reportJsonPath)) {
     if (!Array.isArray(parsed.steps) || parsed.steps.length !== expectedStepCount) {
       failures.push(`report.json steps length mismatch, expected ${expectedStepCount}`);
     }
-    const screenshotSet = new Set(parsed.steps?.map((step) => step.screenshot).filter(Boolean));
-    for (const expectedScreenshot of report.expectedScreenshots) {
+    const steps = Array.isArray(parsed.steps) ? parsed.steps : [];
+    const screenshotSet = new Set(steps.map((step) => step.screenshot).filter(Boolean));
+    for (const expectedScreenshot of expectedScreenshots) {
       if (!screenshotSet.has(expectedScreenshot)) {
         failures.push(`report.json missing screenshot reference ${expectedScreenshot}`);
+      }
+    }
+    for (const [index, expectedStep] of report.expectedSteps.entries()) {
+      const actual = steps[index];
+      if (!actual) continue;
+      if (actual.status !== "passed") {
+        failures.push(`step ${index + 1} status is ${actual.status}, expected passed`);
+      }
+      if (actual.name !== expectedStep.name) {
+        failures.push(
+          `step ${index + 1} name is "${actual.name}", expected "${expectedStep.name}"`,
+        );
+      }
+      if (actual.screenshot !== expectedStep.screenshot) {
+        failures.push(
+          `step ${index + 1} screenshot is "${actual.screenshot}", expected "${expectedStep.screenshot}"`,
+        );
+      }
+      if (typeof actual.detail !== "string" || actual.detail.length < 20) {
+        failures.push(`step ${index + 1} detail is missing or too short`);
       }
     }
   } catch (error) {
