@@ -6,7 +6,15 @@
  * progressive enhancement over the local account store.
  * Fallback mode is local prototype mode, not a production backend.
  */
-import type { AccountProfile, CompanyProfile, UserProfile } from "@/data/mockAccount";
+import type {
+  AccountProfile,
+  CompanyBranch,
+  CompanyProduct,
+  CompanyProfile,
+  MetaRegion,
+  NotificationPreference,
+  UserProfile,
+} from "@/data/mockAccount";
 
 type BackendLanguage = "en" | "ru" | "es";
 type BackendAccountRole = "buyer" | "supplier" | "both";
@@ -64,6 +72,30 @@ interface BackendUserResponse {
 interface BackendCompanyResponse {
   ok: true;
   company: BackendCompanyProfile;
+  requestId: string;
+}
+
+interface BackendBranchesResponse {
+  ok: true;
+  branches: CompanyBranch[];
+  requestId: string;
+}
+
+interface BackendProductsResponse {
+  ok: true;
+  products: CompanyProduct[];
+  requestId: string;
+}
+
+interface BackendMetaRegionsResponse {
+  ok: true;
+  metaRegions: MetaRegion[];
+  requestId: string;
+}
+
+interface BackendNotificationsResponse {
+  ok: true;
+  notifications: NotificationPreference[];
   requestId: string;
 }
 
@@ -211,10 +243,20 @@ export const mergeBackendAccountProfile = (
   localProfile: AccountProfile,
   backendUser: BackendUserProfile,
   backendCompany: BackendCompanyProfile,
+  backendSections?: {
+    branches?: CompanyBranch[];
+    products?: CompanyProduct[];
+    metaRegions?: MetaRegion[];
+    notifications?: NotificationPreference[];
+  },
 ): AccountProfile => ({
   ...localProfile,
   user: mergeBackendUser(localProfile.user, backendUser),
   company: mergeBackendCompany(localProfile.company, backendCompany),
+  branches: backendSections?.branches ?? localProfile.branches,
+  products: backendSections?.products ?? localProfile.products,
+  metaRegions: backendSections?.metaRegions ?? localProfile.metaRegions,
+  notifications: backendSections?.notifications ?? localProfile.notifications,
 });
 
 export const mapFrontendUserUpdate = (user: UserProfile) => ({
@@ -252,6 +294,15 @@ export const mapFrontendCompanyUpdate = (company: CompanyProfile) => ({
     coverFocalY: focalYFromPoint(company.coverFocalPoint),
   },
 });
+
+export const mapFrontendBranchesUpdate = (branches: CompanyBranch[]) => branches;
+export const mapFrontendProductsUpdate = (products: CompanyProduct[]) => products;
+export const mapFrontendMetaRegionsUpdate = (metaRegions: MetaRegion[]) =>
+  metaRegions.map((metaRegion) => ({
+    ...metaRegion,
+    defaultCurrency: metaRegion.defaultCurrency.toUpperCase(),
+  }));
+export const mapFrontendNotificationsUpdate = (notifications: NotificationPreference[]) => notifications;
 
 interface AccountApiClientOptions {
   baseUrl?: string;
@@ -297,14 +348,37 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   return {
     enabled: Boolean(baseUrl),
     async load(localProfile: AccountProfile): Promise<AccountProfile> {
-      const [userResponse, companyResponse] = await Promise.all([
+      const [
+        userResponse,
+        companyResponse,
+        branchesResponse,
+        productsResponse,
+        metaRegionsResponse,
+        notificationsResponse,
+      ] = await Promise.all([
         request<BackendUserResponse>("/v1/account/me"),
         request<BackendCompanyResponse>("/v1/account/company"),
+        request<BackendBranchesResponse>("/v1/account/branches"),
+        request<BackendProductsResponse>("/v1/account/products"),
+        request<BackendMetaRegionsResponse>("/v1/account/meta-regions"),
+        request<BackendNotificationsResponse>("/v1/account/notifications"),
       ]);
-      return mergeBackendAccountProfile(localProfile, userResponse.user, companyResponse.company);
+      return mergeBackendAccountProfile(localProfile, userResponse.user, companyResponse.company, {
+        branches: branchesResponse.branches,
+        products: productsResponse.products,
+        metaRegions: metaRegionsResponse.metaRegions,
+        notifications: notificationsResponse.notifications,
+      });
     },
     async save(profile: AccountProfile): Promise<AccountProfile> {
-      const [userResponse, companyResponse] = await Promise.all([
+      const [
+        userResponse,
+        companyResponse,
+        branchesResponse,
+        productsResponse,
+        metaRegionsResponse,
+        notificationsResponse,
+      ] = await Promise.all([
         request<BackendUserResponse>("/v1/account/me", {
           method: "PATCH",
           body: JSON.stringify(mapFrontendUserUpdate(profile.user)),
@@ -313,8 +387,29 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
           method: "PATCH",
           body: JSON.stringify(mapFrontendCompanyUpdate(profile.company)),
         }),
+        request<BackendBranchesResponse>("/v1/account/branches", {
+          method: "PATCH",
+          body: JSON.stringify(mapFrontendBranchesUpdate(profile.branches)),
+        }),
+        request<BackendProductsResponse>("/v1/account/products", {
+          method: "PATCH",
+          body: JSON.stringify(mapFrontendProductsUpdate(profile.products)),
+        }),
+        request<BackendMetaRegionsResponse>("/v1/account/meta-regions", {
+          method: "PATCH",
+          body: JSON.stringify(mapFrontendMetaRegionsUpdate(profile.metaRegions)),
+        }),
+        request<BackendNotificationsResponse>("/v1/account/notifications", {
+          method: "PATCH",
+          body: JSON.stringify(mapFrontendNotificationsUpdate(profile.notifications)),
+        }),
       ]);
-      return mergeBackendAccountProfile(profile, userResponse.user, companyResponse.company);
+      return mergeBackendAccountProfile(profile, userResponse.user, companyResponse.company, {
+        branches: branchesResponse.branches,
+        products: productsResponse.products,
+        metaRegions: metaRegionsResponse.metaRegions,
+        notifications: notificationsResponse.notifications,
+      });
     },
   };
 }

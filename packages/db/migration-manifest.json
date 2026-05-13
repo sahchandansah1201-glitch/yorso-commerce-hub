@@ -16,6 +16,18 @@
       "description": "Create user, company and company media baseline tables for the self-hosted account API.",
       "ownedTables": ["yorso_users", "yorso_companies", "yorso_company_media"],
       "dependsOn": ["0000_migration_registry"]
+    },
+    {
+      "id": "0002_account_workspace_sections",
+      "file": "migrations/0002_account_workspace_sections.sql",
+      "description": "Create branches, products, meta-regions and notification preferences for the self-hosted account workspace.",
+      "ownedTables": [
+        "yorso_company_branches",
+        "yorso_company_products",
+        "yorso_company_meta_regions",
+        "yorso_notification_preferences"
+      ],
+      "dependsOn": ["0001_account_company_baseline"]
     }
   ]
 }

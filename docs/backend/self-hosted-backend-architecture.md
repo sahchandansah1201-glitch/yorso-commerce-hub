@@ -157,10 +157,11 @@ repository remains only for deterministic local tests and offline development.
 HTTP behavior and DTO validation must stay stable while storage implementation
 keeps moving toward PostgreSQL.
 
-`packages/db` is now the self-hosted PostgreSQL baseline. Its first migration
-defines the `_yorso_migrations` registry, `yorso_users`, `yorso_companies` and
-`yorso_company_media`. Supabase SQL may still be used as reference material, but
-the production-direction schema must live under `packages/db`.
+`packages/db` is now the self-hosted PostgreSQL baseline. Its migrations define
+the `_yorso_migrations` registry, user/company profile tables, company media,
+branches, product matrix rows, meta-regions and notification preferences.
+Supabase SQL may still be used as reference material, but the
+production-direction schema must live under `packages/db`.
 
 The DB package includes a migration planner. It currently performs static
 planning and validation only: manifest order, dependencies, safe SQL paths and
@@ -190,10 +191,12 @@ Frontend blur can remain as a UX hint, but it is not a security boundary.
 Build in this order:
 
 1. Identity and sessions.
-2. Company profile.
-3. Company media and object storage.
-4. Branches and loading points.
-5. Product matrix.
+2. Company profile. Initial self-hosted API and PostgreSQL persistence exist.
+3. Company media and object storage. Object-key persistence exists; upload
+   pipeline is still pending.
+4. Branches and loading points. Initial self-hosted API and PostgreSQL
+   persistence exist.
+5. Product matrix. Initial self-hosted API and PostgreSQL persistence exist.
 6. Supplier directory and profile.
 7. Offer catalog and offer detail.
 8. Supplier and price access requests.

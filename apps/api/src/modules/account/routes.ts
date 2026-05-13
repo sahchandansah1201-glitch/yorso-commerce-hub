@@ -5,6 +5,35 @@ import type { AccountService } from "./service.js";
 
 const getCurrentUserId = (request: IncomingMessage) => request.headers["x-demo-user-id"]?.toString() || "00000000-0000-4000-8000-000000000001";
 
+type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
+
+const accountCollections = {
+  "/v1/account/branches": {
+    key: "branches",
+    get: (service: AccountService, userId: string) => service.getBranches(userId),
+    replace: (service: AccountService, userId: string, payload: unknown) => service.replaceBranches(userId, payload),
+  },
+  "/v1/account/products": {
+    key: "products",
+    get: (service: AccountService, userId: string) => service.getProducts(userId),
+    replace: (service: AccountService, userId: string, payload: unknown) => service.replaceProducts(userId, payload),
+  },
+  "/v1/account/meta-regions": {
+    key: "metaRegions",
+    get: (service: AccountService, userId: string) => service.getMetaRegions(userId),
+    replace: (service: AccountService, userId: string, payload: unknown) => service.replaceMetaRegions(userId, payload),
+  },
+  "/v1/account/notifications": {
+    key: "notifications",
+    get: (service: AccountService, userId: string) => service.getNotifications(userId),
+    replace: (service: AccountService, userId: string, payload: unknown) => service.replaceNotifications(userId, payload),
+  },
+} satisfies Record<string, {
+  key: AccountCollectionName;
+  get: (service: AccountService, userId: string) => Promise<unknown>;
+  replace: (service: AccountService, userId: string, payload: unknown) => Promise<unknown>;
+}>;
+
 export async function handleAccountRoute(
   request: IncomingMessage,
   response: ServerResponse,
@@ -58,6 +87,33 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           company,
+          requestId: context.requestId,
+        });
+        return true;
+      }
+
+      methodNotAllowed(response, context, "GET, PATCH");
+      return true;
+    }
+
+    const collection = accountCollections[pathname as keyof typeof accountCollections];
+    if (collection) {
+      if (request.method === "GET") {
+        const items = await collection.get(service, userId);
+        sendJson(response, 200, {
+          ok: true,
+          [collection.key]: items,
+          requestId: context.requestId,
+        });
+        return true;
+      }
+
+      if (request.method === "PATCH") {
+        const payload = await readJsonBody(request);
+        const items = await collection.replace(service, userId, payload);
+        sendJson(response, 200, {
+          ok: true,
+          [collection.key]: items,
           requestId: context.requestId,
         });
         return true;

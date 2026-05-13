@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  accountBranchesSchema,
+  accountMetaRegionsSchema,
+  accountNotificationsSchema,
+  accountProductsSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
   userProfileSchema,
@@ -122,6 +126,70 @@ describe("self-hosted account/company contracts", () => {
     });
 
     expect(parsed.preferredLanguage).toBe("ru");
+  });
+
+  it("accepts account workspace collections needed by /account sections", () => {
+    expect(
+      accountBranchesSchema.parse([
+        {
+          id: "br_1",
+          name: "Main warehouse",
+          type: "warehouse",
+          country: "Spain",
+          region: "Galicia",
+          city: "Vigo",
+          addressLine: "Terminal 1",
+          defaultIncoterms: "FCA",
+          portOrPickupPoint: "Vigo",
+          notes: "Default loading point.",
+        },
+      ]),
+    ).toHaveLength(1);
+
+    expect(
+      accountProductsSchema.parse([
+        {
+          id: "p_1",
+          commercialName: "Atlantic Cod H&G",
+          latinName: "Gadus morhua",
+          category: "Whitefish",
+          state: "frozen",
+          format: "H&G",
+          role: "selling",
+          monthlyVolume: "120 t",
+          certificates: ["MSC"],
+          targetCountries: ["Spain"],
+        },
+      ]),
+    ).toHaveLength(1);
+
+    expect(
+      accountMetaRegionsSchema.parse([
+        {
+          id: "mr_1",
+          name: "Iberia",
+          countries: ["Spain", "Portugal"],
+          logisticsReason: "same_sales_market",
+          defaultCurrency: "EUR",
+          notes: "Shared buyers.",
+          usedFor: ["notifications"],
+        },
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it("rejects enabled notification channels without events", () => {
+    expect(() =>
+      accountNotificationsSchema.parse([
+        {
+          id: "n_1",
+          channel: "email",
+          enabled: true,
+          events: [],
+          frequency: "instant",
+        },
+      ]),
+    ).toThrow(/Enabled notification channels/);
   });
 
   it("documents local self-hosted runtime services", () => {

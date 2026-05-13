@@ -88,6 +88,8 @@ source of truth. It checks:
 
 - `_yorso_migrations`, the self-hosted schema registry;
 - `yorso_users`, `yorso_companies`, `yorso_company_media`;
+- `yorso_company_branches`, `yorso_company_products`,
+  `yorso_company_meta_regions`, `yorso_notification_preferences`;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace reads;
 - migration manifest ownership;
@@ -131,6 +133,8 @@ It verifies:
 - `PostgresAccountRepository` must not contain "not implemented" placeholders.
 - `PATCH /v1/account/me` and `PATCH /v1/account/company` remain behind the
   contract validation layer.
+- `GET`/`PATCH /v1/account/branches`, `/products`, `/meta-regions` and
+  `/notifications` remain behind the contract validation layer.
 - The API exposes CORS headers for browser calls from the frontend origin.
 
 ## Frontend Account API Bridge
@@ -143,8 +147,10 @@ The bridge must preserve these rules:
 - local prototype persistence remains the fallback;
 - account pages do not import Supabase as a production data gateway;
 - user and company saves map to `/v1/account/me` and `/v1/account/company`;
-- local-only sections such as branches, products, meta-regions and notification
-  preferences must not be discarded when backend user/company data is hydrated;
+- branches, products, meta-regions and notification preferences map to their
+  dedicated `/v1/account/*` collection endpoints;
+- if a backend returns only a partial account payload during development,
+  local sections must not be discarded accidentally;
 - `.env.example` keeps `VITE_YORSO_API_URL` empty by default so Lovable preview
   works without a running API service.
 

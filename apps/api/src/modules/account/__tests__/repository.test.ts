@@ -51,6 +51,66 @@ type FakeCompanyRow = {
   updated_at: Date;
 };
 
+type FakeBranchRow = {
+  id: string;
+  company_id: string;
+  name: string;
+  type: "registered_address" | "office" | "warehouse" | "processing_plant" | "sales_office" | "loading_point";
+  country: string;
+  region: string;
+  city: string;
+  address_line: string;
+  default_incoterms: string;
+  port_or_pickup_point: string;
+  notes: string;
+  position: number;
+};
+
+type FakeProductRow = {
+  id: string;
+  company_id: string;
+  commercial_name: string;
+  latin_name: string;
+  category: string;
+  state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
+  format: string;
+  role: "buying" | "selling" | "both";
+  monthly_volume: string;
+  certificates: string[];
+  target_countries: string[];
+  position: number;
+};
+
+type FakeMetaRegionRow = {
+  id: string;
+  company_id: string;
+  name: string;
+  countries: string[];
+  logistics_reason: "similar_freight_cost" | "same_customs_zone" | "same_sales_market" | "same_warehouse_route" | "manual";
+  default_currency: string;
+  notes: string;
+  used_for: Array<"notifications" | "price_access" | "campaigns" | "landed_cost" | "supplier_matching">;
+  position: number;
+};
+
+type FakeNotificationRow = {
+  id: string;
+  user_id: string;
+  channel: "email" | "messenger" | "in_app" | "agent";
+  enabled: boolean;
+  events: Array<
+    | "price_access_approved"
+    | "new_matching_product"
+    | "rfq_response"
+    | "price_movement"
+    | "document_readiness"
+    | "country_news"
+    | "supplier_profile_review"
+  >;
+  frequency: "instant" | "daily" | "weekly";
+  position: number;
+};
+
 class FakeAccountPgClient implements AccountQueryClient {
   readonly calls: QueryCall[] = [];
   user: FakeUserRow = {
@@ -90,6 +150,62 @@ class FakeAccountPgClient implements AccountQueryClient {
     cover_focal_y: "0.500",
     updated_at: new Date("2026-05-13T08:00:00.000Z"),
   };
+  branches: FakeBranchRow[] = [
+    {
+      id: "br_1",
+      company_id: demoCompanyId,
+      name: "HQ Vigo",
+      type: "registered_address",
+      country: "Spain",
+      region: "Galicia",
+      city: "Vigo",
+      address_line: "Rua do Areal 12",
+      default_incoterms: "EXW",
+      port_or_pickup_point: "Vigo HQ",
+      notes: "Legal seat.",
+      position: 0,
+    },
+  ];
+  products: FakeProductRow[] = [
+    {
+      id: "p_1",
+      company_id: demoCompanyId,
+      commercial_name: "Atlantic Cod H&G",
+      latin_name: "Gadus morhua",
+      category: "Whitefish",
+      state: "frozen",
+      format: "H&G",
+      role: "selling",
+      monthly_volume: "120 t",
+      certificates: ["MSC"],
+      target_countries: ["Spain"],
+      position: 0,
+    },
+  ];
+  metaRegions: FakeMetaRegionRow[] = [
+    {
+      id: "mr_1",
+      company_id: demoCompanyId,
+      name: "Iberia",
+      countries: ["Spain", "Portugal"],
+      logistics_reason: "same_sales_market",
+      default_currency: "EUR",
+      notes: "Shared buyers.",
+      used_for: ["notifications"],
+      position: 0,
+    },
+  ];
+  notifications: FakeNotificationRow[] = [
+    {
+      id: "n_email",
+      user_id: demoUserId,
+      channel: "email",
+      enabled: true,
+      events: ["price_access_approved"],
+      frequency: "instant",
+      position: 0,
+    },
+  ];
 
   async query<Row extends Record<string, unknown> = Record<string, unknown>>(sql: string, params: readonly unknown[] = []) {
     this.calls.push({ sql, params });
@@ -197,6 +313,120 @@ class FakeAccountPgClient implements AccountQueryClient {
       return { rows: [] };
     }
 
+    if (normalized.includes("from yorso_company_branches") && !normalized.startsWith("delete from")) {
+      return {
+        rows: this.company && params[0] === this.company.owner_user_id
+          ? (this.branches as unknown as Row[])
+          : [],
+      };
+    }
+
+    if (normalized.startsWith("delete from yorso_company_branches")) {
+      this.branches = this.branches.filter((branch) => branch.company_id !== params[0]);
+      return { rows: [] };
+    }
+
+    if (normalized.startsWith("insert into yorso_company_branches")) {
+      this.branches.push({
+        id: params[0] as string,
+        company_id: params[1] as string,
+        name: params[2] as string,
+        type: params[3] as FakeBranchRow["type"],
+        country: params[4] as string,
+        region: params[5] as string,
+        city: params[6] as string,
+        address_line: params[7] as string,
+        default_incoterms: params[8] as string,
+        port_or_pickup_point: params[9] as string,
+        notes: params[10] as string,
+        position: params[11] as number,
+      });
+      return { rows: [] };
+    }
+
+    if (normalized.includes("from yorso_company_products") && !normalized.startsWith("delete from")) {
+      return {
+        rows: this.company && params[0] === this.company.owner_user_id
+          ? (this.products as unknown as Row[])
+          : [],
+      };
+    }
+
+    if (normalized.startsWith("delete from yorso_company_products")) {
+      this.products = this.products.filter((product) => product.company_id !== params[0]);
+      return { rows: [] };
+    }
+
+    if (normalized.startsWith("insert into yorso_company_products")) {
+      this.products.push({
+        id: params[0] as string,
+        company_id: params[1] as string,
+        commercial_name: params[2] as string,
+        latin_name: params[3] as string,
+        category: params[4] as string,
+        state: params[5] as FakeProductRow["state"],
+        format: params[6] as string,
+        role: params[7] as FakeProductRow["role"],
+        monthly_volume: params[8] as string,
+        certificates: params[9] as string[],
+        target_countries: params[10] as string[],
+        position: params[11] as number,
+      });
+      return { rows: [] };
+    }
+
+    if (normalized.includes("from yorso_company_meta_regions") && !normalized.startsWith("delete from")) {
+      return {
+        rows: this.company && params[0] === this.company.owner_user_id
+          ? (this.metaRegions as unknown as Row[])
+          : [],
+      };
+    }
+
+    if (normalized.startsWith("delete from yorso_company_meta_regions")) {
+      this.metaRegions = this.metaRegions.filter((metaRegion) => metaRegion.company_id !== params[0]);
+      return { rows: [] };
+    }
+
+    if (normalized.startsWith("insert into yorso_company_meta_regions")) {
+      this.metaRegions.push({
+        id: params[0] as string,
+        company_id: params[1] as string,
+        name: params[2] as string,
+        countries: params[3] as string[],
+        logistics_reason: params[4] as FakeMetaRegionRow["logistics_reason"],
+        default_currency: params[5] as string,
+        notes: params[6] as string,
+        used_for: params[7] as FakeMetaRegionRow["used_for"],
+        position: params[8] as number,
+      });
+      return { rows: [] };
+    }
+
+    if (normalized.includes("from yorso_notification_preferences") && !normalized.startsWith("delete from")) {
+      return {
+        rows: params[0] === this.user.id ? (this.notifications as unknown as Row[]) : [],
+      };
+    }
+
+    if (normalized.startsWith("delete from yorso_notification_preferences")) {
+      this.notifications = this.notifications.filter((notification) => notification.user_id !== params[0]);
+      return { rows: [] };
+    }
+
+    if (normalized.startsWith("insert into yorso_notification_preferences")) {
+      this.notifications.push({
+        id: params[0] as string,
+        user_id: params[1] as string,
+        channel: params[2] as FakeNotificationRow["channel"],
+        enabled: params[3] as boolean,
+        events: params[4] as FakeNotificationRow["events"],
+        frequency: params[5] as FakeNotificationRow["frequency"],
+        position: params[6] as number,
+      });
+      return { rows: [] };
+    }
+
     throw new Error(`Unhandled SQL in fake client: ${sql}`);
   }
 }
@@ -240,6 +470,46 @@ describe("account repositories", () => {
     expect(after.firstName).toBe("Memory");
     expect(after.preferredLanguage).toBe("ru");
     expect(reread?.firstName).toBe("Memory");
+  });
+
+  it("memory repository persists workspace section replacements inside one process", async () => {
+    const repository = new MemoryAccountRepository();
+
+    await repository.replaceBranches(demoUserId, [
+      {
+        id: "br_memory",
+        name: "Memory Branch",
+        type: "loading_point",
+        country: "Spain",
+        region: "Galicia",
+        city: "Vigo",
+        addressLine: "Terminal 1",
+        defaultIncoterms: "FCA",
+        portOrPickupPoint: "Vigo",
+        notes: "Memory branch.",
+      },
+    ]);
+    await repository.replaceProducts(demoUserId, [
+      {
+        id: "p_memory",
+        commercialName: "Memory Cod",
+        latinName: "Gadus morhua",
+        category: "Whitefish",
+        state: "frozen",
+        format: "H&G",
+        role: "selling",
+        monthlyVolume: "10 t",
+        certificates: ["MSC"],
+        targetCountries: ["Spain"],
+      },
+    ]);
+
+    expect(await repository.getBranches(demoUserId)).toEqual([
+      expect.objectContaining({ id: "br_memory" }),
+    ]);
+    expect(await repository.getProducts(demoUserId)).toEqual([
+      expect.objectContaining({ id: "p_memory" }),
+    ]);
   });
 
   it("factory selects memory repository by default", () => {
@@ -387,6 +657,66 @@ describe("account repositories", () => {
       },
     });
     expect(client.calls.some((call) => call.sql.includes("insert into yorso_company_media"))).toBe(true);
+  });
+
+  it("postgres repository replaces workspace sections and rereads them", async () => {
+    const { client, repository } = createPostgresRepository();
+
+    const branches = await repository.replaceBranches(demoUserId, [
+      {
+        id: "br_pg",
+        name: "Postgres Branch",
+        type: "warehouse",
+        country: "Spain",
+        region: "Galicia",
+        city: "Vigo",
+        addressLine: "Warehouse 1",
+        defaultIncoterms: "FCA",
+        portOrPickupPoint: "Vigo",
+        notes: "Postgres branch.",
+      },
+    ]);
+    const products = await repository.replaceProducts(demoUserId, [
+      {
+        id: "p_pg",
+        commercialName: "Postgres Mackerel",
+        latinName: "Scomber scombrus",
+        category: "Pelagic",
+        state: "frozen",
+        format: "WR",
+        role: "selling",
+        monthlyVolume: "200 t",
+        certificates: ["MSC"],
+        targetCountries: ["Nigeria"],
+      },
+    ]);
+    const metaRegions = await repository.replaceMetaRegions(demoUserId, [
+      {
+        id: "mr_pg",
+        name: "Postgres Iberia",
+        countries: ["Spain", "Portugal"],
+        logisticsReason: "same_sales_market",
+        defaultCurrency: "EUR",
+        notes: "Postgres region.",
+        usedFor: ["notifications"],
+      },
+    ]);
+    const notifications = await repository.replaceNotifications(demoUserId, [
+      {
+        id: "n_pg",
+        channel: "email",
+        enabled: true,
+        events: ["price_access_approved"],
+        frequency: "weekly",
+      },
+    ]);
+
+    expect(branches).toEqual([expect.objectContaining({ id: "br_pg", defaultIncoterms: "FCA" })]);
+    expect(products).toEqual([expect.objectContaining({ id: "p_pg", role: "selling" })]);
+    expect(metaRegions).toEqual([expect.objectContaining({ id: "mr_pg", defaultCurrency: "EUR" })]);
+    expect(notifications).toEqual([expect.objectContaining({ id: "n_pg", frequency: "weekly" })]);
+    expect(client.calls.some((call) => call.sql.includes("delete from yorso_company_products"))).toBe(true);
+    expect(client.calls.some((call) => call.sql.includes("insert into yorso_notification_preferences"))).toBe(true);
   });
 
   it("postgres repository throws company_not_found when a user has no company row", async () => {

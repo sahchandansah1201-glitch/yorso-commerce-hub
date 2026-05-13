@@ -1,12 +1,28 @@
 import { Pool, type PoolConfig, type QueryResult } from "pg";
 import type { ApiConfig } from "../../config.js";
 import type {
+  AccountBranchesUpdate,
   AccountRole,
+  AccountMetaRegionsUpdate,
+  AccountNotificationsUpdate,
+  AccountProductsUpdate,
+  BranchType,
   BuyerQualificationStatus,
+  CompanyBranch,
   CompanyMedia,
+  CompanyProduct,
   CompanyProfile,
   CompanyProfileUpdate,
   CompanyPublicationStatus,
+  MetaRegion,
+  MetaRegionLogisticsReason,
+  MetaRegionUsedFor,
+  NotificationChannel,
+  NotificationEvent,
+  NotificationFrequency,
+  NotificationPreference,
+  ProductRole,
+  ProductState,
   UserProfile,
   UserProfileUpdate,
 } from "../../../../../packages/contracts/dist/index.js";
@@ -60,6 +76,50 @@ interface CompanyRow extends Record<string, unknown> {
   cover_focal_x: number | string | null;
   cover_focal_y: number | string | null;
   updated_at: Date | string;
+}
+
+interface BranchRow extends Record<string, unknown> {
+  id: string;
+  name: string;
+  type: BranchType;
+  country: string;
+  region: string;
+  city: string;
+  address_line: string;
+  default_incoterms: string;
+  port_or_pickup_point: string;
+  notes: string;
+}
+
+interface ProductRow extends Record<string, unknown> {
+  id: string;
+  commercial_name: string;
+  latin_name: string;
+  category: string;
+  state: ProductState;
+  format: string;
+  role: ProductRole;
+  monthly_volume: string;
+  certificates: string[] | null;
+  target_countries: string[] | null;
+}
+
+interface MetaRegionRow extends Record<string, unknown> {
+  id: string;
+  name: string;
+  countries: string[] | null;
+  logistics_reason: MetaRegionLogisticsReason;
+  default_currency: string;
+  notes: string;
+  used_for: MetaRegionUsedFor[] | null;
+}
+
+interface NotificationRow extends Record<string, unknown> {
+  id: string;
+  channel: NotificationChannel;
+  enabled: boolean;
+  events: NotificationEvent[] | null;
+  frequency: NotificationFrequency;
 }
 
 const companySelectSql = `
@@ -143,6 +203,58 @@ function mapCompany(row: CompanyRow): CompanyProfile {
       coverFocalY: toNumber(row.cover_focal_y, 0.5),
     },
     updatedAt: ensureIso(row.updated_at),
+  };
+}
+
+function mapBranch(row: BranchRow): CompanyBranch {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    country: row.country,
+    region: row.region,
+    city: row.city,
+    addressLine: row.address_line,
+    defaultIncoterms: row.default_incoterms,
+    portOrPickupPoint: row.port_or_pickup_point,
+    notes: row.notes,
+  };
+}
+
+function mapProduct(row: ProductRow): CompanyProduct {
+  return {
+    id: row.id,
+    commercialName: row.commercial_name,
+    latinName: row.latin_name,
+    category: row.category,
+    state: row.state,
+    format: row.format,
+    role: row.role,
+    monthlyVolume: row.monthly_volume,
+    certificates: row.certificates ?? [],
+    targetCountries: row.target_countries ?? [],
+  };
+}
+
+function mapMetaRegion(row: MetaRegionRow): MetaRegion {
+  return {
+    id: row.id,
+    name: row.name,
+    countries: row.countries ?? [],
+    logisticsReason: row.logistics_reason,
+    defaultCurrency: row.default_currency.trim(),
+    notes: row.notes,
+    usedFor: row.used_for ?? [],
+  };
+}
+
+function mapNotification(row: NotificationRow): NotificationPreference {
+  return {
+    id: row.id,
+    channel: row.channel,
+    enabled: row.enabled,
+    events: row.events ?? [],
+    frequency: row.frequency,
   };
 }
 
@@ -261,6 +373,191 @@ export class PostgresAccountRepository implements AccountRepository {
     const next = await this.getCompanyProfile(userId);
     if (!next) throw new Error("company_not_found");
     return next;
+  }
+
+  async getBranches(userId: string): Promise<CompanyBranch[]> {
+    const result = await this.client.query<BranchRow>(
+      `
+        select b.id, b.name, b.type, b.country, b.region, b.city, b.address_line,
+          b.default_incoterms, b.port_or_pickup_point, b.notes
+        from yorso_company_branches b
+        join yorso_companies c on c.id = b.company_id
+        where c.owner_user_id = $1
+        order by b.position asc, b.name asc
+      `,
+      [userId],
+    );
+    return result.rows.map(mapBranch);
+  }
+
+  async replaceBranches(userId: string, branches: AccountBranchesUpdate): Promise<CompanyBranch[]> {
+    const companyId = await this.getCompanyIdForUser(userId);
+    await this.client.query("delete from yorso_company_branches where company_id = $1", [companyId]);
+
+    for (const [index, branch] of branches.entries()) {
+      await this.client.query(
+        `
+          insert into yorso_company_branches (
+            id, company_id, name, type, country, region, city, address_line,
+            default_incoterms, port_or_pickup_point, notes, position, updated_at
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
+        `,
+        [
+          branch.id,
+          companyId,
+          branch.name,
+          branch.type,
+          branch.country,
+          branch.region,
+          branch.city,
+          branch.addressLine,
+          branch.defaultIncoterms,
+          branch.portOrPickupPoint,
+          branch.notes,
+          index,
+        ],
+      );
+    }
+
+    return this.getBranches(userId);
+  }
+
+  async getProducts(userId: string): Promise<CompanyProduct[]> {
+    const result = await this.client.query<ProductRow>(
+      `
+        select p.id, p.commercial_name, p.latin_name, p.category, p.state, p.format,
+          p.role, p.monthly_volume, p.certificates, p.target_countries
+        from yorso_company_products p
+        join yorso_companies c on c.id = p.company_id
+        where c.owner_user_id = $1
+        order by p.position asc, p.commercial_name asc
+      `,
+      [userId],
+    );
+    return result.rows.map(mapProduct);
+  }
+
+  async replaceProducts(userId: string, products: AccountProductsUpdate): Promise<CompanyProduct[]> {
+    const companyId = await this.getCompanyIdForUser(userId);
+    await this.client.query("delete from yorso_company_products where company_id = $1", [companyId]);
+
+    for (const [index, product] of products.entries()) {
+      await this.client.query(
+        `
+          insert into yorso_company_products (
+            id, company_id, commercial_name, latin_name, category, state, format,
+            role, monthly_volume, certificates, target_countries, position, updated_at
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
+        `,
+        [
+          product.id,
+          companyId,
+          product.commercialName,
+          product.latinName,
+          product.category,
+          product.state,
+          product.format,
+          product.role,
+          product.monthlyVolume,
+          product.certificates,
+          product.targetCountries,
+          index,
+        ],
+      );
+    }
+
+    return this.getProducts(userId);
+  }
+
+  async getMetaRegions(userId: string): Promise<MetaRegion[]> {
+    const result = await this.client.query<MetaRegionRow>(
+      `
+        select m.id, m.name, m.countries, m.logistics_reason, m.default_currency, m.notes, m.used_for
+        from yorso_company_meta_regions m
+        join yorso_companies c on c.id = m.company_id
+        where c.owner_user_id = $1
+        order by m.position asc, m.name asc
+      `,
+      [userId],
+    );
+    return result.rows.map(mapMetaRegion);
+  }
+
+  async replaceMetaRegions(userId: string, metaRegions: AccountMetaRegionsUpdate): Promise<MetaRegion[]> {
+    const companyId = await this.getCompanyIdForUser(userId);
+    await this.client.query("delete from yorso_company_meta_regions where company_id = $1", [companyId]);
+
+    for (const [index, metaRegion] of metaRegions.entries()) {
+      await this.client.query(
+        `
+          insert into yorso_company_meta_regions (
+            id, company_id, name, countries, logistics_reason, default_currency,
+            notes, used_for, position, updated_at
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8::yorso_meta_region_used_for[], $9, now())
+        `,
+        [
+          metaRegion.id,
+          companyId,
+          metaRegion.name,
+          metaRegion.countries,
+          metaRegion.logisticsReason,
+          metaRegion.defaultCurrency,
+          metaRegion.notes,
+          metaRegion.usedFor,
+          index,
+        ],
+      );
+    }
+
+    return this.getMetaRegions(userId);
+  }
+
+  async getNotifications(userId: string): Promise<NotificationPreference[]> {
+    const result = await this.client.query<NotificationRow>(
+      `
+        select id, channel, enabled, events, frequency
+        from yorso_notification_preferences
+        where user_id = $1
+        order by position asc, channel asc
+      `,
+      [userId],
+    );
+    return result.rows.map(mapNotification);
+  }
+
+  async replaceNotifications(userId: string, notifications: AccountNotificationsUpdate): Promise<NotificationPreference[]> {
+    await this.client.query("delete from yorso_notification_preferences where user_id = $1", [userId]);
+
+    for (const [index, notification] of notifications.entries()) {
+      await this.client.query(
+        `
+          insert into yorso_notification_preferences (
+            id, user_id, channel, enabled, events, frequency, position, updated_at
+          )
+          values ($1, $2, $3, $4, $5::yorso_notification_event[], $6, $7, now())
+        `,
+        [
+          notification.id,
+          userId,
+          notification.channel,
+          notification.enabled,
+          notification.events,
+          notification.frequency,
+          index,
+        ],
+      );
+    }
+
+    return this.getNotifications(userId);
+  }
+
+  private async getCompanyIdForUser(userId: string): Promise<string> {
+    const company = await this.getCompanyProfile(userId);
+    if (!company) throw new Error("company_not_found");
+    return company.id;
   }
 
   private async updateCompanyScalars(companyId: string, update: CompanyProfileUpdate) {

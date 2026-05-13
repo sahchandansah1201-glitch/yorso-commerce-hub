@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account persistence
-Batch: #24
+Status: first runnable backend process with PostgreSQL account workspace persistence
+Batch: #26
 Date: 2026-05-13
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -19,6 +19,14 @@ compiled, started and wired into Docker Compose.
 | `PATCH /v1/account/me` | Validates and updates editable user profile fields through the contract schema. |
 | `GET /v1/account/company` | Returns the current company profile through the account service. |
 | `PATCH /v1/account/company` | Validates and updates company profile fields through the contract schema. |
+| `GET /v1/account/branches` | Returns company branches and loading points. |
+| `PATCH /v1/account/branches` | Replaces company branches and loading points through the contract schema. |
+| `GET /v1/account/products` | Returns the company product matching matrix. |
+| `PATCH /v1/account/products` | Replaces the product matching matrix through the contract schema. |
+| `GET /v1/account/meta-regions` | Returns logistics meta-regions. |
+| `PATCH /v1/account/meta-regions` | Replaces logistics meta-regions through the contract schema. |
+| `GET /v1/account/notifications` | Returns notification channel preferences. |
+| `PATCH /v1/account/notifications` | Replaces notification channel preferences through the contract schema. |
 
 ## Account Module Boundary
 
@@ -64,6 +72,19 @@ Batch #25 adds the frontend bridge:
 - If the API is unavailable or not configured, the UI remains usable and records
   a local sync state instead of failing the form.
 - API CORS allows browser calls from the configured frontend origin.
+
+Batch #26 expands the same bridge to the remaining account workspace sections:
+
+- `packages/db/migrations/0002_account_workspace_sections.sql` adds tables for
+  branches, products, meta-regions and notification preferences.
+- `PostgresAccountRepository` reads and replaces those collections through
+  YORSO-owned PostgreSQL tables.
+- The API exposes `GET`/`PATCH` collection endpoints for each section.
+- `src/lib/account-api.ts` hydrates and syncs the full account workspace, not
+  only user/company records.
+- Collection updates are replace-style for now because the current frontend
+  edits complete account-profile sections. Row-level CRUD can be added later
+  without changing the page-level adapter contract.
 
 ## Local Build
 
