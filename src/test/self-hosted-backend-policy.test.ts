@@ -45,6 +45,8 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["contracts:build"]).toBe("tsc -p packages/contracts/tsconfig.json");
     expect(pkg.scripts["db:build"]).toBe("tsc -p packages/db/tsconfig.json");
     expect(pkg.scripts["db:migrations:check"]).toContain("packages/db/dist/cli.js check");
+    expect(pkg.scripts["db:migrations:status"]).toContain("packages/db/dist/cli.js status");
+    expect(pkg.scripts["db:migrations:apply:dry-run"]).toContain("packages/db/dist/cli.js apply --dry-run");
     expect(pkg.scripts["test:db-migrations"]).toContain("packages/db/vitest.config.ts");
     expect(pkg.scripts["api:build"]).toBe("npm run contracts:build && tsc -p apps/api/tsconfig.json");
     expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
@@ -55,6 +57,8 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-db");
     expect(pkg.scripts["ci:core"]).toContain("npm run db:migrations:check");
+    expect(pkg.scripts["ci:core"]).toContain("npm run db:migrations:status");
+    expect(pkg.scripts["ci:core"]).toContain("npm run db:migrations:apply:dry-run");
     expect(pkg.scripts["ci:core"]).toContain("npm run api:build");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:db-contract");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:db-migrations");

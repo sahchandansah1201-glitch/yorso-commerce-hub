@@ -1,11 +1,12 @@
 # YORSO DB Package
 
-Status: self-hosted PostgreSQL baseline
-Batch: #21
+Status: self-hosted PostgreSQL migration runtime baseline
+Batch: #22
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
 Supabase migrations may still exist as prototype references, but this package is
 the production-direction database source for YORSO-owned server deployment.
+It remains the self-hosted PostgreSQL baseline while the runtime layer matures.
 
 ## Current Scope
 
@@ -31,17 +32,37 @@ and prints the deterministic apply order.
 ```bash
 npm run db:migrations:plan
 npm run db:migrations:check
+npm run db:migrations:status
+npm run db:migrations:apply:dry-run
 ```
 
 This gives us a stable contract before adding the live PostgreSQL apply command.
 It also keeps the repository aligned with the goal: deploy YORSO as a complete
 self-hosted product on an owned server.
 
+## Runtime Layer
+
+`packages/db/src/runtime.ts` defines the PostgreSQL client contract for the next
+step:
+
+- reads `_yorso_migrations`;
+- reports `pending`, `applied` and `drift` states;
+- refuses checksum drift before execution;
+- supports non-mutating dry-run apply planning;
+- executes live migrations transactionally only when a real client is supplied
+  and `dryRun: false` is explicitly requested.
+
+The CLI still keeps live apply disabled. `db:migrations:apply:dry-run` is safe
+and static. The future server-side deploy command will wire this runtime to a
+PostgreSQL adapter.
+
 ## Validation
 
 ```bash
 npm run check:self-hosted-db
 npm run db:migrations:check
+npm run db:migrations:status
+npm run db:migrations:apply:dry-run
 npm run test:db-contract
 npm run test:db-migrations
 ```

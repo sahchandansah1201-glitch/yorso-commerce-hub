@@ -28,6 +28,8 @@ npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run db:migrations:check
+npm run db:migrations:status
+npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
 npm run test:db-contract
@@ -46,6 +48,8 @@ npm run ci:core
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company tables or drifts toward Supabase-owned schema. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
+| `db:migrations:status` | Prints the static local migration status until the PostgreSQL adapter is wired. |
+| `db:migrations:apply:dry-run` | Prints a safe apply preview. Live mutation is disabled in CLI at this stage. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
@@ -87,6 +91,11 @@ source of truth. It checks:
 connect to PostgreSQL yet. It verifies that every manifest entry points to a
 safe SQL file, dependencies sort before dependents, SQL is checksumed, and the
 plan is deterministic.
+
+`db:migrations:apply:dry-run` validates the next runtime boundary without
+mutating a database. The runtime code can detect applied, pending and drifted
+migrations through a supplied PostgreSQL client, but the CLI does not expose live
+apply until the connection adapter and operator confirmation flow exist.
 
 ## API Skeleton Validation
 
