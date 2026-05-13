@@ -32,6 +32,15 @@ the HTTP and contract boundary executable before PostgreSQL persistence is
 added. The next backend increment should replace or complement it with a
 PostgreSQL repository while keeping the route and service contracts stable.
 
+Batch #20 adds the storage switch:
+
+- `ACCOUNT_REPOSITORY=memory` keeps local dev and CI deterministic.
+- `ACCOUNT_REPOSITORY=postgres` selects `PostgresAccountRepository`.
+- `PostgresAccountRepository` is intentionally a skeleton until the PostgreSQL
+  client and migration runner are added.
+- `packages/db/migrations/0001_account_company_baseline.sql` defines the first
+  self-hosted PostgreSQL schema for these endpoints.
+
 ## Local Build
 
 ```bash
@@ -66,7 +75,9 @@ prototype/schema-validation tool while the self-hosted backend matures.
 
 ```bash
 npm run check:self-hosted-api
+npm run check:self-hosted-db
 npm run api:build
 npm run test:api
+npm run test:db-contract
 npm run ci:core
 ```

@@ -23,6 +23,7 @@ Validate the static self-hosted baseline without starting Docker:
 ```bash
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
+npm run check:self-hosted-db
 ```
 
 The full validation flow is documented in

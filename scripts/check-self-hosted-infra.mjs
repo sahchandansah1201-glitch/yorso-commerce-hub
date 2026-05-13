@@ -37,6 +37,7 @@ for (const [service, pattern] of requiredServices) {
 const requiredComposeMarkers = [
   "dockerfile: apps/api/Dockerfile",
   "YORSO_API_HOST: 0.0.0.0",
+  "ACCOUNT_REPOSITORY: postgres",
   "DATABASE_URL: postgres://${POSTGRES_USER",
   "REDIS_URL: redis://redis:6379",
   "S3_ENDPOINT: http://minio:9000",
@@ -68,6 +69,7 @@ const requiredEnvKeys = [
   "YORSO_PUBLIC_APP_URL",
   "YORSO_API_URL",
   "YORSO_API_PORT",
+  "ACCOUNT_REPOSITORY",
   "POSTGRES_HOST",
   "POSTGRES_PORT",
   "POSTGRES_DB",

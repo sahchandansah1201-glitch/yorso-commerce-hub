@@ -1,7 +1,8 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { ApiConfig } from "./config.js";
 import { createRequestContext, getRequestUrl, methodNotAllowed, sendError } from "./http.js";
-import { createDefaultAccountRepository, type AccountRepository } from "./modules/account/repository.js";
+import { createAccountRepository } from "./modules/account/factory.js";
+import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
 import { AccountService } from "./modules/account/service.js";
 import { handleAccountCompanyContract } from "./routes/account.js";
@@ -12,7 +13,7 @@ export interface ApiServerOptions {
 }
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
-  const accountService = new AccountService(options.accountRepository ?? createDefaultAccountRepository());
+  const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
 
   return createServer((request, response) => {
     const context = createRequestContext();

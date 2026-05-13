@@ -128,8 +128,10 @@ npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
+npm run check:self-hosted-db
 npm run api:build
 npm run test:api
+npm run test:db-contract
 npm run test:backend-contract
 npm run ci:core
 ```
@@ -148,6 +150,11 @@ The account module now has a route/service/repository split. Its current
 repository is in-memory only, so it is not production persistence. This is an
 intentional seam before adding PostgreSQL storage: HTTP behavior and DTO
 validation should stay stable while the repository implementation changes.
+
+`packages/db` is now the self-hosted PostgreSQL baseline. Its first migration
+defines `yorso_users`, `yorso_companies` and `yorso_company_media`. Supabase SQL
+may still be used as reference material, but the production-direction schema
+must live under `packages/db`.
 
 ## Access Control Rule
 
