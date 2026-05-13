@@ -13,6 +13,7 @@
     "ci:core": "npm run check:supabase-types && npm run lint && tsc -b --noEmit && npm run build && npm run test:access-contract && npm run test:backend-contract",
     "smoke:e2e": "npm run build && npm run smoke:e2e:run",
     "smoke:e2e:account-company": "npm run build && npm run smoke:e2e:account-company:run",
+    "smoke:e2e:account-company:report": "npm run build && npm run smoke:e2e:account-company:report:run",
     "supabase:access-preflight": "node scripts/supabase-access-preflight.mjs",
     "supabase:access-seed": "npx supabase db query --linked --file supabase/seeds/access-smoke-baseline.sql",
     "supabase:access-smoke": "node scripts/supabase-access-write-smoke.mjs",
@@ -25,6 +26,7 @@
     "test:backend-contract": "vitest run src/test/supabase-*.test.ts",
     "smoke:e2e:core": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts --project=chromium",
     "smoke:e2e:account-company:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/account-company-edit-contract.spec.ts --project=chromium",
+    "smoke:e2e:account-company:report:run": "E2E_USE_WEB_SERVER=1 PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/account-company-save-flow/playwright-report.json playwright test e2e/account-company-save-flow-report.spec.ts --project=chromium --reporter=list,json",
     "smoke:e2e:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts e2e/offer-detail-access.spec.ts e2e/profile-legacy-redirects.spec.ts e2e/account-personal-save-enter-focus.spec.ts e2e/account-personal-autosave-no-focus-steal.spec.ts e2e/account-personal-validation-focus.spec.ts e2e/account-workspace-sections.spec.ts e2e/account-company-edit-contract.spec.ts e2e/account-branches-crud.spec.ts e2e/account-products-crud.spec.ts e2e/account-meta-regions-crud.spec.ts e2e/account-notifications-editing.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-locked-i18n.spec.ts e2e/suppliers-no-horizontal-overflow.spec.ts e2e/blog-mobile-locale-390.spec.ts --project=chromium"
   },
   "dependencies": {
