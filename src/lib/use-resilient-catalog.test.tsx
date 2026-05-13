@@ -181,4 +181,27 @@ describe("useResilientOffer — события деградации/восста
 
     unmount();
   });
+
+  it("показывает demo fallback для seeded UUID, если API вернул null", async () => {
+    const seededUuid = "00000000-0000-0000-0000-000000000001";
+    fetchOfferByIdMock.mockResolvedValue(null);
+
+    const { result, unmount } = renderHook(() =>
+      useResilientOffer(seededUuid, "anonymous_locked"),
+    );
+
+    await advance(100);
+
+    expect(result.current.data?.productName).toBe(mockOffers[0].productName);
+    expect(result.current.usingFallback).toBe(true);
+    expect(result.current.error).toBeNull();
+    expect(eventsOf("catalog_soft_fallback_applied")).toContainEqual(
+      expect.objectContaining({
+        level: "anonymous_locked",
+        lastErrorCode: "NOT_FOUND",
+      }),
+    );
+
+    unmount();
+  });
 });

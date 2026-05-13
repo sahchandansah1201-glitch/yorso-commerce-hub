@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { REPORTS, expectedScreenshotsFor, reportNames } from "./lib/report-artifact-config.mjs";
+import { reportNames } from "./lib/report-artifact-config.mjs";
+import { validateReportArtifact } from "./lib/report-artifact-validation.mjs";
 
 const parseArgs = () => {
   const args = process.argv.slice(2);
@@ -36,52 +37,21 @@ const parseArgs = () => {
   return options;
 };
 
-const readJson = (filePath) => JSON.parse(readFileSync(filePath, "utf8"));
-
 const summarizeReport = (reportName, root) => {
-  const report = REPORTS[reportName];
-  const reportJsonPath = path.join(root, "report.json");
-  const playwrightJsonPath = path.join(root, "playwright-report.json");
-  const result = {
-    reportName,
-    artifactName: report.artifactName,
-    title: report.title,
-    root,
-    exists: existsSync(reportJsonPath),
-    passed: 0,
-    failed: 0,
-    stepCount: 0,
-    screenshotCount: 0,
-    expectedScreenshotCount: expectedScreenshotsFor(report).length,
-    steps: [],
-    playwrightStatus: "missing",
+  const validation = validateReportArtifact(reportName, root);
+  return {
+    ...validation,
+    failed: validation.reportJson.failed,
+    stepCount: validation.reportJson.stepCount,
   };
-
-  if (!result.exists) return result;
-
-  const reportJson = readJson(reportJsonPath);
-  result.passed = reportJson.passed ?? 0;
-  result.failed = reportJson.failed ?? 0;
-  result.steps = Array.isArray(reportJson.steps) ? reportJson.steps : [];
-  result.stepCount = result.steps.length;
-  result.screenshotCount = result.steps.filter((step) => step.screenshot).length;
-
-  if (existsSync(playwrightJsonPath)) {
-    const playwrightJson = readJson(playwrightJsonPath);
-    const asText = JSON.stringify(playwrightJson);
-    result.playwrightStatus =
-      /"status":"failed"|"status":"timedOut"/.test(asText) ? "failed" : "passed";
-  }
-
-  return result;
 };
 
 const renderSummary = (summaries, runUrl) => {
   const rows = summaries.map((summary) =>
     [
       summary.title,
-      summary.failed === 0 && summary.playwrightStatus === "passed" ? "passed" : "check",
-      `${summary.passed}/${summary.stepCount}`,
+      summary.passed ? "passed" : "check",
+      `${summary.reportJson.passed}/${summary.expectedStepCount}`,
       `${summary.screenshotCount}/${summary.expectedScreenshotCount}`,
       `\`${summary.artifactName}\``,
     ].join(" | "),
@@ -94,6 +64,10 @@ const renderSummary = (summaries, runUrl) => {
     `Artifact: \`${summary.artifactName}\``,
     `Root checked: \`${summary.root}\``,
     `Playwright JSON: ${summary.playwrightStatus}`,
+    `Files: ${summary.fileChecks.filter((file) => file.exists && file.isFile && file.size > 0).length}/${summary.requiredFiles.length}`,
+    ...(summary.failures.length > 0
+      ? ["", "Failures:", "", ...summary.failures.map((failure) => `- ${failure}`)]
+      : []),
     "",
     ...summary.steps.map((step, index) => {
       const screenshot = step.screenshot ? `, screenshot: \`${step.screenshot}\`` : "";

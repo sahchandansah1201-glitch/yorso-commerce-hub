@@ -327,6 +327,26 @@ export const useResilientOffer = (
       .then((res) => {
         if (cancelled) return;
         window.clearTimeout(softFallbackTimer);
+        if (!res) {
+          const fallback = findFallbackOfferById(id, level);
+          if (fallback) {
+            setData(fallback);
+            setUsingFallback(true);
+            setError(null);
+            analytics.track("catalog_soft_fallback_applied", {
+              level,
+              lastErrorCode: "NOT_FOUND",
+              httpStatus: null,
+              correlationId,
+            });
+          } else {
+            setData(null);
+            setUsingFallback(false);
+          }
+          setFailedAttempts(0);
+          setLastErrorCode(null);
+          return;
+        }
         setData(res);
         setUsingFallback(false);
         setFailedAttempts(0);
