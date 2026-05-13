@@ -15,6 +15,22 @@ compiled, started and wired into Docker Compose.
 | `GET /health/live` | Confirms the API process is alive. |
 | `GET /health/ready` | Confirms self-hosted dependencies are configured. |
 | `GET /v1/account/company/schema` | Exposes the account/company DTO boundary used by frontend work. |
+| `GET /v1/account/me` | Returns the current user profile through the account service. |
+| `GET /v1/account/company` | Returns the current company profile through the account service. |
+| `PATCH /v1/account/company` | Validates and updates company profile fields through the contract schema. |
+
+## Account Module Boundary
+
+`apps/api/src/modules/account` is split into:
+
+- `routes.ts`: HTTP method/path handling and JSON body parsing;
+- `service.ts`: validation and business-facing account operations;
+- `repository.ts`: storage interface plus temporary in-memory implementation.
+
+The in-memory repository is not the production storage layer. It exists to make
+the HTTP and contract boundary executable before PostgreSQL persistence is
+added. The next backend increment should replace or complement it with a
+PostgreSQL repository while keeping the route and service contracts stable.
 
 ## Local Build
 

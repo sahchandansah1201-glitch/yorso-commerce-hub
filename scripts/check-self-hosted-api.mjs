@@ -4,6 +4,9 @@ import { existsSync, readFileSync } from "node:fs";
 const requiredFiles = [
   "apps/api/src/index.ts",
   "apps/api/src/server.ts",
+  "apps/api/src/modules/account/repository.ts",
+  "apps/api/src/modules/account/service.ts",
+  "apps/api/src/modules/account/routes.ts",
   "apps/api/src/config.ts",
   "apps/api/src/http.ts",
   "apps/api/src/routes/health.ts",
@@ -24,10 +27,14 @@ const read = (file) => readFileSync(file, "utf8");
 const pkg = JSON.parse(read("package.json"));
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
+const accountService = read("apps/api/src/modules/account/service.ts");
+const accountRepository = read("apps/api/src/modules/account/repository.ts");
+const accountRoutes = read("apps/api/src/modules/account/routes.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
+const contractsIndex = read("packages/contracts/src/index.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -62,9 +69,17 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
 requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
+requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
 requireText("apps/api/src/config.ts", config, "Supabase env values must stay empty in production self-hosted API config.");
+requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileUpdateSchema.parse");
+requireText("apps/api/src/modules/account/service.ts", accountService, "companyProfileSchema.parse");
+requireText("apps/api/src/modules/account/repository.ts", accountRepository, "interface AccountRepository");
+requireText("apps/api/src/modules/account/repository.ts", accountRepository, "class MemoryAccountRepository");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/account/me");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "/v1/account/company");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "readJsonBody");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
 requireText("apps/api/src/routes/account.ts", accountRoute, "self-hosted-yorso-api");
 requireText("apps/api/Dockerfile", dockerfile, "FROM node:22-alpine");
@@ -73,9 +88,13 @@ requireText("apps/api/Dockerfile", dockerfile, "CMD [\"node\", \"apps/api/dist/i
 requireText("infra/docker-compose.yml", compose, "dockerfile: apps/api/Dockerfile");
 requireText("infra/docker-compose.yml", compose, "VITE_SUPABASE_URL: \"\"");
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
+requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
 
 if (failures.length > 0) {
