@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -7,6 +8,7 @@ import { afterEach, describe, expect, it } from "vitest";
 const root = process.cwd();
 const tempRoots: string[] = [];
 const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
+const pngSha256 = createHash("sha256").update(pngBytes).digest("hex");
 
 const reports = {
   "account-company-save-flow": {
@@ -40,20 +42,35 @@ const makeTempRoot = () => {
   return dir;
 };
 
-const createReport = (reportName: keyof typeof reports, options: { invalidPng?: boolean } = {}) => {
+const createReport = (
+  reportName: keyof typeof reports,
+  options: { invalidPng?: boolean; omitSchema?: boolean; wrongChecksum?: boolean } = {},
+) => {
   const dir = makeTempRoot();
   const report = reports[reportName];
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "report.md"), `# ${report.title}\n\nResult: passed\n`);
+  const screenshotBuffer = options.invalidPng ? Buffer.from("not-png") : pngBytes;
+  const screenshotSha256 = options.wrongChecksum ? "0".repeat(64) : pngSha256;
   writeFileSync(
     join(dir, "report.json"),
     JSON.stringify(
       {
+        ...(options.omitSchema
+          ? {}
+          : {
+              schemaVersion: 1,
+              title: report.title,
+              artifactSubdir: reportName,
+            }),
+        generatedAt: "2026-05-13T00:00:00.000Z",
         passed: report.steps.length,
         failed: 0,
         steps: report.steps.map(([name, screenshot]) => ({
           name,
           screenshot,
+          screenshotBytes: screenshotBuffer.byteLength,
+          screenshotSha256,
           status: "passed",
           detail: `Verified report step "${name}" with enough detail for diagnostics.`,
         })),
@@ -67,7 +84,7 @@ const createReport = (reportName: keyof typeof reports, options: { invalidPng?: 
     JSON.stringify({ suites: [{ title: report.title, specs: [] }] }, null, 2),
   );
   for (const [, screenshot] of report.steps) {
-    writeFileSync(join(dir, screenshot), options.invalidPng ? Buffer.from("not-png") : pngBytes);
+    writeFileSync(join(dir, screenshot), screenshotBuffer);
   }
   return dir;
 };
@@ -101,6 +118,11 @@ describe("account report artifact tooling", () => {
     expect(diagnostics.passed).toBe(true);
     expect(diagnostics.fileChecks).toHaveLength(7);
     expect(diagnostics.steps).toHaveLength(4);
+    expect(diagnostics.reportJson.schemaVersion).toBe(1);
+    expect(diagnostics.checksumChecks).toHaveLength(4);
+    expect(diagnostics.checksumChecks.every((check: { passed: boolean }) => check.passed)).toBe(
+      true,
+    );
   });
 
   it("fails when a screenshot is present but not a PNG", () => {
@@ -109,6 +131,22 @@ describe("account report artifact tooling", () => {
     expect(() =>
       runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
     ).toThrow(/invalid PNG signature/);
+  });
+
+  it("fails when the report schema marker is missing", () => {
+    const companyRoot = createReport("account-company-save-flow", { omitSchema: true });
+
+    expect(() =>
+      runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
+    ).toThrow(/schemaVersion is missing/);
+  });
+
+  it("fails when report.json screenshot checksums do not match PNG files", () => {
+    const companyRoot = createReport("account-company-save-flow", { wrongChecksum: true });
+
+    expect(() =>
+      runNode(["scripts/check-report-artifacts.mjs", "account-company-save-flow", companyRoot]),
+    ).toThrow(/screenshotSha256 does not match/);
   });
 
   it("verifies the full account report suite and writes a Markdown summary", () => {
@@ -127,9 +165,16 @@ describe("account report artifact tooling", () => {
 
     expect(output).toContain("passed account-company-save-flow");
     expect(output).toContain("passed account-products-save-flow");
-    expect(runNode(["-e", `console.log(require('fs').readFileSync(${JSON.stringify(summaryPath)}, 'utf8'))`])).toContain(
+    const summary = runNode([
+      "-e",
+      `console.log(require('fs').readFileSync(${JSON.stringify(summaryPath)}, 'utf8'))`,
+    ]);
+    expect(summary).toContain(
       "Account report suite verification",
     );
+    expect(summary).toContain("Checksums");
+    expect(summary).toContain("4/4");
+    expect(summary).toContain("9/9");
   });
 
   it("copies a report pack before a later Playwright run can clear test-results", () => {
@@ -152,11 +197,17 @@ describe("account report artifact tooling", () => {
 
   it("keeps CI wired to Node 24 actions, report suite verification and full CI", () => {
     const workflow = runNode(["-e", "console.log(require('fs').readFileSync('.github/workflows/ci.yml', 'utf8'))"]);
+    const playwrightConfig = runNode([
+      "-e",
+      "console.log(require('fs').readFileSync('playwright.config.ts', 'utf8'))",
+    ]);
     const pkg = JSON.parse(runNode(["-e", "console.log(require('fs').readFileSync('package.json', 'utf8'))"]));
 
     expect(workflow).toContain("FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true");
     expect(workflow).toContain("Verify downloaded account report suite");
     expect(workflow).toContain("Upload account report summary");
+    expect(playwrightConfig).toContain("E2E_WORKERS");
+    expect(playwrightConfig).toContain('useWebServer ? "4" : "6"');
     expect(pkg.scripts["account:reports:run"]).toContain("copy-account-report-pack.mjs");
     expect(pkg.scripts["account:reports:verify-suite"]).toBe(
       "node scripts/verify-account-report-suite.mjs --company-root account-report-packs/account-company-save-flow --products-root account-report-packs/account-products-save-flow",

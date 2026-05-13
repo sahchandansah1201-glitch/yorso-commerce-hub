@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import type { Page, TestInfo } from "@playwright/test";
 
@@ -7,6 +8,8 @@ export interface ReportStep {
   status: "passed" | "failed";
   detail: string;
   screenshot?: string;
+  screenshotBytes?: number;
+  screenshotSha256?: string;
 }
 
 interface ReportRecorderOptions {
@@ -42,7 +45,11 @@ export const createReportRecorder = ({
       body,
       contentType: "image/png",
     });
-    return fileName;
+    return {
+      fileName,
+      bytes: body.byteLength,
+      sha256: createHash("sha256").update(body).digest("hex"),
+    };
   };
 
   const recordStep = async ({
@@ -55,7 +62,14 @@ export const createReportRecorder = ({
   }: StepOptions) => {
     const screenshot =
       page && screenshotName ? await saveScreenshot(page, testInfo, screenshotName) : undefined;
-    steps.push({ name, status, detail, screenshot });
+    steps.push({
+      name,
+      status,
+      detail,
+      screenshot: screenshot?.fileName,
+      screenshotBytes: screenshot?.bytes,
+      screenshotSha256: screenshot?.sha256,
+    });
   };
 
   const writeReport = async (testInfo: TestInfo) => {
@@ -79,7 +93,19 @@ export const createReportRecorder = ({
       "",
     ].join("\n");
 
-    const json = JSON.stringify({ generatedAt: now, passed, failed, steps }, null, 2);
+    const json = JSON.stringify(
+      {
+        schemaVersion: 1,
+        title,
+        artifactSubdir,
+        generatedAt: now,
+        passed,
+        failed,
+        steps,
+      },
+      null,
+      2,
+    );
     const markdownPath = path.join(artifactDir, "report.md");
     const jsonPath = path.join(artifactDir, "report.json");
 

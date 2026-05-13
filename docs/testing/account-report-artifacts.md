@@ -37,6 +37,15 @@ Run the largest local gate before pushing a larger QA/CI change:
 npm run ci:full
 ```
 
+The Playwright config defaults web-server E2E runs to 4 workers to reduce
+preview-server navigation flakes during broad smoke runs. Override only when
+needed:
+
+```bash
+E2E_WORKERS=2 npm run smoke:e2e
+E2E_WORKERS=6 npm run smoke:e2e
+```
+
 ## Artifact locations
 
 - `test-results/account-company-save-flow/`
@@ -50,6 +59,16 @@ Each directory must contain:
 - `report.json`
 - `playwright-report.json`
 - all expected PNG screenshots referenced by `report.json`
+
+`report.json` is a versioned contract. It must include:
+
+- `schemaVersion: 1`
+- `title`
+- `artifactSubdir`
+- `generatedAt` as an ISO timestamp
+- `passed` / `failed`
+- ordered `steps`
+- for every screenshot step: `screenshot`, `screenshotBytes`, `screenshotSha256`
 
 ## CI artifacts
 
@@ -77,12 +96,14 @@ lifecycle:
 `scripts/check-report-artifacts.mjs` fails when any of these checks fail:
 
 - `report.md` exists, is non-empty, has the expected title and `Result: passed`
+- `report.json` has schema version `1`, expected title, expected artifact subdir and valid timestamp
 - `report.json` exists, is valid JSON and has the expected passed/failed counts
 - `report.json.steps` has the expected step names in order
 - every step is `passed`
 - every step has a meaningful `detail`
 - every expected screenshot is referenced by `report.json`
 - every expected screenshot exists, is non-empty and has a PNG file signature
+- every screenshot has matching byte size and SHA-256 checksum in `report.json`
 - `playwright-report.json` exists, is valid JSON and has at least one suite
 - Playwright JSON does not contain `failed` or `timedOut` statuses
 
@@ -134,4 +155,5 @@ run URL.
 
 The workflow sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` so the repository
 tests the upcoming GitHub Actions runtime before GitHub makes Node 24 the
-default for JavaScript actions.
+default for JavaScript actions. GitHub may still display a Node 20 advisory
+annotation while confirming that the listed actions are forced onto Node 24.
