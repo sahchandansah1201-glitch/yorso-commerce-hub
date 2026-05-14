@@ -205,7 +205,7 @@ describe("YORSO self-hosted API skeleton", () => {
     expect((body.suppliers as Array<{ deliveryCountries: unknown[] }>)[0].deliveryCountries.length).toBeLessThanOrEqual(3);
   });
 
-  it("does not let locked supplier search reveal private company identity", async () => {
+  it("does not let supplier search reveal private company identity before a grant", async () => {
     const lockedResponse = await request("/v1/suppliers?q=Nordfjord&accessLevel=registered_locked");
     const lockedBody = (await lockedResponse.json()) as JsonBody;
 
@@ -213,17 +213,12 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(lockedBody.total).toBe(0);
     expect(lockedBody.suppliers).toEqual([]);
 
-    const unlockedResponse = await request("/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked");
-    const unlockedBody = (await unlockedResponse.json()) as JsonBody;
+    const qualifiedWithoutGrant = await request("/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked");
+    const qualifiedWithoutGrantBody = (await qualifiedWithoutGrant.json()) as JsonBody;
 
-    expect(unlockedResponse.status).toBe(200);
-    expect(unlockedBody.total).toBe(1);
-    expect(unlockedBody.suppliers).toEqual([
-      expect.objectContaining({
-        id: "sup-no-001",
-        companyName: "Nordfjord Sjømat AS",
-      }),
-    ]);
+    expect(qualifiedWithoutGrant.status).toBe(200);
+    expect(qualifiedWithoutGrantBody.total).toBe(0);
+    expect(qualifiedWithoutGrantBody.suppliers).toEqual([]);
   });
 
   it("filters supplier directory by verification level without unlocking private fields", async () => {
@@ -247,11 +242,44 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
   });
 
-  it("unlocks supplier identity for qualified supplier-directory access", async () => {
+  it("downgrades qualified supplier detail requests when the account has no supplier grant", async () => {
     const response = await request("/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
     const body = (await response.json()) as JsonBody;
 
     expect(response.status).toBe(200);
+    expect(body.accessLevel).toBe("registered_locked");
+    expect(body.supplier).toMatchObject({
+      id: "sup-no-001",
+      companyName: null,
+      activeOffersCount: null,
+      totalProductsCount: null,
+      website: null,
+      whatsapp: null,
+    });
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(body)).not.toContain("example-nordfjord.no");
+  });
+
+  it("unlocks supplier identity for qualified supplier-directory access after grant approval", async () => {
+    const fetchApi = await startTestServer();
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const response = await fetchApi("/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.accessLevel).toBe("qualified_unlocked");
     expect(body.supplier).toMatchObject({
       id: "sup-no-001",
       companyName: "Nordfjord Sjømat AS",

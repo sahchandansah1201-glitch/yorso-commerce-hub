@@ -191,6 +191,10 @@ async function upsertUserAndCompany(client, input) {
 }
 
 async function clearWorkspaceRows(client, companyIds, userIds) {
+  await client.query("delete from yorso_access_notifications where buyer_user_id = any($1::uuid[])", [userIds]);
+  await client.query("delete from yorso_access_events where buyer_user_id = any($1::uuid[]) or actor_user_id = any($1::uuid[])", [userIds]);
+  await client.query("delete from yorso_access_grants where buyer_user_id = any($1::uuid[]) or granted_by_user_id = any($1::uuid[])", [userIds]);
+  await client.query("delete from yorso_supplier_access_requests where buyer_user_id = any($1::uuid[]) or decided_by_user_id = any($1::uuid[])", [userIds]);
   await client.query("delete from yorso_notification_preferences where user_id = any($1::uuid[])", [userIds]);
   await client.query("delete from yorso_company_meta_regions where company_id = any($1::uuid[])", [companyIds]);
   await client.query("delete from yorso_company_products where company_id = any($1::uuid[])", [companyIds]);
@@ -278,7 +282,29 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(smokeSupplierLocked.website, null, "supplier locked website");
   console.log("supplier_directory_locked=ok");
 
+  const supplierBeforeGrant = await jsonRequest(baseUrl, "/v1/suppliers/pg32_supplier_salmon?accessLevel=qualified_unlocked");
+  assertEqual(supplierBeforeGrant.accessLevel, "registered_locked", "supplier detail requires grant");
+  assertEqual(supplierBeforeGrant.supplier?.companyName, null, "supplier identity hidden before grant");
+  assertEqual(supplierBeforeGrant.supplier?.website, null, "supplier website hidden before grant");
+  console.log("supplier_directory_requires_grant=ok");
+
+  const supplierAccessRequest = await jsonRequest(baseUrl, "/v1/access/suppliers/pg32_supplier_salmon/request", {
+    method: "POST",
+    body: { message: "" },
+  });
+  assertEqual(supplierAccessRequest.request?.status, "sent", "supplier access request sent");
+  const supplierAccessApproval = await jsonRequest(
+    baseUrl,
+    `/v1/access/supplier-requests/${encodeURIComponent(supplierAccessRequest.request.id)}/decision`,
+    {
+      method: "POST",
+      body: { status: "approved" },
+    },
+  );
+  assertEqual(supplierAccessApproval.request?.status, "approved", "supplier access request approved");
+
   const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/pg32_supplier_salmon?accessLevel=qualified_unlocked");
+  assertEqual(supplierUnlocked.accessLevel, "qualified_unlocked", "supplier unlocked access level");
   assertEqual(supplierUnlocked.supplier?.companyName, "Postgres Smoke Salmon AS", "supplier unlocked companyName");
   assertEqual(supplierUnlocked.supplier?.website, "https://postgres-smoke-supplier.example", "supplier unlocked website");
   console.log("supplier_directory_unlocked=ok");

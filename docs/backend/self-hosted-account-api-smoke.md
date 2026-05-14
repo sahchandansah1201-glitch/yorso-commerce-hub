@@ -26,8 +26,11 @@ It is intentionally different from unit tests:
   `/v1/suppliers/:id`;
 - it verifies locked supplier responses do not expose private identity,
   contact or exact-breadth fields;
-- it verifies `qualified_unlocked` supplier responses expose the full allowed
-  supplier values through the same API process.
+- it verifies `qualified_unlocked` supplier detail does not expose private
+  supplier values before grant approval;
+- it creates and approves a supplier access request, then verifies
+  `qualified_unlocked` supplier responses expose the full allowed supplier
+  values through the same API process.
 - it reads offer catalog data through `/v1/offers` and `/v1/offers/:id`;
 - it verifies locked offer responses do not expose supplier identity or exact
   price fields;
@@ -119,6 +122,7 @@ document_upload=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok
+supplier_directory_requires_grant=ok
 supplier_directory_unlocked=ok
 offer_catalog_locked=ok
 offer_catalog_private_search_guard=ok

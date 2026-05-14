@@ -10,6 +10,7 @@ const requiredFiles = [
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migration-manifest.json",
   "package.json",
+  "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
@@ -33,6 +34,7 @@ const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
+const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
@@ -137,6 +139,14 @@ if (!pkg.scripts["ci:core"]?.includes("npm run check:production-scale-baseline")
 
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
   failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
+}
+
+for (const marker of [
+  "supplier_directory_locked=ok",
+  "supplier_directory_requires_grant=ok",
+  "supplier_directory_unlocked=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }
 
 for (const marker of [

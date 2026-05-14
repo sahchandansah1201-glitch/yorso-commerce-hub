@@ -505,3 +505,10 @@ path and adds the first supplier-directory read-scaling guard. This is still
 not the final search architecture, but it prevents the next development steps
 from building high-traffic catalog discovery around unbounded frontend mocks or
 database scans.
+
+Batch #45 moves supplier profile identity unlocks from frontend state to the
+self-hosted supplier-access grant model. `/v1/suppliers/:id` can be requested
+with `qualified_unlocked`, but the API downgrades the response unless the
+current account has an approved grant for that supplier. This protects supplier
+identity, contacts and exact catalog breadth while keeping the public supplier
+directory readable and paginated.

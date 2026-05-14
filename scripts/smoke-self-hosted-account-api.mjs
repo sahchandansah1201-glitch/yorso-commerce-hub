@@ -90,10 +90,11 @@ async function runSmoke(baseUrl) {
   assertEqual(certifiedSuppliers.suppliers?.[0]?.companyName, null, "certified locked supplier hidden identity");
   console.log("supplier_directory_verified_filter=ok");
 
-  const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
-  assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
-  assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
-  console.log("supplier_directory_unlocked=ok");
+  const supplierBeforeGrant = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
+  assertEqual(supplierBeforeGrant.accessLevel, "registered_locked", "supplier detail requires grant");
+  assertEqual(supplierBeforeGrant.supplier?.companyName, null, "supplier identity hidden before grant");
+  assertEqual(supplierBeforeGrant.supplier?.website, null, "supplier website hidden before grant");
+  console.log("supplier_directory_requires_grant=ok");
 
   const offersLocked = await jsonRequest(baseUrl, "/v1/offers?q=salmon&accessLevel=anonymous_locked");
   assertEqual(offersLocked.ok, true, "offer list ok");
@@ -162,6 +163,12 @@ async function runSmoke(baseUrl) {
   assertEqual(accessFinal.accessGranted, true, "supplier access grant after approval");
   assertEqual(accessFinal.request?.status, "approved", "supplier access final status");
   console.log("supplier_access_grant=ok");
+
+  const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
+  assertEqual(supplierUnlocked.accessLevel, "qualified_unlocked", "unlocked supplier access level");
+  assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
+  assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
+  console.log("supplier_directory_unlocked=ok");
 
   const offerUnlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
   assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");

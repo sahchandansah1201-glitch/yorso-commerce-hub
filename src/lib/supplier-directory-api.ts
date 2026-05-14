@@ -1,4 +1,10 @@
 import { mockSuppliers } from "@/data/mockSuppliers";
+import {
+  ACCOUNT_SESSION_ID_HEADER,
+  ACCOUNT_USER_ID_HEADER,
+  getConfiguredAccountUserId,
+} from "@/lib/account-api";
+import { buyerSession } from "@/lib/buyer-session";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
 
@@ -70,6 +76,15 @@ const normalizeBaseUrl = (baseUrl: string) => baseUrl.replace(/\/+$/, "");
 const readBaseUrl = () => {
   const env = import.meta.env as Record<string, string | undefined>;
   return env.VITE_YORSO_API_URL ?? "";
+};
+
+const supplierDirectoryHeaders = () => {
+  const headers = new Headers({ accept: "application/json" });
+  const userId = getConfiguredAccountUserId();
+  if (userId) headers.set(ACCOUNT_USER_ID_HEADER, userId);
+  const sessionId = buyerSession.getSession()?.id;
+  if (sessionId) headers.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+  return headers;
 };
 
 const accessLevelOrDefault = (accessLevel?: SupplierDirectoryAccessLevel): SupplierDirectoryAccessLevel =>
@@ -161,7 +176,7 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
   const request = async <T>(path: string): Promise<T> => {
     const response = await fetchImpl(`${baseUrl}${path}`, {
       method: "GET",
-      headers: { accept: "application/json" },
+      headers: supplierDirectoryHeaders(),
     });
     const body = await response.json() as T & { error?: { code?: string; message?: string } };
     if (!response.ok) throw new Error(body.error?.code ?? `supplier_directory_api_${response.status}`);
