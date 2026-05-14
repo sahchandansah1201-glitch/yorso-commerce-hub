@@ -22,6 +22,7 @@ export const supplierAccessEventTypeSchema = z.enum([
   "supplier_access_rejected",
   "supplier_access_revoked",
   "notification_created",
+  "notification_read",
 ]);
 
 export const supplierAccessNotificationTypeSchema = z.enum([
@@ -105,6 +106,17 @@ export const supplierAccessNotificationsResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierAccessNotificationsAckSchema = z.object({
+  notificationIds: z.array(z.string().uuid()).min(1).max(100),
+});
+
+export const supplierAccessNotificationsAckResponseSchema = z.object({
+  ok: z.literal(true),
+  notifications: z.array(supplierAccessNotificationSchema),
+  markedReadCount: z.number().int().min(0).max(100),
+  requestId: z.string(),
+});
+
 export type SupplierAccessStatus = z.infer<typeof supplierAccessStatusSchema>;
 export type SupplierAccessIntent = z.infer<typeof supplierAccessIntentSchema>;
 export type SupplierAccessGrantScope = z.infer<typeof supplierAccessGrantScopeSchema>;
@@ -115,3 +127,5 @@ export type SupplierAccessEvent = z.infer<typeof supplierAccessEventSchema>;
 export type SupplierAccessNotification = z.infer<typeof supplierAccessNotificationSchema>;
 export type SupplierAccessRequestCreate = z.infer<typeof supplierAccessRequestCreateSchema>;
 export type SupplierAccessDecision = z.infer<typeof supplierAccessDecisionSchema>;
+export type SupplierAccessNotificationsAck = z.infer<typeof supplierAccessNotificationsAckSchema>;
+export type SupplierAccessNotificationsAckResponse = z.infer<typeof supplierAccessNotificationsAckResponseSchema>;

@@ -9,7 +9,10 @@ import {
   MOCK_ACCESS_TICK_MS,
   applyBackendSupplierAccessNotifications,
 } from "@/lib/supplier-approval-notifications";
-import { readSupplierAccessNotifications } from "@/lib/supplier-access-api";
+import {
+  acknowledgeSupplierAccessNotifications,
+  readSupplierAccessNotifications,
+} from "@/lib/supplier-access-api";
 import {
   SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
   type SupplierAccessRequest,
@@ -17,6 +20,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 vi.mock("@/lib/supplier-access-api", () => ({
+  acknowledgeSupplierAccessNotifications: vi.fn(),
   readSupplierAccessNotifications: vi.fn(),
 }));
 
@@ -25,9 +29,10 @@ vi.mock("@/hooks/use-toast", () => ({
 }));
 
 const SUPPLIER_ID = "sup-no-001";
+const NOTIFICATION_ID = "11111111-1111-4111-8111-111111111111";
 
 const approvalNotification = {
-  id: "notif-1",
+  id: NOTIFICATION_ID,
   supplierId: SUPPLIER_ID,
   type: "price_access_approved" as const,
   title: "Price access approved",
@@ -55,6 +60,7 @@ describe("SupplierApprovalNotifier", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    vi.mocked(acknowledgeSupplierAccessNotifications).mockResolvedValue([]);
     vi.mocked(readSupplierAccessNotifications).mockResolvedValue([]);
   });
 
@@ -89,6 +95,11 @@ describe("SupplierApprovalNotifier", () => {
     expect(JSON.parse(localStorage.getItem(BACKEND_NOTIFICATION_SEEN_KEY) ?? "[]")).toEqual([
       approvalNotification.id,
     ]);
+    await waitFor(() => {
+      expect(acknowledgeSupplierAccessNotifications).toHaveBeenCalledWith([
+        approvalNotification.id,
+      ]);
+    });
   });
 
   it("does not re-apply already seen backend notifications", async () => {
@@ -103,6 +114,9 @@ describe("SupplierApprovalNotifier", () => {
     await waitFor(() => expect(readSupplierAccessNotifications).toHaveBeenCalledTimes(1));
     expect(readStore()[SUPPLIER_ID]).toBeUndefined();
     expect(toast).not.toHaveBeenCalled();
+    expect(acknowledgeSupplierAccessNotifications).toHaveBeenCalledWith([
+      approvalNotification.id,
+    ]);
   });
 
   it("keeps backend notification polling separate from the fast local mock tick", async () => {
@@ -155,7 +169,7 @@ describe("SupplierApprovalNotifier", () => {
       toastSpy,
     );
 
-    expect(applied).toBe(1);
+    expect(applied).toEqual([approvalNotification.id]);
     expect(readStore()[SUPPLIER_ID]).toMatchObject({ status: "approved" });
     expect(toastSpy).toHaveBeenCalledTimes(1);
   });

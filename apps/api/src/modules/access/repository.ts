@@ -24,6 +24,7 @@ export interface SupplierAccessRepository {
   hasSupplierAccess(input: { buyerUserId: string; supplierId: string }): Promise<boolean>;
   listAccessibleSupplierIds(input: { buyerUserId: string }): Promise<string[]>;
   listNotifications(input: { buyerUserId: string; limit: number; offset: number }): Promise<SupplierAccessNotification[]>;
+  markNotificationsRead(input: { buyerUserId: string; notificationIds: string[] }): Promise<SupplierAccessNotification[]>;
 }
 
 const nowIso = () => new Date().toISOString();
@@ -132,6 +133,38 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .slice(input.offset, input.offset + input.limit),
     );
+  }
+
+  async markNotificationsRead(input: { buyerUserId: string; notificationIds: string[] }) {
+    const idSet = new Set(input.notificationIds);
+    const at = nowIso();
+    const updated: SupplierAccessNotification[] = [];
+
+    for (const notification of this.notifications.values()) {
+      if (notification.buyerUserId !== input.buyerUserId || !idSet.has(notification.id)) {
+        continue;
+      }
+
+      const next: SupplierAccessNotification = {
+        ...notification,
+        status: "read",
+        readAt: notification.readAt ?? at,
+      };
+      this.notifications.set(notification.id, next);
+      this.events.push({
+        id: randomUUID(),
+        buyerUserId: next.buyerUserId,
+        supplierId: next.supplierId,
+        requestId: null,
+        eventType: "notification_read",
+        actorUserId: input.buyerUserId,
+        metadata: { notificationId: next.id },
+        createdAt: at,
+      });
+      updated.push(next);
+    }
+
+    return clone(updated.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
   }
 
   private createEvent(

@@ -109,20 +109,34 @@ export async function handleSupplierAccessRoute(
     if (url.pathname === "/v1/access/notifications") {
       const { userId } = resolveAccountSession(request);
 
-      if (request.method !== "GET") {
-        methodNotAllowed(response, context, "GET");
+      if (request.method === "GET") {
+        sendJson(
+          response,
+          200,
+          await service.listNotifications({
+            buyerUserId: userId,
+            rawQuery: queryParams(url),
+            requestId: context.requestId,
+          }),
+        );
         return true;
       }
 
-      sendJson(
-        response,
-        200,
-        await service.listNotifications({
-          buyerUserId: userId,
-          rawQuery: queryParams(url),
-          requestId: context.requestId,
-        }),
-      );
+      if (request.method === "PATCH") {
+        const payload = await readJsonBody(request);
+        sendJson(
+          response,
+          200,
+          await service.acknowledgeNotifications({
+            buyerUserId: userId,
+            payload,
+            requestId: context.requestId,
+          }),
+        );
+        return true;
+      }
+
+      methodNotAllowed(response, context, "GET, PATCH");
       return true;
     }
   } catch (error) {

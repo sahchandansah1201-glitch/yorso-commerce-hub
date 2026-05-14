@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
+  acknowledgeSupplierAccessNotifications,
   createSupplierAccessApiClient,
   readSupplierAccessRequest,
   requestSupplierAccess,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/supplier-access-requests";
 
 const SUPPLIER_ID = "sup-no-001";
+const NOTIFICATION_ID = "11111111-1111-4111-8111-111111111111";
 
 const readStore = () =>
   JSON.parse(
@@ -80,11 +82,33 @@ describe("supplier-access-api", () => {
         }), { status: 201, headers: { "content-type": "application/json" } });
       }
 
+      if (url.endsWith("/v1/access/notifications") && init?.method === "PATCH") {
+        expect(JSON.parse(String(init.body))).toEqual({
+          notificationIds: [NOTIFICATION_ID],
+        });
+        return new Response(JSON.stringify({
+          ok: true,
+          notifications: [{
+            id: NOTIFICATION_ID,
+            buyerUserId: "00000000-0000-4000-8000-000000000042",
+            supplierId: SUPPLIER_ID,
+            type: "price_access_approved",
+            title: "Price access approved",
+            body: "Approved",
+            status: "read",
+            createdAt: "2026-05-14T00:10:00.000Z",
+            readAt: "2026-05-14T00:11:00.000Z",
+          }],
+          markedReadCount: 1,
+          requestId: "api-notifications-ack",
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
       if (url.endsWith("/v1/access/notifications")) {
         return new Response(JSON.stringify({
           ok: true,
           notifications: [{
-            id: "n-1",
+            id: NOTIFICATION_ID,
             buyerUserId: "00000000-0000-4000-8000-000000000042",
             supplierId: SUPPLIER_ID,
             type: "price_access_approved",
@@ -134,6 +158,13 @@ describe("supplier-access-api", () => {
       status: "sent",
     });
     await expect(client.notifications()).resolves.toHaveLength(1);
+    await expect(client.acknowledgeNotifications([NOTIFICATION_ID])).resolves.toMatchObject([
+      {
+        id: NOTIFICATION_ID,
+        status: "read",
+        readAt: "2026-05-14T00:11:00.000Z",
+      },
+    ]);
 
     expect(fetchImpl.mock.calls[0][0]).toBe(
       "http://localhost:3000/v1/access/suppliers/sup-no-001/request",
@@ -144,6 +175,40 @@ describe("supplier-access-api", () => {
     expect(fetchImpl.mock.calls[2][0]).toBe(
       "http://localhost:3000/v1/access/notifications",
     );
+    expect(fetchImpl.mock.calls[3][0]).toBe(
+      "http://localhost:3000/v1/access/notifications",
+    );
+  });
+
+  it("acknowledges self-hosted notifications through the configured API", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://localhost:3000");
+    const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
+      expect(init?.method).toBe("PATCH");
+      expect(JSON.parse(String(init?.body))).toEqual({
+        notificationIds: [NOTIFICATION_ID],
+      });
+
+      return new Response(JSON.stringify({
+        ok: true,
+        notifications: [{
+          id: NOTIFICATION_ID,
+          buyerUserId: "00000000-0000-4000-8000-000000000001",
+          supplierId: SUPPLIER_ID,
+          type: "price_access_approved",
+          title: "Price access approved",
+          body: "Approved",
+          status: "read",
+          createdAt: "2026-05-14T00:10:00.000Z",
+          readAt: "2026-05-14T00:11:00.000Z",
+        }],
+        markedReadCount: 1,
+        requestId: "api-notifications-ack",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    });
+    vi.stubGlobal("fetch", fetchImpl);
+
+    await expect(acknowledgeSupplierAccessNotifications([NOTIFICATION_ID])).resolves.toHaveLength(1);
+    await expect(acknowledgeSupplierAccessNotifications([])).resolves.toEqual([]);
   });
 
   it("persists an approved local request when backend reports an existing grant without a request row", async () => {

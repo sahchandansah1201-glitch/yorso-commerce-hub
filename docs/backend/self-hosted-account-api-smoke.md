@@ -45,6 +45,9 @@ It is intentionally different from unit tests:
 - it verifies approval creates supplier identity and offer price grants;
 - it verifies buyer approval notifications are visible through
   `/v1/access/notifications`.
+- it verifies processed buyer approval notifications can be acknowledged through
+  `PATCH /v1/access/notifications`, returning
+  `supplier_access_notifications_ack=ok`.
 
 The frontend bridge consumes that notification feed through
 `SupplierApprovalNotifier`. Backend polling is intentionally bounded to 60
@@ -151,6 +154,7 @@ supplier_access_pending=ok
 supplier_access_approved=ok
 supplier_access_grant=ok
 supplier_access_notifications=ok
+supplier_access_notifications_ack=ok
 self_hosted_account_api_smoke=ok
 ```
 

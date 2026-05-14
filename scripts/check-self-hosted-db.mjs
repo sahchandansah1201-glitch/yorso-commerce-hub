@@ -19,6 +19,7 @@ const files = [
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
   "packages/db/migrations/0007_supplier_access_flow.sql",
+  "packages/db/migrations/0008_access_notification_ack.sql",
 ];
 
 const failures = [];
@@ -36,7 +37,8 @@ const supplierSql = read("packages/db/migrations/0004_supplier_directory.sql");
 const supplierScalingSql = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const offerCatalogSql = read("packages/db/migrations/0006_offer_catalog.sql");
 const supplierAccessSql = read("packages/db/migrations/0007_supplier_access_flow.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}`;
+const accessNotificationAckSql = read("packages/db/migrations/0008_access_notification_ack.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -187,6 +189,14 @@ for (const marker of [
   requireText("packages/db/migrations/0007_supplier_access_flow.sql", supplierAccessSql, marker);
 }
 
+for (const marker of [
+  "alter type yorso_access_event_type add value if not exists 'notification_read'",
+  "PATCH /v1/access/notifications",
+  "idx_yorso_access_notifications_buyer_status_created",
+]) {
+  requireText("packages/db/migrations/0008_access_notification_ack.sql", accessNotificationAckSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -217,6 +227,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0006_offer_catal
 if (!manifest.migrations?.some((migration) => migration.id === "0007_supplier_access_flow")) {
   failures.push("packages/db/migration-manifest.json: missing 0007_supplier_access_flow");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0008_access_notification_ack")) {
+  failures.push("packages/db/migration-manifest.json: missing 0008_access_notification_ack");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -240,6 +253,9 @@ if (!manifest.migrations?.[6]?.dependsOn?.includes("0005_supplier_directory_sear
 }
 if (!manifest.migrations?.[7]?.dependsOn?.includes("0006_offer_catalog")) {
   failures.push("packages/db/migration-manifest.json: supplier access flow must depend on offer catalog");
+}
+if (!manifest.migrations?.[8]?.dependsOn?.includes("0007_supplier_access_flow")) {
+  failures.push("packages/db/migration-manifest.json: access notification ack must depend on supplier access flow");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

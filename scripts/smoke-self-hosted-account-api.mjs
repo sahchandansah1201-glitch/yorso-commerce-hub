@@ -237,7 +237,16 @@ async function runSmoke(baseUrl) {
   const accessNotifications = await jsonRequest(baseUrl, "/v1/access/notifications");
   assertEqual(accessNotifications.notifications?.length, 1, "supplier access notifications list");
   assertEqual(accessNotifications.notifications?.[0]?.type, "price_access_approved", "supplier access notification listed");
+  assertEqual(accessNotifications.notifications?.[0]?.status, "unread", "supplier access notification unread");
   console.log("supplier_access_notifications=ok");
+
+  const accessNotificationAck = await jsonRequest(baseUrl, "/v1/access/notifications", {
+    method: "PATCH",
+    body: { notificationIds: [accessNotifications.notifications[0].id] },
+  });
+  assertEqual(accessNotificationAck.markedReadCount, 1, "supplier access notification ack count");
+  assertEqual(accessNotificationAck.notifications?.[0]?.status, "read", "supplier access notification read");
+  console.log("supplier_access_notifications_ack=ok");
 
   const missingSession = await fetch(`${baseUrl}/v1/account/company`);
   assertStatus(missingSession, 401, "missing account session");

@@ -10,7 +10,10 @@ import {
   drainApprovalNotifications,
   processSupplierAccessRequests,
 } from "@/lib/supplier-access-approval";
-import { readSupplierAccessNotifications } from "@/lib/supplier-access-api";
+import {
+  acknowledgeSupplierAccessNotifications,
+  readSupplierAccessNotifications,
+} from "@/lib/supplier-access-api";
 import {
   BACKEND_NOTIFICATION_POLL_MS,
   MOCK_ACCESS_TICK_MS,
@@ -40,7 +43,18 @@ export const SupplierApprovalNotifier = () => {
       backendSyncInFlight = true;
       try {
         const notifications = await readSupplierAccessNotifications();
-        if (!cancelled) applyBackendSupplierAccessNotifications(notifications, showApprovalToast);
+        if (cancelled) return;
+        applyBackendSupplierAccessNotifications(notifications, showApprovalToast);
+        const notificationIds = notifications
+          .filter(
+            (notification) =>
+              notification.type === "price_access_approved" &&
+              notification.status === "unread",
+          )
+          .map((notification) => notification.id);
+        if (notificationIds.length > 0) {
+          await acknowledgeSupplierAccessNotifications(notificationIds);
+        }
       } finally {
         backendSyncInFlight = false;
       }

@@ -176,6 +176,10 @@ Production-facing behavior:
 - approval notification sync is bounded for the 10,000-concurrent-user target:
   frontend mock approvals can tick locally, but self-hosted backend polling
   must not run every few seconds per active browser tab;
+- Batch #49 adds access notification acknowledgement: after the notifier applies
+  backend approvals, it calls `PATCH /v1/access/notifications` so unread rows
+  become `read` and the API records a `notification_read` audit event in
+  migration `0008_access_notification_ack`;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 
@@ -365,9 +369,10 @@ Batch #38 adds the first self-hosted supplier and price access path. It defines
 supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,
 `/v1/access/supplier-requests/:requestId/decision` and
 `/v1/access/notifications`, memory/PostgreSQL repositories, migration
-`0007_supplier_access_flow`, frontend self-hosted adapter priority through
+`0007_supplier_access_flow`, access acknowledgement migration
+`0008_access_notification_ack`, frontend self-hosted adapter priority through
 `VITE_YORSO_API_URL`, and smoke coverage for request, pending, approved,
-grant and notification states. Access requests are idempotent per
+grant, notification and notification-read states. Access requests are idempotent per
 buyer/supplier pair. Approval creates both supplier identity and offer price
 grants so the UI can unlock exact prices and supplier details through the same
 backend decision. The access flow is part of the 10,000 concurrent-user target:

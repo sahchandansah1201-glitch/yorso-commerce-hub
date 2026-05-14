@@ -60,18 +60,27 @@ interface BackendSupplierAccessResponse {
   requestId: string;
 }
 
+interface BackendSupplierAccessNotification {
+  id: string;
+  supplierId: string;
+  type: "price_access_approved";
+  title: string;
+  body: string;
+  status: "unread" | "read";
+  createdAt: string;
+  readAt: string | null;
+}
+
 interface BackendSupplierAccessNotificationsResponse {
   ok: true;
-  notifications: Array<{
-    id: string;
-    supplierId: string;
-    type: "price_access_approved";
-    title: string;
-    body: string;
-    status: "unread" | "read";
-    createdAt: string;
-    readAt: string | null;
-  }>;
+  notifications: BackendSupplierAccessNotification[];
+  requestId: string;
+}
+
+interface BackendSupplierAccessNotificationsAckResponse {
+  ok: true;
+  notifications: BackendSupplierAccessNotification[];
+  markedReadCount: number;
   requestId: string;
 }
 
@@ -215,6 +224,17 @@ export function createSupplierAccessApiClient(
     async notifications() {
       const response = await request<BackendSupplierAccessNotificationsResponse>(
         "/v1/access/notifications",
+      );
+      return response.notifications;
+    },
+    async acknowledgeNotifications(notificationIds: string[]) {
+      if (notificationIds.length === 0) return [];
+      const response = await request<BackendSupplierAccessNotificationsAckResponse>(
+        "/v1/access/notifications",
+        {
+          method: "PATCH",
+          body: JSON.stringify({ notificationIds }),
+        },
       );
       return response.notifications;
     },
@@ -400,6 +420,20 @@ export const readSupplierAccessNotifications = async () => {
   if (!selfHosted.enabled) return [];
   try {
     return await selfHosted.notifications();
+  } catch {
+    return [];
+  }
+};
+
+export const acknowledgeSupplierAccessNotifications = async (
+  notificationIds: string[],
+) => {
+  if (notificationIds.length === 0) return [];
+
+  const selfHosted = createSupplierAccessApiClient();
+  if (!selfHosted.enabled) return [];
+  try {
+    return await selfHosted.acknowledgeNotifications(notificationIds);
   } catch {
     return [];
   }

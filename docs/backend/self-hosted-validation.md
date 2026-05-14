@@ -139,13 +139,17 @@ contract. It checks:
   `0006_offer_catalog`;
 - supplier-access request and grant indexes remain in migration
   `0007_supplier_access_flow`;
+- access notification acknowledgement remains in migration
+  `0008_access_notification_ack`, including `notification_read` audit support
+  and `PATCH /v1/access/notifications`;
 - `/suppliers` and `/offers` frontend API mode keeps paginated requests instead
   of unbounded list reads;
 - the self-hosted offer detail smoke keeps `/v1/offers/:id` access shaping,
   not-found, method and validation behavior under CI;
 - the frontend approval-notification bridge keeps self-hosted
   `/v1/access/notifications` polling at 60 seconds, prevents overlapping
-  backend sync and refreshes when a browser tab becomes visible;
+  backend sync, refreshes when a browser tab becomes visible and acknowledges
+  processed notification IDs through the self-hosted API;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not

@@ -1,6 +1,8 @@
 import {
   supplierAccessDecisionResponseSchema,
   supplierAccessDecisionSchema,
+  supplierAccessNotificationsAckResponseSchema,
+  supplierAccessNotificationsAckSchema,
   supplierAccessNotificationsResponseSchema,
   supplierAccessRequestCreateSchema,
   supplierAccessRequestResponseSchema,
@@ -82,6 +84,25 @@ export class SupplierAccessService {
     return supplierAccessNotificationsResponseSchema.parse({
       ok: true,
       notifications,
+      requestId: input.requestId,
+    });
+  }
+
+  async acknowledgeNotifications(input: {
+    buyerUserId: string;
+    payload: unknown;
+    requestId: string;
+  }) {
+    const payload = supplierAccessNotificationsAckSchema.parse(input.payload);
+    const notifications = await this.repository.markNotificationsRead({
+      buyerUserId: input.buyerUserId,
+      notificationIds: payload.notificationIds,
+    });
+
+    return supplierAccessNotificationsAckResponseSchema.parse({
+      ok: true,
+      notifications,
+      markedReadCount: notifications.length,
       requestId: input.requestId,
     });
   }

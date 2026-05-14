@@ -221,6 +221,39 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
     return result.rows.map(mapNotification);
   }
 
+  async markNotificationsRead(input: { buyerUserId: string; notificationIds: string[] }) {
+    const result = await this.client.query<AccessNotificationRow>(
+      `
+        update yorso_access_notifications
+        set status = 'read',
+            read_at = coalesce(read_at, now()),
+            updated_at = now()
+        where buyer_user_id = $1
+          and id = any($2::uuid[])
+        returning *
+      `,
+      [input.buyerUserId, input.notificationIds],
+    );
+    const notifications = result.rows.map(mapNotification);
+
+    for (const notification of notifications) {
+      await this.client.query(
+        `
+          insert into yorso_access_events (buyer_user_id, supplier_id, request_id, event_type, actor_user_id, metadata)
+          values ($1, $2, null, 'notification_read', $3, $4)
+        `,
+        [
+          notification.buyerUserId,
+          notification.supplierId,
+          input.buyerUserId,
+          JSON.stringify({ notificationId: notification.id }),
+        ],
+      );
+    }
+
+    return notifications;
+  }
+
   private async insertEvent(
     request: SupplierAccessRequest,
     eventType: SupplierAccessEventType,

@@ -146,6 +146,13 @@ and also syncs once when a hidden tab becomes visible. This avoids creating a
 2-second polling path that would generate unnecessary backend traffic at 10,000
 concurrent users.
 
+Batch #49 closes the backend acknowledgement loop for access notifications.
+After the frontend applies a `price_access_approved` notification, it calls
+`PATCH /v1/access/notifications` with the processed notification IDs. The API
+marks those rows as `read` and writes a `notification_read` audit event. This
+keeps the unread feed small, reduces repeated notification payloads at scale and
+preserves an auditable buyer-side acknowledgement trail.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

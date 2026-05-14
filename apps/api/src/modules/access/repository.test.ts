@@ -68,5 +68,20 @@ describe("MemorySupplierAccessRepository", () => {
     await expect(repository.hasSupplierAccess({ buyerUserId, supplierId })).resolves.toBe(true);
     await expect(repository.listAccessibleSupplierIds({ buyerUserId })).resolves.toEqual([supplierId]);
     await expect(repository.listNotifications({ buyerUserId, limit: 10, offset: 0 })).resolves.toHaveLength(1);
+
+    const acknowledged = await repository.markNotificationsRead({
+      buyerUserId,
+      notificationIds: [approved.notification?.id ?? ""],
+    });
+    expect(acknowledged).toEqual([
+      expect.objectContaining({
+        id: approved.notification?.id,
+        status: "read",
+        readAt: expect.any(String),
+      }),
+    ]);
+    await expect(repository.listNotifications({ buyerUserId, limit: 10, offset: 0 })).resolves.toEqual([
+      expect.objectContaining({ id: approved.notification?.id, status: "read" }),
+    ]);
   });
 });
