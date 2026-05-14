@@ -41,7 +41,10 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     supplierAccessRepository,
   );
   const supplierAccessService = new SupplierAccessService(supplierAccessRepository);
-  const supplierService = new SupplierDirectoryService(options.supplierRepository ?? createSupplierRepository(config));
+  const supplierService = new SupplierDirectoryService(
+    options.supplierRepository ?? createSupplierRepository(config),
+    supplierAccessRepository,
+  );
 
   return createServer((request, response) => {
     const context = createRequestContext();

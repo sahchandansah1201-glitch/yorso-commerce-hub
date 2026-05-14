@@ -111,8 +111,11 @@ describe("self-hosted API policy", () => {
     expect(server).toContain("createSupplierRepository(config)");
     expect(routes).toContain("/v1/suppliers");
     expect(routes).toContain("/v1/suppliers/");
+    expect(routes).toContain("resolveOptionalAccountSession");
     expect(routes).toContain("supplier_not_found");
     expect(service).toContain("shapeSupplierForAccess");
+    expect(service).toContain("hasSupplierAccess");
+    expect(service).toContain("resolveDetailAccessLevel");
     expect(service).toContain("qualified_unlocked");
     expect(repository).toContain("MemorySupplierRepository");
     expect(postgresRepository).toContain("from yorso_suppliers_directory");
@@ -121,10 +124,12 @@ describe("self-hosted API policy", () => {
     expect(contracts).toContain("supplierDirectoryItemSchema");
     expect(contracts).toContain("verificationLevel: supplierVerificationLevelSchema.optional()");
     expect(adapter).toContain("createSupplierDirectoryApiClient");
+    expect(adapter).toContain("ACCOUNT_USER_ID_HEADER");
     expect(adapter).toContain("verificationLevel");
     expect(adapter).toContain("mockSuppliers");
     expect(smoke).toContain("supplier_directory_locked=ok");
     expect(smoke).toContain("supplier_directory_verified_filter=ok");
+    expect(smoke).toContain("supplier_directory_requires_grant=ok");
     expect(smoke).toContain("supplier_directory_unlocked=ok");
   });
 

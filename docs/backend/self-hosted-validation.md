@@ -210,8 +210,10 @@ It verifies:
   through an access-shaped API response, not through frontend-only mocks.
 - Locked supplier directory responses preserve the card/profile structure but
   return private identity, contacts and exact breadth fields as `null`.
-- `qualified_unlocked` supplier directory responses return the full allowed
-  identity and contact fields through the same DTO contract.
+- `qualified_unlocked` supplier profile responses return the full allowed
+  identity and contact fields only when the current account has an approved
+  self-hosted supplier-access grant. Query parameters alone cannot unlock the
+  profile.
 - `GET /v1/offers` and `GET /v1/offers/:id` expose offer discovery through an
   access-shaped API response, not through frontend-only mocks.
 - Locked offer catalog responses preserve product, origin, MOQ and commercial
@@ -300,7 +302,8 @@ The supplier directory bridge must preserve these rules:
   the backend instead of filtering only a local page;
 - locked responses must not include real company name, about text, website,
   WhatsApp, exact active-offer count or exact catalog breadth;
-- qualified responses may include those fields through the typed API contract;
+- qualified detail responses may include those fields through the typed API
+  contract only after a supplier-access grant exists for the current account;
 - API code must not import the Supabase client.
 
 Batch #41 connects the existing `/offers` surface to the self-hosted offer
@@ -355,6 +358,12 @@ Batch #44 extends this runtime smoke with `offer_detail_requires_grant=ok`.
 The marker proves that a signed account without an approved supplier-access
 grant is downgraded to `registered_locked` even when the request asks for
 `qualified_unlocked`.
+
+Batch #45 applies the same rule to supplier profiles. The account API smoke and
+optional PostgreSQL workspace smoke include `supplier_directory_requires_grant=ok`
+before approval and `supplier_directory_unlocked=ok` after approval. This keeps
+supplier identity, contacts and exact catalog breadth behind server-side grants,
+not frontend state.
 
 ## Production Direction
 

@@ -402,8 +402,12 @@ requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, 
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "class MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");
+requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAccountSession");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_not_found");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "resolveDetailAccessLevel");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "searchAccessLevel");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "shapeSupplierForAccess");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "qualified_unlocked");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
@@ -477,6 +481,7 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "notif
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branch_row_delete=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_private_search_guard=ok");
@@ -511,6 +516,7 @@ requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgre
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "db:migrations:apply:live");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "yorso_suppliers_directory");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_locked=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_unlocked=ok");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/branches");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/products");
@@ -562,6 +568,8 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "/v1/supp
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "mockSuppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "verificationLevel");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_USER_ID_HEADER");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_SESSION_ID_HEADER");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryList");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryDetail");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");

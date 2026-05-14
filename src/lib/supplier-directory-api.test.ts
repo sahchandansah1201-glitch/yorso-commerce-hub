@@ -65,7 +65,7 @@ describe("supplier directory API adapter", () => {
   });
 
   it("calls self-hosted supplier directory endpoints when API URL is configured", async () => {
-    const fetchImpl = vi.fn(async (url: string) => {
+    const fetchImpl = vi.fn(async (url: string, _init?: RequestInit) => {
       if (url.includes("/v1/suppliers?")) {
         return new Response(JSON.stringify({
           ok: true,
@@ -127,5 +127,7 @@ describe("supplier directory API adapter", () => {
 
     expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/suppliers?q=cod&countryCode=NO&verificationLevel=documents_reviewed&accessLevel=anonymous_locked&limit=5&offset=10");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/suppliers/sup-test?accessLevel=anonymous_locked");
+    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
+    expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
   });
 });

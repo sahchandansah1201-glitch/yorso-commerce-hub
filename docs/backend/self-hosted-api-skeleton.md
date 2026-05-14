@@ -344,6 +344,22 @@ Batch #44 connects offer detail unlocks to the supplier access grant model:
   approving an access request, then verifies the same offer unlocks after the
   grant exists.
 
+Batch #45 connects supplier profile unlocks to the same supplier access grant
+model:
+
+- Supplier directory routes accept optional account-session headers through
+  the shared account session contract.
+- `SupplierDirectoryService` downgrades requested `qualified_unlocked` supplier
+  detail access to `registered_locked` unless the account has an active
+  supplier-access grant for that supplier.
+- Supplier list/search remains grant-safe: public fields are searchable, while
+  private company-name search is not used as a broad unlocked discovery path.
+- The frontend supplier directory API adapter sends the configured account
+  headers when `VITE_YORSO_API_URL` is enabled.
+- Runtime smokes emit `supplier_directory_requires_grant=ok` before approval
+  and `supplier_directory_unlocked=ok` only after the access request is
+  approved.
+
 ## Local Build
 
 ```bash

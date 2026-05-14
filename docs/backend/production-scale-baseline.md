@@ -110,6 +110,17 @@ Batch #44 hardens the offer detail access path against prototype-only unlocks:
   `offer_detail_requires_grant=ok`, proving that a query parameter alone cannot
   bypass the access model.
 
+Batch #45 applies the same server-side grant gate to supplier profiles:
+
+- `/v1/suppliers/:id?accessLevel=qualified_unlocked` downgrades to
+  `registered_locked` unless the current account has an approved
+  supplier-access grant.
+- Supplier directory API requests carry account-session headers when the
+  self-hosted API is configured.
+- Runtime smoke markers `supplier_directory_requires_grant=ok` and
+  `supplier_directory_unlocked=ok` prove that supplier identity unlocks only
+  after approval.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

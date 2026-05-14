@@ -83,6 +83,7 @@ workspace_db_counts=ok
 workspace_owner_isolation=ok
 branches_empty_replace=ok
 supplier_directory_locked=ok
+supplier_directory_requires_grant=ok
 supplier_directory_unlocked=ok
 self_hosted_workspace_postgres_smoke=ok
 ```
