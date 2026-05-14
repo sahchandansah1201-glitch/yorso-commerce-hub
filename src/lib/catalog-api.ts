@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { logCatalogPrivilegeError } from "@/lib/catalog-privilege-log";
+import { createOfferCatalogApiClient } from "@/lib/offer-catalog-api";
 
 const REDACTED_PRICE = "Цена по запросу";
 const REDACTED_SUPPLIER = "Имя поставщика скрыто";
@@ -247,6 +248,16 @@ const fetchCategoryMap = async (categoryIds: string[]) => {
 };
 
 export const fetchOffers = async (level: AccessLevel): Promise<SeafoodOffer[]> => {
+  const selfHostedOfferCatalog = createOfferCatalogApiClient();
+  if (selfHostedOfferCatalog.enabled) {
+    const response = await selfHostedOfferCatalog.listOffers({
+      accessLevel: level,
+      limit: 50,
+      offset: 0,
+    });
+    return response.offers;
+  }
+
   // Qualified — пробуем RPC. Если вернётся 0 (нет одобренных заявок), упадём на public.
   if (level === "qualified_unlocked") {
     const { data, error } = await supabase.rpc("get_qualified_offers");
@@ -277,6 +288,11 @@ export const fetchOffers = async (level: AccessLevel): Promise<SeafoodOffer[]> =
 };
 
 export const fetchOfferById = async (id: string, level: AccessLevel): Promise<SeafoodOffer | null> => {
+  const selfHostedOfferCatalog = createOfferCatalogApiClient();
+  if (selfHostedOfferCatalog.enabled) {
+    return selfHostedOfferCatalog.getOfferById(id, level);
+  }
+
   if (level === "qualified_unlocked") {
     const { data, error } = await supabase.rpc("get_qualified_offer", { p_offer_id: id });
     if (!error && Array.isArray(data) && data.length > 0) {

@@ -1,7 +1,7 @@
 # YORSO DB Package
 
 Status: self-hosted PostgreSQL migration runtime baseline
-Batch: #35
+Batch: #37
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
 Supabase migrations may still exist as prototype references, but this package is
@@ -58,10 +58,21 @@ Migration `0005_supplier_directory_search_scaling.sql` defines:
 - trigram GIN indexes for product focus and certifications search;
 - a verification-level index for certified supplier filtering.
 
-This keeps supplier discovery backend-owned and index-backed as the frontend
-moves from local mocks to the self-hosted API. The current sizing assumption is
-stable operation for at least 10,000 concurrent web users, so search/filter
-paths must remain paginated and index-backed.
+Migration `0006_offer_catalog.sql` defines:
+
+- `yorso_offers_catalog`;
+- offer format, stock status and publication enum types;
+- public product and commercial fields for catalog discovery;
+- exact price and supplier identity fields that the API must shape by access level;
+- JSONB gallery, specs, commercial terms, delivery basis, articles and volume breaks;
+- generated public/private search columns;
+- trigram GIN indexes for locked search, qualified search and certification filters;
+- bounded indexes for category, species, origin, supplier country, format and supplier link.
+
+This keeps supplier and offer discovery backend-owned and index-backed as the
+frontend moves from local mocks to the self-hosted API. The current sizing
+assumption is stable operation for at least 10,000 concurrent web users, so
+search/filter paths must remain paginated and index-backed.
 
 ## Migration Planner
 

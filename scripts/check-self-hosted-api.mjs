@@ -16,6 +16,11 @@ const requiredFiles = [
   "apps/api/src/modules/storage/repository.ts",
   "apps/api/src/modules/storage/routes.ts",
   "apps/api/src/modules/storage/service.ts",
+  "apps/api/src/modules/offers/factory.ts",
+  "apps/api/src/modules/offers/postgres-repository.ts",
+  "apps/api/src/modules/offers/repository.ts",
+  "apps/api/src/modules/offers/routes.ts",
+  "apps/api/src/modules/offers/service.ts",
   "apps/api/src/modules/suppliers/factory.ts",
   "apps/api/src/modules/suppliers/postgres-repository.ts",
   "apps/api/src/modules/suppliers/repository.ts",
@@ -30,6 +35,7 @@ const requiredFiles = [
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
+  "packages/contracts/src/offer-catalog.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
@@ -40,6 +46,8 @@ const requiredFiles = [
   "src/lib/account-api.ts",
   "src/lib/account-api.test.ts",
   "src/lib/account-documents-store.ts",
+  "src/lib/offer-catalog-api.ts",
+  "src/lib/offer-catalog-api.test.ts",
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
@@ -69,6 +77,11 @@ const storagePostgresRepository = read("apps/api/src/modules/storage/postgres-re
 const storageRepository = read("apps/api/src/modules/storage/repository.ts");
 const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const storageService = read("apps/api/src/modules/storage/service.ts");
+const offerFactory = read("apps/api/src/modules/offers/factory.ts");
+const offerPostgresRepository = read("apps/api/src/modules/offers/postgres-repository.ts");
+const offerRepository = read("apps/api/src/modules/offers/repository.ts");
+const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
+const offerService = read("apps/api/src/modules/offers/service.ts");
 const supplierFactory = read("apps/api/src/modules/suppliers/factory.ts");
 const supplierPostgresRepository = read("apps/api/src/modules/suppliers/postgres-repository.ts");
 const supplierRepository = read("apps/api/src/modules/suppliers/repository.ts");
@@ -77,6 +90,7 @@ const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
 const accountCompanyContract = read("packages/contracts/src/account-company.ts");
+const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
@@ -90,6 +104,7 @@ const companyMediaCard = read("src/components/account/CompanyMediaCard.tsx");
 const supplierProfilePreview = read("src/components/account/SupplierProfilePreview.tsx");
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
+const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -157,12 +172,20 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-directory-frontend");
 }
+if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts") {
+  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
+  failures.push("package.json: ci:core must run test:offer-catalog-frontend");
+}
 
 requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
 requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
 requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "handleStorageRoute");
+requireText("apps/api/src/server.ts", server, "handleOfferCatalogRoute");
+requireText("apps/api/src/server.ts", server, "createOfferCatalogRepository(config)");
 requireText("apps/api/src/server.ts", server, "handleSupplierDirectoryRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierRepository(config)");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
@@ -276,6 +299,22 @@ requireText("apps/api/src/modules/storage/service.ts", storageService, "class Fi
 requireText("apps/api/src/modules/storage/service.ts", storageService, "checksumSha256");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "contentBase64");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "getFileByObjectKeyForUser");
+requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "createOfferCatalogRepository");
+requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "MemoryOfferCatalogRepository");
+requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "PostgresOfferCatalogRepository");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "class PostgresOfferCatalogRepository");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "from yorso_offers_catalog");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "publication_status = 'published'");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "certifications_search ilike");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "private_search_text");
+requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "interface OfferCatalogRepository");
+requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "class MemoryOfferCatalogRepository");
+requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers");
+requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers/");
+requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "offer_not_found");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "offerCatalogQuerySchema.parse");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "shapeOfferForAccess");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "qualified_unlocked");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "createSupplierRepository");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "PostgresSupplierRepository");
@@ -320,6 +359,7 @@ requireText("infra/docker-compose.yml", compose, "yorso-api-uploads");
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-session.js\";");
+requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./offer-catalog.js\";");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountUserIdHeaderName");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountSessionHeadersSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "companyBranchCreateSchema");
@@ -330,6 +370,11 @@ requireText("packages/contracts/src/account-company.ts", accountCompanyContract,
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "metaRegionUpdateSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "notificationPreferenceCreateSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "notificationPreferenceUpdateSchema");
+requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "offerCatalogRecordSchema");
+requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "offerCatalogItemSchema");
+requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "offerCatalogQuerySchema");
+requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "supplierCountryCode: z.string().length(2).optional()");
+requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "qualified_unlocked");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryRecordSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryItemSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryQuerySchema");
@@ -351,6 +396,10 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branc
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_locked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_private_search_guard=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_filters=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_unlocked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "MIGRATION_DATABASE_URL");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=skipped");
@@ -418,6 +467,11 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "/v1/supp
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "mockSuppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "verificationLevel");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCode");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "fileToAccountUploadPayload");
@@ -454,6 +508,11 @@ forbidText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgre
 forbidText("apps/api/src/modules/storage/repository.ts", storageRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/storage/service.ts", storageService, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/offers/factory.ts", offerFactory, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/offers/repository.ts", offerRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/offers/routes.ts", offerRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/offers/service.ts", offerService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "@/integrations/supabase/client");
@@ -465,6 +524,7 @@ forbidText("src/components/account/CompanyMediaCard.tsx", companyMediaCard, "@/i
 forbidText("src/components/account/SupplierProfilePreview.tsx", supplierProfilePreview, "@/integrations/supabase/client");
 forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
 forbidText("src/lib/account-documents-store.ts", accountDocumentsStore, "@/integrations/supabase/client");
+forbidText("src/lib/offer-catalog-api.ts", offerCatalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "x-demo-user-id");
 forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "x-demo-user-id");
@@ -481,6 +541,7 @@ console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- Supplier directory API exposes access-shaped supplier discovery without Supabase production coupling.");
+console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");

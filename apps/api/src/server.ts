@@ -9,6 +9,10 @@ import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/a
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
 import type { FileService } from "./modules/storage/service.js";
+import { createOfferCatalogRepository } from "./modules/offers/factory.js";
+import type { OfferCatalogRepository } from "./modules/offers/repository.js";
+import { handleOfferCatalogRoute } from "./modules/offers/routes.js";
+import { OfferCatalogService } from "./modules/offers/service.js";
 import { createSupplierRepository } from "./modules/suppliers/factory.js";
 import type { SupplierRepository } from "./modules/suppliers/repository.js";
 import { handleSupplierDirectoryRoute } from "./modules/suppliers/routes.js";
@@ -19,17 +23,19 @@ import { handleLive, handleReady } from "./routes/health.js";
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
   fileService?: FileService;
+  offerCatalogRepository?: OfferCatalogRepository;
   supplierRepository?: SupplierRepository;
 }
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
+  const offerCatalogService = new OfferCatalogService(options.offerCatalogRepository ?? createOfferCatalogRepository(config));
   const supplierService = new SupplierDirectoryService(options.supplierRepository ?? createSupplierRepository(config));
 
   return createServer((request, response) => {
     const context = createRequestContext();
-    routeRequest(request, response, context, config, accountService, fileService, supplierService).catch((error) => {
+    routeRequest(request, response, context, config, accountService, fileService, offerCatalogService, supplierService).catch((error) => {
       console.error(error);
       sendError(response, 500, "internal_error", "Internal server error.", context);
     });
@@ -43,6 +49,7 @@ async function routeRequest(
   config: ApiConfig,
   accountService: AccountService,
   fileService: FileService,
+  offerCatalogService: OfferCatalogService,
   supplierService: SupplierDirectoryService,
 ) {
   applyCorsHeaders(request, response, config);
@@ -86,6 +93,7 @@ async function routeRequest(
 
   if (await handleAccountRoute(request, response, context, accountService, url.pathname)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, url.pathname)) return;
+  if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, url)) return;
   if (await handleSupplierDirectoryRoute(request, response, context, supplierService, url)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);

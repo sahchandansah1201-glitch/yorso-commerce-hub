@@ -6,6 +6,7 @@ const workspaceSql = () => readFileSync("packages/db/migrations/0002_account_wor
 const filesSql = () => readFileSync("packages/db/migrations/0003_account_files_and_documents.sql", "utf8");
 const supplierSql = () => readFileSync("packages/db/migrations/0004_supplier_directory.sql", "utf8");
 const supplierScalingSql = () => readFileSync("packages/db/migrations/0005_supplier_directory_search_scaling.sql", "utf8");
+const offerCatalogSql = () => readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -80,8 +81,25 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(supplierSql()).not.toContain("create extension if not exists pg_trgm");
   });
 
+  it("declares offer catalog tables and search indexes owned by YORSO", () => {
+    const text = offerCatalogSql();
+
+    expect(text).toContain("create table if not exists yorso_offers_catalog");
+    expect(text).toContain("create type yorso_offer_format");
+    expect(text).toContain("supplier_directory_id text references yorso_suppliers_directory(id)");
+    expect(text).toContain("price_min numeric");
+    expect(text).toContain("supplier jsonb not null");
+    expect(text).toContain("public_search_text text generated always");
+    expect(text).toContain("private_search_text text generated always");
+    expect(text).toContain("idx_yorso_offers_catalog_public_search_text");
+    expect(text).toContain("idx_yorso_offers_catalog_private_search_text");
+    expect(text).toContain("idx_yorso_offers_catalog_supplier_country_code");
+    expect(text).toContain("gin_trgm_ops");
+    expect(text).toContain("Self-hosted offer catalog");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -96,10 +114,12 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("create type yorso_company_document_status as enum");
     expect(text).toContain("create type yorso_supplier_type as enum");
     expect(text).toContain("create type yorso_supplier_publication_status as enum");
+    expect(text).toContain("create type yorso_offer_format as enum ('Frozen', 'Fresh', 'Chilled')");
+    expect(text).toContain("create type yorso_offer_publication_status as enum");
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -114,13 +134,17 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_suppliers_directory_public_search_text");
     expect(text).toContain("idx_yorso_suppliers_directory_private_search_text");
     expect(text).toContain("idx_yorso_suppliers_directory_certifications_search");
+    expect(text).toContain("idx_yorso_offers_catalog_category");
+    expect(text).toContain("idx_yorso_offers_catalog_origin_code");
+    expect(text).toContain("idx_yorso_offers_catalog_supplier_country_code");
+    expect(text).toContain("idx_yorso_offers_catalog_certifications_search");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
     expect(text).toContain("gin_trgm_ops");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -141,6 +165,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0003_account_files_and_documents",
       "0004_supplier_directory",
       "0005_supplier_directory_search_scaling",
+      "0006_offer_catalog",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -177,6 +202,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0005_supplier_directory_search_scaling",
           ownedTables: ["yorso_suppliers_directory"],
           dependsOn: ["0004_supplier_directory"],
+        }),
+        expect.objectContaining({
+          id: "0006_offer_catalog",
+          ownedTables: ["yorso_offers_catalog"],
+          dependsOn: ["0005_supplier_directory_search_scaling"],
         }),
       ]),
     );

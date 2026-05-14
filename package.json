@@ -28,7 +28,7 @@
     "smoke:self-hosted-workspace-postgres:run": "node scripts/smoke-self-hosted-workspace-postgres.mjs",
     "check:supabase-types": "node scripts/check-supabase-access-types.mjs",
     "check:supabase-types:strict": "node scripts/check-supabase-access-types.mjs --strict",
-    "ci:core": "npm run check:backend-policy && npm run check:supabase-boundary && npm run check:self-hosted-infra && npm run check:self-hosted-api && npm run check:self-hosted-db && npm run check:production-scale-baseline && npm run db:migrations:check && npm run db:migrations:status && npm run db:migrations:apply:dry-run && npm run check:supabase-types && npm run lint && tsc -b --noEmit && npm run db:build && npm run api:build && npm run build && npm run test:access-contract && npm run test:backend-contract && npm run test:db-contract && npm run test:db-migrations && npm run test:api && npm run smoke:self-hosted-account-api:run && npm run test:account-workspace && npm run test:supplier-directory-frontend && npm run test:tooling",
+    "ci:core": "npm run check:backend-policy && npm run check:supabase-boundary && npm run check:self-hosted-infra && npm run check:self-hosted-api && npm run check:self-hosted-db && npm run check:production-scale-baseline && npm run db:migrations:check && npm run db:migrations:status && npm run db:migrations:apply:dry-run && npm run check:supabase-types && npm run lint && tsc -b --noEmit && npm run db:build && npm run api:build && npm run build && npm run test:access-contract && npm run test:backend-contract && npm run test:db-contract && npm run test:db-migrations && npm run test:api && npm run smoke:self-hosted-account-api:run && npm run test:account-workspace && npm run test:supplier-directory-frontend && npm run test:offer-catalog-frontend && npm run test:tooling",
     "smoke:e2e": "npm run build && npm run smoke:e2e:run",
     "smoke:e2e:account-company": "npm run build && npm run smoke:e2e:account-company:run",
     "smoke:e2e:account-company:report": "npm run build && npm run smoke:e2e:account-company:report:run",
@@ -67,7 +67,8 @@
     "check:self-hosted-db": "node scripts/check-self-hosted-db.mjs",
     "check:production-scale-baseline": "node scripts/check-production-scale-baseline.mjs",
     "test:account-workspace": "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx",
-    "test:supplier-directory-frontend": "vitest run src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/Suppliers.test.tsx src/pages/Suppliers.searchAccess.test.tsx src/pages/Suppliers.i18n.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx"
+    "test:supplier-directory-frontend": "vitest run src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/Suppliers.test.tsx src/pages/Suppliers.searchAccess.test.tsx src/pages/Suppliers.i18n.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx",
+    "test:offer-catalog-frontend": "vitest run src/lib/offer-catalog-api.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

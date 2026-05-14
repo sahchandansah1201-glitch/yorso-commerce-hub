@@ -278,6 +278,95 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("lists offers without leaking locked supplier identity or exact price", async () => {
+    const response = await request("/v1/offers?q=salmon&accessLevel=anonymous_locked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.total).toBe(1);
+    expect(body.accessLevel).toBe("anonymous_locked");
+    expect(body.offers).toEqual([
+      expect.objectContaining({
+        id: "1",
+        productName: "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade",
+        priceRangeLabel: "$8.50 – $9.20",
+        priceMin: null,
+        priceMax: null,
+        currency: null,
+        supplier: expect.objectContaining({
+          id: null,
+          name: null,
+          country: "Norway",
+          profileSlug: null,
+        }),
+      }),
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+  });
+
+  it("does not let locked offer search reveal supplier identity", async () => {
+    const lockedResponse = await request("/v1/offers?q=Nordfjord&accessLevel=registered_locked");
+    const lockedBody = (await lockedResponse.json()) as JsonBody;
+
+    expect(lockedResponse.status).toBe(200);
+    expect(lockedBody.total).toBe(0);
+    expect(lockedBody.offers).toEqual([]);
+
+    const unlockedResponse = await request("/v1/offers?q=Nordfjord&accessLevel=qualified_unlocked");
+    const unlockedBody = (await unlockedResponse.json()) as JsonBody;
+
+    expect(unlockedResponse.status).toBe(200);
+    expect(unlockedBody.total).toBe(1);
+    expect(unlockedBody.offers).toEqual([
+      expect.objectContaining({
+        id: "1",
+        supplier: expect.objectContaining({ name: "Nordfjord Sjømat AS" }),
+      }),
+    ]);
+  });
+
+  it("unlocks offer exact price and supplier identity for qualified access", async () => {
+    const response = await request("/v1/offers/1?accessLevel=qualified_unlocked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.offer).toMatchObject({
+      id: "1",
+      priceMin: 8.5,
+      priceMax: 9.2,
+      currency: "USD",
+      supplier: {
+        id: "sup-no-001",
+        name: "Nordfjord Sjømat AS",
+        profileSlug: "nordfjord-sjomat",
+      },
+    });
+  });
+
+  it("filters and validates offer catalog query params", async () => {
+    const filtered = await request("/v1/offers?category=Shrimp&originCode=EC&supplierCountryCode=EC&format=Frozen&certification=BAP&accessLevel=anonymous_locked");
+    const filteredBody = (await filtered.json()) as JsonBody;
+
+    expect(filtered.status).toBe(200);
+    expect(filteredBody.total).toBe(1);
+    expect(filteredBody.offers[0]).toMatchObject({ id: "2", category: "Shrimp" });
+
+    const invalid = await request("/v1/offers?limit=999");
+    expect(invalid.status).toBe(400);
+    await expect(invalid.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+
+    const missing = await request("/v1/offers/missing-offer");
+    expect(missing.status).toBe(404);
+    await expect(missing.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "offer_not_found" },
+    });
+  });
+
   it("requires an explicit account session boundary for account endpoints", async () => {
     const missing = await request("/v1/account/me", {
       headers: { "x-yorso-user-id": "" },

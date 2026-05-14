@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and supplier-directory frontend bridge
-Batch: #35
+Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge, supplier-directory bridge and offer-catalog bridge
+Batch: #37
 Date: 2026-05-14
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -51,6 +51,8 @@ compiled, started and wired into Docker Compose.
 | `GET /v1/account/files/by-object-key?objectKey=...` | Streams a stored account file by object key when the object belongs to the current account user. |
 | `GET /v1/suppliers` | Returns access-shaped supplier directory rows with search/filter pagination. |
 | `GET /v1/suppliers/:id` | Returns one access-shaped supplier profile row or `404 supplier_not_found`. |
+| `GET /v1/offers` | Returns access-shaped offer catalog rows with search/filter pagination. |
+| `GET /v1/offers/:id` | Returns one access-shaped offer detail row or `404 offer_not_found`. |
 
 ## Account Module Boundary
 
@@ -255,6 +257,26 @@ read path for the 10,000 concurrent-user target:
 - Local/Lovable preview remains independent from the API. Empty
   `VITE_YORSO_API_URL` keeps using the mock supplier directory.
 
+Batch #37 adds the first self-hosted offer catalog API:
+
+- `packages/contracts/src/offer-catalog.ts` defines offer record,
+  access-shaped response and query DTOs.
+- `GET /v1/offers` supports `q`, `category`, `species`, `originCode`,
+  `supplierCountryCode`, `format`, `certification`, `limit`, `offset` and
+  `accessLevel`.
+- `GET /v1/offers/:id` returns one offer or `404 offer_not_found`.
+- Locked responses (`anonymous_locked`, `registered_locked`) keep product,
+  origin, MOQ and public commercial terms, but return supplier identity and
+  exact price fields as `null`.
+- `qualified_unlocked` responses return exact price and supplier identity.
+- `packages/db/migrations/0006_offer_catalog.sql` adds
+  `yorso_offers_catalog`, public/private generated search columns and trigram
+  GIN indexes for high-concurrency catalog traffic.
+- `src/lib/offer-catalog-api.ts` is the frontend adapter. `src/lib/catalog-api.ts`
+  prefers the self-hosted API when `VITE_YORSO_API_URL` is configured and keeps
+  the legacy Supabase prototype path only as fallback while the backend is
+  completed.
+
 ## Local Build
 
 ```bash
@@ -309,6 +331,7 @@ npm run smoke:self-hosted-account-api
 npm run smoke:self-hosted-account-postgres
 npm run smoke:self-hosted-workspace-postgres
 npm run test:account-workspace
+npm run test:offer-catalog-frontend
 npm run test:db-contract
 npm run ci:core
 ```

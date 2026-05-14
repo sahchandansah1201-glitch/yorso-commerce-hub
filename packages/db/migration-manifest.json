@@ -54,6 +54,13 @@
       "description": "Add index-backed supplier directory search paths for high-concurrency marketplace discovery.",
       "ownedTables": ["yorso_suppliers_directory"],
       "dependsOn": ["0004_supplier_directory"]
+    },
+    {
+      "id": "0006_offer_catalog",
+      "file": "migrations/0006_offer_catalog.sql",
+      "description": "Create the self-hosted offer catalog with access-shaped price and supplier identity fields.",
+      "ownedTables": ["yorso_offers_catalog"],
+      "dependsOn": ["0005_supplier_directory_search_scaling"]
     }
   ]
 }
