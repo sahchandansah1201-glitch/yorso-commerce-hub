@@ -24,7 +24,16 @@ export async function handleOfferCatalogRoute(
         return true;
       }
 
-      sendJson(response, 200, await service.listOffers(queryParams(url), context.requestId));
+      const session = resolveOptionalAccountSession(request);
+      sendJson(
+        response,
+        200,
+        await service.listOffers(
+          queryParams(url),
+          context.requestId,
+          session ? { buyerUserId: session.userId } : null,
+        ),
+      );
       return true;
     }
 

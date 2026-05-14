@@ -155,10 +155,14 @@ describe("self-hosted API policy", () => {
     expect(routes).toContain("/v1/offers/");
     expect(routes).toContain("offer_not_found");
     expect(service).toContain("shapeOfferForAccess");
+    expect(service).toContain("listAccessibleSupplierIds");
+    expect(service).toContain("resolveListAccessLevel");
     expect(service).toContain("qualified_unlocked");
+    expect(repository).toContain("privateSearchSupplierIds");
     expect(repository).toContain("MemoryOfferCatalogRepository");
     expect(postgresRepository).toContain("from yorso_offers_catalog");
     expect(postgresRepository).toContain("publication_status = 'published'");
+    expect(postgresRepository).toContain("supplier_directory_id = any");
     expect(contracts).toContain("offerCatalogRecordSchema");
     expect(contracts).toContain("offerCatalogItemSchema");
     expect(contracts).toContain("supplierCountryCode: z.string().length(2).optional()");
@@ -167,7 +171,11 @@ describe("self-hosted API policy", () => {
     expect(adapter).toContain("mockOffers");
     expect(smoke).toContain("offer_catalog_locked=ok");
     expect(smoke).toContain("offer_catalog_private_search_guard=ok");
+    expect(smoke).toContain("offer_catalog_private_search_requires_grant=ok");
+    expect(smoke).toContain("offer_catalog_list_requires_grant=ok");
     expect(smoke).toContain("offer_catalog_unlocked=ok");
+    expect(smoke).toContain("offer_catalog_granted_private_search=ok");
+    expect(smoke).toContain("offer_catalog_ungranted_private_search_guard=ok");
   });
 
   it("keeps the optional live PostgreSQL account smoke available without requiring it in CI", () => {

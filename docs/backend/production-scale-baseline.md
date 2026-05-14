@@ -129,6 +129,15 @@ required smoke markers are `supplier_directory_private_search_requires_grant=ok`
 `supplier_directory_granted_private_search=ok` and
 `supplier_directory_ungranted_private_search_guard=ok`.
 
+Batch #47 applies the same rule to the offer catalog. `/v1/offers` must use the
+active supplier grant set for both list response shaping and private supplier
+search. This avoids global `qualified_unlocked` scans and keeps the 10,000
+concurrent-user path bounded by PostgreSQL indexes and per-request grant sets.
+The required smoke markers are `offer_catalog_private_search_requires_grant=ok`,
+`offer_catalog_list_requires_grant=ok`,
+`offer_catalog_granted_private_search=ok` and
+`offer_catalog_ungranted_private_search_guard=ok`.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

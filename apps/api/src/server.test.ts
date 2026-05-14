@@ -362,11 +362,19 @@ describe("YORSO self-hosted API skeleton", () => {
     const unlockedBody = (await unlockedResponse.json()) as JsonBody;
 
     expect(unlockedResponse.status).toBe(200);
-    expect(unlockedBody.total).toBe(1);
-    expect(unlockedBody.offers).toEqual([
+    expect(unlockedBody.total).toBe(0);
+    expect(unlockedBody.offers).toEqual([]);
+
+    const publicQualifiedResponse = await request("/v1/offers?q=salmon&accessLevel=qualified_unlocked");
+    const publicQualifiedBody = (await publicQualifiedResponse.json()) as JsonBody;
+
+    expect(publicQualifiedResponse.status).toBe(200);
+    expect(publicQualifiedBody.total).toBe(1);
+    expect(publicQualifiedBody.offers).toEqual([
       expect.objectContaining({
         id: "1",
-        supplier: expect.objectContaining({ name: "Nordfjord Sjømat AS" }),
+        priceMin: null,
+        supplier: expect.objectContaining({ name: null }),
       }),
     ]);
   });
@@ -401,6 +409,24 @@ describe("YORSO self-hosted API skeleton", () => {
         profileSlug: "nordfjord-sjomat",
       },
     });
+
+    const grantedSearch = await fetchApi("/v1/offers?q=Nordfjord&accessLevel=qualified_unlocked");
+    const grantedSearchBody = (await grantedSearch.json()) as JsonBody;
+    expect(grantedSearch.status).toBe(200);
+    expect(grantedSearchBody.total).toBe(1);
+    expect(grantedSearchBody.offers).toEqual([
+      expect.objectContaining({
+        id: "1",
+        priceMin: 8.5,
+        supplier: expect.objectContaining({ name: "Nordfjord Sjømat AS" }),
+      }),
+    ]);
+
+    const unrelatedPrivateSearch = await fetchApi("/v1/offers?q=Pacific%20Blue&accessLevel=qualified_unlocked");
+    const unrelatedPrivateSearchBody = (await unrelatedPrivateSearch.json()) as JsonBody;
+    expect(unrelatedPrivateSearch.status).toBe(200);
+    expect(unrelatedPrivateSearchBody.total).toBe(0);
+    expect(unrelatedPrivateSearchBody.offers).toEqual([]);
   });
 
   it("downgrades qualified offer detail requests when the account has no supplier grant", async () => {

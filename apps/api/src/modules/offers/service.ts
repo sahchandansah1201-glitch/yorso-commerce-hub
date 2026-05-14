@@ -16,13 +16,23 @@ export class OfferCatalogService {
     private readonly accessRepository?: SupplierAccessRepository,
   ) {}
 
-  async listOffers(rawQuery: Record<string, string | undefined>, requestId: string) {
+  async listOffers(
+    rawQuery: Record<string, string | undefined>,
+    requestId: string,
+    viewer?: { buyerUserId: string } | null,
+  ) {
     const query = offerCatalogQuerySchema.parse(rawQuery);
-    const { offers, total } = await this.repository.listOffers(query);
+    const accessibleSupplierIds = await this.listAccessibleSupplierIds(query.accessLevel, viewer);
+    const accessibleSupplierIdSet = new Set(accessibleSupplierIds);
+    const { offers, total } = await this.repository.listOffers(query, {
+      privateSearchSupplierIds: query.q ? accessibleSupplierIds : [],
+    });
 
     return offerCatalogListResponseSchema.parse({
       ok: true,
-      offers: offers.map((offer) => shapeOfferForAccess(offer, query.accessLevel)),
+      offers: offers.map((offer) =>
+        shapeOfferForAccess(offer, this.resolveListAccessLevel(offer, query.accessLevel, accessibleSupplierIdSet)),
+      ),
       total,
       accessLevel: query.accessLevel,
       limit: query.limit,
@@ -48,6 +58,25 @@ export class OfferCatalogService {
       accessLevel,
       requestId,
     });
+  }
+
+  private async listAccessibleSupplierIds(
+    requested: OfferCatalogAccessLevel,
+    viewer?: { buyerUserId: string } | null,
+  ): Promise<string[]> {
+    if (requested !== "qualified_unlocked") return [];
+    if (!viewer?.buyerUserId || !this.accessRepository) return [];
+    return this.accessRepository.listAccessibleSupplierIds({ buyerUserId: viewer.buyerUserId });
+  }
+
+  private resolveListAccessLevel(
+    offer: OfferCatalogRecord,
+    requested: OfferCatalogAccessLevel,
+    accessibleSupplierIds: ReadonlySet<string>,
+  ): OfferCatalogAccessLevel {
+    if (requested !== "qualified_unlocked") return requested;
+    if (!offer.supplier.id) return "registered_locked";
+    return accessibleSupplierIds.has(offer.supplier.id) ? "qualified_unlocked" : "registered_locked";
   }
 
   private async resolveDetailAccessLevel(

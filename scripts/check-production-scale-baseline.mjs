@@ -153,6 +153,15 @@ for (const marker of [
 }
 
 for (const marker of [
+  "offer_catalog_private_search_requires_grant=ok",
+  "offer_catalog_list_requires_grant=ok",
+  "offer_catalog_granted_private_search=ok",
+  "offer_catalog_ungranted_private_search_guard=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
+}
+
+for (const marker of [
   "offer_detail_locked=ok",
   "offer_detail_requires_grant=ok",
   "offer_detail_unlocked=ok",
