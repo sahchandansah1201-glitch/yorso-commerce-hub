@@ -62,10 +62,12 @@ const requiredFiles = [
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
+  "src/lib/supplier-approval-notifications.ts",
   "src/lib/use-supplier-access-state.ts",
   "src/lib/use-supplier-access-state.test.tsx",
   "src/components/offer-detail/SupplierTrustPanel.access.test.tsx",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
+  "src/components/suppliers/SupplierApprovalNotifier.test.tsx",
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
   "src/lib/use-supplier-directory.ts",
@@ -136,9 +138,11 @@ const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const offerDetailPage = read("src/pages/OfferDetail.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
+const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const useSupplierAccessState = read("src/lib/use-supplier-access-state.ts");
 const supplierTrustPanelAccessTest = read("src/components/offer-detail/SupplierTrustPanel.access.test.tsx");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
+const supplierApprovalNotifierTest = read("src/components/suppliers/SupplierApprovalNotifier.test.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
@@ -223,8 +227,8 @@ if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-cat
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
 }
-if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx") {
-  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook and offer-detail access UI");
+if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx") {
+  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, offer-detail access UI and approval notification bridge");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-access-frontend");
@@ -627,8 +631,15 @@ requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "yor
 requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-request-price-access");
 requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-access-request-status");
 requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "readSupplierAccessNotifications");
-requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "persistSupplierAccessRequest");
-requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "setQualified(true");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "BACKEND_NOTIFICATION_POLL_MS");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "visibilitychange");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "backendSyncInFlight");
+requireText("src/lib/supplier-approval-notifications.ts", supplierApprovalNotifications, "persistSupplierAccessRequest");
+requireText("src/lib/supplier-approval-notifications.ts", supplierApprovalNotifications, "setQualified(true");
+requireText("src/lib/supplier-approval-notifications.ts", supplierApprovalNotifications, "BACKEND_NOTIFICATION_POLL_MS = 60_000");
+requireText("src/lib/supplier-approval-notifications.ts", supplierApprovalNotifications, "applyBackendSupplierAccessNotifications");
+requireText("src/components/suppliers/SupplierApprovalNotifier.test.tsx", supplierApprovalNotifierTest, "BACKEND_NOTIFICATION_POLL_MS");
+requireText("src/components/suppliers/SupplierApprovalNotifier.test.tsx", supplierApprovalNotifierTest, "does not re-apply already seen backend notifications");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "fileToAccountUploadPayload");

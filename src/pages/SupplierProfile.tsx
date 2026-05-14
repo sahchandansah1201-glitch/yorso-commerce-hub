@@ -567,8 +567,8 @@ const SupplierProfile = () => {
   const { level: globalLevel } = useAccessLevel();
   // Process pending mock approvals as soon as the profile mounts so that a
   // returning visitor sees the approved state immediately (the global
-  // SupplierApprovalNotifier also runs, but it polls every 2s — running it
-  // here removes the visible flash on first paint).
+  // SupplierApprovalNotifier also runs a local mock tick, but running it here
+  // removes the visible flash on first paint without waiting for a timer.
   useEffect(() => {
     if (typeof window === "undefined") return;
     processSupplierAccessRequests();

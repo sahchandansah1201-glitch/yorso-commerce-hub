@@ -72,7 +72,7 @@ npm run ci:core
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers`, supplier profile tests and the shared supplier-directory runtime bridge for self-hosted API mode, debounce, access shaping, retry/error state and local fallback. |
 | `test:offer-catalog-frontend` | Runs offer catalog frontend adapter plus list/detail runtime bridge tests for self-hosted API mode, backend-owned filters, server-filtered results, access shaping, visible fallback and local preview mode. |
-| `test:supplier-access-frontend` | Runs supplier access frontend adapter and offer-detail access UI tests for self-hosted API mode, grant-only approval, local fallback and request/status rendering. |
+| `test:supplier-access-frontend` | Runs supplier access frontend adapter, offer-detail access UI and approval-notification bridge tests for self-hosted API mode, grant-only approval, local fallback, request/status rendering, one-time toasts and bounded notification polling. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
@@ -143,6 +143,9 @@ contract. It checks:
   of unbounded list reads;
 - the self-hosted offer detail smoke keeps `/v1/offers/:id` access shaping,
   not-found, method and validation behavior under CI;
+- the frontend approval-notification bridge keeps self-hosted
+  `/v1/access/notifications` polling at 60 seconds, prevents overlapping
+  backend sync and refreshes when a browser tab becomes visible;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not

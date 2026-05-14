@@ -138,6 +138,14 @@ The required smoke markers are `offer_catalog_private_search_requires_grant=ok`,
 `offer_catalog_granted_private_search=ok` and
 `offer_catalog_ungranted_private_search_guard=ok`.
 
+Batch #48 hardens the buyer approval-notification bridge for scale. The local
+mock approval ticker may stay fast because it does not touch the network, but
+self-hosted `/v1/access/notifications` polling must be bounded. The frontend
+uses `BACKEND_NOTIFICATION_POLL_MS = 60_000`, prevents overlapping sync calls,
+and also syncs once when a hidden tab becomes visible. This avoids creating a
+2-second polling path that would generate unnecessary backend traffic at 10,000
+concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

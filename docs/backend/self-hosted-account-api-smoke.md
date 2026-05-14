@@ -46,6 +46,12 @@ It is intentionally different from unit tests:
 - it verifies buyer approval notifications are visible through
   `/v1/access/notifications`.
 
+The frontend bridge consumes that notification feed through
+`SupplierApprovalNotifier`. Backend polling is intentionally bounded to 60
+seconds and also runs once when a hidden browser tab becomes visible. The local
+mock approval ticker remains fast because it is browser-only and does not
+create API load.
+
 ## Commands
 
 ```bash
@@ -82,6 +88,8 @@ The smoke test protects the production direction:
 - supplier and price access requests must work through the self-hosted API,
   not through Supabase RPCs or browser-only localStorage.
 - supplier approval must create server-side grants and a buyer notification.
+- frontend approval notifications must be sourced from the self-hosted API when
+  configured, without relying on Supabase or unbounded 2-second backend polling.
 
 ## Runtime Mode
 

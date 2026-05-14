@@ -16,6 +16,8 @@ const requiredFiles = [
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
   "src/lib/supplier-directory-api.ts",
+  "src/lib/supplier-approval-notifications.ts",
+  "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/pages/Suppliers.tsx",
 ];
 
@@ -40,6 +42,8 @@ const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
+const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
+const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 
 const requireText = (name, text, marker) => {
@@ -205,6 +209,20 @@ for (const marker of [
   "verificationLevel",
 ]) {
   requireText("src/lib/supplier-directory-api.ts", supplierApi, marker);
+}
+
+for (const marker of [
+  "BACKEND_NOTIFICATION_POLL_MS = 60_000",
+  "MOCK_ACCESS_TICK_MS = 2_000",
+]) {
+  requireText("src/lib/supplier-approval-notifications.ts", supplierApprovalNotifications, marker);
+}
+
+for (const marker of [
+  "visibilitychange",
+  "backendSyncInFlight",
+]) {
+  requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, marker);
 }
 
 for (const marker of [
