@@ -3,7 +3,7 @@
  *
  * Covers the real procurement path from a direct offer URL:
  * - anonymous users see product context, registration CTA, and no supplier identity;
- * - registered locked users can open the price-access dialog;
+ * - registered locked users can send the one-click price-access request;
  * - qualified users see supplier identity and exact commercial terms.
  */
 import { expect, test, type Page } from "@playwright/test";
@@ -84,12 +84,12 @@ test.describe("/offers/:id · access contract", () => {
     await assertNoSupplierIdentity(page);
   });
 
-  test("registered_locked: can open price access dialog and still hides supplier identity", async ({ page }) => {
+  test("registered_locked: can send price access request and still hides supplier identity", async ({ page }) => {
     await gotoOffer(page, "registered_locked");
 
     await expect(page.getByText("Request access to unlock full details")).toBeVisible();
-    await page.getByRole("button", { name: /Request price access/i }).click();
-    await expect(page.getByTestId("access-request-dialog")).toBeVisible();
+    await page.getByTestId("supplier-request-price-access").click();
+    await expect(page.getByTestId("supplier-access-request-status")).toBeVisible();
     await assertNoSupplierIdentity(page);
   });
 

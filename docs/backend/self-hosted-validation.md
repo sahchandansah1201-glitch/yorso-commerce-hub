@@ -69,7 +69,7 @@ npm run ci:core
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers`, supplier profile tests and the shared supplier-directory runtime bridge for self-hosted API mode, debounce, access shaping, retry/error state and local fallback. |
-| `test:offer-catalog-frontend` | Runs offer catalog frontend adapter and runtime bridge tests for self-hosted API mode, backend-owned filters, server-filtered results, access shaping, visible fallback and local preview mode. |
+| `test:offer-catalog-frontend` | Runs offer catalog frontend adapter plus list/detail runtime bridge tests for self-hosted API mode, backend-owned filters, server-filtered results, access shaping, visible fallback and local preview mode. |
 | `test:supplier-access-frontend` | Runs supplier access frontend adapter and offer-detail access UI tests for self-hosted API mode, grant-only approval, local fallback and request/status rendering. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
@@ -311,6 +311,23 @@ The offer catalog bridge must preserve these rules:
 - API failures render a visible localized fallback state;
 - locked responses must not include exact price or real supplier identity;
 - API code must not import the Supabase client.
+
+Batch #42 connects the existing `/offers/:id` surface to the self-hosted offer
+detail backend path when `VITE_YORSO_API_URL` is configured.
+
+The offer detail bridge must preserve these rules:
+
+- frontend offer detail code uses `src/lib/use-offer-detail.ts`;
+- API-mode detail calls use `src/lib/offer-catalog-api.ts` and
+  `GET /v1/offers/:id`;
+- local/Lovable preview uses `findFallbackOfferById`, not a random replacement
+  offer;
+- API 404 without a safe local fallback renders the not-found state;
+- API failure for a seeded local offer renders a visible localized recovery
+  state and continues with access-shaped prototype data;
+- locked detail responses and fallback data must not include exact price or real
+  supplier identity;
+- `OfferDetail.tsx` must not import `useResilientOffer`.
 
 ## Production Direction
 

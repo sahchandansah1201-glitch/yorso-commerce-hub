@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useResilientOffer } from "@/lib/use-resilient-catalog";
+import { useOfferDetail } from "@/lib/use-offer-detail";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
@@ -51,7 +51,7 @@ const OfferDetail = () => {
   const detailAccessLevel = accessOverride ?? level;
 
   const {
-    data: offer,
+    offer,
     loading,
     error,
     usingFallback,
@@ -59,7 +59,7 @@ const OfferDetail = () => {
     lastErrorCode,
     recovering: retrying,
     retry: handleManualRetry,
-  } = useResilientOffer(id, detailAccessLevel);
+  } = useOfferDetail(id, detailAccessLevel);
 
   const supplierAccessId = offer
     ? offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id
@@ -98,14 +98,9 @@ const OfferDetail = () => {
   const lockBody = detailAccessLevel === "anonymous_locked"
     ? t.offerDetail_accessLocked_body
     : t.offerDetail_accessLimited_body;
-  const requestStatusLabel =
-    accessRequest?.status === "approved"
-      ? t.supplier_accessPanel_status_approved
-      : accessRequest?.status === "pending"
-        ? t.supplier_accessPanel_status_pending
-        : accessRequest?.status === "sent"
-          ? t.supplier_accessPanel_status_sent
-          : t.offerDetail_requestAccessCta;
+  const accessPanelCta = accessRequest
+    ? t.offerDetail_viewAccessStatusCta
+    : t.offerDetail_openAccessPanelCta;
 
   if (loading) {
     return (
@@ -215,7 +210,7 @@ const OfferDetail = () => {
             ) : supplierAccessId ? (
               <a href="#offer-supplier-access">
                 <Button size="sm" className="font-semibold">
-                  {requestStatusLabel}
+                  {accessPanelCta}
                 </Button>
               </a>
             ) : null}
@@ -231,10 +226,13 @@ const OfferDetail = () => {
           >
             <AlertTriangle className="h-4 w-4 mt-0.5 text-amber-600 shrink-0" aria-hidden />
             <div className="flex-1 min-w-0 space-y-0.5">
-              <p className="text-sm font-semibold text-foreground">Показаны демо-данные товара</p>
+              <p className="text-sm font-semibold text-foreground">{t.offerDetail_recovery_title}</p>
               <p className="text-xs text-muted-foreground">
-                Сервис временно недоступен. Неудачных попыток: {failedAttempts}
-                {lastErrorCode ? ` · код ошибки: ${lastErrorCode}` : ""}.
+                {t.offerDetail_recovery_body}{" "}
+                {t.offerDetail_loadError_attempts.replace("{count}", String(failedAttempts))}
+                {lastErrorCode
+                  ? ` · ${t.offerDetail_loadError_code.replace("{code}", String(lastErrorCode))}`
+                  : ""}.
               </p>
             </div>
             <Button
@@ -247,7 +245,7 @@ const OfferDetail = () => {
               className="gap-1.5"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
-              {retrying ? "Повтор…" : "Повторить сейчас"}
+              {retrying ? t.offerDetail_loadError_retrying : t.offerDetail_loadError_retry}
             </Button>
           </div>
         )}
@@ -296,7 +294,7 @@ const OfferDetail = () => {
           ) : (
             <a href="#offer-supplier-access" className="block">
               <Button className="h-12 w-full gap-2 text-base font-semibold">
-                {requestStatusLabel} <ArrowRight className="h-4 w-4" />
+                {accessPanelCta} <ArrowRight className="h-4 w-4" />
               </Button>
             </a>
           )}

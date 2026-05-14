@@ -12,6 +12,7 @@ const requiredFiles = [
   "package.json",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
+  "src/lib/use-offer-detail.ts",
   "src/lib/supplier-directory-api.ts",
   "src/pages/Suppliers.tsx",
 ];
@@ -33,6 +34,7 @@ const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
+const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 
@@ -145,6 +147,15 @@ for (const marker of [
   "offerCatalogApiQueryFromFilters",
 ]) {
   requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, marker);
+}
+
+for (const marker of [
+  "useOfferDetail",
+  "getOfferById",
+  "createOfferCatalogApiClient",
+  "findFallbackOfferById",
+]) {
+  requireText("src/lib/use-offer-detail.ts", useOfferDetail, marker);
 }
 
 for (const marker of [

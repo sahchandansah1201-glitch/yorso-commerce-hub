@@ -303,6 +303,19 @@ self-hosted offer catalog path:
 - API errors render a localized fallback state and continue with access-shaped
   prototype offers when available.
 
+Batch #42 connects `/offers/:id` to the same self-hosted offer catalog
+boundary:
+
+- `src/lib/use-offer-detail.ts` owns detail loading state, source selection,
+  retry and safe fallback behavior.
+- API mode calls `/v1/offers/:id?accessLevel=...` through
+  `src/lib/offer-catalog-api.ts`.
+- Local preview uses `findFallbackOfferById`, never a random replacement offer.
+- Remote 404 without a safe local fallback renders the existing not-found
+  state.
+- `OfferDetail.tsx` must not import `useResilientOffer`; detail screens should
+  cross the same self-hosted API adapter boundary as the catalog list.
+
 ## Local Build
 
 ```bash

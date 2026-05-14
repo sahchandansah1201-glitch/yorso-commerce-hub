@@ -358,6 +358,8 @@ type TranslationKeys = {
   offerDetail_loadError_retry: string;
   offerDetail_loadError_retrying: string;
   offerDetail_loadError_goCatalog: string;
+  offerDetail_recovery_title: string;
+  offerDetail_recovery_body: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
@@ -904,6 +906,8 @@ type TranslationKeys = {
   offerDetail_accessLimited_title: string;
   offerDetail_accessLimited_body: string;
   offerDetail_requestAccessCta: string;
+  offerDetail_openAccessPanelCta: string;
+  offerDetail_viewAccessStatusCta: string;
   offerDetail_priceLocked_label: string;
   offerDetail_priceLocked_anonCta: string;
   offerDetail_priceLocked_regCta: string;
@@ -2075,6 +2079,8 @@ const en: TranslationKeys = {
   offerDetail_loadError_retry: "Try again",
   offerDetail_loadError_retrying: "Retrying…",
   offerDetail_loadError_goCatalog: "Go to catalog",
+  offerDetail_recovery_title: "Showing prototype offer data",
+  offerDetail_recovery_body: "The self-hosted catalog API is unavailable. This fallback keeps the page usable while preserving access limits.",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2628,6 +2634,8 @@ const en: TranslationKeys = {
   offerDetail_accessLimited_title: "Request access to unlock full details",
   offerDetail_accessLimited_body: "Your account sees the offer summary and indicative pricing. Request access to see exact pricing, supplier contact and full commercial terms.",
   offerDetail_requestAccessCta: "Request access",
+  offerDetail_openAccessPanelCta: "Open access panel",
+  offerDetail_viewAccessStatusCta: "View access status",
   offerDetail_priceLocked_label: "Pricing available after sign up",
   offerDetail_priceLocked_anonCta: "Sign up to view exact prices",
   offerDetail_priceLocked_regCta: "Request price access",
@@ -3762,6 +3770,8 @@ const ru: TranslationKeys = {
   offerDetail_loadError_retry: "Повторить",
   offerDetail_loadError_retrying: "Повтор…",
   offerDetail_loadError_goCatalog: "Перейти к каталогу",
+  offerDetail_recovery_title: "Показаны данные предложения из прототипа",
+  offerDetail_recovery_body: "API self-hosted каталога недоступен. Резервные данные сохраняют страницу рабочей и не раскрывают закрытые поля.",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -4315,6 +4325,8 @@ const ru: TranslationKeys = {
   offerDetail_accessLimited_title: "Запросите доступ, чтобы увидеть полные детали",
   offerDetail_accessLimited_body: "Ваш аккаунт видит сводку предложения и ориентировочную цену. Запросите доступ, чтобы увидеть точную цену, контакты поставщика и полные коммерческие условия.",
   offerDetail_requestAccessCta: "Запросить доступ",
+  offerDetail_openAccessPanelCta: "Открыть панель доступа",
+  offerDetail_viewAccessStatusCta: "Посмотреть статус доступа",
   offerDetail_priceLocked_label: "Цена доступна после регистрации",
   offerDetail_priceLocked_anonCta: "Зарегистрироваться, чтобы увидеть цены",
   offerDetail_priceLocked_regCta: "Запросить доступ к цене",
@@ -5449,6 +5461,8 @@ const es: TranslationKeys = {
   offerDetail_loadError_retry: "Reintentar",
   offerDetail_loadError_retrying: "Reintentando…",
   offerDetail_loadError_goCatalog: "Ir al catálogo",
+  offerDetail_recovery_title: "Mostrando datos de oferta del prototipo",
+  offerDetail_recovery_body: "La API del catálogo self-hosted no está disponible. Este fallback mantiene la página usable sin revelar datos restringidos.",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -6002,6 +6016,8 @@ const es: TranslationKeys = {
   offerDetail_accessLimited_title: "Solicita acceso para ver el detalle completo",
   offerDetail_accessLimited_body: "Tu cuenta ve el resumen y el precio orientativo. Solicita acceso para ver el precio exacto, los contactos del proveedor y los términos comerciales completos.",
   offerDetail_requestAccessCta: "Solicitar acceso",
+  offerDetail_openAccessPanelCta: "Abrir panel de acceso",
+  offerDetail_viewAccessStatusCta: "Ver estado de acceso",
   offerDetail_priceLocked_label: "Precio disponible tras registrarte",
   offerDetail_priceLocked_anonCta: "Regístrate para ver precios exactos",
   offerDetail_priceLocked_regCta: "Solicitar acceso al precio",
