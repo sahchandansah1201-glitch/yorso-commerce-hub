@@ -44,6 +44,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
+  "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
   "scripts/smoke-self-hosted-workspace-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
@@ -68,6 +69,7 @@ const requiredFiles = [
   "src/lib/supplier-directory-api.test.ts",
   "src/lib/use-supplier-directory.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
+  "docs/backend/self-hosted-offer-detail-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
 ];
@@ -116,6 +118,7 @@ const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
+const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
 const workspacePostgresSmoke = read("scripts/smoke-self-hosted-workspace-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
@@ -138,6 +141,7 @@ const supplierApprovalNotifier = read("src/components/suppliers/SupplierApproval
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
+const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
 const workspacePostgresSmokeDocs = read("docs/backend/self-hosted-workspace-postgres-smoke.md");
 
@@ -163,6 +167,12 @@ if (pkg.scripts["smoke:self-hosted-account-api"] !== "npm run api:build && npm r
 }
 if (pkg.scripts["smoke:self-hosted-account-api:run"] !== "node scripts/smoke-self-hosted-account-api.mjs") {
   failures.push("package.json: smoke:self-hosted-account-api:run must execute scripts/smoke-self-hosted-account-api.mjs");
+}
+if (pkg.scripts["smoke:self-hosted-offer-detail"] !== "npm run api:build && npm run smoke:self-hosted-offer-detail:run") {
+  failures.push("package.json: smoke:self-hosted-offer-detail must build and run the self-hosted offer detail smoke");
+}
+if (pkg.scripts["smoke:self-hosted-offer-detail:run"] !== "node scripts/smoke-self-hosted-offer-detail.mjs") {
+  failures.push("package.json: smoke:self-hosted-offer-detail:run must execute scripts/smoke-self-hosted-offer-detail.mjs");
 }
 if (pkg.scripts["smoke:self-hosted-account-postgres"] !== "npm run api:build && npm run smoke:self-hosted-account-postgres:run") {
   failures.push("package.json: smoke:self-hosted-account-postgres must build and run the live PostgreSQL account smoke");
@@ -190,6 +200,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted account API smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
+  failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
 }
 if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
   failures.push("package.json: test:account-workspace must cover account API adapter and account workspace tests");
@@ -467,6 +480,15 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "suppl
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_access_approved=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_access_notifications=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "apps/api/dist/index.js");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "/v1/offers/1?accessLevel=anonymous_locked");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_locked=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_registered_locked=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_unlocked=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_not_found=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_method_guard=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_validation_guard=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "self_hosted_offer_detail_smoke=ok");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "MIGRATION_DATABASE_URL");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=skipped");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "ACCOUNT_REPOSITORY: \"postgres\"");
@@ -582,6 +604,11 @@ requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "listLo
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "Self-Hosted Account API Smoke");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
+requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");
+requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "npm run smoke:self-hosted-offer-detail");
+requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "offer_detail_locked=ok");
+requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "offer_detail_unlocked=ok");
+requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "self_hosted_offer_detail_smoke=ok");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "Self-Hosted Account PostgreSQL Smoke");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "npm run smoke:self-hosted-account-postgres");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=skipped");

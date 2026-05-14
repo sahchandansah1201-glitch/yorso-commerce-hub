@@ -91,6 +91,8 @@ Batch #35 introduced the first concrete high-concurrency read-path work:
 - verification-level index for supplier filters;
 - supplier-access request, grant and notification indexes;
 - frontend supplier directory and offer catalog API bridges with pagination.
+- self-hosted offer detail smoke for the bounded `/v1/offers/:id` read path,
+  locked/unlocked access shaping, not-found, method and validation guards.
 
 Batch #36 promotes the target from a supplier-directory note to a project-level
 release gate.

@@ -145,6 +145,7 @@ npm run test:db-migrations
 npm run test:backend-contract
 npm run test:account-workspace
 npm run smoke:self-hosted-account-api
+npm run smoke:self-hosted-offer-detail
 npm run ci:core
 ```
 
@@ -316,6 +317,19 @@ Production-facing behavior:
 This closes the first list-to-detail self-hosted catalog path: `/offers` owns
 server-filtered list state, and `/offers/:id` owns one-off detail loading,
 retry and safe fallback behavior.
+
+Batch #43 adds a focused runtime gate for that detail path. The standalone
+offer detail smoke starts the compiled API and verifies:
+
+- anonymous and registered locked users receive product context without real
+  supplier identity, exact price, currency or volume breaks;
+- qualified users receive exact price and supplier identity;
+- `404 offer_not_found`, `405 method_not_allowed` and `400 validation_error`
+  stay stable;
+- `ci:core` runs the smoke so detail regressions block merge.
+
+This protects the 10,000 concurrent-user path because detail reads must stay
+bounded, API-shaped and independent from frontend mock reconstruction.
 
 Batch #38 adds the first self-hosted supplier and price access path. It defines
 supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,

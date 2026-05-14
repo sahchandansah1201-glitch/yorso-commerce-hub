@@ -34,6 +34,7 @@ npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
 npm run smoke:self-hosted-account-api
+npm run smoke:self-hosted-offer-detail
 npm run smoke:self-hosted-account-postgres
 npm run smoke:self-hosted-workspace-postgres
 npm run test:db-contract
@@ -65,6 +66,7 @@ npm run ci:core
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership, supplier directory access shaping and offer catalog access shaping over real HTTP. |
+| `smoke:self-hosted-offer-detail` | Builds and starts the standalone API, then verifies `/v1/offers/:id` locked shaping, qualified unlock, not-found, method guard and validation guard over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
@@ -139,6 +141,8 @@ contract. It checks:
   `0007_supplier_access_flow`;
 - `/suppliers` and `/offers` frontend API mode keeps paginated requests instead
   of unbounded list reads;
+- the self-hosted offer detail smoke keeps `/v1/offers/:id` access shaping,
+  not-found, method and validation behavior under CI;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not
@@ -221,6 +225,9 @@ It verifies:
   contract.
 - API failures must show a localized fallback state and keep locked prototype
   offers access-shaped.
+- Batch #43 adds `smoke:self-hosted-offer-detail` so the same locked/unlocked
+  access-shaping rules are checked over a real HTTP detail request, not only by
+  frontend unit tests.
 
 ## Frontend Account API Bridge
 
@@ -328,6 +335,18 @@ The offer detail bridge must preserve these rules:
 - locked detail responses and fallback data must not include exact price or real
   supplier identity;
 - `OfferDetail.tsx` must not import `useResilientOffer`.
+
+Batch #43 adds a dedicated offer detail runtime smoke:
+
+- `scripts/smoke-self-hosted-offer-detail.mjs` starts `apps/api/dist/index.js`
+  with memory repositories and checks `GET /v1/offers/:id`;
+- success markers include `offer_detail_locked=ok`,
+  `offer_detail_registered_locked=ok`, `offer_detail_unlocked=ok`,
+  `offer_detail_not_found=ok`, `offer_detail_method_guard=ok`,
+  `offer_detail_validation_guard=ok` and
+  `self_hosted_offer_detail_smoke=ok`;
+- `ci:core` runs `smoke:self-hosted-offer-detail:run`, so a broken detail API
+  blocks merge before the frontend can depend on it.
 
 ## Production Direction
 
