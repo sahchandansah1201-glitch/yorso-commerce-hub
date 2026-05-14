@@ -172,8 +172,85 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(response.headers.get("access-control-allow-origin")).toBe("http://localhost:8080");
     expect(response.headers.get("access-control-allow-methods")).toContain("PATCH");
     expect(response.headers.get("access-control-allow-methods")).toContain("POST");
+    expect(response.headers.get("access-control-allow-methods")).toContain("DELETE");
     expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-user-id");
     expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-session-id");
+  });
+
+  it("lists suppliers without leaking locked identity or contacts", async () => {
+    const response = await request("/v1/suppliers?q=salmon&accessLevel=anonymous_locked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.total).toBe(1);
+    expect(body.accessLevel).toBe("anonymous_locked");
+    expect(body.suppliers).toEqual([
+      expect.objectContaining({
+        id: "sup-no-001",
+        maskedName: "Norwegian salmon producer · NO-114",
+        companyName: null,
+        about: null,
+        activeOffersCount: null,
+        totalProductsCount: null,
+        website: null,
+        whatsapp: null,
+      }),
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(body)).not.toContain("example-nordfjord.no");
+  });
+
+  it("does not let locked supplier search reveal private company identity", async () => {
+    const lockedResponse = await request("/v1/suppliers?q=Nordfjord&accessLevel=registered_locked");
+    const lockedBody = (await lockedResponse.json()) as JsonBody;
+
+    expect(lockedResponse.status).toBe(200);
+    expect(lockedBody.total).toBe(0);
+    expect(lockedBody.suppliers).toEqual([]);
+
+    const unlockedResponse = await request("/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked");
+    const unlockedBody = (await unlockedResponse.json()) as JsonBody;
+
+    expect(unlockedResponse.status).toBe(200);
+    expect(unlockedBody.total).toBe(1);
+    expect(unlockedBody.suppliers).toEqual([
+      expect.objectContaining({
+        id: "sup-no-001",
+        companyName: "Nordfjord Sjømat AS",
+      }),
+    ]);
+  });
+
+  it("unlocks supplier identity for qualified supplier-directory access", async () => {
+    const response = await request("/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.supplier).toMatchObject({
+      id: "sup-no-001",
+      companyName: "Nordfjord Sjømat AS",
+      activeOffersCount: 14,
+      totalProductsCount: 32,
+      website: "https://example-nordfjord.no",
+      whatsapp: "+47 555 0114",
+    });
+  });
+
+  it("validates supplier directory query params and returns 404 for missing supplier", async () => {
+    const invalid = await request("/v1/suppliers?limit=999");
+    expect(invalid.status).toBe(400);
+    await expect(invalid.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+
+    const missing = await request("/v1/suppliers/missing-supplier");
+    expect(missing.status).toBe(404);
+    await expect(missing.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "supplier_not_found" },
+    });
   });
 
   it("requires an explicit account session boundary for account endpoints", async () => {

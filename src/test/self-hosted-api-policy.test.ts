@@ -97,6 +97,34 @@ describe("self-hosted API policy", () => {
     expect(skeletonDocs).toContain("Batch #33 adds owner-scoped row-level CRUD");
   });
 
+  it("keeps supplier directory API behind self-hosted contracts and access shaping", () => {
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const routes = readFileSync("apps/api/src/modules/suppliers/routes.ts", "utf8");
+    const service = readFileSync("apps/api/src/modules/suppliers/service.ts", "utf8");
+    const repository = readFileSync("apps/api/src/modules/suppliers/repository.ts", "utf8");
+    const postgresRepository = readFileSync("apps/api/src/modules/suppliers/postgres-repository.ts", "utf8");
+    const contracts = readFileSync("packages/contracts/src/supplier-directory.ts", "utf8");
+    const adapter = readFileSync("src/lib/supplier-directory-api.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-account-api.mjs", "utf8");
+
+    expect(server).toContain("handleSupplierDirectoryRoute");
+    expect(server).toContain("createSupplierRepository(config)");
+    expect(routes).toContain("/v1/suppliers");
+    expect(routes).toContain("/v1/suppliers/");
+    expect(routes).toContain("supplier_not_found");
+    expect(service).toContain("shapeSupplierForAccess");
+    expect(service).toContain("qualified_unlocked");
+    expect(repository).toContain("MemorySupplierRepository");
+    expect(postgresRepository).toContain("from yorso_suppliers_directory");
+    expect(postgresRepository).toContain("publication_status = 'published'");
+    expect(contracts).toContain("supplierDirectoryRecordSchema");
+    expect(contracts).toContain("supplierDirectoryItemSchema");
+    expect(adapter).toContain("createSupplierDirectoryApiClient");
+    expect(adapter).toContain("mockSuppliers");
+    expect(smoke).toContain("supplier_directory_locked=ok");
+    expect(smoke).toContain("supplier_directory_unlocked=ok");
+  });
+
   it("keeps the optional live PostgreSQL account smoke available without requiring it in CI", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

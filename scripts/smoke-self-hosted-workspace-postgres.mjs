@@ -124,6 +124,7 @@ async function seedSmokeAccounts(client) {
       tradeName: "Workspace Other Seafood",
     });
     await clearWorkspaceRows(client, [primaryCompanyId, otherCompanyId], [primaryUserId, otherUserId]);
+    await seedSupplierDirectoryRows(client);
     await client.query("commit");
     console.log("workspace_seed=ok");
   } catch (error) {
@@ -196,6 +197,42 @@ async function clearWorkspaceRows(client, companyIds, userIds) {
   await client.query("delete from yorso_company_branches where company_id = any($1::uuid[])", [companyIds]);
 }
 
+async function seedSupplierDirectoryRows(client) {
+  await client.query("delete from yorso_suppliers_directory where id in ('pg32_supplier_salmon')");
+  await client.query(
+    `
+      insert into yorso_suppliers_directory (
+        id, company_id, company_name, masked_name, country, country_code, city,
+        supplier_type, in_business_since_year, product_focus, certifications,
+        certification_badges, active_offers_count, short_description, about,
+        response_signal, document_readiness, verification_level, hero_image,
+        logo_image, delivery_countries, delivery_countries_total,
+        total_products_count, product_catalog_preview, website, whatsapp,
+        publication_status, created_at, updated_at
+      )
+      values (
+        'pg32_supplier_salmon', $1, 'Postgres Smoke Salmon AS',
+        'Norwegian salmon supplier · PG-032', 'Norway', 'NO', 'Alesund',
+        'producer', 2012,
+        $2::jsonb, array['ASC', 'HACCP'],
+        $3::jsonb, 11, 'PostgreSQL smoke supplier for self-hosted supplier directory.',
+        'Private supplier identity and contact details for PostgreSQL smoke.',
+        'fast', 'ready', 'documents_reviewed', '/offers/salmon.webp',
+        null, $4::jsonb, 6, 18, $5::jsonb,
+        'https://postgres-smoke-supplier.example', '+47 32 00 00 32',
+        'published', now(), now()
+      )
+    `,
+    [
+      primaryCompanyId,
+      JSON.stringify([{ species: "Atlantic Salmon", forms: "HOG, fillet" }]),
+      JSON.stringify([{ code: "ASC", label: "ASC", logo: null }]),
+      JSON.stringify([{ code: "DE", name: "Germany" }, { code: "FR", name: "France" }]),
+      JSON.stringify([{ name: "Smoke Salmon HOG", species: "Atlantic Salmon", form: "HOG", image: "/offers/salmon.webp" }]),
+    ],
+  );
+}
+
 function startApi({ freePort, storageRoot, databaseUrl }) {
   const child = spawn(process.execPath, [apiEntry], {
     cwd: repoRoot,
@@ -229,6 +266,22 @@ async function runWorkspaceSmoke(baseUrl, client) {
   const live = await fetch(`${baseUrl}/health/live`);
   assertStatus(live, 200, "health live");
   console.log("health_live=ok");
+
+  const suppliersLocked = await jsonRequest(baseUrl, "/v1/suppliers?q=salmon&accessLevel=anonymous_locked");
+  assertEqual(
+    suppliersLocked.suppliers?.some((item) => item.id === "pg32_supplier_salmon"),
+    true,
+    "supplier directory locked row present",
+  );
+  const smokeSupplierLocked = suppliersLocked.suppliers.find((item) => item.id === "pg32_supplier_salmon");
+  assertEqual(smokeSupplierLocked.companyName, null, "supplier locked companyName");
+  assertEqual(smokeSupplierLocked.website, null, "supplier locked website");
+  console.log("supplier_directory_locked=ok");
+
+  const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/pg32_supplier_salmon?accessLevel=qualified_unlocked");
+  assertEqual(supplierUnlocked.supplier?.companyName, "Postgres Smoke Salmon AS", "supplier unlocked companyName");
+  assertEqual(supplierUnlocked.supplier?.website, "https://postgres-smoke-supplier.example", "supplier unlocked website");
+  console.log("supplier_directory_unlocked=ok");
 
   const branches = [
     {

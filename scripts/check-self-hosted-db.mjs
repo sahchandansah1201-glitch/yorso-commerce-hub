@@ -15,6 +15,7 @@ const files = [
   "packages/db/migrations/0001_account_company_baseline.sql",
   "packages/db/migrations/0002_account_workspace_sections.sql",
   "packages/db/migrations/0003_account_files_and_documents.sql",
+  "packages/db/migrations/0004_supplier_directory.sql",
 ];
 
 const failures = [];
@@ -28,7 +29,8 @@ const registrySql = read("packages/db/migrations/0000_migration_registry.sql");
 const baselineSql = read("packages/db/migrations/0001_account_company_baseline.sql");
 const workspaceSql = read("packages/db/migrations/0002_account_workspace_sections.sql");
 const filesSql = read("packages/db/migrations/0003_account_files_and_documents.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}`;
+const supplierSql = read("packages/db/migrations/0004_supplier_directory.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -100,6 +102,29 @@ for (const marker of [
   requireText("packages/db/migrations/0003_account_files_and_documents.sql", filesSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_suppliers_directory",
+  "create type yorso_supplier_type",
+  "create type yorso_supplier_response_signal",
+  "create type yorso_supplier_document_readiness",
+  "create type yorso_supplier_verification_level",
+  "create type yorso_supplier_publication_status",
+  "company_id uuid references yorso_companies(id)",
+  "product_focus jsonb",
+  "delivery_countries jsonb",
+  "product_catalog_preview jsonb",
+  "publication_status yorso_supplier_publication_status",
+  "public_search_text text generated always",
+  "private_search_text text generated always",
+  "idx_yorso_suppliers_directory_country_code",
+  "idx_yorso_suppliers_directory_supplier_type",
+  "idx_yorso_suppliers_directory_public_search_text",
+  "idx_yorso_suppliers_directory_private_search_text",
+  "Private supplier identity",
+]) {
+  requireText("packages/db/migrations/0004_supplier_directory.sql", supplierSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -118,6 +143,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0002_account_wor
 if (!manifest.migrations?.some((migration) => migration.id === "0003_account_files_and_documents")) {
   failures.push("packages/db/migration-manifest.json: missing 0003_account_files_and_documents");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0004_supplier_directory")) {
+  failures.push("packages/db/migration-manifest.json: missing 0004_supplier_directory");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -129,6 +157,9 @@ if (!manifest.migrations?.[2]?.dependsOn?.includes("0001_account_company_baselin
 }
 if (!manifest.migrations?.[3]?.dependsOn?.includes("0002_account_workspace_sections")) {
   failures.push("packages/db/migration-manifest.json: account files and documents must depend on workspace sections");
+}
+if (!manifest.migrations?.[4]?.dependsOn?.includes("0003_account_files_and_documents")) {
+  failures.push("packages/db/migration-manifest.json: supplier directory must depend on account files and documents");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
@@ -195,5 +226,5 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted DB check passed.");
-console.log("- packages/db owns the account/company/files PostgreSQL baseline.");
+console.log("- packages/db owns the account/company/files/supplier-directory PostgreSQL baseline.");
 console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");

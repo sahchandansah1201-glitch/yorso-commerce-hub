@@ -65,7 +65,7 @@
     "check:self-hosted-infra": "node scripts/check-self-hosted-infra.mjs",
     "check:self-hosted-api": "node scripts/check-self-hosted-api.mjs",
     "check:self-hosted-db": "node scripts/check-self-hosted-db.mjs",
-    "test:account-workspace": "vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx"
+    "test:account-workspace": "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

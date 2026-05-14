@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
 Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and explicit account session boundary
-Batch: #33
+Batch: #34
 Date: 2026-05-14
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -49,6 +49,8 @@ compiled, started and wired into Docker Compose.
 | `POST /v1/account/documents` | Uploads a company document file and creates a linked document record. |
 | `GET /v1/account/files/:assetId` | Streams a stored account file owned by the current account user. |
 | `GET /v1/account/files/by-object-key?objectKey=...` | Streams a stored account file by object key when the object belongs to the current account user. |
+| `GET /v1/suppliers` | Returns access-shaped supplier directory rows with search/filter pagination. |
+| `GET /v1/suppliers/:id` | Returns one access-shaped supplier profile row or `404 supplier_not_found`. |
 
 ## Account Module Boundary
 
@@ -213,6 +215,26 @@ Batch #33 adds owner-scoped row-level CRUD for the same workspace sections:
   owner-scoped list read/write path. This keeps the external HTTP contract
   stable while direct SQL row writes can be introduced later without changing
   frontend adapters.
+
+Batch #34 adds the first self-hosted supplier directory API:
+
+- `packages/contracts/src/supplier-directory.ts` defines supplier record,
+  access-shaped response and query DTOs.
+- `GET /v1/suppliers` supports `q`, `species`, `countryCode`, `supplierType`,
+  `certification`, `limit`, `offset` and `accessLevel`.
+- `GET /v1/suppliers/:id` returns one supplier or
+  `404 supplier_not_found`.
+- Locked responses (`anonymous_locked`, `registered_locked`) keep the visible
+  supplier card structure but remove private identity/contact values:
+  `companyName`, `about`, `website`, `whatsapp`, exact active offer count,
+  exact delivery market count and exact catalog size are returned as `null`.
+- `qualified_unlocked` responses return full supplier identity and contact
+  values.
+- `packages/db/migrations/0004_supplier_directory.sql` adds
+  `yorso_suppliers_directory`, search columns and indexes.
+- `src/lib/supplier-directory-api.ts` is the frontend adapter. It uses the
+  self-hosted API when `VITE_YORSO_API_URL` is configured and falls back to the
+  existing mock supplier directory in Lovable/local preview mode.
 
 ## Local Build
 

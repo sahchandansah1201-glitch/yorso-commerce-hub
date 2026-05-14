@@ -1,8 +1,8 @@
 # YORSO Self-Hosted Backend Architecture
 
 Status: production direction
-Batch: #16
-Date: 2026-05-13
+Batch: #34
+Date: 2026-05-14
 
 ## Decision
 
@@ -137,6 +137,8 @@ npm run test:api
 npm run test:db-contract
 npm run test:db-migrations
 npm run test:backend-contract
+npm run test:account-workspace
+npm run smoke:self-hosted-account-api
 npm run ci:core
 ```
 
@@ -160,7 +162,8 @@ keeps moving toward PostgreSQL.
 `packages/db` is now the self-hosted PostgreSQL baseline. Its migrations define
 the `_yorso_migrations` registry, user/company profile tables, company media,
 branches, product matrix rows, meta-regions, notification preferences, file
-asset metadata and company document records.
+asset metadata, company document records and the initial supplier directory
+table.
 Supabase SQL may still be used as reference material, but the
 production-direction schema must live under `packages/db`.
 
@@ -186,6 +189,14 @@ routes under `/v1/account/*/:id`. This lets future frontend sections persist
 one edited row at a time while the existing account workspace can continue using
 full-section replacement until the UI is refactored. The row contract is
 validated in shared DTOs, memory runtime smoke and optional PostgreSQL smoke.
+
+Batch #34 adds the first supplier directory backend path. It defines supplier
+directory DTOs, a `/v1/suppliers` list endpoint, a `/v1/suppliers/:id` detail
+endpoint, memory/PostgreSQL repositories, migration `0004_supplier_directory`,
+and a frontend adapter that falls back to existing mock suppliers when the API
+URL is empty. The critical rule is access-shaped data: locked responses keep
+the UI structure but return private identity/contact/exact-breadth fields as
+`null`; `qualified_unlocked` responses may return the full allowed fields.
 
 ## Access Control Rule
 
@@ -213,7 +224,8 @@ Build in this order:
 4. Branches and loading points. Initial self-hosted API and PostgreSQL
    persistence exist.
 5. Product matrix. Initial self-hosted API and PostgreSQL persistence exist.
-6. Supplier directory and profile.
+6. Supplier directory and profile. Initial self-hosted supplier directory API,
+   DTOs, frontend adapter and PostgreSQL migration exist.
 7. Offer catalog and offer detail.
 8. Supplier and price access requests.
 9. RFQ and catalog request flow.
@@ -315,3 +327,9 @@ self-hosted migrations, seeds one deterministic account, starts the API with
 HTTP. It skips when `MIGRATION_DATABASE_URL` is absent, so default CI remains
 portable while server/staging checks can validate the database repository
 boundary.
+
+Batch #34 expands the same backend direction from account workspace to supplier
+discovery. Supplier directory data can now be served by the owned API and owned
+PostgreSQL schema, while the frontend remains safe in Lovable/local preview
+through a mock fallback. This is the first step toward replacing the supplier
+catalog/profiles mock layer with self-hosted production data.

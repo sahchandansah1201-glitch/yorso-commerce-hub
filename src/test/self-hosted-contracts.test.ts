@@ -14,6 +14,9 @@ import {
   companyDocumentCreateSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
+  supplierDirectoryItemSchema,
+  supplierDirectoryQuerySchema,
+  supplierDirectoryRecordSchema,
   userProfileSchema,
 } from "../../packages/contracts/src";
 
@@ -272,6 +275,76 @@ describe("self-hosted account/company contracts", () => {
         },
       ]),
     ).toHaveLength(1);
+  });
+
+  it("accepts supplier directory records and access-shaped responses", () => {
+    const record = supplierDirectoryRecordSchema.parse({
+      id: "sup-contract-1",
+      companyName: "Contract Salmon AS",
+      maskedName: "Norwegian salmon supplier · CT-001",
+      country: "Norway",
+      countryCode: "NO",
+      city: "Alesund",
+      supplierType: "producer",
+      inBusinessSinceYear: 2010,
+      productFocus: [{ species: "Atlantic Salmon", forms: "HOG, fillet" }],
+      certifications: ["ASC", "HACCP"],
+      certificationBadges: [{ code: "ASC", label: "ASC", logo: null }],
+      activeOffersCount: 12,
+      shortDescription: "Supplier directory contract sample.",
+      about: "Private supplier about text for qualified buyers.",
+      responseSignal: "fast",
+      documentReadiness: "ready",
+      verificationLevel: "documents_reviewed",
+      heroImage: "/offers/salmon.webp",
+      logoImage: null,
+      deliveryCountries: [{ code: "DE", name: "Germany" }],
+      deliveryCountriesTotal: 8,
+      totalProductsCount: 20,
+      productCatalogPreview: [{ name: "Salmon HOG", species: "Atlantic Salmon", form: "HOG", image: "/offers/salmon.webp" }],
+      website: "https://supplier.example",
+      whatsapp: "+47 555 000",
+      updatedAt: "2026-05-14T00:00:00.000Z",
+    });
+
+    expect(record.companyName).toBe("Contract Salmon AS");
+    expect(
+      supplierDirectoryItemSchema.parse({
+        ...record,
+        companyName: null,
+        about: null,
+        activeOffersCount: null,
+        deliveryCountriesTotal: null,
+        totalProductsCount: null,
+        website: null,
+        whatsapp: null,
+        accessLevel: "anonymous_locked",
+      }),
+    ).toMatchObject({
+      maskedName: "Norwegian salmon supplier · CT-001",
+      companyName: null,
+      accessLevel: "anonymous_locked",
+    });
+  });
+
+  it("validates supplier directory query bounds", () => {
+    expect(
+      supplierDirectoryQuerySchema.parse({
+        q: "salmon",
+        countryCode: "NO",
+        supplierType: "producer",
+        accessLevel: "registered_locked",
+        limit: "10",
+        offset: "0",
+      }),
+    ).toMatchObject({
+      q: "salmon",
+      limit: 10,
+      accessLevel: "registered_locked",
+    });
+
+    expect(() => supplierDirectoryQuerySchema.parse({ limit: 999 })).toThrow();
+    expect(() => supplierDirectoryQuerySchema.parse({ countryCode: "NOR" })).toThrow();
   });
 
   it("rejects invalid file upload envelopes before they reach storage", () => {

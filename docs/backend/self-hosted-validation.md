@@ -1,8 +1,8 @@
 # Self-Hosted Backend Validation
 
 Status: active guard
-Batch: #17
-Date: 2026-05-13
+Batch: #34
+Date: 2026-05-14
 
 This repository is moving toward one deployable YORSO product:
 
@@ -49,8 +49,8 @@ npm run ci:core
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
-| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook or Supabase production boundary is broken. |
-| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company tables or drifts toward Supabase-owned schema. |
+| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API or Supabase production boundary is broken. |
+| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory tables or drifts toward Supabase-owned schema. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
 | `db:migrations:status` | Prints the static local migration status without requiring PostgreSQL. |
 | `db:migrations:apply:dry-run` | Prints a safe local apply preview without requiring PostgreSQL. |
@@ -60,9 +60,9 @@ npm run ci:core
 | `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
-| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload and file ownership over real HTTP. |
+| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership and supplier directory locked/unlocked access shaping over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
-| `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions and notifications over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
+| `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
@@ -97,8 +97,9 @@ source of truth. It checks:
 - `yorso_company_branches`, `yorso_company_products`,
   `yorso_company_meta_regions`, `yorso_notification_preferences`;
 - `yorso_file_assets`, `yorso_company_documents`;
+- `yorso_suppliers_directory`;
 - enum boundaries matching account/company DTOs;
-- indexes needed by account workspace reads;
+- indexes needed by account workspace and supplier directory reads;
 - migration manifest ownership;
 - absence of Supabase `auth.users` coupling in the self-hosted baseline.
 
@@ -163,6 +164,12 @@ It verifies:
 - File uploads are validated by contract, size checked, checksummed and stored
   through `apps/api/src/modules/storage`, not through Supabase Storage.
 - The API exposes CORS headers for browser calls from the frontend origin.
+- `GET /v1/suppliers` and `GET /v1/suppliers/:id` expose supplier discovery
+  through an access-shaped API response, not through frontend-only mocks.
+- Locked supplier directory responses preserve the card/profile structure but
+  return private identity, contacts and exact breadth fields as `null`.
+- `qualified_unlocked` supplier directory responses return the full allowed
+  identity and contact fields through the same DTO contract.
 
 ## Frontend Account API Bridge
 
@@ -210,6 +217,21 @@ Batch #29 account session checks:
 - Frontend account API requests always include the self-hosted account user id
   header when `VITE_YORSO_API_URL` is configured.
 - CORS allows `x-yorso-user-id` and `x-yorso-session-id`.
+
+## Supplier Directory API Bridge
+
+Batch #34 introduces the self-hosted supplier directory backend path.
+
+The supplier directory bridge must preserve these rules:
+
+- frontend supplier directory code uses `src/lib/supplier-directory-api.ts`;
+- the adapter calls `/v1/suppliers` and `/v1/suppliers/:id` only when
+  `VITE_YORSO_API_URL` is configured;
+- local/Lovable preview falls back to existing mock supplier data;
+- locked responses must not include real company name, about text, website,
+  WhatsApp, exact active-offer count or exact catalog breadth;
+- qualified responses may include those fields through the typed API contract;
+- API code must not import the Supabase client.
 
 ## Production Direction
 
