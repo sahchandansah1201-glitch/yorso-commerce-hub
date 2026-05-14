@@ -53,7 +53,17 @@ describe("supplier directory repositories", () => {
       accessLevel: "qualified_unlocked",
       limit: 20,
       offset: 0,
-    })).resolves.toMatchObject({ total: 1 });
+    })).resolves.toMatchObject({ total: 0 });
+
+    await expect(repository.listSuppliers(
+      {
+        q: "Nordfjord",
+        accessLevel: "qualified_unlocked",
+        limit: 20,
+        offset: 0,
+      },
+      { privateSearchSupplierIds: ["sup-no-001"] },
+    )).resolves.toMatchObject({ total: 1 });
   });
 
   it("PostgreSQL repository maps supplier rows and applies query filters", async () => {
@@ -122,16 +132,23 @@ describe("supplier directory repositories", () => {
     expect(calls[0].sql).toContain("verification_level = $3");
     expect(calls[0].sql).toContain("certifications_search ilike $4");
     expect(calls[0].sql).toContain("product_focus_search ilike $5");
-    expect(calls[0].sql).toContain("private_search_text ilike $6");
+    expect(calls[0].sql).toContain("public_search_text ilike $6");
+    expect(calls[0].sql).not.toContain("private_search_text");
     expect(calls[0].params).toEqual(["NO", "producer", "documents_reviewed", "%ASC%", "%Atlantic%", "%salmon%", 10, 0]);
 
-    await repository.listSuppliers({
-      q: "Supplier Legal",
-      accessLevel: "anonymous_locked",
-      limit: 10,
-      offset: 0,
-    });
+    await repository.listSuppliers(
+      {
+        q: "Supplier Legal",
+        accessLevel: "qualified_unlocked",
+        limit: 10,
+        offset: 0,
+      },
+      { privateSearchSupplierIds: ["sup-row"] },
+    );
 
     expect(calls[1].sql).toContain("public_search_text ilike $1");
+    expect(calls[1].sql).toContain("id = any($2::text[])");
+    expect(calls[1].sql).toContain("private_search_text ilike $1");
+    expect(calls[1].params).toEqual(["%Supplier Legal%", ["sup-row"], 10, 0]);
   });
 });

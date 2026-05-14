@@ -328,11 +328,13 @@ requireText("apps/api/src/modules/access/factory.ts", accessFactory, "PostgresSu
 requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "class PostgresSupplierAccessRepository");
 requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_supplier_access_requests");
 requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_access_grants");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "select distinct supplier_id");
 requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_access_notifications");
 requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "insert into yorso_access_events");
 requireText("apps/api/src/modules/access/repository.ts", accessRepository, "class MemorySupplierAccessRepository");
 requireText("apps/api/src/modules/access/repository.ts", accessRepository, "createOrReuseRequest");
 requireText("apps/api/src/modules/access/repository.ts", accessRepository, "decideRequest");
+requireText("apps/api/src/modules/access/repository.ts", accessRepository, "listAccessibleSupplierIds");
 requireText("apps/api/src/modules/access/repository.ts", accessRepository, "price_access_approved");
 requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "/v1/access/suppliers/");
 requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "/v1/access/supplier-requests/");
@@ -406,8 +408,9 @@ requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolve
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_not_found");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "resolveListAccessLevel");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "resolveDetailAccessLevel");
-requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "searchAccessLevel");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "shapeSupplierForAccess");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "qualified_unlocked");
 requireText("apps/api/src/routes/account.ts", accountRoute, "packages/contracts/src/account-company.ts");
@@ -482,7 +485,10 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branc
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_requires_grant=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_private_search_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_granted_private_search=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_ungranted_private_search_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_private_search_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_filters=ok");
@@ -517,7 +523,9 @@ requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgre
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "yorso_suppliers_directory");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_locked=ok");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_requires_grant=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_private_search_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_unlocked=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "supplier_directory_granted_private_search=ok");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/branches");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/products");
 requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/meta-regions");
@@ -576,6 +584,9 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localize
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizedMockSuppliers");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFiltered");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "privateSearchSupplierIds");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "ACCOUNT_USER_ID_HEADER");
