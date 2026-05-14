@@ -296,6 +296,27 @@ This batch keeps the offer catalog aligned with the 10,000 concurrent-user
 target: high-cardinality search/filter work belongs to PostgreSQL indexes and
 bounded backend queries, not to a large frontend mock page.
 
+Batch #42 makes the offer detail frontend bridge explicit. `/offers/:id` now
+uses `src/lib/use-offer-detail.ts` as the runtime state boundary between local
+prototype data and the self-hosted `/v1/offers/:id` API.
+
+Production-facing behavior:
+
+- Detail reads call `GET /v1/offers/:id` through
+  `createOfferCatalogApiClient` when `VITE_YORSO_API_URL` is configured.
+- Empty `VITE_YORSO_API_URL` keeps Lovable/local preview on access-shaped mock
+  detail data.
+- API failure can show a localized prototype fallback only when a safe local
+  offer exists for that id.
+- Remote 404 without a safe local fallback renders the normal not-found state,
+  not a random mock offer.
+- Locked access rules remain unchanged: exact price and supplier identity must
+  not be reconstructed on the frontend.
+
+This closes the first list-to-detail self-hosted catalog path: `/offers` owns
+server-filtered list state, and `/offers/:id` owns one-off detail loading,
+retry and safe fallback behavior.
+
 Batch #38 adds the first self-hosted supplier and price access path. It defines
 supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,
 `/v1/access/supplier-requests/:requestId/decision` and

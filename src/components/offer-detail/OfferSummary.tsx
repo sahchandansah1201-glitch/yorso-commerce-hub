@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   Clock, Snowflake, Leaf, Thermometer, Package, MapPin, Globe, Scale,
   FileText, FileCheck, Truck, Anchor as AnchorIcon, Lock, ArrowRight,
@@ -8,7 +8,6 @@ import type { SeafoodOffer, DeliveryBasisOption } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { AccessRequestDialog } from "@/components/catalog/AccessRequestDialog";
 import CertificationBadges from "@/components/CertificationBadges";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
@@ -119,11 +118,14 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
   const bases = offer.deliveryBasisOptions;
   const defaultBasis = bases.find((b) => b.isDefault) || bases[0];
   const [selectedBasis, setSelectedBasis] = useState<DeliveryBasisOption>(defaultBasis);
-  const [accessDialogOpen, setAccessDialogOpen] = useState(false);
 
   const isAnonymous = accessLevel === "anonymous_locked";
-  const isRegistered = accessLevel === "registered_locked";
   const isQualified = accessLevel === "qualified_unlocked";
+  const handleOpenAccessPanel = () => {
+    document
+      .getElementById("offer-supplier-access")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="space-y-5">
@@ -285,11 +287,12 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               </Link>
             ) : (
               <Button
+                type="button"
                 size="sm"
                 className="w-full gap-2"
-                onClick={() => setAccessDialogOpen(true)}
+                onClick={handleOpenAccessPanel}
               >
-                <Lock className="h-3.5 w-3.5" /> {t.offerDetail_priceLocked_regCta}
+                <Lock className="h-3.5 w-3.5" /> {t.offerDetail_openAccessPanelCta}
               </Button>
             )}
           </div>
@@ -377,10 +380,6 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
             </span>
           )}
         </div>
-      )}
-
-      {isRegistered && (
-        <AccessRequestDialog open={accessDialogOpen} onOpenChange={setAccessDialogOpen} />
       )}
     </div>
   );

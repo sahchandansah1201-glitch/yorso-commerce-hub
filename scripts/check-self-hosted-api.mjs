@@ -56,6 +56,9 @@ const requiredFiles = [
   "src/lib/offer-catalog-api.test.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-catalog.test.tsx",
+  "src/lib/use-offer-detail.ts",
+  "src/lib/use-offer-detail.test.tsx",
+  "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
   "src/lib/use-supplier-access-state.ts",
@@ -126,6 +129,8 @@ const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
+const useOfferDetail = read("src/lib/use-offer-detail.ts");
+const offerDetailPage = read("src/pages/OfferDetail.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const useSupplierAccessState = read("src/lib/use-supplier-access-state.ts");
 const supplierTrustPanelAccessTest = read("src/components/offer-detail/SupplierTrustPanel.access.test.tsx");
@@ -198,8 +203,8 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-directory-frontend");
 }
-if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts src/lib/use-offer-catalog.test.tsx") {
-  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter and runtime bridge");
+if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts src/lib/use-offer-catalog.test.tsx src/lib/use-offer-detail.test.tsx") {
+  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter, list bridge and detail bridge");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
@@ -544,6 +549,13 @@ requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQue
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "serverFiltered");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForLevel");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "useOfferDetail");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "createOfferCatalogApiClient");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "getOfferById");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "findFallbackOfferById");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "offer_not_found");
+requireText("src/pages/OfferDetail.tsx", offerDetailPage, "useOfferDetail");
+forbidText("src/pages/OfferDetail.tsx", offerDetailPage, "useResilientOffer");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/suppliers/");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/notifications");
