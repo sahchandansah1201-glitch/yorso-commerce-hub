@@ -145,11 +145,17 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted account API smoke");
 }
-if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
+if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
   failures.push("package.json: test:account-workspace must cover account API adapter and account workspace tests");
+}
+if (!pkg.scripts["test:supplier-directory-frontend"]?.includes("src/pages/Suppliers.test.tsx")) {
+  failures.push("package.json: test:supplier-directory-frontend must cover supplier directory frontend tests");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
   failures.push("package.json: ci:core must run test:account-workspace");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend")) {
+  failures.push("package.json: ci:core must run test:supplier-directory-frontend");
 }
 
 requireText("apps/api/src/server.ts", server, "/health/live");
@@ -327,6 +333,7 @@ requireText("packages/contracts/src/account-company.ts", accountCompanyContract,
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryRecordSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryItemSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryQuerySchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "verificationLevel: supplierVerificationLevelSchema.optional()");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
@@ -342,6 +349,7 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "meta_
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "notification_row_validation_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branch_row_delete=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "MIGRATION_DATABASE_URL");
@@ -408,6 +416,7 @@ requireText("src/lib/account-api.ts", accountApi, "local prototype mode");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "createSupplierDirectoryApiClient");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "/v1/suppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "mockSuppliers");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "verificationLevel");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");

@@ -16,6 +16,7 @@ const files = [
   "packages/db/migrations/0002_account_workspace_sections.sql",
   "packages/db/migrations/0003_account_files_and_documents.sql",
   "packages/db/migrations/0004_supplier_directory.sql",
+  "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
 ];
 
 const failures = [];
@@ -30,7 +31,8 @@ const baselineSql = read("packages/db/migrations/0001_account_company_baseline.s
 const workspaceSql = read("packages/db/migrations/0002_account_workspace_sections.sql");
 const filesSql = read("packages/db/migrations/0003_account_files_and_documents.sql");
 const supplierSql = read("packages/db/migrations/0004_supplier_directory.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}`;
+const supplierScalingSql = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -125,6 +127,20 @@ for (const marker of [
   requireText("packages/db/migrations/0004_supplier_directory.sql", supplierSql, marker);
 }
 
+for (const marker of [
+  "create extension if not exists pg_trgm",
+  "drop index if exists idx_yorso_suppliers_directory_public_search_text",
+  "idx_yorso_suppliers_directory_public_search_text",
+  "idx_yorso_suppliers_directory_private_search_text",
+  "idx_yorso_suppliers_directory_product_focus_search",
+  "idx_yorso_suppliers_directory_certifications_search",
+  "idx_yorso_suppliers_directory_verification_level",
+  "gin_trgm_ops",
+  "high-concurrency catalog traffic",
+]) {
+  requireText("packages/db/migrations/0005_supplier_directory_search_scaling.sql", supplierScalingSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -146,6 +162,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0003_account_fil
 if (!manifest.migrations?.some((migration) => migration.id === "0004_supplier_directory")) {
   failures.push("packages/db/migration-manifest.json: missing 0004_supplier_directory");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0005_supplier_directory_search_scaling")) {
+  failures.push("packages/db/migration-manifest.json: missing 0005_supplier_directory_search_scaling");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -160,6 +179,9 @@ if (!manifest.migrations?.[3]?.dependsOn?.includes("0002_account_workspace_secti
 }
 if (!manifest.migrations?.[4]?.dependsOn?.includes("0003_account_files_and_documents")) {
   failures.push("packages/db/migration-manifest.json: supplier directory must depend on account files and documents");
+}
+if (!manifest.migrations?.[5]?.dependsOn?.includes("0004_supplier_directory")) {
+  failures.push("packages/db/migration-manifest.json: supplier directory search scaling must depend on supplier directory");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
@@ -226,5 +248,5 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted DB check passed.");
-console.log("- packages/db owns the account/company/files/supplier-directory PostgreSQL baseline.");
+console.log("- packages/db owns the account/company/files/supplier-directory PostgreSQL baseline and search scaling indexes.");
 console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");

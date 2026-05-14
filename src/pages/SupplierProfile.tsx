@@ -66,6 +66,8 @@ import {
   SupplierAccessRequestSent,
 } from "@/components/suppliers/SupplierAccessRequestPanel";
 import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
+import { createSupplierDirectoryApiClient } from "@/lib/supplier-directory-api";
+import { supplierDirectoryItemToMockSupplier } from "@/lib/supplier-directory-view";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -555,18 +557,13 @@ const buildLogisticsFacts = (supplier: MockSupplier) => {
 const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const { t, lang } = useLanguage();
+  const supplierDirectoryClient = useMemo(() => createSupplierDirectoryApiClient(), []);
 
   // Базовый поставщик (en) — нужен для стабильных id/seed/lookup.
   const baseSupplier = useMemo<MockSupplier | undefined>(
     () => mockSuppliers.find((s) => s.id === supplierId),
     [supplierId],
   );
-  // Локализованная копия — то, что реально рендерим (about, country, и т.п.).
-  const supplier = useMemo<MockSupplier | undefined>(
-    () => (baseSupplier ? localizeSupplier(baseSupplier, lang) : undefined),
-    [baseSupplier, lang],
-  );
-
 
   // ---- Access gating ----
   // Pull the global access level (anonymous / registered / qualified) and
@@ -614,6 +611,50 @@ const SupplierProfile = () => {
   const isUnlocked = effectiveAccess === "qualified_unlocked";
   const isAnonymous = effectiveAccess === "anonymous_locked";
   const isRegisteredLocked = effectiveAccess === "registered_locked";
+  const [remoteSupplier, setRemoteSupplier] = useState<MockSupplier | null>(null);
+  const [remoteLoading, setRemoteLoading] = useState(() => supplierDirectoryClient.enabled && Boolean(supplierId));
+  const [remoteMissing, setRemoteMissing] = useState(false);
+
+  useEffect(() => {
+    if (!supplierDirectoryClient.enabled || !supplierId) {
+      setRemoteSupplier(null);
+      setRemoteLoading(false);
+      setRemoteMissing(false);
+      return;
+    }
+
+    let cancelled = false;
+    setRemoteLoading(true);
+    setRemoteMissing(false);
+    void supplierDirectoryClient
+      .getSupplierById(supplierId, effectiveAccess)
+      .then((item) => {
+        if (cancelled) return;
+        setRemoteSupplier(item ? supplierDirectoryItemToMockSupplier(item) : null);
+        setRemoteMissing(!item);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.warn("supplier_directory_detail_api_failed", error);
+        setRemoteSupplier(null);
+        setRemoteMissing(!baseSupplier);
+      })
+      .finally(() => {
+        if (!cancelled) setRemoteLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [supplierDirectoryClient, supplierId, effectiveAccess, baseSupplier]);
+
+  const supplierSource = remoteSupplier ?? baseSupplier;
+  // Локализованная копия — то, что реально рендерим (about, country, и т.п.).
+  const supplier = useMemo<MockSupplier | undefined>(
+    () => (supplierSource ? localizeSupplier(supplierSource, lang) : undefined),
+    [supplierSource, lang],
+  );
+
   // The single string used everywhere the profile would show identity.
   const displayName = isUnlocked
     ? supplier?.companyName ?? ""
@@ -850,7 +891,20 @@ const SupplierProfile = () => {
     return () => io.disconnect();
   }, [supplier?.id]);
 
-  if (!supplier) {
+  if (!supplier && remoteLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container py-10">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="mt-4 h-40 w-full" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!supplier || remoteMissing) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header />

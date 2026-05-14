@@ -5,6 +5,7 @@ const sql = () => readFileSync("packages/db/migrations/0001_account_company_base
 const workspaceSql = () => readFileSync("packages/db/migrations/0002_account_workspace_sections.sql", "utf8");
 const filesSql = () => readFileSync("packages/db/migrations/0003_account_files_and_documents.sql", "utf8");
 const supplierSql = () => readFileSync("packages/db/migrations/0004_supplier_directory.sql", "utf8");
+const supplierScalingSql = () => readFileSync("packages/db/migrations/0005_supplier_directory_search_scaling.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -65,9 +66,22 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("Private supplier identity");
   });
 
+  it("adds scalable supplier directory search indexes separately from the baseline table migration", () => {
+    const text = supplierScalingSql();
+
+    expect(text).toContain("create extension if not exists pg_trgm");
+    expect(text).toContain("drop index if exists idx_yorso_suppliers_directory_public_search_text");
+    expect(text).toContain("idx_yorso_suppliers_directory_public_search_text");
+    expect(text).toContain("idx_yorso_suppliers_directory_private_search_text");
+    expect(text).toContain("idx_yorso_suppliers_directory_product_focus_search");
+    expect(text).toContain("idx_yorso_suppliers_directory_certifications_search");
+    expect(text).toContain("idx_yorso_suppliers_directory_verification_level");
+    expect(text).toContain("gin_trgm_ops");
+    expect(supplierSql()).not.toContain("create extension if not exists pg_trgm");
+  });
 
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -85,7 +99,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -99,12 +113,14 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_suppliers_directory_supplier_type");
     expect(text).toContain("idx_yorso_suppliers_directory_public_search_text");
     expect(text).toContain("idx_yorso_suppliers_directory_private_search_text");
+    expect(text).toContain("idx_yorso_suppliers_directory_certifications_search");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
+    expect(text).toContain("gin_trgm_ops");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -124,6 +140,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0002_account_workspace_sections",
       "0003_account_files_and_documents",
       "0004_supplier_directory",
+      "0005_supplier_directory_search_scaling",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -155,6 +172,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0004_supplier_directory",
           ownedTables: ["yorso_suppliers_directory"],
           dependsOn: ["0003_account_files_and_documents"],
+        }),
+        expect.objectContaining({
+          id: "0005_supplier_directory_search_scaling",
+          ownedTables: ["yorso_suppliers_directory"],
+          dependsOn: ["0004_supplier_directory"],
         }),
       ]),
     );

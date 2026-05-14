@@ -119,9 +119,12 @@ describe("self-hosted API policy", () => {
     expect(postgresRepository).toContain("publication_status = 'published'");
     expect(contracts).toContain("supplierDirectoryRecordSchema");
     expect(contracts).toContain("supplierDirectoryItemSchema");
+    expect(contracts).toContain("verificationLevel: supplierVerificationLevelSchema.optional()");
     expect(adapter).toContain("createSupplierDirectoryApiClient");
+    expect(adapter).toContain("verificationLevel");
     expect(adapter).toContain("mockSuppliers");
     expect(smoke).toContain("supplier_directory_locked=ok");
+    expect(smoke).toContain("supplier_directory_verified_filter=ok");
     expect(smoke).toContain("supplier_directory_unlocked=ok");
   });
 

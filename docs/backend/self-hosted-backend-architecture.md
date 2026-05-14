@@ -1,7 +1,7 @@
 # YORSO Self-Hosted Backend Architecture
 
 Status: production direction
-Batch: #34
+Batch: #36
 Date: 2026-05-14
 
 ## Decision
@@ -64,6 +64,11 @@ Target assumptions:
 - Hot reads, sessions and rate limits should use Redis.
 - Heavy work must move to queues.
 - Search and analytics should not overload the transactional database.
+
+The mandatory project-wide scale contract is documented in
+`docs/backend/production-scale-baseline.md`. Any production-facing feature must
+either attach a capacity review against that baseline or explicitly remain
+prototype-only.
 
 ## Repository Direction
 
@@ -129,6 +134,7 @@ npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
+npm run check:production-scale-baseline
 npm run db:migrations:check
 npm run db:migrations:status
 npm run db:migrations:apply:dry-run
@@ -198,6 +204,20 @@ URL is empty. The critical rule is access-shaped data: locked responses keep
 the UI structure but return private identity/contact/exact-breadth fields as
 `null`; `qualified_unlocked` responses may return the full allowed fields.
 
+Batch #35 moves supplier discovery closer to production behavior. The
+`/suppliers` page and `/suppliers/:id` profile now use the self-hosted supplier
+directory adapter when `VITE_YORSO_API_URL` is configured, while Lovable/local
+preview still uses mocks. Search is debounced, list calls stay paginated, and
+quick filters that have backend equivalents are sent to the API. Migration
+`0005_supplier_directory_search_scaling` adds trigram GIN indexes and a
+verification-level index so supplier discovery stays index-backed under the
+10,000 concurrent-user target.
+
+Batch #36 promotes the 10,000 concurrent-user target from feature-level notes
+to a repository-level release gate. `check:production-scale-baseline` now
+guards the capacity baseline document, supplier-directory scaling migration,
+bounded supplier frontend API calls and CI integration.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.
@@ -225,7 +245,8 @@ Build in this order:
    persistence exist.
 5. Product matrix. Initial self-hosted API and PostgreSQL persistence exist.
 6. Supplier directory and profile. Initial self-hosted supplier directory API,
-   DTOs, frontend adapter and PostgreSQL migration exist.
+   DTOs, frontend adapter, frontend API bridge and PostgreSQL search-scaling
+   migrations exist.
 7. Offer catalog and offer detail.
 8. Supplier and price access requests.
 9. RFQ and catalog request flow.
@@ -333,3 +354,9 @@ discovery. Supplier directory data can now be served by the owned API and owned
 PostgreSQL schema, while the frontend remains safe in Lovable/local preview
 through a mock fallback. This is the first step toward replacing the supplier
 catalog/profiles mock layer with self-hosted production data.
+
+Batch #35 connects the existing supplier frontend surfaces to that owned API
+path and adds the first supplier-directory read-scaling guard. This is still
+not the final search architecture, but it prevents the next development steps
+from building high-traffic catalog discovery around unbounded frontend mocks or
+database scans.

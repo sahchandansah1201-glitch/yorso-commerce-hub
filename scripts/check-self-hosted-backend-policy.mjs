@@ -10,6 +10,7 @@ const files = [
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
   "docs/backend/self-hosted-db-migrations.md",
+  "docs/backend/production-scale-baseline.md",
 ];
 
 const requiredMarkers = [
@@ -53,6 +54,7 @@ const requiredMarkers = [
     markers: [
       "one deployable YORSO product",
       "`check:self-hosted-api` validates",
+      "`check:production-scale-baseline` validates",
     ],
   },
   {
@@ -60,6 +62,14 @@ const requiredMarkers = [
     markers: [
       "self-hosted PostgreSQL source of truth",
       "Do not design production migrations around Supabase-specific tables",
+    ],
+  },
+  {
+    file: "docs/backend/production-scale-baseline.md",
+    markers: [
+      "10,000 concurrent web users",
+      "Every production-facing change must document",
+      "Supabase may remain as prototype/reference tooling",
     ],
   },
 ];

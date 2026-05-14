@@ -1,7 +1,7 @@
 # Self-Hosted Backend Validation
 
 Status: active guard
-Batch: #34
+Batch: #36
 Date: 2026-05-14
 
 This repository is moving toward one deployable YORSO product:
@@ -27,6 +27,7 @@ npm run check:supabase-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
+npm run check:production-scale-baseline
 npm run db:migrations:check
 npm run db:migrations:status
 npm run db:migrations:apply:dry-run
@@ -39,6 +40,7 @@ npm run test:db-contract
 npm run test:db-migrations
 npm run test:backend-contract
 npm run test:account-workspace
+npm run test:supplier-directory-frontend
 npm run ci:core
 ```
 
@@ -50,7 +52,8 @@ npm run ci:core
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API or Supabase production boundary is broken. |
-| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory tables or drifts toward Supabase-owned schema. |
+| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory tables, supplier-directory search scaling indexes or drifts toward Supabase-owned schema. |
+| `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier-directory trigram search indexes, bounded frontend supplier API calls or CI hook are removed. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
 | `db:migrations:status` | Prints the static local migration status without requiring PostgreSQL. |
 | `db:migrations:apply:dry-run` | Prints a safe local apply preview without requiring PostgreSQL. |
@@ -64,6 +67,7 @@ npm run ci:core
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
+| `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers` and supplier profile tests for self-hosted API mode, debounce, access shaping and local fallback. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
@@ -98,10 +102,30 @@ source of truth. It checks:
   `yorso_company_meta_regions`, `yorso_notification_preferences`;
 - `yorso_file_assets`, `yorso_company_documents`;
 - `yorso_suppliers_directory`;
+- supplier-directory trigram search indexes and verification-level filter index
+  used by the 10,000 concurrent-user read path;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace and supplier directory reads;
 - migration manifest ownership;
 - absence of Supabase `auth.users` coupling in the self-hosted baseline.
+
+## Production Scale Baseline Validation
+
+`check:production-scale-baseline` validates the mandatory production capacity
+contract. It checks:
+
+- `docs/backend/production-scale-baseline.md` exists and defines the 10,000
+  concurrent web-user target;
+- capacity review fields include read/write profile, database strategy,
+  connection pooling, cache, queue/backpressure, failure mode, observability and
+  load testing;
+- `self-hosted-backend-architecture.md` continues to state that 10,000 direct
+  PostgreSQL connections are not acceptable architecture;
+- supplier-directory trigram search indexes and verification-level index remain
+  in migration `0005_supplier_directory_search_scaling.sql`;
+- `/suppliers` frontend API mode keeps debounced, paginated requests instead of
+  unbounded list reads;
+- `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not
 connect to PostgreSQL yet. It verifies that every manifest entry points to a
@@ -220,7 +244,9 @@ Batch #29 account session checks:
 
 ## Supplier Directory API Bridge
 
-Batch #34 introduces the self-hosted supplier directory backend path.
+Batch #34 introduces the self-hosted supplier directory backend path. Batch #35
+connects the existing frontend `/suppliers` and `/suppliers/:id` surfaces to
+that path when `VITE_YORSO_API_URL` is configured.
 
 The supplier directory bridge must preserve these rules:
 
@@ -228,6 +254,10 @@ The supplier directory bridge must preserve these rules:
 - the adapter calls `/v1/suppliers` and `/v1/suppliers/:id` only when
   `VITE_YORSO_API_URL` is configured;
 - local/Lovable preview falls back to existing mock supplier data;
+- frontend search is debounced before API calls;
+- listing calls stay paginated with `limit` and `offset`;
+- quick filters that can be expressed as API query parameters must be sent to
+  the backend instead of filtering only a local page;
 - locked responses must not include real company name, about text, website,
   WhatsApp, exact active-offer count or exact catalog breadth;
 - qualified responses may include those fields through the typed API contract;

@@ -37,6 +37,7 @@ export interface SupplierDirectoryQuery {
   species?: string;
   countryCode?: string;
   supplierType?: SupplierDirectoryItem["supplierType"];
+  verificationLevel?: SupplierDirectoryItem["verificationLevel"];
   certification?: string;
   accessLevel: SupplierDirectoryAccessLevel;
   limit: number;
@@ -65,9 +66,11 @@ export interface SupplierDirectoryClientOptions {
   fetchImpl?: typeof fetch;
 }
 
-const env = import.meta.env as Record<string, string | undefined>;
-
 const normalizeBaseUrl = (baseUrl: string) => baseUrl.replace(/\/+$/, "");
+const readBaseUrl = () => {
+  const env = import.meta.env as Record<string, string | undefined>;
+  return env.VITE_YORSO_API_URL ?? "";
+};
 
 const accessLevelOrDefault = (accessLevel?: SupplierDirectoryAccessLevel): SupplierDirectoryAccessLevel =>
   accessLevel ?? "anonymous_locked";
@@ -124,6 +127,7 @@ const shapeMockSupplier = (
 const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<SupplierDirectoryQuery>) => {
   if (query.countryCode && supplier.countryCode !== query.countryCode.toUpperCase()) return false;
   if (query.supplierType && supplier.supplierType !== query.supplierType) return false;
+  if (query.verificationLevel && supplier.verificationLevel !== query.verificationLevel) return false;
   if (query.certification && !supplier.certifications.some((cert) => cert.toLowerCase().includes(query.certification!.toLowerCase()))) {
     return false;
   }
@@ -150,7 +154,7 @@ const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<Su
 };
 
 export function createSupplierDirectoryApiClient(options: SupplierDirectoryClientOptions = {}) {
-  const baseUrl = normalizeBaseUrl(options.baseUrl ?? env.VITE_YORSO_API_URL ?? "");
+  const baseUrl = normalizeBaseUrl(options.baseUrl ?? readBaseUrl());
   const fetchImpl = options.fetchImpl ?? fetch;
   const enabled = Boolean(baseUrl);
 

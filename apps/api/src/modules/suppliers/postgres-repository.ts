@@ -95,6 +95,7 @@ function whereClause(query: SupplierDirectoryQuery) {
 
   if (query.countryCode) where.push(`country_code = ${add(query.countryCode.toUpperCase())}`);
   if (query.supplierType) where.push(`supplier_type = ${add(query.supplierType)}`);
+  if (query.verificationLevel) where.push(`verification_level = ${add(query.verificationLevel)}`);
   if (query.certification) where.push(`certifications_search ilike ${add(`%${query.certification}%`)}`);
   if (query.species) where.push(`product_focus_search ilike ${add(`%${query.species}%`)}`);
   if (query.q) {

@@ -1,7 +1,7 @@
 # Self-Hosted Account API Smoke
 
 Status: active runtime smoke
-Batch: #34
+Batch: #35
 Date: 2026-05-14
 
 This smoke test verifies that the standalone YORSO API can run as a real Node
@@ -101,6 +101,7 @@ logo_read_by_object_key=ok
 document_upload=ok
 documents_list=ok
 supplier_directory_locked=ok
+supplier_directory_verified_filter=ok
 supplier_directory_unlocked=ok
 self_hosted_account_api_smoke=ok
 ```

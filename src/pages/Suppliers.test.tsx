@@ -6,8 +6,8 @@
  *  4. Neutral selected-panel state visible until user picks a supplier.
  *  5. Product preview images render with meaningful alt text.
  */
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, within, fireEvent } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -35,6 +35,50 @@ const renderPage = () =>
     </MemoryRouter>,
   );
 
+const apiSupplier = (supplier = mockSuppliers[0]) => ({
+  id: supplier.id,
+  maskedName: supplier.maskedName,
+  companyName: null,
+  country: supplier.country,
+  countryCode: supplier.countryCode,
+  city: supplier.city,
+  supplierType: supplier.supplierType,
+  inBusinessSinceYear: supplier.inBusinessSinceYear,
+  productFocus: supplier.productFocus,
+  certifications: supplier.certifications,
+  certificationBadges: supplier.certificationBadges.map((badge) => ({
+    code: badge.code,
+    label: badge.label,
+    logo: badge.logo ?? null,
+  })),
+  activeOffersCount: null,
+  shortDescription: supplier.shortDescription,
+  about: null,
+  responseSignal: supplier.responseSignal,
+  documentReadiness: supplier.documentReadiness,
+  verificationLevel: supplier.verificationLevel,
+  heroImage: supplier.heroImage,
+  logoImage: supplier.logoImage ?? null,
+  deliveryCountries: supplier.deliveryCountries,
+  deliveryCountriesTotal: null,
+  totalProductsCount: null,
+  productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
+  website: null,
+  whatsapp: null,
+  updatedAt: "2026-05-14T00:00:00.000Z",
+  accessLevel: "anonymous_locked",
+});
+
+const supplierListResponse = (suppliers = [apiSupplier()], total = suppliers.length) => ({
+  ok: true,
+  suppliers,
+  total,
+  accessLevel: "anonymous_locked",
+  limit: 50,
+  offset: 0,
+  requestId: "test-supplier-directory",
+});
+
 const seedQualifiedSession = () => {
   sessionStorage.setItem(
     BUYER_SESSION_STORAGE_KEY,
@@ -49,10 +93,26 @@ const seedQualifiedSession = () => {
   setQualified(true, "Test Supplier");
 };
 
+const stubSupplierDirectoryApi = (response = supplierListResponse()) => {
+  vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+  const fetchMock = vi.fn(async (_input: RequestInfo | URL) =>
+    new Response(JSON.stringify(response), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }),
+  );
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+};
+
 describe("/suppliers — implementation quality fixes", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it("does not render nested <button> elements inside supplier rows", () => {
@@ -182,6 +242,50 @@ describe("/suppliers — implementation quality fixes", () => {
 
     const body = document.body.textContent ?? "";
     expect(body).toContain(`${supplier.deliveryCountriesTotal} countries`);
+  });
+
+  it("uses self-hosted supplier directory API when configured while preserving locked shaping", async () => {
+    const fetchMock = stubSupplierDirectoryApi(supplierListResponse([apiSupplier(mockSuppliers[0])], 123));
+
+    renderPage();
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      "http://api.test/v1/suppliers?accessLevel=anonymous_locked&limit=50&offset=0",
+    );
+    expect((await screen.findAllByText(mockSuppliers[0].maskedName)).length).toBeGreaterThan(0);
+    expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
+  });
+
+  it("debounces supplier directory search before calling the self-hosted API", async () => {
+    const fetchMock = stubSupplierDirectoryApi(supplierListResponse([], 0));
+
+    renderPage();
+    const search = screen.getByLabelText(/search suppliers/i);
+    fireEvent.change(search, { target: { value: "Nor" } });
+    fireEvent.change(search, { target: { value: "Norwegian" } });
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(([url]) => String(url).includes("q=Norwegian")),
+      ).toBe(true);
+    });
+
+    const queryCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("q="));
+    expect(queryCalls).toHaveLength(1);
+  });
+
+  it("pushes certified quick filter to the API instead of filtering only the first local page", async () => {
+    const fetchMock = stubSupplierDirectoryApi(supplierListResponse([], 0));
+
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /certified suppliers/i }));
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(([url]) => String(url).includes("verificationLevel=documents_reviewed")),
+      ).toBe(true);
+    });
   });
 });
 

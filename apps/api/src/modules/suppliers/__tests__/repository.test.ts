@@ -20,6 +20,24 @@ describe("supplier directory repositories", () => {
     });
   });
 
+  it("memory repository filters suppliers by verification level", async () => {
+    const repository = new MemorySupplierRepository();
+
+    await expect(repository.listSuppliers({
+      verificationLevel: "documents_reviewed",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({ total: 3 });
+
+    await expect(repository.listSuppliers({
+      verificationLevel: "unverified",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({ total: 0 });
+  });
+
   it("memory repository does not search private supplier identity before access unlock", async () => {
     const repository = new MemorySupplierRepository();
 
@@ -84,6 +102,7 @@ describe("supplier directory repositories", () => {
       species: "Atlantic",
       countryCode: "NO",
       supplierType: "producer",
+      verificationLevel: "documents_reviewed",
       certification: "ASC",
       accessLevel: "qualified_unlocked",
       limit: 10,
@@ -100,10 +119,11 @@ describe("supplier directory repositories", () => {
     expect(calls[0].sql).toContain("publication_status = 'published'");
     expect(calls[0].sql).toContain("country_code = $1");
     expect(calls[0].sql).toContain("supplier_type = $2");
-    expect(calls[0].sql).toContain("certifications_search ilike $3");
-    expect(calls[0].sql).toContain("product_focus_search ilike $4");
-    expect(calls[0].sql).toContain("private_search_text ilike $5");
-    expect(calls[0].params).toEqual(["NO", "producer", "%ASC%", "%Atlantic%", "%salmon%", 10, 0]);
+    expect(calls[0].sql).toContain("verification_level = $3");
+    expect(calls[0].sql).toContain("certifications_search ilike $4");
+    expect(calls[0].sql).toContain("product_focus_search ilike $5");
+    expect(calls[0].sql).toContain("private_search_text ilike $6");
+    expect(calls[0].params).toEqual(["NO", "producer", "documents_reviewed", "%ASC%", "%Atlantic%", "%salmon%", 10, 0]);
 
     await repository.listSuppliers({
       q: "Supplier Legal",
