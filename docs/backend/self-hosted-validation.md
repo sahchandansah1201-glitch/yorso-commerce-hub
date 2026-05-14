@@ -219,7 +219,8 @@ It verifies:
 - Locked offer catalog responses preserve product, origin, MOQ and commercial
   terms but return exact price and supplier identity fields as `null`.
 - `qualified_unlocked` offer catalog responses return exact prices and supplier
-  identity through the same DTO contract.
+  identity only for offers whose supplier has an active access grant for the
+  current account.
 - `/offers` uses `src/lib/use-offer-catalog.ts` to route backend-supported
   filters to `/v1/offers` with bounded `limit` and `offset`.
 - API-mode offer catalog results are treated as server-filtered source of truth;
@@ -375,6 +376,18 @@ where the current buyer has an active `supplier_identity` grant:
   the same private company name becomes searchable for the granted supplier;
 - `supplier_directory_ungranted_private_search_guard=ok` proves that an
   unrelated supplier company name remains hidden after a different grant.
+
+Batch #47 applies the same rule to offer catalog list/search. A requested
+`qualified_unlocked` list no longer unlocks every row by query parameter alone:
+
+- before approval, `offer_catalog_private_search_requires_grant=ok` proves that
+  private supplier-name offer search returns no rows;
+- `offer_catalog_list_requires_grant=ok` proves that public offer matches still
+  hide exact price and supplier identity before approval;
+- after approval, `offer_catalog_granted_private_search=ok` proves the granted
+  supplier's offer can be found by private supplier name and returned unlocked;
+- `offer_catalog_ungranted_private_search_guard=ok` proves unrelated supplier
+  private names remain hidden after a different grant.
 
 ## Production Direction
 

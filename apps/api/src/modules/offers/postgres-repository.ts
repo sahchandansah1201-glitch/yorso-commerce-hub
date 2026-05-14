@@ -12,7 +12,7 @@ import type {
   OfferRelatedArticle,
   OfferVolumeBreak,
 } from "../../../../../packages/contracts/dist/index.js";
-import type { OfferCatalogRepository } from "./repository.js";
+import type { OfferCatalogRepository, OfferCatalogRepositoryListOptions } from "./repository.js";
 
 export interface OfferQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -106,7 +106,7 @@ function mapOffer(row: OfferRow): OfferCatalogRecord {
   };
 }
 
-function whereClause(query: OfferCatalogQuery) {
+function whereClause(query: OfferCatalogQuery, options: OfferCatalogRepositoryListOptions = {}) {
   const params: unknown[] = [];
   const where = ["publication_status = 'published'"];
   const add = (value: unknown) => {
@@ -121,8 +121,14 @@ function whereClause(query: OfferCatalogQuery) {
   if (query.format) where.push(`format = ${add(query.format)}`);
   if (query.certification) where.push(`certifications_search ilike ${add(`%${query.certification}%`)}`);
   if (query.q) {
-    const searchColumn = query.accessLevel === "qualified_unlocked" ? "private_search_text" : "public_search_text";
-    where.push(`${searchColumn} ilike ${add(`%${query.q}%`)}`);
+    const needle = add(`%${query.q}%`);
+    const privateSearchSupplierIds = options.privateSearchSupplierIds ?? [];
+    if (privateSearchSupplierIds.length > 0) {
+      const privateIds = add(privateSearchSupplierIds);
+      where.push(`(public_search_text ilike ${needle} or (supplier_directory_id = any(${privateIds}::text[]) and private_search_text ilike ${needle}))`);
+    } else {
+      where.push(`public_search_text ilike ${needle}`);
+    }
   }
 
   return { sql: where.join(" and "), params };
@@ -135,8 +141,8 @@ export class PostgresOfferCatalogRepository implements OfferCatalogRepository {
     this.client = options.client ?? new Pool({ connectionString: config.databaseUrl } satisfies PoolConfig);
   }
 
-  async listOffers(query: OfferCatalogQuery) {
-    const where = whereClause(query);
+  async listOffers(query: OfferCatalogQuery, options: OfferCatalogRepositoryListOptions = {}) {
+    const where = whereClause(query, options);
     const limitParam = where.params.length + 1;
     const offsetParam = where.params.length + 2;
     const result = await this.client.query<OfferRow & { total_count: number }>(

@@ -11,8 +11,15 @@ import type {
 } from "../../../../../packages/contracts/dist/index.js";
 
 export interface OfferCatalogRepository {
-  listOffers(query: OfferCatalogQuery): Promise<{ offers: OfferCatalogRecord[]; total: number }>;
+  listOffers(
+    query: OfferCatalogQuery,
+    options?: OfferCatalogRepositoryListOptions,
+  ): Promise<{ offers: OfferCatalogRecord[]; total: number }>;
   getOfferById(id: string): Promise<OfferCatalogRecord | null>;
+}
+
+export interface OfferCatalogRepositoryListOptions {
+  privateSearchSupplierIds?: readonly string[];
 }
 
 const defaultSpecs: OfferProductSpecs = {
@@ -248,7 +255,11 @@ export const demoOfferRecords: OfferCatalogRecord[] = [
 
 const includesText = (value: string, needle: string) => value.toLowerCase().includes(needle.toLowerCase());
 
-function matchesQuery(offer: OfferCatalogRecord, query: OfferCatalogQuery) {
+function matchesQuery(
+  offer: OfferCatalogRecord,
+  query: OfferCatalogQuery,
+  privateSearchSupplierIds: ReadonlySet<string>,
+) {
   if (query.category && !includesText(offer.category, query.category)) return false;
   if (query.species && !includesText(offer.species, query.species)) return false;
   if (query.originCode && offer.originCode !== query.originCode.toUpperCase()) return false;
@@ -270,7 +281,7 @@ function matchesQuery(offer: OfferCatalogRecord, query: OfferCatalogQuery) {
       offer.commercial.shipmentPort ?? "",
       ...offer.certifications,
     ];
-    if (query.accessLevel === "qualified_unlocked") {
+    if (offer.supplier.id && privateSearchSupplierIds.has(offer.supplier.id)) {
       searchable.push(offer.supplier.name ?? "", offer.supplier.country ?? "");
     }
     if (!searchable.some((item) => item.toLowerCase().includes(q))) return false;
@@ -282,8 +293,9 @@ function matchesQuery(offer: OfferCatalogRecord, query: OfferCatalogQuery) {
 export class MemoryOfferCatalogRepository implements OfferCatalogRepository {
   constructor(private readonly offers = demoOfferRecords) {}
 
-  async listOffers(query: OfferCatalogQuery) {
-    const filtered = this.offers.filter((offer) => matchesQuery(offer, query));
+  async listOffers(query: OfferCatalogQuery, options: OfferCatalogRepositoryListOptions = {}) {
+    const privateSearchSupplierIds = new Set(options.privateSearchSupplierIds ?? []);
+    const filtered = this.offers.filter((offer) => matchesQuery(offer, query, privateSearchSupplierIds));
     return {
       offers: filtered.slice(query.offset, query.offset + query.limit).map((offer) => structuredClone(offer)),
       total: filtered.length,

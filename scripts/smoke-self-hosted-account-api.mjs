@@ -114,6 +114,19 @@ async function runSmoke(baseUrl) {
   assertEqual(offerPrivateSearch.total, 0, "locked offer search must not match private supplier identity");
   console.log("offer_catalog_private_search_guard=ok");
 
+  const offerPrivateSearchBeforeGrant = await jsonRequest(
+    baseUrl,
+    "/v1/offers?q=Nordfjord&accessLevel=qualified_unlocked",
+  );
+  assertEqual(offerPrivateSearchBeforeGrant.total, 0, "qualified offer private search requires grant");
+  console.log("offer_catalog_private_search_requires_grant=ok");
+
+  const offerListBeforeGrant = await jsonRequest(baseUrl, "/v1/offers?q=salmon&accessLevel=qualified_unlocked");
+  assertEqual(offerListBeforeGrant.total, 1, "qualified offer public search total before grant");
+  assertEqual(offerListBeforeGrant.offers?.[0]?.priceMin, null, "qualified offer list price hidden before grant");
+  assertEqual(offerListBeforeGrant.offers?.[0]?.supplier?.name, null, "qualified offer list supplier hidden before grant");
+  console.log("offer_catalog_list_requires_grant=ok");
+
   const offerFiltered = await jsonRequest(
     baseUrl,
     "/v1/offers?category=Shrimp&originCode=EC&supplierCountryCode=EC&format=Frozen&certification=BAP&accessLevel=anonymous_locked",
@@ -200,6 +213,26 @@ async function runSmoke(baseUrl) {
   assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");
   assertEqual(offerUnlocked.offer?.priceMin, 8.5, "unlocked offer exact price");
   console.log("offer_catalog_unlocked=ok");
+
+  const offerPrivateSearchAfterGrant = await jsonRequest(
+    baseUrl,
+    "/v1/offers?q=Nordfjord&accessLevel=qualified_unlocked",
+  );
+  assertEqual(offerPrivateSearchAfterGrant.total, 1, "granted offer private search total");
+  assertEqual(
+    offerPrivateSearchAfterGrant.offers?.[0]?.supplier?.name,
+    "Nordfjord Sjømat AS",
+    "granted offer private search supplier identity",
+  );
+  assertEqual(offerPrivateSearchAfterGrant.offers?.[0]?.priceMin, 8.5, "granted offer private search exact price");
+  console.log("offer_catalog_granted_private_search=ok");
+
+  const offerPrivateSearchWithoutGrant = await jsonRequest(
+    baseUrl,
+    "/v1/offers?q=Pacific%20Blue&accessLevel=qualified_unlocked",
+  );
+  assertEqual(offerPrivateSearchWithoutGrant.total, 0, "ungranted offer private search remains hidden");
+  console.log("offer_catalog_ungranted_private_search_guard=ok");
 
   const accessNotifications = await jsonRequest(baseUrl, "/v1/access/notifications");
   assertEqual(accessNotifications.notifications?.length, 1, "supplier access notifications list");

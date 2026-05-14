@@ -286,7 +286,8 @@ Production-facing behavior:
   supported filters.
 - Client-only filters remain local until backend equivalents exist: logistics
   basis, payment terms, cut type, currency, latin name and supplier name.
-  Supplier-name filtering is still allowed only after `qualified_unlocked`.
+  Supplier-name filtering is allowed only inside the current buyer's approved
+  supplier grant set.
 - API failures are visible and non-blocking: `/offers` shows a localized
   fallback state and continues with access-shaped prototype offers when safe
   fallback data exists.
@@ -343,6 +344,15 @@ Batch #44 moves offer detail access shaping closer to production behavior:
   account and access adapters, so the self-hosted API can evaluate grants.
 - The supplier-access state hook treats an authoritative backend "no access"
   response as source of truth and clears stale local approvals.
+
+Batch #47 extends this to offer catalog list/search:
+
+- `GET /v1/offers?accessLevel=qualified_unlocked` is not a global unlock.
+- The API loads active `supplier_identity` grants for the current account and
+  unlocks only matching supplier rows.
+- Private supplier-name search is scoped to those granted supplier IDs.
+- Public offer search still works before approval, but exact prices and
+  supplier identity remain masked until the grant exists.
 
 This does not finish authentication. It removes the highest-risk detail
 shortcut while the repository still uses the current self-hosted session header

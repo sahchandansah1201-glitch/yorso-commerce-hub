@@ -34,8 +34,10 @@ It is intentionally different from unit tests:
 - it reads offer catalog data through `/v1/offers` and `/v1/offers/:id`;
 - it verifies locked offer responses do not expose supplier identity or exact
   price fields;
-- it verifies `qualified_unlocked` offer responses expose exact price and
-  supplier identity through the same API process.
+- it verifies `qualified_unlocked` offer list and detail responses expose exact
+  price and supplier identity only after supplier access approval;
+- it verifies private supplier-name offer search remains scoped to the buyer's
+  approved supplier grants.
 - it creates a one-click supplier price access request through
   `/v1/access/suppliers/:supplierId/request`;
 - it moves the request through `sent`, `pending` and `approved` states through
@@ -129,8 +131,12 @@ supplier_directory_granted_private_search=ok
 supplier_directory_ungranted_private_search_guard=ok
 offer_catalog_locked=ok
 offer_catalog_private_search_guard=ok
+offer_catalog_private_search_requires_grant=ok
+offer_catalog_list_requires_grant=ok
 offer_catalog_filters=ok
 offer_catalog_unlocked=ok
+offer_catalog_granted_private_search=ok
+offer_catalog_ungranted_private_search_guard=ok
 supplier_access_initial=ok
 supplier_access_request=ok
 supplier_access_pending=ok

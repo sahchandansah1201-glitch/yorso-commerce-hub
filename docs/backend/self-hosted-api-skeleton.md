@@ -280,7 +280,9 @@ Batch #37 adds the first self-hosted offer catalog API:
 - Locked responses (`anonymous_locked`, `registered_locked`) keep product,
   origin, MOQ and public commercial terms, but return supplier identity and
   exact price fields as `null`.
-- `qualified_unlocked` responses return exact price and supplier identity.
+- `qualified_unlocked` responses return exact price and supplier identity only
+  for offers whose supplier is covered by the current account's active
+  `supplier_identity` grant. Other rows are downgraded before leaving the API.
 - `packages/db/migrations/0006_offer_catalog.sql` adds
   `yorso_offers_catalog`, public/private generated search columns and trigram
   GIN indexes for high-concurrency catalog traffic.
@@ -343,6 +345,17 @@ Batch #44 connects offer detail unlocks to the supplier access grant model:
 - The runtime smoke emits `offer_detail_requires_grant=ok` before creating and
   approving an access request, then verifies the same offer unlocks after the
   grant exists.
+
+Batch #47 applies the same grant scope to offer catalog list/search:
+
+- `/v1/offers` accepts optional account-session headers.
+- `OfferCatalogService` loads active supplier grants once per request and uses
+  them both for response shaping and private supplier-name search.
+- Offer repositories search private text only for granted supplier IDs.
+- Runtime smokes emit `offer_catalog_private_search_requires_grant=ok`,
+  `offer_catalog_list_requires_grant=ok`,
+  `offer_catalog_granted_private_search=ok` and
+  `offer_catalog_ungranted_private_search_guard=ok`.
 
 Batch #45 connects supplier profile unlocks to the same supplier access grant
 model:
