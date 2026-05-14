@@ -159,6 +159,7 @@ const includesText = (value: string, needle: string) => value.toLowerCase().incl
 function matchesQuery(supplier: SupplierDirectoryRecord, query: SupplierDirectoryQuery) {
   if (query.countryCode && supplier.countryCode !== query.countryCode.toUpperCase()) return false;
   if (query.supplierType && supplier.supplierType !== query.supplierType) return false;
+  if (query.verificationLevel && supplier.verificationLevel !== query.verificationLevel) return false;
   if (query.certification && !supplier.certifications.some((certification) => includesText(certification, query.certification!))) {
     return false;
   }

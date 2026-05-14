@@ -96,6 +96,7 @@ export const supplierDirectoryQuerySchema = z.object({
   species: z.string().max(120).optional(),
   countryCode: z.string().length(2).optional(),
   supplierType: supplierTypeSchema.optional(),
+  verificationLevel: supplierVerificationLevelSchema.optional(),
   certification: z.string().max(80).optional(),
   accessLevel: supplierDirectoryAccessLevelSchema.default("anonymous_locked"),
   limit: z.coerce.number().int().min(1).max(50).default(20),

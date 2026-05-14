@@ -15,7 +15,7 @@
  */
 import * as React from "react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { render, screen, cleanup, within, fireEvent, act } from "@testing-library/react";
+import { render, screen, cleanup, within, fireEvent, act, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -97,6 +97,46 @@ const renderProfile = (supplierId = SUPPLIER_ID) => {
 
 const supplier = mockSuppliers.find((s) => s.id === SUPPLIER_ID)!;
 
+const remoteSupplierDetail = {
+  id: "sup-remote-909",
+  maskedName: "Remote salmon producer · NO-909",
+  companyName: null,
+  country: "Norway",
+  countryCode: "NO",
+  city: "Tromso",
+  supplierType: "producer",
+  inBusinessSinceYear: 2016,
+  productFocus: [{ species: "Atlantic Salmon", forms: "HOG, fillet" }],
+  certifications: ["ASC", "HACCP"],
+  certificationBadges: [
+    { code: "ASC", label: "ASC", logo: null },
+    { code: "HACCP", label: "HACCP", logo: null },
+  ],
+  activeOffersCount: null,
+  shortDescription: "Remote API supplier for frontend detail loading.",
+  about: null,
+  responseSignal: "normal",
+  documentReadiness: "ready",
+  verificationLevel: "documents_reviewed",
+  heroImage: "/offers/salmon.webp",
+  logoImage: null,
+  deliveryCountries: [{ code: "DE", name: "Germany" }],
+  deliveryCountriesTotal: null,
+  totalProductsCount: null,
+  productCatalogPreview: [
+    {
+      name: "Remote salmon HOG",
+      species: "Atlantic Salmon",
+      form: "HOG",
+      image: "/offers/salmon.webp",
+    },
+  ],
+  website: null,
+  whatsapp: null,
+  updatedAt: "2026-05-14T00:00:00.000Z",
+  accessLevel: "anonymous_locked",
+};
+
 describe("SupplierProfile · access gating", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -106,6 +146,8 @@ describe("SupplierProfile · access gating", () => {
     cleanup();
     localStorage.clear();
     sessionStorage.clear();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   describe("anonymous_locked", () => {
@@ -154,6 +196,31 @@ describe("SupplierProfile · access gating", () => {
       // legal номера не должны рендериться (компонент LegalDetailsBlock не вызывается)
       // Проверяем placeholder.
       expect(screen.getByTestId("supplier-legal-locked")).toBeInTheDocument();
+    });
+
+    it("загружает профиль поставщика через self-hosted supplier directory API, если id отсутствует в локальных моках", async () => {
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      const fetchMock = vi.fn(async (_input: RequestInfo | URL) =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: remoteSupplierDetail,
+          accessLevel: "anonymous_locked",
+          requestId: "remote-profile-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      renderProfile(remoteSupplierDetail.id);
+
+      await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+      expect(fetchMock.mock.calls[0][0]).toBe(
+        "http://api.test/v1/suppliers/sup-remote-909?accessLevel=anonymous_locked",
+      );
+      expect((await screen.findAllByText(remoteSupplierDetail.maskedName)).length).toBeGreaterThan(0);
+      expect(document.body.textContent ?? "").not.toContain("Remote Legal Supplier AS");
     });
   });
 

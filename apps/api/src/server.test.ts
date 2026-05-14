@@ -192,6 +192,9 @@ describe("YORSO self-hosted API skeleton", () => {
         companyName: null,
         about: null,
         activeOffersCount: null,
+        deliveryCountries: expect.arrayContaining([
+          expect.objectContaining({ code: "DE" }),
+        ]),
         totalProductsCount: null,
         website: null,
         whatsapp: null,
@@ -199,6 +202,7 @@ describe("YORSO self-hosted API skeleton", () => {
     ]);
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
     expect(JSON.stringify(body)).not.toContain("example-nordfjord.no");
+    expect((body.suppliers as Array<{ deliveryCountries: unknown[] }>)[0].deliveryCountries.length).toBeLessThanOrEqual(3);
   });
 
   it("does not let locked supplier search reveal private company identity", async () => {
@@ -220,6 +224,27 @@ describe("YORSO self-hosted API skeleton", () => {
         companyName: "Nordfjord Sjømat AS",
       }),
     ]);
+  });
+
+  it("filters supplier directory by verification level without unlocking private fields", async () => {
+    const response = await request("/v1/suppliers?verificationLevel=documents_reviewed&accessLevel=anonymous_locked&limit=2");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.suppliers).toHaveLength(2);
+    expect(body.total).toBe(3);
+    expect(body.suppliers).toEqual([
+      expect.objectContaining({
+        verificationLevel: "documents_reviewed",
+        companyName: null,
+      }),
+      expect.objectContaining({
+        verificationLevel: "documents_reviewed",
+        companyName: null,
+      }),
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
   });
 
   it("unlocks supplier identity for qualified supplier-directory access", async () => {

@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
-Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and explicit account session boundary
-Batch: #34
+Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and supplier-directory frontend bridge
+Batch: #35
 Date: 2026-05-14
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -235,6 +235,25 @@ Batch #34 adds the first self-hosted supplier directory API:
 - `src/lib/supplier-directory-api.ts` is the frontend adapter. It uses the
   self-hosted API when `VITE_YORSO_API_URL` is configured and falls back to the
   existing mock supplier directory in Lovable/local preview mode.
+
+Batch #35 connects the supplier directory UI to that API path and hardens the
+read path for the 10,000 concurrent-user target:
+
+- `/suppliers` fetches through `src/lib/supplier-directory-api.ts` when
+  `VITE_YORSO_API_URL` is configured.
+- Search is debounced before API calls, so typing does not create one request
+  per keystroke.
+- `/suppliers/:id` can render a supplier returned by the self-hosted API even
+  when that supplier is not present in local mocks.
+- The `Certified suppliers` quick filter maps to
+  `verificationLevel=documents_reviewed`, so filtering remains backend-owned
+  and paginated instead of filtering only the first local page.
+- `packages/db/migrations/0005_supplier_directory_search_scaling.sql` upgrades
+  supplier-directory search indexes to trigram GIN indexes and adds a
+  verification-level index. This keeps public/private supplier search paths
+  index-backed under high read concurrency.
+- Local/Lovable preview remains independent from the API. Empty
+  `VITE_YORSO_API_URL` keeps using the mock supplier directory.
 
 ## Local Build
 

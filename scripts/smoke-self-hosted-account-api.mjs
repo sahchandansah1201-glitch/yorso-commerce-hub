@@ -80,6 +80,16 @@ async function runSmoke(baseUrl) {
   assertEqual(suppliersLocked.suppliers?.[0]?.website, null, "locked supplier website hidden");
   console.log("supplier_directory_locked=ok");
 
+  const certifiedSuppliers = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?verificationLevel=documents_reviewed&accessLevel=anonymous_locked&limit=2",
+  );
+  assertEqual(certifiedSuppliers.ok, true, "certified supplier list ok");
+  assertEqual(certifiedSuppliers.suppliers?.length, 2, "certified supplier page size");
+  assertEqual(certifiedSuppliers.total, 3, "certified supplier total");
+  assertEqual(certifiedSuppliers.suppliers?.[0]?.companyName, null, "certified locked supplier hidden identity");
+  console.log("supplier_directory_verified_filter=ok");
+
   const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
   assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
   assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");

@@ -7,12 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, type MockSupplier } from "@/data/mockSuppliers";
-import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import { useAccessLevel } from "@/lib/access-level";
 import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { createSupplierDirectoryApiClient, type SupplierDirectoryQuery } from "@/lib/supplier-directory-api";
+import {
+  localizedMockSuppliers,
+  localizeSupplierDirectoryItem,
+} from "@/lib/supplier-directory-view";
 
 
 interface QuickFilter {
@@ -20,6 +24,7 @@ interface QuickFilter {
   label: string;
   /** Match against supplier productFocus.species (case-insensitive substring) or "certified". */
   match: (s: MockSupplier) => boolean;
+  apiQuery?: Pick<Partial<SupplierDirectoryQuery>, "species" | "certification" | "verificationLevel">;
 }
 
 const QUICK_FILTERS: QuickFilter[] = [
@@ -27,16 +32,19 @@ const QUICK_FILTERS: QuickFilter[] = [
     id: "salmon",
     label: "Salmon",
     match: (s) => s.productFocus.some((p) => /salmon/i.test(p.species)),
+    apiQuery: { species: "salmon" },
   },
   {
     id: "shrimp",
     label: "Shrimp",
     match: (s) => s.productFocus.some((p) => /shrimp|vannamei/i.test(p.species)),
+    apiQuery: { species: "shrimp" },
   },
   {
     id: "tuna",
     label: "Tuna",
     match: (s) => s.productFocus.some((p) => /tuna|skipjack/i.test(p.species)),
+    apiQuery: { species: "tuna" },
   },
   {
     id: "whitefish",
@@ -45,21 +53,25 @@ const QUICK_FILTERS: QuickFilter[] = [
       s.productFocus.some((p) =>
         /cod|pollock|haddock|hake|saithe|whitefish|pangasius|tilapia/i.test(p.species),
       ),
+    apiQuery: { species: "cod" },
   },
   {
     id: "crab",
     label: "Crab",
     match: (s) => s.productFocus.some((p) => /crab/i.test(p.species)),
+    apiQuery: { species: "crab" },
   },
   {
     id: "squid",
     label: "Squid",
     match: (s) => s.productFocus.some((p) => /squid|octopus/i.test(p.species)),
+    apiQuery: { species: "squid" },
   },
   {
     id: "certified",
     label: "Certified suppliers",
     match: (s) => s.verificationLevel === "documents_reviewed",
+    apiQuery: { verificationLevel: "documents_reviewed" },
   },
 ];
 
@@ -93,8 +105,13 @@ const Suppliers = () => {
   const { level } = useAccessLevel();
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
+  const supplierDirectoryClient = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [remoteSuppliers, setRemoteSuppliers] = useState<MockSupplier[] | null>(null);
+  const [remoteTotal, setRemoteTotal] = useState<number | null>(null);
+  const [remoteStatus, setRemoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shortlist, setShortlist] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -129,19 +146,71 @@ const Suppliers = () => {
     }
   };
 
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 250);
+    return () => window.clearTimeout(handle);
+  }, [query]);
+
   const localizedSuppliers = useMemo(
-    () => mockSuppliers.map((s) => localizeSupplier(s, lang)),
+    () => localizedMockSuppliers(lang),
     [lang],
   );
+
+  const stableSupplierById = useMemo(() => new Map(mockSuppliers.map((s) => [s.id, s])), []);
+
+  const activeQuickFilter = activeFilter
+    ? QUICK_FILTERS.find((x) => x.id === activeFilter) ?? null
+    : null;
+
+  useEffect(() => {
+    if (!supplierDirectoryClient.enabled) {
+      setRemoteSuppliers(null);
+      setRemoteTotal(null);
+      setRemoteStatus("idle");
+      return;
+    }
+
+    let cancelled = false;
+    setRemoteStatus("loading");
+    void supplierDirectoryClient
+      .listSuppliers({
+        ...(debouncedQuery ? { q: debouncedQuery } : {}),
+        ...(activeQuickFilter?.apiQuery ?? {}),
+        accessLevel: level,
+        limit: 50,
+        offset: 0,
+      })
+      .then((result) => {
+        if (cancelled) return;
+        setRemoteSuppliers(result.suppliers.map((item) => localizeSupplierDirectoryItem(item, lang)));
+        setRemoteTotal(result.total);
+        setRemoteStatus("ready");
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.warn("supplier_directory_api_failed", error);
+        setRemoteSuppliers(null);
+        setRemoteTotal(null);
+        setRemoteStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [supplierDirectoryClient, debouncedQuery, activeQuickFilter, level, lang]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const includeCompanyName = level === "qualified_unlocked";
-    return localizedSuppliers.filter((s, i) => {
+    const source = remoteSuppliers ?? localizedSuppliers;
+    return source.filter((s) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
+        const stableSupplier = stableSupplierById.get(s.id) ?? s;
         // match against original (EN) species so regex stays stable across locales
-        if (f && !f.match(mockSuppliers[i])) return false;
+        if (f && !f.match(stableSupplier)) return false;
       }
       if (!q) return true;
       const fields = [
@@ -162,7 +231,7 @@ const Suppliers = () => {
       const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, activeFilter, level, localizedSuppliers]);
+  }, [query, activeFilter, level, localizedSuppliers, remoteSuppliers, stableSupplierById]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
@@ -231,8 +300,11 @@ const Suppliers = () => {
                 <span>
                   {interpolate(t.suppliersPage_countSuffix, {
                     visible: filtered.length,
-                    total: mockSuppliers.length,
+                    total: remoteTotal ?? mockSuppliers.length,
                   })}
+                  {remoteStatus === "loading" && (
+                    <span className="sr-only">Supplier directory is refreshing</span>
+                  )}
                 </span>
               </div>
             </div>

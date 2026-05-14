@@ -52,6 +52,9 @@ export function shapeSupplierForAccess(
     companyName: unlocked ? supplier.companyName : null,
     about: unlocked ? supplier.about : null,
     activeOffersCount: unlocked ? supplier.activeOffersCount : null,
+    deliveryCountries: unlocked
+      ? supplier.deliveryCountries
+      : supplier.deliveryCountries.slice(0, 3),
     deliveryCountriesTotal: unlocked ? supplier.deliveryCountriesTotal : null,
     totalProductsCount: unlocked ? supplier.totalProductsCount : null,
     website: unlocked ? supplier.website : null,

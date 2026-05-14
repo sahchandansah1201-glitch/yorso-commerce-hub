@@ -1,0 +1,71 @@
+import { describe, expect, it } from "vitest";
+import { mockSuppliers } from "@/data/mockSuppliers";
+import {
+  localizedMockSuppliers,
+  localizeSupplierDirectoryItem,
+  supplierDirectoryItemToMockSupplier,
+} from "./supplier-directory-view";
+import type { SupplierDirectoryItem } from "./supplier-directory-api";
+
+const lockedApiItem = (supplier = mockSuppliers[0]): SupplierDirectoryItem => ({
+  id: supplier.id,
+  maskedName: supplier.maskedName,
+  companyName: null,
+  country: supplier.country,
+  countryCode: supplier.countryCode,
+  city: supplier.city,
+  supplierType: supplier.supplierType,
+  inBusinessSinceYear: supplier.inBusinessSinceYear,
+  productFocus: supplier.productFocus,
+  certifications: supplier.certifications,
+  certificationBadges: supplier.certificationBadges.map((badge) => ({
+    code: badge.code,
+    label: badge.label,
+    logo: badge.logo ?? null,
+  })),
+  activeOffersCount: null,
+  shortDescription: supplier.shortDescription,
+  about: null,
+  responseSignal: supplier.responseSignal,
+  documentReadiness: supplier.documentReadiness,
+  verificationLevel: supplier.verificationLevel,
+  heroImage: supplier.heroImage,
+  logoImage: supplier.logoImage ?? null,
+  deliveryCountries: supplier.deliveryCountries,
+  deliveryCountriesTotal: null,
+  totalProductsCount: null,
+  productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
+  website: null,
+  whatsapp: null,
+  updatedAt: "2026-05-14T00:00:00.000Z",
+  accessLevel: "anonymous_locked",
+});
+
+describe("supplier directory API view shaping", () => {
+  it("maps locked API items to existing supplier row shape without reconstructing hidden values", () => {
+    const supplier = supplierDirectoryItemToMockSupplier(lockedApiItem());
+
+    expect(supplier.id).toBe(mockSuppliers[0].id);
+    expect(supplier.companyName).toBe(mockSuppliers[0].maskedName);
+    expect(supplier.about).toBe(mockSuppliers[0].shortDescription);
+    expect(supplier.activeOffersCount).toBe(0);
+    expect(supplier.totalProductsCount).toBe(3);
+    expect(supplier.website).toBeUndefined();
+    expect(supplier.whatsapp).toBeUndefined();
+  });
+
+  it("localizes API-shaped suppliers with the same i18n layer as local mocks", () => {
+    const ruSupplier = localizeSupplierDirectoryItem(lockedApiItem(), "ru");
+
+    expect(ruSupplier.maskedName).not.toBe(mockSuppliers[0].maskedName);
+    expect(ruSupplier.country).not.toBe(mockSuppliers[0].country);
+    expect(ruSupplier.productFocus[0].species).toMatch(/лосось|семга/i);
+  });
+
+  it("keeps local mock fallback localized for Lovable/offline preview", () => {
+    const ruFallback = localizedMockSuppliers("ru");
+
+    expect(ruFallback[0].maskedName).not.toBe(mockSuppliers[0].maskedName);
+    expect(ruFallback).toHaveLength(mockSuppliers.length);
+  });
+});

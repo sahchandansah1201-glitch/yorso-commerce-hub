@@ -23,6 +23,24 @@ describe("supplier directory API adapter", () => {
       whatsapp: null,
     });
 
+    const verified = await client.listSuppliers({
+      verificationLevel: "documents_reviewed",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    });
+    expect(verified.total).toBeGreaterThan(0);
+    expect(verified.suppliers.every((supplier) => supplier.verificationLevel === "documents_reviewed")).toBe(true);
+
+    const unverified = await client.listSuppliers({
+      verificationLevel: "unverified",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    });
+    expect(unverified.total).toBeGreaterThan(0);
+    expect(unverified.suppliers.every((supplier) => supplier.verificationLevel === "unverified")).toBe(true);
+
     await expect(client.listSuppliers({
       q: "Nordfjord",
       accessLevel: "anonymous_locked",
@@ -97,10 +115,17 @@ describe("supplier directory API adapter", () => {
     });
 
     const client = createSupplierDirectoryApiClient({ baseUrl: "http://localhost:3000/", fetchImpl: fetchImpl as unknown as typeof fetch });
-    await client.listSuppliers({ q: "cod", countryCode: "NO", accessLevel: "anonymous_locked", limit: 5, offset: 10 });
+    await client.listSuppliers({
+      q: "cod",
+      countryCode: "NO",
+      verificationLevel: "documents_reviewed",
+      accessLevel: "anonymous_locked",
+      limit: 5,
+      offset: 10,
+    });
     await client.getSupplierById("sup-test");
 
-    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/suppliers?q=cod&countryCode=NO&accessLevel=anonymous_locked&limit=5&offset=10");
+    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/suppliers?q=cod&countryCode=NO&verificationLevel=documents_reviewed&accessLevel=anonymous_locked&limit=5&offset=10");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/suppliers/sup-test?accessLevel=anonymous_locked");
   });
 });
