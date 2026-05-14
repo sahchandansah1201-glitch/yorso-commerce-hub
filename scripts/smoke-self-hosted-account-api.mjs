@@ -96,6 +96,13 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierBeforeGrant.supplier?.website, null, "supplier website hidden before grant");
   console.log("supplier_directory_requires_grant=ok");
 
+  const supplierPrivateSearchBeforeGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked",
+  );
+  assertEqual(supplierPrivateSearchBeforeGrant.total, 0, "supplier private search requires grant");
+  console.log("supplier_directory_private_search_requires_grant=ok");
+
   const offersLocked = await jsonRequest(baseUrl, "/v1/offers?q=salmon&accessLevel=anonymous_locked");
   assertEqual(offersLocked.ok, true, "offer list ok");
   assertEqual(offersLocked.offers?.[0]?.supplier?.name, null, "locked offer supplier hidden");
@@ -169,6 +176,25 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
   assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
   console.log("supplier_directory_unlocked=ok");
+
+  const supplierPrivateSearchAfterGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked",
+  );
+  assertEqual(supplierPrivateSearchAfterGrant.total, 1, "granted supplier private search total");
+  assertEqual(
+    supplierPrivateSearchAfterGrant.suppliers?.[0]?.companyName,
+    "Nordfjord Sjømat AS",
+    "granted supplier private search identity",
+  );
+  console.log("supplier_directory_granted_private_search=ok");
+
+  const supplierPrivateSearchWithoutGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?q=Pacific%20Blue&accessLevel=qualified_unlocked",
+  );
+  assertEqual(supplierPrivateSearchWithoutGrant.total, 0, "ungranted supplier private search remains hidden");
+  console.log("supplier_directory_ungranted_private_search_guard=ok");
 
   const offerUnlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
   assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");

@@ -288,6 +288,23 @@ describe("YORSO self-hosted API skeleton", () => {
       website: "https://example-nordfjord.no",
       whatsapp: "+47 555 0114",
     });
+
+    const grantedSearch = await fetchApi("/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked");
+    const grantedSearchBody = (await grantedSearch.json()) as JsonBody;
+    expect(grantedSearch.status).toBe(200);
+    expect(grantedSearchBody.total).toBe(1);
+    expect(grantedSearchBody.suppliers).toEqual([
+      expect.objectContaining({
+        id: "sup-no-001",
+        companyName: "Nordfjord Sjømat AS",
+      }),
+    ]);
+
+    const unrelatedPrivateSearch = await fetchApi("/v1/suppliers?q=Pacific%20Blue&accessLevel=qualified_unlocked");
+    const unrelatedPrivateSearchBody = (await unrelatedPrivateSearch.json()) as JsonBody;
+    expect(unrelatedPrivateSearch.status).toBe(200);
+    expect(unrelatedPrivateSearchBody.total).toBe(0);
+    expect(unrelatedPrivateSearchBody.suppliers).toEqual([]);
   });
 
   it("validates supplier directory query params and returns 404 for missing supplier", async () => {

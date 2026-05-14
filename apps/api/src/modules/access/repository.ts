@@ -22,6 +22,7 @@ export interface SupplierAccessRepository {
     notification: SupplierAccessNotification | null;
   }>;
   hasSupplierAccess(input: { buyerUserId: string; supplierId: string }): Promise<boolean>;
+  listAccessibleSupplierIds(input: { buyerUserId: string }): Promise<string[]>;
   listNotifications(input: { buyerUserId: string; limit: number; offset: number }): Promise<SupplierAccessNotification[]>;
 }
 
@@ -106,6 +107,22 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
         grant.scope === "supplier_identity" &&
         (!grant.expiresAt || new Date(grant.expiresAt).getTime() > Date.now()),
     );
+  }
+
+  async listAccessibleSupplierIds(input: { buyerUserId: string }) {
+    const now = Date.now();
+    return [
+      ...new Set(
+        [...this.grants.values()]
+          .filter(
+            (grant) =>
+              grant.buyerUserId === input.buyerUserId &&
+              grant.scope === "supplier_identity" &&
+              (!grant.expiresAt || new Date(grant.expiresAt).getTime() > now),
+          )
+          .map((grant) => grant.supplierId),
+      ),
+    ].sort();
   }
 
   async listNotifications(input: { buyerUserId: string; limit: number; offset: number }) {

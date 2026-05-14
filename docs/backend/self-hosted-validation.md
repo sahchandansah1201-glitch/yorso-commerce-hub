@@ -365,6 +365,17 @@ before approval and `supplier_directory_unlocked=ok` after approval. This keeps
 supplier identity, contacts and exact catalog breadth behind server-side grants,
 not frontend state.
 
+Batch #46 tightens supplier directory search. Private supplier identity search
+is no longer a global `qualified_unlocked` behavior. It is scoped to suppliers
+where the current buyer has an active `supplier_identity` grant:
+
+- before approval, `supplier_directory_private_search_requires_grant=ok` proves
+  that searching a real company name returns no rows;
+- after approval, `supplier_directory_granted_private_search=ok` proves that
+  the same private company name becomes searchable for the granted supplier;
+- `supplier_directory_ungranted_private_search_guard=ok` proves that an
+  unrelated supplier company name remains hidden after a different grant.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

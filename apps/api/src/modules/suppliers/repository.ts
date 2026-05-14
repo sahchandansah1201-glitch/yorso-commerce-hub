@@ -9,8 +9,15 @@ import type {
 } from "../../../../../packages/contracts/dist/index.js";
 
 export interface SupplierRepository {
-  listSuppliers(query: SupplierDirectoryQuery): Promise<{ suppliers: SupplierDirectoryRecord[]; total: number }>;
+  listSuppliers(
+    query: SupplierDirectoryQuery,
+    options?: SupplierRepositoryListOptions,
+  ): Promise<{ suppliers: SupplierDirectoryRecord[]; total: number }>;
   getSupplierById(id: string): Promise<SupplierDirectoryRecord | null>;
+}
+
+export interface SupplierRepositoryListOptions {
+  privateSearchSupplierIds?: readonly string[];
 }
 
 const cert = (code: string, label = code): SupplierCertificationBadge => ({ code, label, logo: null });
@@ -156,7 +163,11 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
 
 const includesText = (value: string, needle: string) => value.toLowerCase().includes(needle);
 
-function matchesQuery(supplier: SupplierDirectoryRecord, query: SupplierDirectoryQuery) {
+function matchesQuery(
+  supplier: SupplierDirectoryRecord,
+  query: SupplierDirectoryQuery,
+  privateSearchSupplierIds: ReadonlySet<string>,
+) {
   if (query.countryCode && supplier.countryCode !== query.countryCode.toUpperCase()) return false;
   if (query.supplierType && supplier.supplierType !== query.supplierType) return false;
   if (query.verificationLevel && supplier.verificationLevel !== query.verificationLevel) return false;
@@ -176,7 +187,7 @@ function matchesQuery(supplier: SupplierDirectoryRecord, query: SupplierDirector
       ...supplier.certifications,
       ...supplier.productFocus.flatMap((item) => [item.species, item.forms]),
     ];
-    if (query.accessLevel === "qualified_unlocked") {
+    if (privateSearchSupplierIds.has(supplier.id)) {
       searchable.push(supplier.companyName, supplier.about);
     }
     if (!searchable.some((item) => item.toLowerCase().includes(q))) return false;
@@ -188,8 +199,9 @@ function matchesQuery(supplier: SupplierDirectoryRecord, query: SupplierDirector
 export class MemorySupplierRepository implements SupplierRepository {
   constructor(private readonly suppliers = demoSupplierRecords) {}
 
-  async listSuppliers(query: SupplierDirectoryQuery) {
-    const filtered = this.suppliers.filter((supplier) => matchesQuery(supplier, query));
+  async listSuppliers(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
+    const privateSearchSupplierIds = new Set(options.privateSearchSupplierIds ?? []);
+    const filtered = this.suppliers.filter((supplier) => matchesQuery(supplier, query, privateSearchSupplierIds));
     return {
       suppliers: filtered.slice(query.offset, query.offset + query.limit).map((supplier) => ({ ...supplier })),
       total: filtered.length,

@@ -9,7 +9,7 @@ import type {
   SupplierProductFocus,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
-import type { SupplierRepository } from "./repository.js";
+import type { SupplierRepository, SupplierRepositoryListOptions } from "./repository.js";
 
 export interface SupplierQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -85,7 +85,7 @@ function mapSupplier(row: SupplierRow): SupplierDirectoryRecord {
   };
 }
 
-function whereClause(query: SupplierDirectoryQuery) {
+function whereClause(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
   const params: unknown[] = [];
   const where = ["publication_status = 'published'"];
   const add = (value: unknown) => {
@@ -100,8 +100,13 @@ function whereClause(query: SupplierDirectoryQuery) {
   if (query.species) where.push(`product_focus_search ilike ${add(`%${query.species}%`)}`);
   if (query.q) {
     const needle = add(`%${query.q}%`);
-    const searchColumn = query.accessLevel === "qualified_unlocked" ? "private_search_text" : "public_search_text";
-    where.push(`${searchColumn} ilike ${needle}`);
+    const privateSearchSupplierIds = options.privateSearchSupplierIds ?? [];
+    if (privateSearchSupplierIds.length > 0) {
+      const privateIds = add(privateSearchSupplierIds);
+      where.push(`(public_search_text ilike ${needle} or (id = any(${privateIds}::text[]) and private_search_text ilike ${needle}))`);
+    } else {
+      where.push(`public_search_text ilike ${needle}`);
+    }
   }
 
   return { sql: where.join(" and "), params };
@@ -114,8 +119,8 @@ export class PostgresSupplierRepository implements SupplierRepository {
     this.client = options.client ?? new Pool({ connectionString: config.databaseUrl } satisfies PoolConfig);
   }
 
-  async listSuppliers(query: SupplierDirectoryQuery) {
-    const where = whereClause(query);
+  async listSuppliers(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
+    const where = whereClause(query, options);
     const limitParam = where.params.length + 1;
     const offsetParam = where.params.length + 2;
     const result = await this.client.query<SupplierRow & { total_count: number }>(

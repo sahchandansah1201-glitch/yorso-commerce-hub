@@ -288,6 +288,13 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(supplierBeforeGrant.supplier?.website, null, "supplier website hidden before grant");
   console.log("supplier_directory_requires_grant=ok");
 
+  const supplierPrivateSearchBeforeGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?q=Postgres%20Smoke%20Salmon&accessLevel=qualified_unlocked",
+  );
+  assertEqual(supplierPrivateSearchBeforeGrant.total, 0, "supplier private search requires grant");
+  console.log("supplier_directory_private_search_requires_grant=ok");
+
   const supplierAccessRequest = await jsonRequest(baseUrl, "/v1/access/suppliers/pg32_supplier_salmon/request", {
     method: "POST",
     body: { message: "" },
@@ -308,6 +315,18 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(supplierUnlocked.supplier?.companyName, "Postgres Smoke Salmon AS", "supplier unlocked companyName");
   assertEqual(supplierUnlocked.supplier?.website, "https://postgres-smoke-supplier.example", "supplier unlocked website");
   console.log("supplier_directory_unlocked=ok");
+
+  const supplierPrivateSearchAfterGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?q=Postgres%20Smoke%20Salmon&accessLevel=qualified_unlocked",
+  );
+  assertEqual(supplierPrivateSearchAfterGrant.total, 1, "granted supplier private search total");
+  assertEqual(
+    supplierPrivateSearchAfterGrant.suppliers?.[0]?.companyName,
+    "Postgres Smoke Salmon AS",
+    "granted supplier private search companyName",
+  );
+  console.log("supplier_directory_granted_private_search=ok");
 
   const branches = [
     {

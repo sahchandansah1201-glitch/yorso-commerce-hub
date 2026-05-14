@@ -360,6 +360,15 @@ model:
   and `supplier_directory_unlocked=ok` only after the access request is
   approved.
 
+Batch #46 narrows private supplier-name search to the buyer's approved grant
+set instead of using `qualified_unlocked` as a global private-search mode:
+
+- the access repository exposes active `supplier_identity` grant supplier IDs;
+- supplier repositories search private text only for those supplier IDs;
+- runtime smokes emit `supplier_directory_private_search_requires_grant=ok`,
+  `supplier_directory_granted_private_search=ok` and
+  `supplier_directory_ungranted_private_search_guard=ok`.
+
 ## Local Build
 
 ```bash

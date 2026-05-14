@@ -121,6 +121,14 @@ Batch #45 applies the same server-side grant gate to supplier profiles:
   `supplier_directory_unlocked=ok` prove that supplier identity unlocks only
   after approval.
 
+Batch #46 adds the production rule for private supplier-name search at list
+scale. The API must first load the buyer's active `supplier_identity` grants and
+only then include private search text for those supplier IDs. This avoids a
+global company-name search path while keeping approved buyer workflows fast. The
+required smoke markers are `supplier_directory_private_search_requires_grant=ok`,
+`supplier_directory_granted_private_search=ok` and
+`supplier_directory_ungranted_private_search_guard=ok`.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

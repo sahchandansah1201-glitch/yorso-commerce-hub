@@ -191,6 +191,21 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
     return Boolean(result.rows[0]?.exists);
   }
 
+  async listAccessibleSupplierIds(input: { buyerUserId: string }) {
+    const result = await this.client.query<{ supplier_id: string }>(
+      `
+        select distinct supplier_id
+        from yorso_access_grants
+        where buyer_user_id = $1
+          and scope = 'supplier_identity'
+          and (expires_at is null or expires_at > now())
+        order by supplier_id asc
+      `,
+      [input.buyerUserId],
+    );
+    return result.rows.map((row) => row.supplier_id);
+  }
+
   async listNotifications(input: { buyerUserId: string; limit: number; offset: number }) {
     const result = await this.client.query<AccessNotificationRow>(
       `

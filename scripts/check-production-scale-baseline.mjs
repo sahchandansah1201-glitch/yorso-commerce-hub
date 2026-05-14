@@ -144,7 +144,10 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:ru
 for (const marker of [
   "supplier_directory_locked=ok",
   "supplier_directory_requires_grant=ok",
+  "supplier_directory_private_search_requires_grant=ok",
   "supplier_directory_unlocked=ok",
+  "supplier_directory_granted_private_search=ok",
+  "supplier_directory_ungranted_private_search_guard=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }

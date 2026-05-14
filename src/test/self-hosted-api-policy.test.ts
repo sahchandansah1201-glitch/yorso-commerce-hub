@@ -115,11 +115,14 @@ describe("self-hosted API policy", () => {
     expect(routes).toContain("supplier_not_found");
     expect(service).toContain("shapeSupplierForAccess");
     expect(service).toContain("hasSupplierAccess");
+    expect(service).toContain("listAccessibleSupplierIds");
     expect(service).toContain("resolveDetailAccessLevel");
+    expect(repository).toContain("privateSearchSupplierIds");
     expect(service).toContain("qualified_unlocked");
     expect(repository).toContain("MemorySupplierRepository");
     expect(postgresRepository).toContain("from yorso_suppliers_directory");
     expect(postgresRepository).toContain("publication_status = 'published'");
+    expect(postgresRepository).toContain("private_search_text");
     expect(contracts).toContain("supplierDirectoryRecordSchema");
     expect(contracts).toContain("supplierDirectoryItemSchema");
     expect(contracts).toContain("verificationLevel: supplierVerificationLevelSchema.optional()");
@@ -130,7 +133,10 @@ describe("self-hosted API policy", () => {
     expect(smoke).toContain("supplier_directory_locked=ok");
     expect(smoke).toContain("supplier_directory_verified_filter=ok");
     expect(smoke).toContain("supplier_directory_requires_grant=ok");
+    expect(smoke).toContain("supplier_directory_private_search_requires_grant=ok");
     expect(smoke).toContain("supplier_directory_unlocked=ok");
+    expect(smoke).toContain("supplier_directory_granted_private_search=ok");
+    expect(smoke).toContain("supplier_directory_ungranted_private_search_guard=ok");
   });
 
   it("keeps offer catalog API behind self-hosted contracts and access shaping", () => {

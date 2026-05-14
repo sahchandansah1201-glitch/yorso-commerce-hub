@@ -22,15 +22,13 @@ export class SupplierDirectoryService {
     viewer: { buyerUserId: string } | null = null,
   ) {
     const query = supplierDirectoryQuerySchema.parse(rawQuery);
-    const searchAccessLevel = this.searchAccessLevel(query.accessLevel, viewer);
-    const { suppliers, total } = await this.repository.listSuppliers({
-      ...query,
-      accessLevel: searchAccessLevel,
+    const accessibleSupplierIds = await this.listAccessibleSupplierIds(query.accessLevel, viewer);
+    const accessibleSupplierIdSet = new Set(accessibleSupplierIds);
+    const { suppliers, total } = await this.repository.listSuppliers(query, {
+      privateSearchSupplierIds: query.q ? accessibleSupplierIds : [],
     });
-    const shapedSuppliers = await Promise.all(
-      suppliers.map(async (supplier) =>
-        shapeSupplierForAccess(supplier, await this.resolveDetailAccessLevel(supplier.id, query.accessLevel, viewer)),
-      ),
+    const shapedSuppliers = suppliers.map((supplier) =>
+      shapeSupplierForAccess(supplier, this.resolveListAccessLevel(supplier.id, query.accessLevel, accessibleSupplierIdSet)),
     );
 
     return supplierDirectoryListResponseSchema.parse({
@@ -63,15 +61,22 @@ export class SupplierDirectoryService {
     });
   }
 
-  private searchAccessLevel(
+  private async listAccessibleSupplierIds(
     requested: SupplierDirectoryAccessLevel,
     viewer: { buyerUserId: string } | null,
+  ): Promise<string[]> {
+    if (requested !== "qualified_unlocked") return [];
+    if (!viewer || !this.accessRepository) return [];
+    return this.accessRepository.listAccessibleSupplierIds({ buyerUserId: viewer.buyerUserId });
+  }
+
+  private resolveListAccessLevel(
+    supplierId: string,
+    requested: SupplierDirectoryAccessLevel,
+    accessibleSupplierIds: ReadonlySet<string>,
   ): SupplierDirectoryAccessLevel {
     if (requested !== "qualified_unlocked") return requested;
-    if (!viewer || !this.accessRepository) return "registered_locked";
-    // Supplier-name search must stay grant-safe. Batch #45 keeps list search on
-    // public fields; detail unlock happens per supplier grant.
-    return "registered_locked";
+    return accessibleSupplierIds.has(supplierId) ? "qualified_unlocked" : "registered_locked";
   }
 
   private async resolveDetailAccessLevel(

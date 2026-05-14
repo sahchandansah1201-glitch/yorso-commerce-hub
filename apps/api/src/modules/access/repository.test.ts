@@ -29,6 +29,7 @@ describe("MemorySupplierAccessRepository", () => {
     expect(second.id).toBe(first.id);
     expect(second.message).toBe("Need exact price");
     await expect(repository.hasSupplierAccess({ buyerUserId, supplierId })).resolves.toBe(false);
+    await expect(repository.listAccessibleSupplierIds({ buyerUserId })).resolves.toEqual([]);
   });
 
   it("moves request through pending and approval, then creates grants and notification", async () => {
@@ -65,6 +66,7 @@ describe("MemorySupplierAccessRepository", () => {
       status: "unread",
     });
     await expect(repository.hasSupplierAccess({ buyerUserId, supplierId })).resolves.toBe(true);
+    await expect(repository.listAccessibleSupplierIds({ buyerUserId })).resolves.toEqual([supplierId]);
     await expect(repository.listNotifications({ buyerUserId, limit: 10, offset: 0 })).resolves.toHaveLength(1);
   });
 });
