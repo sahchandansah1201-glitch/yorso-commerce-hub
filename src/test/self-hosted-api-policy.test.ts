@@ -44,4 +44,26 @@ describe("self-hosted API policy", () => {
     expect(smoke).toContain("file_owner_guard=ok");
     expect(docs).toContain("self_hosted_account_api_smoke=ok");
   });
+
+  it("keeps the optional live PostgreSQL account smoke available without requiring it in CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const smoke = readFileSync("scripts/smoke-self-hosted-account-postgres.mjs", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-account-postgres-smoke.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-account-postgres"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-account-postgres:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-account-postgres:run"]).toBe(
+      "node scripts/smoke-self-hosted-account-postgres.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).not.toContain("npm run smoke:self-hosted-account-postgres:run");
+    expect(smoke).toContain("MIGRATION_DATABASE_URL");
+    expect(smoke).toContain("self_hosted_account_postgres_smoke=skipped");
+    expect(smoke).toContain("ACCOUNT_REPOSITORY: \"postgres\"");
+    expect(smoke).toContain("file_owner_guard=ok");
+    expect(docs).toContain("optional live runtime smoke");
+    expect(docs).toContain("self_hosted_account_postgres_smoke=ok");
+  });
 });

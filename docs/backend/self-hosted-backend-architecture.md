@@ -293,3 +293,10 @@ session headers, company writes, product matrix replacement, media uploads,
 document uploads and file ownership over HTTP. This protects the direction that
 YORSO must run as one self-hosted product, not only as isolated frontend mocks
 or unit-tested modules.
+
+Batch #31 extends that proof to real PostgreSQL. The optional live smoke applies
+self-hosted migrations, seeds one deterministic account, starts the API with
+`ACCOUNT_REPOSITORY=postgres` and verifies the same account/file flows over
+HTTP. It skips when `MIGRATION_DATABASE_URL` is absent, so default CI remains
+portable while server/staging checks can validate the database repository
+boundary.
