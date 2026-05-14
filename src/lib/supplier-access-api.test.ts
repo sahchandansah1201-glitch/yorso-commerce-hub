@@ -6,6 +6,7 @@ import {
 } from "@/lib/supplier-access-api";
 import {
   SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
+  persistSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
 
@@ -25,6 +26,9 @@ describe("supplier-access-api", () => {
   afterEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it("falls back to local mock request when no Supabase auth user is available", async () => {
@@ -164,5 +168,38 @@ describe("supplier-access-api", () => {
       intent: "exact_price",
     });
     expect(readStore()[SUPPLIER_ID]).toMatchObject({ status: "approved" });
+  });
+
+  it("clears stale local approval when self-hosted API reports no request or grant", async () => {
+    persistSupplierAccessRequest({
+      supplierId: SUPPLIER_ID,
+      intent: "exact_price",
+      status: "approved",
+      sentAt: "2026-05-14T00:00:00.000Z",
+      pendingAt: "2026-05-14T00:01:00.000Z",
+      approvedAt: "2026-05-14T00:02:00.000Z",
+      reasons: ["exact_price"],
+      message: "",
+    });
+    vi.stubEnv("VITE_YORSO_API_URL", "http://localhost:3000");
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({
+        ok: true,
+        request: null,
+        accessGranted: false,
+        requestId: "api-no-access",
+      }), { status: 200, headers: { "content-type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchImpl);
+
+    await expect(readSupplierAccessRequest(SUPPLIER_ID)).resolves.toBeNull();
+
+    expect(readStore()[SUPPLIER_ID]).toBeUndefined();
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/v1/access/suppliers/sup-no-001/request",
+      expect.objectContaining({
+        headers: expect.any(Headers),
+      }),
+    );
   });
 });

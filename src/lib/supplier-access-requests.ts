@@ -166,6 +166,14 @@ export const getSupplierAccessRequest = (
   return store[supplierId] ?? null;
 };
 
+export const clearSupplierAccessRequest = (supplierId: string | undefined) => {
+  if (!supplierId) return;
+  const store = safeRead();
+  if (!store[supplierId]) return;
+  delete store[supplierId];
+  safeWrite(store);
+};
+
 /** Create a new "sent" request with a scheduled mock approval time. */
 export const createSupplierAccessRequest = (
   supplierId: string,

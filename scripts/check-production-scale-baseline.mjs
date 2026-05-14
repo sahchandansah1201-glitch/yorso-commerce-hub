@@ -141,6 +141,7 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:ru
 
 for (const marker of [
   "offer_detail_locked=ok",
+  "offer_detail_requires_grant=ok",
   "offer_detail_unlocked=ok",
   "offer_detail_not_found=ok",
   "offer_detail_method_guard=ok",

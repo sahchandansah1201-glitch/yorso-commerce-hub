@@ -328,6 +328,22 @@ Batch #43 adds a focused runtime smoke for the offer detail contract:
 - `ci:core` runs `smoke:self-hosted-offer-detail:run` after the general
   account API smoke so list and detail runtime regressions are both caught.
 
+Batch #44 connects offer detail unlocks to the supplier access grant model:
+
+- The offer detail route accepts account-session headers through the shared
+  account session contract.
+- `OfferCatalogService` downgrades requested `qualified_unlocked` detail
+  access to `registered_locked` unless the account has an active
+  `supplier_identity` or `offer_price` grant for that offer's supplier.
+- The frontend offer catalog API adapter sends the configured account headers
+  when `VITE_YORSO_API_URL` is enabled.
+- The supplier access frontend bridge treats a successful backend "no request /
+  no grant" response as authoritative and clears stale local prototype
+  approvals.
+- The runtime smoke emits `offer_detail_requires_grant=ok` before creating and
+  approving an access request, then verifies the same offer unlocks after the
+  grant exists.
+
 ## Local Build
 
 ```bash

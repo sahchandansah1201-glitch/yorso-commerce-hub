@@ -63,6 +63,7 @@ const requiredFiles = [
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
   "src/lib/use-supplier-access-state.ts",
+  "src/lib/use-supplier-access-state.test.tsx",
   "src/components/offer-detail/SupplierTrustPanel.access.test.tsx",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/lib/supplier-directory-api.ts",
@@ -222,8 +223,8 @@ if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-cat
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
 }
-if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/components/offer-detail/SupplierTrustPanel.access.test.tsx") {
-  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter and offer-detail access UI");
+if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx") {
+  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook and offer-detail access UI");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-access-frontend");
@@ -236,6 +237,7 @@ requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "handleStorageRoute");
 requireText("apps/api/src/server.ts", server, "handleOfferCatalogRoute");
 requireText("apps/api/src/server.ts", server, "createOfferCatalogRepository(config)");
+requireText("apps/api/src/server.ts", server, "supplierAccessRepository");
 requireText("apps/api/src/server.ts", server, "handleSupplierAccessRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierAccessRepository(config)");
 requireText("apps/api/src/server.ts", server, "handleSupplierDirectoryRoute");
@@ -382,7 +384,10 @@ requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "class
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers/");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "offer_not_found");
+requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAccountSession");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "offerCatalogQuerySchema.parse");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "hasSupplierAccess");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "resolveDetailAccessLevel");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "shapeOfferForAccess");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "qualified_unlocked");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "id: offer.supplier.id");
@@ -456,6 +461,7 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryQuerySchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "verificationLevel: supplierVerificationLevelSchema.optional()");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
+requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "account_session_required");
@@ -484,6 +490,7 @@ requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "app
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "/v1/offers/1?accessLevel=anonymous_locked");
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_locked=ok");
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_registered_locked=ok");
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_unlocked=ok");
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_not_found=ok");
 requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_method_guard=ok");
@@ -563,6 +570,7 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFi
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "ACCOUNT_USER_ID_HEADER");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCode");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
@@ -583,6 +591,9 @@ requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/sup
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/notifications");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "response.accessGranted");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "getConfiguredAccountApiBaseUrl");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "clearSupplierAccessRequest");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "isSupplierAccessApiConfigured");
+requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "isSupplierAccessApiConfigured");
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "readSupplierAccessRequest");
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "requestSupplierAccess");
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "yorso:supplier-access-change");

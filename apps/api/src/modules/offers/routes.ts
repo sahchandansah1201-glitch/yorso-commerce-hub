@@ -1,6 +1,11 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { methodNotAllowed, sendError, sendJson, sendValidationError, type ApiRequestContext } from "../../http.js";
+import {
+  AccountSessionError,
+  resolveOptionalAccountSession,
+  sendAccountSessionError,
+} from "../auth/session.js";
 import type { OfferCatalogService } from "./service.js";
 
 const queryParams = (url: URL) => Object.fromEntries(url.searchParams.entries());
@@ -31,10 +36,25 @@ export async function handleOfferCatalogRoute(
 
       const id = decodeURIComponent(url.pathname.slice("/v1/offers/".length));
       if (!id || id.includes("/")) return false;
-      sendJson(response, 200, await service.getOfferById(id, queryParams(url), context.requestId));
+      const session = resolveOptionalAccountSession(request);
+      sendJson(
+        response,
+        200,
+        await service.getOfferById(
+          id,
+          queryParams(url),
+          context.requestId,
+          session ? { buyerUserId: session.userId } : null,
+        ),
+      );
       return true;
     }
   } catch (error) {
+    if (error instanceof AccountSessionError) {
+      sendAccountSessionError(response, context, error);
+      return true;
+    }
+
     if (error instanceof ZodError) {
       sendValidationError(response, context, error);
       return true;

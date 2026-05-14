@@ -97,6 +97,19 @@ Batch #35 introduced the first concrete high-concurrency read-path work:
 Batch #36 promotes the target from a supplier-directory note to a project-level
 release gate.
 
+Batch #44 hardens the offer detail access path against prototype-only unlocks:
+
+- `/v1/offers/:id?accessLevel=qualified_unlocked` does not reveal exact price
+  or supplier identity unless the current account has a self-hosted
+  supplier-access grant.
+- The frontend offer catalog adapter sends account-session headers to the API
+  so access shaping can be evaluated server-side.
+- The supplier access frontend bridge clears stale local approvals when the
+  self-hosted API is configured and reports no active request or grant.
+- The self-hosted offer detail smoke now includes
+  `offer_detail_requires_grant=ok`, proving that a query parameter alone cannot
+  bypass the access model.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

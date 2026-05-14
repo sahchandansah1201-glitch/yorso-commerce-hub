@@ -7,6 +7,13 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const apiEntry = path.join(repoRoot, "apps/api/dist/index.js");
+const smokeUserId = "00000000-0000-4000-8000-000000000044";
+const smokeSessionId = "self-hosted-offer-detail-smoke";
+const accountHeaders = {
+  "content-type": "application/json",
+  "x-yorso-user-id": smokeUserId,
+  "x-yorso-session-id": smokeSessionId,
+};
 
 if (!existsSync(apiEntry)) {
   console.error("Compiled API entry is missing.");
@@ -84,7 +91,9 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(locked, "nordfjord-sjomat", "locked supplier slug");
   console.log("offer_detail_locked=ok");
 
-  const registeredLocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=registered_locked");
+  const registeredLocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=registered_locked", {
+    headers: accountHeaders,
+  });
   assertEqual(registeredLocked.ok, true, "registered locked offer detail ok");
   assertEqual(registeredLocked.accessLevel, "registered_locked", "registered locked access level");
   assertEqual(registeredLocked.offer?.supplier?.name, null, "registered locked supplier hidden");
@@ -93,7 +102,36 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(registeredLocked, "Nordfjord Sjømat AS", "registered locked real supplier name");
   console.log("offer_detail_registered_locked=ok");
 
-  const unlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
+  const qualifiedWithoutGrant = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked", {
+    headers: accountHeaders,
+  });
+  assertEqual(qualifiedWithoutGrant.ok, true, "qualified without grant offer detail ok");
+  assertEqual(qualifiedWithoutGrant.accessLevel, "registered_locked", "qualified without grant downgraded");
+  assertEqual(qualifiedWithoutGrant.offer?.supplier?.name, null, "qualified without grant supplier hidden");
+  assertEqual(qualifiedWithoutGrant.offer?.priceMin, null, "qualified without grant price hidden");
+  console.log("offer_detail_requires_grant=ok");
+
+  const accessRequest = await jsonRequest(baseUrl, "/v1/access/suppliers/sup-no-001/request", {
+    method: "POST",
+    headers: accountHeaders,
+    body: { message: "" },
+  });
+  assertEqual(accessRequest.request?.status, "sent", "offer detail access request sent");
+
+  const approval = await jsonRequest(
+    baseUrl,
+    `/v1/access/supplier-requests/${encodeURIComponent(accessRequest.request.id)}/decision`,
+    {
+      method: "POST",
+      headers: accountHeaders,
+      body: { status: "approved" },
+    },
+  );
+  assertEqual(approval.request?.status, "approved", "offer detail access request approved");
+
+  const unlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked", {
+    headers: accountHeaders,
+  });
   assertEqual(unlocked.ok, true, "unlocked offer detail ok");
   assertEqual(unlocked.accessLevel, "qualified_unlocked", "unlocked access level");
   assertEqual(unlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked supplier name");
@@ -134,9 +172,11 @@ async function jsonRequest(baseUrl, pathName, init = {}) {
 }
 
 async function rawJsonRequest(baseUrl, pathName, init = {}) {
+  const headers = new Headers(init.headers ?? { "content-type": "application/json" });
+  if (!headers.has("content-type")) headers.set("content-type", "application/json");
   const response = await fetch(`${baseUrl}${pathName}`, {
     method: init.method ?? "GET",
-    headers: { "content-type": "application/json" },
+    headers,
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
   const text = await response.text();

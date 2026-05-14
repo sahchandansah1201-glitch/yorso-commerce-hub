@@ -18,6 +18,7 @@ import {
 } from "@/lib/account-api";
 import { buyerSession } from "@/lib/buyer-session";
 import {
+  clearSupplierAccessRequest,
   createSupplierAccessRequest,
   getSupplierAccessRequest,
   persistSupplierAccessRequest,
@@ -220,6 +221,9 @@ export function createSupplierAccessApiClient(
   };
 }
 
+export const isSupplierAccessApiConfigured = () =>
+  createSupplierAccessApiClient().enabled;
+
 const isSupabaseConfigured = (): boolean =>
   Boolean(
     import.meta.env.VITE_SUPABASE_URL &&
@@ -323,6 +327,8 @@ export const readSupplierAccessRequest = async (
     try {
       const backendRequest = await selfHosted.read(supplierId);
       if (backendRequest) return backendRequest;
+      clearSupplierAccessRequest(supplierId);
+      return null;
     } catch {
       // Keep preview resilient: prototype fallback continues below.
     }

@@ -113,7 +113,7 @@ describe("offer catalog API adapter", () => {
       accessLevel: "anonymous_locked",
     };
 
-    const fetchImpl = vi.fn(async (url: string) => {
+    const fetchImpl = vi.fn(async (url: string, _init?: RequestInit) => {
       if (url.includes("/v1/offers?")) {
         return new Response(JSON.stringify({
           ok: true,
@@ -153,5 +153,7 @@ describe("offer catalog API adapter", () => {
     });
     expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/offers?q=cod&originCode=IS&category=Whitefish&accessLevel=anonymous_locked&limit=5&offset=10");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/offers/offer-test?accessLevel=anonymous_locked");
+    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
+    expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
   });
 });

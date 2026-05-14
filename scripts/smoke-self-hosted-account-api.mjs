@@ -114,10 +114,11 @@ async function runSmoke(baseUrl) {
   assertEqual(offerFiltered.offers?.[0]?.id, "2", "offer catalog filtered id");
   console.log("offer_catalog_filters=ok");
 
-  const offerUnlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
-  assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");
-  assertEqual(offerUnlocked.offer?.priceMin, 8.5, "unlocked offer exact price");
-  console.log("offer_catalog_unlocked=ok");
+  const offerBeforeGrant = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
+  assertEqual(offerBeforeGrant.accessLevel, "registered_locked", "qualified offer detail requires supplier access grant");
+  assertEqual(offerBeforeGrant.offer?.supplier?.name, null, "offer detail supplier hidden before grant");
+  assertEqual(offerBeforeGrant.offer?.priceMin, null, "offer detail price hidden before grant");
+  console.log("offer_catalog_requires_grant=ok");
 
   const accessInitial = await jsonRequest(baseUrl, "/v1/access/suppliers/sup-no-001/request");
   assertEqual(accessInitial.request, null, "supplier access initial request");
@@ -161,6 +162,11 @@ async function runSmoke(baseUrl) {
   assertEqual(accessFinal.accessGranted, true, "supplier access grant after approval");
   assertEqual(accessFinal.request?.status, "approved", "supplier access final status");
   console.log("supplier_access_grant=ok");
+
+  const offerUnlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
+  assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");
+  assertEqual(offerUnlocked.offer?.priceMin, 8.5, "unlocked offer exact price");
+  console.log("offer_catalog_unlocked=ok");
 
   const accessNotifications = await jsonRequest(baseUrl, "/v1/access/notifications");
   assertEqual(accessNotifications.notifications?.length, 1, "supplier access notifications list");

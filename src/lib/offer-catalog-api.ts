@@ -1,5 +1,11 @@
 import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
+import {
+  ACCOUNT_SESSION_ID_HEADER,
+  ACCOUNT_USER_ID_HEADER,
+  getConfiguredAccountUserId,
+} from "@/lib/account-api";
+import { buyerSession } from "@/lib/buyer-session";
 import { fallbackOfferForLevel } from "@/lib/catalog-fallback";
 import { legacyOfferIdToUuid } from "@/lib/legacy-offer-id";
 
@@ -108,6 +114,16 @@ const paramsFromQuery = (query: Partial<OfferCatalogQuery>) => {
     params.set(key, String(value));
   }
   return params;
+};
+
+const offerCatalogHeaders = () => {
+  const headers = new Headers();
+  headers.set("accept", "application/json");
+  const accountUserId = getConfiguredAccountUserId();
+  if (accountUserId) headers.set(ACCOUNT_USER_ID_HEADER, accountUserId);
+  const sessionId = buyerSession.getSession()?.id;
+  if (sessionId) headers.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+  return headers;
 };
 
 const mockMatches = (offer: SeafoodOffer, query: Partial<OfferCatalogQuery>) => {
@@ -232,7 +248,7 @@ export function createOfferCatalogApiClient(options: OfferCatalogClientOptions =
   const request = async <T>(path: string): Promise<T> => {
     const response = await fetchImpl(`${baseUrl}${path}`, {
       method: "GET",
-      headers: { accept: "application/json" },
+      headers: offerCatalogHeaders(),
     });
     const body = await response.json() as T & { error?: { code?: string; message?: string } };
     if (!response.ok) throw new Error(body.error?.code ?? `offer_catalog_api_${response.status}`);

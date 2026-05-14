@@ -53,6 +53,23 @@ export function resolveAccountSession(
   return parsed.data;
 }
 
+export function resolveOptionalAccountSession(
+  request: IncomingMessage,
+  options: { allowQueryUserId?: boolean } = {},
+): AccountSession | null {
+  const userIdFromHeader = firstHeader(request.headers[accountUserIdHeaderName])?.trim();
+  const sessionIdFromHeader = firstHeader(request.headers[accountSessionIdHeaderName])?.trim();
+  const url = options.allowQueryUserId ? getRequestUrl(request) : null;
+  const userIdFromQuery = url?.searchParams.get("accountUserId")?.trim();
+  const sessionIdFromQuery = url?.searchParams.get("accountSessionId")?.trim();
+
+  if (!userIdFromHeader && !sessionIdFromHeader && !userIdFromQuery && !sessionIdFromQuery) {
+    return null;
+  }
+
+  return resolveAccountSession(request, options);
+}
+
 export function sendAccountSessionError(
   response: ServerResponse,
   context: ApiRequestContext,
