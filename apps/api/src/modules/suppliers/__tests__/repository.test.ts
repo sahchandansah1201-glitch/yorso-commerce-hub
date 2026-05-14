@@ -1,0 +1,117 @@
+import { describe, expect, it } from "vitest";
+import { PostgresSupplierRepository, type SupplierQueryClient } from "../postgres-repository.js";
+import { MemorySupplierRepository } from "../repository.js";
+
+describe("supplier directory repositories", () => {
+  it("memory repository filters suppliers by species and country", async () => {
+    const repository = new MemorySupplierRepository();
+    const result = await repository.listSuppliers({
+      species: "salmon",
+      countryCode: "NO",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.suppliers[0]).toMatchObject({
+      id: "sup-no-001",
+      companyName: "Nordfjord Sjømat AS",
+    });
+  });
+
+  it("memory repository does not search private supplier identity before access unlock", async () => {
+    const repository = new MemorySupplierRepository();
+
+    await expect(repository.listSuppliers({
+      q: "Nordfjord",
+      accessLevel: "anonymous_locked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({ total: 0 });
+
+    await expect(repository.listSuppliers({
+      q: "Nordfjord",
+      accessLevel: "qualified_unlocked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({ total: 1 });
+  });
+
+  it("PostgreSQL repository maps supplier rows and applies query filters", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "sup-row",
+              company_name: "Supplier Legal Ltd.",
+              masked_name: "Norwegian salmon producer · NO-999",
+              country: "Norway",
+              country_code: "NO",
+              city: "Bergen",
+              supplier_type: "producer",
+              in_business_since_year: 2010,
+              product_focus: [{ species: "Atlantic Salmon", forms: "HOG" }],
+              certifications: ["ASC"],
+              certification_badges: [{ code: "ASC", label: "ASC", logo: null }],
+              active_offers_count: 7,
+              short_description: "Short supplier summary.",
+              about: "Private supplier about text.",
+              response_signal: "fast",
+              document_readiness: "ready",
+              verification_level: "documents_reviewed",
+              hero_image: "/offers/salmon.webp",
+              logo_image: null,
+              delivery_countries: [{ code: "DE", name: "Germany" }],
+              delivery_countries_total: 8,
+              total_products_count: 12,
+              product_catalog_preview: [{ name: "Salmon HOG", species: "Atlantic Salmon", form: "HOG", image: "/offers/salmon.webp" }],
+              website: "https://supplier.example",
+              whatsapp: "+47 000 999",
+              updated_at: new Date("2026-05-14T00:00:00.000Z"),
+              total_count: 1,
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+    const result = await repository.listSuppliers({
+      q: "salmon",
+      species: "Atlantic",
+      countryCode: "NO",
+      supplierType: "producer",
+      certification: "ASC",
+      accessLevel: "qualified_unlocked",
+      limit: 10,
+      offset: 0,
+    });
+
+    expect(result.total).toBe(1);
+    expect(result.suppliers[0]).toMatchObject({
+      id: "sup-row",
+      companyName: "Supplier Legal Ltd.",
+      deliveryCountriesTotal: 8,
+    });
+    expect(calls[0].sql).toContain("from yorso_suppliers_directory");
+    expect(calls[0].sql).toContain("publication_status = 'published'");
+    expect(calls[0].sql).toContain("country_code = $1");
+    expect(calls[0].sql).toContain("supplier_type = $2");
+    expect(calls[0].sql).toContain("certifications_search ilike $3");
+    expect(calls[0].sql).toContain("product_focus_search ilike $4");
+    expect(calls[0].sql).toContain("private_search_text ilike $5");
+    expect(calls[0].params).toEqual(["NO", "producer", "%ASC%", "%Atlantic%", "%salmon%", 10, 0]);
+
+    await repository.listSuppliers({
+      q: "Supplier Legal",
+      accessLevel: "anonymous_locked",
+      limit: 10,
+      offset: 0,
+    });
+
+    expect(calls[1].sql).toContain("public_search_text ilike $1");
+  });
+});

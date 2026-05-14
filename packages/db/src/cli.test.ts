@@ -38,6 +38,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("0001_account_company_baseline planned");
     expect(output).toContain("0002_account_workspace_sections planned");
     expect(output).toContain("0003_account_files_and_documents planned");
+    expect(output).toContain("0004_supplier_directory planned");
   });
 
   it("prints static dry-run apply without requiring a database", () => {
@@ -45,8 +46,8 @@ describe("self-hosted DB migration CLI", () => {
 
     expect(output).toContain("Dry-run apply preview from local plan");
     expect(output).toContain("dryRun=true");
-    expect(output).toContain("pending=4");
-    expect(output).toContain("pending 0003_account_files_and_documents");
+    expect(output).toContain("pending=5");
+    expect(output).toContain("pending 0004_supplier_directory");
   });
 
   it("blocks live apply without explicit confirmation", () => {

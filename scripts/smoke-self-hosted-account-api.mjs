@@ -74,6 +74,17 @@ async function runSmoke(baseUrl) {
   assertStatus(live, 200, "health live");
   console.log("health_live=ok");
 
+  const suppliersLocked = await jsonRequest(baseUrl, "/v1/suppliers?q=salmon&accessLevel=anonymous_locked");
+  assertEqual(suppliersLocked.ok, true, "supplier list ok");
+  assertEqual(suppliersLocked.suppliers?.[0]?.companyName, null, "locked supplier company hidden");
+  assertEqual(suppliersLocked.suppliers?.[0]?.website, null, "locked supplier website hidden");
+  console.log("supplier_directory_locked=ok");
+
+  const supplierUnlocked = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
+  assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
+  assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
+  console.log("supplier_directory_unlocked=ok");
+
   const missingSession = await fetch(`${baseUrl}/v1/account/company`);
   assertStatus(missingSession, 401, "missing account session");
   const missingSessionBody = await missingSession.json();

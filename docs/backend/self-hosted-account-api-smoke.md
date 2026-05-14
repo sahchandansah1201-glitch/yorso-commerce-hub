@@ -1,7 +1,7 @@
 # Self-Hosted Account API Smoke
 
 Status: active runtime smoke
-Batch: #33
+Batch: #34
 Date: 2026-05-14
 
 This smoke test verifies that the standalone YORSO API can run as a real Node
@@ -22,6 +22,12 @@ It is intentionally different from unit tests:
 - it reads stored files through `/v1/account/files/:assetId` and
   `/v1/account/files/by-object-key`;
 - it checks that another account user cannot read the uploaded file.
+- it reads supplier directory data through `/v1/suppliers` and
+  `/v1/suppliers/:id`;
+- it verifies locked supplier responses do not expose private identity,
+  contact or exact-breadth fields;
+- it verifies `qualified_unlocked` supplier responses expose the full allowed
+  supplier values through the same API process.
 
 ## Commands
 
@@ -52,6 +58,8 @@ The smoke test protects the production direction:
   unit tests.
 - row-level workspace endpoints must preserve owner-scoped CRUD, conflict
   handling and validation behavior over real HTTP.
+- supplier directory endpoints must be access-shaped by the API, not by
+  frontend blur or client-side filtering.
 
 ## Runtime Mode
 
@@ -92,6 +100,8 @@ file_owner_guard=ok
 logo_read_by_object_key=ok
 document_upload=ok
 documents_list=ok
+supplier_directory_locked=ok
+supplier_directory_unlocked=ok
 self_hosted_account_api_smoke=ok
 ```
 

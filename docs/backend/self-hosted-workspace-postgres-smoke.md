@@ -1,10 +1,11 @@
 # Self-Hosted Workspace PostgreSQL Smoke
 
 Status: optional live runtime smoke  
-Batch: #33
+Batch: #34
 Date: 2026-05-14
 
-This smoke verifies that the account workspace sections work through the self-hosted API with the real PostgreSQL repository.
+This smoke verifies that the account workspace sections and supplier directory
+work through the self-hosted API with the real PostgreSQL repository.
 
 It is intentionally not part of `ci:core`, because it needs a live PostgreSQL connection. Without `MIGRATION_DATABASE_URL`, the command exits successfully with a skipped status.
 
@@ -46,15 +47,20 @@ The script:
 1. Applies live migrations with `db:migrations:apply:live`.
 2. Upserts two deterministic smoke users and companies.
 3. Clears prior workspace rows for those smoke accounts.
-4. Starts the compiled API with `ACCOUNT_REPOSITORY=postgres`.
-5. Uses HTTP requests with explicit `x-yorso-user-id` and `x-yorso-session-id`.
-6. Replaces and reads branches, products, meta-regions, and notifications.
-7. Creates, updates and deletes individual workspace rows through
+4. Seeds one deterministic published supplier directory row.
+5. Starts the compiled API with `ACCOUNT_REPOSITORY=postgres`.
+6. Uses HTTP requests with explicit `x-yorso-user-id` and `x-yorso-session-id`.
+7. Replaces and reads branches, products, meta-regions, and notifications.
+8. Creates, updates and deletes individual workspace rows through
    `/v1/account/*/:id`.
-8. Confirms validation rejects enabled notification channels with zero events.
-9. Confirms PostgreSQL row counts match API writes.
-10. Confirms another user cannot read the primary user's workspace rows.
-11. Confirms empty replacement deletes branch rows.
+9. Confirms validation rejects enabled notification channels with zero events.
+10. Confirms PostgreSQL row counts match API writes.
+11. Confirms another user cannot read the primary user's workspace rows.
+12. Confirms empty replacement deletes branch rows.
+13. Confirms `/v1/suppliers` returns locked supplier data without private
+    identity/contact/exact-breadth fields.
+14. Confirms `/v1/suppliers/:id` returns full supplier data for
+    `qualified_unlocked`.
 
 Expected success output:
 
@@ -76,6 +82,8 @@ notifications_validation_guard=ok
 workspace_db_counts=ok
 workspace_owner_isolation=ok
 branches_empty_replace=ok
+supplier_directory_locked=ok
+supplier_directory_unlocked=ok
 self_hosted_workspace_postgres_smoke=ok
 ```
 
@@ -96,6 +104,8 @@ Covered endpoints:
 - `PATCH /v1/account/products/:id`
 - `DELETE /v1/account/meta-regions/:id`
 - `POST /v1/account/notifications/:id`
+- `GET /v1/suppliers`
+- `GET /v1/suppliers/:id`
 
 Covered tables:
 
@@ -103,6 +113,7 @@ Covered tables:
 - `yorso_company_products`
 - `yorso_company_meta_regions`
 - `yorso_notification_preferences`
+- `yorso_suppliers_directory`
 
 ## Production Rule
 

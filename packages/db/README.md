@@ -1,7 +1,7 @@
 # YORSO DB Package
 
 Status: self-hosted PostgreSQL migration runtime baseline
-Batch: #27
+Batch: #34
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
 Supabase migrations may still exist as prototype references, but this package is
@@ -39,6 +39,17 @@ Migration `0003_account_files_and_documents.sql` defines:
 - enum types for file purpose, document type, visibility and status;
 - checksum and size metadata for self-hosted file storage;
 - indexes needed by media/document lookups.
+
+Migration `0004_supplier_directory.sql` defines:
+
+- `yorso_suppliers_directory`;
+- supplier type, response, document readiness, verification and publication
+  enum types;
+- public supplier preview fields used by directory/profile cards;
+- private supplier identity and contact fields that the API must access-shape;
+- JSONB product focus, delivery market, catalog preview and certification
+  fields;
+- generated search columns and indexes for supplier discovery.
 
 ## Migration Planner
 
@@ -117,5 +128,6 @@ flows over HTTP. If `MIGRATION_DATABASE_URL` is not set, it exits as skipped.
 `smoke:self-hosted-workspace-postgres` is the broader account workspace live
 PostgreSQL smoke. It verifies branches, products, meta-regions and notification
 preferences through the API, confirms PostgreSQL row counts, checks another-user
-isolation and validates notification errors. If `MIGRATION_DATABASE_URL` is not
-set, it exits as skipped.
+isolation, validates notification errors and checks supplier directory
+locked/unlocked access shaping against `yorso_suppliers_directory`. If
+`MIGRATION_DATABASE_URL` is not set, it exits as skipped.

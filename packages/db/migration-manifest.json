@@ -38,6 +38,15 @@
         "yorso_company_documents"
       ],
       "dependsOn": ["0002_account_workspace_sections"]
+    },
+    {
+      "id": "0004_supplier_directory",
+      "file": "migrations/0004_supplier_directory.sql",
+      "description": "Create supplier directory records for the self-hosted marketplace discovery API.",
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": ["0003_account_files_and_documents"]
     }
   ]
 }
