@@ -25,12 +25,14 @@ const requiredFiles = [
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
+  "scripts/smoke-self-hosted-account-api.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
   "src/components/account/CompanyMediaCard.tsx",
   "src/components/account/SupplierProfilePreview.tsx",
   "src/lib/account-api.ts",
   "src/lib/account-api.test.ts",
   "src/lib/account-documents-store.ts",
+  "docs/backend/self-hosted-account-api-smoke.md",
 ];
 
 const failures = [];
@@ -57,6 +59,7 @@ const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const storageService = read("apps/api/src/modules/storage/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
+const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
@@ -66,6 +69,7 @@ const companyMediaCard = read("src/components/account/CompanyMediaCard.tsx");
 const supplierProfilePreview = read("src/components/account/SupplierProfilePreview.tsx");
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
+const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -84,6 +88,12 @@ if (pkg.scripts["api:build"] !== "npm run contracts:build && tsc -p apps/api/tsc
 if (pkg.scripts["api:start"] !== "node apps/api/dist/index.js") {
   failures.push("package.json: api:start must run apps/api/dist/index.js");
 }
+if (pkg.scripts["smoke:self-hosted-account-api"] !== "npm run api:build && npm run smoke:self-hosted-account-api:run") {
+  failures.push("package.json: smoke:self-hosted-account-api must build and run the self-hosted account API smoke");
+}
+if (pkg.scripts["smoke:self-hosted-account-api:run"] !== "node scripts/smoke-self-hosted-account-api.mjs") {
+  failures.push("package.json: smoke:self-hosted-account-api:run must execute scripts/smoke-self-hosted-account-api.mjs");
+}
 if (pkg.scripts["test:api"] !== "npm run contracts:build && vitest run --config apps/api/vitest.config.ts") {
   failures.push("package.json: test:api must build contracts before apps/api tests");
 }
@@ -95,6 +105,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
   failures.push("package.json: ci:core must run test:api");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run")) {
+  failures.push("package.json: ci:core must run the self-hosted account API smoke");
 }
 if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
   failures.push("package.json: test:account-workspace must cover account API adapter and account workspace tests");
@@ -210,6 +223,14 @@ requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-session.js\";");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountUserIdHeaderName");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountSessionHeadersSchema");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "account_session_required");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "/v1/account/company/media/logo");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "/v1/account/documents");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "/v1/account/files/by-object-key");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "file_owner_guard=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_API_URL");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_ACCOUNT_USER_ID");
 requireText("src/lib/account-api.ts", accountApi, "ACCOUNT_USER_ID_HEADER");
@@ -239,6 +260,9 @@ requireText("src/components/account/SupplierProfilePreview.tsx", supplierProfile
 requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "ACCOUNT_DOCUMENTS_STORAGE_KEY");
 requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "createLocalCompanyDocument");
 requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "listLocalCompanyDocuments");
+requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "Self-Hosted Account API Smoke");
+requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
+requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
@@ -275,5 +299,6 @@ console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
+console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");

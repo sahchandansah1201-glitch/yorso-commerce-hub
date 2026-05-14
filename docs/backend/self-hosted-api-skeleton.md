@@ -138,6 +138,19 @@ Batch #29 adds the first explicit account session boundary:
 - `src/lib/account-api.ts` is responsible for attaching account session values.
   Components must not build account auth headers directly.
 
+Batch #30 adds a runtime account API smoke test:
+
+- `scripts/smoke-self-hosted-account-api.mjs` starts the compiled API process
+  on a free local port.
+- The smoke verifies account session headers, missing-session rejection,
+  company profile writes, product matrix replacement, logo upload, document
+  upload, file download by asset id and object key, and file owner isolation.
+- `smoke:self-hosted-account-api` builds then runs the smoke locally.
+- `ci:core` runs `smoke:self-hosted-account-api:run` after `api:build` and
+  API tests, so GitHub catches runtime wiring regressions in the standalone API.
+- The smoke uses `ACCOUNT_REPOSITORY=memory` and `STORAGE_DRIVER=local`; live
+  PostgreSQL/Object Storage smoke tests remain a separate deployment step.
+
 ## Local Build
 
 ```bash
@@ -188,6 +201,7 @@ npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run api:build
 npm run test:api
+npm run smoke:self-hosted-account-api
 npm run test:account-workspace
 npm run test:db-contract
 npm run ci:core

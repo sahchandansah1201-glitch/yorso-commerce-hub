@@ -286,3 +286,10 @@ JSON calls, with a temporary query fallback only for browser-native file
 previews that cannot send custom headers. This is still not final auth, but it
 is a concrete separation between prototype session handling and the production
 authorization layer that will later use server-issued cookies or JWTs.
+
+Batch #30 adds the first runtime proof for that boundary. The smoke runner
+starts `apps/api/dist/index.js` as a real Node process and verifies account
+session headers, company writes, product matrix replacement, media uploads,
+document uploads and file ownership over HTTP. This protects the direction that
+YORSO must run as one self-hosted product, not only as isolated frontend mocks
+or unit-tested modules.
