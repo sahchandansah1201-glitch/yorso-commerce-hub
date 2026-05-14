@@ -8,6 +8,7 @@ const requiredFiles = [
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
   "packages/db/migrations/0007_supplier_access_flow.sql",
+  "packages/db/migrations/0008_access_notification_ack.sql",
   "packages/db/migration-manifest.json",
   "package.json",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -16,6 +17,7 @@ const requiredFiles = [
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
   "src/lib/supplier-directory-api.ts",
+  "src/lib/supplier-access-api.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/pages/Suppliers.tsx",
@@ -34,6 +36,7 @@ const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
+const accessNotificationAck = read("packages/db/migrations/0008_access_notification_ack.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -42,6 +45,7 @@ const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
+const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
@@ -73,6 +77,7 @@ for (const marker of [
   "0005_supplier_directory_search_scaling",
   "0006_offer_catalog",
   "0007_supplier_access_flow",
+  "0008_access_notification_ack",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -84,6 +89,7 @@ for (const marker of [
   "offer-catalog trigram search indexes",
   "self-hosted offer detail smoke",
   "supplier-access request and grant indexes",
+  "access notification acknowledgement",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -123,6 +129,14 @@ for (const marker of [
   requireText("packages/db/migrations/0007_supplier_access_flow.sql", supplierAccess, marker);
 }
 
+for (const marker of [
+  "notification_read",
+  "PATCH /v1/access/notifications",
+  "idx_yorso_access_notifications_buyer_status_created",
+]) {
+  requireText("packages/db/migrations/0008_access_notification_ack.sql", accessNotificationAck, marker);
+}
+
 if (!manifest.migrations?.some((migration) => migration.id === "0005_supplier_directory_search_scaling")) {
   failures.push("packages/db/migration-manifest.json: missing 0005_supplier_directory_search_scaling");
 }
@@ -131,6 +145,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0006_offer_catal
 }
 if (!manifest.migrations?.some((migration) => migration.id === "0007_supplier_access_flow")) {
   failures.push("packages/db/migration-manifest.json: missing 0007_supplier_access_flow");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0008_access_notification_ack")) {
+  failures.push("packages/db/migration-manifest.json: missing 0008_access_notification_ack");
 }
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
@@ -161,6 +178,13 @@ for (const marker of [
   "offer_catalog_list_requires_grant=ok",
   "offer_catalog_granted_private_search=ok",
   "offer_catalog_ungranted_private_search_guard=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
+}
+
+for (const marker of [
+  "supplier_access_notifications=ok",
+  "supplier_access_notifications_ack=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }
@@ -212,6 +236,14 @@ for (const marker of [
 }
 
 for (const marker of [
+  "acknowledgeSupplierAccessNotifications",
+  "/v1/access/notifications",
+  "PATCH",
+]) {
+  requireText("src/lib/supplier-access-api.ts", supplierAccessApi, marker);
+}
+
+for (const marker of [
   "BACKEND_NOTIFICATION_POLL_MS = 60_000",
   "MOCK_ACCESS_TICK_MS = 2_000",
 ]) {
@@ -221,6 +253,7 @@ for (const marker of [
 for (const marker of [
   "visibilitychange",
   "backendSyncInFlight",
+  "acknowledgeSupplierAccessNotifications",
 ]) {
   requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, marker);
 }

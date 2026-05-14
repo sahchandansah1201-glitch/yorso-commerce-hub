@@ -8,6 +8,7 @@ const supplierSql = () => readFileSync("packages/db/migrations/0004_supplier_dir
 const supplierScalingSql = () => readFileSync("packages/db/migrations/0005_supplier_directory_search_scaling.sql", "utf8");
 const offerCatalogSql = () => readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
 const supplierAccessSql = () => readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
+const accessNotificationAckSql = () => readFileSync("packages/db/migrations/0008_access_notification_ack.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -115,8 +116,17 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_access_notifications_buyer_status_created");
   });
 
+  it("adds supplier access notification acknowledgement audit support separately", () => {
+    const text = accessNotificationAckSql();
+
+    expect(text).toContain("alter type yorso_access_event_type add value if not exists 'notification_read'");
+    expect(text).toContain("PATCH /v1/access/notifications");
+    expect(text).toContain("idx_yorso_access_notifications_buyer_status_created");
+    expect(supplierAccessSql()).not.toContain("notification_read");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -139,7 +149,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -168,7 +178,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -191,6 +201,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0005_supplier_directory_search_scaling",
       "0006_offer_catalog",
       "0007_supplier_access_flow",
+      "0008_access_notification_ack",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -242,6 +253,14 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
             "yorso_access_notifications",
           ],
           dependsOn: ["0006_offer_catalog"],
+        }),
+        expect.objectContaining({
+          id: "0008_access_notification_ack",
+          ownedTables: [
+            "yorso_access_events",
+            "yorso_access_notifications",
+          ],
+          dependsOn: ["0007_supplier_access_flow"],
         }),
       ]),
     );

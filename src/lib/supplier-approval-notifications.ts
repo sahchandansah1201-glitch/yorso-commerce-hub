@@ -37,11 +37,11 @@ const writeSeenBackendNotifications = (seen: Set<string>) => {
 export const applyBackendSupplierAccessNotifications = (
   notifications: SupplierApprovalNotification[],
   showApprovalToast: () => void,
-): number => {
-  if (notifications.length === 0) return 0;
+): string[] => {
+  if (notifications.length === 0) return [];
 
   const seen = readSeenBackendNotifications();
-  let applied = 0;
+  const appliedIds: string[] = [];
 
   for (const notification of notifications) {
     if (notification.type !== "price_access_approved" || seen.has(notification.id)) {
@@ -62,9 +62,9 @@ export const applyBackendSupplierAccessNotifications = (
     setQualified(true, "");
     showApprovalToast();
     seen.add(notification.id);
-    applied += 1;
+    appliedIds.push(notification.id);
   }
 
-  if (applied > 0) writeSeenBackendNotifications(seen);
-  return applied;
+  if (appliedIds.length > 0) writeSeenBackendNotifications(seen);
+  return appliedIds;
 };

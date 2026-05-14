@@ -73,6 +73,16 @@
         "yorso_access_notifications"
       ],
       "dependsOn": ["0006_offer_catalog"]
+    },
+    {
+      "id": "0008_access_notification_ack",
+      "file": "migrations/0008_access_notification_ack.sql",
+      "description": "Add audit support for buyer acknowledgements of self-hosted access notifications.",
+      "ownedTables": [
+        "yorso_access_events",
+        "yorso_access_notifications"
+      ],
+      "dependsOn": ["0007_supplier_access_flow"]
     }
   ]
 }

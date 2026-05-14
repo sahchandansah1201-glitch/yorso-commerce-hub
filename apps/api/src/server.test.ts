@@ -582,8 +582,37 @@ describe("YORSO self-hosted API skeleton", () => {
       expect.objectContaining({
         supplierId: "sup-no-001",
         type: "price_access_approved",
+        status: "unread",
       }),
     ]);
+
+    const notificationId = String((notificationsBody.notifications as JsonBody[])[0].id);
+    const acknowledged = await fetchApi("/v1/access/notifications", {
+      method: "PATCH",
+      body: JSON.stringify({ notificationIds: [notificationId] }),
+    });
+    const acknowledgedBody = (await acknowledged.json()) as JsonBody;
+    expect(acknowledged.status).toBe(200);
+    expect(acknowledgedBody).toMatchObject({
+      ok: true,
+      markedReadCount: 1,
+      notifications: [
+        expect.objectContaining({
+          id: notificationId,
+          status: "read",
+          readAt: expect.any(String),
+        }),
+      ],
+    });
+
+    const invalidAck = await fetchApi("/v1/access/notifications", {
+      method: "PATCH",
+      body: JSON.stringify({ notificationIds: ["not-a-uuid"] }),
+    });
+    expect(invalidAck.status).toBe(400);
+    await expect(invalidAck.json()).resolves.toMatchObject({
+      error: { code: "validation_error" },
+    });
   });
 
   it("validates supplier access session, payload and missing decisions", async () => {

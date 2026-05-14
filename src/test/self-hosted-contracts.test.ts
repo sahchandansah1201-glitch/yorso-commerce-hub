@@ -17,6 +17,8 @@ import {
   supplierDirectoryItemSchema,
   supplierDirectoryQuerySchema,
   supplierDirectoryRecordSchema,
+  supplierAccessNotificationsAckResponseSchema,
+  supplierAccessNotificationsAckSchema,
   userProfileSchema,
 } from "../../packages/contracts/src";
 
@@ -345,6 +347,48 @@ describe("self-hosted account/company contracts", () => {
 
     expect(() => supplierDirectoryQuerySchema.parse({ limit: 999 })).toThrow();
     expect(() => supplierDirectoryQuerySchema.parse({ countryCode: "NOR" })).toThrow();
+  });
+
+  it("accepts bounded supplier access notification acknowledgement payloads", () => {
+    const notificationId = "44444444-4444-4444-8444-444444444444";
+    const parsed = supplierAccessNotificationsAckSchema.parse({
+      notificationIds: [notificationId],
+    });
+
+    expect(parsed.notificationIds).toEqual([notificationId]);
+    expect(
+      supplierAccessNotificationsAckResponseSchema.parse({
+        ok: true,
+        markedReadCount: 1,
+        requestId: "api-ack",
+        notifications: [
+          {
+            id: notificationId,
+            buyerUserId: "22222222-2222-4222-8222-222222222222",
+            supplierId: "sup-contract-1",
+            type: "price_access_approved",
+            title: "Price access approved",
+            body: "Supplier approved access to exact prices.",
+            status: "read",
+            createdAt: "2026-05-14T00:10:00.000Z",
+            readAt: "2026-05-14T00:11:00.000Z",
+          },
+        ],
+      }),
+    ).toMatchObject({
+      ok: true,
+      markedReadCount: 1,
+    });
+
+    expect(() => supplierAccessNotificationsAckSchema.parse({ notificationIds: [] })).toThrow();
+    expect(() =>
+      supplierAccessNotificationsAckSchema.parse({
+        notificationIds: Array.from({ length: 101 }, () => notificationId),
+      }),
+    ).toThrow();
+    expect(() =>
+      supplierAccessNotificationsAckSchema.parse({ notificationIds: ["not-a-uuid"] }),
+    ).toThrow();
   });
 
   it("rejects invalid file upload envelopes before they reach storage", () => {
