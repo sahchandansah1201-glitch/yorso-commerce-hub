@@ -151,6 +151,20 @@ Batch #30 adds a runtime account API smoke test:
 - The smoke uses `ACCOUNT_REPOSITORY=memory` and `STORAGE_DRIVER=local`; live
   PostgreSQL/Object Storage smoke tests remain a separate deployment step.
 
+Batch #31 adds the optional live PostgreSQL account smoke:
+
+- `scripts/smoke-self-hosted-account-postgres.mjs` runs only when
+  `MIGRATION_DATABASE_URL` is configured.
+- Without `MIGRATION_DATABASE_URL`, it exits successfully as skipped, so CI and
+  Lovable preview remain independent from a live database.
+- With a live database URL, it applies pending self-hosted migrations, upserts a
+  deterministic smoke user/company, starts the compiled API with
+  `ACCOUNT_REPOSITORY=postgres`, and verifies account reads/writes, product
+  replacement, media upload, document upload and file owner isolation over
+  HTTP.
+- This does not replace the memory smoke in CI; it is a server/staging
+  validation step for the PostgreSQL repository boundary.
+
 ## Local Build
 
 ```bash
@@ -202,6 +216,7 @@ npm run check:self-hosted-db
 npm run api:build
 npm run test:api
 npm run smoke:self-hosted-account-api
+npm run smoke:self-hosted-account-postgres
 npm run test:account-workspace
 npm run test:db-contract
 npm run ci:core

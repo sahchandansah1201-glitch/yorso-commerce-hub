@@ -26,6 +26,7 @@ const requiredFiles = [
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
+  "scripts/smoke-self-hosted-account-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
   "src/components/account/CompanyMediaCard.tsx",
   "src/components/account/SupplierProfilePreview.tsx",
@@ -33,6 +34,7 @@ const requiredFiles = [
   "src/lib/account-api.test.ts",
   "src/lib/account-documents-store.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
+  "docs/backend/self-hosted-account-postgres-smoke.md",
 ];
 
 const failures = [];
@@ -60,6 +62,7 @@ const storageService = read("apps/api/src/modules/storage/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
+const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
@@ -70,6 +73,7 @@ const supplierProfilePreview = read("src/components/account/SupplierProfilePrevi
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
+const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -93,6 +97,12 @@ if (pkg.scripts["smoke:self-hosted-account-api"] !== "npm run api:build && npm r
 }
 if (pkg.scripts["smoke:self-hosted-account-api:run"] !== "node scripts/smoke-self-hosted-account-api.mjs") {
   failures.push("package.json: smoke:self-hosted-account-api:run must execute scripts/smoke-self-hosted-account-api.mjs");
+}
+if (pkg.scripts["smoke:self-hosted-account-postgres"] !== "npm run api:build && npm run smoke:self-hosted-account-postgres:run") {
+  failures.push("package.json: smoke:self-hosted-account-postgres must build and run the live PostgreSQL account smoke");
+}
+if (pkg.scripts["smoke:self-hosted-account-postgres:run"] !== "node scripts/smoke-self-hosted-account-postgres.mjs") {
+  failures.push("package.json: smoke:self-hosted-account-postgres:run must execute scripts/smoke-self-hosted-account-postgres.mjs");
 }
 if (pkg.scripts["test:api"] !== "npm run contracts:build && vitest run --config apps/api/vitest.config.ts") {
   failures.push("package.json: test:api must build contracts before apps/api tests");
@@ -231,6 +241,15 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "/v1/a
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "/v1/account/files/by-object-key");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "file_owner_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "MIGRATION_DATABASE_URL");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=skipped");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "ACCOUNT_REPOSITORY: \"postgres\"");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "db:migrations:apply:live");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "insert into yorso_users");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "/v1/account/company/media/logo");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "/v1/account/documents");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "file_owner_guard=ok");
+requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=ok");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_API_URL");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_ACCOUNT_USER_ID");
 requireText("src/lib/account-api.ts", accountApi, "ACCOUNT_USER_ID_HEADER");
@@ -263,6 +282,10 @@ requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "listLo
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "Self-Hosted Account API Smoke");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
+requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "Self-Hosted Account PostgreSQL Smoke");
+requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "npm run smoke:self-hosted-account-postgres");
+requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=skipped");
+requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=ok");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");
