@@ -512,6 +512,44 @@ describe("account repositories", () => {
     ]);
   });
 
+  it("memory repository supports row-level workspace CRUD", async () => {
+    const repository = new MemoryAccountRepository();
+
+    const createdBranch = await repository.createBranch(demoUserId, "br_row", {
+      name: "Row Branch",
+      type: "loading_point",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund",
+      notes: "Row branch.",
+    });
+    expect(createdBranch).toMatchObject({ id: "br_row", city: "Alesund" });
+    await expect(repository.createBranch(demoUserId, "br_row", {
+      name: "Duplicate Branch",
+      type: "loading_point",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund",
+      notes: "Duplicate row branch.",
+    })).rejects.toThrow("workspace_item_conflict");
+
+    const updatedProduct = await repository.updateProduct(demoUserId, "p_1", {
+      monthlyVolume: "180 t",
+      targetCountries: ["Spain", "France"],
+    });
+    expect(updatedProduct).toMatchObject({ id: "p_1", monthlyVolume: "180 t" });
+
+    const deletedMetaRegion = await repository.deleteMetaRegion(demoUserId, "mr_1");
+    expect(deletedMetaRegion).toMatchObject({ id: "mr_1" });
+    await expect(repository.deleteMetaRegion(demoUserId, "mr_1")).rejects.toThrow("workspace_item_not_found");
+  });
+
   it("factory selects memory repository by default", () => {
     const config = loadApiConfig({ NODE_ENV: "test" }, { allowLocalDefaults: true });
     const repository = createAccountRepository(config);
@@ -716,6 +754,44 @@ describe("account repositories", () => {
     expect(metaRegions).toEqual([expect.objectContaining({ id: "mr_pg", defaultCurrency: "EUR" })]);
     expect(notifications).toEqual([expect.objectContaining({ id: "n_pg", frequency: "weekly" })]);
     expect(client.calls.some((call) => call.sql.includes("delete from yorso_company_products"))).toBe(true);
+    expect(client.calls.some((call) => call.sql.includes("insert into yorso_notification_preferences"))).toBe(true);
+  });
+
+  it("postgres repository supports row-level workspace CRUD through owner-scoped lists", async () => {
+    const { client, repository } = createPostgresRepository();
+
+    const createdBranch = await repository.createBranch(demoUserId, "br_row", {
+      name: "Row Branch",
+      type: "loading_point",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund",
+      notes: "Row branch.",
+    });
+    expect(createdBranch).toMatchObject({ id: "br_row", defaultIncoterms: "FOB" });
+    expect(await repository.getBranches(demoUserId)).toEqual(expect.arrayContaining([expect.objectContaining({ id: "br_row" })]));
+
+    const updatedProduct = await repository.updateProduct(demoUserId, "p_1", {
+      monthlyVolume: "180 t",
+      targetCountries: ["Spain", "France"],
+    });
+    expect(updatedProduct).toMatchObject({ id: "p_1", monthlyVolume: "180 t" });
+
+    const createdNotification = await repository.createNotification(demoUserId, "n_row", {
+      channel: "agent",
+      enabled: false,
+      events: [],
+      frequency: "weekly",
+    });
+    expect(createdNotification).toMatchObject({ id: "n_row", channel: "agent" });
+
+    const deletedBranch = await repository.deleteBranch(demoUserId, "br_row");
+    expect(deletedBranch).toMatchObject({ id: "br_row" });
+    await expect(repository.deleteBranch(demoUserId, "br_row")).rejects.toThrow("workspace_item_not_found");
+    expect(client.calls.some((call) => call.sql.includes("delete from yorso_company_branches"))).toBe(true);
     expect(client.calls.some((call) => call.sql.includes("insert into yorso_notification_preferences"))).toBe(true);
   });
 

@@ -123,6 +123,92 @@ async function runSmoke(baseUrl) {
   assertEqual(productsUpdate.products?.some((item) => item.id === "p_smoke_30"), true, "product replace");
   console.log("products_replace=ok");
 
+  const branchCreate = await jsonRequest(baseUrl, "/v1/account/branches/br_smoke_33", {
+    method: "POST",
+    body: {
+      name: "Smoke Row Loading Point",
+      type: "loading_point",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund",
+      notes: "Created through row-level smoke.",
+    },
+  });
+  assertEqual(branchCreate.branch?.id, "br_smoke_33", "row branch create id");
+  console.log("branch_row_create=ok");
+
+  const branchConflict = await fetch(`${baseUrl}/v1/account/branches/br_smoke_33`, {
+    method: "POST",
+    headers: accountHeaders,
+    body: JSON.stringify({
+      name: "Smoke Row Loading Point Duplicate",
+      type: "loading_point",
+      country: "Norway",
+      region: "",
+      city: "Alesund",
+      addressLine: "",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "",
+      notes: "",
+    }),
+  });
+  assertStatus(branchConflict, 409, "row branch conflict");
+  console.log("branch_row_conflict_guard=ok");
+
+  const productPatch = await jsonRequest(baseUrl, "/v1/account/products/p_smoke_30", {
+    method: "PATCH",
+    body: {
+      monthlyVolume: "18 t",
+      targetCountries: ["Norway", "Iceland", "Spain"],
+    },
+  });
+  assertEqual(productPatch.product?.monthlyVolume, "18 t", "row product patch");
+  console.log("product_row_patch=ok");
+
+  const metaRegionCreate = await jsonRequest(baseUrl, "/v1/account/meta-regions/mr_smoke_33", {
+    method: "POST",
+    body: {
+      name: "Smoke Row Baltic",
+      countries: ["Germany", "Poland"],
+      logisticsReason: "same_warehouse_route",
+      defaultCurrency: "EUR",
+      notes: "Created through row-level smoke.",
+      usedFor: ["notifications", "landed_cost"],
+    },
+  });
+  assertEqual(metaRegionCreate.metaRegion?.id, "mr_smoke_33", "row meta-region create");
+  console.log("meta_region_row_create=ok");
+
+  const notificationCreate = await jsonRequest(baseUrl, "/v1/account/notifications/n_smoke_33", {
+    method: "POST",
+    body: {
+      channel: "agent",
+      enabled: false,
+      events: [],
+      frequency: "weekly",
+    },
+  });
+  assertEqual(notificationCreate.notification?.channel, "agent", "row notification create");
+  const notificationInvalid = await fetch(`${baseUrl}/v1/account/notifications/n_smoke_33`, {
+    method: "PATCH",
+    headers: accountHeaders,
+    body: JSON.stringify({
+      enabled: true,
+      events: [],
+    }),
+  });
+  assertStatus(notificationInvalid, 400, "row notification validation");
+  console.log("notification_row_validation_guard=ok");
+
+  const branchDelete = await jsonRequest(baseUrl, "/v1/account/branches/br_smoke_33", {
+    method: "DELETE",
+  });
+  assertEqual(branchDelete.deletedId, "br_smoke_33", "row branch delete id");
+  console.log("branch_row_delete=ok");
+
   const logoBytes = Buffer.from("<svg xmlns=\"http://www.w3.org/2000/svg\"><text>YORSO</text></svg>");
   const logoUpload = await jsonRequest(baseUrl, "/v1/account/company/media/logo", {
     method: "POST",

@@ -265,6 +265,30 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(branchesRead.branches?.map((item) => item.id).join(","), "pg32_branch_alesund,pg32_branch_rotterdam", "branch read ids");
   console.log("branches_read=ok");
 
+  const branchRowCreate = await jsonRequest(baseUrl, "/v1/account/branches/pg32_branch_row", {
+    method: "POST",
+    body: {
+      name: "Batch 33 Row Branch",
+      type: "loading_point",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Row Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund row terminal",
+      notes: "Created through row-level endpoint.",
+    },
+  });
+  assertEqual(branchRowCreate.branch?.id, "pg32_branch_row", "row branch create id");
+  console.log("branch_row_create=ok");
+
+  const branchRowPatch = await jsonRequest(baseUrl, "/v1/account/branches/pg32_branch_row", {
+    method: "PATCH",
+    body: { city: "Bergen", defaultIncoterms: "FCA" },
+  });
+  assertEqual(branchRowPatch.branch?.city, "Bergen", "row branch patch city");
+  console.log("branch_row_patch=ok");
+
   const products = [
     {
       id: "pg32_product_salmon",
@@ -296,6 +320,16 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(productsUpdate.products?.[1]?.targetCountries?.includes("Portugal"), true, "product target country");
   console.log("products_replace=ok");
 
+  const productRowPatch = await jsonRequest(baseUrl, "/v1/account/products/pg32_product_salmon", {
+    method: "PATCH",
+    body: {
+      monthlyVolume: "150 t",
+      targetCountries: ["Germany", "France", "Poland"],
+    },
+  });
+  assertEqual(productRowPatch.product?.monthlyVolume, "150 t", "row product patch volume");
+  console.log("product_row_patch=ok");
+
   const metaRegions = [
     {
       id: "pg32_meta_baltic",
@@ -320,6 +354,10 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(metaUpdate.metaRegions?.length, 2, "meta-region replace count");
   assertEqual(metaUpdate.metaRegions?.[0]?.defaultCurrency, "EUR", "meta-region currency");
   console.log("meta_regions_replace=ok");
+
+  const metaRegionRowDelete = await jsonRequest(baseUrl, "/v1/account/meta-regions/pg32_meta_iberia", { method: "DELETE" });
+  assertEqual(metaRegionRowDelete.deletedId, "pg32_meta_iberia", "row meta-region delete id");
+  console.log("meta_region_row_delete=ok");
 
   const notifications = [
     {
@@ -363,13 +401,25 @@ async function runWorkspaceSmoke(baseUrl, client) {
   assertEqual(invalidBody.error?.code, "validation_error", "invalid notification error code");
   console.log("notifications_validation_guard=ok");
 
+  const notificationRowCreate = await jsonRequest(baseUrl, "/v1/account/notifications/pg32_row_in_app", {
+    method: "POST",
+    body: {
+      channel: "in_app",
+      enabled: true,
+      events: ["document_readiness"],
+      frequency: "instant",
+    },
+  });
+  assertEqual(notificationRowCreate.notification?.id, "pg32_row_in_app", "row notification create id");
+  console.log("notification_row_create=ok");
+
   await assertDatabaseCounts(client, {
     companyId: primaryCompanyId,
     userId: primaryUserId,
-    branches: 2,
+    branches: 3,
     products: 2,
-    metaRegions: 2,
-    notifications: 2,
+    metaRegions: 1,
+    notifications: 3,
   });
   console.log("workspace_db_counts=ok");
 

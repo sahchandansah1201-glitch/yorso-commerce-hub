@@ -1,7 +1,7 @@
 # Self-Hosted Account API Smoke
 
 Status: active runtime smoke
-Batch: #30
+Batch: #33
 Date: 2026-05-14
 
 This smoke test verifies that the standalone YORSO API can run as a real Node
@@ -14,6 +14,9 @@ It is intentionally different from unit tests:
 - it sends real HTTP requests with the account session boundary;
 - it writes company data through `/v1/account/company`;
 - it replaces product matrix data through `/v1/account/products`;
+- it creates, updates and deletes individual workspace rows through
+  `/v1/account/*/:id`;
+- it checks duplicate row creation and notification row validation errors;
 - it uploads company media through `/v1/account/company/media/logo`;
 - it uploads and lists company documents through `/v1/account/documents`;
 - it reads stored files through `/v1/account/files/:assetId` and
@@ -47,6 +50,8 @@ The smoke test protects the production direction:
 - account file ownership must be enforced by user id;
 - the account workspace contract must work over HTTP, not only in isolated
   unit tests.
+- row-level workspace endpoints must preserve owner-scoped CRUD, conflict
+  handling and validation behavior over real HTTP.
 
 ## Runtime Mode
 
@@ -74,6 +79,13 @@ session_required_guard=ok
 account_me=ok
 company_patch=ok
 products_replace=ok
+branch_row_create=ok
+branch_row_conflict_guard=ok
+product_row_patch=ok
+meta_region_row_create=ok
+notification_row_create=ok
+notification_row_validation_guard=ok
+branch_row_delete=ok
 logo_upload=ok
 logo_read_by_asset=ok
 file_owner_guard=ok

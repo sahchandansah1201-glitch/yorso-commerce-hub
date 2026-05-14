@@ -1,7 +1,7 @@
 # Self-Hosted API Skeleton
 
 Status: first runnable backend process with PostgreSQL account workspace persistence, local file storage, account UI storage bridge and explicit account session boundary
-Batch: #29
+Batch: #33
 Date: 2026-05-14
 
 `apps/api` is the first concrete backend service for the self-hosted YORSO
@@ -21,12 +21,28 @@ compiled, started and wired into Docker Compose.
 | `PATCH /v1/account/company` | Validates and updates company profile fields through the contract schema. |
 | `GET /v1/account/branches` | Returns company branches and loading points. |
 | `PATCH /v1/account/branches` | Replaces company branches and loading points through the contract schema. |
+| `GET /v1/account/branches/:id` | Returns one branch/loading point owned by the current account. |
+| `POST /v1/account/branches/:id` | Creates one branch/loading point and returns `201`. Duplicate ids return `409 workspace_item_conflict`. |
+| `PATCH /v1/account/branches/:id` | Updates one branch/loading point through the row update contract. Missing ids return `404 workspace_item_not_found`. |
+| `DELETE /v1/account/branches/:id` | Deletes one branch/loading point owned by the current account. |
 | `GET /v1/account/products` | Returns the company product matching matrix. |
 | `PATCH /v1/account/products` | Replaces the product matching matrix through the contract schema. |
+| `GET /v1/account/products/:id` | Returns one product matrix row owned by the current account. |
+| `POST /v1/account/products/:id` | Creates one product matrix row and returns `201`. Duplicate ids return `409 workspace_item_conflict`. |
+| `PATCH /v1/account/products/:id` | Updates one product matrix row through the row update contract. |
+| `DELETE /v1/account/products/:id` | Deletes one product matrix row owned by the current account. |
 | `GET /v1/account/meta-regions` | Returns logistics meta-regions. |
 | `PATCH /v1/account/meta-regions` | Replaces logistics meta-regions through the contract schema. |
+| `GET /v1/account/meta-regions/:id` | Returns one logistics meta-region owned by the current account. |
+| `POST /v1/account/meta-regions/:id` | Creates one logistics meta-region and returns `201`. Duplicate ids return `409 workspace_item_conflict`. |
+| `PATCH /v1/account/meta-regions/:id` | Updates one logistics meta-region through the row update contract. |
+| `DELETE /v1/account/meta-regions/:id` | Deletes one logistics meta-region owned by the current account. |
 | `GET /v1/account/notifications` | Returns notification channel preferences. |
 | `PATCH /v1/account/notifications` | Replaces notification channel preferences through the contract schema. |
+| `GET /v1/account/notifications/:id` | Returns one notification preference owned by the current account. |
+| `POST /v1/account/notifications/:id` | Creates one notification preference and returns `201`. Duplicate ids return `409 workspace_item_conflict`. |
+| `PATCH /v1/account/notifications/:id` | Updates one notification preference through the row update contract. Enabled channels still require at least one event. |
+| `DELETE /v1/account/notifications/:id` | Deletes one notification preference owned by the current account. |
 | `POST /v1/account/company/media/logo` | Uploads a company logo file, stores it in self-hosted storage and updates `company.media.logoObjectKey`. |
 | `POST /v1/account/company/media/cover` | Uploads a company cover file, stores it in self-hosted storage and updates `company.media.coverObjectKey`. |
 | `GET /v1/account/documents` | Returns company document metadata for the current account company. |
@@ -178,6 +194,25 @@ Batch #32 adds the optional live PostgreSQL workspace smoke:
   PostgreSQL row counts, another-user isolation and empty replacement cleanup.
 - It is a server/staging validation step for account workspace persistence, not
   a default GitHub CI dependency.
+
+Batch #33 adds owner-scoped row-level CRUD for the same workspace sections:
+
+- Existing replace-all collection endpoints remain for current account page
+  compatibility.
+- New row endpoints support `GET`, `POST`, `PATCH` and `DELETE` for branches,
+  products, meta-regions and notifications.
+- Create payloads omit `id`; the id remains in the URL so clients can keep
+  stable local identifiers and server-side conflict checks.
+- Duplicate row creation returns `409 workspace_item_conflict`.
+- Missing rows return `404 workspace_item_not_found`.
+- Notification row updates keep the same invariant as replace-all updates:
+  enabled channels must contain at least one notification event.
+- `src/lib/account-api.ts` exposes row helper methods so future UI can save a
+  single edited row without replacing a full collection.
+- `PostgresAccountRepository` currently backs row operations through the
+  owner-scoped list read/write path. This keeps the external HTTP contract
+  stable while direct SQL row writes can be introduced later without changing
+  frontend adapters.
 
 ## Local Build
 

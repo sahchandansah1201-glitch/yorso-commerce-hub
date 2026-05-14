@@ -45,6 +45,58 @@ describe("self-hosted API policy", () => {
     expect(docs).toContain("self_hosted_account_api_smoke=ok");
   });
 
+  it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
+    const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
+    const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");
+    const repository = readFileSync("apps/api/src/modules/account/repository.ts", "utf8");
+    const postgresRepository = readFileSync("apps/api/src/modules/account/postgres-repository.ts", "utf8");
+    const accountApi = readFileSync("src/lib/account-api.ts", "utf8");
+    const contracts = readFileSync("packages/contracts/src/account-company.ts", "utf8");
+    const accountSmoke = readFileSync("scripts/smoke-self-hosted-account-api.mjs", "utf8");
+    const workspaceSmoke = readFileSync("scripts/smoke-self-hosted-workspace-postgres.mjs", "utf8");
+    const skeletonDocs = readFileSync("docs/backend/self-hosted-api-skeleton.md", "utf8");
+
+    expect(routes).toContain("/v1/account/branches/");
+    expect(routes).toContain("/v1/account/products/");
+    expect(routes).toContain("/v1/account/meta-regions/");
+    expect(routes).toContain("/v1/account/notifications/");
+    expect(routes).toContain("GET, POST, PATCH, DELETE");
+    expect(routes).toContain("workspace_item_conflict");
+    expect(routes).toContain("workspace_item_not_found");
+
+    expect(service).toContain("companyBranchCreateSchema.parse");
+    expect(service).toContain("companyProductUpdateSchema.parse");
+    expect(service).toContain("notificationPreferenceUpdateSchema.parse");
+
+    for (const method of [
+      "createBranch",
+      "updateBranch",
+      "deleteBranch",
+      "createProduct",
+      "updateProduct",
+      "deleteProduct",
+      "createMetaRegion",
+      "updateMetaRegion",
+      "deleteMetaRegion",
+      "createNotification",
+      "updateNotification",
+      "deleteNotification",
+    ]) {
+      expect(repository).toContain(method);
+      expect(postgresRepository).toContain(method);
+      expect(accountApi).toContain(method);
+    }
+
+    expect(contracts).toContain("companyBranchCreateSchema");
+    expect(contracts).toContain("companyProductUpdateSchema");
+    expect(contracts).toContain("metaRegionCreateSchema");
+    expect(contracts).toContain("notificationPreferenceUpdateSchema");
+    expect(accountSmoke).toContain("branch_row_create=ok");
+    expect(accountSmoke).toContain("notification_row_validation_guard=ok");
+    expect(workspaceSmoke).toContain("product_row_patch=ok");
+    expect(skeletonDocs).toContain("Batch #33 adds owner-scoped row-level CRUD");
+  });
+
   it("keeps the optional live PostgreSQL account smoke available without requiring it in CI", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

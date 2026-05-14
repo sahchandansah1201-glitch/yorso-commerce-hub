@@ -60,9 +60,9 @@ npm run ci:core
 | `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
-| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, media upload, document upload and file ownership over real HTTP. |
+| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload and file ownership over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
-| `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions and notifications over the real PostgreSQL repository, including owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
+| `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions and notifications over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
@@ -144,6 +144,12 @@ It verifies:
   contract validation layer.
 - `GET`/`PATCH /v1/account/branches`, `/products`, `/meta-regions` and
   `/notifications` remain behind the contract validation layer.
+- Row-level `GET`/`POST`/`PATCH`/`DELETE /v1/account/branches/:id`,
+  `/products/:id`, `/meta-regions/:id` and `/notifications/:id` remain behind
+  the same owner-scoped service/repository boundary.
+- Row-level workspace routes preserve explicit errors: duplicate create returns
+  `409 workspace_item_conflict`, missing row returns
+  `404 workspace_item_not_found`.
 - Account JSON routes require explicit `x-yorso-user-id` session headers and
   must not fall back to a hidden fixed demo user.
 - `POST /v1/account/company/media/logo`, `/cover`, `GET`/`POST
@@ -170,6 +176,8 @@ The bridge must preserve these rules:
 - user and company saves map to `/v1/account/me` and `/v1/account/company`;
 - branches, products, meta-regions and notification preferences map to their
   dedicated `/v1/account/*` collection endpoints;
+- row-level workspace helpers map to `/v1/account/*/:id` endpoints for future
+  single-row saves while preserving the current replace-all page sync;
 - company media and document upload helpers map to the self-hosted file
   endpoints while keeping local prototype mode available when the API URL is
   empty;

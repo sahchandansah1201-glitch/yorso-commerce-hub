@@ -358,6 +358,59 @@ describe("account API adapter", () => {
     );
   });
 
+  it("calls row-level workspace endpoints through the self-hosted API adapter", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, branch: { ...backendBranches[0], id: "br_row" }, requestId: "r-branch" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, product: { ...backendProducts[0], monthlyVolume: "44 t" }, requestId: "r-product" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegion: { ...backendMetaRegions[0], defaultCurrency: "EUR" }, requestId: "r-meta" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, notification: { ...backendNotifications[0], enabled: false }, requestId: "r-notification" }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    await expect(client.createBranch("br_row", {
+      name: "Backend Branch",
+      type: "warehouse",
+      country: "Norway",
+      region: "More og Romsdal",
+      city: "Alesund",
+      addressLine: "Terminal 33",
+      defaultIncoterms: "FOB",
+      portOrPickupPoint: "Alesund",
+      notes: "Row endpoint.",
+    })).resolves.toMatchObject({ id: "br_row" });
+    await expect(client.updateProduct("p_row", { monthlyVolume: "44 t" })).resolves.toMatchObject({ monthlyVolume: "44 t" });
+    await expect(client.createMetaRegion("mr_row", {
+      name: "Backend Region",
+      countries: ["Germany", "Poland"],
+      logisticsReason: "same_warehouse_route",
+      defaultCurrency: "eur",
+      notes: "Row endpoint.",
+      usedFor: ["notifications"],
+    })).resolves.toMatchObject({ defaultCurrency: "EUR" });
+    await expect(client.deleteNotification("n_row")).resolves.toMatchObject({ enabled: false });
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      "http://localhost:3000/v1/account/branches/br_row",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      "http://localhost:3000/v1/account/products/p_row",
+      expect.objectContaining({ method: "PATCH", body: "{\"monthlyVolume\":\"44 t\"}" }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      3,
+      "http://localhost:3000/v1/account/meta-regions/mr_row",
+      expect.objectContaining({ method: "POST", body: expect.stringContaining("\"defaultCurrency\":\"EUR\"") }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      4,
+      "http://localhost:3000/v1/account/notifications/n_row",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
   it("converts browser File objects into account upload payloads", async () => {
     const payload = await fileToAccountUploadPayload(
       new File(["logo-bytes"], "logo.svg", { type: "image/svg+xml" }),
