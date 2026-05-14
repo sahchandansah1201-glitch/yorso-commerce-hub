@@ -215,9 +215,10 @@ describe("SupplierProfile · access gating", () => {
 
       renderProfile(remoteSupplierDetail.id);
 
-      await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-      expect(fetchMock.mock.calls[0][0]).toBe(
-        "http://api.test/v1/suppliers/sup-remote-909?accessLevel=anonymous_locked",
+      await waitFor(() =>
+        expect(fetchMock.mock.calls.some(([url]) =>
+          String(url) === "http://api.test/v1/suppliers/sup-remote-909?accessLevel=anonymous_locked",
+        )).toBe(true),
       );
       expect((await screen.findAllByText(remoteSupplierDetail.maskedName)).length).toBeGreaterThan(0);
       expect(document.body.textContent ?? "").not.toContain("Remote Legal Supplier AS");

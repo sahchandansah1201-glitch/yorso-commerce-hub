@@ -7,6 +7,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-validation.md",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
+  "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migration-manifest.json",
   "package.json",
   "src/lib/offer-catalog-api.ts",
@@ -26,6 +27,7 @@ const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
+const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const offerApi = read("src/lib/offer-catalog-api.ts");
@@ -57,6 +59,7 @@ for (const marker of [
   "queue workers",
   "0005_supplier_directory_search_scaling",
   "0006_offer_catalog",
+  "0007_supplier_access_flow",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -66,6 +69,7 @@ for (const marker of [
   "10,000 concurrent-user read path",
   "supplier-directory trigram search indexes",
   "offer-catalog trigram search indexes",
+  "supplier-access request and grant indexes",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -96,11 +100,23 @@ for (const marker of [
   requireText("packages/db/migrations/0006_offer_catalog.sql", offerCatalog, marker);
 }
 
+for (const marker of [
+  "idx_yorso_supplier_access_requests_buyer",
+  "idx_yorso_supplier_access_requests_supplier_status",
+  "idx_yorso_access_grants_buyer_supplier_scope",
+  "idx_yorso_access_notifications_buyer_status_created",
+]) {
+  requireText("packages/db/migrations/0007_supplier_access_flow.sql", supplierAccess, marker);
+}
+
 if (!manifest.migrations?.some((migration) => migration.id === "0005_supplier_directory_search_scaling")) {
   failures.push("packages/db/migration-manifest.json: missing 0005_supplier_directory_search_scaling");
 }
 if (!manifest.migrations?.some((migration) => migration.id === "0006_offer_catalog")) {
   failures.push("packages/db/migration-manifest.json: missing 0006_offer_catalog");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0007_supplier_access_flow")) {
+  failures.push("packages/db/migration-manifest.json: missing 0007_supplier_access_flow");
 }
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
@@ -143,5 +159,5 @@ if (failures.length > 0) {
 
 console.log("Production scale baseline check passed.");
 console.log("- 10,000 concurrent-user target is documented.");
-console.log("- supplier and offer catalog read paths have scaling guardrails.");
+console.log("- supplier, offer and access-flow paths have scaling guardrails.");
 console.log("- ci:core enforces the baseline check.");

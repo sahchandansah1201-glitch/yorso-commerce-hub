@@ -40,6 +40,7 @@ describe("production scale baseline", () => {
       "utf8",
     );
     const offerCatalog = readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
+    const supplierAccess = readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
 
     expect(supplierApi).toContain("limit");
     expect(supplierApi).toContain("offset");
@@ -54,5 +55,8 @@ describe("production scale baseline", () => {
     expect(offerCatalog).toContain("gin_trgm_ops");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_public_search_text");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_supplier_country_code");
+    expect(supplierAccess).toContain("idx_yorso_supplier_access_requests_buyer");
+    expect(supplierAccess).toContain("idx_yorso_access_grants_buyer_supplier_scope");
+    expect(supplierAccess).toContain("idx_yorso_access_notifications_buyer_status_created");
   });
 });

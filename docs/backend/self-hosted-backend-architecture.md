@@ -228,6 +228,19 @@ must return supplier identity and exact price fields as `null`; only
 The offer catalog migration keeps search/filter paths paginated and
 index-backed for the 10,000 concurrent-user target.
 
+Batch #38 adds the first self-hosted supplier and price access path. It defines
+supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,
+`/v1/access/supplier-requests/:requestId/decision` and
+`/v1/access/notifications`, memory/PostgreSQL repositories, migration
+`0007_supplier_access_flow`, frontend self-hosted adapter priority through
+`VITE_YORSO_API_URL`, and smoke coverage for request, pending, approved,
+grant and notification states. Access requests are idempotent per
+buyer/supplier pair. Approval creates both supplier identity and offer price
+grants so the UI can unlock exact prices and supplier details through the same
+backend decision. The access flow is part of the 10,000 concurrent-user target:
+hot paths must use indexed request lookup, grant lookup and notification feed
+queries rather than unbounded scans.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.
@@ -257,8 +270,10 @@ Build in this order:
 6. Supplier directory and profile. Initial self-hosted supplier directory API,
    DTOs, frontend adapter, frontend API bridge and PostgreSQL search-scaling
    migrations exist.
-7. Offer catalog and offer detail.
-8. Supplier and price access requests.
+7. Offer catalog and offer detail. Initial self-hosted offer catalog API, DTOs,
+   frontend adapter and PostgreSQL migration exist.
+8. Supplier and price access requests. Initial self-hosted request, decision,
+   grant, event and notification API exists.
 9. RFQ and catalog request flow.
 10. Notifications.
 11. Audit log and admin review.

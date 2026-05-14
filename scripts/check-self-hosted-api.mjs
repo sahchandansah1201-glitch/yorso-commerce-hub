@@ -9,6 +9,11 @@ const requiredFiles = [
   "apps/api/src/modules/account/repository.ts",
   "apps/api/src/modules/account/service.ts",
   "apps/api/src/modules/account/routes.ts",
+  "apps/api/src/modules/access/factory.ts",
+  "apps/api/src/modules/access/postgres-repository.ts",
+  "apps/api/src/modules/access/repository.ts",
+  "apps/api/src/modules/access/routes.ts",
+  "apps/api/src/modules/access/service.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/storage/factory.ts",
   "apps/api/src/modules/storage/object-storage.ts",
@@ -36,6 +41,7 @@ const requiredFiles = [
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
   "packages/contracts/src/offer-catalog.ts",
+  "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
@@ -48,6 +54,8 @@ const requiredFiles = [
   "src/lib/account-documents-store.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/offer-catalog-api.test.ts",
+  "src/lib/supplier-access-api.ts",
+  "src/lib/supplier-access-api.test.ts",
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
@@ -70,6 +78,11 @@ const postgresRepository = read("apps/api/src/modules/account/postgres-repositor
 const accountService = read("apps/api/src/modules/account/service.ts");
 const accountRepository = read("apps/api/src/modules/account/repository.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
+const accessFactory = read("apps/api/src/modules/access/factory.ts");
+const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
+const accessRepository = read("apps/api/src/modules/access/repository.ts");
+const accessRoutes = read("apps/api/src/modules/access/routes.ts");
+const accessService = read("apps/api/src/modules/access/service.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const storageFactory = read("apps/api/src/modules/storage/factory.ts");
 const storageObjectStorage = read("apps/api/src/modules/storage/object-storage.ts");
@@ -91,6 +104,7 @@ const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
 const accountCompanyContract = read("packages/contracts/src/account-company.ts");
 const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
+const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
@@ -105,6 +119,7 @@ const supplierProfilePreview = read("src/components/account/SupplierProfilePrevi
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
+const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -178,6 +193,12 @@ if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-cat
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
 }
+if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts") {
+  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) {
+  failures.push("package.json: ci:core must run test:supplier-access-frontend");
+}
 
 requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
@@ -186,6 +207,8 @@ requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "handleStorageRoute");
 requireText("apps/api/src/server.ts", server, "handleOfferCatalogRoute");
 requireText("apps/api/src/server.ts", server, "createOfferCatalogRepository(config)");
+requireText("apps/api/src/server.ts", server, "handleSupplierAccessRoute");
+requireText("apps/api/src/server.ts", server, "createSupplierAccessRepository(config)");
 requireText("apps/api/src/server.ts", server, "handleSupplierDirectoryRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierRepository(config)");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
@@ -269,6 +292,24 @@ requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "readJsonBo
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "updateCurrentUserProfile");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "resolveAccountSession(request)");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "AccountSessionError");
+requireText("apps/api/src/modules/access/factory.ts", accessFactory, "createSupplierAccessRepository");
+requireText("apps/api/src/modules/access/factory.ts", accessFactory, "PostgresSupplierAccessRepository");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "class PostgresSupplierAccessRepository");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_supplier_access_requests");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_access_grants");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "from yorso_access_notifications");
+requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "insert into yorso_access_events");
+requireText("apps/api/src/modules/access/repository.ts", accessRepository, "class MemorySupplierAccessRepository");
+requireText("apps/api/src/modules/access/repository.ts", accessRepository, "createOrReuseRequest");
+requireText("apps/api/src/modules/access/repository.ts", accessRepository, "decideRequest");
+requireText("apps/api/src/modules/access/repository.ts", accessRepository, "price_access_approved");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "/v1/access/suppliers/");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "/v1/access/supplier-requests/");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "/v1/access/notifications");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "supplier_access_request_not_found");
+requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAccessRequestCreateSchema.parse");
+requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAccessDecisionSchema.parse");
+requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAccessNotificationsResponseSchema.parse");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "accountUserIdHeaderName");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "accountSessionIdHeaderName");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "account_session_required");
@@ -360,6 +401,7 @@ requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-session.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./offer-catalog.js\";");
+requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./supplier-access.js\";");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountUserIdHeaderName");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountSessionHeadersSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "companyBranchCreateSchema");
@@ -375,6 +417,10 @@ requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "of
 requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "offerCatalogQuerySchema");
 requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "supplierCountryCode: z.string().length(2).optional()");
 requireText("packages/contracts/src/offer-catalog.ts", offerCatalogContract, "qualified_unlocked");
+requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, "supplierAccessRequestSchema");
+requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, "supplierAccessDecisionSchema");
+requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, "supplierAccessNotificationsResponseSchema");
+requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, "supplierAccessGrantScopeSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryRecordSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryItemSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryQuerySchema");
@@ -400,6 +446,9 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_private_search_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_filters=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_unlocked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_access_request=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_access_approved=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_access_notifications=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "self_hosted_account_api_smoke=ok");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "MIGRATION_DATABASE_URL");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=skipped");
@@ -472,6 +521,10 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCode");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/suppliers/");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/notifications");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "getConfiguredAccountApiBaseUrl");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "fileToAccountUploadPayload");
@@ -501,6 +554,11 @@ forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresReposi
 forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/access/factory.ts", accessFactory, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/access/repository.ts", accessRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/access/routes.ts", accessRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/access/service.ts", accessService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/auth/session.ts", authSession, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/storage/factory.ts", storageFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/storage/object-storage.ts", storageObjectStorage, "@/integrations/supabase/client");
@@ -542,6 +600,7 @@ console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- Supplier directory API exposes access-shaped supplier discovery without Supabase production coupling.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
+console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");

@@ -1,7 +1,7 @@
 # Self-Hosted Account API Smoke
 
 Status: active runtime smoke
-Batch: #37
+Batch: #38
 Date: 2026-05-14
 
 This smoke test verifies that the standalone YORSO API can run as a real Node
@@ -33,6 +33,13 @@ It is intentionally different from unit tests:
   price fields;
 - it verifies `qualified_unlocked` offer responses expose exact price and
   supplier identity through the same API process.
+- it creates a one-click supplier price access request through
+  `/v1/access/suppliers/:supplierId/request`;
+- it moves the request through `sent`, `pending` and `approved` states through
+  `/v1/access/supplier-requests/:requestId/decision`;
+- it verifies approval creates supplier identity and offer price grants;
+- it verifies buyer approval notifications are visible through
+  `/v1/access/notifications`.
 
 ## Commands
 
@@ -67,6 +74,9 @@ The smoke test protects the production direction:
   frontend blur or client-side filtering.
 - offer catalog endpoints must be access-shaped by the API, not by frontend
   blur or client-side filtering.
+- supplier and price access requests must work through the self-hosted API,
+  not through Supabase RPCs or browser-only localStorage.
+- supplier approval must create server-side grants and a buyer notification.
 
 ## Runtime Mode
 
@@ -114,6 +124,12 @@ offer_catalog_locked=ok
 offer_catalog_private_search_guard=ok
 offer_catalog_filters=ok
 offer_catalog_unlocked=ok
+supplier_access_initial=ok
+supplier_access_request=ok
+supplier_access_pending=ok
+supplier_access_approved=ok
+supplier_access_grant=ok
+supplier_access_notifications=ok
 self_hosted_account_api_smoke=ok
 ```
 

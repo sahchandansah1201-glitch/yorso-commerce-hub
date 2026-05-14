@@ -109,6 +109,10 @@ source of truth. It checks:
 - `yorso_offers_catalog`;
 - offer-catalog trigram search indexes and bounded filter indexes used by the
   10,000 concurrent-user read path;
+- `yorso_supplier_access_requests`, `yorso_access_grants`,
+  `yorso_access_events`, `yorso_access_notifications`;
+- supplier-access request and grant indexes used by the 10,000 concurrent-user
+  decision and unlock path;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace and supplier directory reads;
 - migration manifest ownership;
@@ -130,6 +134,8 @@ contract. It checks:
   in migration `0005_supplier_directory_search_scaling.sql`;
 - offer-catalog trigram search indexes and filter indexes remain in migration
   `0006_offer_catalog`;
+- supplier-access request and grant indexes remain in migration
+  `0007_supplier_access_flow`;
 - `/suppliers` and `/offers` frontend API mode keeps paginated requests instead
   of unbounded list reads;
 - `ci:core` runs the scale baseline guard.

@@ -367,6 +367,105 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("creates supplier price access requests, decisions and approval notifications", async () => {
+    const fetchApi = await startTestServer();
+
+    const initialRead = await fetchApi("/v1/access/suppliers/sup-no-001/request");
+    const initialBody = (await initialRead.json()) as JsonBody;
+    expect(initialRead.status).toBe(200);
+    expect(initialBody).toMatchObject({
+      ok: true,
+      request: null,
+      accessGranted: false,
+    });
+
+    const created = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "Need exact price for May shipment" }),
+    });
+    const createdBody = (await created.json()) as JsonBody;
+    expect(created.status).toBe(201);
+    expect(createdBody.request).toMatchObject({
+      buyerUserId: testAccountUserId,
+      supplierId: "sup-no-001",
+      status: "sent",
+      intent: "exact_price",
+    });
+    expect(createdBody.accessGranted).toBe(false);
+
+    const requestId = String((createdBody.request as JsonBody).id);
+    const pending = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "pending" }),
+    });
+    const pendingBody = (await pending.json()) as JsonBody;
+    expect(pending.status).toBe(200);
+    expect(pendingBody.request).toMatchObject({ id: requestId, status: "pending" });
+    expect(pendingBody.notification).toBeNull();
+
+    const approved = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    const approvedBody = (await approved.json()) as JsonBody;
+    expect(approved.status).toBe(200);
+    expect(approvedBody.request).toMatchObject({ id: requestId, status: "approved" });
+    expect(approvedBody.grants).toEqual([
+      expect.objectContaining({ scope: "supplier_identity", supplierId: "sup-no-001" }),
+      expect.objectContaining({ scope: "offer_price", supplierId: "sup-no-001" }),
+    ]);
+    expect(approvedBody.notification).toMatchObject({
+      type: "price_access_approved",
+      status: "unread",
+    });
+
+    const finalRead = await fetchApi("/v1/access/suppliers/sup-no-001/request");
+    const finalBody = (await finalRead.json()) as JsonBody;
+    expect(finalRead.status).toBe(200);
+    expect(finalBody).toMatchObject({
+      accessGranted: true,
+      request: expect.objectContaining({ status: "approved" }),
+    });
+
+    const notifications = await fetchApi("/v1/access/notifications");
+    const notificationsBody = (await notifications.json()) as JsonBody;
+    expect(notifications.status).toBe(200);
+    expect(notificationsBody.notifications).toEqual([
+      expect.objectContaining({
+        supplierId: "sup-no-001",
+        type: "price_access_approved",
+      }),
+    ]);
+  });
+
+  it("validates supplier access session, payload and missing decisions", async () => {
+    const missingSession = await request("/v1/access/suppliers/sup-no-001/request", {
+      headers: { "x-yorso-user-id": "" },
+    });
+    expect(missingSession.status).toBe(401);
+    await expect(missingSession.json()).resolves.toMatchObject({
+      error: { code: "account_session_required" },
+    });
+
+    const invalidDecision = await request("/v1/access/supplier-requests/not-created/decision", {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(invalidDecision.status).toBe(404);
+    await expect(invalidDecision.json()).resolves.toMatchObject({
+      error: { code: "supplier_access_request_not_found" },
+    });
+
+    const invalidPayload = await request("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "x".repeat(1001) }),
+    });
+    expect(invalidPayload.status).toBe(400);
+    await expect(invalidPayload.json()).resolves.toMatchObject({
+      error: { code: "validation_error" },
+    });
+  });
+
   it("requires an explicit account session boundary for account endpoints", async () => {
     const missing = await request("/v1/account/me", {
       headers: { "x-yorso-user-id": "" },

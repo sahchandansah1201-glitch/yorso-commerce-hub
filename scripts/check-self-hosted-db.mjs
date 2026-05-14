@@ -18,6 +18,7 @@ const files = [
   "packages/db/migrations/0004_supplier_directory.sql",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
+  "packages/db/migrations/0007_supplier_access_flow.sql",
 ];
 
 const failures = [];
@@ -34,7 +35,8 @@ const filesSql = read("packages/db/migrations/0003_account_files_and_documents.s
 const supplierSql = read("packages/db/migrations/0004_supplier_directory.sql");
 const supplierScalingSql = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const offerCatalogSql = read("packages/db/migrations/0006_offer_catalog.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}`;
+const supplierAccessSql = read("packages/db/migrations/0007_supplier_access_flow.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -164,6 +166,27 @@ for (const marker of [
   requireText("packages/db/migrations/0006_offer_catalog.sql", offerCatalogSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_supplier_access_requests",
+  "create table if not exists yorso_access_grants",
+  "create table if not exists yorso_access_events",
+  "create table if not exists yorso_access_notifications",
+  "create type yorso_supplier_access_status",
+  "create type yorso_access_grant_scope",
+  "create type yorso_access_event_type",
+  "references yorso_users(id)",
+  "references yorso_suppliers_directory(id)",
+  "references yorso_offers_catalog(id)",
+  "unique (buyer_user_id, supplier_id)",
+  "unique (buyer_user_id, supplier_id, scope, offer_id_key)",
+  "idx_yorso_supplier_access_requests_buyer",
+  "idx_yorso_supplier_access_requests_supplier_status",
+  "idx_yorso_access_grants_buyer_supplier_scope",
+  "idx_yorso_access_notifications_buyer_status_created",
+]) {
+  requireText("packages/db/migrations/0007_supplier_access_flow.sql", supplierAccessSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -191,6 +214,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0005_supplier_di
 if (!manifest.migrations?.some((migration) => migration.id === "0006_offer_catalog")) {
   failures.push("packages/db/migration-manifest.json: missing 0006_offer_catalog");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0007_supplier_access_flow")) {
+  failures.push("packages/db/migration-manifest.json: missing 0007_supplier_access_flow");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -211,6 +237,9 @@ if (!manifest.migrations?.[5]?.dependsOn?.includes("0004_supplier_directory")) {
 }
 if (!manifest.migrations?.[6]?.dependsOn?.includes("0005_supplier_directory_search_scaling")) {
   failures.push("packages/db/migration-manifest.json: offer catalog must depend on supplier directory search scaling");
+}
+if (!manifest.migrations?.[7]?.dependsOn?.includes("0006_offer_catalog")) {
+  failures.push("packages/db/migration-manifest.json: supplier access flow must depend on offer catalog");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
@@ -277,5 +306,5 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted DB check passed.");
-console.log("- packages/db owns the account/company/files/supplier-directory/offer-catalog PostgreSQL baseline and search scaling indexes.");
+console.log("- packages/db owns the account/company/files/supplier-directory/offer-catalog/supplier-access PostgreSQL baseline and scaling indexes.");
 console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");
