@@ -1,10 +1,23 @@
 import {
   accountBranchesSchema,
+  accountWorkspaceItemIdSchema,
   accountMetaRegionsSchema,
   accountNotificationsSchema,
   accountProductsSchema,
+  companyBranchCreateSchema,
+  companyBranchSchema,
+  companyBranchUpdateSchema,
   companyProfileSchema,
   companyProfileUpdateSchema,
+  companyProductCreateSchema,
+  companyProductSchema,
+  companyProductUpdateSchema,
+  metaRegionCreateSchema,
+  metaRegionSchema,
+  metaRegionUpdateSchema,
+  notificationPreferenceCreateSchema,
+  notificationPreferenceSchema,
+  notificationPreferenceUpdateSchema,
   userProfileSchema,
   userProfileUpdateSchema,
 } from "../../../../../packages/contracts/dist/index.js";
@@ -46,6 +59,24 @@ export class AccountService {
     return accountBranchesSchema.parse(await this.repository.replaceBranches(userId, update));
   }
 
+  async createBranch(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const create = companyBranchCreateSchema.parse(payload);
+    return companyBranchSchema.parse(await this.repository.createBranch(userId, id, create));
+  }
+
+  async updateBranch(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const update = companyBranchUpdateSchema.parse(payload);
+    const item = await this.repository.updateBranch(userId, id, update);
+    return companyBranchSchema.parse(item);
+  }
+
+  async deleteBranch(userId: string, itemId: string) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    return companyBranchSchema.parse(await this.repository.deleteBranch(userId, id));
+  }
+
   async getProducts(userId: string) {
     return accountProductsSchema.parse(await this.repository.getProducts(userId));
   }
@@ -53,6 +84,23 @@ export class AccountService {
   async replaceProducts(userId: string, payload: unknown) {
     const update = accountProductsSchema.parse(payload);
     return accountProductsSchema.parse(await this.repository.replaceProducts(userId, update));
+  }
+
+  async createProduct(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const create = companyProductCreateSchema.parse(payload);
+    return companyProductSchema.parse(await this.repository.createProduct(userId, id, create));
+  }
+
+  async updateProduct(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const update = companyProductUpdateSchema.parse(payload);
+    return companyProductSchema.parse(await this.repository.updateProduct(userId, id, update));
+  }
+
+  async deleteProduct(userId: string, itemId: string) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    return companyProductSchema.parse(await this.repository.deleteProduct(userId, id));
   }
 
   async getMetaRegions(userId: string) {
@@ -64,6 +112,23 @@ export class AccountService {
     return accountMetaRegionsSchema.parse(await this.repository.replaceMetaRegions(userId, update));
   }
 
+  async createMetaRegion(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const create = metaRegionCreateSchema.parse(payload);
+    return metaRegionSchema.parse(await this.repository.createMetaRegion(userId, id, create));
+  }
+
+  async updateMetaRegion(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const update = metaRegionUpdateSchema.parse(payload);
+    return metaRegionSchema.parse(await this.repository.updateMetaRegion(userId, id, update));
+  }
+
+  async deleteMetaRegion(userId: string, itemId: string) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    return metaRegionSchema.parse(await this.repository.deleteMetaRegion(userId, id));
+  }
+
   async getNotifications(userId: string) {
     return accountNotificationsSchema.parse(await this.repository.getNotifications(userId));
   }
@@ -71,5 +136,23 @@ export class AccountService {
   async replaceNotifications(userId: string, payload: unknown) {
     const update = accountNotificationsSchema.parse(payload);
     return accountNotificationsSchema.parse(await this.repository.replaceNotifications(userId, update));
+  }
+
+  async createNotification(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const create = notificationPreferenceCreateSchema.parse(payload);
+    return notificationPreferenceSchema.parse(await this.repository.createNotification(userId, id, create));
+  }
+
+  async updateNotification(userId: string, itemId: string, payload: unknown) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    const update = notificationPreferenceUpdateSchema.parse(payload);
+    const current = await this.repository.updateNotification(userId, id, update);
+    return notificationPreferenceSchema.parse(current);
+  }
+
+  async deleteNotification(userId: string, itemId: string) {
+    const id = accountWorkspaceItemIdSchema.parse(itemId);
+    return notificationPreferenceSchema.parse(await this.repository.deleteNotification(userId, id));
   }
 }

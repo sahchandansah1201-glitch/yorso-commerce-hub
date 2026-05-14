@@ -100,6 +100,34 @@ interface BackendNotificationsResponse {
   requestId: string;
 }
 
+interface BackendBranchResponse {
+  ok: true;
+  branch: CompanyBranch;
+  deletedId?: string;
+  requestId: string;
+}
+
+interface BackendProductResponse {
+  ok: true;
+  product: CompanyProduct;
+  deletedId?: string;
+  requestId: string;
+}
+
+interface BackendMetaRegionResponse {
+  ok: true;
+  metaRegion: MetaRegion;
+  deletedId?: string;
+  requestId: string;
+}
+
+interface BackendNotificationResponse {
+  ok: true;
+  notification: NotificationPreference;
+  deletedId?: string;
+  requestId: string;
+}
+
 export interface AccountFileUploadPayload {
   fileName: string;
   contentType: string;
@@ -411,6 +439,15 @@ export const mapFrontendMetaRegionsUpdate = (metaRegions: MetaRegion[]) =>
   }));
 export const mapFrontendNotificationsUpdate = (notifications: NotificationPreference[]) => notifications;
 
+type BranchCreate = Omit<CompanyBranch, "id">;
+type BranchUpdate = Partial<BranchCreate>;
+type ProductCreate = Omit<CompanyProduct, "id">;
+type ProductUpdate = Partial<ProductCreate>;
+type MetaRegionCreate = Omit<MetaRegion, "id">;
+type MetaRegionUpdate = Partial<MetaRegionCreate>;
+type NotificationCreate = Omit<NotificationPreference, "id">;
+type NotificationUpdate = Partial<NotificationCreate>;
+
 interface AccountApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -574,6 +611,93 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
         body: JSON.stringify(payload),
       });
       return response.document;
+    },
+    async createBranch(id: string, payload: BranchCreate): Promise<CompanyBranch> {
+      const response = await request<BackendBranchResponse>(`/v1/account/branches/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      return response.branch;
+    },
+    async updateBranch(id: string, payload: BranchUpdate): Promise<CompanyBranch> {
+      const response = await request<BackendBranchResponse>(`/v1/account/branches/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      return response.branch;
+    },
+    async deleteBranch(id: string): Promise<CompanyBranch> {
+      const response = await request<BackendBranchResponse>(`/v1/account/branches/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      return response.branch;
+    },
+    async createProduct(id: string, payload: ProductCreate): Promise<CompanyProduct> {
+      const response = await request<BackendProductResponse>(`/v1/account/products/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      return response.product;
+    },
+    async updateProduct(id: string, payload: ProductUpdate): Promise<CompanyProduct> {
+      const response = await request<BackendProductResponse>(`/v1/account/products/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      return response.product;
+    },
+    async deleteProduct(id: string): Promise<CompanyProduct> {
+      const response = await request<BackendProductResponse>(`/v1/account/products/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      return response.product;
+    },
+    async createMetaRegion(id: string, payload: MetaRegionCreate): Promise<MetaRegion> {
+      const response = await request<BackendMetaRegionResponse>(`/v1/account/meta-regions/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify({
+          ...payload,
+          defaultCurrency: payload.defaultCurrency.toUpperCase(),
+        }),
+      });
+      return response.metaRegion;
+    },
+    async updateMetaRegion(id: string, payload: MetaRegionUpdate): Promise<MetaRegion> {
+      const response = await request<BackendMetaRegionResponse>(`/v1/account/meta-regions/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify(
+          payload.defaultCurrency
+            ? { ...payload, defaultCurrency: payload.defaultCurrency.toUpperCase() }
+            : payload,
+        ),
+      });
+      return response.metaRegion;
+    },
+    async deleteMetaRegion(id: string): Promise<MetaRegion> {
+      const response = await request<BackendMetaRegionResponse>(`/v1/account/meta-regions/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      return response.metaRegion;
+    },
+    async createNotification(id: string, payload: NotificationCreate): Promise<NotificationPreference> {
+      const response = await request<BackendNotificationResponse>(`/v1/account/notifications/${encodeURIComponent(id)}`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      return response.notification;
+    },
+    async updateNotification(id: string, payload: NotificationUpdate): Promise<NotificationPreference> {
+      const response = await request<BackendNotificationResponse>(`/v1/account/notifications/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      return response.notification;
+    },
+    async deleteNotification(id: string): Promise<NotificationPreference> {
+      const response = await request<BackendNotificationResponse>(`/v1/account/notifications/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      return response.notification;
     },
     fileUrl(assetId: string): string {
       if (!baseUrl) return "";

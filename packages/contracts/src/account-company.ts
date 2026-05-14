@@ -121,6 +121,7 @@ export const userProfileUpdateSchema = userProfileSchema
   });
 
 const workspaceIdSchema = z.string().min(1).max(80);
+export const accountWorkspaceItemIdSchema = workspaceIdSchema;
 const stringListSchema = (maxItems: number) => z.array(z.string().min(1).max(120)).max(maxItems);
 
 export const companyBranchSchema = z.object({
@@ -135,6 +136,10 @@ export const companyBranchSchema = z.object({
   portOrPickupPoint: z.string().max(160),
   notes: z.string().max(600),
 });
+export const companyBranchCreateSchema = companyBranchSchema.omit({ id: true });
+export const companyBranchUpdateSchema = companyBranchCreateSchema.partial().refine((value) => Object.keys(value).length > 0, {
+  message: "At least one branch field must be provided.",
+});
 
 export const companyProductSchema = z.object({
   id: workspaceIdSchema,
@@ -148,6 +153,10 @@ export const companyProductSchema = z.object({
   certificates: stringListSchema(30),
   targetCountries: stringListSchema(60),
 });
+export const companyProductCreateSchema = companyProductSchema.omit({ id: true });
+export const companyProductUpdateSchema = companyProductCreateSchema.partial().refine((value) => Object.keys(value).length > 0, {
+  message: "At least one product field must be provided.",
+});
 
 export const metaRegionSchema = z.object({
   id: workspaceIdSchema,
@@ -158,17 +167,35 @@ export const metaRegionSchema = z.object({
   notes: z.string().max(600),
   usedFor: z.array(metaRegionUsedForSchema).max(10),
 });
+export const metaRegionCreateSchema = metaRegionSchema.omit({ id: true });
+export const metaRegionUpdateSchema = metaRegionCreateSchema.partial().refine((value) => Object.keys(value).length > 0, {
+  message: "At least one meta-region field must be provided.",
+});
 
-export const notificationPreferenceSchema = z.object({
+const notificationPreferenceBaseSchema = z.object({
   id: workspaceIdSchema,
   channel: notificationChannelSchema,
   enabled: z.boolean(),
   events: z.array(notificationEventSchema).max(20),
   frequency: notificationFrequencySchema,
-}).refine((value) => !value.enabled || value.events.length > 0, {
+});
+export const notificationPreferenceSchema = notificationPreferenceBaseSchema.refine((value) => !value.enabled || value.events.length > 0, {
   message: "Enabled notification channels must contain at least one event.",
   path: ["events"],
 });
+export const notificationPreferenceCreateSchema = notificationPreferenceBaseSchema.omit({ id: true }).refine(
+  (value) => !value.enabled || value.events.length > 0,
+  {
+    message: "Enabled notification channels must contain at least one event.",
+    path: ["events"],
+  },
+);
+export const notificationPreferenceUpdateSchema = notificationPreferenceBaseSchema.omit({ id: true }).partial().refine(
+  (value) => Object.keys(value).length > 0,
+  {
+    message: "At least one notification preference field must be provided.",
+  },
+);
 
 export const accountBranchesSchema = z.array(companyBranchSchema).max(100);
 export const accountProductsSchema = z.array(companyProductSchema).max(300);
@@ -242,6 +269,8 @@ export type AccountProductsUpdate = z.infer<typeof accountProductsSchema>;
 export type BranchType = z.infer<typeof branchTypeSchema>;
 export type BuyerQualificationStatus = z.infer<typeof buyerQualificationStatusSchema>;
 export type CompanyBranch = z.infer<typeof companyBranchSchema>;
+export type CompanyBranchCreate = z.infer<typeof companyBranchCreateSchema>;
+export type CompanyBranchUpdate = z.infer<typeof companyBranchUpdateSchema>;
 export type CompanyMedia = z.infer<typeof companyMediaSchema>;
 export type CompanyMediaUpload = z.infer<typeof companyMediaUploadSchema>;
 export type CompanyDocument = z.infer<typeof companyDocumentSchema>;
@@ -250,16 +279,22 @@ export type CompanyDocumentStatus = z.infer<typeof companyDocumentStatusSchema>;
 export type CompanyDocumentType = z.infer<typeof companyDocumentTypeSchema>;
 export type CompanyDocumentVisibility = z.infer<typeof companyDocumentVisibilitySchema>;
 export type CompanyProduct = z.infer<typeof companyProductSchema>;
+export type CompanyProductCreate = z.infer<typeof companyProductCreateSchema>;
+export type CompanyProductUpdate = z.infer<typeof companyProductUpdateSchema>;
 export type CompanyProfile = z.infer<typeof companyProfileSchema>;
 export type CompanyProfileUpdate = z.infer<typeof companyProfileUpdateSchema>;
 export type CompanyPublicationStatus = z.infer<typeof companyPublicationStatusSchema>;
 export type MetaRegion = z.infer<typeof metaRegionSchema>;
+export type MetaRegionCreate = z.infer<typeof metaRegionCreateSchema>;
 export type MetaRegionLogisticsReason = z.infer<typeof metaRegionLogisticsReasonSchema>;
+export type MetaRegionUpdate = z.infer<typeof metaRegionUpdateSchema>;
 export type MetaRegionUsedFor = z.infer<typeof metaRegionUsedForSchema>;
 export type NotificationChannel = z.infer<typeof notificationChannelSchema>;
 export type NotificationEvent = z.infer<typeof notificationEventSchema>;
 export type NotificationFrequency = z.infer<typeof notificationFrequencySchema>;
 export type NotificationPreference = z.infer<typeof notificationPreferenceSchema>;
+export type NotificationPreferenceCreate = z.infer<typeof notificationPreferenceCreateSchema>;
+export type NotificationPreferenceUpdate = z.infer<typeof notificationPreferenceUpdateSchema>;
 export type ProductRole = z.infer<typeof productRoleSchema>;
 export type ProductState = z.infer<typeof productStateSchema>;
 export type UserProfile = z.infer<typeof userProfileSchema>;

@@ -7,8 +7,16 @@ import type {
   AccountNotificationsUpdate,
   AccountProductsUpdate,
   AccountSessionHeaders,
+  CompanyBranchCreate,
+  CompanyBranchUpdate,
   CompanyDocument,
   CompanyDocumentCreate,
+  CompanyProductCreate,
+  CompanyProductUpdate,
+  MetaRegionCreate,
+  MetaRegionUpdate,
+  NotificationPreferenceCreate,
+  NotificationPreferenceUpdate,
   CompanyProfile,
   CompanyProfileUpdate,
   UserProfile,
@@ -24,9 +32,17 @@ type ContractExample = {
   userProfile: Pick<UserProfile, "preferredLanguage" | "timezone">;
   userUpdate: Pick<UserProfileUpdate, "firstName" | "preferredLanguage">;
   branches: AccountBranchesUpdate;
+  branchCreate: CompanyBranchCreate;
+  branchUpdate: CompanyBranchUpdate;
   products: AccountProductsUpdate;
+  productCreate: CompanyProductCreate;
+  productUpdate: CompanyProductUpdate;
   metaRegions: AccountMetaRegionsUpdate;
+  metaRegionCreate: MetaRegionCreate;
+  metaRegionUpdate: MetaRegionUpdate;
   notifications: AccountNotificationsUpdate;
+  notificationCreate: NotificationPreferenceCreate;
+  notificationUpdate: NotificationPreferenceUpdate;
   fileUpload: AccountFileUploadPayload;
   fileAsset: Pick<AccountFileAsset, "purpose" | "objectKey" | "contentType" | "storageDriver">;
   documentCreate: CompanyDocumentCreate;
@@ -74,6 +90,21 @@ const contractExample: ContractExample = {
       notes: "Default collection point for chilled salmon.",
     },
   ],
+  branchCreate: {
+    name: "Main loading point",
+    type: "loading_point",
+    country: "Norway",
+    region: "More og Romsdal",
+    city: "Alesund",
+    addressLine: "Terminal 1",
+    defaultIncoterms: "FCA",
+    portOrPickupPoint: "Alesund cold terminal",
+    notes: "Default collection point for chilled salmon.",
+  },
+  branchUpdate: {
+    defaultIncoterms: "FOB",
+    notes: "Updated commercial basis.",
+  },
   products: [
     {
       id: "p_1",
@@ -88,6 +119,21 @@ const contractExample: ContractExample = {
       targetCountries: ["Spain", "France"],
     },
   ],
+  productCreate: {
+    commercialName: "Atlantic Salmon Fillet",
+    latinName: "Salmo salar",
+    category: "Salmonids",
+    state: "fresh",
+    format: "Trim D",
+    role: "selling",
+    monthlyVolume: "25 t",
+    certificates: ["ASC"],
+    targetCountries: ["Spain", "France"],
+  },
+  productUpdate: {
+    monthlyVolume: "40 t",
+    targetCountries: ["Spain", "France", "Germany"],
+  },
   metaRegions: [
     {
       id: "mr_1",
@@ -99,6 +145,17 @@ const contractExample: ContractExample = {
       usedFor: ["notifications", "supplier_matching"],
     },
   ],
+  metaRegionCreate: {
+    name: "Iberia",
+    countries: ["Spain", "Portugal"],
+    logisticsReason: "same_sales_market",
+    defaultCurrency: "EUR",
+    notes: "Shared retail buyers.",
+    usedFor: ["notifications", "supplier_matching"],
+  },
+  metaRegionUpdate: {
+    usedFor: ["notifications", "landed_cost"],
+  },
   notifications: [
     {
       id: "n_email",
@@ -108,6 +165,15 @@ const contractExample: ContractExample = {
       frequency: "instant",
     },
   ],
+  notificationCreate: {
+    channel: "email",
+    enabled: true,
+    events: ["price_access_approved", "rfq_response"],
+    frequency: "instant",
+  },
+  notificationUpdate: {
+    frequency: "daily",
+  },
   fileUpload: {
     fileName: "haccp.pdf",
     contentType: "application/pdf",
@@ -157,9 +223,17 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
         "UserProfile",
         "UserProfileUpdate",
         "CompanyBranch",
+        "CompanyBranchCreate",
+        "CompanyBranchUpdate",
         "CompanyProduct",
+        "CompanyProductCreate",
+        "CompanyProductUpdate",
         "MetaRegion",
+        "MetaRegionCreate",
+        "MetaRegionUpdate",
         "NotificationPreference",
+        "NotificationPreferenceCreate",
+        "NotificationPreferenceUpdate",
         "AccountFileUploadPayload",
         "AccountFileAsset",
         "CompanyDocument",

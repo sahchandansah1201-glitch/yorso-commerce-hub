@@ -4,10 +4,18 @@ import type {
   AccountNotificationsUpdate,
   AccountProductsUpdate,
   CompanyBranch,
+  CompanyBranchCreate,
+  CompanyBranchUpdate,
   CompanyProfile,
   CompanyProfileUpdate,
   CompanyProduct,
+  CompanyProductCreate,
+  CompanyProductUpdate,
   MetaRegion,
+  MetaRegionCreate,
+  MetaRegionUpdate,
+  NotificationPreferenceCreate,
+  NotificationPreferenceUpdate,
   NotificationPreference,
   UserProfile,
   UserProfileUpdate,
@@ -20,12 +28,24 @@ export interface AccountRepository {
   updateCompanyProfile(userId: string, update: CompanyProfileUpdate): Promise<CompanyProfile>;
   getBranches(userId: string): Promise<CompanyBranch[]>;
   replaceBranches(userId: string, branches: AccountBranchesUpdate): Promise<CompanyBranch[]>;
+  createBranch(userId: string, itemId: string, branch: CompanyBranchCreate): Promise<CompanyBranch>;
+  updateBranch(userId: string, itemId: string, update: CompanyBranchUpdate): Promise<CompanyBranch>;
+  deleteBranch(userId: string, itemId: string): Promise<CompanyBranch>;
   getProducts(userId: string): Promise<CompanyProduct[]>;
   replaceProducts(userId: string, products: AccountProductsUpdate): Promise<CompanyProduct[]>;
+  createProduct(userId: string, itemId: string, product: CompanyProductCreate): Promise<CompanyProduct>;
+  updateProduct(userId: string, itemId: string, update: CompanyProductUpdate): Promise<CompanyProduct>;
+  deleteProduct(userId: string, itemId: string): Promise<CompanyProduct>;
   getMetaRegions(userId: string): Promise<MetaRegion[]>;
   replaceMetaRegions(userId: string, metaRegions: AccountMetaRegionsUpdate): Promise<MetaRegion[]>;
+  createMetaRegion(userId: string, itemId: string, metaRegion: MetaRegionCreate): Promise<MetaRegion>;
+  updateMetaRegion(userId: string, itemId: string, update: MetaRegionUpdate): Promise<MetaRegion>;
+  deleteMetaRegion(userId: string, itemId: string): Promise<MetaRegion>;
   getNotifications(userId: string): Promise<NotificationPreference[]>;
   replaceNotifications(userId: string, notifications: AccountNotificationsUpdate): Promise<NotificationPreference[]>;
+  createNotification(userId: string, itemId: string, notification: NotificationPreferenceCreate): Promise<NotificationPreference>;
+  updateNotification(userId: string, itemId: string, update: NotificationPreferenceUpdate): Promise<NotificationPreference>;
+  deleteNotification(userId: string, itemId: string): Promise<NotificationPreference>;
 }
 
 const demoUserId = "00000000-0000-4000-8000-000000000001";
@@ -162,6 +182,36 @@ const demoNotifications: NotificationPreference[] = [
 
 const cloneList = <T>(items: readonly T[]): T[] => items.map((item) => ({ ...item }));
 
+function createWorkspaceItem<T extends { id: string }, C extends Omit<T, "id">>(
+  items: T[],
+  itemId: string,
+  create: C,
+): T {
+  if (items.some((item) => item.id === itemId)) throw new Error("workspace_item_conflict");
+  const item = { id: itemId, ...create } as unknown as T;
+  items.push(item);
+  return { ...item };
+}
+
+function updateWorkspaceItem<T extends { id: string }, U extends Partial<Omit<T, "id">>>(
+  items: T[],
+  itemId: string,
+  update: U,
+): T {
+  const index = items.findIndex((item) => item.id === itemId);
+  if (index === -1) throw new Error("workspace_item_not_found");
+  const item = { ...items[index], ...update };
+  items[index] = item;
+  return { ...item };
+}
+
+function deleteWorkspaceItem<T extends { id: string }>(items: T[], itemId: string): T {
+  const index = items.findIndex((item) => item.id === itemId);
+  if (index === -1) throw new Error("workspace_item_not_found");
+  const [item] = items.splice(index, 1);
+  return { ...item };
+}
+
 export class MemoryAccountRepository implements AccountRepository {
   private readonly users = new Map<string, UserProfile>();
   private readonly companies = new Map<string, CompanyProfile>();
@@ -226,6 +276,27 @@ export class MemoryAccountRepository implements AccountRepository {
     return this.getBranches(userId);
   }
 
+  async createBranch(userId: string, itemId: string, branch: CompanyBranchCreate) {
+    const items = this.branches.get(userId) ?? [];
+    const created = createWorkspaceItem(items, itemId, branch);
+    this.branches.set(userId, items);
+    return created;
+  }
+
+  async updateBranch(userId: string, itemId: string, update: CompanyBranchUpdate) {
+    const items = this.branches.get(userId) ?? [];
+    const updated = updateWorkspaceItem(items, itemId, update);
+    this.branches.set(userId, items);
+    return updated;
+  }
+
+  async deleteBranch(userId: string, itemId: string) {
+    const items = this.branches.get(userId) ?? [];
+    const deleted = deleteWorkspaceItem(items, itemId);
+    this.branches.set(userId, items);
+    return deleted;
+  }
+
   async getProducts(userId: string) {
     return cloneList(this.products.get(userId) ?? []);
   }
@@ -233,6 +304,27 @@ export class MemoryAccountRepository implements AccountRepository {
   async replaceProducts(userId: string, products: AccountProductsUpdate) {
     this.products.set(userId, cloneList(products));
     return this.getProducts(userId);
+  }
+
+  async createProduct(userId: string, itemId: string, product: CompanyProductCreate) {
+    const items = this.products.get(userId) ?? [];
+    const created = createWorkspaceItem(items, itemId, product);
+    this.products.set(userId, items);
+    return created;
+  }
+
+  async updateProduct(userId: string, itemId: string, update: CompanyProductUpdate) {
+    const items = this.products.get(userId) ?? [];
+    const updated = updateWorkspaceItem(items, itemId, update);
+    this.products.set(userId, items);
+    return updated;
+  }
+
+  async deleteProduct(userId: string, itemId: string) {
+    const items = this.products.get(userId) ?? [];
+    const deleted = deleteWorkspaceItem(items, itemId);
+    this.products.set(userId, items);
+    return deleted;
   }
 
   async getMetaRegions(userId: string) {
@@ -244,6 +336,27 @@ export class MemoryAccountRepository implements AccountRepository {
     return this.getMetaRegions(userId);
   }
 
+  async createMetaRegion(userId: string, itemId: string, metaRegion: MetaRegionCreate) {
+    const items = this.metaRegions.get(userId) ?? [];
+    const created = createWorkspaceItem(items, itemId, metaRegion);
+    this.metaRegions.set(userId, items);
+    return created;
+  }
+
+  async updateMetaRegion(userId: string, itemId: string, update: MetaRegionUpdate) {
+    const items = this.metaRegions.get(userId) ?? [];
+    const updated = updateWorkspaceItem(items, itemId, update);
+    this.metaRegions.set(userId, items);
+    return updated;
+  }
+
+  async deleteMetaRegion(userId: string, itemId: string) {
+    const items = this.metaRegions.get(userId) ?? [];
+    const deleted = deleteWorkspaceItem(items, itemId);
+    this.metaRegions.set(userId, items);
+    return deleted;
+  }
+
   async getNotifications(userId: string) {
     return cloneList(this.notifications.get(userId) ?? []);
   }
@@ -251,6 +364,27 @@ export class MemoryAccountRepository implements AccountRepository {
   async replaceNotifications(userId: string, notifications: AccountNotificationsUpdate) {
     this.notifications.set(userId, cloneList(notifications));
     return this.getNotifications(userId);
+  }
+
+  async createNotification(userId: string, itemId: string, notification: NotificationPreferenceCreate) {
+    const items = this.notifications.get(userId) ?? [];
+    const created = createWorkspaceItem(items, itemId, notification);
+    this.notifications.set(userId, items);
+    return created;
+  }
+
+  async updateNotification(userId: string, itemId: string, update: NotificationPreferenceUpdate) {
+    const items = this.notifications.get(userId) ?? [];
+    const updated = updateWorkspaceItem(items, itemId, update);
+    this.notifications.set(userId, items);
+    return updated;
+  }
+
+  async deleteNotification(userId: string, itemId: string) {
+    const items = this.notifications.get(userId) ?? [];
+    const deleted = deleteWorkspaceItem(items, itemId);
+    this.notifications.set(userId, items);
+    return deleted;
   }
 }
 

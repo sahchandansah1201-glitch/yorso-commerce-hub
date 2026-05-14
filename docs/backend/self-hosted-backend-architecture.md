@@ -179,6 +179,14 @@ PostgreSQL, remain scoped to the current account owner, and reject invalid
 enabled notification channels. The command skips successfully without
 `MIGRATION_DATABASE_URL`, so local preview and GitHub CI stay portable.
 
+Batch #33 adds row-level account workspace CRUD on top of the replace-all
+collection endpoints. Branches, products, meta-regions and notification
+preferences now have owner-scoped `GET`, `POST`, `PATCH` and `DELETE` item
+routes under `/v1/account/*/:id`. This lets future frontend sections persist
+one edited row at a time while the existing account workspace can continue using
+full-section replacement until the UI is refactored. The row contract is
+validated in shared DTOs, memory runtime smoke and optional PostgreSQL smoke.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.

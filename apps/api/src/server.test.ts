@@ -117,9 +117,17 @@ describe("YORSO self-hosted API skeleton", () => {
         "UserProfile",
         "UserProfileUpdate",
         "CompanyBranch",
+        "CompanyBranchCreate",
+        "CompanyBranchUpdate",
         "CompanyProduct",
+        "CompanyProductCreate",
+        "CompanyProductUpdate",
         "MetaRegion",
+        "MetaRegionCreate",
+        "MetaRegionUpdate",
         "NotificationPreference",
+        "NotificationPreferenceCreate",
+        "NotificationPreferenceUpdate",
         "AccountFileUploadPayload",
         "AccountFileAsset",
         "CompanyDocument",
@@ -385,6 +393,122 @@ describe("YORSO self-hosted API skeleton", () => {
         frequency: "daily",
       }),
     ]);
+  });
+
+  it("supports owner-scoped row-level CRUD for account workspace sections", async () => {
+    const fetchApi = await startTestServer();
+
+    const branchCreate = await fetchApi("/v1/account/branches/br_row", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Row Branch",
+        type: "loading_point",
+        country: "Norway",
+        region: "More og Romsdal",
+        city: "Alesund",
+        addressLine: "Terminal 33",
+        defaultIncoterms: "FOB",
+        portOrPickupPoint: "Alesund",
+        notes: "Created through row-level endpoint.",
+      }),
+    });
+    const branchCreateBody = (await branchCreate.json()) as JsonBody;
+    expect(branchCreate.status).toBe(201);
+    expect(branchCreateBody.branch).toMatchObject({ id: "br_row", city: "Alesund" });
+
+    const branchConflict = await fetchApi("/v1/account/branches/br_row", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Row Branch Duplicate",
+        type: "loading_point",
+        country: "Norway",
+        region: "",
+        city: "Alesund",
+        addressLine: "",
+        defaultIncoterms: "FOB",
+        portOrPickupPoint: "",
+        notes: "",
+      }),
+    });
+    expect(branchConflict.status).toBe(409);
+    await expect(branchConflict.json()).resolves.toMatchObject({
+      error: { code: "workspace_item_conflict" },
+    });
+
+    const branchPatch = await fetchApi("/v1/account/branches/br_row", {
+      method: "PATCH",
+      body: JSON.stringify({ city: "Bergen", notes: "Updated row." }),
+    });
+    const branchPatchBody = (await branchPatch.json()) as JsonBody;
+    expect(branchPatch.status).toBe(200);
+    expect(branchPatchBody.branch).toMatchObject({ id: "br_row", city: "Bergen", notes: "Updated row." });
+
+    const productCreate = await fetchApi("/v1/account/products/p_row", {
+      method: "POST",
+      body: JSON.stringify({
+        commercialName: "Row Salmon",
+        latinName: "Salmo salar",
+        category: "Salmon",
+        state: "fresh",
+        format: "HOG 4-6 kg",
+        role: "selling",
+        monthlyVolume: "33 t",
+        certificates: ["ASC"],
+        targetCountries: ["France"],
+      }),
+    });
+    expect(productCreate.status).toBe(201);
+    const productPatch = await fetchApi("/v1/account/products/p_row", {
+      method: "PATCH",
+      body: JSON.stringify({ monthlyVolume: "44 t", targetCountries: ["France", "Germany"] }),
+    });
+    const productPatchBody = (await productPatch.json()) as JsonBody;
+    expect(productPatch.status).toBe(200);
+    expect(productPatchBody.product).toMatchObject({ id: "p_row", monthlyVolume: "44 t" });
+
+    const metaRegionCreate = await fetchApi("/v1/account/meta-regions/mr_row", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Row Baltic",
+        countries: ["Germany", "Poland"],
+        logisticsReason: "same_warehouse_route",
+        defaultCurrency: "EUR",
+        notes: "Row-level meta-region.",
+        usedFor: ["notifications", "landed_cost"],
+      }),
+    });
+    expect(metaRegionCreate.status).toBe(201);
+    const metaRegionDelete = await fetchApi("/v1/account/meta-regions/mr_row", { method: "DELETE" });
+    const metaRegionDeleteBody = (await metaRegionDelete.json()) as JsonBody;
+    expect(metaRegionDelete.status).toBe(200);
+    expect(metaRegionDeleteBody).toMatchObject({ deletedId: "mr_row" });
+
+    const notificationCreate = await fetchApi("/v1/account/notifications/n_row", {
+      method: "POST",
+      body: JSON.stringify({
+        channel: "email",
+        enabled: true,
+        events: ["price_access_approved"],
+        frequency: "daily",
+      }),
+    });
+    expect(notificationCreate.status).toBe(201);
+    const notificationInvalidPatch = await fetchApi("/v1/account/notifications/n_row", {
+      method: "PATCH",
+      body: JSON.stringify({ events: [] }),
+    });
+    expect(notificationInvalidPatch.status).toBe(400);
+    await expect(notificationInvalidPatch.json()).resolves.toMatchObject({
+      error: { code: "validation_error" },
+    });
+
+    const branchDelete = await fetchApi("/v1/account/branches/br_row", { method: "DELETE" });
+    expect(branchDelete.status).toBe(200);
+    const branchMissing = await fetchApi("/v1/account/branches/br_row");
+    expect(branchMissing.status).toBe(404);
+    await expect(branchMissing.json()).resolves.toMatchObject({
+      error: { code: "workspace_item_not_found" },
+    });
   });
 
   it("uploads company logo media through the self-hosted file route and updates company media", async () => {

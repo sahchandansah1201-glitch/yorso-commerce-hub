@@ -1,7 +1,7 @@
 # Self-Hosted Workspace PostgreSQL Smoke
 
 Status: optional live runtime smoke  
-Batch: #32  
+Batch: #33
 Date: 2026-05-14
 
 This smoke verifies that the account workspace sections work through the self-hosted API with the real PostgreSQL repository.
@@ -49,10 +49,12 @@ The script:
 4. Starts the compiled API with `ACCOUNT_REPOSITORY=postgres`.
 5. Uses HTTP requests with explicit `x-yorso-user-id` and `x-yorso-session-id`.
 6. Replaces and reads branches, products, meta-regions, and notifications.
-7. Confirms validation rejects enabled notification channels with zero events.
-8. Confirms PostgreSQL row counts match API writes.
-9. Confirms another user cannot read the primary user's workspace rows.
-10. Confirms empty replacement deletes branch rows.
+7. Creates, updates and deletes individual workspace rows through
+   `/v1/account/*/:id`.
+8. Confirms validation rejects enabled notification channels with zero events.
+9. Confirms PostgreSQL row counts match API writes.
+10. Confirms another user cannot read the primary user's workspace rows.
+11. Confirms empty replacement deletes branch rows.
 
 Expected success output:
 
@@ -62,9 +64,14 @@ workspace_seed=ok
 health_live=ok
 branches_replace=ok
 branches_read=ok
+branch_row_create=ok
+branch_row_patch=ok
 products_replace=ok
+product_row_patch=ok
 meta_regions_replace=ok
+meta_region_row_delete=ok
 notifications_replace=ok
+notification_row_create=ok
 notifications_validation_guard=ok
 workspace_db_counts=ok
 workspace_owner_isolation=ok
@@ -84,6 +91,11 @@ Covered endpoints:
 - `GET /v1/account/meta-regions`
 - `PATCH /v1/account/notifications`
 - `GET /v1/account/notifications`
+- `POST /v1/account/branches/:id`
+- `PATCH /v1/account/branches/:id`
+- `PATCH /v1/account/products/:id`
+- `DELETE /v1/account/meta-regions/:id`
+- `POST /v1/account/notifications/:id`
 
 Covered tables:
 

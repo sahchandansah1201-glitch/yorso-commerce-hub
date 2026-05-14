@@ -9,18 +9,26 @@ import type {
   BranchType,
   BuyerQualificationStatus,
   CompanyBranch,
+  CompanyBranchCreate,
+  CompanyBranchUpdate,
   CompanyMedia,
   CompanyProduct,
+  CompanyProductCreate,
+  CompanyProductUpdate,
   CompanyProfile,
   CompanyProfileUpdate,
   CompanyPublicationStatus,
   MetaRegion,
+  MetaRegionCreate,
   MetaRegionLogisticsReason,
+  MetaRegionUpdate,
   MetaRegionUsedFor,
   NotificationChannel,
   NotificationEvent,
   NotificationFrequency,
   NotificationPreference,
+  NotificationPreferenceCreate,
+  NotificationPreferenceUpdate,
   ProductRole,
   ProductState,
   UserProfile,
@@ -286,6 +294,31 @@ const mediaColumns: Record<keyof CompanyMedia, string> = {
   coverFocalY: "cover_focal_y",
 };
 
+function createWorkspaceItem<T extends { id: string }, C extends Omit<T, "id">>(
+  items: T[],
+  itemId: string,
+  create: C,
+): T {
+  if (items.some((item) => item.id === itemId)) throw new Error("workspace_item_conflict");
+  return { id: itemId, ...create } as unknown as T;
+}
+
+function updateWorkspaceItem<T extends { id: string }, U extends Partial<Omit<T, "id">>>(
+  items: T[],
+  itemId: string,
+  update: U,
+): T {
+  const current = items.find((item) => item.id === itemId);
+  if (!current) throw new Error("workspace_item_not_found");
+  return { ...current, ...update };
+}
+
+function deleteWorkspaceItem<T extends { id: string }>(items: T[], itemId: string): T {
+  const current = items.find((item) => item.id === itemId);
+  if (!current) throw new Error("workspace_item_not_found");
+  return current;
+}
+
 export class PostgresAccountRepository implements AccountRepository {
   private readonly client: AccountQueryClient;
   private readonly ownsClient: boolean;
@@ -423,6 +456,27 @@ export class PostgresAccountRepository implements AccountRepository {
     return this.getBranches(userId);
   }
 
+  async createBranch(userId: string, itemId: string, branch: CompanyBranchCreate): Promise<CompanyBranch> {
+    const items = await this.getBranches(userId);
+    const created = createWorkspaceItem(items, itemId, branch);
+    await this.replaceBranches(userId, [...items, created]);
+    return created;
+  }
+
+  async updateBranch(userId: string, itemId: string, update: CompanyBranchUpdate): Promise<CompanyBranch> {
+    const items = await this.getBranches(userId);
+    const updated = updateWorkspaceItem(items, itemId, update);
+    await this.replaceBranches(userId, items.map((item) => (item.id === itemId ? updated : item)));
+    return updated;
+  }
+
+  async deleteBranch(userId: string, itemId: string): Promise<CompanyBranch> {
+    const items = await this.getBranches(userId);
+    const deleted = deleteWorkspaceItem(items, itemId);
+    await this.replaceBranches(userId, items.filter((item) => item.id !== itemId));
+    return deleted;
+  }
+
   async getProducts(userId: string): Promise<CompanyProduct[]> {
     const result = await this.client.query<ProductRow>(
       `
@@ -471,6 +525,27 @@ export class PostgresAccountRepository implements AccountRepository {
     return this.getProducts(userId);
   }
 
+  async createProduct(userId: string, itemId: string, product: CompanyProductCreate): Promise<CompanyProduct> {
+    const items = await this.getProducts(userId);
+    const created = createWorkspaceItem(items, itemId, product);
+    await this.replaceProducts(userId, [...items, created]);
+    return created;
+  }
+
+  async updateProduct(userId: string, itemId: string, update: CompanyProductUpdate): Promise<CompanyProduct> {
+    const items = await this.getProducts(userId);
+    const updated = updateWorkspaceItem(items, itemId, update);
+    await this.replaceProducts(userId, items.map((item) => (item.id === itemId ? updated : item)));
+    return updated;
+  }
+
+  async deleteProduct(userId: string, itemId: string): Promise<CompanyProduct> {
+    const items = await this.getProducts(userId);
+    const deleted = deleteWorkspaceItem(items, itemId);
+    await this.replaceProducts(userId, items.filter((item) => item.id !== itemId));
+    return deleted;
+  }
+
   async getMetaRegions(userId: string): Promise<MetaRegion[]> {
     const result = await this.client.query<MetaRegionRow>(
       `
@@ -515,6 +590,27 @@ export class PostgresAccountRepository implements AccountRepository {
     return this.getMetaRegions(userId);
   }
 
+  async createMetaRegion(userId: string, itemId: string, metaRegion: MetaRegionCreate): Promise<MetaRegion> {
+    const items = await this.getMetaRegions(userId);
+    const created = createWorkspaceItem(items, itemId, metaRegion);
+    await this.replaceMetaRegions(userId, [...items, created]);
+    return created;
+  }
+
+  async updateMetaRegion(userId: string, itemId: string, update: MetaRegionUpdate): Promise<MetaRegion> {
+    const items = await this.getMetaRegions(userId);
+    const updated = updateWorkspaceItem(items, itemId, update);
+    await this.replaceMetaRegions(userId, items.map((item) => (item.id === itemId ? updated : item)));
+    return updated;
+  }
+
+  async deleteMetaRegion(userId: string, itemId: string): Promise<MetaRegion> {
+    const items = await this.getMetaRegions(userId);
+    const deleted = deleteWorkspaceItem(items, itemId);
+    await this.replaceMetaRegions(userId, items.filter((item) => item.id !== itemId));
+    return deleted;
+  }
+
   async getNotifications(userId: string): Promise<NotificationPreference[]> {
     const result = await this.client.query<NotificationRow>(
       `
@@ -552,6 +648,35 @@ export class PostgresAccountRepository implements AccountRepository {
     }
 
     return this.getNotifications(userId);
+  }
+
+  async createNotification(
+    userId: string,
+    itemId: string,
+    notification: NotificationPreferenceCreate,
+  ): Promise<NotificationPreference> {
+    const items = await this.getNotifications(userId);
+    const created = createWorkspaceItem(items, itemId, notification);
+    await this.replaceNotifications(userId, [...items, created]);
+    return created;
+  }
+
+  async updateNotification(
+    userId: string,
+    itemId: string,
+    update: NotificationPreferenceUpdate,
+  ): Promise<NotificationPreference> {
+    const items = await this.getNotifications(userId);
+    const updated = updateWorkspaceItem(items, itemId, update);
+    await this.replaceNotifications(userId, items.map((item) => (item.id === itemId ? updated : item)));
+    return updated;
+  }
+
+  async deleteNotification(userId: string, itemId: string): Promise<NotificationPreference> {
+    const items = await this.getNotifications(userId);
+    const deleted = deleteWorkspaceItem(items, itemId);
+    await this.replaceNotifications(userId, items.filter((item) => item.id !== itemId));
+    return deleted;
   }
 
   private async getCompanyIdForUser(userId: string): Promise<string> {
