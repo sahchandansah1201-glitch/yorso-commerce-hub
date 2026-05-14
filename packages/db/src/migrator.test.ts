@@ -17,6 +17,7 @@ describe("self-hosted DB migration planner", () => {
       "0003_account_files_and_documents",
       "0004_supplier_directory",
       "0005_supplier_directory_search_scaling",
+      "0006_offer_catalog",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -25,6 +26,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0003_account_files_and_documents.sql",
       "migrations/0004_supplier_directory.sql",
       "migrations/0005_supplier_directory_search_scaling.sql",
+      "migrations/0006_offer_catalog.sql",
     ]);
   });
 
@@ -45,6 +47,7 @@ describe("self-hosted DB migration planner", () => {
     const filesAndDocuments = plan.migrations[3];
     const supplierDirectory = plan.migrations[4];
     const supplierDirectorySearchScaling = plan.migrations[5];
+    const offerCatalog = plan.migrations[6];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -57,6 +60,8 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierDirectory.sql).toContain("create table if not exists yorso_suppliers_directory");
     expect(supplierDirectorySearchScaling.dependsOn).toEqual(["0004_supplier_directory"]);
     expect(supplierDirectorySearchScaling.sql).toContain("idx_yorso_suppliers_directory_certifications_search");
+    expect(offerCatalog.dependsOn).toEqual(["0005_supplier_directory_search_scaling"]);
+    expect(offerCatalog.sql).toContain("create table if not exists yorso_offers_catalog");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

@@ -1,7 +1,7 @@
 # Self-Hosted Backend Validation
 
 Status: active guard
-Batch: #36
+Batch: #37
 Date: 2026-05-14
 
 This repository is moving toward one deployable YORSO product:
@@ -41,6 +41,7 @@ npm run test:db-migrations
 npm run test:backend-contract
 npm run test:account-workspace
 npm run test:supplier-directory-frontend
+npm run test:offer-catalog-frontend
 npm run ci:core
 ```
 
@@ -51,9 +52,9 @@ npm run ci:core
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
-| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API or Supabase production boundary is broken. |
-| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory tables, supplier-directory search scaling indexes or drifts toward Supabase-owned schema. |
-| `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier-directory trigram search indexes, bounded frontend supplier API calls or CI hook are removed. |
+| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API or Supabase production boundary is broken. |
+| `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory/offer-catalog tables, marketplace search scaling indexes or drifts toward Supabase-owned schema. |
+| `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier/offer catalog trigram search indexes, bounded frontend API calls or CI hook are removed. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
 | `db:migrations:status` | Prints the static local migration status without requiring PostgreSQL. |
 | `db:migrations:apply:dry-run` | Prints a safe local apply preview without requiring PostgreSQL. |
@@ -63,11 +64,12 @@ npm run ci:core
 | `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
-| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership and supplier directory locked/unlocked access shaping over real HTTP. |
+| `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership, supplier directory access shaping and offer catalog access shaping over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers` and supplier profile tests for self-hosted API mode, debounce, access shaping and local fallback. |
+| `test:offer-catalog-frontend` | Runs the offer catalog frontend adapter tests for self-hosted API mode, access shaping and local fallback. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |
@@ -104,6 +106,9 @@ source of truth. It checks:
 - `yorso_suppliers_directory`;
 - supplier-directory trigram search indexes and verification-level filter index
   used by the 10,000 concurrent-user read path;
+- `yorso_offers_catalog`;
+- offer-catalog trigram search indexes and bounded filter indexes used by the
+  10,000 concurrent-user read path;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace and supplier directory reads;
 - migration manifest ownership;
@@ -123,8 +128,10 @@ contract. It checks:
   PostgreSQL connections are not acceptable architecture;
 - supplier-directory trigram search indexes and verification-level index remain
   in migration `0005_supplier_directory_search_scaling.sql`;
-- `/suppliers` frontend API mode keeps debounced, paginated requests instead of
-  unbounded list reads;
+- offer-catalog trigram search indexes and filter indexes remain in migration
+  `0006_offer_catalog`;
+- `/suppliers` and `/offers` frontend API mode keeps paginated requests instead
+  of unbounded list reads;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not
@@ -194,6 +201,12 @@ It verifies:
   return private identity, contacts and exact breadth fields as `null`.
 - `qualified_unlocked` supplier directory responses return the full allowed
   identity and contact fields through the same DTO contract.
+- `GET /v1/offers` and `GET /v1/offers/:id` expose offer discovery through an
+  access-shaped API response, not through frontend-only mocks.
+- Locked offer catalog responses preserve product, origin, MOQ and commercial
+  terms but return exact price and supplier identity fields as `null`.
+- `qualified_unlocked` offer catalog responses return exact prices and supplier
+  identity through the same DTO contract.
 
 ## Frontend Account API Bridge
 

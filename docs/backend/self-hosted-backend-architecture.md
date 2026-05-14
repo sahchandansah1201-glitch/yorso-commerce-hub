@@ -1,7 +1,7 @@
 # YORSO Self-Hosted Backend Architecture
 
 Status: production direction
-Batch: #36
+Batch: #37
 Date: 2026-05-14
 
 ## Decision
@@ -217,6 +217,16 @@ Batch #36 promotes the 10,000 concurrent-user target from feature-level notes
 to a repository-level release gate. `check:production-scale-baseline` now
 guards the capacity baseline document, supplier-directory scaling migration,
 bounded supplier frontend API calls and CI integration.
+
+Batch #37 adds the first self-hosted offer catalog path. It defines offer
+catalog DTOs, a `/v1/offers` list endpoint, a `/v1/offers/:id` detail endpoint,
+memory/PostgreSQL repositories, migration `0006_offer_catalog`, and a frontend
+adapter that takes priority when `VITE_YORSO_API_URL` is configured. Locked
+offer responses may show public product, origin, MOQ and commercial terms, but
+must return supplier identity and exact price fields as `null`; only
+`qualified_unlocked` responses may include exact prices and supplier identity.
+The offer catalog migration keeps search/filter paths paginated and
+index-backed for the 10,000 concurrent-user target.
 
 ## Access Control Rule
 

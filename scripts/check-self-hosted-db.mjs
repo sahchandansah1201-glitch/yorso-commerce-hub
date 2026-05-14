@@ -17,6 +17,7 @@ const files = [
   "packages/db/migrations/0003_account_files_and_documents.sql",
   "packages/db/migrations/0004_supplier_directory.sql",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
+  "packages/db/migrations/0006_offer_catalog.sql",
 ];
 
 const failures = [];
@@ -32,7 +33,8 @@ const workspaceSql = read("packages/db/migrations/0002_account_workspace_section
 const filesSql = read("packages/db/migrations/0003_account_files_and_documents.sql");
 const supplierSql = read("packages/db/migrations/0004_supplier_directory.sql");
 const supplierScalingSql = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}`;
+const offerCatalogSql = read("packages/db/migrations/0006_offer_catalog.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -141,6 +143,27 @@ for (const marker of [
   requireText("packages/db/migrations/0005_supplier_directory_search_scaling.sql", supplierScalingSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_offers_catalog",
+  "create type yorso_offer_format",
+  "create type yorso_offer_stock_status",
+  "create type yorso_offer_publication_status",
+  "supplier_directory_id text references yorso_suppliers_directory(id)",
+  "price_min numeric",
+  "price_max numeric",
+  "supplier jsonb not null",
+  "public_search_text text generated always",
+  "private_search_text text generated always",
+  "idx_yorso_offers_catalog_public_search_text",
+  "idx_yorso_offers_catalog_private_search_text",
+  "idx_yorso_offers_catalog_certifications_search",
+  "idx_yorso_offers_catalog_supplier_directory_id",
+  "gin_trgm_ops",
+  "Self-hosted offer catalog",
+]) {
+  requireText("packages/db/migrations/0006_offer_catalog.sql", offerCatalogSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -165,6 +188,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0004_supplier_di
 if (!manifest.migrations?.some((migration) => migration.id === "0005_supplier_directory_search_scaling")) {
   failures.push("packages/db/migration-manifest.json: missing 0005_supplier_directory_search_scaling");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0006_offer_catalog")) {
+  failures.push("packages/db/migration-manifest.json: missing 0006_offer_catalog");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -182,6 +208,9 @@ if (!manifest.migrations?.[4]?.dependsOn?.includes("0003_account_files_and_docum
 }
 if (!manifest.migrations?.[5]?.dependsOn?.includes("0004_supplier_directory")) {
   failures.push("packages/db/migration-manifest.json: supplier directory search scaling must depend on supplier directory");
+}
+if (!manifest.migrations?.[6]?.dependsOn?.includes("0005_supplier_directory_search_scaling")) {
+  failures.push("packages/db/migration-manifest.json: offer catalog must depend on supplier directory search scaling");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
@@ -248,5 +277,5 @@ if (failures.length > 0) {
 }
 
 console.log("Self-hosted DB check passed.");
-console.log("- packages/db owns the account/company/files/supplier-directory PostgreSQL baseline and search scaling indexes.");
+console.log("- packages/db owns the account/company/files/supplier-directory/offer-catalog PostgreSQL baseline and search scaling indexes.");
 console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");

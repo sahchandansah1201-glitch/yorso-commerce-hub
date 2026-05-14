@@ -95,6 +95,30 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
   console.log("supplier_directory_unlocked=ok");
 
+  const offersLocked = await jsonRequest(baseUrl, "/v1/offers?q=salmon&accessLevel=anonymous_locked");
+  assertEqual(offersLocked.ok, true, "offer list ok");
+  assertEqual(offersLocked.offers?.[0]?.supplier?.name, null, "locked offer supplier hidden");
+  assertEqual(offersLocked.offers?.[0]?.priceMin, null, "locked offer exact min price hidden");
+  assertEqual(offersLocked.offers?.[0]?.currency, null, "locked offer currency hidden");
+  console.log("offer_catalog_locked=ok");
+
+  const offerPrivateSearch = await jsonRequest(baseUrl, "/v1/offers?q=Nordfjord&accessLevel=anonymous_locked");
+  assertEqual(offerPrivateSearch.total, 0, "locked offer search must not match private supplier identity");
+  console.log("offer_catalog_private_search_guard=ok");
+
+  const offerFiltered = await jsonRequest(
+    baseUrl,
+    "/v1/offers?category=Shrimp&originCode=EC&supplierCountryCode=EC&format=Frozen&certification=BAP&accessLevel=anonymous_locked",
+  );
+  assertEqual(offerFiltered.total, 1, "offer catalog filtered total");
+  assertEqual(offerFiltered.offers?.[0]?.id, "2", "offer catalog filtered id");
+  console.log("offer_catalog_filters=ok");
+
+  const offerUnlocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
+  assertEqual(offerUnlocked.offer?.supplier?.name, "Nordfjord Sjømat AS", "unlocked offer supplier identity");
+  assertEqual(offerUnlocked.offer?.priceMin, 8.5, "unlocked offer exact price");
+  console.log("offer_catalog_unlocked=ok");
+
   const missingSession = await fetch(`${baseUrl}/v1/account/company`);
   assertStatus(missingSession, 401, "missing account session");
   const missingSessionBody = await missingSession.json();

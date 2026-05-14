@@ -128,6 +128,37 @@ describe("self-hosted API policy", () => {
     expect(smoke).toContain("supplier_directory_unlocked=ok");
   });
 
+  it("keeps offer catalog API behind self-hosted contracts and access shaping", () => {
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const routes = readFileSync("apps/api/src/modules/offers/routes.ts", "utf8");
+    const service = readFileSync("apps/api/src/modules/offers/service.ts", "utf8");
+    const repository = readFileSync("apps/api/src/modules/offers/repository.ts", "utf8");
+    const postgresRepository = readFileSync("apps/api/src/modules/offers/postgres-repository.ts", "utf8");
+    const contracts = readFileSync("packages/contracts/src/offer-catalog.ts", "utf8");
+    const adapter = readFileSync("src/lib/offer-catalog-api.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-account-api.mjs", "utf8");
+
+    expect(server).toContain("handleOfferCatalogRoute");
+    expect(server).toContain("createOfferCatalogRepository(config)");
+    expect(routes).toContain("/v1/offers");
+    expect(routes).toContain("/v1/offers/");
+    expect(routes).toContain("offer_not_found");
+    expect(service).toContain("shapeOfferForAccess");
+    expect(service).toContain("qualified_unlocked");
+    expect(repository).toContain("MemoryOfferCatalogRepository");
+    expect(postgresRepository).toContain("from yorso_offers_catalog");
+    expect(postgresRepository).toContain("publication_status = 'published'");
+    expect(contracts).toContain("offerCatalogRecordSchema");
+    expect(contracts).toContain("offerCatalogItemSchema");
+    expect(contracts).toContain("supplierCountryCode: z.string().length(2).optional()");
+    expect(adapter).toContain("createOfferCatalogApiClient");
+    expect(adapter).toContain("supplierCountryCode");
+    expect(adapter).toContain("mockOffers");
+    expect(smoke).toContain("offer_catalog_locked=ok");
+    expect(smoke).toContain("offer_catalog_private_search_guard=ok");
+    expect(smoke).toContain("offer_catalog_unlocked=ok");
+  });
+
   it("keeps the optional live PostgreSQL account smoke available without requiring it in CI", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

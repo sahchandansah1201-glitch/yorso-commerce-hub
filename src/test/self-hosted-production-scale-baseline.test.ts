@@ -33,18 +33,26 @@ describe("production scale baseline", () => {
 
   it("keeps supplier discovery bounded and index-backed for high concurrency", () => {
     const supplierApi = readFileSync("src/lib/supplier-directory-api.ts", "utf8");
+    const offerApi = readFileSync("src/lib/offer-catalog-api.ts", "utf8");
     const suppliersPage = readFileSync("src/pages/Suppliers.tsx", "utf8");
     const supplierScaling = readFileSync(
       "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
       "utf8",
     );
+    const offerCatalog = readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
 
     expect(supplierApi).toContain("limit");
     expect(supplierApi).toContain("offset");
+    expect(offerApi).toContain("limit");
+    expect(offerApi).toContain("offset");
+    expect(offerApi).toContain("supplierCountryCode");
     expect(suppliersPage).toContain("limit: 50");
     expect(suppliersPage).toContain("offset: 0");
     expect(suppliersPage).toContain("setTimeout");
     expect(supplierScaling).toContain("gin_trgm_ops");
     expect(supplierScaling).toContain("idx_yorso_suppliers_directory_verification_level");
+    expect(offerCatalog).toContain("gin_trgm_ops");
+    expect(offerCatalog).toContain("idx_yorso_offers_catalog_public_search_text");
+    expect(offerCatalog).toContain("idx_yorso_offers_catalog_supplier_country_code");
   });
 });

@@ -85,9 +85,10 @@ scripts, DB scaling migration and supplier-directory read path keep the
 Batch #35 introduced the first concrete high-concurrency read-path work:
 
 - `packages/db/migrations/0005_supplier_directory_search_scaling.sql`;
-- trigram GIN indexes for supplier search fields;
+- `packages/db/migrations/0006_offer_catalog.sql`;
+- trigram GIN indexes for supplier and offer search fields;
 - verification-level index for supplier filters;
-- frontend supplier directory API bridge with debounce and pagination.
+- frontend supplier directory and offer catalog API bridges with pagination.
 
 Batch #36 promotes the target from a supplier-directory note to a project-level
 release gate.
