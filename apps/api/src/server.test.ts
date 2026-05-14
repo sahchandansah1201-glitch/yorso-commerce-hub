@@ -327,7 +327,21 @@ describe("YORSO self-hosted API skeleton", () => {
   });
 
   it("unlocks offer exact price and supplier identity for qualified access", async () => {
-    const response = await request("/v1/offers/1?accessLevel=qualified_unlocked");
+    const fetchApi = await startTestServer();
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const response = await fetchApi("/v1/offers/1?accessLevel=qualified_unlocked");
     const body = (await response.json()) as JsonBody;
 
     expect(response.status).toBe(200);
@@ -342,6 +356,25 @@ describe("YORSO self-hosted API skeleton", () => {
         profileSlug: "nordfjord-sjomat",
       },
     });
+  });
+
+  it("downgrades qualified offer detail requests when the account has no supplier grant", async () => {
+    const response = await request("/v1/offers/1?accessLevel=qualified_unlocked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.accessLevel).toBe("registered_locked");
+    expect(body.offer).toMatchObject({
+      priceMin: null,
+      priceMax: null,
+      currency: null,
+      volumeBreaks: [],
+      supplier: expect.objectContaining({
+        name: null,
+        profileSlug: null,
+      }),
+    });
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
   });
 
   it("returns locked offer detail without private supplier identity or exact price fields", async () => {

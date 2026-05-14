@@ -4,6 +4,7 @@ import {
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
 import {
+  isSupplierAccessApiConfigured,
   readSupplierAccessRequest,
   requestSupplierAccess,
 } from "@/lib/supplier-access-api";
@@ -22,7 +23,7 @@ export const useSupplierAccessState = (
   const enabled = options.enabled ?? true;
   const storageSupplierId = supplierId ?? undefined;
   const [request, setRequest] = useState<SupplierAccessRequest | null>(
-    () => (enabled ? getSupplierAccessRequest(storageSupplierId) : null),
+    () => (enabled && !isSupplierAccessApiConfigured() ? getSupplierAccessRequest(storageSupplierId) : null),
   );
 
   const refresh = useCallback(() => {
@@ -31,7 +32,11 @@ export const useSupplierAccessState = (
       return;
     }
 
-    setRequest(getSupplierAccessRequest(storageSupplierId));
+    if (isSupplierAccessApiConfigured()) {
+      setRequest(null);
+    } else {
+      setRequest(getSupplierAccessRequest(storageSupplierId));
+    }
     void readSupplierAccessRequest(storageSupplierId).then((next) => {
       setRequest(next);
     });

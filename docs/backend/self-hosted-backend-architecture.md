@@ -331,6 +331,23 @@ offer detail smoke starts the compiled API and verifies:
 This protects the 10,000 concurrent-user path because detail reads must stay
 bounded, API-shaped and independent from frontend mock reconstruction.
 
+Batch #44 moves offer detail access shaping closer to production behavior:
+
+- `GET /v1/offers/:id?accessLevel=qualified_unlocked` no longer unlocks exact
+  price or supplier identity by query parameter alone.
+- The API checks the current account session against supplier-access grants
+  before returning qualified fields.
+- Without a grant, a signed account is downgraded to `registered_locked`; an
+  unsigned request remains `anonymous_locked`.
+- `src/lib/offer-catalog-api.ts` now sends the same account headers used by the
+  account and access adapters, so the self-hosted API can evaluate grants.
+- The supplier-access state hook treats an authoritative backend "no access"
+  response as source of truth and clears stale local approvals.
+
+This does not finish authentication. It removes the highest-risk detail
+shortcut while the repository still uses the current self-hosted session header
+bridge.
+
 Batch #38 adds the first self-hosted supplier and price access path. It defines
 supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,
 `/v1/access/supplier-requests/:requestId/decision` and

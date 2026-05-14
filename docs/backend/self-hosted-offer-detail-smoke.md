@@ -24,8 +24,11 @@ The smoke covers the list-to-detail contract that `/offers/:id` now depends on:
   supplier identity are hidden.
 - `registered_locked` follows the same data-shaping rule. Registration alone
   does not unlock supplier identity or exact price.
-- `qualified_unlocked` returns exact price, currency, volume breaks and supplier
-  identity through the same DTO.
+- `qualified_unlocked` without a supplier-access grant is downgraded to
+  `registered_locked`; the query parameter alone cannot unlock exact price or
+  supplier identity.
+- `qualified_unlocked` after an approved supplier-access request returns exact
+  price, currency, volume breaks and supplier identity through the same DTO.
 - Missing offers return `404 offer_not_found`.
 - Unsupported methods return `405 method_not_allowed` with `Allow: GET`.
 - Invalid detail query values return `400 validation_error`.
@@ -35,6 +38,7 @@ Expected success markers:
 ```text
 offer_detail_locked=ok
 offer_detail_registered_locked=ok
+offer_detail_requires_grant=ok
 offer_detail_unlocked=ok
 offer_detail_not_found=ok
 offer_detail_method_guard=ok
@@ -52,6 +56,8 @@ This is part of the production scale baseline:
 
 - the frontend calls a typed API adapter, not PostgreSQL or Supabase directly;
 - the API owns access shaping before data reaches the browser;
+- the detail endpoint checks the self-hosted supplier-access grant before
+  returning qualified fields;
 - detail reads are bounded one-row reads, not unbounded catalog scans;
 - CI catches method, validation, not-found and access-shaping regressions.
 

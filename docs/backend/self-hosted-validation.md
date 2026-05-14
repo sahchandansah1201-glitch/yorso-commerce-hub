@@ -228,6 +228,9 @@ It verifies:
 - Batch #43 adds `smoke:self-hosted-offer-detail` so the same locked/unlocked
   access-shaping rules are checked over a real HTTP detail request, not only by
   frontend unit tests.
+- Batch #44 makes `qualified_unlocked` on `/v1/offers/:id` dependent on a real
+  supplier-access grant. Query parameters can request qualified data, but the
+  API must downgrade the response unless the current account has access.
 
 ## Frontend Account API Bridge
 
@@ -347,6 +350,11 @@ Batch #43 adds a dedicated offer detail runtime smoke:
   `self_hosted_offer_detail_smoke=ok`;
 - `ci:core` runs `smoke:self-hosted-offer-detail:run`, so a broken detail API
   blocks merge before the frontend can depend on it.
+
+Batch #44 extends this runtime smoke with `offer_detail_requires_grant=ok`.
+The marker proves that a signed account without an approved supplier-access
+grant is downgraded to `registered_locked` even when the request asks for
+`qualified_unlocked`.
 
 ## Production Direction
 

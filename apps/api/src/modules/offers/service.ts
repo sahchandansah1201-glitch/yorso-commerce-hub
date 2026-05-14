@@ -8,9 +8,13 @@ import {
   type OfferCatalogRecord,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { OfferCatalogRepository } from "./repository.js";
+import type { SupplierAccessRepository } from "../access/repository.js";
 
 export class OfferCatalogService {
-  constructor(private readonly repository: OfferCatalogRepository) {}
+  constructor(
+    private readonly repository: OfferCatalogRepository,
+    private readonly accessRepository?: SupplierAccessRepository,
+  ) {}
 
   async listOffers(rawQuery: Record<string, string | undefined>, requestId: string) {
     const query = offerCatalogQuerySchema.parse(rawQuery);
@@ -27,17 +31,41 @@ export class OfferCatalogService {
     });
   }
 
-  async getOfferById(id: string, rawQuery: Record<string, string | undefined>, requestId: string) {
+  async getOfferById(
+    id: string,
+    rawQuery: Record<string, string | undefined>,
+    requestId: string,
+    viewer?: { buyerUserId: string } | null,
+  ) {
     const query = offerCatalogQuerySchema.pick({ accessLevel: true }).parse(rawQuery);
     const offer = await this.repository.getOfferById(id);
     if (!offer) throw new Error("offer_not_found");
+    const accessLevel = await this.resolveDetailAccessLevel(offer, query.accessLevel, viewer);
 
     return offerCatalogDetailResponseSchema.parse({
       ok: true,
-      offer: shapeOfferForAccess(offer, query.accessLevel),
-      accessLevel: query.accessLevel,
+      offer: shapeOfferForAccess(offer, accessLevel),
+      accessLevel,
       requestId,
     });
+  }
+
+  private async resolveDetailAccessLevel(
+    offer: OfferCatalogRecord,
+    requested: OfferCatalogAccessLevel,
+    viewer?: { buyerUserId: string } | null,
+  ): Promise<OfferCatalogAccessLevel> {
+    if (requested === "anonymous_locked") return "anonymous_locked";
+    if (!viewer?.buyerUserId || !this.accessRepository) return "anonymous_locked";
+    if (!offer.supplier.id) return "registered_locked";
+
+    const hasAccess = await this.accessRepository.hasSupplierAccess({
+      buyerUserId: viewer.buyerUserId,
+      supplierId: offer.supplier.id,
+    });
+
+    if (hasAccess) return "qualified_unlocked";
+    return "registered_locked";
   }
 }
 

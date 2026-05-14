@@ -35,10 +35,12 @@ export interface ApiServerOptions {
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
-  const offerCatalogService = new OfferCatalogService(options.offerCatalogRepository ?? createOfferCatalogRepository(config));
-  const supplierAccessService = new SupplierAccessService(
-    options.supplierAccessRepository ?? createSupplierAccessRepository(config),
+  const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
+  const offerCatalogService = new OfferCatalogService(
+    options.offerCatalogRepository ?? createOfferCatalogRepository(config),
+    supplierAccessRepository,
   );
+  const supplierAccessService = new SupplierAccessService(supplierAccessRepository);
   const supplierService = new SupplierDirectoryService(options.supplierRepository ?? createSupplierRepository(config));
 
   return createServer((request, response) => {
