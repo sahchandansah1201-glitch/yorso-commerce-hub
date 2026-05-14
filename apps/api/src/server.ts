@@ -5,6 +5,10 @@ import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
 import { AccountService } from "./modules/account/service.js";
+import { createSupplierAccessRepository } from "./modules/access/factory.js";
+import type { SupplierAccessRepository } from "./modules/access/repository.js";
+import { handleSupplierAccessRoute } from "./modules/access/routes.js";
+import { SupplierAccessService } from "./modules/access/service.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
@@ -24,6 +28,7 @@ export interface ApiServerOptions {
   accountRepository?: AccountRepository;
   fileService?: FileService;
   offerCatalogRepository?: OfferCatalogRepository;
+  supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
 }
 
@@ -31,11 +36,24 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
   const offerCatalogService = new OfferCatalogService(options.offerCatalogRepository ?? createOfferCatalogRepository(config));
+  const supplierAccessService = new SupplierAccessService(
+    options.supplierAccessRepository ?? createSupplierAccessRepository(config),
+  );
   const supplierService = new SupplierDirectoryService(options.supplierRepository ?? createSupplierRepository(config));
 
   return createServer((request, response) => {
     const context = createRequestContext();
-    routeRequest(request, response, context, config, accountService, fileService, offerCatalogService, supplierService).catch((error) => {
+    routeRequest(
+      request,
+      response,
+      context,
+      config,
+      accountService,
+      fileService,
+      offerCatalogService,
+      supplierAccessService,
+      supplierService,
+    ).catch((error) => {
       console.error(error);
       sendError(response, 500, "internal_error", "Internal server error.", context);
     });
@@ -50,6 +68,7 @@ async function routeRequest(
   accountService: AccountService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
+  supplierAccessService: SupplierAccessService,
   supplierService: SupplierDirectoryService,
 ) {
   applyCorsHeaders(request, response, config);
@@ -94,6 +113,7 @@ async function routeRequest(
   if (await handleAccountRoute(request, response, context, accountService, url.pathname)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, url.pathname)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, url)) return;
+  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, url)) return;
   if (await handleSupplierDirectoryRoute(request, response, context, supplierService, url)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);

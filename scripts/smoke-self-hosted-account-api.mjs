@@ -119,6 +119,54 @@ async function runSmoke(baseUrl) {
   assertEqual(offerUnlocked.offer?.priceMin, 8.5, "unlocked offer exact price");
   console.log("offer_catalog_unlocked=ok");
 
+  const accessInitial = await jsonRequest(baseUrl, "/v1/access/suppliers/sup-no-001/request");
+  assertEqual(accessInitial.request, null, "supplier access initial request");
+  assertEqual(accessInitial.accessGranted, false, "supplier access initial grant");
+  console.log("supplier_access_initial=ok");
+
+  const accessRequest = await jsonRequest(baseUrl, "/v1/access/suppliers/sup-no-001/request", {
+    method: "POST",
+    body: { message: "" },
+  });
+  assertEqual(accessRequest.request?.supplierId, "sup-no-001", "supplier access request supplier id");
+  assertEqual(accessRequest.request?.status, "sent", "supplier access request sent status");
+  console.log("supplier_access_request=ok");
+
+  const accessPending = await jsonRequest(
+    baseUrl,
+    `/v1/access/supplier-requests/${encodeURIComponent(accessRequest.request.id)}/decision`,
+    {
+      method: "POST",
+      body: { status: "pending" },
+    },
+  );
+  assertEqual(accessPending.request?.status, "pending", "supplier access pending status");
+  assertEqual(accessPending.notification, null, "supplier access pending notification");
+  console.log("supplier_access_pending=ok");
+
+  const accessApproved = await jsonRequest(
+    baseUrl,
+    `/v1/access/supplier-requests/${encodeURIComponent(accessRequest.request.id)}/decision`,
+    {
+      method: "POST",
+      body: { status: "approved" },
+    },
+  );
+  assertEqual(accessApproved.request?.status, "approved", "supplier access approved status");
+  assertEqual(accessApproved.grants?.length, 2, "supplier access grants");
+  assertEqual(accessApproved.notification?.type, "price_access_approved", "supplier access notification type");
+  console.log("supplier_access_approved=ok");
+
+  const accessFinal = await jsonRequest(baseUrl, "/v1/access/suppliers/sup-no-001/request");
+  assertEqual(accessFinal.accessGranted, true, "supplier access grant after approval");
+  assertEqual(accessFinal.request?.status, "approved", "supplier access final status");
+  console.log("supplier_access_grant=ok");
+
+  const accessNotifications = await jsonRequest(baseUrl, "/v1/access/notifications");
+  assertEqual(accessNotifications.notifications?.length, 1, "supplier access notifications list");
+  assertEqual(accessNotifications.notifications?.[0]?.type, "price_access_approved", "supplier access notification listed");
+  console.log("supplier_access_notifications=ok");
+
   const missingSession = await fetch(`${baseUrl}/v1/account/company`);
   assertStatus(missingSession, 401, "missing account session");
   const missingSessionBody = await missingSession.json();

@@ -61,6 +61,18 @@
       "description": "Create the self-hosted offer catalog with access-shaped price and supplier identity fields.",
       "ownedTables": ["yorso_offers_catalog"],
       "dependsOn": ["0005_supplier_directory_search_scaling"]
+    },
+    {
+      "id": "0007_supplier_access_flow",
+      "file": "migrations/0007_supplier_access_flow.sql",
+      "description": "Create self-hosted supplier and price access request, grant, event and notification tables.",
+      "ownedTables": [
+        "yorso_supplier_access_requests",
+        "yorso_access_grants",
+        "yorso_access_events",
+        "yorso_access_notifications"
+      ],
+      "dependsOn": ["0006_offer_catalog"]
     }
   ]
 }

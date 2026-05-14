@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
+  createSupplierAccessApiClient,
   readSupplierAccessRequest,
   requestSupplierAccess,
 } from "@/lib/supplier-access-api";
@@ -48,5 +49,96 @@ describe("supplier-access-api", () => {
       status: "sent",
       intent: "exact_price",
     });
+  });
+
+  it("calls self-hosted supplier access endpoints when API URL is configured", async () => {
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      expect(init?.headers).toBeInstanceOf(Headers);
+      expect((init?.headers as Headers).get("x-yorso-user-id")).toBe("00000000-0000-4000-8000-000000000042");
+
+      if (init?.method === "POST") {
+        return new Response(JSON.stringify({
+          ok: true,
+          request: {
+            id: "req-1",
+            buyerUserId: "00000000-0000-4000-8000-000000000042",
+            supplierId: SUPPLIER_ID,
+            status: "sent",
+            intent: "exact_price",
+            message: "",
+            createdAt: "2026-05-14T00:00:00.000Z",
+            updatedAt: "2026-05-14T00:00:00.000Z",
+            decidedAt: null,
+            decidedByUserId: null,
+          },
+          accessGranted: false,
+          requestId: "api-req",
+        }), { status: 201, headers: { "content-type": "application/json" } });
+      }
+
+      if (url.endsWith("/v1/access/notifications")) {
+        return new Response(JSON.stringify({
+          ok: true,
+          notifications: [{
+            id: "n-1",
+            buyerUserId: "00000000-0000-4000-8000-000000000042",
+            supplierId: SUPPLIER_ID,
+            type: "price_access_approved",
+            title: "Price access approved",
+            body: "Approved",
+            status: "unread",
+            createdAt: "2026-05-14T00:10:00.000Z",
+            readAt: null,
+          }],
+          requestId: "api-notifications",
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        request: {
+          id: "req-1",
+          buyerUserId: "00000000-0000-4000-8000-000000000042",
+          supplierId: SUPPLIER_ID,
+          status: "approved",
+          intent: "exact_price",
+          message: "",
+          createdAt: "2026-05-14T00:00:00.000Z",
+          updatedAt: "2026-05-14T00:05:00.000Z",
+          decidedAt: "2026-05-14T00:05:00.000Z",
+          decidedByUserId: "00000000-0000-4000-8000-000000000099",
+        },
+        accessGranted: true,
+        requestId: "api-read",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    });
+
+    const client = createSupplierAccessApiClient({
+      baseUrl: "http://localhost:3000/",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      userId: "00000000-0000-4000-8000-000000000042",
+      sessionId: "session-42",
+    });
+
+    await expect(client.read(SUPPLIER_ID)).resolves.toMatchObject({
+      supplierId: SUPPLIER_ID,
+      status: "approved",
+      approvedAt: "2026-05-14T00:05:00.000Z",
+    });
+    await expect(client.request(SUPPLIER_ID)).resolves.toMatchObject({
+      supplierId: SUPPLIER_ID,
+      status: "sent",
+    });
+    await expect(client.notifications()).resolves.toHaveLength(1);
+
+    expect(fetchImpl.mock.calls[0][0]).toBe(
+      "http://localhost:3000/v1/access/suppliers/sup-no-001/request",
+    );
+    expect(fetchImpl.mock.calls[1][0]).toBe(
+      "http://localhost:3000/v1/access/suppliers/sup-no-001/request",
+    );
+    expect(fetchImpl.mock.calls[2][0]).toBe(
+      "http://localhost:3000/v1/access/notifications",
+    );
   });
 });

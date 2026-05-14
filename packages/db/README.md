@@ -69,10 +69,24 @@ Migration `0006_offer_catalog.sql` defines:
 - trigram GIN indexes for locked search, qualified search and certification filters;
 - bounded indexes for category, species, origin, supplier country, format and supplier link.
 
+Migration `0007_supplier_access_flow.sql` defines:
+
+- `yorso_supplier_access_requests`;
+- `yorso_access_grants`;
+- `yorso_access_events`;
+- `yorso_access_notifications`;
+- enum types for request status, access grant scope, event type and notification status;
+- unique buyer/supplier request constraint for one-click idempotency;
+- supplier identity and offer price grants created after approval;
+- audit events for request, pending, approval, rejection, revocation and notification creation;
+- buyer notification feed records for price access approval;
+- request, grant, event and notification indexes for high-concurrency access checks.
+
 This keeps supplier and offer discovery backend-owned and index-backed as the
 frontend moves from local mocks to the self-hosted API. The current sizing
 assumption is stable operation for at least 10,000 concurrent web users, so
-search/filter paths must remain paginated and index-backed.
+search/filter paths and supplier-access request/grant checks must remain
+paginated and index-backed.
 
 ## Migration Planner
 

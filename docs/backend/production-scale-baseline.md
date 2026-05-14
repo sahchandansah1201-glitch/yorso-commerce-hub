@@ -86,8 +86,10 @@ Batch #35 introduced the first concrete high-concurrency read-path work:
 
 - `packages/db/migrations/0005_supplier_directory_search_scaling.sql`;
 - `packages/db/migrations/0006_offer_catalog.sql`;
+- `packages/db/migrations/0007_supplier_access_flow.sql`;
 - trigram GIN indexes for supplier and offer search fields;
 - verification-level index for supplier filters;
+- supplier-access request, grant and notification indexes;
 - frontend supplier directory and offer catalog API bridges with pagination.
 
 Batch #36 promotes the target from a supplier-directory note to a project-level
