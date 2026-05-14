@@ -24,4 +24,24 @@ describe("self-hosted API policy", () => {
     expect(dockerfile).toContain("RUN npm run api:build");
     expect(dockerfile).toContain("CMD [\"node\", \"apps/api/dist/index.js\"]");
   });
+
+  it("keeps the runtime account API smoke wired into CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const smoke = readFileSync("scripts/smoke-self-hosted-account-api.mjs", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-account-api-smoke.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-account-api"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-account-api:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-account-api:run"]).toBe(
+      "node scripts/smoke-self-hosted-account-api.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-account-api:run");
+    expect(smoke).toContain("apps/api/dist/index.js");
+    expect(smoke).toContain("x-yorso-user-id");
+    expect(smoke).toContain("file_owner_guard=ok");
+    expect(docs).toContain("self_hosted_account_api_smoke=ok");
+  });
 });
