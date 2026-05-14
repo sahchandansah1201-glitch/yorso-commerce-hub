@@ -287,6 +287,54 @@ describe("/suppliers — implementation quality fixes", () => {
       ).toBe(true);
     });
   });
+
+  it("falls back to localized prototype data when the self-hosted supplier API is unavailable", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    const fetchMock = vi.fn(async () => {
+      throw new Error("network unavailable");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderPage();
+
+    expect(await screen.findByTestId("supplier-directory-error")).toBeInTheDocument();
+    expect(screen.getByTestId("supplier-directory-source")).toHaveTextContent(/prototype fallback/i);
+    expect(screen.getByText(mockSuppliers[0].maskedName)).toBeInTheDocument();
+    expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
+  });
+
+  it("uses API results as the source of truth instead of refiltering remote localized rows", async () => {
+    const remote = {
+      ...apiSupplier(mockSuppliers[0]),
+      id: "sup-remote-only",
+      maskedName: "Remote cod processor · IS-777",
+      country: "Iceland",
+      countryCode: "IS",
+      city: "Reykjavik",
+      shortDescription: "Returned by the self-hosted supplier search endpoint.",
+      productFocus: [{ species: "Cod", forms: "Loins" }],
+      productCatalogPreview: [
+        {
+          name: "Cod loins",
+          species: "Cod",
+          form: "Loins",
+          image: "/offers/cod.webp",
+        },
+      ],
+    };
+    const fetchMock = stubSupplierDirectoryApi(supplierListResponse([remote], 1));
+
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/search suppliers/i), { target: { value: "private server match" } });
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(([url]) => String(url).includes("q=private+server+match")),
+      ).toBe(true);
+    });
+    expect(await screen.findByText("Remote cod processor · IS-777")).toBeInTheDocument();
+    expect(screen.queryByText(mockSuppliers[0].maskedName)).not.toBeInTheDocument();
+  });
 });
 
 describe("/suppliers — standalone profile navigation", () => {

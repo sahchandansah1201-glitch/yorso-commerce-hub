@@ -12,11 +12,8 @@ import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { createSupplierDirectoryApiClient, type SupplierDirectoryQuery } from "@/lib/supplier-directory-api";
-import {
-  localizedMockSuppliers,
-  localizeSupplierDirectoryItem,
-} from "@/lib/supplier-directory-view";
+import type { SupplierDirectoryQuery } from "@/lib/supplier-directory-api";
+import { useSupplierDirectoryList } from "@/lib/use-supplier-directory";
 
 
 interface QuickFilter {
@@ -105,13 +102,9 @@ const Suppliers = () => {
   const { level } = useAccessLevel();
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
-  const supplierDirectoryClient = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [remoteSuppliers, setRemoteSuppliers] = useState<MockSupplier[] | null>(null);
-  const [remoteTotal, setRemoteTotal] = useState<number | null>(null);
-  const [remoteStatus, setRemoteStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shortlist, setShortlist] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -153,58 +146,27 @@ const Suppliers = () => {
     return () => window.clearTimeout(handle);
   }, [query]);
 
-  const localizedSuppliers = useMemo(
-    () => localizedMockSuppliers(lang),
-    [lang],
-  );
-
   const stableSupplierById = useMemo(() => new Map(mockSuppliers.map((s) => [s.id, s])), []);
 
   const activeQuickFilter = activeFilter
     ? QUICK_FILTERS.find((x) => x.id === activeFilter) ?? null
     : null;
 
-  useEffect(() => {
-    if (!supplierDirectoryClient.enabled) {
-      setRemoteSuppliers(null);
-      setRemoteTotal(null);
-      setRemoteStatus("idle");
-      return;
-    }
-
-    let cancelled = false;
-    setRemoteStatus("loading");
-    void supplierDirectoryClient
-      .listSuppliers({
-        ...(debouncedQuery ? { q: debouncedQuery } : {}),
-        ...(activeQuickFilter?.apiQuery ?? {}),
-        accessLevel: level,
-        limit: 50,
-        offset: 0,
-      })
-      .then((result) => {
-        if (cancelled) return;
-        setRemoteSuppliers(result.suppliers.map((item) => localizeSupplierDirectoryItem(item, lang)));
-        setRemoteTotal(result.total);
-        setRemoteStatus("ready");
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.warn("supplier_directory_api_failed", error);
-        setRemoteSuppliers(null);
-        setRemoteTotal(null);
-        setRemoteStatus("error");
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [supplierDirectoryClient, debouncedQuery, activeQuickFilter, level, lang]);
+  const directory = useSupplierDirectoryList({
+    accessLevel: level,
+    language: lang,
+    query: debouncedQuery,
+    filterQuery: activeQuickFilter?.apiQuery ?? null,
+    limit: 50,
+    offset: 0,
+  });
 
   const filtered = useMemo(() => {
+    if (directory.serverFiltered) return directory.suppliers;
+
     const q = query.trim().toLowerCase();
     const includeCompanyName = level === "qualified_unlocked";
-    const source = remoteSuppliers ?? localizedSuppliers;
+    const source = directory.suppliers;
     return source.filter((s) => {
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
@@ -231,7 +193,7 @@ const Suppliers = () => {
       const haystack = fields.join(" ").toLowerCase();
       return haystack.includes(q);
     });
-  }, [query, activeFilter, level, localizedSuppliers, remoteSuppliers, stableSupplierById]);
+  }, [directory.serverFiltered, directory.suppliers, query, activeFilter, level, stableSupplierById]);
 
   const selected = useMemo(() => {
     if (!selectedId) return null;
@@ -300,11 +262,26 @@ const Suppliers = () => {
                 <span>
                   {interpolate(t.suppliersPage_countSuffix, {
                     visible: filtered.length,
-                    total: remoteTotal ?? mockSuppliers.length,
+                    total: directory.total,
                   })}
-                  {remoteStatus === "loading" && (
-                    <span className="sr-only">Supplier directory is refreshing</span>
+                  {directory.status === "loading" && (
+                    <span className="sr-only">{t.suppliersPage_loading}</span>
                   )}
+                </span>
+                <span
+                  data-testid="supplier-directory-source"
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                    directory.source === "api" && directory.status !== "error"
+                      ? "border-success/30 bg-success/10 text-success"
+                      : "border-border bg-muted/40 text-muted-foreground",
+                  )}
+                >
+                  {directory.source === "api" && directory.status !== "error"
+                    ? t.suppliersPage_sourceApi
+                    : directory.status === "error"
+                      ? t.suppliersPage_sourceFallback
+                      : t.suppliersPage_sourceLocal}
                 </span>
               </div>
             </div>
@@ -372,8 +349,31 @@ const Suppliers = () => {
 
         <section className="bg-cool-gray/40">
           <div className="container py-6 md:py-8">
+            {directory.status === "error" && (
+              <div
+                data-testid="supplier-directory-error"
+                className="mb-4 flex flex-col gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm md:flex-row md:items-center md:justify-between"
+              >
+                <div>
+                  <p className="font-semibold text-foreground">{t.suppliersPage_errorTitle}</p>
+                  <p className="mt-1 text-muted-foreground">{t.suppliersPage_errorBody}</p>
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={directory.refresh}>
+                  {t.suppliersPage_retry}
+                </Button>
+              </div>
+            )}
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
               <div className="min-w-0">
+                {directory.status === "loading" && (
+                  <div
+                    data-testid="supplier-directory-loading"
+                    className="mb-3 rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground"
+                    role="status"
+                  >
+                    {t.suppliersPage_loading}
+                  </div>
+                )}
                 {filtered.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
                     <p className="text-sm font-medium text-foreground">

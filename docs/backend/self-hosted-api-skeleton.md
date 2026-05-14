@@ -257,6 +257,17 @@ read path for the 10,000 concurrent-user target:
 - Local/Lovable preview remains independent from the API. Empty
   `VITE_YORSO_API_URL` keeps using the mock supplier directory.
 
+Batch #40 makes the supplier-directory frontend bridge explicit:
+
+- `src/lib/use-supplier-directory.ts` owns list/detail loading state, source
+  selection, retry and API-to-view localization.
+- API mode treats `/v1/suppliers` results as backend-owned filtered results,
+  which prevents refiltering a paginated server page on the client.
+- API errors fall back to localized prototype data and render a visible status
+  banner rather than silently switching data sources.
+- `/suppliers/:id` uses the same hook for supplier detail, including
+  remote-only supplier IDs, while preserving locked identity shaping.
+
 Batch #37 adds the first self-hosted offer catalog API:
 
 - `packages/contracts/src/offer-catalog.ts` defines offer record,
