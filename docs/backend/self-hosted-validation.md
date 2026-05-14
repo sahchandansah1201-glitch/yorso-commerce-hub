@@ -34,6 +34,7 @@ npm run api:build
 npm run test:api
 npm run smoke:self-hosted-account-api
 npm run smoke:self-hosted-account-postgres
+npm run smoke:self-hosted-workspace-postgres
 npm run test:db-contract
 npm run test:db-migrations
 npm run test:backend-contract
@@ -61,6 +62,7 @@ npm run ci:core
 | `test:api` | Runs API endpoint and config tests. |
 | `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, media upload, document upload and file ownership over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
+| `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions and notifications over the real PostgreSQL repository, including owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |

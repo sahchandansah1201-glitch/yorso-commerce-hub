@@ -27,6 +27,7 @@ const requiredFiles = [
   "packages/contracts/src/account-session.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
+  "scripts/smoke-self-hosted-workspace-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
   "src/components/account/CompanyMediaCard.tsx",
   "src/components/account/SupplierProfilePreview.tsx",
@@ -35,6 +36,7 @@ const requiredFiles = [
   "src/lib/account-documents-store.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
+  "docs/backend/self-hosted-workspace-postgres-smoke.md",
 ];
 
 const failures = [];
@@ -63,6 +65,7 @@ const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
+const workspacePostgresSmoke = read("scripts/smoke-self-hosted-workspace-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
 const compose = read("infra/docker-compose.yml");
 const docs = read("docs/backend/self-hosted-backend-architecture.md");
@@ -74,6 +77,7 @@ const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
+const workspacePostgresSmokeDocs = read("docs/backend/self-hosted-workspace-postgres-smoke.md");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -103,6 +107,12 @@ if (pkg.scripts["smoke:self-hosted-account-postgres"] !== "npm run api:build && 
 }
 if (pkg.scripts["smoke:self-hosted-account-postgres:run"] !== "node scripts/smoke-self-hosted-account-postgres.mjs") {
   failures.push("package.json: smoke:self-hosted-account-postgres:run must execute scripts/smoke-self-hosted-account-postgres.mjs");
+}
+if (pkg.scripts["smoke:self-hosted-workspace-postgres"] !== "npm run api:build && npm run smoke:self-hosted-workspace-postgres:run") {
+  failures.push("package.json: smoke:self-hosted-workspace-postgres must build and run the live PostgreSQL workspace smoke");
+}
+if (pkg.scripts["smoke:self-hosted-workspace-postgres:run"] !== "node scripts/smoke-self-hosted-workspace-postgres.mjs") {
+  failures.push("package.json: smoke:self-hosted-workspace-postgres:run must execute scripts/smoke-self-hosted-workspace-postgres.mjs");
 }
 if (pkg.scripts["test:api"] !== "npm run contracts:build && vitest run --config apps/api/vitest.config.ts") {
   failures.push("package.json: test:api must build contracts before apps/api tests");
@@ -250,6 +260,19 @@ requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmo
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "/v1/account/documents");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "file_owner_guard=ok");
 requireText("scripts/smoke-self-hosted-account-postgres.mjs", accountPostgresSmoke, "self_hosted_account_postgres_smoke=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "MIGRATION_DATABASE_URL");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "self_hosted_workspace_postgres_smoke=skipped");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "ACCOUNT_REPOSITORY: \"postgres\"");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "db:migrations:apply:live");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/branches");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/products");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/meta-regions");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "/v1/account/notifications");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "notifications_validation_guard=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "workspace_db_counts=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "workspace_owner_isolation=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "branches_empty_replace=ok");
+requireText("scripts/smoke-self-hosted-workspace-postgres.mjs", workspacePostgresSmoke, "self_hosted_workspace_postgres_smoke=ok");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_API_URL");
 requireText("src/lib/account-api.ts", accountApi, "VITE_YORSO_ACCOUNT_USER_ID");
 requireText("src/lib/account-api.ts", accountApi, "ACCOUNT_USER_ID_HEADER");
@@ -286,6 +309,10 @@ requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgre
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "npm run smoke:self-hosted-account-postgres");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=skipped");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=ok");
+requireText("docs/backend/self-hosted-workspace-postgres-smoke.md", workspacePostgresSmokeDocs, "Self-Hosted Workspace PostgreSQL Smoke");
+requireText("docs/backend/self-hosted-workspace-postgres-smoke.md", workspacePostgresSmokeDocs, "npm run smoke:self-hosted-workspace-postgres");
+requireText("docs/backend/self-hosted-workspace-postgres-smoke.md", workspacePostgresSmokeDocs, "self_hosted_workspace_postgres_smoke=skipped");
+requireText("docs/backend/self-hosted-workspace-postgres-smoke.md", workspacePostgresSmokeDocs, "self_hosted_workspace_postgres_smoke=ok");
 
 forbidText("apps/api/src/server.ts", server, "@/integrations/supabase/client");
 forbidText("apps/api/src/config.ts", config, "@/integrations/supabase/client");

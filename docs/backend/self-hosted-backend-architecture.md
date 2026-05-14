@@ -172,6 +172,13 @@ detection and transactional apply through an injected PostgreSQL client. Batch
 and explicit `--confirm` for live apply. Default CI still uses static checks and
 dry-run commands only.
 
+Batch #32 expands live server/staging validation beyond the base account smoke.
+`smoke:self-hosted-workspace-postgres` proves that branches, product matrix,
+meta-regions and notification preferences persist through the YORSO API into
+PostgreSQL, remain scoped to the current account owner, and reject invalid
+enabled notification channels. The command skips successfully without
+`MIGRATION_DATABASE_URL`, so local preview and GitHub CI stay portable.
+
 ## Access Control Rule
 
 If a user does not have access to data, the API must not return the real value.

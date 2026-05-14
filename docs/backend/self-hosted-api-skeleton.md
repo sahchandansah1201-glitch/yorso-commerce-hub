@@ -165,6 +165,20 @@ Batch #31 adds the optional live PostgreSQL account smoke:
 - This does not replace the memory smoke in CI; it is a server/staging
   validation step for the PostgreSQL repository boundary.
 
+Batch #32 adds the optional live PostgreSQL workspace smoke:
+
+- `scripts/smoke-self-hosted-workspace-postgres.mjs` runs only when
+  `MIGRATION_DATABASE_URL` is configured.
+- Without `MIGRATION_DATABASE_URL`, it exits successfully as skipped.
+- With a live database URL, it applies pending self-hosted migrations, upserts
+  two deterministic smoke users/companies, starts the compiled API with
+  `ACCOUNT_REPOSITORY=postgres`, and verifies branches, products,
+  meta-regions and notification preferences over HTTP.
+- The smoke validates replace/read behavior, enabled-notification validation,
+  PostgreSQL row counts, another-user isolation and empty replacement cleanup.
+- It is a server/staging validation step for account workspace persistence, not
+  a default GitHub CI dependency.
+
 ## Local Build
 
 ```bash
@@ -217,6 +231,7 @@ npm run api:build
 npm run test:api
 npm run smoke:self-hosted-account-api
 npm run smoke:self-hosted-account-postgres
+npm run smoke:self-hosted-workspace-postgres
 npm run test:account-workspace
 npm run test:db-contract
 npm run ci:core
