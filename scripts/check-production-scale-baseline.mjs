@@ -11,6 +11,7 @@ const requiredFiles = [
   "packages/db/migration-manifest.json",
   "package.json",
   "src/lib/offer-catalog-api.ts",
+  "src/lib/use-offer-catalog.ts",
   "src/lib/supplier-directory-api.ts",
   "src/pages/Suppliers.tsx",
 ];
@@ -31,6 +32,7 @@ const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sq
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const offerApi = read("src/lib/offer-catalog-api.ts");
+const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 
@@ -133,6 +135,16 @@ for (const marker of [
   "supplierCountryCode",
 ]) {
   requireText("src/lib/offer-catalog-api.ts", offerApi, marker);
+}
+
+for (const marker of [
+  "useOfferCatalogList",
+  "limit",
+  "offset",
+  "serverFiltered",
+  "offerCatalogApiQueryFromFilters",
+]) {
+  requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, marker);
 }
 
 for (const marker of [

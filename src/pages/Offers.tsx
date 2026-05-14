@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { getOffersForSupplier } from "@/data/mockOffers";
 import { getSupplierById } from "@/data/mockSuppliers";
-import { useResilientCatalog } from "@/lib/use-resilient-catalog";
+import { offerMatchesClientFilters, useOfferCatalogList } from "@/lib/use-offer-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel } from "@/lib/access-level";
@@ -30,33 +30,6 @@ import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPa
 
 const COMPARE_MAX = 5;
 
-const matches = (offer: SeafoodOffer, f: CatalogFilterState, allowSupplierName: boolean): boolean => {
-  if (f.q) {
-    const q = f.q.toLowerCase();
-    const fields = [
-      offer.productName,
-      offer.species,
-      offer.latinName,
-      offer.origin,
-      offer.supplier.country,
-    ];
-    if (allowSupplierName) fields.push(offer.supplier.name);
-    if (!fields.join(" ").toLowerCase().includes(q)) return false;
-  }
-  if (f.category && offer.category !== f.category) return false;
-  if (f.origin && offer.origin !== f.origin) return false;
-  if (f.supplierCountry && offer.supplier.country !== f.supplierCountry) return false;
-  if (f.supplier && allowSupplierName && offer.supplier.name !== f.supplier) return false;
-  if (f.basis && !offer.deliveryBasisOptions.some((b) => b.code === f.basis)) return false;
-  if (f.certification && !(offer.certifications ?? []).includes(f.certification)) return false;
-  if (f.paymentTerms && !offer.commercial.paymentTerms.includes(f.paymentTerms)) return false;
-  if (f.state && offer.format !== f.state) return false;
-  if (f.cutType && !offer.cutType.toLowerCase().includes(f.cutType.toLowerCase())) return false;
-  if (f.currency && (offer.currency ?? "USD") !== f.currency) return false;
-  if (f.latinName && offer.latinName !== f.latinName) return false;
-  return true;
-};
-
 const Offers = () => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
@@ -77,18 +50,38 @@ const Offers = () => {
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null);
   const [compareIds, setCompareIds] = useState<string[]>([]);
-  const {
-    data: offers,
-    loading: offersLoading,
-    error: offersError,
-    usingFallback,
-    failedAttempts,
-    lastErrorCode,
-    recovering,
-    retry: handleManualRetry,
-  } = useResilientCatalog(level);
+  const [debouncedQuery, setDebouncedQuery] = useState(filters.q);
 
   const allowSupplierName = level === "qualified_unlocked";
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setDebouncedQuery(filters.q.trim());
+    }, 250);
+    return () => window.clearTimeout(handle);
+  }, [filters.q]);
+
+  const apiFilters = useMemo(
+    () => ({ ...filters, q: debouncedQuery }),
+    [filters, debouncedQuery],
+  );
+
+  const offerCatalog = useOfferCatalogList({
+    filters: apiFilters,
+    level,
+    limit: 50,
+    offset: 0,
+  });
+  const offers = offerCatalog.offers;
+  const offersLoading = offerCatalog.status === "loading" && offers.length === 0;
+  const offersError = offerCatalog.status === "error" && offers.length === 0
+    ? offerCatalog.error?.message ?? "offer_catalog_api_failed"
+    : null;
+  const usingFallback = offerCatalog.usingFallback;
+  const failedAttempts = usingFallback ? 1 : 0;
+  const lastErrorCode = offerCatalog.error?.message ?? null;
+  const recovering = offerCatalog.status === "loading" && offerCatalog.source === "api";
+  const handleManualRetry = offerCatalog.retry;
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -157,7 +150,9 @@ const Offers = () => {
   }, [allowSupplierName, offers]);
 
   const visible = useMemo(() => {
-    let base = offers.filter((o) => matches(o, filters, allowSupplierName));
+    let base = offers.filter((o) =>
+      offerMatchesClientFilters(o, filters, allowSupplierName, offerCatalog.serverFiltered),
+    );
     if (supplierIdParam && allowSupplierName) {
       const sup = getSupplierById(supplierIdParam);
       if (sup) {
@@ -172,7 +167,7 @@ const Offers = () => {
       }
     }
     return base;
-  }, [filters, allowSupplierName, offers, supplierIdParam]);
+  }, [filters, allowSupplierName, offers, offerCatalog.serverFiltered, supplierIdParam]);
 
   useEffect(() => {
     if (visible.length === 0) {
@@ -287,6 +282,32 @@ const Offers = () => {
           </div>
         </div>
 
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span
+            data-testid="offer-catalog-source"
+            className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${
+              offerCatalog.source === "api" && offerCatalog.status !== "error"
+                ? "border-success/30 bg-success/10 text-success"
+                : "border-border bg-muted/40 text-muted-foreground"
+            }`}
+          >
+            {offerCatalog.source === "api" && offerCatalog.status !== "error"
+              ? t.catalog_sourceApi
+              : offerCatalog.status === "error"
+                ? t.catalog_sourceFallback
+                : t.catalog_sourceLocal}
+          </span>
+          {offerCatalog.status === "loading" && (
+            <span
+              data-testid="offer-catalog-loading-inline"
+              className="text-xs text-muted-foreground"
+              role="status"
+            >
+              {t.catalog_loading}
+            </span>
+          )}
+        </div>
+
         {usingFallback && (
           <div
             role="status"
@@ -297,16 +318,16 @@ const Offers = () => {
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
               <div className="space-y-0.5">
                 <p className="font-medium">
-                  Показаны демо-предложения, пока бэкенд восстанавливается
+                  {t.catalog_fallback_title}
                 </p>
                 <p className="text-xs opacity-80">
                   {recovering
-                    ? "Повторное подключение к каталогу…"
-                    : "Подключение к каталогу будет повторено автоматически."}
+                    ? t.catalog_fallback_recovering
+                    : t.catalog_fallback_body}
                   {failedAttempts > 0 && (
                     <>
-                      {" "}Неудачных попыток: {failedAttempts}
-                      {lastErrorCode ? ` · код ${lastErrorCode}` : ""}.
+                      {" "}{t.catalog_fallback_attempts.replace("{count}", String(failedAttempts))}
+                      {lastErrorCode ? ` · ${t.catalog_fallback_code.replace("{code}", lastErrorCode)}` : ""}.
                     </>
                   )}
                 </p>
@@ -321,7 +342,7 @@ const Offers = () => {
               data-testid="catalog-fallback-retry"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${recovering ? "animate-spin" : ""}`} aria-hidden />
-              Повторить сейчас
+              {t.catalog_fallback_retry}
             </Button>
           </div>
         )}
@@ -370,7 +391,7 @@ const Offers = () => {
                 aria-live="polite"
                 data-testid="catalog-loading"
               >
-                <span className="sr-only">Загружаем каталог…</span>
+                <span className="sr-only">{t.catalog_loading}</span>
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
@@ -403,22 +424,19 @@ const Offers = () => {
               >
                 <AlertCircle className="mx-auto h-8 w-8 text-destructive" aria-hidden />
                 <p className="mt-3 text-sm font-semibold text-foreground">
-                  Не удалось загрузить каталог
+                  {t.catalog_error_title}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {offersError}. Проверьте соединение или попробуйте ещё раз.
+                  {t.catalog_error_body.replace("{code}", offersError)}
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   className="mt-4 gap-2"
-                  onClick={() => {
-                    // повторная загрузка через смену ключа эффекта — проще всего перезагрузить страницу
-                    window.location.reload();
-                  }}
+                  onClick={handleManualRetry}
                   data-testid="catalog-error-retry"
                 >
-                  <RefreshCw className="h-3.5 w-3.5" aria-hidden /> Повторить попытку
+                  <RefreshCw className="h-3.5 w-3.5" aria-hidden /> {t.catalog_error_retry}
                 </Button>
               </div>
             ) : visible.length === 0 ? (
