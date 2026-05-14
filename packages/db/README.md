@@ -55,6 +55,7 @@ npm run db:migrations:apply:live:dry-run
 npm run db:migrations:apply:live
 npm run db:migrations:smoke:live
 npm run smoke:self-hosted-account-postgres
+npm run smoke:self-hosted-workspace-postgres
 ```
 
 This keeps the repository aligned with the goal: deploy YORSO as a complete
@@ -112,3 +113,9 @@ running PostgreSQL database and are intentionally excluded from default CI.
 It uses `MIGRATION_DATABASE_URL`, applies pending migrations, starts the API
 with `ACCOUNT_REPOSITORY=postgres` and verifies account/profile/product/file
 flows over HTTP. If `MIGRATION_DATABASE_URL` is not set, it exits as skipped.
+
+`smoke:self-hosted-workspace-postgres` is the broader account workspace live
+PostgreSQL smoke. It verifies branches, products, meta-regions and notification
+preferences through the API, confirms PostgreSQL row counts, checks another-user
+isolation and validates notification errors. If `MIGRATION_DATABASE_URL` is not
+set, it exits as skipped.
