@@ -173,6 +173,9 @@ Production-facing behavior:
 - request status is rendered as `sent`, `pending` or `approved`;
 - backend approval notifications from `/v1/access/notifications` are consumed by
   the app-level notifier and persisted into local access state;
+- approval notification sync is bounded for the 10,000-concurrent-user target:
+  frontend mock approvals can tick locally, but self-hosted backend polling
+  must not run every few seconds per active browser tab;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 
