@@ -69,7 +69,7 @@ npm run ci:core
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers`, supplier profile tests and the shared supplier-directory runtime bridge for self-hosted API mode, debounce, access shaping, retry/error state and local fallback. |
-| `test:offer-catalog-frontend` | Runs the offer catalog frontend adapter tests for self-hosted API mode, access shaping and local fallback. |
+| `test:offer-catalog-frontend` | Runs offer catalog frontend adapter and runtime bridge tests for self-hosted API mode, backend-owned filters, server-filtered results, access shaping, visible fallback and local preview mode. |
 | `test:supplier-access-frontend` | Runs supplier access frontend adapter and offer-detail access UI tests for self-hosted API mode, grant-only approval, local fallback and request/status rendering. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
@@ -214,6 +214,13 @@ It verifies:
   terms but return exact price and supplier identity fields as `null`.
 - `qualified_unlocked` offer catalog responses return exact prices and supplier
   identity through the same DTO contract.
+- `/offers` uses `src/lib/use-offer-catalog.ts` to route backend-supported
+  filters to `/v1/offers` with bounded `limit` and `offset`.
+- API-mode offer catalog results are treated as server-filtered source of truth;
+  local filtering is limited to fields not yet represented in the backend query
+  contract.
+- API failures must show a localized fallback state and keep locked prototype
+  offers access-shaped.
 
 ## Frontend Account API Bridge
 
@@ -284,6 +291,25 @@ The supplier directory bridge must preserve these rules:
 - locked responses must not include real company name, about text, website,
   WhatsApp, exact active-offer count or exact catalog breadth;
 - qualified responses may include those fields through the typed API contract;
+- API code must not import the Supabase client.
+
+Batch #41 connects the existing `/offers` surface to the self-hosted offer
+catalog backend path when `VITE_YORSO_API_URL` is configured.
+
+The offer catalog bridge must preserve these rules:
+
+- frontend offer catalog code uses `src/lib/offer-catalog-api.ts`;
+- shared offer catalog runtime state uses `src/lib/use-offer-catalog.ts`;
+- backend-supported filters are sent to `/v1/offers` instead of filtering only a
+  local page;
+- listing calls stay paginated with `limit` and `offset`;
+- server-filtered API results are not refiltered locally for `q`, category,
+  origin, supplier country, product state or certification;
+- client-only filters remain local until backend support exists;
+- supplier-name filtering remains hidden until `qualified_unlocked`;
+- local/Lovable preview falls back to existing mock offer data;
+- API failures render a visible localized fallback state;
+- locked responses must not include exact price or real supplier identity;
 - API code must not import the Supabase client.
 
 ## Production Direction

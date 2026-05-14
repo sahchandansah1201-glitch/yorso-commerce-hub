@@ -54,6 +54,8 @@ const requiredFiles = [
   "src/lib/account-documents-store.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/offer-catalog-api.test.ts",
+  "src/lib/use-offer-catalog.ts",
+  "src/lib/use-offer-catalog.test.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
   "src/lib/use-supplier-access-state.ts",
@@ -123,6 +125,7 @@ const supplierProfilePreview = read("src/components/account/SupplierProfilePrevi
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
+const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const useSupplierAccessState = read("src/lib/use-supplier-access-state.ts");
 const supplierTrustPanelAccessTest = read("src/components/offer-detail/SupplierTrustPanel.access.test.tsx");
@@ -195,8 +198,8 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-directory-frontend");
 }
-if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts") {
-  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter");
+if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts src/lib/use-offer-catalog.test.tsx") {
+  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter and runtime bridge");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
@@ -536,6 +539,11 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCode");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "useOfferCatalogList");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQueryFromFilters");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "serverFiltered");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForLevel");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/suppliers/");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/notifications");

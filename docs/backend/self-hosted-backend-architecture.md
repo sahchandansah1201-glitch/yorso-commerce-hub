@@ -272,6 +272,30 @@ must return supplier identity and exact price fields as `null`; only
 The offer catalog migration keeps search/filter paths paginated and
 index-backed for the 10,000 concurrent-user target.
 
+Batch #41 makes the offer catalog frontend bridge explicit. `/offers` now uses
+`src/lib/use-offer-catalog.ts` as the single runtime state boundary between
+local prototype data and the self-hosted `/v1/offers` API.
+
+Production-facing behavior:
+
+- API-owned filters (`q`, category, origin country, supplier country, product
+  state and certification) are sent to `/v1/offers` with `limit` and `offset`.
+- When the API is enabled, server-filtered results are treated as the source of
+  truth. The frontend must not refilter a paginated server page for those
+  supported filters.
+- Client-only filters remain local until backend equivalents exist: logistics
+  basis, payment terms, cut type, currency, latin name and supplier name.
+  Supplier-name filtering is still allowed only after `qualified_unlocked`.
+- API failures are visible and non-blocking: `/offers` shows a localized
+  fallback state and continues with access-shaped prototype offers when safe
+  fallback data exists.
+- Empty `VITE_YORSO_API_URL` remains the default for Lovable and local preview,
+  so the page still works without a backend process.
+
+This batch keeps the offer catalog aligned with the 10,000 concurrent-user
+target: high-cardinality search/filter work belongs to PostgreSQL indexes and
+bounded backend queries, not to a large frontend mock page.
+
 Batch #38 adds the first self-hosted supplier and price access path. It defines
 supplier-access DTOs, `/v1/access/suppliers/:supplierId/request`,
 `/v1/access/supplier-requests/:requestId/decision` and

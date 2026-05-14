@@ -288,6 +288,21 @@ Batch #37 adds the first self-hosted offer catalog API:
   the legacy Supabase prototype path only as fallback while the backend is
   completed.
 
+Batch #41 connects the `/offers` procurement workspace directly to that
+self-hosted offer catalog path:
+
+- `src/lib/use-offer-catalog.ts` owns list loading state, source selection,
+  retry and fallback behavior for the offer catalog.
+- `/offers` sends backend-supported filters to `/v1/offers`: `q`, `category`,
+  `originCode`, `supplierCountryCode`, `format`, `certification`,
+  `accessLevel`, `limit` and `offset`.
+- API mode treats `/v1/offers` results as backend-owned filtered results, which
+  prevents refiltering a paginated server page on the client.
+- Client-only filters remain local for logistics basis, payment terms, cut
+  type, currency, latin name and qualified-only supplier name.
+- API errors render a localized fallback state and continue with access-shaped
+  prototype offers when available.
+
 ## Local Build
 
 ```bash

@@ -578,6 +578,19 @@ type TranslationKeys = {
   catalog_marketStatus_live: string;
   catalog_freshOffers_24h: string;
   catalog_resultCount: string;
+  catalog_loading: string;
+  catalog_sourceApi: string;
+  catalog_sourceLocal: string;
+  catalog_sourceFallback: string;
+  catalog_fallback_title: string;
+  catalog_fallback_body: string;
+  catalog_fallback_recovering: string;
+  catalog_fallback_attempts: string;
+  catalog_fallback_code: string;
+  catalog_fallback_retry: string;
+  catalog_error_title: string;
+  catalog_error_body: string;
+  catalog_error_retry: string;
   catalog_quickRequest_title: string;
   catalog_quickRequest_subtitle: string;
   catalog_quickRequest_cta: string;
@@ -2306,6 +2319,19 @@ const en: TranslationKeys = {
   catalog_marketStatus_live: "Marketplace live",
   catalog_freshOffers_24h: "{count} new offers in 24h",
   catalog_resultCount: "{count} active offers",
+  catalog_loading: "Updating offer catalog",
+  catalog_sourceApi: "Live catalog",
+  catalog_sourceLocal: "Prototype catalog",
+  catalog_sourceFallback: "Prototype fallback",
+  catalog_fallback_title: "Showing prototype offers while the catalog API recovers",
+  catalog_fallback_body: "Connection to the self-hosted catalog will be retried automatically.",
+  catalog_fallback_recovering: "Reconnecting to the catalog...",
+  catalog_fallback_attempts: "Failed attempts: {count}",
+  catalog_fallback_code: "code {code}",
+  catalog_fallback_retry: "Retry now",
+  catalog_error_title: "Could not load the catalog",
+  catalog_error_body: "{code}. Check the connection or try again.",
+  catalog_error_retry: "Try again",
   catalog_quickRequest_title: "Don't see exactly what you need?",
   catalog_quickRequest_subtitle: "Post a structured request and verified suppliers will respond directly.",
   catalog_quickRequest_cta: "Send a request",
@@ -3980,6 +4006,19 @@ const ru: TranslationKeys = {
   catalog_marketStatus_live: "Рынок активен",
   catalog_freshOffers_24h: "{count} новых офферов за 24ч",
   catalog_resultCount: "{count} активных предложений",
+  catalog_loading: "Обновляем каталог предложений",
+  catalog_sourceApi: "Живой каталог",
+  catalog_sourceLocal: "Каталог прототипа",
+  catalog_sourceFallback: "Fallback прототипа",
+  catalog_fallback_title: "Показываем предложения прототипа, пока API каталога восстанавливается",
+  catalog_fallback_body: "Подключение к self-hosted каталогу будет повторено автоматически.",
+  catalog_fallback_recovering: "Повторно подключаемся к каталогу...",
+  catalog_fallback_attempts: "Неудачных попыток: {count}",
+  catalog_fallback_code: "код {code}",
+  catalog_fallback_retry: "Повторить сейчас",
+  catalog_error_title: "Не удалось загрузить каталог",
+  catalog_error_body: "{code}. Проверьте соединение или попробуйте ещё раз.",
+  catalog_error_retry: "Повторить попытку",
   catalog_quickRequest_title: "Не нашли точно нужный товар?",
   catalog_quickRequest_subtitle: "Опубликуйте структурированный запрос — проверенные поставщики ответят напрямую.",
   catalog_quickRequest_cta: "Отправить запрос",
@@ -5654,6 +5693,19 @@ const es: TranslationKeys = {
   catalog_marketStatus_live: "Mercado activo",
   catalog_freshOffers_24h: "{count} ofertas nuevas en 24h",
   catalog_resultCount: "{count} ofertas activas",
+  catalog_loading: "Actualizando catálogo de ofertas",
+  catalog_sourceApi: "Catálogo en vivo",
+  catalog_sourceLocal: "Catálogo prototipo",
+  catalog_sourceFallback: "Fallback prototipo",
+  catalog_fallback_title: "Mostramos ofertas de prototipo mientras se recupera la API del catálogo",
+  catalog_fallback_body: "La conexión al catálogo self-hosted se reintentará automáticamente.",
+  catalog_fallback_recovering: "Reconectando con el catálogo...",
+  catalog_fallback_attempts: "Intentos fallidos: {count}",
+  catalog_fallback_code: "código {code}",
+  catalog_fallback_retry: "Reintentar ahora",
+  catalog_error_title: "No se pudo cargar el catálogo",
+  catalog_error_body: "{code}. Revisa la conexión o inténtalo de nuevo.",
+  catalog_error_retry: "Intentar de nuevo",
   catalog_quickRequest_title: "¿No ves exactamente lo que necesitas?",
   catalog_quickRequest_subtitle: "Publica una solicitud estructurada y los proveedores verificados responderán directamente.",
   catalog_quickRequest_cta: "Enviar una solicitud",
