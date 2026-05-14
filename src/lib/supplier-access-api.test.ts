@@ -141,4 +141,28 @@ describe("supplier-access-api", () => {
       "http://localhost:3000/v1/access/notifications",
     );
   });
+
+  it("persists an approved local request when backend reports an existing grant without a request row", async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({
+        ok: true,
+        request: null,
+        accessGranted: true,
+        requestId: "api-grant-only",
+      }), { status: 200, headers: { "content-type": "application/json" } }),
+    );
+
+    const client = createSupplierAccessApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      userId: "00000000-0000-4000-8000-000000000042",
+    });
+
+    await expect(client.read(SUPPLIER_ID)).resolves.toMatchObject({
+      supplierId: SUPPLIER_ID,
+      status: "approved",
+      intent: "exact_price",
+    });
+    expect(readStore()[SUPPLIER_ID]).toMatchObject({ status: "approved" });
+  });
 });

@@ -52,7 +52,7 @@ export function shapeOfferForAccess(
     supplier: unlocked
       ? offer.supplier
       : {
-          id: null,
+          id: offer.supplier.id,
           name: null,
           country: offer.supplier.country,
           countryCode: offer.supplier.countryCode,

@@ -1,7 +1,7 @@
 # YORSO Self-Hosted Backend Architecture
 
 Status: production direction
-Batch: #37
+Batch: #39
 Date: 2026-05-14
 
 ## Decision
@@ -157,6 +157,26 @@ without starting Docker. Details are documented in
 endpoints, the account/company contract boundary and account profile endpoints.
 It must remain deployable through `apps/api/Dockerfile` and the `api` service in
 `infra/docker-compose.yml`.
+
+## Batch #39: Supplier Access UX Bridge
+
+The self-hosted supplier access backend is now consumed by the frontend access
+UX, not only by backend smoke tests.
+
+Production-facing behavior:
+
+- locked offer responses may expose a public technical `supplier.id` so buyers
+  can request access without exposing the real supplier name;
+- `/offers/:id` shows the same one-click supplier access request flow as
+  `/suppliers/:id` for registered locked buyers;
+- request status is rendered as `sent`, `pending` or `approved`;
+- backend approval notifications from `/v1/access/notifications` are consumed by
+  the app-level notifier and persisted into local access state;
+- when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
+  fallback and mock approval progression.
+
+This keeps the product direction self-hosted while preserving Lovable preview
+resilience.
 
 The account module now has a route/service/repository split. Its current
 production-direction repository is `PostgresAccountRepository`, backed by

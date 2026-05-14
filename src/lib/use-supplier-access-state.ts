@@ -1,0 +1,73 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  getSupplierAccessRequest,
+  type SupplierAccessRequest,
+} from "@/lib/supplier-access-requests";
+import {
+  readSupplierAccessRequest,
+  requestSupplierAccess,
+} from "@/lib/supplier-access-api";
+
+export interface SupplierAccessState {
+  request: SupplierAccessRequest | null;
+  setRequest: (request: SupplierAccessRequest | null) => void;
+  refresh: () => void;
+  submit: () => Promise<SupplierAccessRequest | null>;
+}
+
+export const useSupplierAccessState = (
+  supplierId: string | null | undefined,
+  options: { enabled?: boolean } = {},
+): SupplierAccessState => {
+  const enabled = options.enabled ?? true;
+  const storageSupplierId = supplierId ?? undefined;
+  const [request, setRequest] = useState<SupplierAccessRequest | null>(
+    () => (enabled ? getSupplierAccessRequest(storageSupplierId) : null),
+  );
+
+  const refresh = useCallback(() => {
+    if (!enabled || !storageSupplierId) {
+      setRequest(null);
+      return;
+    }
+
+    setRequest(getSupplierAccessRequest(storageSupplierId));
+    void readSupplierAccessRequest(storageSupplierId).then((next) => {
+      setRequest(next);
+    });
+  }, [enabled, storageSupplierId]);
+
+  const submit = useCallback(async () => {
+    if (!enabled || !storageSupplierId) return null;
+    const saved = await requestSupplierAccess(storageSupplierId);
+    setRequest(saved);
+    return saved;
+  }, [enabled, storageSupplierId]);
+
+  useEffect(() => {
+    refresh();
+    if (!enabled || !storageSupplierId || typeof window === "undefined") return undefined;
+
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes("supplier_access_requests")) refresh();
+    };
+    const onLocalChange = () => refresh();
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("yorso:supplier-access-change", onLocalChange);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("yorso:supplier-access-change", onLocalChange);
+    };
+  }, [enabled, refresh, storageSupplierId]);
+
+  return useMemo(
+    () => ({
+      request,
+      setRequest,
+      refresh,
+      submit,
+    }),
+    [request, refresh, submit],
+  );
+};

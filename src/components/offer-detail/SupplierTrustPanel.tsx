@@ -6,10 +6,15 @@ import {
 } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
+import type { SupplierAccessRequest } from "@/lib/supplier-access-requests";
 import analytics from "@/lib/analytics";
 import { useState } from "react";
 import CertificationBadges from "@/components/CertificationBadges";
 import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  SupplierAccessRequestPanel,
+  SupplierAccessRequestSent,
+} from "@/components/suppliers/SupplierAccessRequestPanel";
 
 const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
@@ -24,9 +29,16 @@ const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string
 interface Props {
   offer: SeafoodOffer;
   accessLevel?: AccessLevel;
+  accessRequest?: SupplierAccessRequest | null;
+  onAccessRequestSent?: (request: SupplierAccessRequest) => void;
 }
 
-const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
+const SupplierTrustPanel = ({
+  offer,
+  accessLevel = "qualified_unlocked",
+  accessRequest,
+  onAccessRequestSent,
+}: Props) => {
   const { t } = useLanguage();
   const s = offer.supplier;
   const yearsInBusiness = new Date().getFullYear() - s.inBusinessSince;
@@ -34,6 +46,8 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
 
   const isQualified = accessLevel === "qualified_unlocked";
   const isAnonymous = accessLevel === "anonymous_locked";
+  const isRegisteredLocked = accessLevel === "registered_locked";
+  const supplierAccessId = offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id;
 
   // Mask supplier identity for non-qualified states — show real name blurred.
   const initial = s.name.charAt(0);
@@ -156,7 +170,7 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
       </div>
 
       {/* CTA stack — gated by access */}
-      <div className="space-y-2.5">
+      <div id="offer-supplier-access" className="scroll-mt-24 space-y-2.5">
         {isQualified ? (
           <>
             <Button className="w-full gap-2 font-semibold" size="lg"
@@ -170,6 +184,25 @@ const SupplierTrustPanel = ({ offer, accessLevel = "qualified_unlocked" }: Props
               <GitCompareArrows className="h-4 w-4" /> Compare Similar Offers
             </Button>
           </>
+        ) : isRegisteredLocked ? (
+          supplierAccessId ? (
+            accessRequest ? (
+              <SupplierAccessRequestSent
+                request={accessRequest}
+                supplierMaskedName={t.offerDetail_supplierMasked_name}
+              />
+            ) : (
+              <SupplierAccessRequestPanel
+                supplierId={supplierAccessId}
+                supplierMaskedName={t.offerDetail_supplierMasked_name}
+                onSent={(request) => onAccessRequestSent?.(request)}
+              />
+            )
+          ) : (
+            <Button variant="outline" className="w-full gap-2" size="sm" disabled>
+              <Lock className="h-4 w-4" /> {t.offerDetail_supplierContactLocked}
+            </Button>
+          )
         ) : (
           <Button variant="outline" className="w-full gap-2" size="sm" disabled>
             <Lock className="h-4 w-4" /> {t.offerDetail_supplierContactLocked}

@@ -56,11 +56,8 @@ import {
 import { interpolate, pluralize, formatLocalizedDate } from "@/lib/supplier-i18n";
 import { formatMonthYear, formatTons, formatNumber, type AppLang } from "@/lib/intl-format";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import {
-  getSupplierAccessRequest,
-  type SupplierAccessRequest,
-} from "@/lib/supplier-access-requests";
-import { readSupplierAccessRequest } from "@/lib/supplier-access-api";
+import type { SupplierAccessRequest } from "@/lib/supplier-access-requests";
+import { useSupplierAccessState } from "@/lib/use-supplier-access-state";
 import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
@@ -579,31 +576,8 @@ const SupplierProfile = () => {
     if (typeof window === "undefined") return;
     processSupplierAccessRequests();
   }, [supplierId]);
-  const [accessRequest, setAccessRequest] = useState<SupplierAccessRequest | null>(
-    () => (supplierId ? getSupplierAccessRequest(supplierId) : null),
-  );
-  // Refresh request state when the supplier changes or storage emits.
-  useEffect(() => {
-    if (!supplierId) return;
-    let cancelled = false;
-    const refresh = () => {
-      setAccessRequest(getSupplierAccessRequest(supplierId));
-      void readSupplierAccessRequest(supplierId).then((request) => {
-        if (!cancelled) setAccessRequest(request);
-      });
-    };
-    refresh();
-    const onStorage = (e: StorageEvent) => {
-      if (!e.key || e.key.includes("supplier_access_requests")) {
-        refresh();
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("storage", onStorage);
-    };
-  }, [supplierId]);
+  const { request: accessRequest, setRequest: setAccessRequest } =
+    useSupplierAccessState(supplierId);
   const effectiveAccess: AccessLevel =
     accessRequest?.status === "approved"
       ? "qualified_unlocked"

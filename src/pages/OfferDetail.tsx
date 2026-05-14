@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, ChevronRight, Lock, RefreshCw } from "lucide-react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
@@ -7,7 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useResilientOffer } from "@/lib/use-resilient-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useAccessLevel } from "@/lib/access-level";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
+import { useSupplierAccessState } from "@/lib/use-supplier-access-state";
 
 import PhotoGallery from "@/components/offer-detail/PhotoGallery";
 import OfferSummary from "@/components/offer-detail/OfferSummary";
@@ -46,6 +47,8 @@ const OfferDetail = () => {
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
+  const [accessOverride, setAccessOverride] = useState<AccessLevel | null>(null);
+  const detailAccessLevel = accessOverride ?? level;
 
   const {
     data: offer,
@@ -56,13 +59,31 @@ const OfferDetail = () => {
     lastErrorCode,
     recovering: retrying,
     retry: handleManualRetry,
-  } = useResilientOffer(id, level);
+  } = useResilientOffer(id, detailAccessLevel);
+
+  const supplierAccessId = offer
+    ? offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id
+    : null;
+  const {
+    request: accessRequest,
+    setRequest: setAccessRequest,
+  } = useSupplierAccessState(supplierAccessId, {
+    enabled: Boolean(supplierAccessId) && level !== "anonymous_locked",
+  });
+
+  useEffect(() => {
+    if (accessRequest?.status === "approved") {
+      setAccessOverride("qualified_unlocked");
+      return;
+    }
+    if (level !== "qualified_unlocked") setAccessOverride(null);
+  }, [accessRequest?.status, level]);
 
   useEffect(() => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
   }, [offer]);
 
-  const isLocked = level !== "qualified_unlocked";
+  const isLocked = detailAccessLevel !== "qualified_unlocked";
   const returnCtx = readCatalogReturnState(location);
   const handleBack = () => {
     if (returnCtx) {
@@ -71,12 +92,20 @@ const OfferDetail = () => {
       navigate("/offers");
     }
   };
-  const lockTitle = level === "anonymous_locked"
+  const lockTitle = detailAccessLevel === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
     : t.offerDetail_accessLimited_title;
-  const lockBody = level === "anonymous_locked"
+  const lockBody = detailAccessLevel === "anonymous_locked"
     ? t.offerDetail_accessLocked_body
     : t.offerDetail_accessLimited_body;
+  const requestStatusLabel =
+    accessRequest?.status === "approved"
+      ? t.supplier_accessPanel_status_approved
+      : accessRequest?.status === "pending"
+        ? t.supplier_accessPanel_status_pending
+        : accessRequest?.status === "sent"
+          ? t.supplier_accessPanel_status_sent
+          : t.offerDetail_requestAccessCta;
 
   if (loading) {
     return (
@@ -175,12 +204,21 @@ const OfferDetail = () => {
             <Lock className="h-4 w-4 mt-0.5 text-primary shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">{lockTitle}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{lockBody}</p>
             </div>
-            <Link to="/register">
-              <Button size="sm" className="font-semibold">
-                {level === "anonymous_locked" ? t.nav_registerFree : t.offerDetail_requestAccessCta}
-              </Button>
-            </Link>
+            {detailAccessLevel === "anonymous_locked" ? (
+              <Link to="/register">
+                <Button size="sm" className="font-semibold">
+                  {t.nav_registerFree}
+                </Button>
+              </Link>
+            ) : supplierAccessId ? (
+              <a href="#offer-supplier-access">
+                <Button size="sm" className="font-semibold">
+                  {requestStatusLabel}
+                </Button>
+              </a>
+            ) : null}
           </div>
         )}
 
@@ -228,8 +266,15 @@ const OfferDetail = () => {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]">
           <PhotoGallery gallery={offer.gallery} productName={offer.productName} photoSourceLabel={offer.photoSourceLabel} />
-          <OfferSummary offer={offer} accessLevel={level} />
-          <div className="lg:sticky lg:top-20 lg:self-start"><SupplierTrustPanel offer={offer} accessLevel={level} /></div>
+          <OfferSummary offer={offer} accessLevel={detailAccessLevel} />
+          <div className="lg:sticky lg:top-20 lg:self-start">
+            <SupplierTrustPanel
+              offer={offer}
+              accessLevel={detailAccessLevel}
+              accessRequest={accessRequest}
+              onAccessRequestSent={setAccessRequest}
+            />
+          </div>
         </div>
 
         <TrustSection offer={offer} />
@@ -240,16 +285,26 @@ const OfferDetail = () => {
         <DecisionFAQ />
       </main>
 
-      <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 backdrop-blur p-3 lg:hidden">
-        <Link to="/register" className="block">
-          <Button className="w-full gap-2 font-semibold text-base h-12">
-            {t.offerDetail_registerToContact} <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
-        <p className="mt-1.5 text-center text-[11px] text-muted-foreground">{t.offerDetail_freeRegistration}</p>
-      </div>
+      {detailAccessLevel !== "qualified_unlocked" && (
+        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur lg:hidden">
+          {detailAccessLevel === "anonymous_locked" ? (
+            <Link to="/register" className="block">
+              <Button className="h-12 w-full gap-2 text-base font-semibold">
+                {t.offerDetail_registerToContact} <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          ) : (
+            <a href="#offer-supplier-access" className="block">
+              <Button className="h-12 w-full gap-2 text-base font-semibold">
+                {requestStatusLabel} <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
+          )}
+          <p className="mt-1.5 text-center text-[11px] text-muted-foreground">{t.offerDetail_freeRegistration}</p>
+        </div>
+      )}
 
-      <div className="h-24 lg:hidden" />
+      {detailAccessLevel !== "qualified_unlocked" && <div className="h-24 lg:hidden" />}
 
       <Footer />
     </div>

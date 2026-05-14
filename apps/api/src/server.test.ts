@@ -295,7 +295,7 @@ describe("YORSO self-hosted API skeleton", () => {
         priceMax: null,
         currency: null,
         supplier: expect.objectContaining({
-          id: null,
+          id: "sup-no-001",
           name: null,
           country: "Norway",
           profileSlug: null,

@@ -26,6 +26,8 @@ export interface RelatedArticle {
 }
 
 export interface SupplierInfo {
+  /** Public technical id used for access requests. Real identity is still gated. */
+  id?: string | null;
   name: string;
   isVerified: boolean;
   country: string;

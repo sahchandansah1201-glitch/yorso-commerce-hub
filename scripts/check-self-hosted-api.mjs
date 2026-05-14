@@ -56,6 +56,9 @@ const requiredFiles = [
   "src/lib/offer-catalog-api.test.ts",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
+  "src/lib/use-supplier-access-state.ts",
+  "src/components/offer-detail/SupplierTrustPanel.access.test.tsx",
+  "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
@@ -120,6 +123,9 @@ const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
+const useSupplierAccessState = read("src/lib/use-supplier-access-state.ts");
+const supplierTrustPanelAccessTest = read("src/components/offer-detail/SupplierTrustPanel.access.test.tsx");
+const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -193,8 +199,8 @@ if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-cat
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
 }
-if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts") {
-  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter");
+if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/components/offer-detail/SupplierTrustPanel.access.test.tsx") {
+  failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter and offer-detail access UI");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-access-frontend");
@@ -356,6 +362,7 @@ requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "offer_not_fou
 requireText("apps/api/src/modules/offers/service.ts", offerService, "offerCatalogQuerySchema.parse");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "shapeOfferForAccess");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "qualified_unlocked");
+requireText("apps/api/src/modules/offers/service.ts", offerService, "id: offer.supplier.id");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "createSupplierRepository");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "PostgresSupplierRepository");
@@ -524,7 +531,16 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/suppliers/");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/notifications");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "response.accessGranted");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "getConfiguredAccountApiBaseUrl");
+requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "readSupplierAccessRequest");
+requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "requestSupplierAccess");
+requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "yorso:supplier-access-change");
+requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-request-price-access");
+requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-access-request-status");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "readSupplierAccessNotifications");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "persistSupplierAccessRequest");
+requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "setQualified(true");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "account-company-documents");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "createAccountApiClient");
 requireText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "fileToAccountUploadPayload");
@@ -601,6 +617,7 @@ console.log("- Account and file repositories implement self-hosted profile, work
 console.log("- Supplier directory API exposes access-shaped supplier discovery without Supabase production coupling.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
+console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");
