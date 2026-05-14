@@ -185,6 +185,19 @@ export function createSupplierAccessApiClient(
       const response = await request<BackendSupplierAccessResponse>(
         `/v1/access/suppliers/${encodeURIComponent(supplierId)}/request`,
       );
+      if (!response.request && response.accessGranted) {
+        const at = new Date().toISOString();
+        return persistSupplierAccessRequest({
+          supplierId,
+          intent: "exact_price",
+          status: "approved",
+          sentAt: at,
+          pendingAt: at,
+          approvedAt: at,
+          reasons: ["exact_price"],
+          message: "",
+        });
+      }
       return response.request ? mapBackendApiRequest(response.request) : null;
     },
     async request(supplierId: string): Promise<SupplierAccessRequest> {

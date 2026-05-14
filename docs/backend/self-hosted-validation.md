@@ -52,7 +52,7 @@ npm run ci:core
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
-| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API or Supabase production boundary is broken. |
+| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API, supplier access UX bridge or Supabase production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory/offer-catalog tables, marketplace search scaling indexes or drifts toward Supabase-owned schema. |
 | `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier/offer catalog trigram search indexes, bounded frontend API calls or CI hook are removed. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
@@ -70,6 +70,7 @@ npm run ci:core
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
 | `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers` and supplier profile tests for self-hosted API mode, debounce, access shaping and local fallback. |
 | `test:offer-catalog-frontend` | Runs the offer catalog frontend adapter tests for self-hosted API mode, access shaping and local fallback. |
+| `test:supplier-access-frontend` | Runs supplier access frontend adapter and offer-detail access UI tests for self-hosted API mode, grant-only approval, local fallback and request/status rendering. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
 | `test:db-migrations` | Runs the DB package tests for the manifest planner, checksum generation and self-hosted SQL boundary. |
 | `test:backend-contract` | Validates backend-facing DTOs and repository policy tests. |

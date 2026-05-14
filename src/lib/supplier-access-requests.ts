@@ -140,6 +140,11 @@ const safeWrite = (store: Store) => {
   } catch {
     /* ignore */
   }
+  try {
+    window.dispatchEvent(new CustomEvent("yorso:supplier-access-change"));
+  } catch {
+    /* ignore */
+  }
 };
 
 export const getAllSupplierAccessRequests = (): Store => safeRead();

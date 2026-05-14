@@ -18,6 +18,7 @@ export const fallbackOfferForLevel = (offer: SeafoodOffer, level: AccessLevel): 
     currency: undefined,
     supplier: {
       ...offer.supplier,
+      id: offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id,
       name: REDACTED_SUPPLIER,
       isVerified: false,
       responseTime: "",

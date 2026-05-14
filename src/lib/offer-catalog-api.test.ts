@@ -75,7 +75,7 @@ describe("offer catalog API adapter", () => {
       priceMax: null,
       currency: null,
       supplier: {
-        id: null,
+        id: "sup-is-005",
         name: null,
         country: "Iceland",
         countryCode: "IS",
@@ -146,7 +146,11 @@ describe("offer catalog API adapter", () => {
     const detail = await client.getOfferById("offer-test");
 
     expect(list.offers[0]).toMatchObject({ productName: "API Cod Loin", supplierName: "Имя поставщика скрыто" });
-    expect(detail).toMatchObject({ productName: "API Cod Loin", priceMin: undefined });
+    expect(detail).toMatchObject({
+      productName: "API Cod Loin",
+      priceMin: undefined,
+      supplier: expect.objectContaining({ id: "sup-is-005" }),
+    });
     expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/offers?q=cod&originCode=IS&category=Whitefish&accessLevel=anonymous_locked&limit=5&offset=10");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/offers/offer-test?accessLevel=anonymous_locked");
   });

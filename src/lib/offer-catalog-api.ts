@@ -205,6 +205,7 @@ export const mapOfferCatalogItemToSeafoodOffer = (item: OfferCatalogItem): Seafo
     moqValue: item.moqValue ?? undefined,
     moqUnitKey: item.moqUnit === "kg" ? "offers_qtyUnit_kg" : undefined,
     supplier: {
+      id: item.supplier.id,
       name: supplierName,
       isVerified: item.supplier.isVerified ?? false,
       country: item.supplier.country ?? "",
