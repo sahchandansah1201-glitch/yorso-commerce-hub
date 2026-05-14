@@ -164,7 +164,8 @@ Batch #30 adds a runtime account API smoke test:
   on a free local port.
 - The smoke verifies account session headers, missing-session rejection,
   company profile writes, product matrix replacement, logo upload, document
-  upload, file download by asset id and object key, and file owner isolation.
+  upload, file download by asset id and object key, file owner isolation,
+  supplier directory access shaping and offer catalog access shaping.
 - `smoke:self-hosted-account-api` builds then runs the smoke locally.
 - `ci:core` runs `smoke:self-hosted-account-api:run` after `api:build` and
   API tests, so GitHub catches runtime wiring regressions in the standalone API.
@@ -316,6 +317,17 @@ boundary:
 - `OfferDetail.tsx` must not import `useResilientOffer`; detail screens should
   cross the same self-hosted API adapter boundary as the catalog list.
 
+Batch #43 adds a focused runtime smoke for the offer detail contract:
+
+- `scripts/smoke-self-hosted-offer-detail.mjs` starts the compiled API process
+  with the in-memory repository and calls `GET /v1/offers/:id` over HTTP.
+- The smoke verifies anonymous and registered locked shaping, qualified unlock,
+  `404 offer_not_found`, `405 method_not_allowed` and `400 validation_error`.
+- Locked detail responses must not include real supplier name, supplier slug,
+  exact price fields, currency or volume breaks.
+- `ci:core` runs `smoke:self-hosted-offer-detail:run` after the general
+  account API smoke so list and detail runtime regressions are both caught.
+
 ## Local Build
 
 ```bash
@@ -367,6 +379,7 @@ npm run check:self-hosted-db
 npm run api:build
 npm run test:api
 npm run smoke:self-hosted-account-api
+npm run smoke:self-hosted-offer-detail
 npm run smoke:self-hosted-account-postgres
 npm run smoke:self-hosted-workspace-postgres
 npm run test:account-workspace

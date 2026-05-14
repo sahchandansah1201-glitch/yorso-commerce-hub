@@ -344,6 +344,35 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("returns locked offer detail without private supplier identity or exact price fields", async () => {
+    const response = await request("/v1/offers/1?accessLevel=registered_locked");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.accessLevel).toBe("registered_locked");
+    expect(body.offer).toMatchObject({
+      id: "1",
+      productName: "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade",
+      origin: "Norway",
+      priceRangeLabel: "$8.50 – $9.20",
+      priceMin: null,
+      priceMax: null,
+      currency: null,
+      volumeBreaks: [],
+      supplier: expect.objectContaining({
+        id: "sup-no-001",
+        name: null,
+        profileSlug: null,
+        inBusinessSince: null,
+        responseTime: null,
+        documentsReviewed: [],
+      }),
+    });
+    expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(body)).not.toContain("nordfjord-sjomat");
+  });
+
   it("filters and validates offer catalog query params", async () => {
     const filtered = await request("/v1/offers?category=Shrimp&originCode=EC&supplierCountryCode=EC&format=Frozen&certification=BAP&accessLevel=anonymous_locked");
     const filteredBody = (await filtered.json()) as JsonBody;
@@ -364,6 +393,21 @@ describe("YORSO self-hosted API skeleton", () => {
     await expect(missing.json()).resolves.toMatchObject({
       ok: false,
       error: { code: "offer_not_found" },
+    });
+
+    const invalidDetail = await request("/v1/offers/1?accessLevel=invalid");
+    expect(invalidDetail.status).toBe(400);
+    await expect(invalidDetail.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+
+    const invalidMethod = await request("/v1/offers/1", { method: "POST" });
+    expect(invalidMethod.status).toBe(405);
+    expect(invalidMethod.headers.get("allow")).toBe("GET");
+    await expect(invalidMethod.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "method_not_allowed" },
     });
   });
 

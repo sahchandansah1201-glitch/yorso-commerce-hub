@@ -10,6 +10,7 @@ const requiredFiles = [
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migration-manifest.json",
   "package.json",
+  "scripts/smoke-self-hosted-offer-detail.mjs",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
@@ -32,6 +33,7 @@ const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
+const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
@@ -51,6 +53,7 @@ for (const marker of [
   "Load test",
   "Supabase may remain as prototype/reference tooling, not as production",
   "Batch #36 promotes the target",
+  "self-hosted offer detail smoke",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -73,6 +76,7 @@ for (const marker of [
   "10,000 concurrent-user read path",
   "supplier-directory trigram search indexes",
   "offer-catalog trigram search indexes",
+  "self-hosted offer detail smoke",
   "supplier-access request and grant indexes",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
@@ -129,6 +133,20 @@ if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-produ
 
 if (!pkg.scripts["ci:core"]?.includes("npm run check:production-scale-baseline")) {
   failures.push("package.json: ci:core must run check:production-scale-baseline");
+}
+
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
+  failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
+}
+
+for (const marker of [
+  "offer_detail_locked=ok",
+  "offer_detail_unlocked=ok",
+  "offer_detail_not_found=ok",
+  "offer_detail_method_guard=ok",
+  "self_hosted_offer_detail_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, marker);
 }
 
 for (const marker of [
