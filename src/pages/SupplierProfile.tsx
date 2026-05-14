@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, countryCodeToFlag, type MockSupplier } from "@/data/mockSuppliers";
-import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import { getOffersForSupplier } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
@@ -63,8 +62,7 @@ import {
   SupplierAccessRequestSent,
 } from "@/components/suppliers/SupplierAccessRequestPanel";
 import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
-import { createSupplierDirectoryApiClient } from "@/lib/supplier-directory-api";
-import { supplierDirectoryItemToMockSupplier } from "@/lib/supplier-directory-view";
+import { useSupplierDirectoryDetail } from "@/lib/use-supplier-directory";
 
 const upsertMeta = (selector: string, attrs: Record<string, string>) => {
   let el = document.head.querySelector<HTMLMetaElement>(selector);
@@ -554,7 +552,6 @@ const buildLogisticsFacts = (supplier: MockSupplier) => {
 const SupplierProfile = () => {
   const { supplierId } = useParams<{ supplierId: string }>();
   const { t, lang } = useLanguage();
-  const supplierDirectoryClient = useMemo(() => createSupplierDirectoryApiClient(), []);
 
   // Базовый поставщик (en) — нужен для стабильных id/seed/lookup.
   const baseSupplier = useMemo<MockSupplier | undefined>(
@@ -585,49 +582,13 @@ const SupplierProfile = () => {
   const isUnlocked = effectiveAccess === "qualified_unlocked";
   const isAnonymous = effectiveAccess === "anonymous_locked";
   const isRegisteredLocked = effectiveAccess === "registered_locked";
-  const [remoteSupplier, setRemoteSupplier] = useState<MockSupplier | null>(null);
-  const [remoteLoading, setRemoteLoading] = useState(() => supplierDirectoryClient.enabled && Boolean(supplierId));
-  const [remoteMissing, setRemoteMissing] = useState(false);
-
-  useEffect(() => {
-    if (!supplierDirectoryClient.enabled || !supplierId) {
-      setRemoteSupplier(null);
-      setRemoteLoading(false);
-      setRemoteMissing(false);
-      return;
-    }
-
-    let cancelled = false;
-    setRemoteLoading(true);
-    setRemoteMissing(false);
-    void supplierDirectoryClient
-      .getSupplierById(supplierId, effectiveAccess)
-      .then((item) => {
-        if (cancelled) return;
-        setRemoteSupplier(item ? supplierDirectoryItemToMockSupplier(item) : null);
-        setRemoteMissing(!item);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.warn("supplier_directory_detail_api_failed", error);
-        setRemoteSupplier(null);
-        setRemoteMissing(!baseSupplier);
-      })
-      .finally(() => {
-        if (!cancelled) setRemoteLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [supplierDirectoryClient, supplierId, effectiveAccess, baseSupplier]);
-
-  const supplierSource = remoteSupplier ?? baseSupplier;
-  // Локализованная копия — то, что реально рендерим (about, country, и т.п.).
-  const supplier = useMemo<MockSupplier | undefined>(
-    () => (supplierSource ? localizeSupplier(supplierSource, lang) : undefined),
-    [supplierSource, lang],
-  );
+  const supplierDirectoryDetail = useSupplierDirectoryDetail({
+    accessLevel: effectiveAccess,
+    fallbackSupplier: baseSupplier,
+    language: lang,
+    supplierId,
+  });
+  const supplier = supplierDirectoryDetail.supplier;
 
   // The single string used everywhere the profile would show identity.
   const displayName = isUnlocked
@@ -865,7 +826,7 @@ const SupplierProfile = () => {
     return () => io.disconnect();
   }, [supplier?.id]);
 
-  if (!supplier && remoteLoading) {
+  if (!supplier && supplierDirectoryDetail.status === "loading") {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -878,7 +839,7 @@ const SupplierProfile = () => {
     );
   }
 
-  if (!supplier || remoteMissing) {
+  if (!supplier || supplierDirectoryDetail.missing) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
@@ -934,6 +895,32 @@ const SupplierProfile = () => {
             </nav>
           </div>
         </div>
+
+        {supplierDirectoryDetail.status === "error" && supplierDirectoryDetail.supplier && (
+          <div className="border-b border-warning/30 bg-warning/10">
+            <div className="container flex flex-col gap-2 py-3 text-sm md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-semibold text-foreground">{t.suppliersPage_errorTitle}</p>
+                <p className="text-muted-foreground">{t.suppliersPage_errorBody}</p>
+              </div>
+              <Button type="button" variant="outline" size="sm" onClick={supplierDirectoryDetail.refresh}>
+                {t.suppliersPage_retry}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {supplierDirectoryDetail.status === "loading" && supplierDirectoryDetail.supplier && (
+          <div className="border-b border-border bg-muted/30">
+            <div
+              className="container py-2 text-xs text-muted-foreground"
+              data-testid="supplier-profile-directory-loading"
+              role="status"
+            >
+              {t.suppliersPage_loading}
+            </div>
+          </div>
+        )}
 
         {/* Hero cover */}
         <section className="relative">

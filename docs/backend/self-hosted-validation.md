@@ -68,7 +68,7 @@ npm run ci:core
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
 | `smoke:self-hosted-workspace-postgres` | Optionally applies live migrations and verifies branches, products, meta-regions, notifications and supplier directory access shaping over the real PostgreSQL repository, including row-level CRUD, owner isolation and DB row counts. Exits as skipped when `MIGRATION_DATABASE_URL` is not set. |
 | `test:account-workspace` | Runs account frontend adapter and workspace tests, including self-hosted API fallback behavior. |
-| `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers` and supplier profile tests for self-hosted API mode, debounce, access shaping and local fallback. |
+| `test:supplier-directory-frontend` | Runs supplier directory frontend adapter, `/suppliers`, supplier profile tests and the shared supplier-directory runtime bridge for self-hosted API mode, debounce, access shaping, retry/error state and local fallback. |
 | `test:offer-catalog-frontend` | Runs the offer catalog frontend adapter tests for self-hosted API mode, access shaping and local fallback. |
 | `test:supplier-access-frontend` | Runs supplier access frontend adapter and offer-detail access UI tests for self-hosted API mode, grant-only approval, local fallback and request/status rendering. |
 | `test:db-contract` | Validates SQL baseline structure, enum boundaries and migration manifest. |
@@ -271,9 +271,12 @@ that path when `VITE_YORSO_API_URL` is configured.
 The supplier directory bridge must preserve these rules:
 
 - frontend supplier directory code uses `src/lib/supplier-directory-api.ts`;
+- shared supplier directory runtime state uses `src/lib/use-supplier-directory.ts`;
 - the adapter calls `/v1/suppliers` and `/v1/suppliers/:id` only when
   `VITE_YORSO_API_URL` is configured;
 - local/Lovable preview falls back to existing mock supplier data;
+- API failures render a visible localized fallback state rather than silently
+  hiding the backend problem;
 - frontend search is debounced before API calls;
 - listing calls stay paginated with `limit` and `offset`;
 - quick filters that can be expressed as API query parameters must be sent to

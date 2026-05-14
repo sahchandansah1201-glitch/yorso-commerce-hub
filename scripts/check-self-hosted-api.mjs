@@ -61,6 +61,7 @@ const requiredFiles = [
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
+  "src/lib/use-supplier-directory.ts",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
@@ -127,6 +128,7 @@ const useSupplierAccessState = read("src/lib/use-supplier-access-state.ts");
 const supplierTrustPanelAccessTest = read("src/components/offer-detail/SupplierTrustPanel.access.test.tsx");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
+const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
 const workspacePostgresSmokeDocs = read("docs/backend/self-hosted-workspace-postgres-smoke.md");
@@ -523,6 +525,12 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "/v1/supp
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "mockSuppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "verificationLevel");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryList");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryDetail");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizedMockSuppliers");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFiltered");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");

@@ -966,6 +966,13 @@ type TranslationKeys = {
   suppliersPage_filter_certified: string;
   suppliersPage_emptyTitle: string;
   suppliersPage_emptyBody: string;
+  suppliersPage_loading: string;
+  suppliersPage_errorTitle: string;
+  suppliersPage_errorBody: string;
+  suppliersPage_retry: string;
+  suppliersPage_sourceApi: string;
+  suppliersPage_sourceLocal: string;
+  suppliersPage_sourceFallback: string;
   suppliersPage_addedShortlist: string;
   suppliersPage_removedShortlist: string;
   suppliersPage_accessRequestPreparedTitle: string;
@@ -2665,6 +2672,13 @@ const en: TranslationKeys = {
   suppliersPage_filter_certified: "Certified suppliers",
   suppliersPage_emptyTitle: "No suppliers match your filters",
   suppliersPage_emptyBody: "Try a different species, country, or clear the active filter.",
+  suppliersPage_loading: "Updating supplier directory",
+  suppliersPage_errorTitle: "Supplier API unavailable",
+  suppliersPage_errorBody: "Showing prototype supplier data until the self-hosted API responds.",
+  suppliersPage_retry: "Retry",
+  suppliersPage_sourceApi: "Live directory",
+  suppliersPage_sourceLocal: "Prototype directory",
+  suppliersPage_sourceFallback: "Prototype fallback",
   suppliersPage_addedShortlist: "Added to shortlist",
   suppliersPage_removedShortlist: "Removed from shortlist",
   suppliersPage_accessRequestPreparedTitle: "Access request prepared",
@@ -4332,6 +4346,13 @@ const ru: TranslationKeys = {
   suppliersPage_filter_certified: "Сертифицированные",
   suppliersPage_emptyTitle: "Нет поставщиков по выбранным фильтрам",
   suppliersPage_emptyBody: "Попробуйте другой вид, страну или сбросьте активный фильтр.",
+  suppliersPage_loading: "Обновляем каталог поставщиков",
+  suppliersPage_errorTitle: "API поставщиков недоступен",
+  suppliersPage_errorBody: "Показываем данные прототипа, пока self-hosted API не ответит.",
+  suppliersPage_retry: "Повторить",
+  suppliersPage_sourceApi: "Живой каталог",
+  suppliersPage_sourceLocal: "Каталог прототипа",
+  suppliersPage_sourceFallback: "Fallback прототипа",
   suppliersPage_addedShortlist: "Добавлено в шортлист",
   suppliersPage_removedShortlist: "Удалено из шортлиста",
   suppliersPage_accessRequestPreparedTitle: "Запрос доступа подготовлен",
@@ -5999,6 +6020,13 @@ const es: TranslationKeys = {
   suppliersPage_filter_certified: "Proveedores certificados",
   suppliersPage_emptyTitle: "Ningún proveedor coincide con tus filtros",
   suppliersPage_emptyBody: "Prueba otra especie, otro país o limpia el filtro activo.",
+  suppliersPage_loading: "Actualizando directorio de proveedores",
+  suppliersPage_errorTitle: "API de proveedores no disponible",
+  suppliersPage_errorBody: "Mostramos datos de prototipo hasta que responda la API self-hosted.",
+  suppliersPage_retry: "Reintentar",
+  suppliersPage_sourceApi: "Directorio en vivo",
+  suppliersPage_sourceLocal: "Directorio prototipo",
+  suppliersPage_sourceFallback: "Fallback prototipo",
   suppliersPage_addedShortlist: "Añadido a la lista corta",
   suppliersPage_removedShortlist: "Eliminado de la lista corta",
   suppliersPage_accessRequestPreparedTitle: "Solicitud de acceso preparada",

@@ -223,6 +223,22 @@ describe("SupplierProfile · access gating", () => {
       expect((await screen.findAllByText(remoteSupplierDetail.maskedName)).length).toBeGreaterThan(0);
       expect(document.body.textContent ?? "").not.toContain("Remote Legal Supplier AS");
     });
+
+    it("при ошибке self-hosted API показывает локальный fallback без утечки real identity", async () => {
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      const fetchMock = vi.fn(async () => {
+        throw new Error("supplier api offline");
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      renderProfile();
+
+      await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+      expect(await screen.findByText("Supplier API unavailable")).toBeInTheDocument();
+      expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+      expect(document.body.innerHTML).not.toContain(supplier.companyName);
+      expect(document.body.innerHTML).not.toContain(supplier.website!);
+    });
   });
 
   describe("registered_locked", () => {

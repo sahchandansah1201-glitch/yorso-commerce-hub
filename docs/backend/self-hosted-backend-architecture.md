@@ -178,6 +178,30 @@ Production-facing behavior:
 This keeps the product direction self-hosted while preserving Lovable preview
 resilience.
 
+## Batch #40: Supplier Directory Frontend Runtime Bridge
+
+The supplier directory frontend now has an explicit runtime bridge between
+local prototype data and the self-hosted supplier API.
+
+Production-facing behavior:
+
+- `/suppliers` uses a shared supplier directory state hook. When
+  `VITE_YORSO_API_URL` is configured, server results are treated as the source
+  of truth instead of being refiltered as a local mock page.
+- `/suppliers/:supplierId` uses the same runtime bridge for profile detail,
+  including remote-only suppliers that do not exist in local mocks.
+- API failures are visible but non-blocking: the UI shows a localized fallback
+  banner and continues with prototype data when safe fallback data exists.
+- Locked access rules remain unchanged. The frontend still must not reconstruct
+  real company name, website, WhatsApp, exact active-offer count or exact
+  catalog breadth from local mocks when the API returns locked data.
+- Empty `VITE_YORSO_API_URL` remains the default for Lovable and local preview,
+  so frontend iteration works without a backend process.
+
+This batch does not make Supabase a production dependency. It moves the
+supplier directory read path toward the self-hosted API while keeping the
+prototype fallback explicit and test-covered.
+
 The account module now has a route/service/repository split. Its current
 production-direction repository is `PostgresAccountRepository`, backed by
 `yorso_users`, `yorso_companies` and `yorso_company_media`. The in-memory
