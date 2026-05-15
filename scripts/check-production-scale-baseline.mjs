@@ -17,7 +17,9 @@ const requiredFiles = [
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
   "src/lib/supplier-directory-api.ts",
+  "src/lib/use-supplier-directory.ts",
   "src/lib/supplier-access-api.ts",
+  "src/lib/supplier-access-requests.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/pages/Suppliers.tsx",
@@ -45,7 +47,9 @@ const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
+const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
+const supplierAccessRequests = read("src/lib/supplier-access-requests.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
@@ -64,6 +68,8 @@ for (const marker of [
   "Supabase may remain as prototype/reference tooling, not as production",
   "Batch #36 promotes the target",
   "self-hosted offer detail smoke",
+  "Batch #50",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -78,6 +84,7 @@ for (const marker of [
   "0006_offer_catalog",
   "0007_supplier_access_flow",
   "0008_access_notification_ack",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -90,6 +97,7 @@ for (const marker of [
   "self-hosted offer detail smoke",
   "supplier-access request and grant indexes",
   "access notification acknowledgement",
+  "supplier-access change event",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -214,6 +222,7 @@ for (const marker of [
   "offset",
   "serverFiltered",
   "offerCatalogApiQueryFromFilters",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, marker);
 }
@@ -223,6 +232,7 @@ for (const marker of [
   "getOfferById",
   "createOfferCatalogApiClient",
   "findFallbackOfferById",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("src/lib/use-offer-detail.ts", useOfferDetail, marker);
 }
@@ -233,6 +243,22 @@ for (const marker of [
   "verificationLevel",
 ]) {
   requireText("src/lib/supplier-directory-api.ts", supplierApi, marker);
+}
+
+for (const marker of [
+  "useSupplierDirectoryList",
+  "useSupplierDirectoryDetail",
+  "serverFiltered",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
+]) {
+  requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, marker);
+}
+
+for (const marker of [
+  "export const SUPPLIER_ACCESS_CHANGE_EVENT",
+  "window.dispatchEvent",
+]) {
+  requireText("src/lib/supplier-access-requests.ts", supplierAccessRequests, marker);
 }
 
 for (const marker of [

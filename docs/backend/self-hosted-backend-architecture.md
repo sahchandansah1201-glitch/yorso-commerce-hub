@@ -180,6 +180,11 @@ Production-facing behavior:
   backend approvals, it calls `PATCH /v1/access/notifications` so unread rows
   become `read` and the API records a `notification_read` audit event in
   migration `0008_access_notification_ack`;
+- Batch #50 adds the frontend refresh bridge for the same approval path:
+  supplier access writes dispatch `SUPPLIER_ACCESS_CHANGE_EVENT`, and the
+  offer catalog, offer detail, supplier directory and supplier profile runtime
+  hooks refetch their self-hosted API data on that event instead of relying on
+  manual reloads or extra polling;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 

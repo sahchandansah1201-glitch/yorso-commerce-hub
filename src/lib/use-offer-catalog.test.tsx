@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
+import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
 import {
   offerCatalogApiQueryFromFilters,
   offerMatchesClientFilters,
@@ -116,7 +117,7 @@ describe("useOfferCatalogList", () => {
 
   it("maps supported catalog filters into the self-hosted /v1/offers query", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
       new Response(JSON.stringify({
         ok: true,
         offers: [apiOffer()],
@@ -184,6 +185,40 @@ describe("useOfferCatalogList", () => {
     expect(result.current.offers).toHaveLength(1);
     expect(offerMatchesClientFilters(result.current.offers[0], activeFilters, false, true)).toBe(true);
     expect(offerMatchesClientFilters(result.current.offers[0], activeFilters, false, false)).toBe(false);
+  });
+
+  it("refreshes self-hosted offer list after supplier access changes", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({
+        ok: true,
+        offers: [apiOffer()],
+        total: 1,
+        accessLevel: "registered_locked",
+        limit: 50,
+        offset: 0,
+        requestId: "req-offers",
+      }), { status: 200, headers: { "content-type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderHook(() =>
+      useOfferCatalogList({
+        filters: filters({ category: "Whitefish" }),
+        level: "registered_locked",
+      }),
+    );
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent(SUPPLIER_ACCESS_CHANGE_EVENT));
+    });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "http://api.test/v1/offers?category=Whitefish&accessLevel=registered_locked&limit=50&offset=0",
+    );
   });
 
   it("falls back to safe prototype offers when the self-hosted API is unavailable", async () => {

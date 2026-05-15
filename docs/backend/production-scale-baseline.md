@@ -153,6 +153,16 @@ marks those rows as `read` and writes a `notification_read` audit event. This
 keeps the unread feed small, reduces repeated notification payloads at scale and
 preserves an auditable buyer-side acknowledgement trail.
 
+Batch #50 closes the frontend refresh loop after access state changes. The
+shared `SUPPLIER_ACCESS_CHANGE_EVENT` is dispatched when supplier-access state
+is persisted locally. `/offers`, `/offers/:id`, `/suppliers` and
+`/suppliers/:id` subscribe to that event and refetch their self-hosted API data
+instead of waiting for a manual reload. This keeps newly approved price and
+supplier identity grants visible quickly while avoiding a new polling path. At
+10,000 concurrent users this matters: approval changes trigger bounded,
+event-driven reads for the current browser context, not continuous catalog or
+supplier-directory polling.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

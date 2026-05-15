@@ -150,6 +150,9 @@ contract. It checks:
   `/v1/access/notifications` polling at 60 seconds, prevents overlapping
   backend sync, refreshes when a browser tab becomes visible and acknowledges
   processed notification IDs through the self-hosted API;
+- the supplier-access change event refreshes offer list/detail and supplier
+  list/detail API-mode state after approvals, avoiding stale locked UI without
+  adding a high-frequency polling path;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not

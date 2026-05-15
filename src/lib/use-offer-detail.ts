@@ -3,6 +3,7 @@ import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { findFallbackOfferById } from "@/lib/catalog-fallback";
 import { createOfferCatalogApiClient } from "@/lib/offer-catalog-api";
+import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
 
 export type OfferDetailSource = "api" | "local";
 export type OfferDetailStatus = "idle" | "loading" | "ready" | "error";
@@ -127,6 +128,15 @@ export function useOfferDetail(id: string | undefined, level: AccessLevel) {
       cancelled = true;
     };
   }, [client, id, level, refreshToken]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onSupplierAccessChange = () => setRefreshToken((n) => n + 1);
+    window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    return () => {
+      window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    };
+  }, []);
 
   return {
     ...state,
