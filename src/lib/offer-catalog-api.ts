@@ -6,8 +6,12 @@ import {
   getConfiguredAccountUserId,
 } from "@/lib/account-api";
 import { buyerSession } from "@/lib/buyer-session";
-import { fallbackOfferForLevel } from "@/lib/catalog-fallback";
+import {
+  fallbackOfferForSupplierAccess,
+  supplierAccessIdForOffer,
+} from "@/lib/catalog-fallback";
 import { legacyOfferIdToUuid } from "@/lib/legacy-offer-id";
+import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 const REDACTED_SUPPLIER = "Имя поставщика скрыто";
 
@@ -128,7 +132,11 @@ const offerCatalogHeaders = () => {
   return headers;
 };
 
-const mockMatches = (offer: SeafoodOffer, query: Partial<OfferCatalogQuery>) => {
+const mockMatches = (
+  offer: SeafoodOffer,
+  query: Partial<OfferCatalogQuery>,
+  canSearchPrivateSupplier: boolean,
+) => {
   if (query.category && !offer.category.toLowerCase().includes(query.category.toLowerCase())) return false;
   if (query.species && !offer.species.toLowerCase().includes(query.species.toLowerCase())) return false;
   if (query.format && offer.format !== query.format) return false;
@@ -181,7 +189,7 @@ const mockMatches = (offer: SeafoodOffer, query: Partial<OfferCatalogQuery>) => 
       offer.commercial.shipmentPort ?? "",
       ...offer.certifications,
     ];
-    if (query.accessLevel === "qualified_unlocked") {
+    if (query.accessLevel === "qualified_unlocked" || canSearchPrivateSupplier) {
       searchable.push(offer.supplierName, offer.supplier.name, offer.supplier.country);
     }
     if (!searchable.some((value) => value.toLowerCase().includes(q))) return false;
@@ -272,6 +280,7 @@ export const mapOfferCatalogItemToSeafoodOffer = (item: OfferCatalogItem): Seafo
     deliveryBasisOptions: item.deliveryBasisOptions,
     relatedArticles: item.relatedArticles,
     volumeBreaks: item.volumeBreaks,
+    accessLevel: item.accessLevel,
   };
 };
 
@@ -298,12 +307,23 @@ export function createOfferCatalogApiClient(options: OfferCatalogClientOptions =
       const offset = query.offset ?? 0;
 
       if (!enabled) {
+        const approvedSupplierIds = new Set(getApprovedSupplierAccessIds());
         const filtered = sortMockOffers(
-          mockOffers.filter((offer) => mockMatches(offer, { ...query, accessLevel })),
+          mockOffers.filter((offer) =>
+            mockMatches(
+              offer,
+              { ...query, accessLevel },
+              approvedSupplierIds.has(supplierAccessIdForOffer(offer)),
+            ),
+          ),
           query,
         );
         return {
-          offers: filtered.slice(offset, offset + limit).map((offer) => fallbackOfferForLevel(offer, accessLevel)),
+          offers: filtered
+            .slice(offset, offset + limit)
+            .map((offer) =>
+              fallbackOfferForSupplierAccess(offer, accessLevel, approvedSupplierIds),
+            ),
           total: filtered.length,
           accessLevel,
           limit,
@@ -321,7 +341,13 @@ export function createOfferCatalogApiClient(options: OfferCatalogClientOptions =
     async getOfferById(id: string, accessLevel: AccessLevel = "anonymous_locked") {
       if (!enabled) {
         const offer = mockOffers.find((item) => item.id === id || legacyOfferIdToUuid(item.id) === id);
-        return offer ? fallbackOfferForLevel(offer, accessLevel) : null;
+        return offer
+          ? fallbackOfferForSupplierAccess(
+              offer,
+              accessLevel,
+              getApprovedSupplierAccessIds(),
+            )
+          : null;
       }
 
       const params = paramsFromQuery({ accessLevel });

@@ -217,7 +217,7 @@ describe("useOfferCatalogList", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      "http://api.test/v1/offers?category=Whitefish&sortBy=updated_at&sortDirection=desc&accessLevel=registered_locked&limit=50&offset=0",
+      "http://api.test/v1/offers?category=Whitefish&sortBy=updated_at&sortDirection=desc&accessLevel=qualified_unlocked&limit=50&offset=0",
     );
   });
 

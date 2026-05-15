@@ -603,3 +603,17 @@ approval isolation, unknown-offer cleanup and exact-price no-leak behavior.
 Local fallback shaping and self-hosted API shaping both redact delivery-basis
 price ranges and volume tiers until a supplier grant exists, so the UI and API
 follow the same owned-backend access boundary.
+
+Batch #59 connects the list and detail access paths into one browser contract.
+The offer catalog detail flow browser e2e opens `/offers`, navigates to
+`/offers/:id`, requests supplier access, applies an approval event, returns to
+the catalog and verifies that only the matching row is unlocked while URL state
+is preserved. The frontend now treats access as offer-level state:
+`SeafoodOffer.accessLevel` can override the global buyer level, catalog rows
+and the right-side intelligence panel receive `forceLevel`, and local fallback
+uses approved supplier access records instead of unlocking the whole catalog.
+For the self-hosted API path, signed-in catalog/detail reads may request
+`qualified_unlocked`; the API still downgrades each row or detail response
+unless a real grant exists. This keeps the future production deployment aligned
+with owned API + PostgreSQL grant enforcement rather than frontend-only global
+qualification flags.

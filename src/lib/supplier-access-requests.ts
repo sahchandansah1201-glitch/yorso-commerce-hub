@@ -179,6 +179,18 @@ const safeWrite = (
 
 export const getAllSupplierAccessRequests = (): Store => safeRead();
 
+export const getApprovedSupplierAccessIds = (): string[] =>
+  Object.values(safeRead())
+    .filter((request) => request.status === "approved")
+    .map((request) => request.supplierId);
+
+export const hasApprovedSupplierAccess = (
+  supplierId: string | null | undefined,
+): boolean => {
+  if (!supplierId) return false;
+  return safeRead()[supplierId]?.status === "approved";
+};
+
 export const persistSupplierAccessRequest = (
   request: SupplierAccessRequest,
   options?: { source?: SupplierAccessChangeSource },

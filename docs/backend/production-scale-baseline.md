@@ -238,6 +238,20 @@ the self-hosted offer API. This matters at 10,000 concurrent users because
 offer detail is a hot read path: access state must be shaped once by bounded
 API/fallback logic, not by expensive client-side masking or polling loops.
 
+Batch #59 adds offer catalog detail flow browser e2e coverage for the full
+buyer path across `/offers` and `/offers/:id`. The new
+`e2e/offer-catalog-detail-flow.spec.ts` verifies that a registered catalog row
+stays locked before approval, a one-click request on the detail page unlocks
+only the matching supplier after approval, the buyer can return to the catalog
+with URL state preserved, and unrelated supplier approvals do not unlock the
+current offer. This is the offer catalog detail flow browser e2e guard. It also
+formalizes the per-offer access model in the frontend: self-hosted API reads
+may request `qualified_unlocked`, but the backend remains responsible for
+per-row grant downgrades; local fallback unlocks only suppliers with approved
+mock access state. At 10,000 concurrent users this keeps access refresh
+event-driven and avoids full catalog reloads, global client-side unlocks or
+polling-heavy approval checks.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

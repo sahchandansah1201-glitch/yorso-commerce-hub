@@ -14,7 +14,7 @@ import {
 import { useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useAccessLevel } from "@/lib/access-level";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import {
   countryNews,
   getCountryImpact,
@@ -31,6 +31,7 @@ import analytics from "@/lib/analytics";
 
 interface Props {
   offer: SeafoodOffer | null;
+  forceLevel?: AccessLevel;
   isCompared?: boolean;
   onCompareToggle?: (offerId: string) => void;
   compareDisabled?: boolean;
@@ -109,12 +110,14 @@ const reasonLabel = (
 
 export const SelectedOfferPanel = ({
   offer,
+  forceLevel,
   isCompared = false,
   onCompareToggle,
   compareDisabled = false,
 }: Props) => {
   const { t, lang } = useLanguage();
-  const { level } = useAccessLevel();
+  const { level: ctxLevel } = useAccessLevel();
+  const level = forceLevel ?? ctxLevel;
 
   const trend = offer ? getPriceTrend(offer.category) : null;
   const impact = offer ? getCountryImpact(offer.category) : [];
