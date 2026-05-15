@@ -196,6 +196,12 @@ Production-facing behavior:
   approval notifications when `VITE_YORSO_API_URL` is empty. The header bell
   uses `autoLoad: false` and fetches only when opened or after typed access
   approval events;
+- Batch #53 makes supplier directory pagination and sorting part of the
+  self-hosted contract. The API accepts `sortBy`, `sortDirection`, `limit` and
+  `offset`; the frontend stores the supplier view in URL parameters; and
+  migration `0009_supplier_directory_pagination_sort` adds composite indexes
+  for default, country, verification and response-speed supplier directory
+  pagination;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 
@@ -280,6 +286,14 @@ quick filters that have backend equivalents are sent to the API. Migration
 `0005_supplier_directory_search_scaling` adds trigram GIN indexes and a
 verification-level index so supplier discovery stays index-backed under the
 10,000 concurrent-user target.
+
+Batch #53 extends that supplier directory bridge with server-owned sorting,
+URL-state and page controls. `/suppliers` now keeps `q`, quick filter, sort,
+direction, rows and page in the URL and sends the same view to `/v1/suppliers`.
+The backend validates `sortBy` and `sortDirection`, applies a safe SQL
+`orderByClause`, and migration `0009_supplier_directory_pagination_sort`
+provides composite indexes for stable pagination instead of sorting a partial
+client-side page.
 
 Batch #36 promotes the 10,000 concurrent-user target from feature-level notes
 to a repository-level release gate. `check:production-scale-baseline` now

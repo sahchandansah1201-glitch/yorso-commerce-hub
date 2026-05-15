@@ -6,6 +6,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-validation.md",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
+  "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migrations/0008_access_notification_ack.sql",
@@ -40,6 +41,7 @@ const baseline = read("docs/backend/production-scale-baseline.md");
 const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
+const supplierPaginationSort = read("packages/db/migrations/0009_supplier_directory_pagination_sort.sql");
 const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const accessNotificationAck = read("packages/db/migrations/0008_access_notification_ack.sql");
@@ -80,7 +82,9 @@ for (const marker of [
   "SUPPLIER_ACCESS_CHANGE_EVENT",
   "Batch #51",
   "Batch #52",
+  "Batch #53",
   "notification center",
+  "supplier directory pagination",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -92,12 +96,14 @@ for (const marker of [
   "Redis",
   "queue workers",
   "0005_supplier_directory_search_scaling",
+  "0009_supplier_directory_pagination_sort",
   "0006_offer_catalog",
   "0007_supplier_access_flow",
   "0008_access_notification_ack",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
   "SupplierAccessRefreshBanner",
   "SupplierAccessNotificationCenter",
+  "supplier directory pagination",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -113,6 +119,7 @@ for (const marker of [
   "supplier-access change event",
   "refresh banner",
   "notification center",
+  "supplier directory pagination",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -128,6 +135,16 @@ for (const marker of [
   "high-concurrency catalog traffic",
 ]) {
   requireText("packages/db/migrations/0005_supplier_directory_search_scaling.sql", supplierScaling, marker);
+}
+
+for (const marker of [
+  "idx_yorso_suppliers_directory_published_updated",
+  "idx_yorso_suppliers_directory_published_country",
+  "idx_yorso_suppliers_directory_published_verification_updated",
+  "idx_yorso_suppliers_directory_published_response_updated",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0009_supplier_directory_pagination_sort.sql", supplierPaginationSort, marker);
 }
 
 for (const marker of [
@@ -172,6 +189,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0007_supplier_ac
 if (!manifest.migrations?.some((migration) => migration.id === "0008_access_notification_ack")) {
   failures.push("packages/db/migration-manifest.json: missing 0008_access_notification_ack");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0009_supplier_directory_pagination_sort")) {
+  failures.push("packages/db/migration-manifest.json: missing 0009_supplier_directory_pagination_sort");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -192,6 +212,7 @@ for (const marker of [
   "supplier_directory_unlocked=ok",
   "supplier_directory_granted_private_search=ok",
   "supplier_directory_ungranted_private_search_guard=ok",
+  "supplier_directory_sort_pagination=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }
@@ -329,8 +350,10 @@ for (const marker of [
 
 for (const marker of [
   "setTimeout",
-  "limit: 50",
-  "offset: 0",
+  "pageSize",
+  "offset: (page - 1) * pageSize",
+  "supplier-directory-page-size",
+  "supplier-directory-pagination",
 ]) {
   requireText("src/pages/Suppliers.tsx", suppliersPage, marker);
 }

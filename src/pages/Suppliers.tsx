@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight, Search } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -98,13 +98,55 @@ const FILTER_LABEL_KEYS: Record<string, keyof ReturnType<typeof useLanguage>["t"
 const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
 
+const SUPPLIER_SORT_KEYS = ["updated_at", "country", "verification", "response"] as const;
+const SUPPLIER_SORT_DIRECTIONS = ["asc", "desc"] as const;
+const SUPPLIER_PAGE_SIZES = [10, 20, 50] as const;
+type SupplierSortKey = (typeof SUPPLIER_SORT_KEYS)[number];
+type SupplierSortDirection = (typeof SUPPLIER_SORT_DIRECTIONS)[number];
+type SupplierPageSize = (typeof SUPPLIER_PAGE_SIZES)[number];
+
+const DEFAULT_SUPPLIER_SORT_KEY: SupplierSortKey = "updated_at";
+const DEFAULT_SUPPLIER_SORT_DIRECTION: SupplierSortDirection = "desc";
+const DEFAULT_SUPPLIER_PAGE_SIZE: SupplierPageSize = 10;
+
+const isSupplierSortKey = (value: string | null): value is SupplierSortKey =>
+  SUPPLIER_SORT_KEYS.includes(value as SupplierSortKey);
+const isSupplierSortDirection = (value: string | null): value is SupplierSortDirection =>
+  SUPPLIER_SORT_DIRECTIONS.includes(value as SupplierSortDirection);
+const isSupplierPageSize = (value: string | null): value is `${SupplierPageSize}` =>
+  value === "10" || value === "20" || value === "50";
+
+const readInitialSupplierView = (params: URLSearchParams) => {
+  const filter = params.get("filter");
+  const sort = params.get("sort");
+  const direction = params.get("dir");
+  const pageSizeParam = params.get("rows");
+  const pageParam = Number(params.get("page") ?? "1");
+  return {
+    query: params.get("q") ?? "",
+    activeFilter: QUICK_FILTERS.some((item) => item.id === filter) ? filter : null,
+    sortBy: isSupplierSortKey(sort) ? sort : DEFAULT_SUPPLIER_SORT_KEY,
+    sortDirection: isSupplierSortDirection(direction)
+      ? direction
+      : DEFAULT_SUPPLIER_SORT_DIRECTION,
+    pageSize: isSupplierPageSize(pageSizeParam) ? Number(pageSizeParam) as SupplierPageSize : DEFAULT_SUPPLIER_PAGE_SIZE,
+    page: Number.isFinite(pageParam) && pageParam > 0 ? Math.floor(pageParam) : 1,
+  };
+};
+
 const Suppliers = () => {
   const { level } = useAccessLevel();
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [initialSupplierView] = useState(() => readInitialSupplierView(searchParams));
+  const [query, setQuery] = useState(initialSupplierView.query);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialSupplierView.query.trim());
+  const [activeFilter, setActiveFilter] = useState<string | null>(initialSupplierView.activeFilter);
+  const [sortBy, setSortBy] = useState<SupplierSortKey>(initialSupplierView.sortBy);
+  const [sortDirection, setSortDirection] = useState<SupplierSortDirection>(initialSupplierView.sortDirection);
+  const [pageSize, setPageSize] = useState<SupplierPageSize>(initialSupplierView.pageSize);
+  const [page, setPage] = useState(initialSupplierView.page);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [shortlist, setShortlist] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -142,6 +184,7 @@ const Suppliers = () => {
   useEffect(() => {
     const handle = window.setTimeout(() => {
       setDebouncedQuery(query.trim());
+      setPage(1);
     }, 250);
     return () => window.clearTimeout(handle);
   }, [query]);
@@ -157,9 +200,30 @@ const Suppliers = () => {
     language: lang,
     query: debouncedQuery,
     filterQuery: activeQuickFilter?.apiQuery ?? null,
-    limit: 50,
-    offset: 0,
+    sortBy,
+    sortDirection,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
   });
+
+  useEffect(() => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (debouncedQuery) next.set("q", debouncedQuery);
+      else next.delete("q");
+      if (activeFilter) next.set("filter", activeFilter);
+      else next.delete("filter");
+      if (sortBy !== DEFAULT_SUPPLIER_SORT_KEY) next.set("sort", sortBy);
+      else next.delete("sort");
+      if (sortDirection !== DEFAULT_SUPPLIER_SORT_DIRECTION) next.set("dir", sortDirection);
+      else next.delete("dir");
+      if (pageSize !== DEFAULT_SUPPLIER_PAGE_SIZE) next.set("rows", String(pageSize));
+      else next.delete("rows");
+      if (page > 1) next.set("page", String(page));
+      else next.delete("page");
+      return next;
+    }, { replace: true });
+  }, [activeFilter, debouncedQuery, page, pageSize, setSearchParams, sortBy, sortDirection]);
 
   const filtered = useMemo(() => {
     if (directory.serverFiltered) return directory.suppliers;
@@ -195,10 +259,23 @@ const Suppliers = () => {
     });
   }, [directory.serverFiltered, directory.suppliers, query, activeFilter, level, stableSupplierById]);
 
+  const totalResults = directory.serverFiltered ? directory.total : filtered.length;
+  const pageCount = Math.max(1, Math.ceil(totalResults / pageSize));
+  const pageStart = totalResults === 0 ? 0 : (page - 1) * pageSize + 1;
+  const pageEnd = totalResults === 0 ? 0 : Math.min(page * pageSize, totalResults);
+  const visibleSuppliers = useMemo(() => {
+    if (directory.serverFiltered) return filtered;
+    return filtered.slice((page - 1) * pageSize, page * pageSize);
+  }, [directory.serverFiltered, filtered, page, pageSize]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+
   const selected = useMemo(() => {
     if (!selectedId) return null;
-    return filtered.find((s) => s.id === selectedId) ?? null;
-  }, [filtered, selectedId]);
+    return visibleSuppliers.find((s) => s.id === selectedId) ?? null;
+  }, [visibleSuppliers, selectedId]);
 
   const handleShortlist = (id: string) => {
     const next = new Set(shortlist);
@@ -261,8 +338,8 @@ const Suppliers = () => {
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>
                   {interpolate(t.suppliersPage_countSuffix, {
-                    visible: filtered.length,
-                    total: directory.total,
+                    visible: visibleSuppliers.length,
+                    total: totalResults,
                   })}
                   {directory.status === "loading" && (
                     <span className="sr-only">{t.suppliersPage_loading}</span>
@@ -309,6 +386,7 @@ const Suppliers = () => {
                   onClick={() => {
                     setActiveFilter(null);
                     setQuery("");
+                    setPage(1);
                   }}
                   className="self-start md:self-auto"
                 >
@@ -330,7 +408,10 @@ const Suppliers = () => {
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => setActiveFilter(active ? null : f.id)}
+                    onClick={() => {
+                      setActiveFilter(active ? null : f.id);
+                      setPage(1);
+                    }}
                     aria-pressed={active}
                     className={cn(
                       "rounded-full border px-3 py-1 text-xs font-medium transition",
@@ -343,6 +424,72 @@ const Suppliers = () => {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-border bg-card/70 p-3 text-xs md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-2 font-medium text-muted-foreground">
+                  <span>{t.suppliersPage_sortLabel}</span>
+                  <select
+                    data-testid="supplier-directory-sort"
+                    value={sortBy}
+                    onChange={(event) => {
+                      setSortBy(event.target.value as SupplierSortKey);
+                      setPage(1);
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                  >
+                    <option value="updated_at">{t.suppliersPage_sortUpdated}</option>
+                    <option value="country">{t.suppliersPage_sortCountry}</option>
+                    <option value="verification">{t.suppliersPage_sortVerification}</option>
+                    <option value="response">{t.suppliersPage_sortResponse}</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 font-medium text-muted-foreground">
+                  <span>{t.suppliersPage_directionLabel}</span>
+                  <select
+                    data-testid="supplier-directory-direction"
+                    value={sortDirection}
+                    onChange={(event) => {
+                      setSortDirection(event.target.value as SupplierSortDirection);
+                      setPage(1);
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                  >
+                    <option value="desc">{t.suppliersPage_directionDesc}</option>
+                    <option value="asc">{t.suppliersPage_directionAsc}</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 font-medium text-muted-foreground">
+                  <span>{t.suppliersPage_rowsLabel}</span>
+                  <select
+                    data-testid="supplier-directory-page-size"
+                    value={pageSize}
+                    onChange={(event) => {
+                      setPageSize(Number(event.target.value) as SupplierPageSize);
+                      setPage(1);
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                  >
+                    {SUPPLIER_PAGE_SIZES.map((size) => (
+                      <option key={size} value={size}>
+                        {interpolate(t.suppliersPage_rowsOption, { count: size })}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div
+                data-testid="supplier-directory-page-summary"
+                className="text-muted-foreground"
+                aria-live="polite"
+              >
+                {interpolate(t.suppliersPage_pageSummary, {
+                  start: pageStart,
+                  end: pageEnd,
+                  total: totalResults,
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -374,7 +521,7 @@ const Suppliers = () => {
                     {t.suppliersPage_loading}
                   </div>
                 )}
-                {filtered.length === 0 ? (
+                {visibleSuppliers.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center">
                     <p className="text-sm font-medium text-foreground">
                       {t.suppliersPage_emptyTitle}
@@ -385,7 +532,7 @@ const Suppliers = () => {
                   </div>
                 ) : (
                   <ul className="space-y-3">
-                    {filtered.map((s) => (
+                    {visibleSuppliers.map((s) => (
                       <SupplierRow
                         key={s.id}
                         supplier={s}
@@ -398,6 +545,41 @@ const Suppliers = () => {
                       />
                     ))}
                   </ul>
+                )}
+                {totalResults > pageSize && (
+                  <div
+                    data-testid="supplier-directory-pagination"
+                    className="mt-4 flex flex-col gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm md:flex-row md:items-center md:justify-between"
+                  >
+                    <span className="text-muted-foreground">
+                      {interpolate(t.suppliersPage_pageNumber, {
+                        current: page,
+                        total: pageCount,
+                      })}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        data-testid="supplier-directory-prev"
+                        disabled={page <= 1}
+                        onClick={() => setPage((current) => Math.max(1, current - 1))}
+                      >
+                        {t.suppliersPage_previous}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        data-testid="supplier-directory-next"
+                        disabled={page >= pageCount}
+                        onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                      >
+                        {t.suppliersPage_next}
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 

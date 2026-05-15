@@ -17,6 +17,13 @@ export const supplierTypeSchema = z.enum([
 export const supplierResponseSignalSchema = z.enum(["fast", "normal", "slow"]);
 export const supplierDocumentReadinessSchema = z.enum(["ready", "partial", "on_request"]);
 export const supplierVerificationLevelSchema = z.enum(["documents_reviewed", "basic", "unverified"]);
+export const supplierDirectorySortBySchema = z.enum([
+  "updated_at",
+  "country",
+  "verification",
+  "response",
+]);
+export const supplierDirectorySortDirectionSchema = z.enum(["asc", "desc"]);
 
 export const supplierProductFocusSchema = z.object({
   species: z.string().min(1).max(120),
@@ -98,6 +105,8 @@ export const supplierDirectoryQuerySchema = z.object({
   supplierType: supplierTypeSchema.optional(),
   verificationLevel: supplierVerificationLevelSchema.optional(),
   certification: z.string().max(80).optional(),
+  sortBy: supplierDirectorySortBySchema.default("updated_at"),
+  sortDirection: supplierDirectorySortDirectionSchema.default("desc"),
   accessLevel: supplierDirectoryAccessLevelSchema.default("anonymous_locked"),
   limit: z.coerce.number().int().min(1).max(50).default(20),
   offset: z.coerce.number().int().min(0).max(10000).default(0),
@@ -128,6 +137,8 @@ export type SupplierDirectoryItem = z.infer<typeof supplierDirectoryItemSchema>;
 export type SupplierDirectoryQuery = z.infer<typeof supplierDirectoryQuerySchema>;
 export type SupplierDirectoryRecord = z.infer<typeof supplierDirectoryRecordSchema>;
 export type SupplierDirectoryResponseSignal = z.infer<typeof supplierResponseSignalSchema>;
+export type SupplierDirectorySortBy = z.infer<typeof supplierDirectorySortBySchema>;
+export type SupplierDirectorySortDirection = z.infer<typeof supplierDirectorySortDirectionSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
 export type SupplierProductFocus = z.infer<typeof supplierProductFocusSchema>;
 export type SupplierType = z.infer<typeof supplierTypeSchema>;

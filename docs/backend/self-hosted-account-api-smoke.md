@@ -135,6 +135,7 @@ document_upload=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok
+supplier_directory_sort_pagination=ok
 supplier_directory_requires_grant=ok
 supplier_directory_private_search_requires_grant=ok
 supplier_directory_unlocked=ok

@@ -45,6 +45,8 @@ export interface SupplierDirectoryQuery {
   supplierType?: SupplierDirectoryItem["supplierType"];
   verificationLevel?: SupplierDirectoryItem["verificationLevel"];
   certification?: string;
+  sortBy?: "updated_at" | "country" | "verification" | "response";
+  sortDirection?: "asc" | "desc";
   accessLevel: SupplierDirectoryAccessLevel;
   limit: number;
   offset: number;
@@ -168,6 +170,50 @@ const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<Su
   return true;
 };
 
+const verificationRank: Record<SupplierDirectoryItem["verificationLevel"], number> = {
+  documents_reviewed: 0,
+  basic: 1,
+  unverified: 2,
+};
+
+const responseRank: Record<SupplierDirectoryItem["responseSignal"], number> = {
+  fast: 0,
+  normal: 1,
+  slow: 2,
+};
+
+const compareText = (a: string, b: string) => a.localeCompare(b, "en", { sensitivity: "base" });
+
+const sortMockSuppliers = (
+  suppliers: Array<(typeof mockSuppliers)[number]>,
+  query: Partial<SupplierDirectoryQuery>,
+) => {
+  const sortBy = query.sortBy ?? "updated_at";
+  const direction = query.sortDirection ?? "desc";
+  const sign = direction === "asc" ? 1 : -1;
+
+  return suppliers
+    .map((supplier, index) => ({ supplier, index }))
+    .sort((aEntry, bEntry) => {
+    const a = aEntry.supplier;
+    const b = bEntry.supplier;
+    let value = 0;
+    if (sortBy === "country") {
+      value = compareText(`${a.countryCode}-${a.city}-${a.id}`, `${b.countryCode}-${b.city}-${b.id}`);
+    } else if (sortBy === "verification") {
+      value = verificationRank[a.verificationLevel] - verificationRank[b.verificationLevel] || compareText(a.id, b.id);
+    } else if (sortBy === "response") {
+      value = responseRank[a.responseSignal] - responseRank[b.responseSignal] || compareText(a.id, b.id);
+    } else {
+      // Local mock records do not carry real update timestamps. Keep fallback
+      // deterministic while the self-hosted API owns the production ordering.
+      return direction === "asc" ? bEntry.index - aEntry.index : aEntry.index - bEntry.index;
+    }
+    return value * sign;
+  })
+    .map(({ supplier }) => supplier);
+};
+
 export function createSupplierDirectoryApiClient(options: SupplierDirectoryClientOptions = {}) {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? readBaseUrl());
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -191,7 +237,10 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
       const offset = query.offset ?? 0;
 
       if (!enabled) {
-        const filtered = mockSuppliers.filter((supplier) => mockMatches(supplier, query));
+        const filtered = sortMockSuppliers(
+          mockSuppliers.filter((supplier) => mockMatches(supplier, query)),
+          query,
+        );
         return {
           suppliers: filtered.slice(offset, offset + limit).map((supplier) => shapeMockSupplier(supplier, accessLevel)),
           total: filtered.length,

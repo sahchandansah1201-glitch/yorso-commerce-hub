@@ -93,6 +93,8 @@ Batch #35 introduced the first concrete high-concurrency read-path work:
 - frontend supplier directory and offer catalog API bridges with pagination.
 - self-hosted offer detail smoke for the bounded `/v1/offers/:id` read path,
   locked/unlocked access shaping, not-found, method and validation guards.
+- `packages/db/migrations/0009_supplier_directory_pagination_sort.sql` adds
+  composite indexes for supplier directory pagination and sort paths.
 
 Batch #36 promotes the target from a supplier-directory note to a project-level
 release gate.
@@ -174,13 +176,20 @@ query or global page reload.
 Batch #52 adds a buyer-facing supplier access notification center in the
 header. It reuses the same self-hosted `/v1/access/notifications` feed and
 `PATCH /v1/access/notifications` acknowledgement path instead of adding a new
-endpoint. The center refreshes on boot, on manual open and on typed
 endpoint. The header bell sets `autoLoad: false`, so ordinary page boot does
 not create an extra feed request; it refreshes on manual open and on typed
 `SUPPLIER_ACCESS_CHANGE_EVENT` approvals. It does not add high-frequency
 polling. At the 10,000 concurrent-user target, the read path remains an
 indexed, paginated notification feed and the write path is a bounded
 acknowledgement batch, not one request per notification row.
+
+Batch #53 adds supplier directory pagination and sort as a production read
+contract rather than a client-only convenience. `/v1/suppliers` accepts
+`sortBy`, `sortDirection`, `limit` and `offset`; `/suppliers` persists
+`q/filter/sort/dir/rows/page` in the URL; and the DB owns composite indexes for
+default, country, verification and response-speed ordering. At 10,000
+concurrent web users this keeps directory browsing bounded to one indexed page
+read per user action and avoids loading the full supplier set into the browser.
 
 ## Release Rule
 

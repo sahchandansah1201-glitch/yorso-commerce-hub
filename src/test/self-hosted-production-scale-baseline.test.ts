@@ -39,6 +39,10 @@ describe("production scale baseline", () => {
       "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
       "utf8",
     );
+    const supplierPaginationSort = readFileSync(
+      "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
+      "utf8",
+    );
     const offerCatalog = readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
     const supplierAccess = readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
 
@@ -47,11 +51,14 @@ describe("production scale baseline", () => {
     expect(offerApi).toContain("limit");
     expect(offerApi).toContain("offset");
     expect(offerApi).toContain("supplierCountryCode");
-    expect(suppliersPage).toContain("limit: 50");
-    expect(suppliersPage).toContain("offset: 0");
+    expect(suppliersPage).toContain("pageSize");
+    expect(suppliersPage).toContain("offset: (page - 1) * pageSize");
+    expect(suppliersPage).toContain("supplier-directory-pagination");
     expect(suppliersPage).toContain("setTimeout");
     expect(supplierScaling).toContain("gin_trgm_ops");
     expect(supplierScaling).toContain("idx_yorso_suppliers_directory_verification_level");
+    expect(supplierPaginationSort).toContain("idx_yorso_suppliers_directory_published_updated");
+    expect(supplierPaginationSort).toContain("idx_yorso_suppliers_directory_published_country");
     expect(offerCatalog).toContain("gin_trgm_ops");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_public_search_text");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_supplier_country_code");

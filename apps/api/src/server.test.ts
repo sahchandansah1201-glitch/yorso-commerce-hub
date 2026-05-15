@@ -242,6 +242,26 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
   });
 
+  it("sorts and paginates supplier directory on the backend", async () => {
+    const response = await request(
+      "/v1/suppliers?verificationLevel=documents_reviewed&accessLevel=anonymous_locked&sortBy=country&sortDirection=asc&limit=1&offset=1",
+    );
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.total).toBe(3);
+    expect(body.limit).toBe(1);
+    expect(body.offset).toBe(1);
+    expect(body.suppliers).toEqual([
+      expect.objectContaining({
+        countryCode: "EC",
+        companyName: null,
+      }),
+    ]);
+    expect(JSON.stringify(body)).not.toContain("Pacific Blue Shrimp S.A.");
+  });
+
   it("downgrades qualified supplier detail requests when the account has no supplier grant", async () => {
     const response = await request("/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
     const body = (await response.json()) as JsonBody;

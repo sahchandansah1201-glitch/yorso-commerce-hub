@@ -83,6 +83,13 @@
         "yorso_access_notifications"
       ],
       "dependsOn": ["0007_supplier_access_flow"]
+    },
+    {
+      "id": "0009_supplier_directory_pagination_sort",
+      "file": "migrations/0009_supplier_directory_pagination_sort.sql",
+      "description": "Add stable supplier directory pagination and sort indexes for high-concurrency read paths.",
+      "ownedTables": ["yorso_suppliers_directory"],
+      "dependsOn": ["0008_access_notification_ack"]
     }
   ]
 }
