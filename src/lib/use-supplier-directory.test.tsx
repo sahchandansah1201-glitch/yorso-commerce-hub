@@ -81,7 +81,7 @@ describe("useSupplierDirectory runtime refresh", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      "http://api.test/v1/suppliers?q=salmon&accessLevel=registered_locked&limit=50&offset=0",
+      "http://api.test/v1/suppliers?q=salmon&sortBy=updated_at&sortDirection=desc&accessLevel=registered_locked&limit=50&offset=0",
     );
   });
 

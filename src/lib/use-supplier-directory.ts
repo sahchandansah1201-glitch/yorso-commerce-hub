@@ -21,6 +21,8 @@ interface SupplierDirectoryListArgs {
   language: Language;
   query?: string;
   filterQuery?: Pick<Partial<SupplierDirectoryQuery>, "species" | "certification" | "verificationLevel"> | null;
+  sortBy?: SupplierDirectoryQuery["sortBy"];
+  sortDirection?: SupplierDirectoryQuery["sortDirection"];
   limit?: number;
   offset?: number;
 }
@@ -80,6 +82,8 @@ export function useSupplierDirectoryList({
   language,
   query = "",
   filterQuery = null,
+  sortBy = "updated_at",
+  sortDirection = "desc",
   limit = 50,
   offset = 0,
 }: SupplierDirectoryListArgs) {
@@ -110,6 +114,8 @@ export function useSupplierDirectoryList({
       .listSuppliers({
         ...(query ? { q: query } : {}),
         ...(filterQuery ?? {}),
+        sortBy,
+        sortDirection,
         accessLevel,
         limit,
         offset,
@@ -141,7 +147,7 @@ export function useSupplierDirectoryList({
     // `state.suppliers` intentionally stays outside deps. It is used only as
     // stale-while-refresh data while the API request is in flight.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, accessLevel, language, query, filterQuery, limit, offset, refreshToken]);
+  }, [client, accessLevel, language, query, filterQuery, sortBy, sortDirection, limit, offset, refreshToken]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;

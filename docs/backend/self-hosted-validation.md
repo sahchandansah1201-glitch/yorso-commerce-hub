@@ -316,6 +316,10 @@ The supplier directory bridge must preserve these rules:
   hiding the backend problem;
 - frontend search is debounced before API calls;
 - listing calls stay paginated with `limit` and `offset`;
+- listing calls include validated `sortBy` and `sortDirection` parameters when
+  the user changes supplier ordering;
+- `/suppliers` stores `q`, quick filter, sort, direction, rows and page in the
+  URL so the same server-backed supplier view can be reloaded and shared;
 - quick filters that can be expressed as API query parameters must be sent to
   the backend instead of filtering only a local page;
 - locked responses must not include real company name, about text, website,
@@ -323,6 +327,10 @@ The supplier directory bridge must preserve these rules:
 - qualified detail responses may include those fields through the typed API
   contract only after a supplier-access grant exists for the current account;
 - API code must not import the Supabase client.
+
+Batch #53 adds supplier directory pagination controls and sort URLs. Validation
+must confirm `supplier_directory_sort_pagination=ok`, the `0009_supplier_directory_pagination_sort`
+migration, and the absence of client-only sorting over a partial server page.
 
 Batch #41 connects the existing `/offers` surface to the self-hosted offer
 catalog backend path when `VITE_YORSO_API_URL` is configured.

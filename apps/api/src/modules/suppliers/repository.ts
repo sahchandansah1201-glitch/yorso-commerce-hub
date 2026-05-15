@@ -4,6 +4,8 @@ import type {
   SupplierDeliveryCountry,
   SupplierDirectoryQuery,
   SupplierDirectoryRecord,
+  SupplierDirectorySortBy,
+  SupplierDirectorySortDirection,
   SupplierProductFocus,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
@@ -196,12 +198,53 @@ function matchesQuery(
   return true;
 }
 
+const verificationRank: Record<SupplierDirectoryRecord["verificationLevel"], number> = {
+  documents_reviewed: 0,
+  basic: 1,
+  unverified: 2,
+};
+
+const responseRank: Record<SupplierDirectoryRecord["responseSignal"], number> = {
+  fast: 0,
+  normal: 1,
+  slow: 2,
+};
+
+function compareText(a: string, b: string) {
+  return a.localeCompare(b, "en", { sensitivity: "base" });
+}
+
+function compareSuppliers(
+  a: SupplierDirectoryRecord,
+  b: SupplierDirectoryRecord,
+  sortBy: SupplierDirectorySortBy,
+  direction: SupplierDirectorySortDirection,
+) {
+  const sign = direction === "asc" ? 1 : -1;
+  let value = 0;
+
+  if (sortBy === "country") {
+    value = compareText(`${a.countryCode}-${a.city}-${a.id}`, `${b.countryCode}-${b.city}-${b.id}`);
+  } else if (sortBy === "verification") {
+    value = verificationRank[a.verificationLevel] - verificationRank[b.verificationLevel] || compareText(a.id, b.id);
+  } else if (sortBy === "response") {
+    value = responseRank[a.responseSignal] - responseRank[b.responseSignal] || compareText(a.id, b.id);
+  } else {
+    const updated = compareText(a.updatedAt, b.updatedAt);
+    return updated === 0 ? compareText(a.id, b.id) : updated * sign;
+  }
+
+  return value * sign;
+}
+
 export class MemorySupplierRepository implements SupplierRepository {
   constructor(private readonly suppliers = demoSupplierRecords) {}
 
   async listSuppliers(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
     const privateSearchSupplierIds = new Set(options.privateSearchSupplierIds ?? []);
-    const filtered = this.suppliers.filter((supplier) => matchesQuery(supplier, query, privateSearchSupplierIds));
+    const filtered = this.suppliers
+      .filter((supplier) => matchesQuery(supplier, query, privateSearchSupplierIds))
+      .sort((a, b) => compareSuppliers(a, b, query.sortBy, query.sortDirection));
     return {
       suppliers: filtered.slice(query.offset, query.offset + query.limit).map((supplier) => ({ ...supplier })),
       total: filtered.length,

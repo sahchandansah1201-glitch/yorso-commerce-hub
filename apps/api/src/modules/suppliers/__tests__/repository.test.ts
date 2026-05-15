@@ -114,6 +114,8 @@ describe("supplier directory repositories", () => {
       supplierType: "producer",
       verificationLevel: "documents_reviewed",
       certification: "ASC",
+      sortBy: "country",
+      sortDirection: "asc",
       accessLevel: "qualified_unlocked",
       limit: 10,
       offset: 0,
@@ -133,6 +135,7 @@ describe("supplier directory repositories", () => {
     expect(calls[0].sql).toContain("certifications_search ilike $4");
     expect(calls[0].sql).toContain("product_focus_search ilike $5");
     expect(calls[0].sql).toContain("public_search_text ilike $6");
+    expect(calls[0].sql).toContain("order by country_code asc, city asc, id asc");
     expect(calls[0].sql).not.toContain("private_search_text");
     expect(calls[0].params).toEqual(["NO", "producer", "documents_reviewed", "%ASC%", "%Atlantic%", "%salmon%", 10, 0]);
 

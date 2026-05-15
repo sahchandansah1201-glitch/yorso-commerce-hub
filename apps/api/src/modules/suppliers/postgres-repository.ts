@@ -112,6 +112,40 @@ function whereClause(query: SupplierDirectoryQuery, options: SupplierRepositoryL
   return { sql: where.join(" and "), params };
 }
 
+function orderByClause(query: SupplierDirectoryQuery) {
+  const direction = query.sortDirection === "asc" ? "asc" : "desc";
+
+  if (query.sortBy === "country") {
+    return `country_code ${direction}, city ${direction}, id asc`;
+  }
+
+  if (query.sortBy === "verification") {
+    return `
+      case verification_level
+        when 'documents_reviewed' then 0
+        when 'basic' then 1
+        else 2
+      end ${direction},
+      updated_at desc,
+      id asc
+    `;
+  }
+
+  if (query.sortBy === "response") {
+    return `
+      case response_signal
+        when 'fast' then 0
+        when 'normal' then 1
+        else 2
+      end ${direction},
+      updated_at desc,
+      id asc
+    `;
+  }
+
+  return `updated_at ${direction}, id asc`;
+}
+
 export class PostgresSupplierRepository implements SupplierRepository {
   private readonly client: SupplierQueryClient;
 
@@ -123,12 +157,13 @@ export class PostgresSupplierRepository implements SupplierRepository {
     const where = whereClause(query, options);
     const limitParam = where.params.length + 1;
     const offsetParam = where.params.length + 2;
+    const orderBy = orderByClause(query);
     const result = await this.client.query<SupplierRow & { total_count: number }>(
       `
         select *, count(*) over()::int as total_count
         from yorso_suppliers_directory
         where ${where.sql}
-        order by updated_at desc, id asc
+        order by ${orderBy}
         limit $${limitParam}
         offset $${offsetParam}
       `,

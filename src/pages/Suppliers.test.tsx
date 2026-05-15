@@ -18,9 +18,9 @@ import { mockSuppliers } from "@/data/mockSuppliers";
 import { BUYER_SESSION_STORAGE_KEY } from "@/lib/buyer-session";
 import { setQualified } from "@/lib/access-level";
 
-const renderPage = () =>
+const renderPage = (initialEntry = "/suppliers") =>
   render(
-    <MemoryRouter initialEntries={["/suppliers"]}>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <LanguageProvider>
         <TooltipProvider>
           <BuyerSessionProvider>
@@ -251,7 +251,7 @@ describe("/suppliers — implementation quality fixes", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "http://api.test/v1/suppliers?accessLevel=anonymous_locked&limit=50&offset=0",
+      "http://api.test/v1/suppliers?sortBy=updated_at&sortDirection=desc&accessLevel=anonymous_locked&limit=10&offset=0",
     );
     expect((await screen.findAllByText(mockSuppliers[0].maskedName)).length).toBeGreaterThan(0);
     expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
@@ -334,6 +334,34 @@ describe("/suppliers — implementation quality fixes", () => {
     });
     expect(await screen.findByText("Remote cod processor · IS-777")).toBeInTheDocument();
     expect(screen.queryByText(mockSuppliers[0].maskedName)).not.toBeInTheDocument();
+  });
+
+  it("hydrates supplier directory URL state into server pagination and sort query", async () => {
+    const fetchMock = stubSupplierDirectoryApi(supplierListResponse([], 0));
+
+    renderPage("/suppliers?q=cod&filter=certified&sort=country&dir=asc&rows=20&page=2");
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls[0][0]).toBe(
+        "http://api.test/v1/suppliers?q=cod&verificationLevel=documents_reviewed&sortBy=country&sortDirection=asc&accessLevel=anonymous_locked&limit=20&offset=20",
+      );
+    });
+    expect(screen.getByTestId("supplier-directory-sort")).toHaveValue("country");
+    expect(screen.getByTestId("supplier-directory-direction")).toHaveValue("asc");
+    expect(screen.getByTestId("supplier-directory-page-size")).toHaveValue("20");
+  });
+
+  it("paginates local supplier fallback without changing access shaping", () => {
+    renderPage();
+
+    expect(screen.getByTestId("supplier-directory-page-summary")).toHaveTextContent("Showing 1-10 of 12");
+    expect(screen.getAllByTestId("supplier-row")).toHaveLength(10);
+
+    fireEvent.click(screen.getByTestId("supplier-directory-next"));
+
+    expect(screen.getByTestId("supplier-directory-page-summary")).toHaveTextContent("Showing 11-12 of 12");
+    expect(screen.getAllByTestId("supplier-row")).toHaveLength(2);
+    expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
   });
 });
 

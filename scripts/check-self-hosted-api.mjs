@@ -504,6 +504,8 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryItemSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectoryQuerySchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "verificationLevel: supplierVerificationLevelSchema.optional()");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectorySortBySchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectorySortDirectionSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
@@ -521,6 +523,7 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "notif
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branch_row_delete=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_sort_pagination=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_private_search_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
@@ -617,6 +620,8 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "createSu
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "/v1/suppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "mockSuppliers");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "verificationLevel");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "sortBy");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "sortDirection");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_USER_ID_HEADER");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_SESSION_ID_HEADER");
@@ -625,10 +630,13 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSuppl
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizedMockSuppliers");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFiltered");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortBy");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortDirection");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "privateSearchSupplierIds");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "orderByClause");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");

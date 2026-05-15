@@ -990,6 +990,20 @@ type TranslationKeys = {
   suppliersPage_sourceApi: string;
   suppliersPage_sourceLocal: string;
   suppliersPage_sourceFallback: string;
+  suppliersPage_sortLabel: string;
+  suppliersPage_sortUpdated: string;
+  suppliersPage_sortCountry: string;
+  suppliersPage_sortVerification: string;
+  suppliersPage_sortResponse: string;
+  suppliersPage_directionLabel: string;
+  suppliersPage_directionDesc: string;
+  suppliersPage_directionAsc: string;
+  suppliersPage_rowsLabel: string;
+  suppliersPage_rowsOption: string;
+  suppliersPage_pageSummary: string;
+  suppliersPage_pageNumber: string;
+  suppliersPage_previous: string;
+  suppliersPage_next: string;
   suppliersPage_addedShortlist: string;
   suppliersPage_removedShortlist: string;
   suppliersPage_accessRequestPreparedTitle: string;
@@ -2733,6 +2747,20 @@ const en: TranslationKeys = {
   suppliersPage_sourceApi: "Live directory",
   suppliersPage_sourceLocal: "Prototype directory",
   suppliersPage_sourceFallback: "Prototype fallback",
+  suppliersPage_sortLabel: "Sort by",
+  suppliersPage_sortUpdated: "Latest update",
+  suppliersPage_sortCountry: "Country",
+  suppliersPage_sortVerification: "Verification",
+  suppliersPage_sortResponse: "Response speed",
+  suppliersPage_directionLabel: "Order",
+  suppliersPage_directionDesc: "Descending",
+  suppliersPage_directionAsc: "Ascending",
+  suppliersPage_rowsLabel: "Rows",
+  suppliersPage_rowsOption: "{count} rows",
+  suppliersPage_pageSummary: "Showing {start}-{end} of {total}",
+  suppliersPage_pageNumber: "Page {current} of {total}",
+  suppliersPage_previous: "Previous",
+  suppliersPage_next: "Next",
   suppliersPage_addedShortlist: "Added to shortlist",
   suppliersPage_removedShortlist: "Removed from shortlist",
   suppliersPage_accessRequestPreparedTitle: "Access request prepared",
@@ -4445,6 +4473,20 @@ const ru: TranslationKeys = {
   suppliersPage_sourceApi: "Живой каталог",
   suppliersPage_sourceLocal: "Каталог прототипа",
   suppliersPage_sourceFallback: "Fallback прототипа",
+  suppliersPage_sortLabel: "Сортировать",
+  suppliersPage_sortUpdated: "По обновлению",
+  suppliersPage_sortCountry: "По стране",
+  suppliersPage_sortVerification: "По проверке",
+  suppliersPage_sortResponse: "По скорости ответа",
+  suppliersPage_directionLabel: "Порядок",
+  suppliersPage_directionDesc: "По убыванию",
+  suppliersPage_directionAsc: "По возрастанию",
+  suppliersPage_rowsLabel: "Строки",
+  suppliersPage_rowsOption: "{count} строк",
+  suppliersPage_pageSummary: "Показаны {start}-{end} из {total}",
+  suppliersPage_pageNumber: "Страница {current} из {total}",
+  suppliersPage_previous: "Назад",
+  suppliersPage_next: "Вперёд",
   suppliersPage_addedShortlist: "Добавлено в шортлист",
   suppliersPage_removedShortlist: "Удалено из шортлиста",
   suppliersPage_accessRequestPreparedTitle: "Запрос доступа подготовлен",
@@ -6157,6 +6199,20 @@ const es: TranslationKeys = {
   suppliersPage_sourceApi: "Directorio en vivo",
   suppliersPage_sourceLocal: "Directorio prototipo",
   suppliersPage_sourceFallback: "Fallback prototipo",
+  suppliersPage_sortLabel: "Ordenar por",
+  suppliersPage_sortUpdated: "Última actualización",
+  suppliersPage_sortCountry: "País",
+  suppliersPage_sortVerification: "Verificación",
+  suppliersPage_sortResponse: "Velocidad de respuesta",
+  suppliersPage_directionLabel: "Orden",
+  suppliersPage_directionDesc: "Descendente",
+  suppliersPage_directionAsc: "Ascendente",
+  suppliersPage_rowsLabel: "Filas",
+  suppliersPage_rowsOption: "{count} filas",
+  suppliersPage_pageSummary: "Mostrando {start}-{end} de {total}",
+  suppliersPage_pageNumber: "Página {current} de {total}",
+  suppliersPage_previous: "Anterior",
+  suppliersPage_next: "Siguiente",
   suppliersPage_addedShortlist: "Añadido a la lista corta",
   suppliersPage_removedShortlist: "Eliminado de la lista corta",
   suppliersPage_accessRequestPreparedTitle: "Solicitud de acceso preparada",

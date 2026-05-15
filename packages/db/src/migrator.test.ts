@@ -20,6 +20,7 @@ describe("self-hosted DB migration planner", () => {
       "0006_offer_catalog",
       "0007_supplier_access_flow",
       "0008_access_notification_ack",
+      "0009_supplier_directory_pagination_sort",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -31,6 +32,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0006_offer_catalog.sql",
       "migrations/0007_supplier_access_flow.sql",
       "migrations/0008_access_notification_ack.sql",
+      "migrations/0009_supplier_directory_pagination_sort.sql",
     ]);
   });
 
@@ -54,6 +56,7 @@ describe("self-hosted DB migration planner", () => {
     const offerCatalog = plan.migrations[6];
     const supplierAccessFlow = plan.migrations[7];
     const accessNotificationAck = plan.migrations[8];
+    const supplierDirectoryPaginationSort = plan.migrations[9];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -72,6 +75,8 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierAccessFlow.sql).toContain("create table if not exists yorso_supplier_access_requests");
     expect(accessNotificationAck.dependsOn).toEqual(["0007_supplier_access_flow"]);
     expect(accessNotificationAck.sql).toContain("notification_read");
+    expect(supplierDirectoryPaginationSort.dependsOn).toEqual(["0008_access_notification_ack"]);
+    expect(supplierDirectoryPaginationSort.sql).toContain("idx_yorso_suppliers_directory_published_updated");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

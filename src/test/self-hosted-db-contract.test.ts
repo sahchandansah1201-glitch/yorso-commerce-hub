@@ -9,6 +9,7 @@ const supplierScalingSql = () => readFileSync("packages/db/migrations/0005_suppl
 const offerCatalogSql = () => readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
 const supplierAccessSql = () => readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
 const accessNotificationAckSql = () => readFileSync("packages/db/migrations/0008_access_notification_ack.sql", "utf8");
+const supplierPaginationSortSql = () => readFileSync("packages/db/migrations/0009_supplier_directory_pagination_sort.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -125,8 +126,19 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(supplierAccessSql()).not.toContain("notification_read");
   });
 
+  it("adds supplier directory pagination and sort indexes separately", () => {
+    const text = supplierPaginationSortSql();
+
+    expect(text).toContain("idx_yorso_suppliers_directory_published_updated");
+    expect(text).toContain("idx_yorso_suppliers_directory_published_country");
+    expect(text).toContain("idx_yorso_suppliers_directory_published_verification_updated");
+    expect(text).toContain("idx_yorso_suppliers_directory_published_response_updated");
+    expect(text).toContain("10,000 concurrent users");
+    expect(supplierSql()).not.toContain("idx_yorso_suppliers_directory_published_updated");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -178,7 +190,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -202,6 +214,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0006_offer_catalog",
       "0007_supplier_access_flow",
       "0008_access_notification_ack",
+      "0009_supplier_directory_pagination_sort",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([

@@ -90,6 +90,18 @@ async function runSmoke(baseUrl) {
   assertEqual(certifiedSuppliers.suppliers?.[0]?.companyName, null, "certified locked supplier hidden identity");
   console.log("supplier_directory_verified_filter=ok");
 
+  const sortedSupplierPage = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers?verificationLevel=documents_reviewed&accessLevel=anonymous_locked&sortBy=country&sortDirection=asc&limit=1&offset=1",
+  );
+  assertEqual(sortedSupplierPage.ok, true, "sorted supplier page ok");
+  assertEqual(sortedSupplierPage.limit, 1, "sorted supplier page limit");
+  assertEqual(sortedSupplierPage.offset, 1, "sorted supplier page offset");
+  assertEqual(sortedSupplierPage.suppliers?.length, 1, "sorted supplier page size");
+  assertEqual(sortedSupplierPage.suppliers?.[0]?.countryCode, "EC", "supplier country sort and offset");
+  assertEqual(sortedSupplierPage.suppliers?.[0]?.companyName, null, "sorted locked supplier hidden identity");
+  console.log("supplier_directory_sort_pagination=ok");
+
   const supplierBeforeGrant = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked");
   assertEqual(supplierBeforeGrant.accessLevel, "registered_locked", "supplier detail requires grant");
   assertEqual(supplierBeforeGrant.supplier?.companyName, null, "supplier identity hidden before grant");
