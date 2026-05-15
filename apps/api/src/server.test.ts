@@ -355,10 +355,12 @@ describe("YORSO self-hosted API skeleton", () => {
       expect.objectContaining({
         id: "1",
         productName: "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade",
-        priceRangeLabel: "$8.50 – $9.20",
+        priceRangeLabel: "Price on request",
+        priceUnit: "",
         priceMin: null,
         priceMax: null,
         currency: null,
+        volumeBreaks: [],
         supplier: expect.objectContaining({
           id: "sup-no-001",
           name: null,
@@ -368,6 +370,8 @@ describe("YORSO self-hosted API skeleton", () => {
       }),
     ]);
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(body)).not.toContain("$8.50");
+    expect(JSON.stringify(body)).not.toContain("$9.20");
   });
 
   it("does not let locked offer search reveal supplier identity", async () => {
@@ -456,6 +460,8 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(response.status).toBe(200);
     expect(body.accessLevel).toBe("registered_locked");
     expect(body.offer).toMatchObject({
+      priceRangeLabel: "Price on request",
+      priceUnit: "",
       priceMin: null,
       priceMax: null,
       currency: null,
@@ -465,7 +471,13 @@ describe("YORSO self-hosted API skeleton", () => {
         profileSlug: null,
       }),
     });
+    expect(body.offer.deliveryBasisOptions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "FOB", priceRange: "Price on request", priceUnit: "" }),
+      expect.objectContaining({ code: "CIF", priceRange: "Price on request", priceUnit: "" }),
+    ]));
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(body)).not.toContain("$8.50");
+    expect(JSON.stringify(body)).not.toContain("$9.20");
   });
 
   it("returns locked offer detail without private supplier identity or exact price fields", async () => {
@@ -479,7 +491,8 @@ describe("YORSO self-hosted API skeleton", () => {
       id: "1",
       productName: "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade",
       origin: "Norway",
-      priceRangeLabel: "$8.50 – $9.20",
+      priceRangeLabel: "Price on request",
+      priceUnit: "",
       priceMin: null,
       priceMax: null,
       currency: null,
@@ -495,6 +508,8 @@ describe("YORSO self-hosted API skeleton", () => {
     });
     expect(JSON.stringify(body)).not.toContain("Nordfjord Sjømat AS");
     expect(JSON.stringify(body)).not.toContain("nordfjord-sjomat");
+    expect(JSON.stringify(body)).not.toContain("$8.50");
+    expect(JSON.stringify(body)).not.toContain("$9.20");
   });
 
   it("filters and validates offer catalog query params", async () => {

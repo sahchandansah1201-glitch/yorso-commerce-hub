@@ -15,9 +15,15 @@ describe("offer catalog API adapter", () => {
     expect(result.total).toBeGreaterThan(0);
     expect(result.offers[0]).toMatchObject({
       supplierName: "Имя поставщика скрыто",
+      priceRange: "Цена по запросу",
       priceMin: undefined,
       priceMax: undefined,
       currency: undefined,
+      volumeBreaks: [],
+    });
+    expect(result.offers[0].deliveryBasisOptions[0]).toMatchObject({
+      priceRange: "Цена по запросу",
+      priceUnit: "",
     });
 
     await expect(client.listOffers({
@@ -34,7 +40,9 @@ describe("offer catalog API adapter", () => {
     await expect(client.getOfferById("1", "registered_locked")).resolves.toMatchObject({
       id: "1",
       supplierName: "Имя поставщика скрыто",
+      priceRange: "Цена по запросу",
       priceMin: undefined,
+      volumeBreaks: [],
     });
     await expect(client.getOfferById("1", "qualified_unlocked")).resolves.toMatchObject({
       id: "1",

@@ -55,6 +55,7 @@ const requiredFiles = [
   "src/lib/account-documents-store.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/offer-catalog-api.test.ts",
+  "src/lib/catalog-fallback.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-catalog.test.tsx",
   "src/lib/use-offer-detail.ts",
@@ -63,6 +64,7 @@ const requiredFiles = [
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
+  "e2e/offer-detail-runtime.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -146,6 +148,7 @@ const supplierProfilePreview = read("src/components/account/SupplierProfilePrevi
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
+const catalogFallback = read("src/lib/catalog-fallback.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const offerDetailPage = read("src/pages/OfferDetail.tsx");
@@ -165,6 +168,7 @@ const header = read("src/components/landing/Header.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
+const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -275,6 +279,12 @@ if (!pkg.scripts["smoke:e2e:supplier-profile-detail:run"]?.includes("e2e/supplie
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers/:id profile detail e2e");
+}
+if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-detail-runtime:run must cover /offers/:id runtime approval e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /offers/:id runtime approval e2e");
 }
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
@@ -677,6 +687,35 @@ for (const marker of [
   "unknown supplier renders not found",
 ]) {
   requireText("e2e/supplier-profile-detail.spec.ts", supplierProfileDetailE2E, marker);
+}
+for (const marker of [
+  "Batch #58 browser-level guard",
+  "supplier-request-price-access",
+  "supplier-access-request-status",
+  "supplier-access-refresh-banner",
+  "supplier-access-refresh-now",
+  "matching approval event shows refresh banner",
+  "approval event for another supplier does not unlock",
+  "unknown offer renders not found",
+  "EXACT_PRICE_PATTERN",
+]) {
+  requireText("e2e/offer-detail-runtime.spec.ts", offerDetailRuntimeE2E, marker);
+}
+for (const marker of [
+  "LOCKED_PRICE_RANGE_LABEL",
+  "Price on request",
+  "deliveryBasisOptions",
+  "volumeBreaks: unlocked ? offer.volumeBreaks : []",
+]) {
+  requireText("apps/api/src/modules/offers/service.ts", offerService, marker);
+}
+for (const marker of [
+  "redactDeliveryBasisOptions",
+  "Цена по запросу",
+  "deliveryBasisOptions: redactDeliveryBasisOptions",
+  "volumeBreaks: []",
+]) {
+  requireText("src/lib/catalog-fallback.ts", catalogFallback, marker);
 }
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "privateSearchSupplierIds");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
