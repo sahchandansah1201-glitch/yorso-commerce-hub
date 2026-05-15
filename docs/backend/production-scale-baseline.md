@@ -310,6 +310,19 @@ center browser e2e guard. At 10,000 concurrent users this protects the header
 from per-render notification reads, keeps background sync bounded and confirms
 the acknowledgement path prevents repeated unread payloads.
 
+Batch #64 promotes the API-backed access browser checks into one CI-gated suite.
+`smoke:e2e:api-backed-access-flows` builds the frontend with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` and runs the three
+production-path browser specs together:
+`supplier-directory-profile-api-flow`, `offer-catalog-detail-api-flow` and
+`supplier-access-notification-center-api-flow`. This is the API-backed access browser suite.
+At 10,000 concurrent users this matters because the release gate
+now verifies the complete buyer access loop in one pass: directory search,
+offer discovery, detail unlock, backend notification delivery, acknowledgement
+and session headers. The suite is intentionally separate from local fallback
+smoke tests, because it must prove that production code paths work when the
+self-hosted API adapter is enabled.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

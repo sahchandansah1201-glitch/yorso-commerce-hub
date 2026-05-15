@@ -664,3 +664,12 @@ refreshes only when the buyer opens the bell, sends session headers, and
 acknowledges unread access notifications through `PATCH /v1/access/notifications`.
 The guard stays separate from default smoke because it requires API mode; the
 default suite continues to validate local prototype fallback behavior.
+
+Batch #64 groups the API-backed browser guards into a single CI suite:
+`smoke:e2e:api-backed-access-flows`. The suite builds with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` and runs the API-mode
+supplier directory/profile, offer catalog/detail and supplier access
+notification center specs in one pass. This keeps the self-hosted production
+path explicit in CI instead of relying on engineers to run separate API-mode
+commands manually. The local fallback smoke remains separate and continues to
+prove that Lovable preview works without a configured backend.
