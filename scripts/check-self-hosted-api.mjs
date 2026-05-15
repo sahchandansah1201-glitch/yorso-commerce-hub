@@ -62,6 +62,7 @@ const requiredFiles = [
   "src/pages/Offers.catalogPaging.test.tsx",
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
+  "e2e/supplier-profile-detail.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -163,6 +164,7 @@ const supplierAccessRefreshBannerTest = read("src/components/suppliers/SupplierA
 const header = read("src/components/landing/Header.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
+const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -267,6 +269,12 @@ if (!pkg.scripts["smoke:e2e:suppliers-directory:run"]?.includes("e2e/suppliers-d
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/suppliers-directory-paging.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers directory paging e2e");
+}
+if (!pkg.scripts["smoke:e2e:supplier-profile-detail:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-profile-detail:run must cover /suppliers/:id profile detail e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /suppliers/:id profile detail e2e");
 }
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
@@ -658,6 +666,18 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortBy")
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortDirection");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "SUPPLIER_ACCESS_CHANGE_EVENT");
+for (const marker of [
+  "Batch #57 browser-level guard",
+  "supplier-request-price-access",
+  "supplier-access-request-status",
+  "supplier-access-refresh-banner",
+  "supplier-access-refresh-now",
+  "mock approval event shows refresh banner",
+  "approval event for another supplier does not unlock",
+  "unknown supplier renders not found",
+]) {
+  requireText("e2e/supplier-profile-detail.spec.ts", supplierProfileDetailE2E, marker);
+}
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "privateSearchSupplierIds");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "orderByClause");

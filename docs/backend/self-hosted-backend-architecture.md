@@ -587,3 +587,11 @@ supplier search. This matters for the self-hosted deployment because supplier
 discovery is a high-read surface: without the e2e guard, a UI-only regression
 could bypass the server pagination contract and reintroduce full-list browsing
 or hidden supplier identity leaks.
+
+Batch #57 adds supplier profile detail browser e2e as the next guard around
+supplier trust pages. The `/suppliers/:id` page now has a dedicated Playwright
+contract for one-click access requests, approval-driven refresh, supplier-scoped
+unlock, unrelated approval isolation and not-found cleanup. This keeps the
+self-hosted supplier-access model enforceable in the visible product: the
+browser may render local fallback data in Lovable, but it must preserve the same
+grant-shaped behavior expected from the owned API and PostgreSQL deployment.

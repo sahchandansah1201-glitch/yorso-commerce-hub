@@ -448,6 +448,19 @@ Batch #56 adds supplier directory browser e2e validation:
   unbounded client-side full-list browsing or hidden supplier identity discovery
   under the 10,000 concurrent-user baseline.
 
+Batch #57 adds supplier profile detail browser e2e validation:
+
+- `smoke:e2e:supplier-profile-detail` builds the frontend and runs
+  `e2e/supplier-profile-detail.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks one-click supplier access request creation, locked
+  identity no-leak behavior, approval refresh banner behavior, matching-supplier
+  unlock, unrelated supplier approval isolation and unknown supplier not-found
+  cleanup;
+- this protects `/suppliers/:id` from regressing into frontend-only unlocks,
+  stale structured data leaks or polling-heavy approval refreshes under the
+  10,000 concurrent-user baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
