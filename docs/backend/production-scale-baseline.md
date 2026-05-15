@@ -217,6 +217,17 @@ supplier directory from regressing into full-list client browsing, hidden
 company-name discovery or unbounded page sizes while still allowing qualified
 buyers to search approved supplier identities.
 
+Batch #57 adds supplier profile detail browser e2e coverage for the buyer
+access path on `/suppliers/:id`. `e2e/supplier-profile-detail.spec.ts` verifies
+the registered buyer one-click access request, locked-state no-leak behavior,
+approval-triggered refresh banner, matching-supplier unlock, unrelated supplier
+approval guard and unknown supplier not-found cleanup. This is a production
+scale guard because supplier profile detail pages are high-read trust surfaces:
+the browser must not bypass server grant semantics, leak supplier identity in
+DOM or structured data, or require continuous polling to show newly approved
+access. The refresh remains event-driven through `SUPPLIER_ACCESS_CHANGE_EVENT`,
+so the 10,000 concurrent-user baseline avoids another global polling loop.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
