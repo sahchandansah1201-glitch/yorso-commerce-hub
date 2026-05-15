@@ -10,6 +10,8 @@ import {
 import type { OfferCatalogRepository } from "./repository.js";
 import type { SupplierAccessRepository } from "../access/repository.js";
 
+const LOCKED_PRICE_RANGE_LABEL = "Price on request";
+
 export class OfferCatalogService {
   constructor(
     private readonly repository: OfferCatalogRepository,
@@ -103,6 +105,13 @@ export function shapeOfferForAccess(
   accessLevel: OfferCatalogAccessLevel,
 ): OfferCatalogItem {
   const unlocked = accessLevel === "qualified_unlocked";
+  const deliveryBasisOptions = unlocked
+    ? offer.deliveryBasisOptions
+    : offer.deliveryBasisOptions.map((basis) => ({
+        ...basis,
+        priceRange: LOCKED_PRICE_RANGE_LABEL,
+        priceUnit: "",
+      }));
 
   return offerCatalogItemSchema.parse({
     ...offer,
@@ -121,9 +130,12 @@ export function shapeOfferForAccess(
           documentsReviewed: [],
           profileSlug: null,
         },
+    priceRangeLabel: unlocked ? offer.priceRangeLabel : LOCKED_PRICE_RANGE_LABEL,
+    priceUnit: unlocked ? offer.priceUnit : "",
     priceMin: unlocked ? offer.priceMin : null,
     priceMax: unlocked ? offer.priceMax : null,
     currency: unlocked ? offer.currency : null,
+    deliveryBasisOptions,
     volumeBreaks: unlocked ? offer.volumeBreaks : [],
     accessLevel,
   });

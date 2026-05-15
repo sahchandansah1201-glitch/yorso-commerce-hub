@@ -5,6 +5,13 @@ import { legacyOfferIdToUuid } from "@/lib/legacy-offer-id";
 const REDACTED_PRICE = "Цена по запросу";
 const REDACTED_SUPPLIER = "Имя поставщика скрыто";
 
+const redactDeliveryBasisOptions = (offer: SeafoodOffer) =>
+  offer.deliveryBasisOptions.map((basis) => ({
+    ...basis,
+    priceRange: REDACTED_PRICE,
+    priceUnit: "",
+  }));
+
 export const fallbackOfferForLevel = (offer: SeafoodOffer, level: AccessLevel): SeafoodOffer => {
   if (level === "qualified_unlocked") return offer;
   return {
@@ -16,6 +23,8 @@ export const fallbackOfferForLevel = (offer: SeafoodOffer, level: AccessLevel): 
     priceMin: undefined,
     priceMax: undefined,
     currency: undefined,
+    deliveryBasisOptions: redactDeliveryBasisOptions(offer),
+    volumeBreaks: [],
     supplier: {
       ...offer.supplier,
       id: offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id,

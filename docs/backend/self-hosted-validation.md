@@ -461,6 +461,21 @@ Batch #57 adds supplier profile detail browser e2e validation:
   stale structured data leaks or polling-heavy approval refreshes under the
   10,000 concurrent-user baseline.
 
+Batch #58 adds offer detail runtime browser e2e validation:
+
+- `smoke:e2e:offer-detail-runtime` builds the frontend and runs
+  `e2e/offer-detail-runtime.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks one-click price-access request creation, locked supplier
+  and exact-price no-leak behavior, approval refresh banner behavior,
+  matching-supplier unlock, unrelated supplier approval isolation and unknown
+  offer not-found cleanup;
+- local fallback shaping and self-hosted offer API shaping both redact
+  delivery-basis prices and volume-break prices until access is granted;
+- this protects `/offers/:id` from leaking commercial terms through DOM text,
+  route metadata or fallback mock data under the 10,000 concurrent-user
+  baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

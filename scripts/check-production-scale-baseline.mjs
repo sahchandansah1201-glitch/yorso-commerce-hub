@@ -33,6 +33,7 @@ const requiredFiles = [
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
+  "e2e/offer-detail-runtime.spec.ts",
 ];
 
 const failures = [];
@@ -73,6 +74,7 @@ const offersPage = read("src/pages/Offers.tsx");
 const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
 const suppliersDirectoryPagingE2E = read("e2e/suppliers-directory-paging.spec.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
+const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -97,12 +99,14 @@ for (const marker of [
   "Batch #55",
   "Batch #56",
   "Batch #57",
+  "Batch #58",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
+  "offer detail runtime browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -469,6 +473,22 @@ if (!pkg.scripts["smoke:e2e:supplier-profile-detail:run"]?.includes("e2e/supplie
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers/:id profile detail e2e");
+}
+for (const marker of [
+  "Batch #58 browser-level guard",
+  "supplier-request-price-access",
+  "supplier-access-refresh-banner",
+  "supplier-access-refresh-now",
+  "unknown offer renders not found",
+  "EXACT_PRICE_PATTERN",
+]) {
+  requireText("e2e/offer-detail-runtime.spec.ts", offerDetailRuntimeE2E, marker);
+}
+if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-detail-runtime:run must cover /offers/:id runtime approval e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /offers/:id runtime approval e2e");
 }
 
 if (failures.length > 0) {

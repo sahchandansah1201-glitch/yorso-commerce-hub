@@ -118,8 +118,11 @@ async function runSmoke(baseUrl) {
   const offersLocked = await jsonRequest(baseUrl, "/v1/offers?q=salmon&accessLevel=anonymous_locked");
   assertEqual(offersLocked.ok, true, "offer list ok");
   assertEqual(offersLocked.offers?.[0]?.supplier?.name, null, "locked offer supplier hidden");
+  assertEqual(offersLocked.offers?.[0]?.priceRangeLabel, "Price on request", "locked offer price label redacted");
   assertEqual(offersLocked.offers?.[0]?.priceMin, null, "locked offer exact min price hidden");
   assertEqual(offersLocked.offers?.[0]?.currency, null, "locked offer currency hidden");
+  assertDoesNotContain(offersLocked, "$8.50", "locked offer list exact price");
+  assertDoesNotContain(offersLocked, "$9.20", "locked offer list exact price");
   console.log("offer_catalog_locked=ok");
 
   const offerPrivateSearch = await jsonRequest(baseUrl, "/v1/offers?q=Nordfjord&accessLevel=anonymous_locked");
@@ -548,5 +551,12 @@ function assertEqual(actual, expected, label) {
 function assertArray(value, label) {
   if (!Array.isArray(value)) {
     throw new Error(`${label}: expected array, got ${typeof value}`);
+  }
+}
+
+function assertDoesNotContain(value, forbidden, label) {
+  const serialized = JSON.stringify(value);
+  if (serialized.includes(forbidden)) {
+    throw new Error(`${label}: leaked ${JSON.stringify(forbidden)}`);
   }
 }

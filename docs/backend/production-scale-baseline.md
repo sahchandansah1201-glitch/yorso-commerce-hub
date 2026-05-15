@@ -228,6 +228,16 @@ DOM or structured data, or require continuous polling to show newly approved
 access. The refresh remains event-driven through `SUPPLIER_ACCESS_CHANGE_EVENT`,
 so the 10,000 concurrent-user baseline avoids another global polling loop.
 
+Batch #58 adds offer detail runtime browser e2e coverage for the buyer access
+path on `/offers/:id`. `e2e/offer-detail-runtime.spec.ts` verifies registered
+one-click access requests, no supplier identity or exact-price leakage in
+locked page body/head, matching-supplier approval refresh, unrelated approval
+isolation and unknown offer not-found cleanup. The batch also closes the
+delivery-basis and volume-break price leak in both local fallback shaping and
+the self-hosted offer API. This matters at 10,000 concurrent users because
+offer detail is a hot read path: access state must be shaped once by bounded
+API/fallback logic, not by expensive client-side masking or polling loops.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

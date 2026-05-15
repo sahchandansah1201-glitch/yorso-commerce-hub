@@ -86,9 +86,14 @@ async function runSmoke(baseUrl) {
   assertArray(locked.offer?.volumeBreaks, "locked volume breaks");
   assertEqual(locked.offer.volumeBreaks.length, 0, "locked volume breaks hidden");
   assertEqual(locked.offer?.origin, "Norway", "locked public origin");
-  assertEqual(locked.offer?.priceRangeLabel, "$8.50 – $9.20", "locked public price range label");
+  assertEqual(locked.offer?.priceRangeLabel, "Price on request", "locked price label redacted");
+  assertEqual(locked.offer?.priceUnit, "", "locked price unit redacted");
+  assertEqual(locked.offer?.deliveryBasisOptions?.[0]?.priceRange, "Price on request", "locked delivery basis price hidden");
+  assertEqual(locked.offer?.deliveryBasisOptions?.[0]?.priceUnit, "", "locked delivery basis unit hidden");
   assertDoesNotContain(locked, "Nordfjord Sjømat AS", "locked real supplier name");
   assertDoesNotContain(locked, "nordfjord-sjomat", "locked supplier slug");
+  assertDoesNotContain(locked, "$8.50", "locked exact price");
+  assertDoesNotContain(locked, "$9.20", "locked exact price");
   console.log("offer_detail_locked=ok");
 
   const registeredLocked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=registered_locked", {

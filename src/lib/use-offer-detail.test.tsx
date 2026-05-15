@@ -96,9 +96,15 @@ describe("useOfferDetail", () => {
     expect(result.current.offer).toMatchObject({
       productName: mockOffers[0].productName,
       supplierName: "Имя поставщика скрыто",
+      priceRange: "Цена по запросу",
       priceMin: undefined,
       priceMax: undefined,
       currency: undefined,
+      volumeBreaks: [],
+    });
+    expect(result.current.offer?.deliveryBasisOptions[0]).toMatchObject({
+      priceRange: "Цена по запросу",
+      priceUnit: "",
     });
   });
 
@@ -167,8 +173,11 @@ describe("useOfferDetail", () => {
     expect(result.current.offer).toMatchObject({
       productName: mockOffers[0].productName,
       supplierName: "Имя поставщика скрыто",
+      priceRange: "Цена по запросу",
       priceMin: undefined,
+      volumeBreaks: [],
     });
+    expect(result.current.offer?.deliveryBasisOptions[0].priceRange).toBe("Цена по запросу");
   });
 
   it("returns not-found state for remote 404 when no safe local fallback exists", async () => {

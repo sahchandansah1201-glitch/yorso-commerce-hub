@@ -595,3 +595,11 @@ unlock, unrelated approval isolation and not-found cleanup. This keeps the
 self-hosted supplier-access model enforceable in the visible product: the
 browser may render local fallback data in Lovable, but it must preserve the same
 grant-shaped behavior expected from the owned API and PostgreSQL deployment.
+
+Batch #58 adds the same browser-level runtime guard for `/offers/:id`. Offer
+detail now has a dedicated Playwright contract for registered price-access
+requests, event-driven approval refresh, supplier-scoped unlock, unrelated
+approval isolation, unknown-offer cleanup and exact-price no-leak behavior.
+Local fallback shaping and self-hosted API shaping both redact delivery-basis
+price ranges and volume tiers until a supplier grant exists, so the UI and API
+follow the same owned-backend access boundary.
