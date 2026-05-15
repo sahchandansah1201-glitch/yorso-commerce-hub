@@ -35,6 +35,7 @@ const requiredFiles = [
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
   "e2e/supplier-directory-profile-flow.spec.ts",
+  "e2e/supplier-directory-profile-api-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
 ];
@@ -79,6 +80,7 @@ const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
 const suppliersDirectoryPagingE2E = read("e2e/suppliers-directory-paging.spec.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
+const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-api-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 
@@ -108,6 +110,7 @@ for (const marker of [
   "Batch #58",
   "Batch #59",
   "Batch #60",
+  "Batch #61",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -117,6 +120,7 @@ for (const marker of [
   "offer detail runtime browser e2e",
   "offer catalog detail flow browser e2e",
   "supplier directory profile flow browser e2e",
+  "API-backed supplier directory profile flow browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -518,6 +522,24 @@ if (!pkg.scripts["smoke:e2e:supplier-directory-profile-flow:run"]?.includes("e2e
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include supplier directory/profile approval bridge e2e");
+}
+for (const marker of [
+  "Batch #61 API-backed browser-level guard",
+  "self-hosted API adapter",
+  "backend approval unlocks the matching supplier after profile refresh and directory return",
+  "backend approval for another supplier does not unlock the current directory/profile flow",
+  "__e2e-api/v1",
+  "VITE_YORSO_API_URL",
+  "Nordfjord Sjømat AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/supplier-directory-profile-api-flow.spec.ts", supplierDirectoryProfileApiFlowE2E, marker);
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-api-flow must build with the API-backed supplier directory/profile flow enabled");
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-api-flow:run"]?.includes("e2e/supplier-directory-profile-api-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-api-flow:run must cover API-backed supplier directory/profile approval bridge e2e");
 }
 for (const marker of [
   "Batch #58 browser-level guard",

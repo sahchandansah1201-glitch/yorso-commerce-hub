@@ -630,3 +630,15 @@ responses already shaped as unlocked. For the self-hosted API path, signed-in
 directory/profile reads may request `qualified_unlocked`; the API still
 downgrades each supplier response unless a grant exists. This prevents global
 frontend qualification from becoming a production data-access boundary.
+
+Batch #61 hardens the self-hosted API-backed frontend path for the same
+supplier discovery flow. The dedicated API-mode smoke builds the frontend with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` and uses Playwright route
+interception to emulate `/v1/suppliers`, `/v1/suppliers/:id`,
+`/v1/access/suppliers/:id/request` and `/v1/access/notifications`. This proves
+the page is no longer only protected by local prototype storage: backend-style
+notification approval unlocks the matching supplier, the profile refreshes from
+API-shaped data, and the directory row remains locked when approval belongs to
+another supplier. The API-backed supplier directory profile flow browser e2e is
+kept separate from the default smoke suite because it requires a Vite build
+with API mode enabled; the default smoke continues to cover prototype fallback.

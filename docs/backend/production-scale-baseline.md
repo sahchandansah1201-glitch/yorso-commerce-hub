@@ -266,6 +266,20 @@ the backend remains responsible for per-row grant downgrades. At 10,000
 concurrent users this keeps supplier discovery refresh event-driven, bounded to
 the visible page, and protected from global frontend unlocks.
 
+Batch #61 adds API-backed supplier directory profile flow browser e2e coverage.
+The new `e2e/supplier-directory-profile-api-flow.spec.ts` runs with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`, so the frontend uses the
+self-hosted API adapter while Playwright provides deterministic API responses.
+The spec verifies the same buyer path as Batch #60, but through `/v1/suppliers`
+and `/v1/access/*` requests: profile approval is delivered as a backend
+notification, the refresh banner reloads the supplier profile from API-shaped
+data, and returning to `/suppliers` preserves `q/filter/sort/rows` while only
+the matching row unlocks. This is the API-backed supplier directory profile
+flow browser e2e guard. At 10,000 concurrent users this protects the production
+path from accidentally relying on localStorage-only fallback behavior, confirms
+that notification polling remains coarse, and keeps private supplier search
+dependent on backend-shaped access state.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
