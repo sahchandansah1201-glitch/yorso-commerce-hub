@@ -21,6 +21,7 @@ import RelatedArticles from "@/components/offer-detail/RelatedArticles";
 import DecisionFAQ from "@/components/offer-detail/DecisionFAQ";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import SupplierAccessRefreshBanner from "@/components/suppliers/SupplierAccessRefreshBanner";
 
 /**
  * Legacy-id редирект ("/offers/1" → "/offers/<uuid>") теперь обслуживается на
@@ -249,6 +250,11 @@ const OfferDetail = () => {
             </Button>
           </div>
         )}
+
+        <SupplierAccessRefreshBanner
+          supplierId={supplierAccessId}
+          onRefresh={handleManualRetry}
+        />
 
         <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">

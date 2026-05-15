@@ -49,16 +49,19 @@ export const applyBackendSupplierAccessNotifications = (
     }
 
     const approvedAt = notification.createdAt;
-    persistSupplierAccessRequest({
-      supplierId: notification.supplierId,
-      intent: "exact_price",
-      status: "approved",
-      sentAt: approvedAt,
-      pendingAt: approvedAt,
-      approvedAt,
-      reasons: ["exact_price"],
-      message: "",
-    });
+    persistSupplierAccessRequest(
+      {
+        supplierId: notification.supplierId,
+        intent: "exact_price",
+        status: "approved",
+        sentAt: approvedAt,
+        pendingAt: approvedAt,
+        approvedAt,
+        reasons: ["exact_price"],
+        message: "",
+      },
+      { source: "backend_notification" },
+    );
     setQualified(true, "");
     showApprovalToast();
     seen.add(notification.id);

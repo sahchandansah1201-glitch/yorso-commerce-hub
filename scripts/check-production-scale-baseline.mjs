@@ -22,6 +22,7 @@ const requiredFiles = [
   "src/lib/supplier-access-requests.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
+  "src/components/suppliers/SupplierAccessRefreshBanner.tsx",
   "src/pages/Suppliers.tsx",
 ];
 
@@ -52,6 +53,7 @@ const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierAccessRequests = read("src/lib/supplier-access-requests.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
+const supplierAccessRefreshBanner = read("src/components/suppliers/SupplierAccessRefreshBanner.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 
 const requireText = (name, text, marker) => {
@@ -70,6 +72,7 @@ for (const marker of [
   "self-hosted offer detail smoke",
   "Batch #50",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "Batch #51",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -85,6 +88,7 @@ for (const marker of [
   "0007_supplier_access_flow",
   "0008_access_notification_ack",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "SupplierAccessRefreshBanner",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -98,6 +102,7 @@ for (const marker of [
   "supplier-access request and grant indexes",
   "access notification acknowledgement",
   "supplier-access change event",
+  "refresh banner",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -282,6 +287,14 @@ for (const marker of [
   "acknowledgeSupplierAccessNotifications",
 ]) {
   requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, marker);
+}
+
+for (const marker of [
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "backend_notification",
+  "mock_progression",
+]) {
+  requireText("src/components/suppliers/SupplierAccessRefreshBanner.tsx", supplierAccessRefreshBanner, marker);
 }
 
 for (const marker of [

@@ -153,6 +153,9 @@ contract. It checks:
 - the supplier-access change event refreshes offer list/detail and supplier
   list/detail API-mode state after approvals, avoiding stale locked UI without
   adding a high-frequency polling path;
+- the refresh banner only reacts to typed matching approval events
+  (`backend_notification` or `mock_progression`), so routine `backend_read`
+  syncs do not repeatedly announce old access grants;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not

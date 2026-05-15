@@ -31,6 +31,21 @@ export type SupplierAccessReason =
 export type SupplierAccessIntent = "exact_price";
 
 export type SupplierAccessStatus = "sent" | "pending" | "approved";
+export type SupplierAccessChangeStatus = SupplierAccessStatus | "cleared";
+export type SupplierAccessChangeSource =
+  | "local_request"
+  | "mock_progression"
+  | "backend_notification"
+  | "backend_read"
+  | "clear";
+
+export interface SupplierAccessChangeDetail {
+  changedAt: string;
+  intent?: SupplierAccessIntent;
+  source: SupplierAccessChangeSource;
+  status: SupplierAccessChangeStatus;
+  supplierId: string;
+}
 
 export interface SupplierAccessRequest {
   status: SupplierAccessStatus;
@@ -121,7 +136,25 @@ const safeRead = (): Store => {
   }
 };
 
-const safeWrite = (store: Store) => {
+const dispatchSupplierAccessChange = (
+  detail: SupplierAccessChangeDetail | undefined,
+) => {
+  try {
+    window.dispatchEvent(
+      new CustomEvent<SupplierAccessChangeDetail | undefined>(
+        SUPPLIER_ACCESS_CHANGE_EVENT,
+        { detail },
+      ),
+    );
+  } catch {
+    /* ignore */
+  }
+};
+
+const safeWrite = (
+  store: Store,
+  detail?: SupplierAccessChangeDetail,
+) => {
   if (!isBrowser()) return;
   try {
     localStorage.setItem(
@@ -141,21 +174,24 @@ const safeWrite = (store: Store) => {
   } catch {
     /* ignore */
   }
-  try {
-    window.dispatchEvent(new CustomEvent(SUPPLIER_ACCESS_CHANGE_EVENT));
-  } catch {
-    /* ignore */
-  }
+  dispatchSupplierAccessChange(detail);
 };
 
 export const getAllSupplierAccessRequests = (): Store => safeRead();
 
 export const persistSupplierAccessRequest = (
   request: SupplierAccessRequest,
+  options?: { source?: SupplierAccessChangeSource },
 ): SupplierAccessRequest => {
   const store = safeRead();
   store[request.supplierId] = request;
-  safeWrite(store);
+  safeWrite(store, {
+    changedAt: new Date().toISOString(),
+    intent: request.intent,
+    source: options?.source ?? "local_request",
+    status: request.status,
+    supplierId: request.supplierId,
+  });
   return request;
 };
 
@@ -172,7 +208,12 @@ export const clearSupplierAccessRequest = (supplierId: string | undefined) => {
   const store = safeRead();
   if (!store[supplierId]) return;
   delete store[supplierId];
-  safeWrite(store);
+  safeWrite(store, {
+    changedAt: new Date().toISOString(),
+    source: "clear",
+    status: "cleared",
+    supplierId,
+  });
 };
 
 /** Create a new "sent" request with a scheduled mock approval time. */
@@ -199,13 +240,20 @@ export const createSupplierAccessRequest = (
 export const updateSupplierAccessRequest = (
   supplierId: string,
   patch: Partial<SupplierAccessRequest>,
+  options?: { source?: SupplierAccessChangeSource },
 ): SupplierAccessRequest | null => {
   const store = safeRead();
   const existing = store[supplierId];
   if (!existing) return null;
   const updated: SupplierAccessRequest = { ...existing, ...patch };
   store[supplierId] = updated;
-  safeWrite(store);
+  safeWrite(store, {
+    changedAt: new Date().toISOString(),
+    intent: updated.intent,
+    source: options?.source ?? "mock_progression",
+    status: updated.status,
+    supplierId,
+  });
   return updated;
 };
 

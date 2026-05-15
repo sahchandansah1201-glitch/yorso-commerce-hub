@@ -163,6 +163,14 @@ supplier identity grants visible quickly while avoiding a new polling path. At
 event-driven reads for the current browser context, not continuous catalog or
 supplier-directory polling.
 
+Batch #51 makes the same refresh loop visible to the buyer. Approval events now
+carry typed detail (`supplierId`, `status`, `source`) so the UI can distinguish
+real approval transitions from ordinary backend reads. Offer and supplier
+detail pages show a localized `SupplierAccessRefreshBanner` only for matching
+`backend_notification` or `mock_progression` approvals. This prevents stale
+locked copy after access is granted without introducing another timer, feed
+query or global page reload.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -1059,6 +1059,10 @@ type TranslationKeys = {
   // Supplier approval toast
   supplierApprovalToast_title: string;
   supplierApprovalToast_desc: string;
+  supplier_accessRefresh_title: string;
+  supplier_accessRefresh_body: string;
+  supplier_accessRefresh_cta: string;
+  supplier_accessRefresh_dismiss: string;
   // Supplier Access Request Panel — fully localized strings
   supplier_accessPanel_title: string;
   supplier_accessPanel_supplierLabel: string;
@@ -2779,6 +2783,11 @@ const en: TranslationKeys = {
   selectedSupplier_contactChannelsAria: "Supplier contact channels",
   supplierApprovalToast_title: "Price access approved",
   supplierApprovalToast_desc: "You can now view exact prices and supplier details.",
+  supplier_accessRefresh_title: "Access updated",
+  supplier_accessRefresh_body:
+    "This page is refreshing supplier data from the self-hosted API. Exact prices and contacts will appear when the approved grant is returned.",
+  supplier_accessRefresh_cta: "Refresh now",
+  supplier_accessRefresh_dismiss: "Dismiss",
   supplier_accessPanel_explainer:
     "The supplier reviews your buyer profile before sharing exact prices, contact channel, and full catalog.",
   supplier_accessPanel_cta: "Request price access",
@@ -4470,6 +4479,11 @@ const ru: TranslationKeys = {
   selectedSupplier_contactChannelsAria: "Контакты поставщика",
   supplierApprovalToast_title: "Доступ к цене открыт",
   supplierApprovalToast_desc: "Теперь вы видите точные цены и данные поставщика.",
+  supplier_accessRefresh_title: "Доступ обновлён",
+  supplier_accessRefresh_body:
+    "Страница обновляет данные поставщика через собственный API YORSO. Точные цены и контакты появятся, когда вернётся подтверждённый доступ.",
+  supplier_accessRefresh_cta: "Обновить сейчас",
+  supplier_accessRefresh_dismiss: "Скрыть",
   supplier_accessPanel_explainer:
     "Поставщик проверит ваш профиль покупателя перед тем, как открыть точные цены, контакт и полный каталог.",
   supplier_accessPanel_cta: "Запросить доступ к цене",
@@ -6161,6 +6175,11 @@ const es: TranslationKeys = {
   selectedSupplier_contactChannelsAria: "Canales de contacto del proveedor",
   supplierApprovalToast_title: "Acceso al precio aprobado",
   supplierApprovalToast_desc: "Ahora puedes ver los precios exactos y los datos del proveedor.",
+  supplier_accessRefresh_title: "Acceso actualizado",
+  supplier_accessRefresh_body:
+    "La página está actualizando los datos del proveedor desde la API propia de YORSO. Los precios exactos y contactos aparecerán cuando vuelva la concesión aprobada.",
+  supplier_accessRefresh_cta: "Actualizar ahora",
+  supplier_accessRefresh_dismiss: "Ocultar",
   supplier_accessPanel_explainer:
     "El proveedor revisa tu perfil de comprador antes de compartir los precios exactos, el canal de contacto y el catálogo completo.",
   supplier_accessPanel_cta: "Solicitar acceso al precio",
