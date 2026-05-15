@@ -642,3 +642,15 @@ API-shaped data, and the directory row remains locked when approval belongs to
 another supplier. The API-backed supplier directory profile flow browser e2e is
 kept separate from the default smoke suite because it requires a Vite build
 with API mode enabled; the default smoke continues to cover prototype fallback.
+
+Batch #62 applies the same API-backed browser guard to offer discovery and
+offer detail. The dedicated API-mode smoke builds the frontend with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` and intercepts
+`/v1/offers`, `/v1/offers/:id`, `/v1/access/suppliers/:id/request` and
+`/v1/access/notifications`. This proves the production path no longer depends
+only on localStorage fallback for the offer access bridge: backend-style
+approval unlocks the matching offer row and detail response, preserves the
+catalog URL state on return, and keeps unrelated supplier approvals isolated.
+The API-backed offer catalog detail flow browser e2e stays separate from the
+default smoke suite for the same reason as Batch #61: it must be built with API
+mode enabled, while default smoke keeps validating the local prototype fallback.

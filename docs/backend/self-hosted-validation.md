@@ -521,6 +521,21 @@ validation:
 - this protects the production self-hosted API path from regressions that would
   pass only in local mock fallback mode.
 
+Batch #62 adds API-backed offer catalog detail flow browser e2e validation:
+
+- `smoke:e2e:offer-catalog-detail-api-flow` builds the frontend with
+  `VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`;
+- the run step executes `e2e/offer-catalog-detail-api-flow.spec.ts` with
+  Playwright-intercepted `/v1/offers`, `/v1/offers/:id` and `/v1/access/*`
+  responses;
+- the browser checks that backend-style notification approval unlocks the
+  matching offer after detail refresh and preserves the catalog
+  `q/category/sort/rows` URL state on return;
+- the browser also checks that approval for another supplier does not unlock
+  the current offer row/detail;
+- this protects the production self-hosted API path from regressions that would
+  pass only in local mock fallback mode.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

@@ -70,6 +70,7 @@ const requiredFiles = [
   "e2e/supplier-directory-profile-api-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
+  "e2e/offer-catalog-detail-api-flow.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -179,6 +180,7 @@ const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flo
 const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-api-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
+const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -313,6 +315,12 @@ if (!pkg.scripts["smoke:e2e:offer-catalog-detail-flow:run"]?.includes("e2e/offer
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /offers to /offers/:id approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow must build with the self-hosted API adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow:run"]?.includes("e2e/offer-catalog-detail-api-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow:run must cover API-backed /offers to /offers/:id approval bridge e2e");
 }
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
@@ -769,6 +777,21 @@ for (const marker of [
   "qualified_unlocked",
 ]) {
   requireText("e2e/offer-catalog-detail-flow.spec.ts", offerCatalogDetailFlowE2E, marker);
+}
+for (const marker of [
+  "Batch #62 API-backed browser-level guard",
+  "self-hosted API adapter",
+  "backend approval unlocks the matching offer after detail refresh and catalog return",
+  "backend approval for another supplier does not unlock the current catalog/detail flow",
+  "__e2e-api/v1",
+  "VITE_YORSO_API_URL",
+  "notification-${supplierId}",
+  "q=salmon",
+  "category=Salmon",
+  "Nordic Seafood AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/offer-catalog-detail-api-flow.spec.ts", offerCatalogDetailApiFlowE2E, marker);
 }
 for (const marker of [
   "LOCKED_PRICE_RANGE_LABEL",
