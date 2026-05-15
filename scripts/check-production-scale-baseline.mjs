@@ -22,7 +22,10 @@ const requiredFiles = [
   "src/lib/supplier-access-requests.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
+  "src/lib/use-supplier-access-notifications.ts",
+  "src/components/suppliers/SupplierAccessNotificationCenter.tsx",
   "src/components/suppliers/SupplierAccessRefreshBanner.tsx",
+  "src/components/landing/Header.tsx",
   "src/pages/Suppliers.tsx",
 ];
 
@@ -53,7 +56,10 @@ const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierAccessRequests = read("src/lib/supplier-access-requests.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
+const useSupplierAccessNotifications = read("src/lib/use-supplier-access-notifications.ts");
+const supplierAccessNotificationCenter = read("src/components/suppliers/SupplierAccessNotificationCenter.tsx");
 const supplierAccessRefreshBanner = read("src/components/suppliers/SupplierAccessRefreshBanner.tsx");
+const header = read("src/components/landing/Header.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 
 const requireText = (name, text, marker) => {
@@ -73,6 +79,8 @@ for (const marker of [
   "Batch #50",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
   "Batch #51",
+  "Batch #52",
+  "notification center",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -89,6 +97,7 @@ for (const marker of [
   "0008_access_notification_ack",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
   "SupplierAccessRefreshBanner",
+  "SupplierAccessNotificationCenter",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -103,6 +112,7 @@ for (const marker of [
   "access notification acknowledgement",
   "supplier-access change event",
   "refresh banner",
+  "notification center",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -288,6 +298,26 @@ for (const marker of [
 ]) {
   requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, marker);
 }
+
+for (const marker of [
+  "useSupplierAccessNotifications",
+  "readSupplierAccessNotifications",
+  "acknowledgeSupplierAccessNotifications",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
+]) {
+  requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, marker);
+}
+
+for (const marker of [
+  "SupplierAccessNotificationBell",
+  "supplier_notifications_title",
+  "markAllRead",
+  "autoLoad: false",
+  "header-supplier-access-notifications-bell",
+]) {
+  requireText("src/components/suppliers/SupplierAccessNotificationCenter.tsx", supplierAccessNotificationCenter, marker);
+}
+requireText("src/components/landing/Header.tsx", header, "SupplierAccessNotificationBell");
 
 for (const marker of [
   "SUPPLIER_ACCESS_CHANGE_EVENT",

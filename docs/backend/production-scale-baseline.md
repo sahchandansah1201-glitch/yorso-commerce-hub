@@ -171,6 +171,17 @@ detail pages show a localized `SupplierAccessRefreshBanner` only for matching
 locked copy after access is granted without introducing another timer, feed
 query or global page reload.
 
+Batch #52 adds a buyer-facing supplier access notification center in the
+header. It reuses the same self-hosted `/v1/access/notifications` feed and
+`PATCH /v1/access/notifications` acknowledgement path instead of adding a new
+endpoint. The center refreshes on boot, on manual open and on typed
+endpoint. The header bell sets `autoLoad: false`, so ordinary page boot does
+not create an extra feed request; it refreshes on manual open and on typed
+`SUPPLIER_ACCESS_CHANGE_EVENT` approvals. It does not add high-frequency
+polling. At the 10,000 concurrent-user target, the read path remains an
+indexed, paginated notification feed and the write path is a bounded
+acknowledgement batch, not one request per notification row.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

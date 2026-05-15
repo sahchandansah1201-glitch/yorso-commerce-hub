@@ -190,6 +190,12 @@ Production-facing behavior:
   only on the matching offer or supplier page after `backend_notification` or
   mock approval progression. It does not poll and does not treat routine
   backend reads as new approvals;
+- Batch #52 adds `SupplierAccessNotificationCenter` in the header. The center
+  uses the existing self-hosted notification feed, shows unread access
+  approvals, supports bulk read acknowledgement and falls back to local mock
+  approval notifications when `VITE_YORSO_API_URL` is empty. The header bell
+  uses `autoLoad: false` and fetches only when opened or after typed access
+  approval events;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 

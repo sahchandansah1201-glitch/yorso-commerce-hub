@@ -1063,6 +1063,22 @@ type TranslationKeys = {
   supplier_accessRefresh_body: string;
   supplier_accessRefresh_cta: string;
   supplier_accessRefresh_dismiss: string;
+  supplier_notifications_aria: string;
+  supplier_notifications_title: string;
+  supplier_notifications_subtitle: string;
+  supplier_notifications_localMode: string;
+  supplier_notifications_emptyTitle: string;
+  supplier_notifications_emptyBody: string;
+  supplier_notifications_unreadBadge: string;
+  supplier_notifications_allCaughtUp: string;
+  supplier_notifications_markAllRead: string;
+  supplier_notifications_refresh: string;
+  supplier_notifications_loading: string;
+  supplier_notifications_error: string;
+  supplier_notifications_openSupplier: string;
+  supplier_notifications_unread: string;
+  supplier_notifications_priceAccessApproved: string;
+  supplier_notifications_defaultBody: string;
   // Supplier Access Request Panel — fully localized strings
   supplier_accessPanel_title: string;
   supplier_accessPanel_supplierLabel: string;
@@ -2788,6 +2804,22 @@ const en: TranslationKeys = {
     "This page is refreshing supplier data from the self-hosted API. Exact prices and contacts will appear when the approved grant is returned.",
   supplier_accessRefresh_cta: "Refresh now",
   supplier_accessRefresh_dismiss: "Dismiss",
+  supplier_notifications_aria: "Supplier access notifications",
+  supplier_notifications_title: "Access notifications",
+  supplier_notifications_subtitle: "Supplier approvals, exact-price access and access changes from the YORSO API.",
+  supplier_notifications_localMode: "Prototype mode: showing local access approvals until the self-hosted API is configured.",
+  supplier_notifications_emptyTitle: "No access notifications yet",
+  supplier_notifications_emptyBody: "When a supplier approves price access, the notification will appear here.",
+  supplier_notifications_unreadBadge: "Unread",
+  supplier_notifications_allCaughtUp: "All caught up",
+  supplier_notifications_markAllRead: "Mark all read",
+  supplier_notifications_refresh: "Refresh",
+  supplier_notifications_loading: "Updating notifications",
+  supplier_notifications_error: "Could not update notifications. Showing the latest local snapshot.",
+  supplier_notifications_openSupplier: "Open supplier profile",
+  supplier_notifications_unread: "Unread notification",
+  supplier_notifications_priceAccessApproved: "Price access approved",
+  supplier_notifications_defaultBody: "The supplier approved your request. Exact prices and supplier details are available.",
   supplier_accessPanel_explainer:
     "The supplier reviews your buyer profile before sharing exact prices, contact channel, and full catalog.",
   supplier_accessPanel_cta: "Request price access",
@@ -4484,6 +4516,22 @@ const ru: TranslationKeys = {
     "Страница обновляет данные поставщика через собственный API YORSO. Точные цены и контакты появятся, когда вернётся подтверждённый доступ.",
   supplier_accessRefresh_cta: "Обновить сейчас",
   supplier_accessRefresh_dismiss: "Скрыть",
+  supplier_notifications_aria: "Уведомления о доступе к поставщикам",
+  supplier_notifications_title: "Уведомления о доступе",
+  supplier_notifications_subtitle: "Одобрения поставщиков, доступ к точным ценам и изменения доступа из API YORSO.",
+  supplier_notifications_localMode: "Режим прототипа: показываем локальные одобрения доступа, пока self-hosted API не настроен.",
+  supplier_notifications_emptyTitle: "Уведомлений о доступе пока нет",
+  supplier_notifications_emptyBody: "Когда поставщик одобрит доступ к цене, уведомление появится здесь.",
+  supplier_notifications_unreadBadge: "Непрочитанные",
+  supplier_notifications_allCaughtUp: "Новых уведомлений нет",
+  supplier_notifications_markAllRead: "Отметить прочитанными",
+  supplier_notifications_refresh: "Обновить",
+  supplier_notifications_loading: "Обновляем уведомления",
+  supplier_notifications_error: "Не удалось обновить уведомления. Показываем последний локальный снимок.",
+  supplier_notifications_openSupplier: "Открыть профиль поставщика",
+  supplier_notifications_unread: "Непрочитанное уведомление",
+  supplier_notifications_priceAccessApproved: "Доступ к цене открыт",
+  supplier_notifications_defaultBody: "Поставщик одобрил запрос. Точные цены и данные поставщика доступны.",
   supplier_accessPanel_explainer:
     "Поставщик проверит ваш профиль покупателя перед тем, как открыть точные цены, контакт и полный каталог.",
   supplier_accessPanel_cta: "Запросить доступ к цене",
@@ -6180,6 +6228,22 @@ const es: TranslationKeys = {
     "La página está actualizando los datos del proveedor desde la API propia de YORSO. Los precios exactos y contactos aparecerán cuando vuelva la concesión aprobada.",
   supplier_accessRefresh_cta: "Actualizar ahora",
   supplier_accessRefresh_dismiss: "Ocultar",
+  supplier_notifications_aria: "Notificaciones de acceso a proveedores",
+  supplier_notifications_title: "Notificaciones de acceso",
+  supplier_notifications_subtitle: "Aprobaciones de proveedores, acceso a precios exactos y cambios de acceso desde la API de YORSO.",
+  supplier_notifications_localMode: "Modo prototipo: se muestran aprobaciones locales hasta configurar la API self-hosted.",
+  supplier_notifications_emptyTitle: "Aún no hay notificaciones de acceso",
+  supplier_notifications_emptyBody: "Cuando un proveedor apruebe el acceso al precio, la notificación aparecerá aquí.",
+  supplier_notifications_unreadBadge: "Sin leer",
+  supplier_notifications_allCaughtUp: "Todo al día",
+  supplier_notifications_markAllRead: "Marcar todo como leído",
+  supplier_notifications_refresh: "Actualizar",
+  supplier_notifications_loading: "Actualizando notificaciones",
+  supplier_notifications_error: "No se pudieron actualizar las notificaciones. Mostramos la última copia local.",
+  supplier_notifications_openSupplier: "Abrir perfil del proveedor",
+  supplier_notifications_unread: "Notificación sin leer",
+  supplier_notifications_priceAccessApproved: "Acceso al precio aprobado",
+  supplier_notifications_defaultBody: "El proveedor aprobó tu solicitud. Los precios exactos y datos del proveedor están disponibles.",
   supplier_accessPanel_explainer:
     "El proveedor revisa tu perfil de comprador antes de compartir los precios exactos, el canal de contacto y el catálogo completo.",
   supplier_accessPanel_cta: "Solicitar acceso al precio",

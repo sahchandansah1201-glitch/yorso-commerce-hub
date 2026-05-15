@@ -66,6 +66,9 @@ export const getPendingApprovalNotifications = (): ApprovalNotification[] => {
   return Object.values(store).filter((n) => !n.seen);
 };
 
+export const getAllApprovalNotifications = (): ApprovalNotification[] =>
+  Object.values(readNotifications());
+
 export const markNotificationSeen = (supplierId: string) => {
   const store = readNotifications();
   if (!store[supplierId]) return;

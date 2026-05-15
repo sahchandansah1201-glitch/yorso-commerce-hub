@@ -156,6 +156,10 @@ contract. It checks:
 - the refresh banner only reacts to typed matching approval events
   (`backend_notification` or `mock_progression`), so routine `backend_read`
   syncs do not repeatedly announce old access grants;
+- the supplier access notification center reads the same self-hosted
+  `/v1/access/notifications` feed, acknowledges unread rows through the same
+  PATCH endpoint, falls back to local mock approval notifications, uses
+  `autoLoad: false` in the header and avoids adding another polling timer;
 - `ci:core` runs the scale baseline guard.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not
