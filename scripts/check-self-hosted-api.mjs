@@ -59,6 +59,7 @@ const requiredFiles = [
   "src/lib/use-offer-catalog.test.tsx",
   "src/lib/use-offer-detail.ts",
   "src/lib/use-offer-detail.test.tsx",
+  "src/pages/Offers.catalogPaging.test.tsx",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -239,8 +240,16 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend")) {
   failures.push("package.json: ci:core must run test:supplier-directory-frontend");
 }
-if (pkg.scripts["test:offer-catalog-frontend"] !== "vitest run src/lib/offer-catalog-api.test.ts src/lib/use-offer-catalog.test.tsx src/lib/use-offer-detail.test.tsx") {
-  failures.push("package.json: test:offer-catalog-frontend must cover the self-hosted offer catalog adapter, list bridge and detail bridge");
+const offerCatalogFrontendTest = pkg.scripts["test:offer-catalog-frontend"] ?? "";
+for (const requiredOfferCatalogTest of [
+  "src/lib/offer-catalog-api.test.ts",
+  "src/lib/use-offer-catalog.test.tsx",
+  "src/lib/use-offer-detail.test.tsx",
+  "src/pages/Offers.catalogPaging.test.tsx",
+]) {
+  if (!offerCatalogFrontendTest.includes(requiredOfferCatalogTest)) {
+    failures.push(`package.json: test:offer-catalog-frontend must cover ${requiredOfferCatalogTest}`);
+  }
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:offer-catalog-frontend")) {
   failures.push("package.json: ci:core must run test:offer-catalog-frontend");
@@ -534,6 +543,7 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_private_search_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_list_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_filters=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_sort_pagination=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_unlocked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_granted_private_search=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_ungranted_private_search_guard=ok");
@@ -638,17 +648,22 @@ requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, 
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "orderByClause");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "orderByClause");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "createOfferCatalogApiClient");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "/v1/offers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "ACCOUNT_USER_ID_HEADER");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "mockOffers");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCode");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "sortBy");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "sortDirection");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "useOfferCatalogList");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQueryFromFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "serverFiltered");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForLevel");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "sortBy");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "sortDirection");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "useOfferDetail");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "createOfferCatalogApiClient");

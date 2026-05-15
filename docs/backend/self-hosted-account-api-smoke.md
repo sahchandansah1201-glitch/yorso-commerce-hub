@@ -146,6 +146,7 @@ offer_catalog_private_search_guard=ok
 offer_catalog_private_search_requires_grant=ok
 offer_catalog_list_requires_grant=ok
 offer_catalog_filters=ok
+offer_catalog_sort_pagination=ok
 offer_catalog_unlocked=ok
 offer_catalog_granted_private_search=ok
 offer_catalog_ungranted_private_search_guard=ok

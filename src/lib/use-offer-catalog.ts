@@ -17,6 +17,8 @@ interface UseOfferCatalogListArgs {
   level: AccessLevel;
   limit?: number;
   offset?: number;
+  sortBy?: OfferCatalogQuery["sortBy"];
+  sortDirection?: OfferCatalogQuery["sortDirection"];
 }
 
 interface OfferCatalogListState {
@@ -59,6 +61,8 @@ export const offerCatalogApiQueryFromFilters = (
   level: AccessLevel,
   limit = 50,
   offset = 0,
+  sortBy: OfferCatalogQuery["sortBy"] = "updated_at",
+  sortDirection: OfferCatalogQuery["sortDirection"] = "desc",
 ): Partial<OfferCatalogQuery> => ({
   ...(filters.q ? { q: filters.q } : {}),
   ...(filters.category ? { category: filters.category } : {}),
@@ -70,6 +74,8 @@ export const offerCatalogApiQueryFromFilters = (
     : {}),
   ...(filters.state ? { format: filters.state as OfferCatalogQuery["format"] } : {}),
   ...(filters.certification ? { certification: filters.certification } : {}),
+  sortBy,
+  sortDirection,
   accessLevel: level,
   limit,
   offset,
@@ -121,6 +127,8 @@ export function useOfferCatalogList({
   level,
   limit = 50,
   offset = 0,
+  sortBy = "updated_at",
+  sortDirection = "desc",
 }: UseOfferCatalogListArgs) {
   const client = useMemo(() => createOfferCatalogApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
@@ -147,7 +155,7 @@ export function useOfferCatalogList({
       state: productState,
       supplier: null,
       supplierCountry,
-    }, level, limit, offset),
+    }, level, limit, offset, sortBy, sortDirection),
     [
       category,
       certification,
@@ -158,12 +166,23 @@ export function useOfferCatalogList({
       level,
       limit,
       offset,
+      sortBy,
+      sortDirection,
     ],
   );
 
   useEffect(() => {
     if (!client.enabled) {
-      setState(fallbackListState(level));
+      void client.listOffers(apiQuery).then((result) => {
+        setState({
+          error: null,
+          offers: result.offers,
+          serverFiltered: false,
+          source: "local",
+          status: "ready",
+          total: result.total,
+        });
+      });
       return;
     }
 

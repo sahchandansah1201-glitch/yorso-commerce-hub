@@ -8,6 +8,7 @@ const requiredFiles = [
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
+  "packages/db/migrations/0010_offer_catalog_pagination_sort.sql",
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migrations/0008_access_notification_ack.sql",
   "packages/db/migration-manifest.json",
@@ -28,6 +29,7 @@ const requiredFiles = [
   "src/components/suppliers/SupplierAccessRefreshBanner.tsx",
   "src/components/landing/Header.tsx",
   "src/pages/Suppliers.tsx",
+  "src/pages/Offers.tsx",
 ];
 
 const failures = [];
@@ -43,6 +45,7 @@ const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const supplierPaginationSort = read("packages/db/migrations/0009_supplier_directory_pagination_sort.sql");
 const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
+const offerPaginationSort = read("packages/db/migrations/0010_offer_catalog_pagination_sort.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const accessNotificationAck = read("packages/db/migrations/0008_access_notification_ack.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
@@ -63,6 +66,7 @@ const supplierAccessNotificationCenter = read("src/components/suppliers/Supplier
 const supplierAccessRefreshBanner = read("src/components/suppliers/SupplierAccessRefreshBanner.tsx");
 const header = read("src/components/landing/Header.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
+const offersPage = read("src/pages/Offers.tsx");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -83,8 +87,10 @@ for (const marker of [
   "Batch #51",
   "Batch #52",
   "Batch #53",
+  "Batch #54",
   "notification center",
   "supplier directory pagination",
+  "offer catalog pagination",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -104,6 +110,7 @@ for (const marker of [
   "SupplierAccessRefreshBanner",
   "SupplierAccessNotificationCenter",
   "supplier directory pagination",
+  "offer catalog pagination",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -120,6 +127,7 @@ for (const marker of [
   "refresh banner",
   "notification center",
   "supplier directory pagination",
+  "offer catalog pagination",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -161,6 +169,16 @@ for (const marker of [
 }
 
 for (const marker of [
+  "idx_yorso_offers_catalog_published_updated",
+  "idx_yorso_offers_catalog_published_category",
+  "idx_yorso_offers_catalog_published_origin",
+  "idx_yorso_offers_catalog_published_moq",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0010_offer_catalog_pagination_sort.sql", offerPaginationSort, marker);
+}
+
+for (const marker of [
   "idx_yorso_supplier_access_requests_buyer",
   "idx_yorso_supplier_access_requests_supplier_status",
   "idx_yorso_access_grants_buyer_supplier_scope",
@@ -192,6 +210,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0008_access_noti
 if (!manifest.migrations?.some((migration) => migration.id === "0009_supplier_directory_pagination_sort")) {
   failures.push("packages/db/migration-manifest.json: missing 0009_supplier_directory_pagination_sort");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0010_offer_catalog_pagination_sort")) {
+  failures.push("packages/db/migration-manifest.json: missing 0010_offer_catalog_pagination_sort");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -220,6 +241,7 @@ for (const marker of [
 for (const marker of [
   "offer_catalog_private_search_requires_grant=ok",
   "offer_catalog_list_requires_grant=ok",
+  "offer_catalog_sort_pagination=ok",
   "offer_catalog_granted_private_search=ok",
   "offer_catalog_ungranted_private_search_guard=ok",
 ]) {
@@ -247,6 +269,8 @@ for (const marker of [
 for (const marker of [
   "limit",
   "offset",
+  "sortBy",
+  "sortDirection",
   "supplierCountryCode",
 ]) {
   requireText("src/lib/offer-catalog-api.ts", offerApi, marker);
@@ -256,11 +280,24 @@ for (const marker of [
   "useOfferCatalogList",
   "limit",
   "offset",
+  "sortBy",
+  "sortDirection",
   "serverFiltered",
   "offerCatalogApiQueryFromFilters",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, marker);
+}
+
+for (const marker of [
+  "pageSize",
+  "offset: (page - 1) * pageSize",
+  "offer-catalog-sort",
+  "offer-catalog-page-size",
+  "offer-catalog-pagination",
+  "useSearchParams",
+]) {
+  requireText("src/pages/Offers.tsx", offersPage, marker);
 }
 
 for (const marker of [

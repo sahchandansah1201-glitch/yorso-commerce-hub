@@ -535,6 +535,27 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("sorts and paginates offer catalog on the backend", async () => {
+    const response = await request(
+      "/v1/offers?accessLevel=anonymous_locked&sortBy=origin&sortDirection=asc&limit=1&offset=1",
+    );
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.total).toBe(4);
+    expect(body.limit).toBe(1);
+    expect(body.offset).toBe(1);
+    expect(body.offers).toEqual([
+      expect.objectContaining({
+        id: "3",
+        originCode: "IS",
+        priceMin: null,
+        supplier: expect.objectContaining({ name: null }),
+      }),
+    ]);
+  });
+
   it("creates supplier price access requests, decisions and approval notifications", async () => {
     const fetchApi = await startTestServer();
 

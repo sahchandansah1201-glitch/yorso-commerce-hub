@@ -134,6 +134,22 @@ function whereClause(query: OfferCatalogQuery, options: OfferCatalogRepositoryLi
   return { sql: where.join(" and "), params };
 }
 
+function orderByClause(query: OfferCatalogQuery) {
+  const direction = query.sortDirection === "asc" ? "asc" : "desc";
+
+  switch (query.sortBy) {
+    case "category":
+      return `category ${direction}, product_name ${direction}, id asc`;
+    case "origin":
+      return `origin_code ${direction}, origin ${direction}, product_name ${direction}, id asc`;
+    case "moq":
+      return `moq_value ${direction} nulls last, id asc`;
+    case "updated_at":
+    default:
+      return `updated_at ${direction}, id asc`;
+  }
+}
+
 export class PostgresOfferCatalogRepository implements OfferCatalogRepository {
   private readonly client: OfferQueryClient;
 
@@ -143,6 +159,7 @@ export class PostgresOfferCatalogRepository implements OfferCatalogRepository {
 
   async listOffers(query: OfferCatalogQuery, options: OfferCatalogRepositoryListOptions = {}) {
     const where = whereClause(query, options);
+    const orderBy = orderByClause(query);
     const limitParam = where.params.length + 1;
     const offsetParam = where.params.length + 2;
     const result = await this.client.query<OfferRow & { total_count: number }>(
@@ -150,7 +167,7 @@ export class PostgresOfferCatalogRepository implements OfferCatalogRepository {
         select *, count(*) over()::int as total_count
         from yorso_offers_catalog
         where ${where.sql}
-        order by updated_at desc, id asc
+        order by ${orderBy}
         limit $${limitParam}
         offset $${offsetParam}
       `,

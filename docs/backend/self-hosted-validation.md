@@ -414,6 +414,16 @@ Batch #47 applies the same rule to offer catalog list/search. A requested
 - `offer_catalog_ungranted_private_search_guard=ok` proves unrelated supplier
   private names remain hidden after a different grant.
 
+Batch #54 adds offer catalog pagination and sort validation:
+
+- `/v1/offers` accepts only enum-backed `sortBy` and `sortDirection` values;
+- `limit` and `offset` remain bounded by the shared offer catalog contract;
+- `/offers` stores `q/category/origin/supplierCountry/state/certification/sort/dir/rows/page`
+  in URL state;
+- migration `0010_offer_catalog_pagination_sort` adds indexes for latest,
+  category, origin and MOQ ordering;
+- the account API smoke prints `offer_catalog_sort_pagination=ok`.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

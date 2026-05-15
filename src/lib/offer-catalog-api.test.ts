@@ -142,6 +142,8 @@ describe("offer catalog API adapter", () => {
       accessLevel: "anonymous_locked",
       limit: 5,
       offset: 10,
+      sortBy: "origin",
+      sortDirection: "asc",
     });
     const detail = await client.getOfferById("offer-test");
 
@@ -151,7 +153,7 @@ describe("offer catalog API adapter", () => {
       priceMin: undefined,
       supplier: expect.objectContaining({ id: "sup-is-005" }),
     });
-    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/offers?q=cod&originCode=IS&category=Whitefish&accessLevel=anonymous_locked&limit=5&offset=10");
+    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/offers?q=cod&originCode=IS&category=Whitefish&accessLevel=anonymous_locked&limit=5&offset=10&sortBy=origin&sortDirection=asc");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/offers/offer-test?accessLevel=anonymous_locked");
     expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
     expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();

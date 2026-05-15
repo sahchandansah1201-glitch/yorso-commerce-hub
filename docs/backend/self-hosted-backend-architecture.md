@@ -560,3 +560,12 @@ with `qualified_unlocked`, but the API downgrades the response unless the
 current account has an approved grant for that supplier. This protects supplier
 identity, contacts and exact catalog breadth while keeping the public supplier
 directory readable and paginated.
+
+Batch #54 makes offer catalog pagination a server contract. `/v1/offers` owns
+safe enum-driven sorting (`updated_at`, `category`, `origin`, `moq`),
+bounded `limit/offset` reads and access-shaped rows. `/offers` stores the
+list view in URL state so browser navigation and shared links do not require
+client-side full-list loading. PostgreSQL migration
+`0010_offer_catalog_pagination_sort` adds composite indexes for the supported
+orders. Price sorting is deliberately excluded until exact price visibility is
+handled by a grant-aware pricing endpoint.

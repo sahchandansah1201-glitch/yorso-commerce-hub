@@ -147,6 +147,17 @@ async function runSmoke(baseUrl) {
   assertEqual(offerFiltered.offers?.[0]?.id, "2", "offer catalog filtered id");
   console.log("offer_catalog_filters=ok");
 
+  const offerSorted = await jsonRequest(
+    baseUrl,
+    "/v1/offers?accessLevel=anonymous_locked&sortBy=origin&sortDirection=asc&limit=1&offset=1",
+  );
+  assertEqual(offerSorted.total, 4, "offer catalog sorted total");
+  assertEqual(offerSorted.limit, 1, "offer catalog sorted limit");
+  assertEqual(offerSorted.offset, 1, "offer catalog sorted offset");
+  assertEqual(offerSorted.offers?.[0]?.id, "3", "offer catalog sorted id");
+  assertEqual(offerSorted.offers?.[0]?.priceMin, null, "offer catalog sorted exact price hidden");
+  console.log("offer_catalog_sort_pagination=ok");
+
   const offerBeforeGrant = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=qualified_unlocked");
   assertEqual(offerBeforeGrant.accessLevel, "registered_locked", "qualified offer detail requires supplier access grant");
   assertEqual(offerBeforeGrant.offer?.supplier?.name, null, "offer detail supplier hidden before grant");

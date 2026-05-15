@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,20 +29,66 @@ import TrustProofStrip from "@/components/catalog/TrustProofStrip";
 import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
 
 const COMPARE_MAX = 5;
+const OFFER_SORT_KEYS = ["updated_at", "category", "origin", "moq"] as const;
+const OFFER_SORT_DIRECTIONS = ["asc", "desc"] as const;
+const OFFER_PAGE_SIZES = [10, 20, 50] as const;
+const OFFER_STATES = ["Frozen", "Fresh", "Chilled"] as const;
+type OfferSortKey = (typeof OFFER_SORT_KEYS)[number];
+type OfferSortDirection = (typeof OFFER_SORT_DIRECTIONS)[number];
+type OfferPageSize = (typeof OFFER_PAGE_SIZES)[number];
+
+const DEFAULT_OFFER_SORT_KEY: OfferSortKey = "updated_at";
+const DEFAULT_OFFER_SORT_DIRECTION: OfferSortDirection = "desc";
+const DEFAULT_OFFER_PAGE_SIZE: OfferPageSize = 10;
+
+const isOfferSortKey = (value: string | null): value is OfferSortKey =>
+  OFFER_SORT_KEYS.includes(value as OfferSortKey);
+const isOfferSortDirection = (value: string | null): value is OfferSortDirection =>
+  OFFER_SORT_DIRECTIONS.includes(value as OfferSortDirection);
+const isOfferPageSize = (value: string | null): value is `${OfferPageSize}` =>
+  value === "10" || value === "20" || value === "50";
+const isOfferState = (value: string | null): value is (typeof OFFER_STATES)[number] =>
+  OFFER_STATES.includes(value as (typeof OFFER_STATES)[number]);
+
+const readInitialCatalogView = (params: URLSearchParams) => {
+  const sort = params.get("sort");
+  const direction = params.get("dir");
+  const pageSizeParam = params.get("rows");
+  const pageParam = Number(params.get("page") ?? "1");
+  const productState = params.get("state");
+
+  return {
+    filters: {
+      ...emptyCatalogFilters,
+      q: params.get("q") ?? "",
+      category: params.get("category"),
+      origin: params.get("origin"),
+      supplierCountry: params.get("supplierCountry"),
+      certification: params.get("certification"),
+      state: isOfferState(productState) ? productState : null,
+    } satisfies CatalogFilterState,
+    sortBy: isOfferSortKey(sort) ? sort : DEFAULT_OFFER_SORT_KEY,
+    sortDirection: isOfferSortDirection(direction) ? direction : DEFAULT_OFFER_SORT_DIRECTION,
+    pageSize: isOfferPageSize(pageSizeParam) ? Number(pageSizeParam) as OfferPageSize : DEFAULT_OFFER_PAGE_SIZE,
+    page: Number.isFinite(pageParam) && pageParam > 0 ? Math.floor(pageParam) : 1,
+  };
+};
+
+const interpolate = (s: string, vars: Record<string, string | number>) =>
+  s.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? `{${key}}`));
 
 const Offers = () => {
   const { t } = useLanguage();
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<CatalogFilterState>(() => {
-    // Hydrate filter state from URL query so deep-links from alerts (e.g.
-    // /offers?category=Salmon&fromAlert=...) immediately apply the filter
-    // without an extra render.
-    const params = new URLSearchParams(location.search);
-    const category = params.get("category");
-    return category ? { ...emptyCatalogFilters, category } : emptyCatalogFilters;
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [initialCatalogView] = useState(() => readInitialCatalogView(searchParams));
+  const [filters, setFilters] = useState<CatalogFilterState>(initialCatalogView.filters);
+  const [sortBy, setSortBy] = useState<OfferSortKey>(initialCatalogView.sortBy);
+  const [sortDirection, setSortDirection] = useState<OfferSortDirection>(initialCatalogView.sortDirection);
+  const [pageSize, setPageSize] = useState<OfferPageSize>(initialCatalogView.pageSize);
+  const [page, setPage] = useState(initialCatalogView.page);
   // Optional supplier prefilter from /suppliers/:id catalog cards.
   // Only honored at qualified_unlocked — locked users must not see a list
   // narrowed to a specific supplier's offers (would imply identity).
@@ -61,6 +107,45 @@ const Offers = () => {
     return () => window.clearTimeout(handle);
   }, [filters.q]);
 
+  useEffect(() => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (debouncedQuery) next.set("q", debouncedQuery);
+      else next.delete("q");
+      if (filters.category) next.set("category", filters.category);
+      else next.delete("category");
+      if (filters.origin) next.set("origin", filters.origin);
+      else next.delete("origin");
+      if (filters.supplierCountry) next.set("supplierCountry", filters.supplierCountry);
+      else next.delete("supplierCountry");
+      if (filters.certification) next.set("certification", filters.certification);
+      else next.delete("certification");
+      if (filters.state) next.set("state", filters.state);
+      else next.delete("state");
+      if (sortBy !== DEFAULT_OFFER_SORT_KEY) next.set("sort", sortBy);
+      else next.delete("sort");
+      if (sortDirection !== DEFAULT_OFFER_SORT_DIRECTION) next.set("dir", sortDirection);
+      else next.delete("dir");
+      if (pageSize !== DEFAULT_OFFER_PAGE_SIZE) next.set("rows", String(pageSize));
+      else next.delete("rows");
+      if (page > 1) next.set("page", String(page));
+      else next.delete("page");
+      return next;
+    }, { replace: true });
+  }, [
+    debouncedQuery,
+    filters.category,
+    filters.certification,
+    filters.origin,
+    filters.state,
+    filters.supplierCountry,
+    page,
+    pageSize,
+    setSearchParams,
+    sortBy,
+    sortDirection,
+  ]);
+
   const apiFilters = useMemo(
     () => ({ ...filters, q: debouncedQuery }),
     [filters, debouncedQuery],
@@ -69,8 +154,10 @@ const Offers = () => {
   const offerCatalog = useOfferCatalogList({
     filters: apiFilters,
     level,
-    limit: 50,
-    offset: 0,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+    sortBy,
+    sortDirection,
   });
   const offers = offerCatalog.offers;
   const offersLoading = offerCatalog.status === "loading" && offers.length === 0;
@@ -82,6 +169,10 @@ const Offers = () => {
   const lastErrorCode = offerCatalog.error?.message ?? null;
   const recovering = offerCatalog.status === "loading" && offerCatalog.source === "api";
   const handleManualRetry = offerCatalog.retry;
+  const updateFilters = (next: CatalogFilterState) => {
+    setFilters(next);
+    setPage(1);
+  };
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -142,7 +233,7 @@ const Offers = () => {
       bases: uniq(offers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
       certifications: uniq(offers.flatMap((o) => o.certifications ?? [])),
       paymentTermsList: uniq(offers.map((o) => (o.commercial?.paymentTerms ?? "").split(",")[0].trim())),
-      states: ["Frozen", "Fresh", "Chilled"],
+      states: [...OFFER_STATES],
       cutTypes: uniq(offers.map((o) => o.cutType.split(",")[0].trim())),
       currencies: uniq(offers.map((o) => o.currency ?? "USD")),
       latinNames: uniq(offers.map((o) => o.latinName)),
@@ -168,6 +259,15 @@ const Offers = () => {
     }
     return base;
   }, [filters, allowSupplierName, offers, offerCatalog.serverFiltered, supplierIdParam]);
+
+  const totalResults = offerCatalog.total;
+  const pageCount = Math.max(1, Math.ceil(totalResults / pageSize));
+  const pageStart = totalResults === 0 ? 0 : (page - 1) * pageSize + 1;
+  const pageEnd = totalResults === 0 ? 0 : Math.min(page * pageSize, totalResults);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
 
   useEffect(() => {
     if (visible.length === 0) {
@@ -270,7 +370,7 @@ const Offers = () => {
               {t.catalog_pageTitle}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground" data-testid="catalog-result-count">
-              {t.catalog_resultCount.replace("{count}", String(visible.length))}
+              {t.catalog_resultCount.replace("{count}", String(totalResults))}
             </p>
           </div>
           <div
@@ -372,10 +472,76 @@ const Offers = () => {
           className="sticky top-16 z-30 -mx-4 mt-4 scroll-mt-20 border-b border-border/60 bg-background/95 px-4 py-2 supports-[backdrop-filter]:bg-background/80 supports-[backdrop-filter]:backdrop-blur md:-mx-6 md:px-6"
         >
           <div className="lg:hidden">
-            <MobileFilterPills value={filters} onChange={setFilters} options={options} />
+            <MobileFilterPills value={filters} onChange={updateFilters} options={options} />
           </div>
           <div className="hidden lg:block">
-            <CatalogFilters value={filters} onChange={setFilters} options={options} layout="horizontal" />
+            <CatalogFilters value={filters} onChange={updateFilters} options={options} layout="horizontal" />
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-3 rounded-xl border border-border bg-card/70 p-3 text-xs md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 font-medium text-muted-foreground">
+              <span>{t.catalog_sortLabel}</span>
+              <select
+                data-testid="offer-catalog-sort"
+                value={sortBy}
+                onChange={(event) => {
+                  setSortBy(event.target.value as OfferSortKey);
+                  setPage(1);
+                }}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              >
+                <option value="updated_at">{t.catalog_sortUpdated}</option>
+                <option value="category">{t.catalog_sortCategory}</option>
+                <option value="origin">{t.catalog_sortOrigin}</option>
+                <option value="moq">{t.catalog_sortMoq}</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 font-medium text-muted-foreground">
+              <span>{t.catalog_directionLabel}</span>
+              <select
+                data-testid="offer-catalog-direction"
+                value={sortDirection}
+                onChange={(event) => {
+                  setSortDirection(event.target.value as OfferSortDirection);
+                  setPage(1);
+                }}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              >
+                <option value="desc">{t.catalog_directionDesc}</option>
+                <option value="asc">{t.catalog_directionAsc}</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 font-medium text-muted-foreground">
+              <span>{t.catalog_rowsLabel}</span>
+              <select
+                data-testid="offer-catalog-page-size"
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value) as OfferPageSize);
+                  setPage(1);
+                }}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+              >
+                {OFFER_PAGE_SIZES.map((size) => (
+                  <option key={size} value={size}>
+                    {interpolate(t.catalog_rowsOption, { count: size })}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div
+            data-testid="offer-catalog-page-summary"
+            className="text-muted-foreground"
+            aria-live="polite"
+          >
+            {interpolate(t.catalog_pageSummary, {
+              start: pageStart,
+              end: pageEnd,
+              total: totalResults,
+            })}
           </div>
         </div>
 
@@ -447,7 +613,7 @@ const Offers = () => {
                     variant="outline"
                     size="sm"
                     className="mt-4"
-                    onClick={() => setFilters(emptyCatalogFilters)}
+                    onClick={() => updateFilters(emptyCatalogFilters)}
                     data-testid="catalog-empty-reset"
                   >
                     {t.catalog_results_resetFilters}
@@ -477,6 +643,41 @@ const Offers = () => {
                     </div>
                   </div>
                 ))}
+                {totalResults > pageSize && (
+                  <div
+                    data-testid="offer-catalog-pagination"
+                    className="mt-2 flex flex-col gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm md:flex-row md:items-center md:justify-between"
+                  >
+                    <span className="text-muted-foreground">
+                      {interpolate(t.catalog_pageNumber, {
+                        current: page,
+                        total: pageCount,
+                      })}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        data-testid="offer-catalog-prev"
+                        disabled={page <= 1}
+                        onClick={() => setPage((current) => Math.max(1, current - 1))}
+                      >
+                        {t.catalog_previous}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        data-testid="offer-catalog-next"
+                        disabled={page >= pageCount}
+                        onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                      >
+                        {t.catalog_next}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </section>
