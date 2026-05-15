@@ -34,6 +34,7 @@ const requiredFiles = [
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
+  "e2e/supplier-directory-profile-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
 ];
@@ -77,6 +78,7 @@ const offersPage = read("src/pages/Offers.tsx");
 const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
 const suppliersDirectoryPagingE2E = read("e2e/suppliers-directory-paging.spec.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
+const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 
@@ -105,6 +107,7 @@ for (const marker of [
   "Batch #57",
   "Batch #58",
   "Batch #59",
+  "Batch #60",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -113,6 +116,7 @@ for (const marker of [
   "supplier profile detail browser e2e",
   "offer detail runtime browser e2e",
   "offer catalog detail flow browser e2e",
+  "supplier directory profile flow browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -449,8 +453,16 @@ for (const marker of [
   "supplier-directory-search",
   "supplier-directory-page-size",
   "supplier-directory-pagination",
+  "supplierAccessLevel",
 ]) {
   requireText("src/pages/Suppliers.tsx", suppliersPage, marker);
+}
+for (const marker of [
+  "getApprovedSupplierAccessIds",
+  "client.enabled && accessLevel !== \"anonymous_locked\"",
+  "SUPPLIER_ACCESS_CHANGE_EVENT",
+]) {
+  requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, marker);
 }
 
 for (const marker of [
@@ -488,6 +500,24 @@ if (!pkg.scripts["smoke:e2e:supplier-profile-detail:run"]?.includes("e2e/supplie
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers/:id profile detail e2e");
+}
+for (const marker of [
+  "Batch #60 browser-level guard",
+  "directory/profile access bridge",
+  "approval on profile unlocks the matching directory row after return",
+  "unrelated approval does not unlock the directory/profile flow",
+  "q=salmon",
+  "filter=salmon",
+  "Nordfjord Sjømat AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/supplier-directory-profile-flow.spec.ts", supplierDirectoryProfileFlowE2E, marker);
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-flow:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-flow:run must cover supplier directory/profile approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include supplier directory/profile approval bridge e2e");
 }
 for (const marker of [
   "Batch #58 browser-level guard",

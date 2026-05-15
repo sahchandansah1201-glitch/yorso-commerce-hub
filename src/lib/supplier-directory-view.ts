@@ -14,6 +14,7 @@ export const supplierDirectoryItemToMockSupplier = (
 
   return {
     id: item.id,
+    accessLevel: item.accessLevel,
     companyName: item.companyName ?? item.maskedName,
     maskedName: item.maskedName,
     country: item.country,

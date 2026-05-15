@@ -14,6 +14,8 @@
  * but the UI layer is responsible for not rendering them in locked states.
  */
 
+import type { AccessLevel } from "@/lib/access-level";
+
 export type SupplierType =
   | "producer"
   | "processor"
@@ -52,6 +54,8 @@ export interface SupplierCertificationBadge {
 
 export interface MockSupplier {
   id: string;
+  /** Effective access state for this specific supplier row/detail. */
+  accessLevel?: AccessLevel;
   /** Real legal/trade name. Only revealed at qualified_unlocked. */
   companyName: string;
   /** Masked identity for locked states, e.g. "Norwegian salmon producer · NO-114". */

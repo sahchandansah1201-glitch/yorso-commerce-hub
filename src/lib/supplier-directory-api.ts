@@ -5,6 +5,7 @@ import {
   getConfiguredAccountUserId,
 } from "@/lib/account-api";
 import { buyerSession } from "@/lib/buyer-session";
+import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
 
@@ -104,8 +105,13 @@ const paramsFromQuery = (query: Partial<SupplierDirectoryQuery>) => {
 const shapeMockSupplier = (
   supplier: (typeof mockSuppliers)[number],
   accessLevel: SupplierDirectoryAccessLevel,
+  approvedSupplierIds: ReadonlySet<string> | string[] = [],
 ): SupplierDirectoryItem => {
-  const unlocked = accessLevel === "qualified_unlocked";
+  const approved = "has" in approvedSupplierIds
+    ? approvedSupplierIds.has(supplier.id)
+    : approvedSupplierIds.includes(supplier.id);
+  const unlocked = accessLevel === "qualified_unlocked" || approved;
+  const effectiveAccess: SupplierDirectoryAccessLevel = unlocked ? "qualified_unlocked" : accessLevel;
   return {
     id: supplier.id,
     maskedName: supplier.maskedName,
@@ -137,11 +143,15 @@ const shapeMockSupplier = (
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",
-    accessLevel,
+    accessLevel: effectiveAccess,
   };
 };
 
-const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<SupplierDirectoryQuery>) => {
+const mockMatches = (
+  supplier: (typeof mockSuppliers)[number],
+  query: Partial<SupplierDirectoryQuery>,
+  approvedSupplierIds: ReadonlySet<string> | string[] = [],
+) => {
   if (query.countryCode && supplier.countryCode !== query.countryCode.toUpperCase()) return false;
   if (query.supplierType && supplier.supplierType !== query.supplierType) return false;
   if (query.verificationLevel && supplier.verificationLevel !== query.verificationLevel) return false;
@@ -153,6 +163,9 @@ const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<Su
   }
   if (query.q) {
     const q = query.q.toLowerCase();
+    const approved = "has" in approvedSupplierIds
+      ? approvedSupplierIds.has(supplier.id)
+      : approvedSupplierIds.includes(supplier.id);
     const searchable = [
       supplier.maskedName,
       supplier.country,
@@ -162,7 +175,7 @@ const mockMatches = (supplier: (typeof mockSuppliers)[number], query: Partial<Su
       ...supplier.certifications,
       ...supplier.productFocus.flatMap((item) => [item.species, item.forms]),
     ];
-    if (query.accessLevel === "qualified_unlocked") {
+    if (query.accessLevel === "qualified_unlocked" || approved) {
       searchable.push(supplier.companyName, supplier.about);
     }
     if (!searchable.some((value) => value.toLowerCase().includes(q))) return false;
@@ -237,12 +250,15 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
       const offset = query.offset ?? 0;
 
       if (!enabled) {
+        const approvedSupplierIds = new Set(getApprovedSupplierAccessIds());
         const filtered = sortMockSuppliers(
-          mockSuppliers.filter((supplier) => mockMatches(supplier, query)),
+          mockSuppliers.filter((supplier) => mockMatches(supplier, query, approvedSupplierIds)),
           query,
         );
         return {
-          suppliers: filtered.slice(offset, offset + limit).map((supplier) => shapeMockSupplier(supplier, accessLevel)),
+          suppliers: filtered.slice(offset, offset + limit).map((supplier) => (
+            shapeMockSupplier(supplier, accessLevel, approvedSupplierIds)
+          )),
           total: filtered.length,
           accessLevel,
           limit,
@@ -256,8 +272,9 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
     },
     async getSupplierById(id: string, accessLevel: SupplierDirectoryAccessLevel = "anonymous_locked") {
       if (!enabled) {
+        const approvedSupplierIds = new Set(getApprovedSupplierAccessIds());
         const supplier = mockSuppliers.find((item) => item.id === id);
-        return supplier ? shapeMockSupplier(supplier, accessLevel) : null;
+        return supplier ? shapeMockSupplier(supplier, accessLevel, approvedSupplierIds) : null;
       }
 
       const params = paramsFromQuery({ accessLevel });

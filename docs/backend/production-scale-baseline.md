@@ -252,6 +252,20 @@ mock access state. At 10,000 concurrent users this keeps access refresh
 event-driven and avoids full catalog reloads, global client-side unlocks or
 polling-heavy approval checks.
 
+Batch #60 adds supplier directory profile flow browser e2e coverage for the
+matching supplier path across `/suppliers` and `/suppliers/:id`. The new
+`e2e/supplier-directory-profile-flow.spec.ts` verifies that a registered
+directory row stays locked before approval, a one-click request on the profile
+page unlocks only the matching supplier after approval, the buyer can return to
+the directory with `q/filter/sort/rows` URL state preserved, and unrelated
+supplier approvals do not unlock the current supplier. This is the supplier
+directory profile flow browser e2e guard. The local fallback now tracks
+approved supplier access per supplier record instead of relying only on a
+global buyer level; self-hosted API reads may request `qualified_unlocked`, but
+the backend remains responsible for per-row grant downgrades. At 10,000
+concurrent users this keeps supplier discovery refresh event-driven, bounded to
+the visible page, and protected from global frontend unlocks.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

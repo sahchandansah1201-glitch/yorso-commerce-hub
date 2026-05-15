@@ -11,7 +11,10 @@ import {
   localizedMockSuppliers,
   localizeSupplierDirectoryItem,
 } from "@/lib/supplier-directory-view";
-import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
+import {
+  getApprovedSupplierAccessIds,
+  SUPPLIER_ACCESS_CHANGE_EVENT,
+} from "@/lib/supplier-access-requests";
 
 export type SupplierDirectorySource = "api" | "local";
 export type SupplierDirectoryStatus = "idle" | "loading" | "ready" | "error";
@@ -51,8 +54,37 @@ interface SupplierDirectoryDetailState {
   supplier: MockSupplier | undefined;
 }
 
-const fallbackListState = (language: Language): SupplierDirectoryListState => {
-  const suppliers = localizedMockSuppliers(language);
+const supplierAccessLevel = (
+  supplier: MockSupplier,
+  accessLevel: SupplierDirectoryAccessLevel,
+  approvedSupplierIds: ReadonlySet<string>,
+): SupplierDirectoryAccessLevel =>
+  accessLevel === "qualified_unlocked" || approvedSupplierIds.has(supplier.id)
+    ? "qualified_unlocked"
+    : accessLevel;
+
+const withSupplierAccessLevel = (
+  supplier: MockSupplier,
+  language: Language,
+  accessLevel: SupplierDirectoryAccessLevel,
+  approvedSupplierIds: ReadonlySet<string>,
+) => localizeSupplier(
+  {
+    ...supplier,
+    accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
+  },
+  language,
+);
+
+const fallbackListState = (
+  language: Language,
+  accessLevel: SupplierDirectoryAccessLevel,
+): SupplierDirectoryListState => {
+  const approvedSupplierIds = new Set(getApprovedSupplierAccessIds());
+  const suppliers = localizedMockSuppliers(language).map((supplier) => ({
+    ...supplier,
+    accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
+  }));
   return {
     error: null,
     serverFiltered: false,
@@ -66,12 +98,20 @@ const fallbackListState = (language: Language): SupplierDirectoryListState => {
 const fallbackDetailState = (
   fallbackSupplier: MockSupplier | undefined,
   language: Language,
+  accessLevel: SupplierDirectoryAccessLevel,
 ): SupplierDirectoryDetailState => ({
   error: null,
   missing: !fallbackSupplier,
   source: "local",
   status: "ready",
-  supplier: fallbackSupplier ? localizeSupplier(fallbackSupplier, language) : undefined,
+  supplier: fallbackSupplier
+    ? withSupplierAccessLevel(
+      fallbackSupplier,
+      language,
+      accessLevel,
+      new Set(getApprovedSupplierAccessIds()),
+    )
+    : undefined,
 });
 
 const isMissingSupplierError = (error: unknown) =>
@@ -89,18 +129,24 @@ export function useSupplierDirectoryList({
 }: SupplierDirectoryListArgs) {
   const client = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
-  const [state, setState] = useState<SupplierDirectoryListState>(() => fallbackListState(language));
+  const [state, setState] = useState<SupplierDirectoryListState>(() =>
+    fallbackListState(language, accessLevel),
+  );
+  const requestAccessLevel: SupplierDirectoryAccessLevel =
+    client.enabled && accessLevel !== "anonymous_locked"
+      ? "qualified_unlocked"
+      : accessLevel;
 
   useEffect(() => {
     if (!client.enabled) {
-      setState(fallbackListState(language));
+      setState(fallbackListState(language, accessLevel));
       return;
     }
 
     let cancelled = false;
     const previousSuppliers = state.suppliers.length > 0
       ? state.suppliers
-      : localizedMockSuppliers(language);
+      : fallbackListState(language, accessLevel).suppliers;
 
     setState((current) => ({
       ...current,
@@ -116,7 +162,7 @@ export function useSupplierDirectoryList({
         ...(filterQuery ?? {}),
         sortBy,
         sortDirection,
-        accessLevel,
+        accessLevel: requestAccessLevel,
         limit,
         offset,
       })
@@ -135,7 +181,7 @@ export function useSupplierDirectoryList({
         if (cancelled) return;
         console.warn("supplier_directory_api_failed", error);
         setState({
-          ...fallbackListState(language),
+          ...fallbackListState(language, accessLevel),
           error: error instanceof Error ? error : new Error("supplier_directory_api_failed"),
           status: "error",
         });
@@ -147,7 +193,7 @@ export function useSupplierDirectoryList({
     // `state.suppliers` intentionally stays outside deps. It is used only as
     // stale-while-refresh data while the API request is in flight.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, accessLevel, language, query, filterQuery, sortBy, sortDirection, limit, offset, refreshToken]);
+  }, [client, accessLevel, requestAccessLevel, language, query, filterQuery, sortBy, sortDirection, limit, offset, refreshToken]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -174,8 +220,12 @@ export function useSupplierDirectoryDetail({
   const client = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
   const [state, setState] = useState<SupplierDirectoryDetailState>(() =>
-    fallbackDetailState(fallbackSupplier, language),
+    fallbackDetailState(fallbackSupplier, language, accessLevel),
   );
+  const requestAccessLevel: SupplierDirectoryAccessLevel =
+    client.enabled && accessLevel !== "anonymous_locked"
+      ? "qualified_unlocked"
+      : accessLevel;
 
   useEffect(() => {
     if (!supplierId) {
@@ -190,12 +240,19 @@ export function useSupplierDirectoryDetail({
     }
 
     if (!client.enabled) {
-      setState(fallbackDetailState(fallbackSupplier, language));
+      setState(fallbackDetailState(fallbackSupplier, language, accessLevel));
       return;
     }
 
     let cancelled = false;
-    const fallback = fallbackSupplier ? localizeSupplier(fallbackSupplier, language) : undefined;
+    const fallback = fallbackSupplier
+      ? withSupplierAccessLevel(
+        fallbackSupplier,
+        language,
+        accessLevel,
+        new Set(getApprovedSupplierAccessIds()),
+      )
+      : undefined;
 
     setState((current) => ({
       error: null,
@@ -206,7 +263,7 @@ export function useSupplierDirectoryDetail({
     }));
 
     void client
-      .getSupplierById(supplierId, accessLevel)
+      .getSupplierById(supplierId, requestAccessLevel)
       .then((item) => {
         if (cancelled) return;
         setState({
@@ -233,7 +290,7 @@ export function useSupplierDirectoryDetail({
     return () => {
       cancelled = true;
     };
-  }, [client, supplierId, accessLevel, fallbackSupplier, language, refreshToken]);
+  }, [client, supplierId, accessLevel, requestAccessLevel, fallbackSupplier, language, refreshToken]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;

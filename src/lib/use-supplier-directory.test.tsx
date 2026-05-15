@@ -1,7 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mockSuppliers } from "@/data/mockSuppliers";
-import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
+import {
+  SUPPLIER_ACCESS_CHANGE_EVENT,
+  SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
+} from "@/lib/supplier-access-requests";
 import { useSupplierDirectoryDetail, useSupplierDirectoryList } from "./use-supplier-directory";
 import type { SupplierDirectoryItem } from "./supplier-directory-api";
 
@@ -45,6 +48,8 @@ const apiSupplier = (patch: Partial<SupplierDirectoryItem> = {}): SupplierDirect
 
 describe("useSupplierDirectory runtime refresh", () => {
   afterEach(() => {
+    localStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+    sessionStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
@@ -81,7 +86,7 @@ describe("useSupplierDirectory runtime refresh", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      "http://api.test/v1/suppliers?q=salmon&sortBy=updated_at&sortDirection=desc&accessLevel=registered_locked&limit=50&offset=0",
+      "http://api.test/v1/suppliers?q=salmon&sortBy=updated_at&sortDirection=desc&accessLevel=qualified_unlocked&limit=50&offset=0",
     );
   });
 
@@ -113,7 +118,47 @@ describe("useSupplierDirectory runtime refresh", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      `http://api.test/v1/suppliers/${mockSuppliers[0].id}?accessLevel=registered_locked`,
+      `http://api.test/v1/suppliers/${mockSuppliers[0].id}?accessLevel=qualified_unlocked`,
     );
+  });
+
+  it("local fallback unlocks only suppliers with approved access after the access event", async () => {
+    const { result } = renderHook(() =>
+      useSupplierDirectoryList({
+        accessLevel: "registered_locked",
+        language: "en",
+        query: "salmon",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(result.current.suppliers.find((supplier) => supplier.id === "sup-no-001")?.accessLevel)
+      .toBe("registered_locked");
+
+    const now = new Date().toISOString();
+    localStorage.setItem(
+      SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
+      JSON.stringify({
+        "sup-no-001": {
+          supplierId: "sup-no-001",
+          intent: "exact_price",
+          status: "approved",
+          sentAt: now,
+          pendingAt: now,
+          approvedAt: now,
+        },
+      }),
+    );
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent(SUPPLIER_ACCESS_CHANGE_EVENT));
+    });
+
+    await waitFor(() => {
+      expect(result.current.suppliers.find((supplier) => supplier.id === "sup-no-001")?.accessLevel)
+        .toBe("qualified_unlocked");
+    });
+    expect(result.current.suppliers.find((supplier) => supplier.id === "sup-cn-002")?.accessLevel)
+      .toBe("registered_locked");
   });
 });

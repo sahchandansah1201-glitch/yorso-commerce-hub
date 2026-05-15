@@ -491,6 +491,21 @@ Batch #59 adds offer catalog detail flow browser e2e validation:
   global frontend unlocks and unnecessary polling under the 10,000 concurrent
   users baseline.
 
+Batch #60 adds supplier directory profile flow browser e2e validation:
+
+- `smoke:e2e:supplier-directory-profile-flow` builds the frontend and runs
+  `e2e/supplier-directory-profile-flow.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks the complete registered buyer path: directory row locked,
+  profile one-click access request, matching supplier approval, refresh banner,
+  unlocked profile, back-to-directory URL state preservation and unlocked
+  matching supplier row;
+- the same spec verifies that unrelated supplier approval does not unlock the
+  current directory/profile flow;
+- this protects the production supplier discovery path from stale access state,
+  hidden identity leaks, global frontend unlocks and unnecessary polling under
+  the 10,000 concurrent users baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

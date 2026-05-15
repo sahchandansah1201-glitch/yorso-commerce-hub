@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { mockSuppliers, type MockSupplier } from "@/data/mockSuppliers";
-import { useAccessLevel } from "@/lib/access-level";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { SupplierRow } from "@/components/suppliers/SupplierRow";
 import { SelectedSupplierPanel } from "@/components/suppliers/SelectedSupplierPanel";
 import { cn } from "@/lib/utils";
@@ -115,6 +115,11 @@ const isSupplierSortDirection = (value: string | null): value is SupplierSortDir
   SUPPLIER_SORT_DIRECTIONS.includes(value as SupplierSortDirection);
 const isSupplierPageSize = (value: string | null): value is `${SupplierPageSize}` =>
   value === "10" || value === "20" || value === "50";
+
+const supplierAccessLevel = (
+  supplier: MockSupplier | null | undefined,
+  fallbackLevel: AccessLevel,
+): AccessLevel => supplier?.accessLevel ?? fallbackLevel;
 
 const readInitialSupplierView = (params: URLSearchParams) => {
   const filter = params.get("filter");
@@ -229,9 +234,9 @@ const Suppliers = () => {
     if (directory.serverFiltered) return directory.suppliers;
 
     const q = query.trim().toLowerCase();
-    const includeCompanyName = level === "qualified_unlocked";
     const source = directory.suppliers;
     return source.filter((s) => {
+      const includeCompanyName = supplierAccessLevel(s, level) === "qualified_unlocked";
       if (activeFilter) {
         const f = QUICK_FILTERS.find((x) => x.id === activeFilter);
         const stableSupplier = stableSupplierById.get(s.id) ?? s;
@@ -290,11 +295,12 @@ const Suppliers = () => {
   };
 
   const handlePrimaryAction = (supplier: MockSupplier) => {
-    if (level === "anonymous_locked") {
+    const actionLevel = supplierAccessLevel(supplier, level);
+    if (actionLevel === "anonymous_locked") {
       window.location.assign("/register");
       return;
     }
-    if (level === "registered_locked") {
+    if (actionLevel === "registered_locked") {
       toast({
         title: t.suppliersPage_accessRequestPreparedTitle,
         description: t.suppliersPage_accessRequestPreparedDesc,
@@ -540,7 +546,7 @@ const Suppliers = () => {
                         supplier={s}
                         isSelected={selected?.id === s.id}
                         isShortlisted={shortlist.has(s.id)}
-                        accessLevel={level}
+                        accessLevel={supplierAccessLevel(s, level)}
                         onSelect={setSelectedId}
                         onShortlist={handleShortlist}
                         onPrimaryAction={handlePrimaryAction}
@@ -592,7 +598,7 @@ const Suppliers = () => {
               >
                 <SelectedSupplierPanel
                   supplier={selected}
-                  accessLevel={level}
+                  accessLevel={supplierAccessLevel(selected, level)}
                   isShortlisted={selected ? shortlist.has(selected.id) : false}
                   onShortlist={handleShortlist}
                   onPrimaryAction={handlePrimaryAction}
