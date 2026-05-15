@@ -61,6 +61,7 @@ const requiredFiles = [
   "src/lib/use-offer-detail.test.tsx",
   "src/pages/Offers.catalogPaging.test.tsx",
   "e2e/offers-catalog-paging.spec.ts",
+  "e2e/suppliers-directory-paging.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -260,6 +261,12 @@ if (!pkg.scripts["smoke:e2e:offers-catalog:run"]?.includes("e2e/offers-catalog-p
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offers-catalog-paging.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /offers catalog paging e2e");
+}
+if (!pkg.scripts["smoke:e2e:suppliers-directory:run"]?.includes("e2e/suppliers-directory-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:suppliers-directory:run must cover /suppliers directory paging e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/suppliers-directory-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /suppliers directory paging e2e");
 }
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");

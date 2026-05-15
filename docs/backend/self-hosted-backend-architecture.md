@@ -578,3 +578,12 @@ not another repository unit test: the self-hosted API and frontend can be
 correct independently while the visible catalog still regresses into unbounded
 client browsing. The e2e keeps the UI aligned with the 10,000 concurrent-user
 offer catalog read path.
+
+Batch #56 adds supplier directory browser e2e as the same browser-level guard
+for the supplier directory. The `/suppliers` page now has a dedicated
+Playwright contract for URL-backed search, quick filters, safe sort keys,
+bounded page sizes, pagination controls, page clamping and access-aware private
+supplier search. This matters for the self-hosted deployment because supplier
+discovery is a high-read surface: without the e2e guard, a UI-only regression
+could bypass the server pagination contract and reintroduce full-list browsing
+or hidden supplier identity leaks.

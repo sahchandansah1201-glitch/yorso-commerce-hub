@@ -31,6 +31,7 @@ const requiredFiles = [
   "src/pages/Suppliers.tsx",
   "src/pages/Offers.tsx",
   "e2e/offers-catalog-paging.spec.ts",
+  "e2e/suppliers-directory-paging.spec.ts",
 ];
 
 const failures = [];
@@ -69,6 +70,7 @@ const header = read("src/components/landing/Header.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 const offersPage = read("src/pages/Offers.tsx");
 const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
+const suppliersDirectoryPagingE2E = read("e2e/suppliers-directory-paging.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -91,10 +93,12 @@ for (const marker of [
   "Batch #53",
   "Batch #54",
   "Batch #55",
+  "Batch #56",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
+  "supplier directory browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -116,6 +120,7 @@ for (const marker of [
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
+  "supplier directory browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -134,6 +139,7 @@ for (const marker of [
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
+  "supplier directory browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -415,10 +421,32 @@ for (const marker of [
   "setTimeout",
   "pageSize",
   "offset: (page - 1) * pageSize",
+  "supplier-directory-search",
   "supplier-directory-page-size",
   "supplier-directory-pagination",
 ]) {
   requireText("src/pages/Suppliers.tsx", suppliersPage, marker);
+}
+
+for (const marker of [
+  "Batch #56 browser-level guard",
+  "supplier-directory-search",
+  "supplier-directory-sort",
+  "supplier-directory-direction",
+  "supplier-directory-page-size",
+  "supplier-directory-page-summary",
+  "supplier-directory-pagination",
+  "Nordfjord Sjømat AS",
+  "qualified_unlocked",
+]) {
+  requireText("e2e/suppliers-directory-paging.spec.ts", suppliersDirectoryPagingE2E, marker);
+}
+
+if (!pkg.scripts["smoke:e2e:suppliers-directory:run"]?.includes("e2e/suppliers-directory-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:suppliers-directory:run must cover /suppliers directory paging e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/suppliers-directory-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /suppliers directory paging e2e");
 }
 
 if (failures.length > 0) {
