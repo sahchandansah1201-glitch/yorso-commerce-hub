@@ -200,6 +200,14 @@ exact price remains grant-gated, so the list must not leak it indirectly through
 row ordering. At 10,000 concurrent users, offer catalog pagination stays one
 bounded indexed read per user action.
 
+Batch #55 adds offer catalog browser e2e coverage for the same contract.
+`e2e/offers-catalog-paging.spec.ts` verifies URL hydration, sort controls,
+page-size changes, Next/Previous navigation, page clamping and private supplier
+search gating in the actual browser-rendered `/offers` page. This protects the
+10,000 concurrent-user read design from frontend regressions: the UI must keep
+using bounded pages and safe sort keys, not silently return to full-list
+client-side browsing or locked supplier-name discovery.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

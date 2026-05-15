@@ -569,3 +569,12 @@ client-side full-list loading. PostgreSQL migration
 `0010_offer_catalog_pagination_sort` adds composite indexes for the supported
 orders. Price sorting is deliberately excluded until exact price visibility is
 handled by a grant-aware pricing endpoint.
+
+Batch #55 adds offer catalog browser e2e as a release guard around that server
+contract. The Playwright spec opens the actual `/offers` UI and verifies
+URL-backed sort/page state, pagination controls, page clamping and private
+supplier-name search gating. This is intentionally an end-to-end browser check,
+not another repository unit test: the self-hosted API and frontend can be
+correct independently while the visible catalog still regresses into unbounded
+client browsing. The e2e keeps the UI aligned with the 10,000 concurrent-user
+offer catalog read path.

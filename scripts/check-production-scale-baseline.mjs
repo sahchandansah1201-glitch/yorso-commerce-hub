@@ -30,6 +30,7 @@ const requiredFiles = [
   "src/components/landing/Header.tsx",
   "src/pages/Suppliers.tsx",
   "src/pages/Offers.tsx",
+  "e2e/offers-catalog-paging.spec.ts",
 ];
 
 const failures = [];
@@ -67,6 +68,7 @@ const supplierAccessRefreshBanner = read("src/components/suppliers/SupplierAcces
 const header = read("src/components/landing/Header.tsx");
 const suppliersPage = read("src/pages/Suppliers.tsx");
 const offersPage = read("src/pages/Offers.tsx");
+const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -88,9 +90,11 @@ for (const marker of [
   "Batch #52",
   "Batch #53",
   "Batch #54",
+  "Batch #55",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
+  "offer catalog browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -111,6 +115,7 @@ for (const marker of [
   "SupplierAccessNotificationCenter",
   "supplier directory pagination",
   "offer catalog pagination",
+  "offer catalog browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -128,6 +133,7 @@ for (const marker of [
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
+  "offer catalog browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -298,6 +304,26 @@ for (const marker of [
   "useSearchParams",
 ]) {
   requireText("src/pages/Offers.tsx", offersPage, marker);
+}
+
+for (const marker of [
+  "Batch #55 browser-level guard",
+  "offer-catalog-sort",
+  "offer-catalog-direction",
+  "offer-catalog-page-size",
+  "offer-catalog-page-summary",
+  "offer-catalog-pagination",
+  "Nordic Seafood AS",
+  "qualified_unlocked",
+]) {
+  requireText("e2e/offers-catalog-paging.spec.ts", offersCatalogPagingE2E, marker);
+}
+
+if (!pkg.scripts["smoke:e2e:offers-catalog:run"]?.includes("e2e/offers-catalog-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offers-catalog:run must cover /offers catalog paging e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offers-catalog-paging.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /offers catalog paging e2e");
 }
 
 for (const marker of [

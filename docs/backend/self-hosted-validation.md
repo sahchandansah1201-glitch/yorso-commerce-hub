@@ -424,6 +424,18 @@ Batch #54 adds offer catalog pagination and sort validation:
   category, origin and MOQ ordering;
 - the account API smoke prints `offer_catalog_sort_pagination=ok`.
 
+Batch #55 adds offer catalog browser e2e validation:
+
+- `smoke:e2e:offers-catalog` builds the frontend and runs
+  `e2e/offers-catalog-paging.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks URL hydration, sort controls, page-size changes,
+  Next/Previous navigation, out-of-range page clamping and private supplier
+  search gating;
+- this protects the production offer catalog read path from returning to
+  unbounded client-side full-list browsing under the 10,000 concurrent-user
+  baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
