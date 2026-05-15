@@ -476,6 +476,21 @@ Batch #58 adds offer detail runtime browser e2e validation:
   route metadata or fallback mock data under the 10,000 concurrent-user
   baseline.
 
+Batch #59 adds offer catalog detail flow browser e2e validation:
+
+- `smoke:e2e:offer-catalog-detail-flow` builds the frontend and runs
+  `e2e/offer-catalog-detail-flow.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks the complete registered buyer path: catalog row locked,
+  detail one-click access request, matching supplier approval, refresh banner,
+  unlocked detail, back-to-catalog URL state preservation and unlocked matching
+  catalog row;
+- the same spec verifies that unrelated supplier approval does not unlock the
+  current catalog/detail flow;
+- this protects the production offer discovery path from stale access state,
+  global frontend unlocks and unnecessary polling under the 10,000 concurrent
+  users baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

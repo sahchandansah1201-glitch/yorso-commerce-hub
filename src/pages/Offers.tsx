@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { readCatalogReturnState } from "@/lib/return-to-catalog";
 import { ArrowLeft, ChevronRight, Activity, AlertCircle, RefreshCw } from "lucide-react";
@@ -10,7 +10,7 @@ import { getSupplierById } from "@/data/mockSuppliers";
 import { offerMatchesClientFilters, useOfferCatalogList } from "@/lib/use-offer-catalog";
 import analytics from "@/lib/analytics";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { useAccessLevel } from "@/lib/access-level";
+import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import CatalogFilters, { emptyCatalogFilters, type CatalogFilterState } from "@/components/catalog/CatalogFilters";
 import MobileFilterPills from "@/components/catalog/MobileFilterPills";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
@@ -98,7 +98,14 @@ const Offers = () => {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState(filters.q);
 
-  const allowSupplierName = level === "qualified_unlocked";
+  const offerAccessLevel = useCallback(
+    (offer: SeafoodOffer): AccessLevel => offer.accessLevel ?? level,
+    [level],
+  );
+  const canUseOfferSupplierName = useCallback(
+    (offer: SeafoodOffer): boolean => offerAccessLevel(offer) === "qualified_unlocked",
+    [offerAccessLevel],
+  );
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -200,7 +207,7 @@ const Offers = () => {
       { replace: true },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [offers]);
+  }, [canUseOfferSupplierName, offers]);
 
   // Restore scroll position + highlight when returning from offer detail.
   useEffect(() => {
@@ -229,7 +236,7 @@ const Offers = () => {
       origins: uniq(offers.map((o) => o.origin)),
       supplierCountries: uniq(offers.map((o) => o.supplier.country)),
       // Hide exact supplier names from the filter selector unless qualified.
-      suppliers: allowSupplierName ? uniq(offers.map((o) => o.supplier.name)) : [],
+      suppliers: uniq(offers.filter(canUseOfferSupplierName).map((o) => o.supplier.name)),
       bases: uniq(offers.flatMap((o) => o.deliveryBasisOptions.map((b) => b.code))),
       certifications: uniq(offers.flatMap((o) => o.certifications ?? [])),
       paymentTermsList: uniq(offers.map((o) => (o.commercial?.paymentTerms ?? "").split(",")[0].trim())),
@@ -238,13 +245,13 @@ const Offers = () => {
       currencies: uniq(offers.map((o) => o.currency ?? "USD")),
       latinNames: uniq(offers.map((o) => o.latinName)),
     };
-  }, [allowSupplierName, offers]);
+  }, [canUseOfferSupplierName, offers]);
 
   const visible = useMemo(() => {
     let base = offers.filter((o) =>
-      offerMatchesClientFilters(o, filters, allowSupplierName, offerCatalog.serverFiltered),
+      offerMatchesClientFilters(o, filters, canUseOfferSupplierName, offerCatalog.serverFiltered),
     );
-    if (supplierIdParam && allowSupplierName) {
+    if (supplierIdParam && level === "qualified_unlocked") {
       const sup = getSupplierById(supplierIdParam);
       if (sup) {
         const ids = new Set(
@@ -258,7 +265,7 @@ const Offers = () => {
       }
     }
     return base;
-  }, [filters, allowSupplierName, offers, offerCatalog.serverFiltered, supplierIdParam]);
+  }, [canUseOfferSupplierName, filters, level, offers, offerCatalog.serverFiltered, supplierIdParam]);
 
   const totalResults = offerCatalog.total;
   const pageCount = Math.max(1, Math.ceil(totalResults / pageSize));
@@ -631,6 +638,7 @@ const Offers = () => {
                         isSelected={offer.id === selectedOfferId}
                         isHighlighted={offer.id === highlightOfferId}
                         onSelect={handleSelectOffer}
+                        forceLevel={offerAccessLevel(offer)}
                       />
                     </div>
                     <div className="hidden sm:block">
@@ -639,6 +647,7 @@ const Offers = () => {
                         isSelected={offer.id === selectedOfferId}
                         isHighlighted={offer.id === highlightOfferId}
                         onSelect={handleSelectOffer}
+                        forceLevel={offerAccessLevel(offer)}
                       />
                     </div>
                   </div>
@@ -688,6 +697,7 @@ const Offers = () => {
           <div id="catalog-anchor-intelligence" className="hidden scroll-mt-20 xl:sticky xl:top-20 xl:block xl:h-[calc(100vh-6rem)] xl:overflow-y-auto xl:pr-1">
             <SelectedOfferPanel
               offer={selectedOffer}
+              forceLevel={selectedOffer ? offerAccessLevel(selectedOffer) : level}
               isCompared={selectedOffer ? compareIds.includes(selectedOffer.id) : false}
               onCompareToggle={handleCompareToggle}
               compareDisabled={compareIds.length >= COMPARE_MAX}

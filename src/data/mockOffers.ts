@@ -111,6 +111,14 @@ export interface SeafoodOffer {
   moqValue?: number;
   /** i18n-ключ для единицы количества, например "offers_qtyUnit_kg". */
   moqUnitKey?: "offers_qtyUnit_kg";
+  /**
+   * Access shape actually used to render this offer.
+   *
+   * Global buyer access can be `registered_locked`, while a single supplier
+   * is already approved. Catalog/detail components must therefore read the
+   * offer-level access when present instead of assuming one global state.
+   */
+  accessLevel?: "anonymous_locked" | "registered_locked" | "qualified_unlocked";
 }
 
 const defaultSpecs: ProductSpecs = {

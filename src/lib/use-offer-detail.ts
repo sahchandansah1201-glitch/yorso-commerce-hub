@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
-import { findFallbackOfferById } from "@/lib/catalog-fallback";
+import { findFallbackOfferByIdForSupplierAccess } from "@/lib/catalog-fallback";
 import { createOfferCatalogApiClient } from "@/lib/offer-catalog-api";
-import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
+import {
+  SUPPLIER_ACCESS_CHANGE_EVENT,
+  getApprovedSupplierAccessIds,
+} from "@/lib/supplier-access-requests";
 
 export type OfferDetailSource = "api" | "local";
 export type OfferDetailStatus = "idle" | "loading" | "ready" | "error";
@@ -35,7 +38,7 @@ const localState = (id: string | undefined, level: AccessLevel): OfferDetailStat
   error: null,
   failedAttempts: 0,
   lastErrorCode: null,
-  offer: id ? findFallbackOfferById(id, level) : null,
+  offer: id ? findFallbackOfferByIdForSupplierAccess(id, level, getApprovedSupplierAccessIds()) : null,
   source: "local",
   status: "ready",
   usingFallback: false,
@@ -52,7 +55,10 @@ export function useOfferDetail(id: string | undefined, level: AccessLevel) {
       return;
     }
 
-    const fallback = findFallbackOfferById(id, level);
+    const fallback = findFallbackOfferByIdForSupplierAccess(id, level, getApprovedSupplierAccessIds());
+    const requestLevel = client.enabled && level !== "anonymous_locked"
+      ? "qualified_unlocked"
+      : level;
 
     if (!client.enabled) {
       setState(localState(id, level));
@@ -70,7 +76,7 @@ export function useOfferDetail(id: string | undefined, level: AccessLevel) {
     }));
 
     void client
-      .getOfferById(id, level)
+      .getOfferById(id, requestLevel)
       .then((offer) => {
         if (cancelled) return;
         setState({

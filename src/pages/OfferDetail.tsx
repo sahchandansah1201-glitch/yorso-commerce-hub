@@ -61,6 +61,7 @@ const OfferDetail = () => {
     recovering: retrying,
     retry: handleManualRetry,
   } = useOfferDetail(id, detailAccessLevel);
+  const renderAccessLevel: AccessLevel = offer?.accessLevel ?? detailAccessLevel;
 
   const supplierAccessId = offer
     ? offer.supplier.id ?? offer.supplier.profileSlug ?? offer.id
@@ -84,7 +85,7 @@ const OfferDetail = () => {
     if (offer) analytics.track("offer_detail_view", { offerId: offer.id, product: offer.productName });
   }, [offer]);
 
-  const isLocked = detailAccessLevel !== "qualified_unlocked";
+  const isLocked = renderAccessLevel !== "qualified_unlocked";
   const returnCtx = readCatalogReturnState(location);
   const handleBack = () => {
     if (returnCtx) {
@@ -93,10 +94,10 @@ const OfferDetail = () => {
       navigate("/offers");
     }
   };
-  const lockTitle = detailAccessLevel === "anonymous_locked"
+  const lockTitle = renderAccessLevel === "anonymous_locked"
     ? t.offerDetail_accessLocked_title
     : t.offerDetail_accessLimited_title;
-  const lockBody = detailAccessLevel === "anonymous_locked"
+  const lockBody = renderAccessLevel === "anonymous_locked"
     ? t.offerDetail_accessLocked_body
     : t.offerDetail_accessLimited_body;
   const accessPanelCta = accessRequest
@@ -202,7 +203,7 @@ const OfferDetail = () => {
               <p className="text-sm font-semibold text-foreground">{lockTitle}</p>
               <p className="mt-1 text-xs text-muted-foreground">{lockBody}</p>
             </div>
-            {detailAccessLevel === "anonymous_locked" ? (
+            {renderAccessLevel === "anonymous_locked" ? (
               <Link to="/register">
                 <Button size="sm" className="font-semibold">
                   {t.nav_registerFree}
@@ -270,11 +271,11 @@ const OfferDetail = () => {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr_320px]">
           <PhotoGallery gallery={offer.gallery} productName={offer.productName} photoSourceLabel={offer.photoSourceLabel} />
-          <OfferSummary offer={offer} accessLevel={detailAccessLevel} />
+          <OfferSummary offer={offer} accessLevel={renderAccessLevel} />
           <div className="lg:sticky lg:top-20 lg:self-start">
             <SupplierTrustPanel
               offer={offer}
-              accessLevel={detailAccessLevel}
+              accessLevel={renderAccessLevel}
               accessRequest={accessRequest}
               onAccessRequestSent={setAccessRequest}
             />
@@ -289,9 +290,9 @@ const OfferDetail = () => {
         <DecisionFAQ />
       </main>
 
-      {detailAccessLevel !== "qualified_unlocked" && (
+      {renderAccessLevel !== "qualified_unlocked" && (
         <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur lg:hidden">
-          {detailAccessLevel === "anonymous_locked" ? (
+          {renderAccessLevel === "anonymous_locked" ? (
             <Link to="/register" className="block">
               <Button className="h-12 w-full gap-2 text-base font-semibold">
                 {t.offerDetail_registerToContact} <ArrowRight className="h-4 w-4" />
@@ -308,7 +309,7 @@ const OfferDetail = () => {
         </div>
       )}
 
-      {detailAccessLevel !== "qualified_unlocked" && <div className="h-24 lg:hidden" />}
+      {renderAccessLevel !== "qualified_unlocked" && <div className="h-24 lg:hidden" />}
 
       <Footer />
     </div>

@@ -153,7 +153,7 @@ describe("useOfferDetail", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      "http://api.test/v1/offers/offer-api-detail?accessLevel=registered_locked",
+      "http://api.test/v1/offers/offer-api-detail?accessLevel=qualified_unlocked",
     );
   });
 

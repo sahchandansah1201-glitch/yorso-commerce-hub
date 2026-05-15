@@ -60,11 +60,14 @@ const requiredFiles = [
   "src/lib/use-offer-catalog.test.tsx",
   "src/lib/use-offer-detail.ts",
   "src/lib/use-offer-detail.test.tsx",
+  "src/components/catalog/SelectedOfferPanel.tsx",
+  "src/pages/Offers.tsx",
   "src/pages/Offers.catalogPaging.test.tsx",
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
+  "e2e/offer-catalog-detail-flow.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -151,6 +154,8 @@ const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const catalogFallback = read("src/lib/catalog-fallback.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
+const selectedOfferPanel = read("src/components/catalog/SelectedOfferPanel.tsx");
+const offersPage = read("src/pages/Offers.tsx");
 const offerDetailPage = read("src/pages/OfferDetail.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
@@ -169,6 +174,7 @@ const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
+const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -285,6 +291,12 @@ if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-deta
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /offers/:id runtime approval e2e");
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-flow:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-flow:run must cover /offers to /offers/:id approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /offers to /offers/:id approval bridge e2e");
 }
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
@@ -702,6 +714,17 @@ for (const marker of [
   requireText("e2e/offer-detail-runtime.spec.ts", offerDetailRuntimeE2E, marker);
 }
 for (const marker of [
+  "Batch #59 browser-level guard",
+  "catalog/detail access bridge",
+  "approval on detail unlocks the matching catalog row after return",
+  "unrelated approval does not unlock the catalog/detail flow",
+  "offer-detail-back-to-catalog",
+  "data-access-level",
+  "qualified_unlocked",
+]) {
+  requireText("e2e/offer-catalog-detail-flow.spec.ts", offerCatalogDetailFlowE2E, marker);
+}
+for (const marker of [
   "LOCKED_PRICE_RANGE_LABEL",
   "Price on request",
   "deliveryBasisOptions",
@@ -730,21 +753,29 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "supplierCountryCod
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "sortBy");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "sortDirection");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "getApprovedSupplierAccessIds");
+requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "fallbackOfferForSupplierAccess");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "useOfferCatalogList");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQueryFromFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "serverFiltered");
-requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForLevel");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForSupplierAccess");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "getApprovedSupplierAccessIds");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "client.enabled && level !== \"anonymous_locked\"");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "sortBy");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "sortDirection");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "useOfferDetail");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "createOfferCatalogApiClient");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "getOfferById");
-requireText("src/lib/use-offer-detail.ts", useOfferDetail, "findFallbackOfferById");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "findFallbackOfferByIdForSupplierAccess");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "client.enabled && level !== \"anonymous_locked\"");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "offer_not_found");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "SUPPLIER_ACCESS_CHANGE_EVENT");
+requireText("src/pages/Offers.tsx", offersPage, "forceLevel={offerAccessLevel(offer)}");
+requireText("src/components/catalog/SelectedOfferPanel.tsx", selectedOfferPanel, "forceLevel?: AccessLevel");
 requireText("src/pages/OfferDetail.tsx", offerDetailPage, "useOfferDetail");
+requireText("src/pages/OfferDetail.tsx", offerDetailPage, "renderAccessLevel");
 forbidText("src/pages/OfferDetail.tsx", offerDetailPage, "useResilientOffer");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "/v1/access/suppliers/");

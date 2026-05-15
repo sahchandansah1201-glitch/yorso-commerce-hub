@@ -18,6 +18,7 @@ const requiredFiles = [
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
+  "src/components/catalog/SelectedOfferPanel.tsx",
   "src/lib/supplier-directory-api.ts",
   "src/lib/use-supplier-directory.ts",
   "src/lib/supplier-access-api.ts",
@@ -34,6 +35,7 @@ const requiredFiles = [
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
+  "e2e/offer-catalog-detail-flow.spec.ts",
 ];
 
 const failures = [];
@@ -59,6 +61,7 @@ const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
+const selectedOfferPanel = read("src/components/catalog/SelectedOfferPanel.tsx");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
@@ -75,6 +78,7 @@ const offersCatalogPagingE2E = read("e2e/offers-catalog-paging.spec.ts");
 const suppliersDirectoryPagingE2E = read("e2e/suppliers-directory-paging.spec.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
+const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -100,6 +104,7 @@ for (const marker of [
   "Batch #56",
   "Batch #57",
   "Batch #58",
+  "Batch #59",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -107,6 +112,7 @@ for (const marker of [
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
   "offer detail runtime browser e2e",
+  "offer catalog detail flow browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -130,6 +136,7 @@ for (const marker of [
   "offer catalog browser e2e",
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
+  "offer catalog detail flow browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -294,6 +301,8 @@ for (const marker of [
   "sortBy",
   "sortDirection",
   "supplierCountryCode",
+  "getApprovedSupplierAccessIds",
+  "fallbackOfferForSupplierAccess",
 ]) {
   requireText("src/lib/offer-catalog-api.ts", offerApi, marker);
 }
@@ -307,6 +316,9 @@ for (const marker of [
   "serverFiltered",
   "offerCatalogApiQueryFromFilters",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "getApprovedSupplierAccessIds",
+  "fallbackOffersForSupplierAccess",
+  "client.enabled && level !== \"anonymous_locked\"",
 ]) {
   requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, marker);
 }
@@ -318,9 +330,11 @@ for (const marker of [
   "offer-catalog-page-size",
   "offer-catalog-pagination",
   "useSearchParams",
+  "forceLevel={offerAccessLevel(offer)}",
 ]) {
   requireText("src/pages/Offers.tsx", offersPage, marker);
 }
+requireText("src/components/catalog/SelectedOfferPanel.tsx", selectedOfferPanel, "forceLevel?: AccessLevel");
 
 for (const marker of [
   "Batch #55 browser-level guard",
@@ -346,7 +360,8 @@ for (const marker of [
   "useOfferDetail",
   "getOfferById",
   "createOfferCatalogApiClient",
-  "findFallbackOfferById",
+  "findFallbackOfferByIdForSupplierAccess",
+  "client.enabled && level !== \"anonymous_locked\"",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
 ]) {
   requireText("src/lib/use-offer-detail.ts", useOfferDetail, marker);
@@ -489,6 +504,22 @@ if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-deta
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /offers/:id runtime approval e2e");
+}
+for (const marker of [
+  "Batch #59 browser-level guard",
+  "catalog/detail access bridge",
+  "approval on detail unlocks the matching catalog row after return",
+  "unrelated approval does not unlock the catalog/detail flow",
+  "offer-detail-back-to-catalog",
+  "qualified_unlocked",
+]) {
+  requireText("e2e/offer-catalog-detail-flow.spec.ts", offerCatalogDetailFlowE2E, marker);
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-flow:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-flow:run must cover catalog/detail approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include catalog/detail approval bridge e2e");
 }
 
 if (failures.length > 0) {

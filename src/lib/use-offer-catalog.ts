@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { CatalogFilterState } from "@/components/catalog/CatalogFilters";
 import type { AccessLevel } from "@/lib/access-level";
-import { fallbackOffersForLevel } from "@/lib/catalog-fallback";
+import { fallbackOffersForSupplierAccess } from "@/lib/catalog-fallback";
 import {
   createOfferCatalogApiClient,
   type OfferCatalogQuery,
 } from "@/lib/offer-catalog-api";
-import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
+import {
+  SUPPLIER_ACCESS_CHANGE_EVENT,
+  getApprovedSupplierAccessIds,
+} from "@/lib/supplier-access-requests";
 
 export type OfferCatalogSource = "api" | "local";
 export type OfferCatalogStatus = "idle" | "loading" | "ready" | "error";
@@ -45,7 +48,7 @@ const COUNTRY_CODE_BY_NAME: Record<string, string> = {
 };
 
 const fallbackListState = (level: AccessLevel): OfferCatalogListState => {
-  const offers = fallbackOffersForLevel(level);
+  const offers = fallbackOffersForSupplierAccess(level, getApprovedSupplierAccessIds());
   return {
     error: null,
     offers,
@@ -87,9 +90,13 @@ const matchesText = (value: string | undefined | null, query: string) =>
 export const offerMatchesClientFilters = (
   offer: SeafoodOffer,
   filters: CatalogFilterState,
-  allowSupplierName: boolean,
+  allowSupplierName: boolean | ((offer: SeafoodOffer) => boolean),
   serverFiltered: boolean,
 ): boolean => {
+  const canUseSupplierName = typeof allowSupplierName === "function"
+    ? allowSupplierName(offer)
+    : allowSupplierName;
+
   if (!serverFiltered && filters.q) {
     const q = filters.q.toLowerCase();
     const fields = [
@@ -99,7 +106,7 @@ export const offerMatchesClientFilters = (
       offer.origin,
       offer.supplier.country,
     ];
-    if (allowSupplierName) fields.push(offer.supplier.name);
+    if (canUseSupplierName) fields.push(offer.supplier.name);
     if (!fields.some((field) => matchesText(field, q))) return false;
   }
 
@@ -113,7 +120,7 @@ export const offerMatchesClientFilters = (
 
   // These filters are not yet backend query params. Keep them client-side even
   // in API mode, but only use supplier name after qualified access.
-  if (filters.supplier && allowSupplierName && offer.supplier.name !== filters.supplier) return false;
+  if (filters.supplier && canUseSupplierName && offer.supplier.name !== filters.supplier) return false;
   if (filters.basis && !offer.deliveryBasisOptions.some((b) => b.code === filters.basis)) return false;
   if (filters.paymentTerms && !offer.commercial.paymentTerms.includes(filters.paymentTerms)) return false;
   if (filters.cutType && !offer.cutType.toLowerCase().includes(filters.cutType.toLowerCase())) return false;
@@ -142,20 +149,30 @@ export function useOfferCatalogList({
     supplierCountry,
   } = filters;
   const apiQuery = useMemo(
-    () => offerCatalogApiQueryFromFilters({
-      basis: null,
-      category,
-      certification,
-      currency: null,
-      cutType: null,
-      latinName: null,
-      origin,
-      paymentTerms: null,
-      q,
-      state: productState,
-      supplier: null,
-      supplierCountry,
-    }, level, limit, offset, sortBy, sortDirection),
+    () => {
+      // For self-hosted API reads, signed-in users ask for the maximum view
+      // they might be entitled to. The backend then downgrades each row unless
+      // a supplier grant exists. Local fallback cannot trust a global max level,
+      // so it keeps `level` and unlocks only suppliers with approved mock state.
+      const queryAccessLevel = client.enabled && level !== "anonymous_locked"
+        ? "qualified_unlocked"
+        : level;
+
+      return offerCatalogApiQueryFromFilters({
+        basis: null,
+        category,
+        certification,
+        currency: null,
+        cutType: null,
+        latinName: null,
+        origin,
+        paymentTerms: null,
+        q,
+        state: productState,
+        supplier: null,
+        supplierCountry,
+      }, queryAccessLevel, limit, offset, sortBy, sortDirection);
+    },
     [
       category,
       certification,
@@ -163,6 +180,7 @@ export function useOfferCatalogList({
       q,
       productState,
       supplierCountry,
+      client.enabled,
       level,
       limit,
       offset,

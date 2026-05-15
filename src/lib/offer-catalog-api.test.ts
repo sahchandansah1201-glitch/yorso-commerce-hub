@@ -1,7 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createOfferCatalogApiClient } from "./offer-catalog-api";
+import { SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY } from "./supplier-access-requests";
 
 describe("offer catalog API adapter", () => {
+  afterEach(() => {
+    localStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+    sessionStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+  });
+
   it("uses local mock fallback without exposing locked supplier identity or exact price", async () => {
     const client = createOfferCatalogApiClient({ baseUrl: "" });
     const result = await client.listOffers({
@@ -50,6 +56,43 @@ describe("offer catalog API adapter", () => {
       priceMin: 8.5,
       currency: "USD",
     });
+  });
+
+  it("unlocks local fallback only for suppliers with approved access", async () => {
+    localStorage.setItem(
+      SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
+      JSON.stringify({
+        "nordic-seafood": {
+          supplierId: "nordic-seafood",
+          status: "approved",
+          intent: "exact_price",
+          sentAt: "2026-05-15T00:00:00.000Z",
+          approvedAt: "2026-05-15T00:01:00.000Z",
+        },
+      }),
+    );
+
+    const client = createOfferCatalogApiClient({ baseUrl: "" });
+    const approvedSearch = await client.listOffers({
+      q: "Nordic Seafood",
+      accessLevel: "registered_locked",
+      limit: 20,
+      offset: 0,
+    });
+    const unapprovedSearch = await client.listOffers({
+      q: "Pacifico Export",
+      accessLevel: "registered_locked",
+      limit: 20,
+      offset: 0,
+    });
+
+    expect(approvedSearch.total).toBeGreaterThan(0);
+    expect(approvedSearch.offers[0]).toMatchObject({
+      supplierName: "Nordic Seafood AS",
+      priceMin: 8.5,
+      accessLevel: "qualified_unlocked",
+    });
+    expect(unapprovedSearch.total).toBe(0);
   });
 
   it("calls self-hosted offer catalog endpoints when API URL is configured", async () => {
