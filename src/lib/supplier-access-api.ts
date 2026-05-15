@@ -148,20 +148,23 @@ const mapBackendApiStatus = (
 
 const mapBackendApiRequest = (
   row: BackendSupplierAccessRequest,
-): SupplierAccessRequest => persistSupplierAccessRequest({
-  supplierId: row.supplierId,
-  intent: "exact_price",
-  status: mapBackendApiStatus(row.status),
-  sentAt: row.createdAt,
-  pendingAt:
-    row.status === "pending" || row.status === "approved"
-      ? row.updatedAt
-      : undefined,
-  approvedAt:
-    row.status === "approved" ? row.decidedAt ?? row.updatedAt : undefined,
-  reasons: ["exact_price"],
-  message: row.message,
-});
+): SupplierAccessRequest => persistSupplierAccessRequest(
+  {
+    supplierId: row.supplierId,
+    intent: "exact_price",
+    status: mapBackendApiStatus(row.status),
+    sentAt: row.createdAt,
+    pendingAt:
+      row.status === "pending" || row.status === "approved"
+        ? row.updatedAt
+        : undefined,
+    approvedAt:
+      row.status === "approved" ? row.decidedAt ?? row.updatedAt : undefined,
+    reasons: ["exact_price"],
+    message: row.message,
+  },
+  { source: "backend_read" },
+);
 
 export function createSupplierAccessApiClient(
   options: SupplierAccessApiClientOptions = {},
@@ -197,16 +200,19 @@ export function createSupplierAccessApiClient(
       );
       if (!response.request && response.accessGranted) {
         const at = new Date().toISOString();
-        return persistSupplierAccessRequest({
-          supplierId,
-          intent: "exact_price",
-          status: "approved",
-          sentAt: at,
-          pendingAt: at,
-          approvedAt: at,
-          reasons: ["exact_price"],
-          message: "",
-        });
+        return persistSupplierAccessRequest(
+          {
+            supplierId,
+            intent: "exact_price",
+            status: "approved",
+            sentAt: at,
+            pendingAt: at,
+            approvedAt: at,
+            reasons: ["exact_price"],
+            message: "",
+          },
+          { source: "backend_read" },
+        );
       }
       return response.request ? mapBackendApiRequest(response.request) : null;
     },
@@ -303,7 +309,7 @@ const mapBackendRequest = (
     message: "",
   };
 
-  return persistSupplierAccessRequest(request);
+  return persistSupplierAccessRequest(request, { source: "backend_read" });
 };
 
 const selectSupplierAccessRequest = async (

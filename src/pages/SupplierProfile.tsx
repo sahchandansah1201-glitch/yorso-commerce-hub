@@ -61,6 +61,7 @@ import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
 } from "@/components/suppliers/SupplierAccessRequestPanel";
+import SupplierAccessRefreshBanner from "@/components/suppliers/SupplierAccessRefreshBanner";
 import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
 import { useSupplierDirectoryDetail } from "@/lib/use-supplier-directory";
 
@@ -921,6 +922,13 @@ const SupplierProfile = () => {
             </div>
           </div>
         )}
+
+        <div className="container">
+          <SupplierAccessRefreshBanner
+            supplierId={supplier.id}
+            onRefresh={supplierDirectoryDetail.refresh}
+          />
+        </div>
 
         {/* Hero cover */}
         <section className="relative">

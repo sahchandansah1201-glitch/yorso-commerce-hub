@@ -185,6 +185,11 @@ Production-facing behavior:
   offer catalog, offer detail, supplier directory and supplier profile runtime
   hooks refetch their self-hosted API data on that event instead of relying on
   manual reloads or extra polling;
+- Batch #51 adds the buyer-visible refresh state for that bridge:
+  `SupplierAccessRefreshBanner` listens for typed approval events and appears
+  only on the matching offer or supplier page after `backend_notification` or
+  mock approval progression. It does not poll and does not treat routine
+  backend reads as new approvals;
 - when `VITE_YORSO_API_URL` is empty, the UI continues to use local prototype
   fallback and mock approval progression.
 
