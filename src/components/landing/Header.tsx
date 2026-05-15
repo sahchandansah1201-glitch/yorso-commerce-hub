@@ -9,6 +9,7 @@ import { saveRegistrationSource } from "@/lib/preview-attribution";
 import { useSignalAlerts } from "@/lib/watched-signals";
 import { AlertsPopover } from "@/components/alerts/AlertsPanel";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import { SupplierAccessNotificationBell } from "@/components/suppliers/SupplierAccessNotificationCenter";
 
 const langs: Language[] = ["en", "ru", "es"];
 
@@ -133,6 +134,8 @@ const Header = () => {
               </div>
             )}
           </div>
+
+          <SupplierAccessNotificationBell />
 
           {isSignedIn ? (
             <div ref={accountRef} className="relative">

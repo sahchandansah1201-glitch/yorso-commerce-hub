@@ -60,7 +60,7 @@ interface BackendSupplierAccessResponse {
   requestId: string;
 }
 
-interface BackendSupplierAccessNotification {
+export interface BackendSupplierAccessNotification {
   id: string;
   supplierId: string;
   type: "price_access_approved";
