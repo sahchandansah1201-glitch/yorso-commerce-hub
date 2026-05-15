@@ -7,6 +7,7 @@ import {
   createOfferCatalogApiClient,
   type OfferCatalogQuery,
 } from "@/lib/offer-catalog-api";
+import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
 
 export type OfferCatalogSource = "api" | "local";
 export type OfferCatalogStatus = "idle" | "loading" | "ready" | "error";
@@ -206,6 +207,15 @@ export function useOfferCatalogList({
       cancelled = true;
     };
   }, [client, apiQuery, level, refreshToken]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onSupplierAccessChange = () => setRefreshToken((n) => n + 1);
+    window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    return () => {
+      window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    };
+  }, []);
 
   return {
     ...state,

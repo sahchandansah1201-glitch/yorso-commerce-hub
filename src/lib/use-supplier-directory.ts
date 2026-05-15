@@ -11,6 +11,7 @@ import {
   localizedMockSuppliers,
   localizeSupplierDirectoryItem,
 } from "@/lib/supplier-directory-view";
+import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectorySource = "api" | "local";
 export type SupplierDirectoryStatus = "idle" | "loading" | "ready" | "error";
@@ -142,6 +143,15 @@ export function useSupplierDirectoryList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, accessLevel, language, query, filterQuery, limit, offset, refreshToken]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onSupplierAccessChange = () => setRefreshToken((n) => n + 1);
+    window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    return () => {
+      window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    };
+  }, []);
+
   return {
     ...state,
     apiEnabled: client.enabled,
@@ -218,6 +228,15 @@ export function useSupplierDirectoryDetail({
       cancelled = true;
     };
   }, [client, supplierId, accessLevel, fallbackSupplier, language, refreshToken]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onSupplierAccessChange = () => setRefreshToken((n) => n + 1);
+    window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    return () => {
+      window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onSupplierAccessChange);
+    };
+  }, []);
 
   return {
     ...state,

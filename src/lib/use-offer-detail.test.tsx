@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { mockOffers } from "@/data/mockOffers";
 import { legacyOfferIdToUuid } from "@/lib/legacy-offer-id";
+import { SUPPLIER_ACCESS_CHANGE_EVENT } from "@/lib/supplier-access-requests";
 import { useOfferDetail } from "./use-offer-detail";
 import type { OfferCatalogItem } from "./offer-catalog-api";
 
@@ -103,7 +104,7 @@ describe("useOfferDetail", () => {
 
   it("calls the self-hosted offer detail endpoint when API URL is configured", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test/");
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
       new Response(JSON.stringify({
         ok: true,
         offer: apiOffer(),
@@ -122,6 +123,32 @@ describe("useOfferDetail", () => {
     expect(result.current.offer?.supplierName).toBe("Имя поставщика скрыто");
     const firstUrl = (fetchMock.mock.calls as unknown as [[string]])[0][0];
     expect(firstUrl).toBe("http://api.test/v1/offers/offer-api-detail?accessLevel=anonymous_locked");
+  });
+
+  it("refreshes self-hosted offer detail after supplier access changes", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test/");
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      new Response(JSON.stringify({
+        ok: true,
+        offer: apiOffer(),
+        accessLevel: "registered_locked",
+        requestId: "req-detail",
+      }), { status: 200, headers: { "content-type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderHook(() => useOfferDetail("offer-api-detail", "registered_locked"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+
+    act(() => {
+      window.dispatchEvent(new CustomEvent(SUPPLIER_ACCESS_CHANGE_EVENT));
+    });
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "http://api.test/v1/offers/offer-api-detail?accessLevel=registered_locked",
+    );
   });
 
   it("falls back to safe prototype offer when the self-hosted detail API is unavailable", async () => {

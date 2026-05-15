@@ -19,6 +19,7 @@
 
 export const SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY =
   "yorso_supplier_access_requests";
+export const SUPPLIER_ACCESS_CHANGE_EVENT = "yorso:supplier-access-change";
 
 /** Legacy reason enum kept for backward compatibility only. */
 export type SupplierAccessReason =
@@ -141,7 +142,7 @@ const safeWrite = (store: Store) => {
     /* ignore */
   }
   try {
-    window.dispatchEvent(new CustomEvent("yorso:supplier-access-change"));
+    window.dispatchEvent(new CustomEvent(SUPPLIER_ACCESS_CHANGE_EVENT));
   } catch {
     /* ignore */
   }

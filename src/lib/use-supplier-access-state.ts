@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  SUPPLIER_ACCESS_CHANGE_EVENT,
   getSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
@@ -59,10 +60,10 @@ export const useSupplierAccessState = (
     const onLocalChange = () => refresh();
 
     window.addEventListener("storage", onStorage);
-    window.addEventListener("yorso:supplier-access-change", onLocalChange);
+    window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onLocalChange);
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("yorso:supplier-access-change", onLocalChange);
+      window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onLocalChange);
     };
   }, [enabled, refresh, storageSupplierId]);
 

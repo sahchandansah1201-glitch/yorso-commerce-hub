@@ -71,6 +71,7 @@ const requiredFiles = [
   "src/lib/supplier-directory-api.ts",
   "src/lib/supplier-directory-api.test.ts",
   "src/lib/use-supplier-directory.ts",
+  "src/lib/use-supplier-directory.test.tsx",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-offer-detail-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
@@ -214,6 +215,9 @@ if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.te
 }
 if (!pkg.scripts["test:supplier-directory-frontend"]?.includes("src/pages/Suppliers.test.tsx")) {
   failures.push("package.json: test:supplier-directory-frontend must cover supplier directory frontend tests");
+}
+if (!pkg.scripts["test:supplier-directory-frontend"]?.includes("src/lib/use-supplier-directory.test.tsx")) {
+  failures.push("package.json: test:supplier-directory-frontend must cover supplier directory runtime refresh tests");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:account-workspace")) {
   failures.push("package.json: ci:core must run test:account-workspace");
@@ -608,6 +612,7 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localize
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizedMockSuppliers");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFiltered");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "privateSearchSupplierIds");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "private_search_text");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
@@ -622,11 +627,13 @@ requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQue
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "serverFiltered");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "fallbackOffersForLevel");
+requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "useOfferDetail");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "createOfferCatalogApiClient");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "getOfferById");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "findFallbackOfferById");
 requireText("src/lib/use-offer-detail.ts", useOfferDetail, "offer_not_found");
+requireText("src/lib/use-offer-detail.ts", useOfferDetail, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/pages/OfferDetail.tsx", offerDetailPage, "useOfferDetail");
 forbidText("src/pages/OfferDetail.tsx", offerDetailPage, "useResilientOffer");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "createSupplierAccessApiClient");
@@ -641,7 +648,7 @@ requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "acknowledgeNot
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "isSupplierAccessApiConfigured");
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "readSupplierAccessRequest");
 requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "requestSupplierAccess");
-requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "yorso:supplier-access-change");
+requireText("src/lib/use-supplier-access-state.ts", useSupplierAccessState, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-request-price-access");
 requireText("src/components/offer-detail/SupplierTrustPanel.access.test.tsx", supplierTrustPanelAccessTest, "supplier-access-request-status");
 requireText("src/components/suppliers/SupplierApprovalNotifier.tsx", supplierApprovalNotifier, "readSupplierAccessNotifications");
