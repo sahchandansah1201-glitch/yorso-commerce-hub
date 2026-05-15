@@ -2,6 +2,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
 const requiredFiles = [
+  ".github/workflows/ci.yml",
   "docs/backend/production-scale-baseline.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-validation.md",
@@ -49,6 +50,7 @@ for (const file of requiredFiles) {
 }
 
 const read = (file) => readFileSync(file, "utf8");
+const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
 const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
@@ -117,6 +119,7 @@ for (const marker of [
   "Batch #61",
   "Batch #62",
   "Batch #63",
+  "Batch #64",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -129,6 +132,7 @@ for (const marker of [
   "API-backed supplier directory profile flow browser e2e",
   "API-backed offer catalog detail flow browser e2e",
   "API-backed supplier access notification center browser e2e",
+  "API-backed access browser suite",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -627,6 +631,20 @@ if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow"]?.incl
 if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow:run"]?.includes("e2e/supplier-access-notification-center-api-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:supplier-access-notification-center-api-flow:run must cover API-backed notification center e2e");
 }
+if (!pkg.scripts["smoke:e2e:api-backed-access-flows"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:api-backed-access-flows must build with the API-backed access suite enabled");
+}
+for (const spec of [
+  "e2e/supplier-directory-profile-api-flow.spec.ts",
+  "e2e/offer-catalog-detail-api-flow.spec.ts",
+  "e2e/supplier-access-notification-center-api-flow.spec.ts",
+]) {
+  if (!pkg.scripts["smoke:e2e:api-backed-access-flows:run"]?.includes(spec)) {
+    failures.push(`package.json: smoke:e2e:api-backed-access-flows:run must include ${spec}`);
+  }
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
 
 if (failures.length > 0) {
   console.error("Production scale baseline check failed.");

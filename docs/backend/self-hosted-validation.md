@@ -554,6 +554,18 @@ validation:
 - this protects the production notification center from regressions that would
   create unbounded header reads or repeated unread notification payloads.
 
+Batch #64 adds a single API-backed access browser suite:
+
+- `smoke:e2e:api-backed-access-flows` builds the frontend with
+  `VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`;
+- the run step executes the API-backed supplier directory/profile flow,
+  offer catalog/detail flow and supplier access notification center flow in one
+  Playwright command;
+- CI runs this suite after the default browser smoke, so both local fallback
+  and self-hosted API adapter paths are release-gated;
+- this prevents API-mode access regressions from hiding behind passing
+  prototype-only localStorage smoke tests.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

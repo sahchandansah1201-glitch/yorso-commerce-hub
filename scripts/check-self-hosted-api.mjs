@@ -2,6 +2,7 @@
 import { existsSync, readFileSync } from "node:fs";
 
 const requiredFiles = [
+  ".github/workflows/ci.yml",
   "apps/api/src/index.ts",
   "apps/api/src/server.ts",
   "apps/api/src/modules/account/factory.ts",
@@ -106,6 +107,7 @@ for (const file of requiredFiles) {
 
 const read = (file) => readFileSync(file, "utf8");
 const pkg = JSON.parse(read("package.json"));
+const ciWorkflow = read(".github/workflows/ci.yml");
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
 const accountFactory = read("apps/api/src/modules/account/factory.ts");
@@ -330,6 +332,20 @@ if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow"]?.incl
 if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow:run"]?.includes("e2e/supplier-access-notification-center-api-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:supplier-access-notification-center-api-flow:run must cover API-backed notification center e2e");
 }
+if (!pkg.scripts["smoke:e2e:api-backed-access-flows"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:api-backed-access-flows must build with the self-hosted API adapter enabled");
+}
+for (const spec of [
+  "e2e/supplier-directory-profile-api-flow.spec.ts",
+  "e2e/offer-catalog-detail-api-flow.spec.ts",
+  "e2e/supplier-access-notification-center-api-flow.spec.ts",
+]) {
+  if (!pkg.scripts["smoke:e2e:api-backed-access-flows:run"]?.includes(spec)) {
+    failures.push(`package.json: smoke:e2e:api-backed-access-flows:run must include ${spec}`);
+  }
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
 }
