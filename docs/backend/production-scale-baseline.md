@@ -208,6 +208,15 @@ search gating in the actual browser-rendered `/offers` page. This protects the
 using bounded pages and safe sort keys, not silently return to full-list
 client-side browsing or locked supplier-name discovery.
 
+Batch #56 adds supplier directory browser e2e coverage for the same production
+read path. `e2e/suppliers-directory-paging.spec.ts` verifies URL hydration,
+quick filters, sort controls, page-size changes, Next/Previous navigation,
+page clamping, private supplier search gating and locked breadth masking in the
+actual `/suppliers` page. At 10,000 concurrent web users, this protects the
+supplier directory from regressing into full-list client browsing, hidden
+company-name discovery or unbounded page sizes while still allowing qualified
+buyers to search approved supplier identities.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

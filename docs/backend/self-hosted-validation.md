@@ -436,6 +436,18 @@ Batch #55 adds offer catalog browser e2e validation:
   unbounded client-side full-list browsing under the 10,000 concurrent-user
   baseline.
 
+Batch #56 adds supplier directory browser e2e validation:
+
+- `smoke:e2e:suppliers-directory` builds the frontend and runs
+  `e2e/suppliers-directory-paging.spec.ts`;
+- the shared `smoke:e2e:run` suite also includes this spec;
+- the browser checks URL hydration, quick filters, sort controls, page-size
+  changes, Next/Previous navigation, out-of-range page clamping, private
+  supplier-name search gating and locked supplier breadth masking;
+- this protects the production supplier directory read path from returning to
+  unbounded client-side full-list browsing or hidden supplier identity discovery
+  under the 10,000 concurrent-user baseline.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

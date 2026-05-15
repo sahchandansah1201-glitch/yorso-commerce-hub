@@ -371,6 +371,7 @@ const Suppliers = () => {
                 />
                 <Input
                   type="search"
+                  data-testid="supplier-directory-search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t.suppliersPage_searchPlaceholder}
@@ -408,6 +409,7 @@ const Suppliers = () => {
                   <button
                     key={f.id}
                     type="button"
+                    data-testid={`supplier-directory-filter-${f.id}`}
                     onClick={() => {
                       setActiveFilter(active ? null : f.id);
                       setPage(1);
