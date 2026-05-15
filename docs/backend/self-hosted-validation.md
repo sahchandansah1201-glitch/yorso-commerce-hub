@@ -536,6 +536,24 @@ Batch #62 adds API-backed offer catalog detail flow browser e2e validation:
 - this protects the production self-hosted API path from regressions that would
   pass only in local mock fallback mode.
 
+Batch #63 adds API-backed supplier access notification center browser e2e
+validation:
+
+- `smoke:e2e:supplier-access-notification-center-api-flow` builds the frontend
+  with `VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`;
+- the run step executes
+  `e2e/supplier-access-notification-center-api-flow.spec.ts` with
+  Playwright-intercepted `/v1/access/notifications` responses;
+- the browser checks that the header bell does not auto-load the feed on render
+  beyond the bounded app-level sync, and that opening the bell refreshes the
+  feed on demand;
+- the browser checks that "Mark all read" and opening a notification row both
+  acknowledge unread rows through `PATCH /v1/access/notifications`;
+- the browser checks that notification API requests carry `x-yorso-user-id` and
+  `x-yorso-session-id`;
+- this protects the production notification center from regressions that would
+  create unbounded header reads or repeated unread notification payloads.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
