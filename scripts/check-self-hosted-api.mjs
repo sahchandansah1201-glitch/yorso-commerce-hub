@@ -66,6 +66,7 @@ const requiredFiles = [
   "e2e/offers-catalog-paging.spec.ts",
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
+  "e2e/supplier-directory-profile-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
   "src/pages/OfferDetail.tsx",
@@ -173,6 +174,7 @@ const header = read("src/components/landing/Header.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
+const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
@@ -285,6 +287,12 @@ if (!pkg.scripts["smoke:e2e:supplier-profile-detail:run"]?.includes("e2e/supplie
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-profile-detail.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers/:id profile detail e2e");
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-flow:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-flow:run must cover /suppliers to /suppliers/:id approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:run must include /suppliers to /suppliers/:id approval bridge e2e");
 }
 if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
   failures.push("package.json: smoke:e2e:offer-detail-runtime:run must cover /offers/:id runtime approval e2e");
@@ -679,15 +687,18 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "sortDire
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualified_unlocked");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_USER_ID_HEADER");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_SESSION_ID_HEADER");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "getApprovedSupplierAccessIds");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryList");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryDetail");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizedMockSuppliers");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "getApprovedSupplierAccessIds");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "serverFiltered");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortBy");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortDirection");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "SUPPLIER_ACCESS_CHANGE_EVENT");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "client.enabled && accessLevel !== \"anonymous_locked\"");
 for (const marker of [
   "Batch #57 browser-level guard",
   "supplier-request-price-access",
@@ -699,6 +710,18 @@ for (const marker of [
   "unknown supplier renders not found",
 ]) {
   requireText("e2e/supplier-profile-detail.spec.ts", supplierProfileDetailE2E, marker);
+}
+for (const marker of [
+  "Batch #60 browser-level guard",
+  "directory/profile access bridge",
+  "approval on profile unlocks the matching directory row after return",
+  "unrelated approval does not unlock the directory/profile flow",
+  "q=salmon",
+  "filter=salmon",
+  "Nordfjord Sjømat AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/supplier-directory-profile-flow.spec.ts", supplierDirectoryProfileFlowE2E, marker);
 }
 for (const marker of [
   "Batch #58 browser-level guard",

@@ -617,3 +617,16 @@ For the self-hosted API path, signed-in catalog/detail reads may request
 unless a real grant exists. This keeps the future production deployment aligned
 with owned API + PostgreSQL grant enforcement rather than frontend-only global
 qualification flags.
+
+Batch #60 applies the same contract to supplier discovery. The supplier
+directory profile flow browser e2e opens `/suppliers`, navigates to
+`/suppliers/:id`, requests supplier access, applies an approval event, returns
+to the directory and verifies that only the matching supplier row is unlocked
+while URL state is preserved. The frontend now treats supplier access as
+supplier-level state in the directory: local fallback rows carry an effective
+`accessLevel`, selected directory panels use that supplier-specific level, and
+private supplier-name search only opens for approved supplier records or API
+responses already shaped as unlocked. For the self-hosted API path, signed-in
+directory/profile reads may request `qualified_unlocked`; the API still
+downgrades each supplier response unless a grant exists. This prevents global
+frontend qualification from becoming a production data-access boundary.

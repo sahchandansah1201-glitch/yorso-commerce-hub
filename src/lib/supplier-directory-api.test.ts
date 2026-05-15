@@ -1,7 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSupplierDirectoryApiClient } from "./supplier-directory-api";
+import { SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY } from "@/lib/supplier-access-requests";
 
 describe("supplier directory API adapter", () => {
+  afterEach(() => {
+    localStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+    sessionStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+  });
+
   it("uses local mock fallback without exposing locked supplier identity", async () => {
     const client = createSupplierDirectoryApiClient({ baseUrl: "" });
     const result = await client.listSuppliers({
@@ -63,6 +69,59 @@ describe("supplier directory API adapter", () => {
       website: "https://example-nordfjord.no",
     });
   });
+
+  it("unlocks local supplier list and detail only for approved suppliers", async () => {
+    const client = createSupplierDirectoryApiClient({ baseUrl: "" });
+    const now = new Date().toISOString();
+    localStorage.setItem(
+      SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
+      JSON.stringify({
+        "sup-no-001": {
+          supplierId: "sup-no-001",
+          intent: "exact_price",
+          status: "approved",
+          sentAt: now,
+          pendingAt: now,
+          approvedAt: now,
+        },
+      }),
+    );
+
+    await expect(client.listSuppliers({
+      q: "Nordfjord",
+      accessLevel: "registered_locked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({
+      total: 1,
+      suppliers: [
+        {
+          id: "sup-no-001",
+          accessLevel: "qualified_unlocked",
+          companyName: "Nordfjord Sjømat AS",
+        },
+      ],
+    });
+
+    await expect(client.listSuppliers({
+      q: "Qingdao Ocean Harvest Foods",
+      accessLevel: "registered_locked",
+      limit: 20,
+      offset: 0,
+    })).resolves.toMatchObject({ total: 0 });
+
+    await expect(client.getSupplierById("sup-no-001", "registered_locked")).resolves.toMatchObject({
+      id: "sup-no-001",
+      accessLevel: "qualified_unlocked",
+      companyName: "Nordfjord Sjømat AS",
+    });
+    await expect(client.getSupplierById("sup-cn-002", "registered_locked")).resolves.toMatchObject({
+      id: "sup-cn-002",
+      accessLevel: "registered_locked",
+      companyName: null,
+    });
+  });
+
 
   it("calls self-hosted supplier directory endpoints when API URL is configured", async () => {
     const fetchImpl = vi.fn(async (url: string, _init?: RequestInit) => {
