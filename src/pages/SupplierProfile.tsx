@@ -580,9 +580,6 @@ const SupplierProfile = () => {
     accessRequest?.status === "approved"
       ? "qualified_unlocked"
       : globalLevel;
-  const isUnlocked = effectiveAccess === "qualified_unlocked";
-  const isAnonymous = effectiveAccess === "anonymous_locked";
-  const isRegisteredLocked = effectiveAccess === "registered_locked";
   const supplierDirectoryDetail = useSupplierDirectoryDetail({
     accessLevel: effectiveAccess,
     fallbackSupplier: baseSupplier,
@@ -590,6 +587,10 @@ const SupplierProfile = () => {
     supplierId,
   });
   const supplier = supplierDirectoryDetail.supplier;
+  const renderAccess: AccessLevel = supplier?.accessLevel ?? effectiveAccess;
+  const isUnlocked = renderAccess === "qualified_unlocked";
+  const isAnonymous = renderAccess === "anonymous_locked";
+  const isRegisteredLocked = renderAccess === "registered_locked";
 
   // The single string used everywhere the profile would show identity.
   const displayName = isUnlocked

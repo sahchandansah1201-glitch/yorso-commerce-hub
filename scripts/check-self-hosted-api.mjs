@@ -67,6 +67,7 @@ const requiredFiles = [
   "e2e/suppliers-directory-paging.spec.ts",
   "e2e/supplier-profile-detail.spec.ts",
   "e2e/supplier-directory-profile-flow.spec.ts",
+  "e2e/supplier-directory-profile-api-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
   "src/pages/OfferDetail.tsx",
@@ -175,6 +176,7 @@ const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
+const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-api-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
@@ -293,6 +295,12 @@ if (!pkg.scripts["smoke:e2e:supplier-directory-profile-flow:run"]?.includes("e2e
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/supplier-directory-profile-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include /suppliers to /suppliers/:id approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-api-flow must build with the self-hosted API adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:supplier-directory-profile-api-flow:run"]?.includes("e2e/supplier-directory-profile-api-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-directory-profile-api-flow:run must cover API-backed /suppliers to /suppliers/:id approval bridge e2e");
 }
 if (!pkg.scripts["smoke:e2e:offer-detail-runtime:run"]?.includes("e2e/offer-detail-runtime.spec.ts")) {
   failures.push("package.json: smoke:e2e:offer-detail-runtime:run must cover /offers/:id runtime approval e2e");
@@ -722,6 +730,21 @@ for (const marker of [
   "supplier-access-refresh-banner",
 ]) {
   requireText("e2e/supplier-directory-profile-flow.spec.ts", supplierDirectoryProfileFlowE2E, marker);
+}
+for (const marker of [
+  "Batch #61 API-backed browser-level guard",
+  "self-hosted API adapter",
+  "backend approval unlocks the matching supplier after profile refresh and directory return",
+  "backend approval for another supplier does not unlock the current directory/profile flow",
+  "__e2e-api/v1",
+  "VITE_YORSO_API_URL",
+  "notification-${supplierId}",
+  "q=salmon",
+  "filter=salmon",
+  "Nordfjord Sjømat AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/supplier-directory-profile-api-flow.spec.ts", supplierDirectoryProfileApiFlowE2E, marker);
 }
 for (const marker of [
   "Batch #58 browser-level guard",

@@ -506,6 +506,21 @@ Batch #60 adds supplier directory profile flow browser e2e validation:
   hidden identity leaks, global frontend unlocks and unnecessary polling under
   the 10,000 concurrent users baseline.
 
+Batch #61 adds API-backed supplier directory profile flow browser e2e
+validation:
+
+- `smoke:e2e:supplier-directory-profile-api-flow` builds the frontend with
+  `VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`;
+- the run step executes `e2e/supplier-directory-profile-api-flow.spec.ts` with
+  Playwright-intercepted `/v1/suppliers` and `/v1/access/*` responses;
+- the browser checks that backend-style notification approval unlocks the
+  matching supplier after profile refresh and preserves the directory
+  `q/filter/sort/rows` URL state on return;
+- the browser also checks that approval for another supplier does not unlock
+  the current supplier row/profile;
+- this protects the production self-hosted API path from regressions that would
+  pass only in local mock fallback mode.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

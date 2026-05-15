@@ -239,6 +239,48 @@ describe("SupplierProfile · access gating", () => {
       expect(document.body.innerHTML).not.toContain(supplier.companyName);
       expect(document.body.innerHTML).not.toContain(supplier.website!);
     });
+
+    it("уважает supplier-specific downgrade от self-hosted API даже при global qualified", async () => {
+      setSignedIn();
+      setQualified();
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      const downgradedSupplier = {
+        ...remoteSupplierDetail,
+        id: SUPPLIER_ID,
+        maskedName: supplier.maskedName,
+        country: supplier.country,
+        countryCode: supplier.countryCode,
+        city: supplier.city,
+        shortDescription: supplier.shortDescription,
+        productFocus: supplier.productFocus,
+        heroImage: supplier.heroImage,
+        accessLevel: "registered_locked",
+      };
+      const fetchMock = vi.fn(async (_input: RequestInfo | URL) =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: downgradedSupplier,
+          accessLevel: "registered_locked",
+          requestId: "supplier-specific-downgrade-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      renderProfile();
+
+      await waitFor(() =>
+        expect(fetchMock.mock.calls.some(([url]) =>
+          String(url) === "http://api.test/v1/suppliers/sup-no-001?accessLevel=qualified_unlocked",
+        )).toBe(true),
+      );
+      expect(await screen.findByTestId("supplier-request-price-access")).toBeInTheDocument();
+      expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+      expect(document.body.textContent ?? "").not.toContain(supplier.companyName);
+      expect(document.body.innerHTML).not.toMatch(/wa\.me\//);
+    });
   });
 
   describe("registered_locked", () => {
