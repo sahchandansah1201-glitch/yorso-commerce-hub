@@ -39,6 +39,7 @@ const requiredFiles = [
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
   "e2e/offer-catalog-detail-api-flow.spec.ts",
+  "e2e/supplier-access-notification-center-api-flow.spec.ts",
 ];
 
 const failures = [];
@@ -85,6 +86,7 @@ const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
+const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -114,6 +116,7 @@ for (const marker of [
   "Batch #60",
   "Batch #61",
   "Batch #62",
+  "Batch #63",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -125,6 +128,7 @@ for (const marker of [
   "supplier directory profile flow browser e2e",
   "API-backed supplier directory profile flow browser e2e",
   "API-backed offer catalog detail flow browser e2e",
+  "API-backed supplier access notification center browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -591,11 +595,37 @@ for (const marker of [
 ]) {
   requireText("e2e/offer-catalog-detail-api-flow.spec.ts", offerCatalogDetailApiFlowE2E, marker);
 }
+for (const marker of [
+  "Batch #63 API-backed browser-level guard",
+  "self-hosted API adapter",
+  "Header notification center uses the self-hosted API adapter when configured",
+  "the bell itself does not auto-load feed data on render",
+  "opening the bell refreshes `/v1/access/notifications`",
+  "Mark all read and row open acknowledge notifications through PATCH",
+  "__e2e-api/v1",
+  "VITE_YORSO_API_URL",
+  "header-supplier-access-notifications-bell",
+  "supplier-access-notifications-mark-all",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+]) {
+  requireText(
+    "e2e/supplier-access-notification-center-api-flow.spec.ts",
+    supplierAccessNotificationCenterApiFlowE2E,
+    marker,
+  );
+}
 if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
   failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow must build with the API-backed offer catalog/detail flow enabled");
 }
 if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow:run"]?.includes("e2e/offer-catalog-detail-api-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow:run must cover API-backed offer catalog/detail approval bridge e2e");
+}
+if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:supplier-access-notification-center-api-flow must build with the API-backed notification center enabled");
+}
+if (!pkg.scripts["smoke:e2e:supplier-access-notification-center-api-flow:run"]?.includes("e2e/supplier-access-notification-center-api-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:supplier-access-notification-center-api-flow:run must cover API-backed notification center e2e");
 }
 
 if (failures.length > 0) {

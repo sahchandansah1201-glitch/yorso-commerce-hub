@@ -654,3 +654,13 @@ catalog URL state on return, and keeps unrelated supplier approvals isolated.
 The API-backed offer catalog detail flow browser e2e stays separate from the
 default smoke suite for the same reason as Batch #61: it must be built with API
 mode enabled, while default smoke keeps validating the local prototype fallback.
+
+Batch #63 applies the same API-backed browser guard to the buyer notification
+center in the header. The dedicated API-mode smoke builds the frontend with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` and intercepts
+`/v1/access/notifications`. This proves the production notification center path
+uses the self-hosted adapter, does not read the feed on every header render,
+refreshes only when the buyer opens the bell, sends session headers, and
+acknowledges unread access notifications through `PATCH /v1/access/notifications`.
+The guard stays separate from default smoke because it requires API mode; the
+default suite continues to validate local prototype fallback behavior.

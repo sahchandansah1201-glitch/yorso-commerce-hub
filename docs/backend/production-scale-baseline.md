@@ -296,6 +296,20 @@ depending on local mock storage, confirms approval refresh remains event-driven,
 and keeps exact price visibility tied to backend-shaped grants instead of a
 global frontend buyer flag.
 
+Batch #63 adds API-backed supplier access notification center browser e2e
+coverage. The new
+`e2e/supplier-access-notification-center-api-flow.spec.ts` runs with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`, so the header
+notification bell uses the self-hosted `/v1/access/notifications` adapter while
+Playwright provides deterministic feed responses. The spec verifies that the
+bell itself does not auto-load feed data on render, opening the bell refreshes
+the feed, "Mark all read" and row open acknowledge unread rows through `PATCH`,
+and every notification request carries `x-yorso-user-id` plus
+`x-yorso-session-id`. This is the API-backed supplier access notification
+center browser e2e guard. At 10,000 concurrent users this protects the header
+from per-render notification reads, keeps background sync bounded and confirms
+the acknowledgement path prevents repeated unread payloads.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
