@@ -280,6 +280,22 @@ path from accidentally relying on localStorage-only fallback behavior, confirms
 that notification polling remains coarse, and keeps private supplier search
 dependent on backend-shaped access state.
 
+Batch #62 adds API-backed offer catalog detail flow browser e2e coverage. The
+new `e2e/offer-catalog-detail-api-flow.spec.ts` runs with
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`, so `/offers` and
+`/offers/:id` use the self-hosted offer catalog adapter while Playwright
+emulates `/v1/offers`, `/v1/offers/:id` and `/v1/access/*` responses. The spec
+verifies the same buyer path as Batch #59, but through API-shaped offer data:
+the catalog row starts locked, detail creates a one-click request, backend
+notification approval shows the refresh banner, the detail reloads exact price
+and supplier identity only for the matching supplier, and returning to
+`/offers` preserves `q/category/sort/rows` while only that row unlocks. This is
+the API-backed offer catalog detail flow browser e2e guard. At 10,000
+concurrent users this protects the production offer discovery path from
+depending on local mock storage, confirms approval refresh remains event-driven,
+and keeps exact price visibility tied to backend-shaped grants instead of a
+global frontend buyer flag.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -38,6 +38,7 @@ const requiredFiles = [
   "e2e/supplier-directory-profile-api-flow.spec.ts",
   "e2e/offer-detail-runtime.spec.ts",
   "e2e/offer-catalog-detail-flow.spec.ts",
+  "e2e/offer-catalog-detail-api-flow.spec.ts",
 ];
 
 const failures = [];
@@ -83,6 +84,7 @@ const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flo
 const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-api-flow.spec.ts");
 const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
+const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -111,6 +113,7 @@ for (const marker of [
   "Batch #59",
   "Batch #60",
   "Batch #61",
+  "Batch #62",
   "notification center",
   "supplier directory pagination",
   "offer catalog pagination",
@@ -121,6 +124,7 @@ for (const marker of [
   "offer catalog detail flow browser e2e",
   "supplier directory profile flow browser e2e",
   "API-backed supplier directory profile flow browser e2e",
+  "API-backed offer catalog detail flow browser e2e",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -145,6 +149,7 @@ for (const marker of [
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
   "offer catalog detail flow browser e2e",
+  "API-backed offer catalog detail flow browser e2e",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -165,6 +170,7 @@ for (const marker of [
   "offer catalog browser e2e",
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
+  "API-backed offer catalog detail flow",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -572,6 +578,24 @@ if (!pkg.scripts["smoke:e2e:offer-catalog-detail-flow:run"]?.includes("e2e/offer
 }
 if (!pkg.scripts["smoke:e2e:run"]?.includes("e2e/offer-catalog-detail-flow.spec.ts")) {
   failures.push("package.json: smoke:e2e:run must include catalog/detail approval bridge e2e");
+}
+for (const marker of [
+  "Batch #62 API-backed browser-level guard",
+  "self-hosted API adapter",
+  "backend approval unlocks the matching offer after detail refresh and catalog return",
+  "backend approval for another supplier does not unlock the current catalog/detail flow",
+  "__e2e-api/v1",
+  "VITE_YORSO_API_URL",
+  "Nordic Seafood AS",
+  "supplier-access-refresh-banner",
+]) {
+  requireText("e2e/offer-catalog-detail-api-flow.spec.ts", offerCatalogDetailApiFlowE2E, marker);
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow"]?.includes("VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow must build with the API-backed offer catalog/detail flow enabled");
+}
+if (!pkg.scripts["smoke:e2e:offer-catalog-detail-api-flow:run"]?.includes("e2e/offer-catalog-detail-api-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:offer-catalog-detail-api-flow:run must cover API-backed offer catalog/detail approval bridge e2e");
 }
 
 if (failures.length > 0) {

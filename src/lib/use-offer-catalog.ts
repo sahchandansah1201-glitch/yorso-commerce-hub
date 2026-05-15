@@ -33,6 +33,9 @@ interface OfferCatalogListState {
   total: number;
 }
 
+const grantScopedFallbackLevel = (level: AccessLevel, grantScoped: boolean): AccessLevel =>
+  grantScoped && level === "qualified_unlocked" ? "registered_locked" : level;
+
 const COUNTRY_CODE_BY_NAME: Record<string, string> = {
   Argentina: "AR",
   Bangladesh: "BD",
@@ -47,8 +50,11 @@ const COUNTRY_CODE_BY_NAME: Record<string, string> = {
   Vietnam: "VN",
 };
 
-const fallbackListState = (level: AccessLevel): OfferCatalogListState => {
-  const offers = fallbackOffersForSupplierAccess(level, getApprovedSupplierAccessIds());
+const fallbackListState = (level: AccessLevel, grantScoped = false): OfferCatalogListState => {
+  const offers = fallbackOffersForSupplierAccess(
+    grantScopedFallbackLevel(level, grantScoped),
+    getApprovedSupplierAccessIds(),
+  );
   return {
     error: null,
     offers,
@@ -139,7 +145,7 @@ export function useOfferCatalogList({
 }: UseOfferCatalogListArgs) {
   const client = useMemo(() => createOfferCatalogApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
-  const [state, setState] = useState<OfferCatalogListState>(() => fallbackListState(level));
+  const [state, setState] = useState<OfferCatalogListState>(() => fallbackListState(level, client.enabled));
   const {
     category,
     certification,
@@ -205,7 +211,7 @@ export function useOfferCatalogList({
     }
 
     let cancelled = false;
-    const fallback = fallbackListState(level);
+    const fallback = fallbackListState(level, client.enabled);
 
     setState((current) => ({
       ...current,

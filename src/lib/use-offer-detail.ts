@@ -21,6 +21,9 @@ interface OfferDetailState {
   usingFallback: boolean;
 }
 
+const grantScopedFallbackLevel = (level: AccessLevel, grantScoped: boolean): AccessLevel =>
+  grantScoped && level === "qualified_unlocked" ? "registered_locked" : level;
+
 const extractOfferDetailErrorCode = (error: unknown) => {
   const err = error as { code?: string; message?: string; status?: number };
   if (err?.code) return err.code;
@@ -34,11 +37,21 @@ const isNotFoundError = (error: unknown) => {
   return code.includes("offer_not_found") || code.includes("404");
 };
 
-const localState = (id: string | undefined, level: AccessLevel): OfferDetailState => ({
+const localState = (
+  id: string | undefined,
+  level: AccessLevel,
+  grantScoped = false,
+): OfferDetailState => ({
   error: null,
   failedAttempts: 0,
   lastErrorCode: null,
-  offer: id ? findFallbackOfferByIdForSupplierAccess(id, level, getApprovedSupplierAccessIds()) : null,
+  offer: id
+    ? findFallbackOfferByIdForSupplierAccess(
+        id,
+        grantScopedFallbackLevel(level, grantScoped),
+        getApprovedSupplierAccessIds(),
+      )
+    : null,
   source: "local",
   status: "ready",
   usingFallback: false,
@@ -47,15 +60,19 @@ const localState = (id: string | undefined, level: AccessLevel): OfferDetailStat
 export function useOfferDetail(id: string | undefined, level: AccessLevel) {
   const client = useMemo(() => createOfferCatalogApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
-  const [state, setState] = useState<OfferDetailState>(() => localState(id, level));
+  const [state, setState] = useState<OfferDetailState>(() => localState(id, level, client.enabled));
 
   useEffect(() => {
     if (!id) {
-      setState(localState(id, level));
+      setState(localState(id, level, client.enabled));
       return;
     }
 
-    const fallback = findFallbackOfferByIdForSupplierAccess(id, level, getApprovedSupplierAccessIds());
+    const fallback = findFallbackOfferByIdForSupplierAccess(
+      id,
+      grantScopedFallbackLevel(level, client.enabled),
+      getApprovedSupplierAccessIds(),
+    );
     const requestLevel = client.enabled && level !== "anonymous_locked"
       ? "qualified_unlocked"
       : level;
