@@ -10,6 +10,7 @@ const offerCatalogSql = () => readFileSync("packages/db/migrations/0006_offer_ca
 const supplierAccessSql = () => readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
 const accessNotificationAckSql = () => readFileSync("packages/db/migrations/0008_access_notification_ack.sql", "utf8");
 const supplierPaginationSortSql = () => readFileSync("packages/db/migrations/0009_supplier_directory_pagination_sort.sql", "utf8");
+const offerPaginationSortSql = () => readFileSync("packages/db/migrations/0010_offer_catalog_pagination_sort.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -137,8 +138,19 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(supplierSql()).not.toContain("idx_yorso_suppliers_directory_published_updated");
   });
 
+  it("adds offer catalog pagination and sort indexes separately", () => {
+    const text = offerPaginationSortSql();
+
+    expect(text).toContain("idx_yorso_offers_catalog_published_updated");
+    expect(text).toContain("idx_yorso_offers_catalog_published_category");
+    expect(text).toContain("idx_yorso_offers_catalog_published_origin");
+    expect(text).toContain("idx_yorso_offers_catalog_published_moq");
+    expect(text).toContain("10,000 concurrent users");
+    expect(offerCatalogSql()).not.toContain("idx_yorso_offers_catalog_published_updated");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -161,7 +173,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -180,6 +192,8 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_offers_catalog_origin_code");
     expect(text).toContain("idx_yorso_offers_catalog_supplier_country_code");
     expect(text).toContain("idx_yorso_offers_catalog_certifications_search");
+    expect(text).toContain("idx_yorso_offers_catalog_published_updated");
+    expect(text).toContain("idx_yorso_offers_catalog_published_category");
     expect(text).toContain("idx_yorso_supplier_access_requests_buyer");
     expect(text).toContain("idx_yorso_supplier_access_requests_supplier_status");
     expect(text).toContain("idx_yorso_access_grants_buyer_supplier_scope");
@@ -190,7 +204,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -215,6 +229,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0007_supplier_access_flow",
       "0008_access_notification_ack",
       "0009_supplier_directory_pagination_sort",
+      "0010_offer_catalog_pagination_sort",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -274,6 +289,16 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
             "yorso_access_notifications",
           ],
           dependsOn: ["0007_supplier_access_flow"],
+        }),
+        expect.objectContaining({
+          id: "0009_supplier_directory_pagination_sort",
+          ownedTables: ["yorso_suppliers_directory"],
+          dependsOn: ["0008_access_notification_ack"],
+        }),
+        expect.objectContaining({
+          id: "0010_offer_catalog_pagination_sort",
+          ownedTables: ["yorso_offers_catalog"],
+          dependsOn: ["0009_supplier_directory_pagination_sort"],
         }),
       ]),
     );

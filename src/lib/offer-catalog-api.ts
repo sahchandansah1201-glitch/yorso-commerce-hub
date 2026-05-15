@@ -72,6 +72,8 @@ export interface OfferCatalogQuery {
   supplierCountryCode?: string;
   format?: SeafoodOffer["format"];
   certification?: string;
+  sortBy?: "updated_at" | "category" | "origin" | "moq";
+  sortDirection?: "asc" | "desc";
   accessLevel: AccessLevel;
   limit: number;
   offset: number;
@@ -187,6 +189,39 @@ const mockMatches = (offer: SeafoodOffer, query: Partial<OfferCatalogQuery>) => 
   return true;
 };
 
+const compareText = (a: string, b: string) => a.localeCompare(b, "en", { sensitivity: "base" });
+const compareNumber = (a: number | undefined, b: number | undefined) =>
+  (a ?? Number.MAX_SAFE_INTEGER) - (b ?? Number.MAX_SAFE_INTEGER);
+
+const sortMockOffers = (offers: SeafoodOffer[], query: Partial<OfferCatalogQuery>) => {
+  const sortBy = query.sortBy ?? "updated_at";
+  const direction = query.sortDirection ?? "desc";
+  const sign = direction === "asc" ? 1 : -1;
+
+  return offers
+    .map((offer, index) => ({ offer, index }))
+    .sort((aEntry, bEntry) => {
+      const a = aEntry.offer;
+      const b = bEntry.offer;
+      let value = 0;
+
+      if (sortBy === "category") {
+        value = compareText(`${a.category}-${a.productName}-${a.id}`, `${b.category}-${b.productName}-${b.id}`);
+      } else if (sortBy === "origin") {
+        value = compareText(`${a.origin}-${a.productName}-${a.id}`, `${b.origin}-${b.productName}-${b.id}`);
+      } else if (sortBy === "moq") {
+        value = compareNumber(a.moqValue, b.moqValue) || compareText(a.id, b.id);
+      } else {
+        // Local mock offers do not carry production update timestamps. Keep
+        // fallback deterministic while the self-hosted API owns real ordering.
+        return direction === "asc" ? bEntry.index - aEntry.index : aEntry.index - bEntry.index;
+      }
+
+      return value * sign;
+    })
+    .map(({ offer }) => offer);
+};
+
 export const mapOfferCatalogItemToSeafoodOffer = (item: OfferCatalogItem): SeafoodOffer => {
   const supplierName = item.supplier.name ?? REDACTED_SUPPLIER;
   return {
@@ -263,7 +298,10 @@ export function createOfferCatalogApiClient(options: OfferCatalogClientOptions =
       const offset = query.offset ?? 0;
 
       if (!enabled) {
-        const filtered = mockOffers.filter((offer) => mockMatches(offer, { ...query, accessLevel }));
+        const filtered = sortMockOffers(
+          mockOffers.filter((offer) => mockMatches(offer, { ...query, accessLevel })),
+          query,
+        );
         return {
           offers: filtered.slice(offset, offset + limit).map((offer) => fallbackOfferForLevel(offer, accessLevel)),
           total: filtered.length,

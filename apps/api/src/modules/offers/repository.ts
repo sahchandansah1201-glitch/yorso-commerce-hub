@@ -254,6 +254,8 @@ export const demoOfferRecords: OfferCatalogRecord[] = [
 ];
 
 const includesText = (value: string, needle: string) => value.toLowerCase().includes(needle.toLowerCase());
+const compareText = (a: string, b: string) => a.localeCompare(b, "en", { sensitivity: "base" });
+const compareNumber = (a: number | null, b: number | null) => (a ?? Number.MAX_SAFE_INTEGER) - (b ?? Number.MAX_SAFE_INTEGER);
 
 function matchesQuery(
   offer: OfferCatalogRecord,
@@ -290,12 +292,31 @@ function matchesQuery(
   return true;
 }
 
+function compareOffers(a: OfferCatalogRecord, b: OfferCatalogRecord, query: OfferCatalogQuery) {
+  const direction = query.sortDirection === "asc" ? 1 : -1;
+  let value = 0;
+
+  if (query.sortBy === "category") {
+    value = compareText(`${a.category}-${a.productName}-${a.id}`, `${b.category}-${b.productName}-${b.id}`);
+  } else if (query.sortBy === "origin") {
+    value = compareText(`${a.originCode}-${a.origin}-${a.productName}-${a.id}`, `${b.originCode}-${b.origin}-${b.productName}-${b.id}`);
+  } else if (query.sortBy === "moq") {
+    value = compareNumber(a.moqValue, b.moqValue) || compareText(a.id, b.id);
+  } else {
+    value = compareText(a.updatedAt, b.updatedAt) || compareText(a.id, b.id);
+  }
+
+  return value * direction;
+}
+
 export class MemoryOfferCatalogRepository implements OfferCatalogRepository {
   constructor(private readonly offers = demoOfferRecords) {}
 
   async listOffers(query: OfferCatalogQuery, options: OfferCatalogRepositoryListOptions = {}) {
     const privateSearchSupplierIds = new Set(options.privateSearchSupplierIds ?? []);
-    const filtered = this.offers.filter((offer) => matchesQuery(offer, query, privateSearchSupplierIds));
+    const filtered = this.offers
+      .filter((offer) => matchesQuery(offer, query, privateSearchSupplierIds))
+      .sort((a, b) => compareOffers(a, b, query));
     return {
       offers: filtered.slice(query.offset, query.offset + query.limit).map((offer) => structuredClone(offer)),
       total: filtered.length,

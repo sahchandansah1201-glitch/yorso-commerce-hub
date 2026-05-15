@@ -49,6 +49,8 @@ describe("offer catalog repositories", () => {
       supplierCountryCode: "EC",
       format: "Frozen",
       certification: "BAP",
+      sortBy: "origin",
+      sortDirection: "asc",
       accessLevel: "anonymous_locked",
       limit: 20,
       offset: 0,
@@ -127,17 +129,22 @@ describe("offer catalog repositories", () => {
 
     await repository.listOffers({
       q: "Nordfjord",
+      sortBy: "category",
+      sortDirection: "asc",
       accessLevel: "qualified_unlocked",
       limit: 10,
       offset: 0,
     });
     expect(calls[0].sql).toContain("public_search_text ilike $1");
     expect(calls[0].sql).not.toContain("private_search_text");
+    expect(calls[0].sql).toContain("order by category asc, product_name asc, id asc");
     expect(calls[0].params).toEqual(["%Nordfjord%", 10, 0]);
 
     await repository.listOffers(
       {
         q: "Nordfjord",
+        sortBy: "origin",
+        sortDirection: "desc",
         accessLevel: "qualified_unlocked",
         limit: 10,
         offset: 0,
@@ -147,6 +154,7 @@ describe("offer catalog repositories", () => {
     expect(calls[1].sql).toContain("public_search_text ilike $1");
     expect(calls[1].sql).toContain("supplier_directory_id = any($2::text[])");
     expect(calls[1].sql).toContain("private_search_text ilike $1");
+    expect(calls[1].sql).toContain("order by origin_code desc, origin desc, product_name desc, id asc");
     expect(calls[1].params).toEqual(["%Nordfjord%", ["sup-no-001"], 10, 0]);
   });
 });

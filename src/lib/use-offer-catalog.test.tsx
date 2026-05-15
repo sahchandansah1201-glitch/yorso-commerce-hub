@@ -149,7 +149,7 @@ describe("useOfferCatalogList", () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const firstUrl = (fetchMock.mock.calls as unknown as [[string]])[0][0];
     expect(firstUrl).toBe(
-      "http://api.test/v1/offers?q=cod+loin&category=Whitefish&originCode=IS&supplierCountryCode=IS&format=Fresh&certification=MSC&accessLevel=anonymous_locked&limit=25&offset=50",
+      "http://api.test/v1/offers?q=cod+loin&category=Whitefish&originCode=IS&supplierCountryCode=IS&format=Fresh&certification=MSC&sortBy=updated_at&sortDirection=desc&accessLevel=anonymous_locked&limit=25&offset=50",
     );
   });
 
@@ -217,7 +217,7 @@ describe("useOfferCatalogList", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(fetchMock.mock.calls[1][0]).toBe(
-      "http://api.test/v1/offers?category=Whitefish&accessLevel=registered_locked&limit=50&offset=0",
+      "http://api.test/v1/offers?category=Whitefish&sortBy=updated_at&sortDirection=desc&accessLevel=registered_locked&limit=50&offset=0",
     );
   });
 
@@ -258,6 +258,8 @@ describe("offer catalog filter mapping", () => {
       accessLevel: "registered_locked",
       limit: 50,
       offset: 100,
+      sortBy: "updated_at",
+      sortDirection: "desc",
     });
   });
 });

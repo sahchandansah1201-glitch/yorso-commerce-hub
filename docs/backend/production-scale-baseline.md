@@ -191,6 +191,15 @@ default, country, verification and response-speed ordering. At 10,000
 concurrent web users this keeps directory browsing bounded to one indexed page
 read per user action and avoids loading the full supplier set into the browser.
 
+Batch #54 applies the same production read rule to the offer catalog. `/v1/offers`
+accepts `sortBy`, `sortDirection`, `limit` and `offset`; `/offers` persists
+`q/category/origin/supplierCountry/state/certification/sort/dir/rows/page` in
+the URL; and the DB owns composite indexes for latest, category, origin and MOQ
+ordering. Price sorting is intentionally not part of the locked-list contract:
+exact price remains grant-gated, so the list must not leak it indirectly through
+row ordering. At 10,000 concurrent users, offer catalog pagination stays one
+bounded indexed read per user action.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

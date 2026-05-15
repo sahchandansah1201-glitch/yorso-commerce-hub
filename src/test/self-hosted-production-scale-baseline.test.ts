@@ -35,6 +35,7 @@ describe("production scale baseline", () => {
     const supplierApi = readFileSync("src/lib/supplier-directory-api.ts", "utf8");
     const offerApi = readFileSync("src/lib/offer-catalog-api.ts", "utf8");
     const suppliersPage = readFileSync("src/pages/Suppliers.tsx", "utf8");
+    const offersPage = readFileSync("src/pages/Offers.tsx", "utf8");
     const supplierScaling = readFileSync(
       "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
       "utf8",
@@ -44,16 +45,26 @@ describe("production scale baseline", () => {
       "utf8",
     );
     const offerCatalog = readFileSync("packages/db/migrations/0006_offer_catalog.sql", "utf8");
+    const offerPaginationSort = readFileSync(
+      "packages/db/migrations/0010_offer_catalog_pagination_sort.sql",
+      "utf8",
+    );
     const supplierAccess = readFileSync("packages/db/migrations/0007_supplier_access_flow.sql", "utf8");
 
     expect(supplierApi).toContain("limit");
     expect(supplierApi).toContain("offset");
     expect(offerApi).toContain("limit");
     expect(offerApi).toContain("offset");
+    expect(offerApi).toContain("sortBy");
+    expect(offerApi).toContain("sortDirection");
     expect(offerApi).toContain("supplierCountryCode");
     expect(suppliersPage).toContain("pageSize");
     expect(suppliersPage).toContain("offset: (page - 1) * pageSize");
     expect(suppliersPage).toContain("supplier-directory-pagination");
+    expect(offersPage).toContain("pageSize");
+    expect(offersPage).toContain("offset: (page - 1) * pageSize");
+    expect(offersPage).toContain("offer-catalog-pagination");
+    expect(offersPage).toContain("offer-catalog-sort");
     expect(suppliersPage).toContain("setTimeout");
     expect(supplierScaling).toContain("gin_trgm_ops");
     expect(supplierScaling).toContain("idx_yorso_suppliers_directory_verification_level");
@@ -62,6 +73,8 @@ describe("production scale baseline", () => {
     expect(offerCatalog).toContain("gin_trgm_ops");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_public_search_text");
     expect(offerCatalog).toContain("idx_yorso_offers_catalog_supplier_country_code");
+    expect(offerPaginationSort).toContain("idx_yorso_offers_catalog_published_updated");
+    expect(offerPaginationSort).toContain("idx_yorso_offers_catalog_published_category");
     expect(supplierAccess).toContain("idx_yorso_supplier_access_requests_buyer");
     expect(supplierAccess).toContain("idx_yorso_access_grants_buyer_supplier_scope");
     expect(supplierAccess).toContain("idx_yorso_access_notifications_buyer_status_created");

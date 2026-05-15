@@ -580,6 +580,20 @@ type TranslationKeys = {
   catalog_marketStatus_live: string;
   catalog_freshOffers_24h: string;
   catalog_resultCount: string;
+  catalog_sortLabel: string;
+  catalog_sortUpdated: string;
+  catalog_sortCategory: string;
+  catalog_sortOrigin: string;
+  catalog_sortMoq: string;
+  catalog_directionLabel: string;
+  catalog_directionDesc: string;
+  catalog_directionAsc: string;
+  catalog_rowsLabel: string;
+  catalog_rowsOption: string;
+  catalog_pageSummary: string;
+  catalog_pageNumber: string;
+  catalog_previous: string;
+  catalog_next: string;
   catalog_loading: string;
   catalog_sourceApi: string;
   catalog_sourceLocal: string;
@@ -2359,6 +2373,20 @@ const en: TranslationKeys = {
   catalog_marketStatus_live: "Marketplace live",
   catalog_freshOffers_24h: "{count} new offers in 24h",
   catalog_resultCount: "{count} active offers",
+  catalog_sortLabel: "Sort by",
+  catalog_sortUpdated: "Latest update",
+  catalog_sortCategory: "Category",
+  catalog_sortOrigin: "Origin",
+  catalog_sortMoq: "MOQ",
+  catalog_directionLabel: "Order",
+  catalog_directionDesc: "Descending",
+  catalog_directionAsc: "Ascending",
+  catalog_rowsLabel: "Rows",
+  catalog_rowsOption: "{count} rows",
+  catalog_pageSummary: "Showing {start}-{end} of {total}",
+  catalog_pageNumber: "Page {current} of {total}",
+  catalog_previous: "Previous",
+  catalog_next: "Next",
   catalog_loading: "Updating offer catalog",
   catalog_sourceApi: "Live catalog",
   catalog_sourceLocal: "Prototype catalog",
@@ -4085,6 +4113,20 @@ const ru: TranslationKeys = {
   catalog_marketStatus_live: "Рынок активен",
   catalog_freshOffers_24h: "{count} новых офферов за 24ч",
   catalog_resultCount: "{count} активных предложений",
+  catalog_sortLabel: "Сортировать",
+  catalog_sortUpdated: "По обновлению",
+  catalog_sortCategory: "По категории",
+  catalog_sortOrigin: "По происхождению",
+  catalog_sortMoq: "По MOQ",
+  catalog_directionLabel: "Порядок",
+  catalog_directionDesc: "По убыванию",
+  catalog_directionAsc: "По возрастанию",
+  catalog_rowsLabel: "Строки",
+  catalog_rowsOption: "{count} строк",
+  catalog_pageSummary: "Показаны {start}-{end} из {total}",
+  catalog_pageNumber: "Страница {current} из {total}",
+  catalog_previous: "Предыдущая",
+  catalog_next: "Следующая",
   catalog_loading: "Обновляем каталог предложений",
   catalog_sourceApi: "Живой каталог",
   catalog_sourceLocal: "Каталог прототипа",
@@ -5811,6 +5853,20 @@ const es: TranslationKeys = {
   catalog_marketStatus_live: "Mercado activo",
   catalog_freshOffers_24h: "{count} ofertas nuevas en 24h",
   catalog_resultCount: "{count} ofertas activas",
+  catalog_sortLabel: "Ordenar por",
+  catalog_sortUpdated: "Última actualización",
+  catalog_sortCategory: "Categoría",
+  catalog_sortOrigin: "Origen",
+  catalog_sortMoq: "MOQ",
+  catalog_directionLabel: "Orden",
+  catalog_directionDesc: "Descendente",
+  catalog_directionAsc: "Ascendente",
+  catalog_rowsLabel: "Filas",
+  catalog_rowsOption: "{count} filas",
+  catalog_pageSummary: "Mostrando {start}-{end} de {total}",
+  catalog_pageNumber: "Página {current} de {total}",
+  catalog_previous: "Anterior",
+  catalog_next: "Siguiente",
   catalog_loading: "Actualizando catálogo de ofertas",
   catalog_sourceApi: "Catálogo en vivo",
   catalog_sourceLocal: "Catálogo prototipo",

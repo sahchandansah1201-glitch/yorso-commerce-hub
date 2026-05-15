@@ -90,6 +90,13 @@
       "description": "Add stable supplier directory pagination and sort indexes for high-concurrency read paths.",
       "ownedTables": ["yorso_suppliers_directory"],
       "dependsOn": ["0008_access_notification_ack"]
+    },
+    {
+      "id": "0010_offer_catalog_pagination_sort",
+      "file": "migrations/0010_offer_catalog_pagination_sort.sql",
+      "description": "Add stable offer catalog pagination and sort indexes for high-concurrency marketplace reads.",
+      "ownedTables": ["yorso_offers_catalog"],
+      "dependsOn": ["0009_supplier_directory_pagination_sort"]
     }
   ]
 }

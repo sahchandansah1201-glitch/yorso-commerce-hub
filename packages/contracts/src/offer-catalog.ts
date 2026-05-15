@@ -8,6 +8,8 @@ export const offerCatalogAccessLevelSchema = z.enum([
 
 export const offerFormatSchema = z.enum(["Frozen", "Fresh", "Chilled"]);
 export const offerStockStatusSchema = z.enum(["In Stock", "Limited", "Pre-order"]);
+export const offerCatalogSortBySchema = z.enum(["updated_at", "category", "origin", "moq"]);
+export const offerCatalogSortDirectionSchema = z.enum(["asc", "desc"]);
 
 export const offerGalleryImageSchema = z.object({
   src: z.string().min(1).max(320),
@@ -131,6 +133,8 @@ export const offerCatalogQuerySchema = z.object({
   supplierCountryCode: z.string().length(2).optional(),
   format: offerFormatSchema.optional(),
   certification: z.string().max(80).optional(),
+  sortBy: offerCatalogSortBySchema.default("updated_at"),
+  sortDirection: offerCatalogSortDirectionSchema.default("desc"),
   accessLevel: offerCatalogAccessLevelSchema.default("anonymous_locked"),
   limit: z.coerce.number().int().min(1).max(50).default(20),
   offset: z.coerce.number().int().min(0).max(10000).default(0),
@@ -157,6 +161,8 @@ export type OfferCatalogAccessLevel = z.infer<typeof offerCatalogAccessLevelSche
 export type OfferCatalogItem = z.infer<typeof offerCatalogItemSchema>;
 export type OfferCatalogQuery = z.infer<typeof offerCatalogQuerySchema>;
 export type OfferCatalogRecord = z.infer<typeof offerCatalogRecordSchema>;
+export type OfferCatalogSortBy = z.infer<typeof offerCatalogSortBySchema>;
+export type OfferCatalogSortDirection = z.infer<typeof offerCatalogSortDirectionSchema>;
 export type OfferCatalogSupplierInfo = z.infer<typeof offerSupplierInfoSchema>;
 export type OfferCommercialTerms = z.infer<typeof offerCommercialTermsSchema>;
 export type OfferDeliveryBasisOption = z.infer<typeof offerDeliveryBasisOptionSchema>;
