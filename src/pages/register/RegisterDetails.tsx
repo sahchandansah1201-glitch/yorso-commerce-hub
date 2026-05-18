@@ -36,7 +36,9 @@ const RegisterDetails = () => {
   const [codeError, setCodeError] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [whatsAppCountdown, setWhatsAppCountdown] = useState(30);
+  const [verificationChannel, setVerificationChannel] = useState<"sms" | "whatsapp">("sms");
   const whatsAppTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const codeInputRef = useRef<HTMLInputElement | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -93,6 +95,7 @@ const RegisterDetails = () => {
       toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
+    setVerificationChannel("sms");
     setPhoneSent(true);
     toast.success(t.reg_codeSentToast, { description: t.reg_codeSentToastDesc });
     analytics.track("phone_verification_sent", { phone: phoneNumber });
@@ -108,12 +111,16 @@ const RegisterDetails = () => {
       toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
-    // Mock: WhatsApp auto-verifies
-    setPhoneVerified(true);
+    // Code sent via WhatsApp — user must enter it in the field below
+    setVerificationChannel("whatsapp");
+    setPhoneSent(true);
+    setPhoneCode("");
     setCodeError(false);
     setErrors((prev) => ({ ...prev, phone: "" }));
-    toast.success(t.reg_phoneVerifiedWhatsApp, { description: t.reg_phoneVerifiedWhatsAppDesc });
-    analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
+    toast.success(t.reg_codeSentWhatsAppToast, { description: t.reg_codeSentWhatsAppToastDesc });
+    analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
+    // Focus the code input so the user sees where to enter the code
+    setTimeout(() => codeInputRef.current?.focus(), 50);
   };
 
   const handleVerifyCode = async () => {
@@ -238,9 +245,9 @@ const RegisterDetails = () => {
           <AnimatePresence>
             {phoneSent && !phoneVerified && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3">
-                <p className="text-sm text-muted-foreground mb-2">{t.reg_codeSentEnter}</p>
+                <p className="text-sm text-muted-foreground mb-2">{verificationChannel === "whatsapp" ? t.reg_codeSentEnterWhatsApp : t.reg_codeSentEnter}</p>
                 <div className="flex gap-2">
-                  <Input type="text" value={phoneCode} onChange={(e) => { setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6)); setCodeError(false); }} placeholder={t.reg_smsCode} className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${codeError ? "border-destructive ring-destructive" : ""}`} maxLength={6} autoFocus />
+                  <Input ref={codeInputRef} type="text" value={phoneCode} onChange={(e) => { setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6)); setCodeError(false); }} placeholder={t.reg_smsCode} className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${codeError ? "border-destructive ring-destructive" : ""}`} maxLength={6} autoFocus />
                   <Button type="button" onClick={handleVerifyCode} disabled={phoneLoading || phoneCode.length < 4} className="h-12 rounded-xl px-5">
                     {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t.reg_verify}
                   </Button>

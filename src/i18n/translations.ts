@@ -238,6 +238,9 @@ type TranslationKeys = {
   reg_whatsAppCodeDesc: string;
   reg_codeSentToast: string;
   reg_codeSentToastDesc: string;
+  reg_codeSentWhatsAppToast: string;
+  reg_codeSentWhatsAppToastDesc: string;
+  reg_codeSentEnterWhatsApp: string;
   reg_phoneVerifiedWhatsApp: string;
   reg_phoneVerifiedWhatsAppDesc: string;
   reg_phoneVerified: string;
@@ -2011,6 +2014,9 @@ const en: TranslationKeys = {
   reg_whatsAppCodeDesc: "We'll send a verification code to this number via WhatsApp",
   reg_codeSentToast: "Code sent",
   reg_codeSentToastDesc: "An SMS with a verification code has been sent to your number",
+  reg_codeSentWhatsAppToast: "Code sent via WhatsApp",
+  reg_codeSentWhatsAppToastDesc: "Enter the code from WhatsApp in the field above",
+  reg_codeSentEnterWhatsApp: "Code sent via WhatsApp. Enter it below:",
   reg_phoneVerifiedWhatsApp: "Phone verified via WhatsApp",
   reg_phoneVerifiedWhatsAppDesc: "Your number has been successfully verified",
   reg_phoneVerified: "Phone verified",
@@ -3751,6 +3757,9 @@ const ru: TranslationKeys = {
   reg_whatsAppCodeDesc: "Мы отправим код подтверждения на этот номер через WhatsApp",
   reg_codeSentToast: "Код отправлен",
   reg_codeSentToastDesc: "SMS с кодом подтверждения отправлено на ваш номер",
+  reg_codeSentWhatsAppToast: "Код отправлен в WhatsApp",
+  reg_codeSentWhatsAppToastDesc: "Введите код из WhatsApp в поле выше",
+  reg_codeSentEnterWhatsApp: "Код отправлен в WhatsApp. Введите его ниже:",
   reg_phoneVerifiedWhatsApp: "Телефон подтверждён через WhatsApp",
   reg_phoneVerifiedWhatsAppDesc: "Ваш номер успешно подтверждён",
   reg_phoneVerified: "Телефон подтверждён",
@@ -5491,6 +5500,9 @@ const es: TranslationKeys = {
   reg_whatsAppCodeDesc: "Enviaremos un código de verificación a este número por WhatsApp",
   reg_codeSentToast: "Código enviado",
   reg_codeSentToastDesc: "Se ha enviado un SMS con el código de verificación",
+  reg_codeSentWhatsAppToast: "Código enviado por WhatsApp",
+  reg_codeSentWhatsAppToastDesc: "Ingrese el código de WhatsApp en el campo de arriba",
+  reg_codeSentEnterWhatsApp: "Código enviado por WhatsApp. Ingréselo abajo:",
   reg_phoneVerifiedWhatsApp: "Teléfono verificado por WhatsApp",
   reg_phoneVerifiedWhatsAppDesc: "Su número ha sido verificado exitosamente",
   reg_phoneVerified: "Teléfono verificado",
