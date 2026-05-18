@@ -110,12 +110,16 @@ const RegisterDetails = () => {
       toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
-    // Mock: WhatsApp auto-verifies
-    setPhoneVerified(true);
+    // Code sent via WhatsApp — user must enter it in the field below
+    setVerificationChannel("whatsapp");
+    setPhoneSent(true);
+    setPhoneCode("");
     setCodeError(false);
     setErrors((prev) => ({ ...prev, phone: "" }));
-    toast.success(t.reg_phoneVerifiedWhatsApp, { description: t.reg_phoneVerifiedWhatsAppDesc });
-    analytics.track("phone_whatsapp_verified", { phone: phoneNumber });
+    toast.success(t.reg_codeSentWhatsAppToast, { description: t.reg_codeSentWhatsAppToastDesc });
+    analytics.track("phone_whatsapp_code_sent", { phone: phoneNumber });
+    // Focus the code input so the user sees where to enter the code
+    setTimeout(() => codeInputRef.current?.focus(), 50);
   };
 
   const handleVerifyCode = async () => {
