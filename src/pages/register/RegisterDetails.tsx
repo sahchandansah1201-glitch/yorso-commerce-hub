@@ -245,9 +245,9 @@ const RegisterDetails = () => {
           <AnimatePresence>
             {phoneSent && !phoneVerified && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3">
-                <p className="text-sm text-muted-foreground mb-2">{t.reg_codeSentEnter}</p>
+                <p className="text-sm text-muted-foreground mb-2">{verificationChannel === "whatsapp" ? t.reg_codeSentEnterWhatsApp : t.reg_codeSentEnter}</p>
                 <div className="flex gap-2">
-                  <Input type="text" value={phoneCode} onChange={(e) => { setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6)); setCodeError(false); }} placeholder={t.reg_smsCode} className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${codeError ? "border-destructive ring-destructive" : ""}`} maxLength={6} autoFocus />
+                  <Input ref={codeInputRef} type="text" value={phoneCode} onChange={(e) => { setPhoneCode(e.target.value.replace(/\D/g, "").slice(0, 6)); setCodeError(false); }} placeholder={t.reg_smsCode} className={`h-12 text-base rounded-xl flex-1 tracking-widest text-center font-mono ${codeError ? "border-destructive ring-destructive" : ""}`} maxLength={6} autoFocus />
                   <Button type="button" onClick={handleVerifyCode} disabled={phoneLoading || phoneCode.length < 4} className="h-12 rounded-xl px-5">
                     {phoneLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t.reg_verify}
                   </Button>
