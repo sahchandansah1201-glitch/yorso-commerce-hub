@@ -20,7 +20,7 @@ describe("self-hosted API policy", () => {
     expect(compose).toContain("pgbouncer:");
     expect(compose).toContain("redis:");
     expect(compose).toContain("minio:");
-    expect(compose).toContain("VITE_SUPABASE_URL: \"\"");
+    expect(compose).not.toMatch(/SUPABASE/i);
     expect(dockerfile).toContain("RUN npm run api:build");
     expect(dockerfile).toContain("CMD [\"node\", \"apps/api/dist/index.js\"]");
   });

@@ -18,12 +18,18 @@ Start locally after copying `.env.example` to `.env.local` and choosing local-on
 docker compose --env-file ../.env.local -f infra/docker-compose.yml up -d
 ```
 
-This is not a full production deployment yet. It is the baseline for future API, migration and storage work.
+For owned-server production setup, use `.env.production.example` as the server
+template and follow `docs/backend/self-hosted-production-deploy.md`.
+
+This is not a hosted BaaS deployment. `infra/docker-compose.yml` must not
+require Supabase, Firebase, Appwrite, Clerk, Auth0 or similar hosted
+application-backend environment variables.
 
 Validate the static self-hosted baseline without starting Docker:
 
 ```bash
 npm run check:self-hosted-infra
+npm run check:self-hosted-production-runtime
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 ```

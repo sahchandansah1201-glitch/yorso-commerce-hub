@@ -716,9 +716,11 @@ requireText("apps/api/Dockerfile", dockerfile, "FROM node:22-alpine");
 requireText("apps/api/Dockerfile", dockerfile, "RUN npm run api:build");
 requireText("apps/api/Dockerfile", dockerfile, "CMD [\"node\", \"apps/api/dist/index.js\"]");
 requireText("infra/docker-compose.yml", compose, "dockerfile: apps/api/Dockerfile");
-requireText("infra/docker-compose.yml", compose, "VITE_SUPABASE_URL: \"\"");
 requireText("infra/docker-compose.yml", compose, "STORAGE_DRIVER: local");
 requireText("infra/docker-compose.yml", compose, "yorso-api-uploads");
+if (/SUPABASE/i.test(compose)) {
+  failures.push("infra/docker-compose.yml: production API compose service must not require Supabase env");
+}
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-session.js\";");

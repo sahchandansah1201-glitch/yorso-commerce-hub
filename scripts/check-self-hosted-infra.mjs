@@ -44,8 +44,6 @@ const requiredComposeMarkers = [
   "STORAGE_DRIVER: local",
   "STORAGE_LOCAL_ROOT: /var/lib/yorso/uploads",
   "YORSO_MAX_UPLOAD_BYTES:",
-  "VITE_SUPABASE_URL: \"\"",
-  "VITE_SUPABASE_PUBLISHABLE_KEY: \"\"",
   "image: postgres:17-alpine",
   "image: edoburu/pgbouncer:",
   "image: redis:7-alpine",
@@ -121,6 +119,7 @@ forbidPattern(".env.example", envExample, /VITE_SUPABASE_PUBLISHABLE_KEY=.+/m, "
 forbidPattern(".env.example", envExample, /service_role/i, "service role key text");
 forbidPattern(".env.example", envExample, /eyJ[A-Za-z0-9_-]{20,}/, "JWT-looking token");
 forbidPattern(".env.example", envExample, /postgres:\/\/[^@\n]+@[^/\n]*supabase/i, "Supabase database URL");
+forbidPattern("infra/docker-compose.yml", compose, /SUPABASE/i, "Supabase production runtime env");
 
 if (failures.length > 0) {
   console.error("Self-hosted infra check failed.");
@@ -130,5 +129,6 @@ if (failures.length > 0) {
 
 console.log("Self-hosted infra check passed.");
 console.log("- infra/docker-compose.yml: API, postgres, PgBouncer, Redis, MinIO and upload volume are declared.");
-console.log("- .env.example: self-hosted runtime keys are present and Supabase values are empty.");
+console.log("- .env.example: self-hosted runtime keys are present and prototype Supabase values are empty.");
+console.log("- infra/docker-compose.yml: production runtime does not require Supabase env.");
 console.log("- docs: self-hosted production direction is documented.");

@@ -7,6 +7,7 @@ const files = [
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
   "docs/backend/self-hosted-production-policy.md",
+  "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
@@ -46,6 +47,16 @@ const requiredMarkers = [
       "Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk",
       "Supabase files in this repository are not production architecture.",
       "Batch #71",
+    ],
+  },
+  {
+    file: "docs/backend/self-hosted-production-deploy.md",
+    markers: [
+      "Self-Hosted Production Deploy",
+      "not a Supabase, Firebase, Appwrite, Clerk, Auth0",
+      "Production env must not contain",
+      "check:self-hosted-production-runtime",
+      "Batch: #72",
     ],
   },
   {

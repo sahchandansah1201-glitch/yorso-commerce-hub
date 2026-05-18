@@ -410,6 +410,18 @@ auth, database, storage, access-control or deployment dependencies. The
 repository may retain legacy Supabase prototype references, but
 production-ready code must route through YORSO-owned contracts and adapters.
 
+Batch #72 adds the self-hosted production runtime guard. The new
+`.env.production.example`, `docs/backend/self-hosted-production-deploy.md` and
+`check:self-hosted-production-runtime` make the server deploy boundary
+explicit: production runtime configuration must not require Supabase, Firebase,
+Appwrite, Clerk, Auth0 or similar hosted BaaS/SaaS environment variables.
+`infra/docker-compose.yml` now represents the owned server runtime without
+`VITE_SUPABASE_*` inputs, while the no-Supabase frontend smoke continues to
+prove that public, auth and catalog routes boot without prototype credentials.
+At 10,000 concurrent users this matters because the production hot path must
+be operable, observable and recoverable inside the owned stack rather than
+depending on third-party application backend availability.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
