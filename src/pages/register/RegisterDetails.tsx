@@ -36,7 +36,9 @@ const RegisterDetails = () => {
   const [codeError, setCodeError] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [whatsAppCountdown, setWhatsAppCountdown] = useState(30);
+  const [verificationChannel, setVerificationChannel] = useState<"sms" | "whatsapp">("sms");
   const whatsAppTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const codeInputRef = useRef<HTMLInputElement | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
