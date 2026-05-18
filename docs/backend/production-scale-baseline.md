@@ -362,6 +362,18 @@ implicit production auth gateways to Supabase: the self-hosted product can boot
 without prototype credentials, while future production auth can replace the
 adapter behind the same page contract.
 
+Batch #68 closes the legacy catalog Supabase adapter boundary. `src/lib/catalog-api.ts`
+is now a self-hosted-first catalog facade: when `VITE_YORSO_API_URL` is configured
+it reads through `src/lib/offer-catalog-api.ts` and the self-hosted `/v1/offers`
+contract; only when the self-hosted API is disabled does it call
+`src/lib/legacy-catalog-supabase-adapter.ts`. The adapter is the only catalog
+module in this path allowed to import `@/integrations/supabase/client`, and it is
+documented as prototype/reference fallback, not production infrastructure.
+At 10,000 concurrent users this keeps the hot catalog path replaceable and
+observable through the owned API while preserving a safe prototype fallback for
+unfinished environments. Guards and `src/lib/catalog-api.boundary.test.ts`
+prevent direct Supabase imports from returning to the catalog facade.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

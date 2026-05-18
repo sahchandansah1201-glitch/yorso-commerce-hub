@@ -703,3 +703,12 @@ auth. The adapter has two explicit modes: `local_contract` for self-hosted or
 no-backend preview, and `supabase_prototype` for temporary recovery links while
 prototype Supabase env variables exist. `check:supabase-boundary` now reports
 that no page/component direct Supabase imports remain.
+
+Batch #68 closes the catalog Supabase boundary. `src/lib/catalog-api.ts` is a
+self-hosted-first facade over `src/lib/offer-catalog-api.ts`; it reaches the
+legacy Supabase path only through `src/lib/legacy-catalog-supabase-adapter.ts`
+when the self-hosted API is not configured. This keeps the production catalog
+read path aligned with `/v1/offers`, pagination, access grants and account
+session headers, while the legacy adapter remains explicit prototype/reference
+code. The guard scripts now fail if `catalog-api.ts` imports the Supabase client
+directly or if the boundary test is removed.

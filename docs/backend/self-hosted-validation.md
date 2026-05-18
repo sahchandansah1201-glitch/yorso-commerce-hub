@@ -612,6 +612,20 @@ Batch #67 adds auth runtime boundary validation:
   must print `No page/component direct Supabase imports remain.`;
 - `ci:core` runs `test:auth-runtime`, so the boundary is checked before merge.
 
+Batch #68 adds legacy catalog Supabase adapter boundary validation:
+
+- `src/lib/catalog-api.ts` is the self-hosted-first facade and must use
+  `createOfferCatalogApiClient` before any prototype fallback;
+- `src/lib/legacy-catalog-supabase-adapter.ts` owns the temporary Supabase
+  catalog bridge and is the only file in this catalog facade path allowed to
+  import `@/integrations/supabase/client`;
+- `src/lib/catalog-api.boundary.test.ts` verifies the self-hosted-first path,
+  disabled-API fallback and absence of direct Supabase imports in
+  `catalog-api.ts`;
+- `test:offer-catalog-frontend` includes that boundary test;
+- `check:self-hosted-api` and `check:production-scale-baseline` fail if the
+  catalog facade regains a direct Supabase client dependency.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
