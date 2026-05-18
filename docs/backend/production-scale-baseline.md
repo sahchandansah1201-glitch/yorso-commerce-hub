@@ -374,6 +374,19 @@ observable through the owned API while preserving a safe prototype fallback for
 unfinished environments. Guards and `src/lib/catalog-api.boundary.test.ts`
 prevent direct Supabase imports from returning to the catalog facade.
 
+Batch #69 closes the legacy supplier access Supabase adapter boundary.
+`src/lib/supplier-access-api.ts` remains the self-hosted-first access facade:
+configured deployments use `/v1/access/suppliers/:supplierId/request` and
+`/v1/access/notifications`, while the temporary Supabase read/write path is
+isolated in `src/lib/legacy-supplier-access-supabase-adapter.ts`. The legacy
+adapter owns `supplier_access_requests` reads/inserts and
+`log_supplier_access_event` calls for prototype continuity only. At 10,000
+concurrent users this prevents the buyer access hot path from depending on
+prototype Supabase auth/RLS while preserving local fallback behavior for
+unfinished environments. `src/lib/supplier-access-api.boundary.test.ts`,
+`check:self-hosted-api` and `check:production-scale-baseline` prevent direct
+Supabase imports from returning to the supplier access facade.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

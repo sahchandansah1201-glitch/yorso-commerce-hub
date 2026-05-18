@@ -62,7 +62,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:auth-runtime": "vitest run src/lib/auth-runtime.test.ts",
-    "test:access-contract": "vitest run src/lib/supplier-access-api.test.ts src/pages/__tests__/SupplierProfile.*.test.tsx src/test/supabase-access-write-smoke-tooling.test.ts",
+    "test:access-contract": "vitest run src/lib/supplier-access-api.test.ts src/lib/supplier-access-api.boundary.test.ts src/pages/__tests__/SupplierProfile.*.test.tsx src/test/supabase-access-write-smoke-tooling.test.ts",
     "test:backend-contract": "vitest run src/test/supabase-*.test.ts src/test/self-hosted-*.test.ts",
     "test:db-contract": "vitest run src/test/self-hosted-db-contract.test.ts",
     "test:db-migrations": "npm run db:build && vitest run --config packages/db/vitest.config.ts",
@@ -96,7 +96,7 @@
     "test:account-workspace": "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx",
     "test:supplier-directory-frontend": "vitest run src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/Suppliers.searchAccess.test.tsx src/pages/Suppliers.i18n.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx",
     "test:offer-catalog-frontend": "vitest run src/lib/offer-catalog-api.test.ts src/lib/catalog-api.boundary.test.ts src/lib/use-offer-catalog.test.tsx src/lib/use-offer-detail.test.tsx src/pages/Offers.catalogPaging.test.tsx",
-    "test:supplier-access-frontend": "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx"
+    "test:supplier-access-frontend": "vitest run src/lib/supplier-access-api.test.ts src/lib/supplier-access-api.boundary.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

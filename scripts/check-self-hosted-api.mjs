@@ -87,7 +87,9 @@ const requiredFiles = [
   "src/integrations/supabase/client.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
+  "src/lib/supplier-access-api.boundary.test.ts",
   "src/lib/supplier-access-api.test.ts",
+  "src/lib/legacy-supplier-access-supabase-adapter.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/lib/use-supplier-access-notifications.ts",
   "src/lib/use-supplier-access-notifications.test.tsx",
@@ -185,6 +187,8 @@ const selectedOfferPanel = read("src/components/catalog/SelectedOfferPanel.tsx")
 const offersPage = read("src/pages/Offers.tsx");
 const offerDetailPage = read("src/pages/OfferDetail.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
+const supplierAccessApiBoundaryTest = read("src/lib/supplier-access-api.boundary.test.ts");
+const legacySupplierAccessSupabaseAdapter = read("src/lib/legacy-supplier-access-supabase-adapter.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const useSupplierAccessNotifications = read("src/lib/use-supplier-access-notifications.ts");
 const useSupplierAccessNotificationsTest = read("src/lib/use-supplier-access-notifications.test.tsx");
@@ -462,7 +466,7 @@ for (const marker of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted access runtime browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-access-runtime");
-if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
+if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/supplier-access-api.boundary.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) {
@@ -1027,6 +1031,14 @@ requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "clearSupplierA
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "isSupplierAccessApiConfigured");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "acknowledgeSupplierAccessNotifications");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "acknowledgeNotifications");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "legacy-supplier-access-supabase-adapter");
+requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "@/integrations/supabase/client");
+requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "readLegacySupplierAccessRequest");
+requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "requestLegacySupplierAccess");
+requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "log_supplier_access_event");
+requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "supplier_access_requests");
+requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "keeps direct Supabase imports out of supplier-access-api.ts");
+requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "isolated legacy Supabase adapter");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "useSupplierAccessNotifications");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "readSupplierAccessNotifications");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "acknowledgeSupplierAccessNotifications");
@@ -1133,6 +1145,7 @@ forbidText("src/lib/account-documents-store.ts", accountDocumentsStore, "@/integ
 forbidText("src/lib/catalog-api.ts", catalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/offer-catalog-api.ts", offerCatalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "@/integrations/supabase/client");
+forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "x-demo-user-id");
 forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "x-demo-user-id");
 forbidText("apps/api/src/server.ts", server, "x-demo-user-id");

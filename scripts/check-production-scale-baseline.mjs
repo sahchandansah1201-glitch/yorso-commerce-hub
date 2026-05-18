@@ -35,7 +35,9 @@ const requiredFiles = [
   "src/lib/supplier-directory-api.ts",
   "src/lib/use-supplier-directory.ts",
   "src/lib/supplier-access-api.ts",
+  "src/lib/supplier-access-api.boundary.test.ts",
   "src/lib/supplier-access-requests.ts",
+  "src/lib/legacy-supplier-access-supabase-adapter.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/components/suppliers/SupplierApprovalNotifier.tsx",
   "src/lib/use-supplier-access-notifications.ts",
@@ -97,7 +99,9 @@ const selectedOfferPanel = read("src/components/catalog/SelectedOfferPanel.tsx")
 const supplierApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
+const supplierAccessApiBoundaryTest = read("src/lib/supplier-access-api.boundary.test.ts");
 const supplierAccessRequests = read("src/lib/supplier-access-requests.ts");
+const legacySupplierAccessSupabaseAdapter = read("src/lib/legacy-supplier-access-supabase-adapter.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const supplierApprovalNotifier = read("src/components/suppliers/SupplierApprovalNotifier.tsx");
 const useSupplierAccessNotifications = read("src/lib/use-supplier-access-notifications.ts");
@@ -152,11 +156,13 @@ for (const marker of [
   "Batch #66",
   "Batch #67",
   "Batch #68",
+  "Batch #69",
   "notification center",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
   "legacy catalog Supabase adapter boundary",
+  "legacy supplier access Supabase adapter boundary",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
@@ -482,8 +488,30 @@ for (const marker of [
   "acknowledgeSupplierAccessNotifications",
   "/v1/access/notifications",
   "PATCH",
+  "legacy-supplier-access-supabase-adapter",
 ]) {
   requireText("src/lib/supplier-access-api.ts", supplierAccessApi, marker);
+}
+for (const marker of [
+  "@/integrations/supabase/client",
+  "readLegacySupplierAccessRequest",
+  "requestLegacySupplierAccess",
+  "log_supplier_access_event",
+  "supplier_access_requests",
+]) {
+  requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, marker);
+}
+for (const marker of [
+  "keeps direct Supabase imports out of supplier-access-api.ts",
+  "isolated legacy Supabase adapter",
+]) {
+  requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, marker);
+}
+if (supplierAccessApi.includes("@/integrations/supabase/client")) {
+  failures.push("src/lib/supplier-access-api.ts: must not import Supabase client directly");
+}
+if (!pkg.scripts["test:supplier-access-frontend"]?.includes("src/lib/supplier-access-api.boundary.test.ts")) {
+  failures.push("package.json: test:supplier-access-frontend must cover src/lib/supplier-access-api.boundary.test.ts");
 }
 
 for (const marker of [
