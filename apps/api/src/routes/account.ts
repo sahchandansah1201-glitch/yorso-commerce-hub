@@ -7,6 +7,8 @@ import type {
   AccountNotificationsUpdate,
   AccountProductsUpdate,
   AccountSessionHeaders,
+  AuthSession,
+  AuthSignIn,
   CompanyBranchCreate,
   CompanyBranchUpdate,
   CompanyDocument,
@@ -48,6 +50,8 @@ type ContractExample = {
   documentCreate: CompanyDocumentCreate;
   document: Pick<CompanyDocument, "documentType" | "visibility" | "status" | "fileName">;
   accountSession: AccountSessionHeaders;
+  authSignIn: AuthSignIn;
+  authSession: Pick<AuthSession, "userId" | "email" | "displayName">;
 };
 
 const contractExample: ContractExample = {
@@ -208,6 +212,15 @@ const contractExample: ContractExample = {
     userId: "00000000-0000-4000-8000-000000000001",
     sessionId: "browser-session_1",
   },
+  authSignIn: {
+    email: "buyer@example.com",
+    password: "Password1",
+  },
+  authSession: {
+    userId: "00000000-0000-4000-8000-000000000001",
+    email: "buyer@example.com",
+    displayName: "Demo Buyer",
+  },
 };
 
 export function handleAccountCompanyContract(response: ServerResponse, context: ApiRequestContext) {
@@ -239,6 +252,8 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
         "CompanyDocument",
         "CompanyDocumentCreate",
         "AccountSessionHeaders",
+        "AuthSignIn",
+        "AuthSession",
       ],
       headers: {
         userId: accountUserIdHeaderName,

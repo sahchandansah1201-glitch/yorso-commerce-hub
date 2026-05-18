@@ -99,6 +99,7 @@ const mapBackendApiStatus = (
 
 const mapBackendApiRequest = (
   row: BackendSupplierAccessRequest,
+  options?: { notify?: boolean; source?: "backend_read" | "local_request" },
 ): SupplierAccessRequest => persistSupplierAccessRequest(
   {
     supplierId: row.supplierId,
@@ -114,7 +115,7 @@ const mapBackendApiRequest = (
     reasons: ["exact_price"],
     message: row.message,
   },
-  { source: "backend_read" },
+  { notify: options?.notify, source: options?.source ?? "backend_read" },
 );
 
 export function createSupplierAccessApiClient(
@@ -162,10 +163,12 @@ export function createSupplierAccessApiClient(
             reasons: ["exact_price"],
             message: "",
           },
-          { source: "backend_read" },
+          { notify: false, source: "backend_read" },
         );
       }
-      return response.request ? mapBackendApiRequest(response.request) : null;
+      return response.request
+        ? mapBackendApiRequest(response.request, { notify: false, source: "backend_read" })
+        : null;
     },
     async request(supplierId: string): Promise<SupplierAccessRequest> {
       const response = await request<BackendSupplierAccessResponse>(
@@ -176,7 +179,7 @@ export function createSupplierAccessApiClient(
         },
       );
       if (!response.request) throw new Error("supplier_access_api_empty_request");
-      return mapBackendApiRequest(response.request);
+      return mapBackendApiRequest(response.request, { notify: false, source: "local_request" });
     },
     async notifications() {
       const response = await request<BackendSupplierAccessNotificationsResponse>(

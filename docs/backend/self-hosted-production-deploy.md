@@ -85,12 +85,15 @@ The self-hosted backend already owns:
 - supplier directory API routes;
 - offer catalog API routes;
 - supplier access request, grant and notification routes;
+- self-hosted auth/session foundation routes;
 - PostgreSQL migrations and static migration planner;
 - runtime smokes for account, offer detail and access paths.
 
 Known production gaps:
 
-- full real authentication and session issuance are still incomplete;
+- production auth hardening is still incomplete: Batch #73 adds session
+  issuance, but password hashing policy, brute-force protection, MFA, Redis
+  session replication and audit dashboards remain future work;
 - queue workers are documented as part of the target topology but not fully
   implemented;
 - the file API currently uses a mounted server volume while MinIO remains the
@@ -111,6 +114,7 @@ npm run check:self-hosted-infra
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run check:production-scale-baseline
+npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:frontend-no-supabase-env
 npm run ci:core
 ```

@@ -117,7 +117,7 @@ const mapLegacyRequest = (
     message: "",
   };
 
-  return persistSupplierAccessRequest(request, { source: "backend_read" });
+  return persistSupplierAccessRequest(request, { notify: false, source: "backend_read" });
 };
 
 const selectSupplierAccessRequest = async (
