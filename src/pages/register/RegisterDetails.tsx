@@ -117,7 +117,7 @@ const RegisterDetails = () => {
     setCodeError(false);
     setErrors((prev) => ({ ...prev, phone: "" }));
     toast.success(t.reg_codeSentWhatsAppToast, { description: t.reg_codeSentWhatsAppToastDesc });
-    analytics.track("phone_whatsapp_code_sent", { phone: phoneNumber });
+    analytics.track("phone_whatsapp_verify_started", { phone: phoneNumber });
     // Focus the code input so the user sees where to enter the code
     setTimeout(() => codeInputRef.current?.focus(), 50);
   };
