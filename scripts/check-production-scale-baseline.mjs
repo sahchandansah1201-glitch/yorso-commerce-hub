@@ -16,6 +16,9 @@ const requiredFiles = [
   "package.json",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
+  "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
+  "apps/api/src/modules/offers/repository.ts",
+  "apps/api/src/modules/offers/postgres-repository.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
@@ -41,6 +44,7 @@ const requiredFiles = [
   "e2e/offer-catalog-detail-flow.spec.ts",
   "e2e/offer-catalog-detail-api-flow.spec.ts",
   "e2e/supplier-access-notification-center-api-flow.spec.ts",
+  "e2e/self-hosted-access-runtime.spec.ts",
 ];
 
 const failures = [];
@@ -64,6 +68,9 @@ const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
+const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
+const offerRepository = read("apps/api/src/modules/offers/repository.ts");
+const offerPostgresRepository = read("apps/api/src/modules/offers/postgres-repository.ts");
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
@@ -89,6 +96,7 @@ const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
+const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -120,7 +128,9 @@ for (const marker of [
   "Batch #62",
   "Batch #63",
   "Batch #64",
+  "Batch #65",
   "notification center",
+  "real self-hosted API browser smoke",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
@@ -645,6 +655,37 @@ for (const spec of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
+if (pkg.scripts["smoke:e2e:self-hosted-access-runtime"] !== "npm run api:build && node scripts/smoke-e2e-self-hosted-access-runtime.mjs") {
+  failures.push("package.json: smoke:e2e:self-hosted-access-runtime must run the real self-hosted access runtime browser smoke");
+}
+if (!pkg.scripts["smoke:e2e:self-hosted-access-runtime:run"]?.includes("e2e/self-hosted-access-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:self-hosted-access-runtime:run must cover real self-hosted access runtime e2e");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:self-hosted-access-runtime")) {
+  failures.push("package.json: ci:full must include the real self-hosted API browser smoke");
+}
+for (const marker of [
+  "Batch #65 real self-hosted API browser guard",
+  "real memory-mode apps/api process",
+  "no Playwright route interception",
+  "VITE_YORSO_API_URL",
+  "supplier-request-price-access",
+  "Nordfjord Sjømat AS",
+  "self_hosted_access_runtime_e2e=ok",
+]) {
+  requireText("e2e/self-hosted-access-runtime.spec.ts", selfHostedAccessRuntimeE2E, marker);
+}
+for (const marker of [
+  "VITE_YORSO_API_URL: apiBaseUrl",
+  "E2E_YORSO_API_URL: apiBaseUrl",
+  "self_hosted_access_runtime_e2e=ok",
+]) {
+  requireText("scripts/smoke-e2e-self-hosted-access-runtime.mjs", selfHostedAccessRuntimeSmoke, marker);
+}
+requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "normalizeOfferCatalogId");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "normalizeOfferCatalogId");
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted access runtime browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-access-runtime");
 
 if (failures.length > 0) {
   console.error("Production scale baseline check failed.");

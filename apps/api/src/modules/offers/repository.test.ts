@@ -64,6 +64,15 @@ describe("offer catalog repositories", () => {
     });
   });
 
+  it("resolves legacy UUID offer detail ids to numeric catalog records", async () => {
+    const repository = new MemoryOfferCatalogRepository();
+
+    const offer = await repository.getOfferById("00000000-0000-0000-0000-000000000001");
+
+    expect(offer?.id).toBe("1");
+    expect(offer?.supplier.id).toBe("sup-no-001");
+  });
+
   it("PostgreSQL repository scopes private offer search to granted supplier ids", async () => {
     const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
     const client: OfferQueryClient = {

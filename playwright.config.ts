@@ -6,7 +6,8 @@ const chromiumLaunchOptions = existsSync(systemChromiumPath)
   ? { executablePath: systemChromiumPath }
   : undefined;
 const useWebServer = process.env.E2E_USE_WEB_SERVER === "1";
-const webServerUrl = "http://127.0.0.1:4173";
+const webServerPort = process.env.E2E_WEB_SERVER_PORT ?? "4173";
+const webServerUrl = `http://127.0.0.1:${webServerPort}`;
 const baseURL = process.env.E2E_BASE_URL ?? (useWebServer ? webServerUrl : "http://localhost:5173");
 // Vite preview is less tolerant of concurrent navigations than the dev server.
 // Keep webServer smoke runs stable by default, while allowing CI/manual overrides.
@@ -31,7 +32,7 @@ export default defineConfig({
   ...(useWebServer
     ? {
         webServer: {
-          command: "npm run preview -- --host 127.0.0.1 --port 4173",
+          command: `npm run preview -- --host 127.0.0.1 --port ${webServerPort}`,
           url: webServerUrl,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,

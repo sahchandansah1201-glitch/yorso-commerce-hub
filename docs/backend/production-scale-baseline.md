@@ -323,6 +323,21 @@ and session headers. The suite is intentionally separate from local fallback
 smoke tests, because it must prove that production code paths work when the
 self-hosted API adapter is enabled.
 
+Batch #65 adds a real self-hosted API browser smoke. Unlike Batch #64, this
+does not use Playwright route interception. `smoke:e2e:self-hosted-access-runtime`
+builds `apps/api`, starts a memory-mode API process on a free local port,
+builds the Vite frontend with `VITE_YORSO_API_URL` pointing to that API, starts
+Vite preview on a separate free port, and runs
+`e2e/self-hosted-access-runtime.spec.ts`. The browser then creates a supplier
+access request from `/offers/:id`, the test approves it through the real
+`/v1/access/supplier-requests/:id/decision` endpoint, and the same backend
+grant unlocks offer detail, offer catalog private search and supplier
+directory private search. This is the real self-hosted API browser smoke. At
+10,000 concurrent users it closes the gap between adapter-level mocks and the
+owned runtime: grant state is shared by API modules, session headers are used
+by browser requests, and the release gate verifies graceful API-mode behavior
+without relying on frontend-only localStorage unlocks.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -12,7 +12,11 @@ import type {
   OfferRelatedArticle,
   OfferVolumeBreak,
 } from "../../../../../packages/contracts/dist/index.js";
-import type { OfferCatalogRepository, OfferCatalogRepositoryListOptions } from "./repository.js";
+import {
+  normalizeOfferCatalogId,
+  type OfferCatalogRepository,
+  type OfferCatalogRepositoryListOptions,
+} from "./repository.js";
 
 export interface OfferQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -181,14 +185,15 @@ export class PostgresOfferCatalogRepository implements OfferCatalogRepository {
   }
 
   async getOfferById(id: string) {
+    const normalizedId = normalizeOfferCatalogId(id);
     const result = await this.client.query<OfferRow>(
       `
         select *
         from yorso_offers_catalog
-        where id = $1 and publication_status = 'published'
+        where (id = $1 or id = $2) and publication_status = 'published'
         limit 1
       `,
-      [id],
+      [id, normalizedId],
     );
 
     return result.rows[0] ? mapOffer(result.rows[0]) : null;
