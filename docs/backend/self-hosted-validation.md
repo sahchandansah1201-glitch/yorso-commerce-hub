@@ -566,6 +566,25 @@ Batch #64 adds a single API-backed access browser suite:
 - this prevents API-mode access regressions from hiding behind passing
   prototype-only localStorage smoke tests.
 
+Batch #65 adds real self-hosted API browser validation:
+
+- `smoke:e2e:self-hosted-access-runtime` builds `apps/api`, starts the API in
+  memory mode on a free local port, builds the frontend with
+  `VITE_YORSO_API_URL` pointed at that API, then runs
+  `e2e/self-hosted-access-runtime.spec.ts` against Vite preview on a separate
+  free port;
+- the test uses no Playwright route interception, so browser requests go
+  through the same self-hosted API adapter that production will use;
+- the browser starts locked, creates a supplier access request from offer
+  detail, receives approval through the real access decision endpoint, then
+  verifies that the same grant unlocks offer detail, offer catalog private
+  search and supplier directory private search;
+- the wrapper prints `self_hosted_access_runtime_e2e=ok` only when the runtime
+  path succeeds end to end;
+- this is the first CI-level guard that validates frontend + self-hosted API
+  together instead of validating either the API or mocked API browser mode in
+  isolation.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

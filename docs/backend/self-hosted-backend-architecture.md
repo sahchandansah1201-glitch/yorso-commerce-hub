@@ -673,3 +673,14 @@ notification center specs in one pass. This keeps the self-hosted production
 path explicit in CI instead of relying on engineers to run separate API-mode
 commands manually. The local fallback smoke remains separate and continues to
 prove that Lovable preview works without a configured backend.
+
+Batch #65 adds the first browser smoke against a real local self-hosted API
+process. `smoke:e2e:self-hosted-access-runtime` compiles `apps/api`, starts it
+in memory mode, builds the frontend with `VITE_YORSO_API_URL` pointed at that
+process, and runs `e2e/self-hosted-access-runtime.spec.ts` through Vite
+preview. This smoke deliberately avoids Playwright API route mocks. The test
+uses the UI to create a supplier access request, approves it through the real
+access endpoint, then verifies that offer detail, offer catalog private search
+and supplier directory private search all unlock from the same backend grant.
+This moves the access flow closer to a deployable self-hosted product: frontend
+adapters, API modules and shared memory repository state are tested together.

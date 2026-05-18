@@ -22,6 +22,15 @@ export interface OfferCatalogRepositoryListOptions {
   privateSearchSupplierIds?: readonly string[];
 }
 
+const LEGACY_UUID_OFFER_ID_PATTERN = /^00000000-0000-0000-0000-(\d{12})$/;
+
+export const normalizeOfferCatalogId = (id: string): string => {
+  const match = LEGACY_UUID_OFFER_ID_PATTERN.exec(id);
+  if (!match) return id;
+  const parsed = Number.parseInt(match[1], 10);
+  return Number.isFinite(parsed) ? String(parsed) : id;
+};
+
 const defaultSpecs: OfferProductSpecs = {
   catchingMethod: "Aquaculture",
   freezingProcess: "IQF",
@@ -324,7 +333,8 @@ export class MemoryOfferCatalogRepository implements OfferCatalogRepository {
   }
 
   async getOfferById(id: string) {
-    const offer = this.offers.find((item) => item.id === id);
+    const normalizedId = normalizeOfferCatalogId(id);
+    const offer = this.offers.find((item) => item.id === id || item.id === normalizedId);
     return offer ? structuredClone(offer) : null;
   }
 }

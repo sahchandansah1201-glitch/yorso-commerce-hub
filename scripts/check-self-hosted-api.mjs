@@ -46,6 +46,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
+  "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
   "scripts/smoke-self-hosted-workspace-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
@@ -73,6 +74,7 @@ const requiredFiles = [
   "e2e/offer-catalog-detail-flow.spec.ts",
   "e2e/offer-catalog-detail-api-flow.spec.ts",
   "e2e/supplier-access-notification-center-api-flow.spec.ts",
+  "e2e/self-hosted-access-runtime.spec.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -145,6 +147,7 @@ const supplierAccessContract = read("packages/contracts/src/supplier-access.ts")
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
+const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
 const workspacePostgresSmoke = read("scripts/smoke-self-hosted-workspace-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
@@ -185,6 +188,7 @@ const offerDetailRuntimeE2E = read("e2e/offer-detail-runtime.spec.ts");
 const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
+const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -346,6 +350,37 @@ for (const spec of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
+if (pkg.scripts["smoke:e2e:self-hosted-access-runtime"] !== "npm run api:build && node scripts/smoke-e2e-self-hosted-access-runtime.mjs") {
+  failures.push("package.json: smoke:e2e:self-hosted-access-runtime must build API and run the real self-hosted access runtime browser smoke");
+}
+if (!pkg.scripts["smoke:e2e:self-hosted-access-runtime:run"]?.includes("e2e/self-hosted-access-runtime.spec.ts")) {
+  failures.push("package.json: smoke:e2e:self-hosted-access-runtime:run must cover the real self-hosted access runtime spec");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:self-hosted-access-runtime")) {
+  failures.push("package.json: ci:full must include the real self-hosted access runtime browser smoke");
+}
+for (const marker of [
+  "VITE_YORSO_API_URL: apiBaseUrl",
+  "E2E_YORSO_API_URL: apiBaseUrl",
+  "E2E_WEB_SERVER_PORT",
+  "self_hosted_access_runtime_e2e=ok",
+]) {
+  requireText("scripts/smoke-e2e-self-hosted-access-runtime.mjs", selfHostedAccessRuntimeSmoke, marker);
+}
+for (const marker of [
+  "Batch #65 real self-hosted API browser guard",
+  "real memory-mode apps/api process",
+  "no Playwright route interception",
+  "VITE_YORSO_API_URL",
+  "supplier-request-price-access",
+  "Nordfjord Sjømat AS",
+  "supplier directory private search",
+  "self_hosted_access_runtime_e2e=ok",
+]) {
+  requireText("e2e/self-hosted-access-runtime.spec.ts", selfHostedAccessRuntimeE2E, marker);
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted access runtime browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-access-runtime");
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
 }
@@ -513,9 +548,11 @@ requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresR
 requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "certifications_search ilike");
 requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "private_search_text");
 requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "supplier_directory_id = any");
+requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresRepository, "normalizeOfferCatalogId");
 requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "interface OfferCatalogRepository");
 requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "class MemoryOfferCatalogRepository");
 requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "privateSearchSupplierIds");
+requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "normalizeOfferCatalogId");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers/");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "offer_not_found");
