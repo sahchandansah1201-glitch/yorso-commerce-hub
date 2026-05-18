@@ -28,6 +28,7 @@ Run these commands before merging backend-direction changes:
 npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-infra
+npm run check:self-hosted-production-runtime
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run check:production-scale-baseline
@@ -56,6 +57,7 @@ npm run ci:core
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
 | `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
+| `check:self-hosted-production-runtime` | Fails if production runtime docs, compose or `.env.production.example` drift back toward Supabase, Firebase, Appwrite, Clerk, Auth0 or similar hosted BaaS/SaaS application backends. |
 | `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API, supplier access UX bridge or Supabase production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory/offer-catalog tables, marketplace search scaling indexes or drifts toward Supabase-owned schema. |
 | `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier/offer catalog trigram search indexes, bounded frontend API calls or CI hook are removed. |
@@ -98,6 +100,23 @@ It verifies:
 - `.env.example` keeps Supabase frontend variables empty;
 - `.env.example` does not contain service-role text, JWT-looking tokens or
   Supabase database URLs.
+
+## Production Runtime Validation
+
+Batch #72 adds `check:self-hosted-production-runtime`. It validates the owned
+server deployment boundary, not just the local prototype baseline.
+
+It checks:
+
+- `.env.production.example` exists and contains only self-hosted production
+  runtime keys;
+- `.env.production.example` does not contain Supabase, Firebase, Appwrite,
+  Clerk, Auth0, service-role keys or hosted BaaS/SaaS runtime settings;
+- `infra/docker-compose.yml` no longer carries `VITE_SUPABASE_*` variables as
+  production runtime inputs;
+- `docs/backend/self-hosted-production-deploy.md` documents the server deploy
+  sequence and the known current implementation gaps;
+- `ci:core` runs the production runtime guard.
 
 ## DB Baseline Validation
 

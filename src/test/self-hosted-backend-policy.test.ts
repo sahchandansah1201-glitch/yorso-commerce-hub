@@ -9,6 +9,7 @@ const policyFiles = [
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
   "docs/backend/self-hosted-production-policy.md",
+  "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
@@ -32,6 +33,8 @@ describe("self-hosted backend policy", () => {
     expect(joined).toContain("longer the future production backend");
     expect(joined).toContain("Supabase больше не рассматривается как будущий production backend");
     expect(joined).toContain("Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk");
+    expect(joined).toContain("Self-Hosted Production Deploy");
+    expect(joined).toContain("check:self-hosted-production-runtime");
     expect(joined).toMatch(
       /hosted BaaS\/SaaS application backends[\s\S]{0,160}(not production dependencies|excluded from production)/i,
     );
@@ -46,6 +49,9 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["check:backend-policy"]).toBe("node scripts/check-self-hosted-backend-policy.mjs");
     expect(pkg.scripts["check:supabase-boundary"]).toBe("node scripts/check-supabase-production-boundary.mjs");
     expect(pkg.scripts["check:self-hosted-infra"]).toBe("node scripts/check-self-hosted-infra.mjs");
+    expect(pkg.scripts["check:self-hosted-production-runtime"]).toBe(
+      "node scripts/check-self-hosted-production-runtime.mjs",
+    );
     expect(pkg.scripts["check:self-hosted-api"]).toBe("node scripts/check-self-hosted-api.mjs");
     expect(pkg.scripts["check:self-hosted-db"]).toBe("node scripts/check-self-hosted-db.mjs");
     expect(pkg.scripts["contracts:build"]).toBe("tsc -p packages/contracts/tsconfig.json");
@@ -64,6 +70,7 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["ci:core"]).toContain("npm run check:backend-policy");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:supabase-boundary");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
+    expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-production-runtime");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-db");
     expect(pkg.scripts["ci:core"]).toContain("npm run db:migrations:check");

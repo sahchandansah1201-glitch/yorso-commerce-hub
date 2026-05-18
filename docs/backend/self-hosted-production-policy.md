@@ -113,6 +113,12 @@ configuration:
 The repository may keep prototype smoke scripts, but they must be clearly
 separate from self-hosted production checks.
 
+Batch #72 adds `.env.production.example`,
+`docs/backend/self-hosted-production-deploy.md` and
+`check:self-hosted-production-runtime` so the server deploy path is guarded as
+an owned runtime with no Supabase or similar hosted BaaS/SaaS environment
+dependency.
+
 ## Validation
 
 This policy is guarded by:
@@ -122,6 +128,7 @@ npm run check:backend-policy
 npm run check:supabase-boundary
 npm run check:self-hosted-api
 npm run check:self-hosted-db
+npm run check:self-hosted-production-runtime
 npm run check:production-scale-baseline
 npm run smoke:e2e:frontend-no-supabase-env
 npm run ci:core

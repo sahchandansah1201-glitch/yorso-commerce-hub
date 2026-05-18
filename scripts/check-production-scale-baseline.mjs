@@ -5,8 +5,10 @@ const requiredFiles = [
   ".github/workflows/ci.yml",
   "docs/backend/production-scale-baseline.md",
   "docs/backend/self-hosted-production-policy.md",
+  "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-validation.md",
+  ".env.production.example",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
   "packages/db/migrations/0006_offer_catalog.sql",
@@ -19,6 +21,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
   "scripts/smoke-frontend-no-supabase-env.mjs",
+  "scripts/check-self-hosted-production-runtime.mjs",
   "src/lib/auth-runtime.ts",
   "src/lib/auth-runtime.test.ts",
   "src/lib/auth-runtime.boundary.test.ts",
@@ -72,6 +75,8 @@ const read = (file) => readFileSync(file, "utf8");
 const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
+const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
+const productionEnv = read(".env.production.example");
 const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
@@ -86,6 +91,7 @@ const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
 const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
+const productionRuntimeCheck = read("scripts/check-self-hosted-production-runtime.mjs");
 const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
 const authRuntimeBoundaryTest = read("src/lib/auth-runtime.boundary.test.ts");
@@ -165,12 +171,15 @@ for (const marker of [
   "Batch #69",
   "Batch #70",
   "Batch #71",
+  "Batch #72",
   "notification center",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
   "legacy auth Supabase adapter boundary",
   "self-hosted production policy",
+  "self-hosted production runtime guard",
+  ".env.production.example",
   "legacy catalog Supabase adapter boundary",
   "legacy supplier access Supabase adapter boundary",
   "supplier directory pagination",
@@ -198,8 +207,52 @@ for (const marker of [
   "Backend Boundary",
   "Deployment Boundary",
   "Batch #71",
+  "Batch #72",
+  "check:self-hosted-production-runtime",
+  ".env.production.example",
 ]) {
   requireText("docs/backend/self-hosted-production-policy.md", productionPolicy, marker);
+}
+
+for (const marker of [
+  "Batch: #72",
+  "Self-Hosted Production Deploy",
+  "Minimum production topology",
+  "Production env must not contain",
+  "check:self-hosted-production-runtime",
+]) {
+  requireText("docs/backend/self-hosted-production-deploy.md", productionDeploy, marker);
+}
+
+for (const marker of [
+  "NODE_ENV=production",
+  "VITE_YORSO_API_URL=https://api.yorso.example",
+  "ACCOUNT_REPOSITORY=postgres",
+  "DATABASE_URL=postgres://",
+  "REDIS_URL=redis://redis:6379",
+  "STORAGE_DRIVER=local",
+]) {
+  requireText(".env.production.example", productionEnv, marker);
+}
+
+if (/SUPABASE|FIREBASE|APPWRITE|CLERK|AUTH0/i.test(productionEnv)) {
+  failures.push(".env.production.example: production runtime must not contain hosted BaaS/SaaS provider settings");
+}
+
+if (pkg.scripts["check:self-hosted-production-runtime"] !== "node scripts/check-self-hosted-production-runtime.mjs") {
+  failures.push("package.json: check:self-hosted-production-runtime must run the production runtime guard");
+}
+
+if (!pkg.scripts["ci:core"]?.includes("npm run check:self-hosted-production-runtime")) {
+  failures.push("package.json: ci:core must run check:self-hosted-production-runtime");
+}
+
+for (const marker of [
+  ".env.production.example",
+  "docs/backend/self-hosted-production-deploy.md",
+  "ci:core enforces check:self-hosted-production-runtime",
+]) {
+  requireText("scripts/check-self-hosted-production-runtime.mjs", productionRuntimeCheck, marker);
 }
 
 for (const marker of [
