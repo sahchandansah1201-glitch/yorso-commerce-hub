@@ -338,6 +338,18 @@ owned runtime: grant state is shared by API modules, session headers are used
 by browser requests, and the release gate verifies graceful API-mode behavior
 without relying on frontend-only localStorage unlocks.
 
+Batch #66 adds an optional Supabase frontend smoke. Supabase remains allowed
+only as prototype/reference tooling, so the production frontend must not crash
+when `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are empty.
+`smoke:e2e:frontend-no-supabase-env` builds the Vite app with Supabase and
+self-hosted API URLs intentionally blank, starts preview on a free port, and
+runs `e2e/frontend-no-supabase-env.spec.ts`. The smoke verifies that public,
+sign-in, reset-password and catalog routes boot without Supabase client
+construction errors. At 10,000 concurrent users this protects deployability:
+missing prototype credentials cannot take down a self-hosted production build,
+and authentication/catalog routes degrade to self-hosted or local fallback
+behavior instead of hard-failing at module import time.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

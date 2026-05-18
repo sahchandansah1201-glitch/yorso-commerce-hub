@@ -22,7 +22,11 @@
  * строки в `SeafoodOffer` для существующих компонентов Phase 1.
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import {
+  SUPABASE_NOT_CONFIGURED_ERROR,
+  isSupabaseConfigured,
+  supabase,
+} from "@/integrations/supabase/client";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import type { AccessLevel } from "@/lib/access-level";
 import { logCatalogPrivilegeError } from "@/lib/catalog-privilege-log";
@@ -240,6 +244,7 @@ const mapQualifiedRow = (row: QualifiedOfferRow, categoryById: Map<string, Categ
 };
 
 const fetchCategoryMap = async (categoryIds: string[]) => {
+  if (!isSupabaseConfigured) return new Map<string, CategoryRow>();
   const ids = categoryIds.length ? categoryIds : ["00000000-0000-0000-0000-000000000000"];
   const { data } = await supabase.from("categories").select("id,slug,name").in("id", ids);
   const map = new Map<string, CategoryRow>();
@@ -256,6 +261,10 @@ export const fetchOffers = async (level: AccessLevel): Promise<SeafoodOffer[]> =
       offset: 0,
     });
     return response.offers;
+  }
+
+  if (!isSupabaseConfigured) {
+    throw SUPABASE_NOT_CONFIGURED_ERROR;
   }
 
   // Qualified — пробуем RPC. Если вернётся 0 (нет одобренных заявок), упадём на public.
@@ -291,6 +300,10 @@ export const fetchOfferById = async (id: string, level: AccessLevel): Promise<Se
   const selfHostedOfferCatalog = createOfferCatalogApiClient();
   if (selfHostedOfferCatalog.enabled) {
     return selfHostedOfferCatalog.getOfferById(id, level);
+  }
+
+  if (!isSupabaseConfigured) {
+    throw SUPABASE_NOT_CONFIGURED_ERROR;
   }
 
   if (level === "qualified_unlocked") {

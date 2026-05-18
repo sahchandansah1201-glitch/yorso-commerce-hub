@@ -13,7 +13,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
@@ -69,23 +69,28 @@ const SignIn = () => {
     e.preventDefault();
     if (!email || !emailPassword) { toast.error(t.signin_fillAll); return; }
     setSigninLoading(true);
-    // Real auth via Lovable Cloud (Supabase). The legacy mock authApi.signIn
-    // call is kept for analytics parity in catalog tests, but credentials are
-    // validated against auth.users — wrong password fails here.
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password: emailPassword,
-    });
-    if (authError) {
-      setSigninLoading(false);
-      toast.error(t.signin_signInFailed, { description: authError.message });
-      analytics.track("api_error", { endpoint: "auth/signin", code: "invalid_credentials" });
-      return;
+    if (isSupabaseConfigured) {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password: emailPassword,
+      });
+      if (authError) {
+        setSigninLoading(false);
+        toast.error(t.signin_signInFailed, { description: authError.message });
+        analytics.track("api_error", { endpoint: "auth/signin", code: "invalid_credentials" });
+        return;
+      }
+    } else {
+      const result = await authApi.signIn({ method: "email", identifier: email, password: emailPassword });
+      if (isApiError(result)) {
+        setSigninLoading(false);
+        toast.error(t.signin_signInFailed, { description: getErrorMessage(result.code) });
+        analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
+        return;
+      }
     }
     setSigninLoading(false);
     analytics.track("signin_email", { email });
-    // Mirror the Supabase session into the legacy buyer-session so the rest
-    // of the workspace UI (which still reads from sessionStorage) stays in sync.
     signIn({ identifier: email, method: "email" });
     analytics.track("workspace_session_started", { method: "email" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
@@ -115,14 +120,24 @@ const SignIn = () => {
     e.preventDefault();
     if (!forgotEmail) { toast.error(t.signin_enterEmail); return; }
     setForgotLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setForgotLoading(false);
-    if (error) {
-      toast.error(t.signin_couldNotSendLink, { description: error.message });
-      analytics.track("api_error", { endpoint: "auth/password/reset", code: "reset_failed" });
-      return;
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setForgotLoading(false);
+      if (error) {
+        toast.error(t.signin_couldNotSendLink, { description: error.message });
+        analytics.track("api_error", { endpoint: "auth/password/reset", code: "reset_failed" });
+        return;
+      }
+    } else {
+      const result = await authApi.requestPasswordReset({ email: forgotEmail });
+      setForgotLoading(false);
+      if (isApiError(result)) {
+        toast.error(t.signin_couldNotSendLink, { description: getErrorMessage(result.code) });
+        analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
+        return;
+      }
     }
     analytics.track("forgot_password", { email: forgotEmail });
     setForgotSent(true);

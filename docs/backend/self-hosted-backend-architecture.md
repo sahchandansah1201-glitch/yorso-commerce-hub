@@ -684,3 +684,13 @@ access endpoint, then verifies that offer detail, offer catalog private search
 and supplier directory private search all unlock from the same backend grant.
 This moves the access flow closer to a deployable self-hosted product: frontend
 adapters, API modules and shared memory repository state are tested together.
+
+Batch #66 makes the legacy Supabase frontend integration optional. The
+Supabase client module now exports `isSupabaseConfigured` and a disabled client
+that returns safe `SUPABASE_NOT_CONFIGURED` errors when prototype env variables
+are absent. Legacy catalog and auth paths must therefore degrade to self-hosted
+adapters or local prototype fallbacks instead of failing during module import.
+`smoke:e2e:frontend-no-supabase-env` builds and boots the frontend with
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` and `VITE_YORSO_API_URL`
+empty. This is a production architecture guard: a self-hosted deployment should
+not require Supabase credentials to start.

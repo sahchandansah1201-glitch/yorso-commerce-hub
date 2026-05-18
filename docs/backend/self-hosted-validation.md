@@ -585,6 +585,20 @@ Batch #65 adds real self-hosted API browser validation:
   together instead of validating either the API or mocked API browser mode in
   isolation.
 
+Batch #66 adds optional Supabase frontend validation:
+
+- `smoke:e2e:frontend-no-supabase-env` builds the frontend with
+  `VITE_SUPABASE_URL=""`, `VITE_SUPABASE_PUBLISHABLE_KEY=""` and
+  `VITE_YORSO_API_URL=""`;
+- the wrapper starts Vite preview on a free local port and runs
+  `e2e/frontend-no-supabase-env.spec.ts`;
+- the spec opens `/`, `/signin`, `/reset-password` and `/offers`, then checks
+  that no fatal Supabase client construction error appears in browser console;
+- the sign-in screen falls back to the existing prototype auth contract when
+  Supabase is not configured;
+- this guard prevents accidental reintroduction of Supabase as a required
+  production runtime dependency.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
