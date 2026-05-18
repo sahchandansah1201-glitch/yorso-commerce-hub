@@ -47,6 +47,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
+  "scripts/smoke-frontend-no-supabase-env.mjs",
   "scripts/smoke-self-hosted-account-postgres.mjs",
   "scripts/smoke-self-hosted-workspace-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
@@ -75,6 +76,8 @@ const requiredFiles = [
   "e2e/offer-catalog-detail-api-flow.spec.ts",
   "e2e/supplier-access-notification-center-api-flow.spec.ts",
   "e2e/self-hosted-access-runtime.spec.ts",
+  "e2e/frontend-no-supabase-env.spec.ts",
+  "src/integrations/supabase/client.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.test.ts",
@@ -148,6 +151,7 @@ const supplierDirectoryContract = read("packages/contracts/src/supplier-director
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
+const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
 const workspacePostgresSmoke = read("scripts/smoke-self-hosted-workspace-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
@@ -189,6 +193,8 @@ const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
 const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts");
+const frontendNoSupabaseE2E = read("e2e/frontend-no-supabase-env.spec.ts");
+const supabaseClient = read("src/integrations/supabase/client.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
@@ -350,6 +356,40 @@ for (const spec of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
+if (pkg.scripts["smoke:e2e:frontend-no-supabase-env"] !== "node scripts/smoke-frontend-no-supabase-env.mjs") {
+  failures.push("package.json: smoke:e2e:frontend-no-supabase-env must run the no-Supabase frontend smoke wrapper");
+}
+if (!pkg.scripts["smoke:e2e:frontend-no-supabase-env:run"]?.includes("e2e/frontend-no-supabase-env.spec.ts")) {
+  failures.push("package.json: smoke:e2e:frontend-no-supabase-env:run must cover the no-Supabase frontend e2e spec");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:frontend-no-supabase-env")) {
+  failures.push("package.json: ci:full must include the no-Supabase frontend smoke");
+}
+for (const marker of [
+  "VITE_SUPABASE_URL: \"\"",
+  "VITE_SUPABASE_PUBLISHABLE_KEY: \"\"",
+  "VITE_YORSO_API_URL: \"\"",
+  "frontend_no_supabase_env_smoke=ok",
+]) {
+  requireText("scripts/smoke-frontend-no-supabase-env.mjs", frontendNoSupabaseSmoke, marker);
+}
+for (const marker of [
+  "Batch #66 optional Supabase frontend smoke",
+  "VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are intentionally empty",
+  "frontend-no-supabase-env",
+]) {
+  requireText("e2e/frontend-no-supabase-env.spec.ts", frontendNoSupabaseE2E, marker);
+}
+for (const marker of [
+  "isSupabaseConfigured",
+  "SUPABASE_NOT_CONFIGURED_ERROR",
+  "createDisabledSupabaseClient",
+  "Supabase is not configured",
+]) {
+  requireText("src/integrations/supabase/client.ts", supabaseClient, marker);
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend without Supabase env smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-no-supabase-env");
 if (pkg.scripts["smoke:e2e:self-hosted-access-runtime"] !== "npm run api:build && node scripts/smoke-e2e-self-hosted-access-runtime.mjs") {
   failures.push("package.json: smoke:e2e:self-hosted-access-runtime must build API and run the real self-hosted access runtime browser smoke");
 }

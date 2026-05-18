@@ -146,6 +146,9 @@ jobs:
       - name: Run API-backed access browser suite
         run: npm run smoke:e2e:api-backed-access-flows
 
+      - name: Run frontend without Supabase env smoke
+        run: npm run smoke:e2e:frontend-no-supabase-env
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

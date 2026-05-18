@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -67,6 +67,7 @@ const ResetPassword = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return;
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setRecoveryReady(true);
     });
