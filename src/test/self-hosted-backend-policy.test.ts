@@ -73,8 +73,7 @@ describe("self-hosted backend policy", () => {
     const output = runNode(["scripts/check-supabase-production-boundary.mjs"]);
 
     expect(output).toContain("Supabase production boundary check passed");
-    expect(output).toContain("Temporary legacy direct imports allowed");
-    expect(output).toContain("src/pages/SignIn.tsx");
-    expect(output).toContain("src/pages/ResetPassword.tsx");
+    expect(output).toContain("No page/component direct Supabase imports remain");
+    expect(output).not.toContain("Temporary legacy direct imports allowed");
   });
 });

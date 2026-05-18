@@ -599,6 +599,19 @@ Batch #66 adds optional Supabase frontend validation:
 - this guard prevents accidental reintroduction of Supabase as a required
   production runtime dependency.
 
+Batch #67 adds auth runtime boundary validation:
+
+- `src/lib/auth-runtime.ts` owns the temporary Supabase auth bridge for email
+  sign-in, password reset email, recovery-session observation and recovered
+  password update;
+- `src/pages/SignIn.tsx` and `src/pages/ResetPassword.tsx` import only that
+  adapter, not `@/integrations/supabase/client`;
+- `test:auth-runtime` verifies local fallback mode, prototype Supabase
+  delegation and password recovery behavior behind the adapter;
+- `check:supabase-boundary` no longer has a legacy allowlist for auth pages and
+  must print `No page/component direct Supabase imports remain.`;
+- `ci:core` runs `test:auth-runtime`, so the boundary is checked before merge.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,

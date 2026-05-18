@@ -18,6 +18,10 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
   "scripts/smoke-frontend-no-supabase-env.mjs",
+  "src/lib/auth-runtime.ts",
+  "src/lib/auth-runtime.test.ts",
+  "src/pages/SignIn.tsx",
+  "src/pages/ResetPassword.tsx",
   "apps/api/src/modules/offers/repository.ts",
   "apps/api/src/modules/offers/postgres-repository.ts",
   "src/integrations/supabase/client.ts",
@@ -73,6 +77,10 @@ const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
 const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
+const authRuntime = read("src/lib/auth-runtime.ts");
+const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
+const signInPage = read("src/pages/SignIn.tsx");
+const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const offerRepository = read("apps/api/src/modules/offers/repository.ts");
 const offerPostgresRepository = read("apps/api/src/modules/offers/postgres-repository.ts");
 const supabaseClient = read("src/integrations/supabase/client.ts");
@@ -136,9 +144,11 @@ for (const marker of [
   "Batch #64",
   "Batch #65",
   "Batch #66",
+  "Batch #67",
   "notification center",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
+  "auth runtime adapter boundary",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
@@ -666,6 +676,12 @@ requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backe
 if (pkg.scripts["smoke:e2e:frontend-no-supabase-env"] !== "node scripts/smoke-frontend-no-supabase-env.mjs") {
   failures.push("package.json: smoke:e2e:frontend-no-supabase-env must run the no-Supabase frontend smoke wrapper");
 }
+if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts") {
+  failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:auth-runtime")) {
+  failures.push("package.json: ci:core must run test:auth-runtime");
+}
 if (!pkg.scripts["smoke:e2e:frontend-no-supabase-env:run"]?.includes("e2e/frontend-no-supabase-env.spec.ts")) {
   failures.push("package.json: smoke:e2e:frontend-no-supabase-env:run must cover the no-Supabase frontend e2e spec");
 }
@@ -693,6 +709,31 @@ for (const marker of [
   "createDisabledSupabaseClient",
 ]) {
   requireText("src/integrations/supabase/client.ts", supabaseClient, marker);
+}
+for (const marker of [
+  "signInWithEmail",
+  "requestPasswordReset",
+  "observePasswordRecovery",
+  "updateRecoveredPassword",
+  "supabase_prototype",
+  "local_contract",
+]) {
+  requireText("src/lib/auth-runtime.ts", authRuntime, marker);
+}
+for (const marker of [
+  "auth-runtime adapter boundary",
+  "uses local contract auth when Supabase is not configured",
+  "delegates email sign-in and reset to prototype Supabase only when configured",
+]) {
+  requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
+}
+requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
+requireText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/lib/auth-runtime");
+if (signInPage.includes("@/integrations/supabase/client")) {
+  failures.push("src/pages/SignIn.tsx: must not import Supabase client directly");
+}
+if (resetPasswordPage.includes("@/integrations/supabase/client")) {
+  failures.push("src/pages/ResetPassword.tsx: must not import Supabase client directly");
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend without Supabase env smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-no-supabase-env");

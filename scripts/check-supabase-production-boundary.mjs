@@ -3,11 +3,6 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const roots = ["src/pages", "src/components"];
-const allowedLegacyFiles = new Set([
-  path.normalize("src/pages/SignIn.tsx"),
-  path.normalize("src/pages/ResetPassword.tsx"),
-]);
-
 const supabaseClientImportPattern = /from\s+["']@\/integrations\/supabase\/client["']|from\s+["']\.\.\/.*integrations\/supabase\/client["']/;
 const files = [];
 
@@ -24,15 +19,10 @@ const walk = (dir) => {
 for (const root of roots) walk(root);
 
 const violations = [];
-const legacy = [];
 
 for (const file of files) {
   const text = readFileSync(file, "utf8");
   if (!supabaseClientImportPattern.test(text)) continue;
-  if (allowedLegacyFiles.has(file)) {
-    legacy.push(file);
-    continue;
-  }
   violations.push(file);
 }
 
@@ -45,7 +35,4 @@ if (violations.length > 0) {
 
 console.log("Supabase production boundary check passed.");
 console.log(`Scanned ${files.length} page/component files.`);
-if (legacy.length > 0) {
-  console.log("Temporary legacy direct imports allowed:");
-  for (const file of legacy) console.log(`- ${file}`);
-}
+console.log("No page/component direct Supabase imports remain.");

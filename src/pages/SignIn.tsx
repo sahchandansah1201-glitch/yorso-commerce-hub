@@ -8,12 +8,12 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
 import analytics from "@/lib/analytics";
 import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { isAuthRuntimeError, requestPasswordReset, signInWithEmail } from "@/lib/auth-runtime";
 import { toast } from "sonner";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
@@ -69,25 +69,12 @@ const SignIn = () => {
     e.preventDefault();
     if (!email || !emailPassword) { toast.error(t.signin_fillAll); return; }
     setSigninLoading(true);
-    if (isSupabaseConfigured) {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password: emailPassword,
-      });
-      if (authError) {
-        setSigninLoading(false);
-        toast.error(t.signin_signInFailed, { description: authError.message });
-        analytics.track("api_error", { endpoint: "auth/signin", code: "invalid_credentials" });
-        return;
-      }
-    } else {
-      const result = await authApi.signIn({ method: "email", identifier: email, password: emailPassword });
-      if (isApiError(result)) {
-        setSigninLoading(false);
-        toast.error(t.signin_signInFailed, { description: getErrorMessage(result.code) });
-        analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
-        return;
-      }
+    const result = await signInWithEmail({ email, password: emailPassword });
+    if (isAuthRuntimeError(result)) {
+      setSigninLoading(false);
+      toast.error(t.signin_signInFailed, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/signin", code: result.code });
+      return;
     }
     setSigninLoading(false);
     analytics.track("signin_email", { email });
@@ -120,24 +107,15 @@ const SignIn = () => {
     e.preventDefault();
     if (!forgotEmail) { toast.error(t.signin_enterEmail); return; }
     setForgotLoading(true);
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      setForgotLoading(false);
-      if (error) {
-        toast.error(t.signin_couldNotSendLink, { description: error.message });
-        analytics.track("api_error", { endpoint: "auth/password/reset", code: "reset_failed" });
-        return;
-      }
-    } else {
-      const result = await authApi.requestPasswordReset({ email: forgotEmail });
-      setForgotLoading(false);
-      if (isApiError(result)) {
-        toast.error(t.signin_couldNotSendLink, { description: getErrorMessage(result.code) });
-        analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
-        return;
-      }
+    const result = await requestPasswordReset({
+      email: forgotEmail,
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (isAuthRuntimeError(result)) {
+      toast.error(t.signin_couldNotSendLink, { description: result.message });
+      analytics.track("api_error", { endpoint: "auth/password/reset", code: result.code });
+      return;
     }
     analytics.track("forgot_password", { email: forgotEmail });
     setForgotSent(true);

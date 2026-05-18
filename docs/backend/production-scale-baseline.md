@@ -350,6 +350,18 @@ missing prototype credentials cannot take down a self-hosted production build,
 and authentication/catalog routes degrade to self-hosted or local fallback
 behavior instead of hard-failing at module import time.
 
+Batch #67 removes the remaining direct Supabase imports from production-facing
+auth pages. `SignIn` and `ResetPassword` now cross Supabase only through
+`src/lib/auth-runtime.ts`, which exposes `signInWithEmail`,
+`requestPasswordReset`, `observePasswordRecovery` and
+`updateRecoveredPassword`. The adapter uses the local auth contract when
+Supabase is not configured and delegates to prototype Supabase auth only when
+prototype env variables are present. This is the auth runtime adapter boundary.
+At 10,000 concurrent users this matters because page components cannot become
+implicit production auth gateways to Supabase: the self-hosted product can boot
+without prototype credentials, while future production auth can replace the
+adapter behind the same page contract.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

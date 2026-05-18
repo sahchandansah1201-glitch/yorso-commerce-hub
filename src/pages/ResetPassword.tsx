@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { isAuthRuntimeError, observePasswordRecovery, updateRecoveredPassword } from "@/lib/auth-runtime";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -67,14 +67,7 @@ const ResetPassword = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setRecoveryReady(true);
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setRecoveryReady(true);
-    });
-    return () => sub.subscription.unsubscribe();
+    return observePasswordRecovery(() => setRecoveryReady(true));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,15 +75,14 @@ const ResetPassword = () => {
     if (password.length < 8) { toast.error(c.tooShort); return; }
     if (password !== confirmPassword) { toast.error(c.mismatch); return; }
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const result = await updateRecoveredPassword(password);
     setLoading(false);
-    if (error) {
-      toast.error(c.failed, { description: error.message });
+    if (isAuthRuntimeError(result)) {
+      toast.error(c.failed, { description: result.message });
       return;
     }
     setDone(true);
     toast.success(c.updated);
-    await supabase.auth.signOut();
     setTimeout(() => navigate("/signin", { replace: true }), 1500);
   };
 
