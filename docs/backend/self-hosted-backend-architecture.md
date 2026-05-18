@@ -722,3 +722,13 @@ not configured. The self-hosted path keeps using explicit account headers,
 legacy adapter is limited to temporary `supplier_access_requests` and
 `log_supplier_access_event` compatibility. Guard scripts fail if
 `supplier-access-api.ts` imports the Supabase client directly.
+
+Batch #70 closes the auth Supabase boundary. `src/lib/auth-runtime.ts` remains
+the only production-facing frontend auth facade used by `SignIn` and
+`ResetPassword`, but it no longer imports `@/integrations/supabase/client`
+directly. Prototype Supabase auth lives in
+`src/lib/legacy-auth-supabase-adapter.ts` and is loaded only when temporary
+Supabase env variables are present. This preserves prototype sign-in/recovery
+compatibility while keeping the self-hosted product free to replace auth behind
+the same runtime contract. Guard scripts fail if `auth-runtime.ts` regains a
+direct Supabase client dependency.

@@ -639,6 +639,19 @@ Batch #69 adds legacy supplier access Supabase adapter boundary validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
   supplier access facade regains a direct Supabase client dependency.
 
+Batch #70 adds legacy auth Supabase adapter boundary validation:
+
+- `src/lib/auth-runtime.ts` remains the production-facing auth facade for
+  sign-in, password reset, recovery observation and recovered password update;
+- `src/lib/legacy-auth-supabase-adapter.ts` owns the temporary Supabase email
+  auth and password-recovery bridge;
+- `src/lib/auth-runtime.boundary.test.ts` verifies the legacy adapter boundary
+  and absence of direct Supabase imports in `auth-runtime.ts`;
+- `test:auth-runtime` includes both runtime behavior tests and the boundary
+  test;
+- `check:self-hosted-api` and `check:production-scale-baseline` fail if the
+  auth runtime facade regains a direct Supabase client dependency.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
