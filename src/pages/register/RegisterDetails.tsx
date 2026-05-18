@@ -95,6 +95,7 @@ const RegisterDetails = () => {
       toast.error(t.reg_couldNotContinue, { description: err.message });
       return;
     }
+    setVerificationChannel("sms");
     setPhoneSent(true);
     toast.success(t.reg_codeSentToast, { description: t.reg_codeSentToastDesc });
     analytics.track("phone_verification_sent", { phone: phoneNumber });
