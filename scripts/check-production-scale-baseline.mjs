@@ -25,6 +25,9 @@ const requiredFiles = [
   "apps/api/src/modules/offers/repository.ts",
   "apps/api/src/modules/offers/postgres-repository.ts",
   "src/integrations/supabase/client.ts",
+  "src/lib/catalog-api.ts",
+  "src/lib/catalog-api.boundary.test.ts",
+  "src/lib/legacy-catalog-supabase-adapter.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
   "src/lib/use-offer-detail.ts",
@@ -84,6 +87,9 @@ const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const offerRepository = read("apps/api/src/modules/offers/repository.ts");
 const offerPostgresRepository = read("apps/api/src/modules/offers/postgres-repository.ts");
 const supabaseClient = read("src/integrations/supabase/client.ts");
+const catalogApi = read("src/lib/catalog-api.ts");
+const catalogApiBoundaryTest = read("src/lib/catalog-api.boundary.test.ts");
+const legacyCatalogSupabaseAdapter = read("src/lib/legacy-catalog-supabase-adapter.ts");
 const offerApi = read("src/lib/offer-catalog-api.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
@@ -145,10 +151,12 @@ for (const marker of [
   "Batch #65",
   "Batch #66",
   "Batch #67",
+  "Batch #68",
   "notification center",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
+  "legacy catalog Supabase adapter boundary",
   "supplier directory pagination",
   "offer catalog pagination",
   "offer catalog browser e2e",
@@ -355,6 +363,35 @@ for (const marker of [
   "fallbackOfferForSupplierAccess",
 ]) {
   requireText("src/lib/offer-catalog-api.ts", offerApi, marker);
+}
+
+for (const marker of [
+  "self-hosted-first catalog facade",
+  "createOfferCatalogApiClient",
+  "fetchLegacyCatalogOffers",
+  "fetchLegacyCatalogOfferById",
+]) {
+  requireText("src/lib/catalog-api.ts", catalogApi, marker);
+}
+for (const marker of [
+  "@/integrations/supabase/client",
+  "SUPABASE_NOT_CONFIGURED_ERROR",
+  "fetchLegacyCatalogOffers",
+  "fetchLegacyCatalogOfferById",
+]) {
+  requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, marker);
+}
+for (const marker of [
+  "uses self-hosted offer catalog before legacy Supabase fallback",
+  "keeps direct Supabase imports out of catalog-api.ts",
+]) {
+  requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, marker);
+}
+if (catalogApi.includes("@/integrations/supabase/client")) {
+  failures.push("src/lib/catalog-api.ts: must not import Supabase client directly");
+}
+if (!pkg.scripts["test:offer-catalog-frontend"]?.includes("src/lib/catalog-api.boundary.test.ts")) {
+  failures.push("package.json: test:offer-catalog-frontend must cover src/lib/catalog-api.boundary.test.ts");
 }
 
 for (const marker of [

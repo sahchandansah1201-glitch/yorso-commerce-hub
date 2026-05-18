@@ -60,6 +60,9 @@ const requiredFiles = [
   "src/lib/account-api.ts",
   "src/lib/account-api.test.ts",
   "src/lib/account-documents-store.ts",
+  "src/lib/catalog-api.ts",
+  "src/lib/catalog-api.boundary.test.ts",
+  "src/lib/legacy-catalog-supabase-adapter.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/offer-catalog-api.test.ts",
   "src/lib/catalog-fallback.ts",
@@ -171,6 +174,9 @@ const companyMediaCard = read("src/components/account/CompanyMediaCard.tsx");
 const supplierProfilePreview = read("src/components/account/SupplierProfilePreview.tsx");
 const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
+const catalogApi = read("src/lib/catalog-api.ts");
+const catalogApiBoundaryTest = read("src/lib/catalog-api.boundary.test.ts");
+const legacyCatalogSupabaseAdapter = read("src/lib/legacy-catalog-supabase-adapter.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const catalogFallback = read("src/lib/catalog-fallback.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
@@ -291,6 +297,7 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-directory-frontend"
 const offerCatalogFrontendTest = pkg.scripts["test:offer-catalog-frontend"] ?? "";
 for (const requiredOfferCatalogTest of [
   "src/lib/offer-catalog-api.test.ts",
+  "src/lib/catalog-api.boundary.test.ts",
   "src/lib/use-offer-catalog.test.tsx",
   "src/lib/use-offer-detail.test.tsx",
   "src/pages/Offers.catalogPaging.test.tsx",
@@ -979,6 +986,16 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "sortDirection");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "qualified_unlocked");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "getApprovedSupplierAccessIds");
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "fallbackOfferForSupplierAccess");
+requireText("src/lib/catalog-api.ts", catalogApi, "self-hosted-first catalog facade");
+requireText("src/lib/catalog-api.ts", catalogApi, "createOfferCatalogApiClient");
+requireText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOffers");
+requireText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOfferById");
+requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "@/integrations/supabase/client");
+requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "SUPABASE_NOT_CONFIGURED_ERROR");
+requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "fetchLegacyCatalogOffers");
+requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "fetchLegacyCatalogOfferById");
+requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "uses self-hosted offer catalog before legacy Supabase fallback");
+requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "keeps direct Supabase imports out of catalog-api.ts");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "useOfferCatalogList");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQueryFromFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");
@@ -1113,6 +1130,7 @@ forbidText("src/pages/SignIn.tsx", signInPage, "@/integrations/supabase/client")
 forbidText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/integrations/supabase/client");
 forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
 forbidText("src/lib/account-documents-store.ts", accountDocumentsStore, "@/integrations/supabase/client");
+forbidText("src/lib/catalog-api.ts", catalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/offer-catalog-api.ts", offerCatalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "x-demo-user-id");
