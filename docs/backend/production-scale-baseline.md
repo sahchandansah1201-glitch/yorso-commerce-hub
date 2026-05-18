@@ -387,6 +387,18 @@ unfinished environments. `src/lib/supplier-access-api.boundary.test.ts`,
 `check:self-hosted-api` and `check:production-scale-baseline` prevent direct
 Supabase imports from returning to the supplier access facade.
 
+Batch #70 closes the legacy auth Supabase adapter boundary.
+`src/lib/auth-runtime.ts` remains the production-facing auth facade for
+sign-in, password reset, recovery-session observation and recovered password
+updates, but it no longer imports the Supabase client directly. Prototype
+Supabase email auth is isolated in `src/lib/legacy-auth-supabase-adapter.ts`
+and is loaded only when prototype Supabase env variables are present. At 10,000
+concurrent users this keeps sign-in and reset routes deployable without
+prototype credentials and prevents page-level auth flows from becoming hidden
+Supabase production dependencies. `src/lib/auth-runtime.boundary.test.ts`,
+`check:self-hosted-api` and `check:production-scale-baseline` prevent direct
+Supabase imports from returning to the auth runtime facade.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

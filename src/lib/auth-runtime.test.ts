@@ -7,6 +7,13 @@ const importRuntime = async (
   } = { isConfigured: false },
 ) => {
   vi.resetModules();
+  if (supabaseMock.isConfigured) {
+    vi.stubEnv("VITE_SUPABASE_URL", "https://prototype.supabase.test");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "prototype-key");
+  } else {
+    vi.stubEnv("VITE_SUPABASE_URL", "");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
+  }
   vi.doMock("@/integrations/supabase/client", () => ({
     isSupabaseConfigured: supabaseMock.isConfigured,
     supabase: {
@@ -19,6 +26,7 @@ const importRuntime = async (
 describe("auth-runtime adapter boundary", () => {
   afterEach(() => {
     vi.doUnmock("@/integrations/supabase/client");
+    vi.doUnmock("@/lib/legacy-auth-supabase-adapter");
     vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
@@ -118,9 +126,9 @@ describe("auth-runtime adapter boundary", () => {
 
     const cleanup = runtime.observePasswordRecovery(onReady);
     const result = await runtime.updateRecoveredPassword("Password1");
+    await vi.waitFor(() => expect(onReady).toHaveBeenCalledTimes(1));
     cleanup();
 
-    expect(onReady).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ ok: true, source: "supabase_prototype" });
     expect(updateUser).toHaveBeenCalledWith({ password: "Password1" });
     expect(signOut).toHaveBeenCalled();

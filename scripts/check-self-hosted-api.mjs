@@ -50,6 +50,8 @@ const requiredFiles = [
   "scripts/smoke-frontend-no-supabase-env.mjs",
   "src/lib/auth-runtime.ts",
   "src/lib/auth-runtime.test.ts",
+  "src/lib/auth-runtime.boundary.test.ts",
+  "src/lib/legacy-auth-supabase-adapter.ts",
   "src/pages/SignIn.tsx",
   "src/pages/ResetPassword.tsx",
   "scripts/smoke-self-hosted-account-postgres.mjs",
@@ -163,6 +165,8 @@ const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-
 const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
 const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
+const authRuntimeBoundaryTest = read("src/lib/auth-runtime.boundary.test.ts");
+const legacyAuthSupabaseAdapter = read("src/lib/legacy-auth-supabase-adapter.ts");
 const signInPage = read("src/pages/SignIn.tsx");
 const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
@@ -277,7 +281,7 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
   failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
 }
-if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts") {
+if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts") {
   failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:auth-runtime")) {
@@ -420,9 +424,11 @@ for (const marker of [
   "updateRecoveredPassword",
   "supabase_prototype",
   "local_contract",
+  "legacy-auth-supabase-adapter",
 ]) {
   requireText("src/lib/auth-runtime.ts", authRuntime, marker);
 }
+forbidText("src/lib/auth-runtime.ts", authRuntime, "@/integrations/supabase/client");
 for (const marker of [
   "auth-runtime adapter boundary",
   "uses local contract auth when Supabase is not configured",
@@ -430,6 +436,23 @@ for (const marker of [
   "observes prototype Supabase recovery events behind the adapter",
 ]) {
   requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
+}
+for (const marker of [
+  "keeps direct Supabase imports out of auth-runtime.ts",
+  "legacy-auth-supabase-adapter",
+  "isLegacyAuthSupabaseConfigured",
+]) {
+  requireText("src/lib/auth-runtime.boundary.test.ts", authRuntimeBoundaryTest, marker);
+}
+for (const marker of [
+  "@/integrations/supabase/client",
+  "isLegacyAuthSupabaseConfigured",
+  "signInWithPrototypeSupabase",
+  "requestPrototypePasswordReset",
+  "observePrototypePasswordRecovery",
+  "updatePrototypeRecoveredPassword",
+]) {
+  requireText("src/lib/legacy-auth-supabase-adapter.ts", legacyAuthSupabaseAdapter, marker);
 }
 requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
 requireText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/lib/auth-runtime");

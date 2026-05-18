@@ -1,7 +1,6 @@
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 
-type AuthRuntimeSource = "supabase_prototype" | "local_contract";
+export type AuthRuntimeSource = "supabase_prototype" | "local_contract";
 
 export type AuthRuntimeResult =
   | {
@@ -28,24 +27,24 @@ const localError = (code: string, message: string): AuthRuntimeResult => ({
   source: "local_contract",
 });
 
-const supabaseError = (code: string, message: string): AuthRuntimeResult => ({
-  ok: false,
-  code,
-  message,
-  source: "supabase_prototype",
-});
+const hasLegacyAuthSupabaseEnv = (): boolean =>
+  Boolean(
+    import.meta.env.VITE_SUPABASE_URL &&
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  );
+
+const loadLegacyAuthSupabaseAdapter = async () =>
+  import("@/lib/legacy-auth-supabase-adapter");
 
 export const signInWithEmail = async (input: {
   email: string;
   password: string;
 }): Promise<AuthRuntimeResult> => {
-  if (isSupabaseConfigured) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: input.email,
-      password: input.password,
-    });
-    if (error) return supabaseError("invalid_credentials", error.message);
-    return { ok: true, source: "supabase_prototype" };
+  if (hasLegacyAuthSupabaseEnv()) {
+    const legacyAuth = await loadLegacyAuthSupabaseAdapter();
+    if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
+      return legacyAuth.signInWithPrototypeSupabase(input);
+    }
   }
 
   const result = await authApi.signIn({
@@ -63,12 +62,11 @@ export const requestPasswordReset = async (input: {
   email: string;
   redirectTo: string;
 }): Promise<AuthRuntimeResult> => {
-  if (isSupabaseConfigured) {
-    const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
-      redirectTo: input.redirectTo,
-    });
-    if (error) return supabaseError("reset_failed", error.message);
-    return { ok: true, source: "supabase_prototype" };
+  if (hasLegacyAuthSupabaseEnv()) {
+    const legacyAuth = await loadLegacyAuthSupabaseAdapter();
+    if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
+      return legacyAuth.requestPrototypePasswordReset(input);
+    }
   }
 
   const result = await authApi.requestPasswordReset({ email: input.email });
@@ -81,39 +79,43 @@ export const requestPasswordReset = async (input: {
 export const observePasswordRecovery = (
   onReady: () => void,
 ): (() => void) => {
-  if (!isSupabaseConfigured) return () => undefined;
+  if (!hasLegacyAuthSupabaseEnv()) return () => undefined;
 
   let active = true;
-  const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-    if (event === "PASSWORD_RECOVERY" && active) onReady();
-  });
+  let cleanup = () => undefined;
 
-  void supabase.auth
-    .getSession()
-    .then(({ data }) => {
-      if (active && data.session) onReady();
+  void loadLegacyAuthSupabaseAdapter()
+    .then((legacyAuth) => {
+      if (!active || !legacyAuth.isLegacyAuthSupabaseConfigured()) return;
+      cleanup = legacyAuth.observePrototypePasswordRecovery(() => {
+        if (active) onReady();
+      });
     })
     .catch(() => undefined);
 
   return () => {
     active = false;
-    sub.subscription.unsubscribe();
+    cleanup();
   };
 };
 
 export const updateRecoveredPassword = async (
   password: string,
 ): Promise<AuthRuntimeResult> => {
-  if (!isSupabaseConfigured) {
+  if (!hasLegacyAuthSupabaseEnv()) {
     return localError(
       "recovery_unavailable",
       "Password recovery requires a valid recovery session.",
     );
   }
 
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) return supabaseError("reset_failed", error.message);
+  const legacyAuth = await loadLegacyAuthSupabaseAdapter();
+  if (!legacyAuth.isLegacyAuthSupabaseConfigured()) {
+    return localError(
+      "recovery_unavailable",
+      "Password recovery requires a valid recovery session.",
+    );
+  }
 
-  await supabase.auth.signOut();
-  return { ok: true, source: "supabase_prototype" };
+  return legacyAuth.updatePrototypeRecoveredPassword(password);
 };
