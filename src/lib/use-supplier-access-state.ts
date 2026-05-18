@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   SUPPLIER_ACCESS_CHANGE_EVENT,
   getSupplierAccessRequest,
@@ -26,33 +26,48 @@ export const useSupplierAccessState = (
   const [request, setRequest] = useState<SupplierAccessRequest | null>(
     () => (enabled && !isSupplierAccessApiConfigured() ? getSupplierAccessRequest(storageSupplierId) : null),
   );
+  const mountedRef = useRef(false);
+  const refreshSeqRef = useRef(0);
 
   const refresh = useCallback(() => {
+    const refreshSeq = ++refreshSeqRef.current;
+    const commit = (next: SupplierAccessRequest | null) => {
+      if (mountedRef.current && refreshSeq === refreshSeqRef.current) {
+        setRequest(next);
+      }
+    };
+
     if (!enabled || !storageSupplierId) {
-      setRequest(null);
+      commit(null);
       return;
     }
 
     if (isSupplierAccessApiConfigured()) {
-      setRequest(null);
+      commit(null);
     } else {
-      setRequest(getSupplierAccessRequest(storageSupplierId));
+      commit(getSupplierAccessRequest(storageSupplierId));
     }
     void readSupplierAccessRequest(storageSupplierId).then((next) => {
-      setRequest(next);
+      commit(next);
     });
   }, [enabled, storageSupplierId]);
 
   const submit = useCallback(async () => {
     if (!enabled || !storageSupplierId) return null;
     const saved = await requestSupplierAccess(storageSupplierId);
-    setRequest(saved);
+    if (mountedRef.current) setRequest(saved);
     return saved;
   }, [enabled, storageSupplierId]);
 
   useEffect(() => {
+    mountedRef.current = true;
     refresh();
-    if (!enabled || !storageSupplierId || typeof window === "undefined") return undefined;
+    if (!enabled || !storageSupplierId || typeof window === "undefined") {
+      return () => {
+        mountedRef.current = false;
+        refreshSeqRef.current += 1;
+      };
+    }
 
     const onStorage = (e: StorageEvent) => {
       if (!e.key || e.key.includes("supplier_access_requests")) refresh();
@@ -62,6 +77,8 @@ export const useSupplierAccessState = (
     window.addEventListener("storage", onStorage);
     window.addEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onLocalChange);
     return () => {
+      mountedRef.current = false;
+      refreshSeqRef.current += 1;
       window.removeEventListener("storage", onStorage);
       window.removeEventListener(SUPPLIER_ACCESS_CHANGE_EVENT, onLocalChange);
     };

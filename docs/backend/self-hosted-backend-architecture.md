@@ -712,3 +712,13 @@ read path aligned with `/v1/offers`, pagination, access grants and account
 session headers, while the legacy adapter remains explicit prototype/reference
 code. The guard scripts now fail if `catalog-api.ts` imports the Supabase client
 directly or if the boundary test is removed.
+
+Batch #69 closes the supplier-access Supabase boundary. `src/lib/supplier-access-api.ts`
+continues to own the production-facing request/status/notification facade, but
+it reaches prototype Supabase only through
+`src/lib/legacy-supplier-access-supabase-adapter.ts` when the self-hosted API is
+not configured. The self-hosted path keeps using explicit account headers,
+`/v1/access/suppliers/:supplierId/request` and `/v1/access/notifications`; the
+legacy adapter is limited to temporary `supplier_access_requests` and
+`log_supplier_access_event` compatibility. Guard scripts fail if
+`supplier-access-api.ts` imports the Supabase client directly.

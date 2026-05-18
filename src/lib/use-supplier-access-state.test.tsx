@@ -50,4 +50,39 @@ describe("useSupplierAccessState", () => {
     await waitFor(() => expect(readStore()[SUPPLIER_ID]).toBeUndefined());
     expect(result.current.request).toBeNull();
   });
+
+  it("ignores late backend reads after unmount", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://localhost:3000");
+    let resolveRead!: (response: Response) => void;
+    vi.stubGlobal("fetch", vi.fn(() =>
+      new Promise<Response>((resolve) => {
+        resolveRead = resolve;
+      }),
+    ));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const { unmount } = renderHook(() => useSupplierAccessState(SUPPLIER_ID));
+    unmount();
+    resolveRead(new Response(JSON.stringify({
+      ok: true,
+      request: {
+        id: "req-late",
+        supplierId: SUPPLIER_ID,
+        status: "approved",
+        intent: "exact_price",
+        message: "",
+        createdAt: "2026-05-14T00:00:00.000Z",
+        updatedAt: "2026-05-14T00:05:00.000Z",
+        decidedAt: "2026-05-14T00:05:00.000Z",
+      },
+      accessGranted: true,
+      requestId: "api-late",
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const errors = consoleError.mock.calls.flat().join("\n");
+    expect(errors).not.toContain("not wrapped in act");
+    expect(errors).not.toContain("window is not defined");
+  });
 });

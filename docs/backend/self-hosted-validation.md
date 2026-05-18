@@ -626,6 +626,19 @@ Batch #68 adds legacy catalog Supabase adapter boundary validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
   catalog facade regains a direct Supabase client dependency.
 
+Batch #69 adds legacy supplier access Supabase adapter boundary validation:
+
+- `src/lib/supplier-access-api.ts` remains the self-hosted-first access facade
+  for request status, request creation and notification acknowledgement;
+- `src/lib/legacy-supplier-access-supabase-adapter.ts` owns the temporary
+  Supabase `supplier_access_requests` and `log_supplier_access_event` bridge;
+- `src/lib/supplier-access-api.boundary.test.ts` verifies the legacy adapter
+  fallback, local mock fallback and absence of direct Supabase imports in
+  `supplier-access-api.ts`;
+- `test:supplier-access-frontend` includes that boundary test;
+- `check:self-hosted-api` and `check:production-scale-baseline` fail if the
+  supplier access facade regains a direct Supabase client dependency.
+
 ## Production Direction
 
 The self-hosted stack should become the production path. Supabase scripts,
