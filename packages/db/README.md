@@ -82,6 +82,15 @@ Migration `0007_supplier_access_flow.sql` defines:
 - buyer notification feed records for price access approval;
 - request, grant, event and notification indexes for high-concurrency access checks.
 
+Migration `0011_auth_sessions.sql` defines:
+
+- `yorso_auth_credentials`;
+- `yorso_auth_sessions`;
+- active credential and active session indexes for the Batch #73 self-hosted
+  auth/session foundation;
+- PostgreSQL-owned session records used by `/v1/auth/session` and
+  `/v1/auth/sign-out`.
+
 This keeps supplier and offer discovery backend-owned and index-backed as the
 frontend moves from local mocks to the self-hosted API. The current sizing
 assumption is stable operation for at least 10,000 concurrent web users, so

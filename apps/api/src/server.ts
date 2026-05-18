@@ -9,7 +9,11 @@ import { createSupplierAccessRepository } from "./modules/access/factory.js";
 import type { SupplierAccessRepository } from "./modules/access/repository.js";
 import { handleSupplierAccessRoute } from "./modules/access/routes.js";
 import { SupplierAccessService } from "./modules/access/service.js";
+import { createAuthRepository } from "./modules/auth/factory.js";
+import type { AuthRepository } from "./modules/auth/repository.js";
+import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
+import { AuthService } from "./modules/auth/service.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
 import type { FileService } from "./modules/storage/service.js";
@@ -26,6 +30,7 @@ import { handleLive, handleReady } from "./routes/health.js";
 
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
+  authRepository?: AuthRepository;
   fileService?: FileService;
   offerCatalogRepository?: OfferCatalogRepository;
   supplierAccessRepository?: SupplierAccessRepository;
@@ -33,6 +38,7 @@ export interface ApiServerOptions {
 }
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
+  const authService = new AuthService(options.authRepository ?? createAuthRepository(config));
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
@@ -53,6 +59,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       response,
       context,
       config,
+      authService,
       accountService,
       fileService,
       offerCatalogService,
@@ -70,6 +77,7 @@ async function routeRequest(
   response: ServerResponse,
   context: ReturnType<typeof createRequestContext>,
   config: ApiConfig,
+  authService: AuthService,
   accountService: AccountService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
@@ -115,6 +123,7 @@ async function routeRequest(
     return;
   }
 
+  if (await handleAuthRoute(request, response, context, authService, url.pathname)) return;
   if (await handleAccountRoute(request, response, context, accountService, url.pathname)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, url.pathname)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, url)) return;

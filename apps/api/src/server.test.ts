@@ -133,6 +133,8 @@ describe("YORSO self-hosted API skeleton", () => {
         "CompanyDocument",
         "CompanyDocumentCreate",
         "AccountSessionHeaders",
+        "AuthSignIn",
+        "AuthSession",
       ],
       headers: {
         userId: "x-yorso-user-id",
@@ -175,6 +177,114 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(response.headers.get("access-control-allow-methods")).toContain("DELETE");
     expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-user-id");
     expect(response.headers.get("access-control-allow-headers")).toContain("x-yorso-session-id");
+  });
+
+  it("issues, reads and revokes self-hosted auth sessions", async () => {
+    const fetchApi = await startTestServer();
+    const signIn = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "Password1",
+      }),
+    });
+    const signInBody = (await signIn.json()) as JsonBody;
+
+    expect(signIn.status).toBe(200);
+    expect(signInBody).toMatchObject({
+      ok: true,
+      session: {
+        userId: testAccountUserId,
+        email: "buyer@example.com",
+        displayName: "Demo Buyer",
+      },
+    });
+    expect((signInBody.session as JsonBody).id).toEqual(expect.any(String));
+
+    const sessionId = String((signInBody.session as JsonBody).id);
+    const session = await fetchApi("/v1/auth/session", {
+      headers: {
+        "x-yorso-session-id": sessionId,
+      },
+    });
+    const sessionBody = (await session.json()) as JsonBody;
+
+    expect(session.status).toBe(200);
+    expect(sessionBody).toMatchObject({
+      ok: true,
+      session: {
+        id: sessionId,
+        userId: testAccountUserId,
+      },
+    });
+
+    const signOut = await fetchApi("/v1/auth/sign-out", {
+      method: "POST",
+      headers: {
+        "x-yorso-session-id": sessionId,
+      },
+    });
+    await expect(signOut.json()).resolves.toMatchObject({
+      ok: true,
+      signedOut: true,
+    });
+
+    const revoked = await fetchApi("/v1/auth/session", {
+      headers: {
+        "x-yorso-session-id": sessionId,
+      },
+    });
+    await expect(revoked.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "auth_session_invalid" },
+    });
+    expect(revoked.status).toBe(401);
+  });
+
+  it("rejects invalid auth credentials without revealing which field failed", async () => {
+    const response = await request("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "wrong-password",
+      }),
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(401);
+    expect(body).toMatchObject({
+      ok: false,
+      error: {
+        code: "auth_invalid_credentials",
+        message: "Invalid email or password.",
+      },
+    });
+  });
+
+  it("validates auth payloads and method guards", async () => {
+    const invalidPayload = await request("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({ email: "not-an-email", password: "short" }),
+    });
+    expect(invalidPayload.status).toBe(400);
+    await expect(invalidPayload.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "validation_error" },
+    });
+
+    const invalidJson = await request("/v1/auth/sign-in", {
+      method: "POST",
+      body: "{",
+    });
+    expect(invalidJson.status).toBe(400);
+    await expect(invalidJson.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "invalid_json" },
+    });
+
+    const wrongMethod = await request("/v1/auth/sign-in", { method: "GET" });
+    expect(wrongMethod.status).toBe(405);
+    expect(wrongMethod.headers.get("allow")).toBe("POST");
   });
 
   it("lists suppliers without leaking locked identity or contacts", async () => {

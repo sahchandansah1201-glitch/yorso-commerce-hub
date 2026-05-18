@@ -14,6 +14,9 @@ compiled, started and wired into Docker Compose.
 |---|---|
 | `GET /health/live` | Confirms the API process is alive. |
 | `GET /health/ready` | Confirms self-hosted dependencies are configured. |
+| `POST /v1/auth/sign-in` | Issues a self-hosted API session for a known account. Batch #73 foundation, not final auth hardening. |
+| `GET /v1/auth/session` | Reads the current self-hosted API session from `x-yorso-session-id`. |
+| `POST /v1/auth/sign-out` | Revokes the current self-hosted API session. |
 | `GET /v1/account/company/schema` | Exposes the account/company DTO boundary used by frontend work. |
 | `GET /v1/account/me` | Returns the current user profile through the account service. |
 | `PATCH /v1/account/me` | Validates and updates editable user profile fields through the contract schema. |
@@ -157,6 +160,21 @@ Batch #29 adds the first explicit account session boundary:
   validation schema.
 - `src/lib/account-api.ts` is responsible for attaching account session values.
   Components must not build account auth headers directly.
+
+Batch #73 adds the first self-hosted auth/session runtime:
+
+- `packages/contracts/src/auth.ts` owns sign-in, session and sign-out DTOs.
+- `apps/api/src/modules/auth` adds memory and PostgreSQL repositories plus the
+  service/routes for `/v1/auth/sign-in`, `/v1/auth/session` and
+  `/v1/auth/sign-out`.
+- `packages/db/migrations/0011_auth_sessions.sql` adds
+  `yorso_auth_credentials` and `yorso_auth_sessions` to the owned PostgreSQL
+  baseline.
+- `scripts/smoke-self-hosted-auth-api.mjs` starts the compiled API and verifies
+  sign-in, session read, sign-out, invalid credentials and payload validation.
+- This batch does not claim final production auth hardening. Password hashing
+  policy, MFA, brute-force protection, Redis session replication and auth audit
+  views remain separate production-readiness work.
 
 Batch #30 adds a runtime account API smoke test:
 

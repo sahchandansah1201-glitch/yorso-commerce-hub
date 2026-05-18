@@ -15,6 +15,11 @@ const requiredFiles = [
   "apps/api/src/modules/access/repository.ts",
   "apps/api/src/modules/access/routes.ts",
   "apps/api/src/modules/access/service.ts",
+  "apps/api/src/modules/auth/factory.ts",
+  "apps/api/src/modules/auth/postgres-repository.ts",
+  "apps/api/src/modules/auth/repository.ts",
+  "apps/api/src/modules/auth/routes.ts",
+  "apps/api/src/modules/auth/service.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/storage/factory.ts",
   "apps/api/src/modules/storage/object-storage.ts",
@@ -41,9 +46,11 @@ const requiredFiles = [
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
+  "packages/contracts/src/auth.ts",
   "packages/contracts/src/offer-catalog.ts",
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
+  "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
@@ -109,6 +116,7 @@ const requiredFiles = [
   "src/lib/supplier-directory-api.test.ts",
   "src/lib/use-supplier-directory.ts",
   "src/lib/use-supplier-directory.test.tsx",
+  "docs/backend/self-hosted-auth-api-smoke.md",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-offer-detail-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
@@ -136,6 +144,11 @@ const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repo
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
 const accessRoutes = read("apps/api/src/modules/access/routes.ts");
 const accessService = read("apps/api/src/modules/access/service.ts");
+const authFactory = read("apps/api/src/modules/auth/factory.ts");
+const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
+const authRepository = read("apps/api/src/modules/auth/repository.ts");
+const authRoutes = read("apps/api/src/modules/auth/routes.ts");
+const authService = read("apps/api/src/modules/auth/service.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const storageFactory = read("apps/api/src/modules/storage/factory.ts");
 const storageObjectStorage = read("apps/api/src/modules/storage/object-storage.ts");
@@ -155,10 +168,12 @@ const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
+const authContract = read("packages/contracts/src/auth.ts");
 const accountCompanyContract = read("packages/contracts/src/account-company.ts");
 const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
+const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
@@ -207,6 +222,7 @@ const supplierAccessRefreshBannerTest = read("src/components/suppliers/SupplierA
 const header = read("src/components/landing/Header.tsx");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
+const authApiSmokeDocs = read("docs/backend/self-hosted-auth-api-smoke.md");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
 const supplierDirectoryProfileApiFlowE2E = read("e2e/supplier-directory-profile-api-flow.spec.ts");
@@ -238,6 +254,12 @@ if (pkg.scripts["api:build"] !== "npm run contracts:build && tsc -p apps/api/tsc
 }
 if (pkg.scripts["api:start"] !== "node apps/api/dist/index.js") {
   failures.push("package.json: api:start must run apps/api/dist/index.js");
+}
+if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
+  failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
+}
+if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-hosted-auth-api.mjs") {
+  failures.push("package.json: smoke:self-hosted-auth-api:run must execute scripts/smoke-self-hosted-auth-api.mjs");
 }
 if (pkg.scripts["smoke:self-hosted-account-api"] !== "npm run api:build && npm run smoke:self-hosted-account-api:run") {
   failures.push("package.json: smoke:self-hosted-account-api must build and run the self-hosted account API smoke");
@@ -274,6 +296,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
   failures.push("package.json: ci:core must run test:api");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
+  failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted account API smoke");
@@ -506,6 +531,9 @@ requireText("apps/api/src/server.ts", server, "createOfferCatalogRepository(conf
 requireText("apps/api/src/server.ts", server, "supplierAccessRepository");
 requireText("apps/api/src/server.ts", server, "handleSupplierAccessRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierAccessRepository(config)");
+requireText("apps/api/src/server.ts", server, "handleAuthRoute");
+requireText("apps/api/src/server.ts", server, "createAuthRepository(config)");
+requireText("apps/api/src/server.ts", server, "AuthService");
 requireText("apps/api/src/server.ts", server, "handleSupplierDirectoryRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierRepository(config)");
 requireText("apps/api/src/server.ts", server, "x-yorso-backend");
@@ -617,6 +645,36 @@ requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAc
 requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAccessNotificationsResponseSchema.parse");
 requireText("apps/api/src/modules/access/service.ts", accessService, "supplierAccessNotificationsAckSchema.parse");
 requireText("apps/api/src/modules/access/service.ts", accessService, "acknowledgeNotifications");
+requireText("apps/api/src/modules/auth/factory.ts", authFactory, "createAuthRepository");
+requireText("apps/api/src/modules/auth/factory.ts", authFactory, "PostgresAuthRepository");
+requireText("apps/api/src/modules/auth/factory.ts", authFactory, "MemoryAuthRepository");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "class PostgresAuthRepository");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "from yorso_users u");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "join yorso_auth_credentials");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_sessions");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "revoked_at");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "interface AuthRepository");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "class MemoryAuthRepository");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "buyer@example.com");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/sign-in");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/session");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/sign-out");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "accountSessionIdHeaderName");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "AuthServiceError");
+requireText("apps/api/src/modules/auth/service.ts", authService, "authSignInSchema.parse");
+requireText("apps/api/src/modules/auth/service.ts", authService, "auth_invalid_credentials");
+requireText("apps/api/src/modules/auth/service.ts", authService, "sha256:");
+for (const [name, text] of [
+  ["apps/api/src/modules/auth/factory.ts", authFactory],
+  ["apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository],
+  ["apps/api/src/modules/auth/repository.ts", authRepository],
+  ["apps/api/src/modules/auth/routes.ts", authRoutes],
+  ["apps/api/src/modules/auth/service.ts", authService],
+]) {
+  if (/supabase|auth0|clerk|firebase|appwrite/i.test(text)) {
+    failures.push(`${name}: auth module must not depend on hosted BaaS/Auth providers`);
+  }
+}
 requireText("apps/api/src/modules/auth/session.ts", authSession, "accountUserIdHeaderName");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "accountSessionIdHeaderName");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "account_session_required");
@@ -724,10 +782,15 @@ if (/SUPABASE/i.test(compose)) {
 requireText("docs/backend/self-hosted-backend-architecture.md", docs, "YORSO API");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-company.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./account-session.js\";");
+requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./auth.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./offer-catalog.js\";");
 requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"./supplier-access.js\";");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountUserIdHeaderName");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountSessionHeadersSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authSignInSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authSessionSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authSessionResponseSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authSignOutResponseSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "companyBranchCreateSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "companyBranchUpdateSchema");
 requireText("packages/contracts/src/account-company.ts", accountCompanyContract, "companyProductCreateSchema");
@@ -756,6 +819,16 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectorySortDirectionSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
+for (const marker of [
+  "auth_sign_in=ok",
+  "auth_session=ok",
+  "auth_sign_out=ok",
+  "auth_invalid_credentials_guard=ok",
+  "auth_validation_guard=ok",
+  "self_hosted_auth_api_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-auth-api.mjs", authApiSmoke, marker);
+}
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "account_session_required");
@@ -1114,6 +1187,9 @@ requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "ACCOUN
 requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "createLocalCompanyDocument");
 requireText("src/lib/account-documents-store.ts", accountDocumentsStore, "listLocalCompanyDocuments");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "Self-Hosted Account API Smoke");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Self-Hosted Auth API Smoke");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "npm run smoke:self-hosted-auth-api");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_api_smoke=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");
@@ -1190,7 +1266,9 @@ console.log("- Offer catalog API exposes access-shaped offer discovery without S
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
+console.log("- Auth API issues, reads and revokes self-hosted sessions without hosted auth providers.");
 console.log("- Auth pages cross Supabase only through the prototype adapter boundary.");
+console.log("- Runtime auth API smoke is wired into ci:core.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");

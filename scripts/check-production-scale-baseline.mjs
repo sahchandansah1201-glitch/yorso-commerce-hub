@@ -15,8 +15,16 @@ const requiredFiles = [
   "packages/db/migrations/0010_offer_catalog_pagination_sort.sql",
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migrations/0008_access_notification_ack.sql",
+  "packages/db/migrations/0011_auth_sessions.sql",
   "packages/db/migration-manifest.json",
   "package.json",
+  "packages/contracts/src/auth.ts",
+  "apps/api/src/modules/auth/factory.ts",
+  "apps/api/src/modules/auth/postgres-repository.ts",
+  "apps/api/src/modules/auth/repository.ts",
+  "apps/api/src/modules/auth/routes.ts",
+  "apps/api/src/modules/auth/service.ts",
+  "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
@@ -85,8 +93,16 @@ const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
 const offerPaginationSort = read("packages/db/migrations/0010_offer_catalog_pagination_sort.sql");
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const accessNotificationAck = read("packages/db/migrations/0008_access_notification_ack.sql");
+const authSessions = read("packages/db/migrations/0011_auth_sessions.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
+const authContract = read("packages/contracts/src/auth.ts");
+const authFactory = read("apps/api/src/modules/auth/factory.ts");
+const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
+const authRepository = read("apps/api/src/modules/auth/repository.ts");
+const authRoutes = read("apps/api/src/modules/auth/routes.ts");
+const authService = read("apps/api/src/modules/auth/service.ts");
+const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
@@ -172,7 +188,9 @@ for (const marker of [
   "Batch #70",
   "Batch #71",
   "Batch #72",
+  "Batch #73",
   "notification center",
+  "self-hosted auth/session foundation",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -382,6 +400,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0009_supplier_di
 if (!manifest.migrations?.some((migration) => migration.id === "0010_offer_catalog_pagination_sort")) {
   failures.push("packages/db/migration-manifest.json: missing 0010_offer_catalog_pagination_sort");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0011_auth_sessions")) {
+  failures.push("packages/db/migration-manifest.json: missing 0011_auth_sessions");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -393,6 +414,88 @@ if (!pkg.scripts["ci:core"]?.includes("npm run check:production-scale-baseline")
 
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
   failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
+}
+
+if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
+  failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
+}
+if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-hosted-auth-api.mjs") {
+  failures.push("package.json: smoke:self-hosted-auth-api:run must execute scripts/smoke-self-hosted-auth-api.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
+  failures.push("package.json: ci:core must run the self-hosted auth API smoke");
+}
+
+for (const marker of [
+  "authSignInSchema",
+  "authSessionSchema",
+  "authSessionResponseSchema",
+  "authSignOutResponseSchema",
+]) {
+  requireText("packages/contracts/src/auth.ts", authContract, marker);
+}
+
+for (const marker of [
+  "create table if not exists yorso_auth_credentials",
+  "create table if not exists yorso_auth_sessions",
+  "idx_yorso_auth_sessions_user_active",
+]) {
+  requireText("packages/db/migrations/0011_auth_sessions.sql", authSessions, marker);
+}
+
+for (const marker of [
+  "createAuthRepository",
+  "PostgresAuthRepository",
+  "MemoryAuthRepository",
+]) {
+  requireText("apps/api/src/modules/auth/factory.ts", authFactory, marker);
+}
+
+for (const marker of [
+  "class PostgresAuthRepository",
+  "from yorso_users u",
+  "join yorso_auth_credentials",
+  "insert into yorso_auth_sessions",
+  "revoked_at",
+]) {
+  requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, marker);
+}
+
+for (const marker of [
+  "interface AuthRepository",
+  "class MemoryAuthRepository",
+  "buyer@example.com",
+]) {
+  requireText("apps/api/src/modules/auth/repository.ts", authRepository, marker);
+}
+
+for (const marker of [
+  "/v1/auth/sign-in",
+  "/v1/auth/session",
+  "/v1/auth/sign-out",
+  "accountSessionIdHeaderName",
+]) {
+  requireText("apps/api/src/modules/auth/routes.ts", authRoutes, marker);
+}
+
+for (const marker of [
+  "AuthService",
+  "authSignInSchema.parse",
+  "auth_invalid_credentials",
+  "sha256:",
+]) {
+  requireText("apps/api/src/modules/auth/service.ts", authService, marker);
+}
+
+for (const marker of [
+  "auth_sign_in=ok",
+  "auth_session=ok",
+  "auth_sign_out=ok",
+  "auth_invalid_credentials_guard=ok",
+  "auth_validation_guard=ok",
+  "self_hosted_auth_api_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-auth-api.mjs", authApiSmoke, marker);
 }
 
 for (const marker of [

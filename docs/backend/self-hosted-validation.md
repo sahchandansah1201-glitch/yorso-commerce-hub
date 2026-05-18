@@ -37,6 +37,7 @@ npm run db:migrations:status
 npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
+npm run smoke:self-hosted-auth-api
 npm run smoke:self-hosted-account-api
 npm run smoke:self-hosted-offer-detail
 npm run smoke:self-hosted-account-postgres
@@ -70,6 +71,7 @@ npm run ci:core
 | `db:migrations:smoke:live` | Runs live status plus live dry-run apply against `MIGRATION_DATABASE_URL`. Use for local/server smoke validation. |
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
+| `smoke:self-hosted-auth-api` | Builds and starts the standalone API, then verifies self-hosted sign-in, session read, sign-out, invalid credentials and validation guards over real HTTP. |
 | `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership, supplier directory access shaping and offer catalog access shaping over real HTTP. |
 | `smoke:self-hosted-offer-detail` | Builds and starts the standalone API, then verifies `/v1/offers/:id` locked shaping, qualified unlock, not-found, method guard and validation guard over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |
@@ -138,6 +140,8 @@ source of truth. It checks:
   `yorso_access_events`, `yorso_access_notifications`;
 - supplier-access request and grant indexes used by the 10,000 concurrent-user
   decision and unlock path;
+- `yorso_auth_credentials`, `yorso_auth_sessions` and their active-session
+  indexes used by the Batch #73 self-hosted auth/session foundation;
 - enum boundaries matching account/company DTOs;
 - indexes needed by account workspace and supplier directory reads;
 - migration manifest ownership;
@@ -183,6 +187,18 @@ contract. It checks:
   PATCH endpoint, falls back to local mock approval notifications, uses
   `autoLoad: false` in the header and avoids adding another polling timer;
 - `ci:core` runs the scale baseline guard.
+
+Batch #73 adds self-hosted auth/session foundation validation:
+
+- `packages/contracts/src/auth.ts` owns the sign-in/session/sign-out DTOs;
+- `apps/api/src/modules/auth` owns memory and PostgreSQL repositories, service
+  validation and routes for `/v1/auth/sign-in`, `/v1/auth/session` and
+  `/v1/auth/sign-out`;
+- `packages/db/migrations/0011_auth_sessions.sql` owns credential/session
+  tables for the self-hosted PostgreSQL baseline;
+- `smoke:self-hosted-auth-api` proves the runtime endpoints over a real API
+  process;
+- this remains a foundation layer, not final production auth hardening.
 
 `db:migrations:check` validates the TypeScript migration planner. It does not
 connect to PostgreSQL yet. It verifies that every manifest entry points to a

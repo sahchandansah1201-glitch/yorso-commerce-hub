@@ -11,6 +11,7 @@ const supplierAccessSql = () => readFileSync("packages/db/migrations/0007_suppli
 const accessNotificationAckSql = () => readFileSync("packages/db/migrations/0008_access_notification_ack.sql", "utf8");
 const supplierPaginationSortSql = () => readFileSync("packages/db/migrations/0009_supplier_directory_pagination_sort.sql", "utf8");
 const offerPaginationSortSql = () => readFileSync("packages/db/migrations/0010_offer_catalog_pagination_sort.sql", "utf8");
+const authSessionsSql = () => readFileSync("packages/db/migrations/0011_auth_sessions.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -149,8 +150,20 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(offerCatalogSql()).not.toContain("idx_yorso_offers_catalog_published_updated");
   });
 
+  it("declares self-hosted auth credential and session tables owned by YORSO", () => {
+    const text = authSessionsSql();
+
+    expect(text).toContain("create table if not exists yorso_auth_credentials");
+    expect(text).toContain("create table if not exists yorso_auth_sessions");
+    expect(text).toContain("references yorso_users(id)");
+    expect(text).toContain("idx_yorso_auth_credentials_enabled_user");
+    expect(text).toContain("idx_yorso_auth_sessions_user_active");
+    expect(text).toContain("idx_yorso_auth_sessions_active_expiry");
+    expect(text).toContain("Self-hosted auth credential records");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -173,7 +186,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -198,13 +211,15 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_supplier_access_requests_supplier_status");
     expect(text).toContain("idx_yorso_access_grants_buyer_supplier_scope");
     expect(text).toContain("idx_yorso_access_notifications_buyer_status_created");
+    expect(text).toContain("idx_yorso_auth_sessions_user_active");
+    expect(text).toContain("idx_yorso_auth_sessions_active_expiry");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
     expect(text).toContain("gin_trgm_ops");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -230,6 +245,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0008_access_notification_ack",
       "0009_supplier_directory_pagination_sort",
       "0010_offer_catalog_pagination_sort",
+      "0011_auth_sessions",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -299,6 +315,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0010_offer_catalog_pagination_sort",
           ownedTables: ["yorso_offers_catalog"],
           dependsOn: ["0009_supplier_directory_pagination_sort"],
+        }),
+        expect.objectContaining({
+          id: "0011_auth_sessions",
+          ownedTables: ["yorso_auth_credentials", "yorso_auth_sessions"],
+          dependsOn: ["0010_offer_catalog_pagination_sort"],
         }),
       ]),
     );

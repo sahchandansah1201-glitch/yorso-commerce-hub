@@ -22,6 +22,7 @@ const files = [
   "packages/db/migrations/0008_access_notification_ack.sql",
   "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
   "packages/db/migrations/0010_offer_catalog_pagination_sort.sql",
+  "packages/db/migrations/0011_auth_sessions.sql",
 ];
 
 const failures = [];
@@ -42,7 +43,8 @@ const supplierAccessSql = read("packages/db/migrations/0007_supplier_access_flow
 const accessNotificationAckSql = read("packages/db/migrations/0008_access_notification_ack.sql");
 const supplierPaginationSortSql = read("packages/db/migrations/0009_supplier_directory_pagination_sort.sql");
 const offerPaginationSortSql = read("packages/db/migrations/0010_offer_catalog_pagination_sort.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}`;
+const authSessionsSql = read("packages/db/migrations/0011_auth_sessions.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -221,6 +223,18 @@ for (const marker of [
   requireText("packages/db/migrations/0010_offer_catalog_pagination_sort.sql", offerPaginationSortSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_auth_credentials",
+  "create table if not exists yorso_auth_sessions",
+  "references yorso_users(id)",
+  "idx_yorso_auth_credentials_enabled_user",
+  "idx_yorso_auth_sessions_user_active",
+  "idx_yorso_auth_sessions_active_expiry",
+  "Self-hosted auth credential records",
+]) {
+  requireText("packages/db/migrations/0011_auth_sessions.sql", authSessionsSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -260,6 +274,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0009_supplier_di
 if (!manifest.migrations?.some((migration) => migration.id === "0010_offer_catalog_pagination_sort")) {
   failures.push("packages/db/migration-manifest.json: missing 0010_offer_catalog_pagination_sort");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0011_auth_sessions")) {
+  failures.push("packages/db/migration-manifest.json: missing 0011_auth_sessions");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -292,6 +309,9 @@ if (!manifest.migrations?.[9]?.dependsOn?.includes("0008_access_notification_ack
 }
 if (!manifest.migrations?.[10]?.dependsOn?.includes("0009_supplier_directory_pagination_sort")) {
   failures.push("packages/db/migration-manifest.json: offer catalog pagination sort must depend on supplier directory pagination sort");
+}
+if (!manifest.migrations?.[11]?.dependsOn?.includes("0010_offer_catalog_pagination_sort")) {
+  failures.push("packages/db/migration-manifest.json: auth sessions must depend on offer catalog pagination sort");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

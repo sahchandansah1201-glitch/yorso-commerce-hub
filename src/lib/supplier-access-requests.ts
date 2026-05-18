@@ -174,7 +174,7 @@ const safeWrite = (
   } catch {
     /* ignore */
   }
-  dispatchSupplierAccessChange(detail);
+  if (detail) dispatchSupplierAccessChange(detail);
 };
 
 export const getAllSupplierAccessRequests = (): Store => safeRead();
@@ -193,17 +193,20 @@ export const hasApprovedSupplierAccess = (
 
 export const persistSupplierAccessRequest = (
   request: SupplierAccessRequest,
-  options?: { source?: SupplierAccessChangeSource },
+  options?: { notify?: boolean; source?: SupplierAccessChangeSource },
 ): SupplierAccessRequest => {
   const store = safeRead();
   store[request.supplierId] = request;
-  safeWrite(store, {
-    changedAt: new Date().toISOString(),
-    intent: request.intent,
-    source: options?.source ?? "local_request",
-    status: request.status,
-    supplierId: request.supplierId,
-  });
+  const detail = options?.notify === false
+    ? undefined
+    : {
+        changedAt: new Date().toISOString(),
+        intent: request.intent,
+        source: options?.source ?? "local_request",
+        status: request.status,
+        supplierId: request.supplierId,
+      };
+  safeWrite(store, detail);
   return request;
 };
 

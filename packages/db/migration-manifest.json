@@ -97,6 +97,16 @@
       "description": "Add stable offer catalog pagination and sort indexes for high-concurrency marketplace reads.",
       "ownedTables": ["yorso_offers_catalog"],
       "dependsOn": ["0009_supplier_directory_pagination_sort"]
+    },
+    {
+      "id": "0011_auth_sessions",
+      "file": "migrations/0011_auth_sessions.sql",
+      "description": "Create self-hosted auth credential and session tables for the YORSO-owned API.",
+      "ownedTables": [
+        "yorso_auth_credentials",
+        "yorso_auth_sessions"
+      ],
+      "dependsOn": ["0010_offer_catalog_pagination_sort"]
     }
   ]
 }

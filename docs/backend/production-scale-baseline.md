@@ -422,6 +422,18 @@ At 10,000 concurrent users this matters because the production hot path must
 be operable, observable and recoverable inside the owned stack rather than
 depending on third-party application backend availability.
 
+Batch #73 adds the self-hosted auth/session foundation. The API now owns
+`POST /v1/auth/sign-in`, `GET /v1/auth/session` and `POST /v1/auth/sign-out`
+behind `packages/contracts/src/auth.ts`, `apps/api/src/modules/auth` and
+`scripts/smoke-self-hosted-auth-api.mjs`. The self-hosted PostgreSQL baseline
+also owns `yorso_auth_credentials` and `yorso_auth_sessions` through
+`packages/db/migrations/0011_auth_sessions.sql`. This is not final
+auth-hardening: password hashing policy, brute-force protection, MFA, Redis
+session replication and audit dashboards remain separate production-readiness
+work. At 10,000 concurrent users the important architectural change is that
+auth/session traffic has an owned API contract, an owned persistence schema,
+bounded smoke coverage and no dependency on hosted auth providers.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

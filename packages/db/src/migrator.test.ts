@@ -22,6 +22,7 @@ describe("self-hosted DB migration planner", () => {
       "0008_access_notification_ack",
       "0009_supplier_directory_pagination_sort",
       "0010_offer_catalog_pagination_sort",
+      "0011_auth_sessions",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -35,6 +36,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0008_access_notification_ack.sql",
       "migrations/0009_supplier_directory_pagination_sort.sql",
       "migrations/0010_offer_catalog_pagination_sort.sql",
+      "migrations/0011_auth_sessions.sql",
     ]);
   });
 
@@ -60,6 +62,7 @@ describe("self-hosted DB migration planner", () => {
     const accessNotificationAck = plan.migrations[8];
     const supplierDirectoryPaginationSort = plan.migrations[9];
     const offerCatalogPaginationSort = plan.migrations[10];
+    const authSessions = plan.migrations[11];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -82,6 +85,8 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierDirectoryPaginationSort.sql).toContain("idx_yorso_suppliers_directory_published_updated");
     expect(offerCatalogPaginationSort.dependsOn).toEqual(["0009_supplier_directory_pagination_sort"]);
     expect(offerCatalogPaginationSort.sql).toContain("idx_yorso_offers_catalog_published_updated");
+    expect(authSessions.dependsOn).toEqual(["0010_offer_catalog_pagination_sort"]);
+    expect(authSessions.sql).toContain("create table if not exists yorso_auth_sessions");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {
