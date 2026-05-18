@@ -422,8 +422,10 @@ large pool of PostgreSQL connections.
 ## Supabase Boundary
 
 The API skeleton does not import the Supabase client. In production mode it
-rejects non-empty Supabase frontend env values. Supabase may remain only as a
-prototype/schema-validation tool while the self-hosted backend matures.
+rejects non-empty Supabase frontend env values. Supabase and similar hosted
+BaaS/SaaS backends are not production dependencies for `apps/api`. Legacy
+Supabase files may remain only as prototype/reference material while the
+self-hosted backend matures.
 
 ## Validation
 

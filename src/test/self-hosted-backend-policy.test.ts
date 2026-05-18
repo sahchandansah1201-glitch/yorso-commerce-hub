@@ -8,6 +8,7 @@ const policyFiles = [
   "docs/backend/yorso-backend-implementation-plan.md",
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
+  "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
@@ -24,14 +25,19 @@ describe("self-hosted backend policy", () => {
     expect(output).toContain("self-hosted-db-migrations.md");
   });
 
-  it("keeps Supabase scoped to prototype/schema validation, not production backend", () => {
+  it("keeps Supabase and similar hosted backends out of production architecture", () => {
     const joined = policyFiles.map((file) => readFileSync(file, "utf8")).join("\n---\n");
 
     expect(joined).toContain("self-hosted YORSO API plus PostgreSQL");
-    expect(joined).toContain("Supabase is no longer the future production backend");
+    expect(joined).toContain("longer the future production backend");
     expect(joined).toContain("Supabase больше не рассматривается как будущий production backend");
+    expect(joined).toContain("Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk");
+    expect(joined).toMatch(
+      /hosted BaaS\/SaaS application backends[\s\S]{0,160}(not production dependencies|excluded from production)/i,
+    );
     expect(joined).not.toMatch(/Use Supabase as the first backend layer\./i);
     expect(joined).not.toMatch(/Рекомендуемый первый backend-слой:\s*Supabase\./i);
+    expect(joined).not.toMatch(/Supabase Auth plus buyer-session bridge/i);
   });
 
   it("exposes the policy check as an npm script", () => {

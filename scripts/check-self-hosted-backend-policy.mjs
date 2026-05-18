@@ -6,6 +6,7 @@ const files = [
   "docs/backend/yorso-backend-implementation-plan.md",
   "docs/backend/yorso-backend-implementation-plan.ru.md",
   "docs/backend/frontend-backend-contract.md",
+  "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-api-skeleton.md",
   "docs/backend/self-hosted-validation.md",
@@ -18,7 +19,8 @@ const requiredMarkers = [
     file: "docs/backend/yorso-backend-implementation-plan.md",
     markers: [
       "Build a self-hosted YORSO backend as the production target.",
-      "Supabase is no longer the future production backend.",
+      "longer the future production backend.",
+      "Supabase, Firebase, Appwrite, Clerk",
     ],
   },
   {
@@ -26,13 +28,24 @@ const requiredMarkers = [
     markers: [
       "Production target: self-hosted backend.",
       "Supabase больше не рассматривается как будущий production backend.",
+      "Firebase, Appwrite, Clerk, Auth0",
     ],
   },
   {
     file: "docs/backend/frontend-backend-contract.md",
     markers: [
       "Production backend target is self-hosted YORSO API plus PostgreSQL.",
-      "Frontend pages must not import Supabase clients as production data gateways.",
+      "hosted BaaS/SaaS application",
+      "Frontend pages must not import Supabase or similar hosted backend clients",
+    ],
+  },
+  {
+    file: "docs/backend/self-hosted-production-policy.md",
+    markers: [
+      "YORSO production must run as one self-hosted product on owned server",
+      "Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk",
+      "Supabase files in this repository are not production architecture.",
+      "Batch #71",
     ],
   },
   {
@@ -40,6 +53,9 @@ const requiredMarkers = [
     markers: [
       "YORSO production backend must be self-hosted",
       "Supabase is not the future production backend.",
+      "Production Third-Party Boundary",
+      "owned server infrastructure without",
+      "Supabase, Firebase, Appwrite, Clerk",
     ],
   },
   {
@@ -47,6 +63,7 @@ const requiredMarkers = [
     markers: [
       "`apps/api` is the first concrete backend service",
       "The API skeleton does not import the Supabase client.",
+      "Supabase and similar hosted",
     ],
   },
   {
@@ -55,6 +72,7 @@ const requiredMarkers = [
       "one deployable YORSO product",
       "`check:self-hosted-api` validates",
       "`check:production-scale-baseline` validates",
+      "Batch #71",
     ],
   },
   {
@@ -62,6 +80,7 @@ const requiredMarkers = [
     markers: [
       "self-hosted PostgreSQL source of truth",
       "Do not design production migrations around Supabase-specific tables",
+      "Firebase, Appwrite",
     ],
   },
   {
@@ -69,7 +88,8 @@ const requiredMarkers = [
     markers: [
       "10,000 concurrent web users",
       "Every production-facing change must document",
-      "Supabase may remain as prototype/reference tooling",
+      "Supabase, Firebase, Appwrite, Clerk",
+      "Batch #71",
     ],
   },
 ];
@@ -81,6 +101,10 @@ const forbiddenPatterns = [
   /Supabase becomes a constraint/i,
   /production backend target is Supabase/i,
   /Supabase as (the )?production backend/i,
+  /Supabase may remain as prototype\/reference tooling, not as production backend architecture/i,
+  /Supabase remains a temporary prototype and schema-validation tool/i,
+  /Supabase Auth plus buyer-session bridge/i,
+  /\|\s*`\/reset-password`\s*\|\s*Password recovery\s*\|\s*Supabase Auth/i,
 ];
 
 const failures = [];

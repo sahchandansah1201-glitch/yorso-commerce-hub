@@ -59,9 +59,11 @@ Frontend уже содержит основные публичные и рабо
 
 - `mockOffers`, `mockSuppliers`, `mockIntelligence`, `mockAccount`;
 - `localStorage` и `sessionStorage`;
-- частичная Supabase-интеграция для auth, password reset и catalog read layer;
+- legacy Supabase prototype adapters для auth, password reset, catalog read
+  layer и supplier-access совместимости;
 - Supabase migrations и smoke tooling уже есть локально, но теперь это
-  prototype/schema-validation assets, а не production backend.
+  исторические prototype/reference assets. Это не production architecture и не
+  обязательная часть self-hosted deployment.
 
 Значение пункта:
 
@@ -73,10 +75,16 @@ production backend строить как self-hosted систему.
 
 Production target: self-hosted backend.
 
-Supabase больше не рассматривается как будущий production backend. Его можно
-использовать временно: для прототипа, проверки схемы, smoke-тестов доступа и
-сравнения миграций. Production-система YORSO должна разворачиваться как цельный
-софт на своем сервере.
+Supabase больше не рассматривается как будущий production backend. Supabase,
+Firebase, Appwrite, Clerk, Auth0, hosted BaaS platforms и похожие сторонние
+application backends не должны использоваться как production-зависимости для
+auth, database, storage, access control или deployment.
+
+Legacy Supabase-код можно сохранять только как исторический prototype/reference
+слой и временную совместимость, пока self-hosted replacement полностью не
+закрыт. Его должно быть возможно удалить без изменения продуктовых экранов.
+Production-система YORSO должна разворачиваться как цельный софт на своем
+сервере.
 
 Аргументы:
 
@@ -86,12 +94,12 @@ Supabase больше не рассматривается как будущий 
   превращались в тысячи прямых подключений к базе.
 - Backend API должен быть единственным data gateway для frontend.
 - Redis нужен для cache, sessions, rate limits и краткоживущих workflow states.
-- S3-compatible object storage или MinIO нужны для logo, cover, product photos,
-  certificates и company documents.
+- MinIO или owned S3-compatible object storage нужны для logo, cover, product
+  photos, certificates и company documents.
 - Queue workers нужны для email, notifications, approvals, imports, reports и
   будущих agent jobs.
-- Search service понадобится для catalog/supplier/product discovery, когда
-  Postgres indexes перестанут быть достаточными.
+- Self-hosted search service понадобится для catalog/supplier/product discovery,
+  когда Postgres indexes перестанут быть достаточными.
 - Docker Compose должен быть первым deploy target, чтобы проект можно было
   поднять на своем сервере как цельный софт.
 
@@ -100,7 +108,8 @@ Supabase больше не рассматривается как будущий 
 Главная задача - не привязаться к облачному backend-провайдеру. Supabase уже
 помог проверить схемы и access-flow, но production-цель YORSO - контролируемая
 self-hosted система: frontend, backend API, PostgreSQL, storage, queue и
-инфраструктура в одном воспроизводимом контуре.
+инфраструктура в одном воспроизводимом контуре. Supabase и похожие сторонние
+BaaS/SaaS-сервисы не должны быть обязательным runtime-условием для production.
 
 Ключевое правило:
 
@@ -116,9 +125,10 @@ DOM, продуктовая модель доступа сломана, даже
 
 ## 4. Локальное хранение файлов проекта
 
-Все проектные файлы должны существовать локально на этом ПК. Cloud-сервисы могут
-исполнять backend или хранить runtime-данные, но проект должен оставаться
-воспроизводимым из локальных файлов.
+Все проектные файлы должны существовать локально на этом ПК. Production runtime
+должен разворачиваться на контролируемой серверной инфраструктуре из локальных
+файлов репозитория и owned configuration. Hosted BaaS/SaaS dashboards не должны
+быть источником истины.
 
 Локально и в Git должны храниться:
 
