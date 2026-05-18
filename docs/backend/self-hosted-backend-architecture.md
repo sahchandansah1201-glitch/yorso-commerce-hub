@@ -694,3 +694,12 @@ adapters or local prototype fallbacks instead of failing during module import.
 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` and `VITE_YORSO_API_URL`
 empty. This is a production architecture guard: a self-hosted deployment should
 not require Supabase credentials to start.
+
+Batch #67 closes the page-level Supabase boundary. `SignIn` and
+`ResetPassword` no longer import `@/integrations/supabase/client` directly.
+They call the auth runtime adapter in `src/lib/auth-runtime.ts`, and that
+adapter is the only frontend auth boundary allowed to touch prototype Supabase
+auth. The adapter has two explicit modes: `local_contract` for self-hosted or
+no-backend preview, and `supabase_prototype` for temporary recovery links while
+prototype Supabase env variables exist. `check:supabase-boundary` now reports
+that no page/component direct Supabase imports remain.

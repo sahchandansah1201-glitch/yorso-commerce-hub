@@ -48,6 +48,10 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
   "scripts/smoke-frontend-no-supabase-env.mjs",
+  "src/lib/auth-runtime.ts",
+  "src/lib/auth-runtime.test.ts",
+  "src/pages/SignIn.tsx",
+  "src/pages/ResetPassword.tsx",
   "scripts/smoke-self-hosted-account-postgres.mjs",
   "scripts/smoke-self-hosted-workspace-postgres.mjs",
   "src/components/account/CompanyDocumentsCard.tsx",
@@ -152,6 +156,10 @@ const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
 const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
+const authRuntime = read("src/lib/auth-runtime.ts");
+const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
+const signInPage = read("src/pages/SignIn.tsx");
+const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
 const workspacePostgresSmoke = read("scripts/smoke-self-hosted-workspace-postgres.mjs");
 const dockerfile = read("apps/api/Dockerfile");
@@ -258,6 +266,12 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
   failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
+}
+if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts") {
+  failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:auth-runtime")) {
+  failures.push("package.json: ci:core must run test:auth-runtime");
 }
 if (pkg.scripts["test:account-workspace"] !== "vitest run src/lib/account-api.test.ts src/lib/supplier-directory-api.test.ts src/lib/supplier-directory-view.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx") {
   failures.push("package.json: test:account-workspace must cover account API adapter and account workspace tests");
@@ -388,6 +402,26 @@ for (const marker of [
 ]) {
   requireText("src/integrations/supabase/client.ts", supabaseClient, marker);
 }
+for (const marker of [
+  "signInWithEmail",
+  "requestPasswordReset",
+  "observePasswordRecovery",
+  "updateRecoveredPassword",
+  "supabase_prototype",
+  "local_contract",
+]) {
+  requireText("src/lib/auth-runtime.ts", authRuntime, marker);
+}
+for (const marker of [
+  "auth-runtime adapter boundary",
+  "uses local contract auth when Supabase is not configured",
+  "delegates email sign-in and reset to prototype Supabase only when configured",
+  "observes prototype Supabase recovery events behind the adapter",
+]) {
+  requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
+}
+requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
+requireText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/lib/auth-runtime");
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend without Supabase env smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-no-supabase-env");
 if (pkg.scripts["smoke:e2e:self-hosted-access-runtime"] !== "npm run api:build && node scripts/smoke-e2e-self-hosted-access-runtime.mjs") {
@@ -1075,6 +1109,8 @@ forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supab
 forbidText("src/components/account/CompanyDocumentsCard.tsx", companyDocumentsCard, "@/integrations/supabase/client");
 forbidText("src/components/account/CompanyMediaCard.tsx", companyMediaCard, "@/integrations/supabase/client");
 forbidText("src/components/account/SupplierProfilePreview.tsx", supplierProfilePreview, "@/integrations/supabase/client");
+forbidText("src/pages/SignIn.tsx", signInPage, "@/integrations/supabase/client");
+forbidText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/integrations/supabase/client");
 forbidText("src/lib/account-api.ts", accountApi, "@/integrations/supabase/client");
 forbidText("src/lib/account-documents-store.ts", accountDocumentsStore, "@/integrations/supabase/client");
 forbidText("src/lib/offer-catalog-api.ts", offerCatalogApi, "@/integrations/supabase/client");
@@ -1098,6 +1134,7 @@ console.log("- Offer catalog API exposes access-shaped offer discovery without S
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
+console.log("- Auth pages cross Supabase only through the prototype adapter boundary.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");
 console.log("- infra/docker-compose.yml includes the API service without Supabase production env.");
