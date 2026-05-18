@@ -238,6 +238,9 @@ type TranslationKeys = {
   reg_whatsAppCodeDesc: string;
   reg_codeSentToast: string;
   reg_codeSentToastDesc: string;
+  reg_codeSentWhatsAppToast: string;
+  reg_codeSentWhatsAppToastDesc: string;
+  reg_codeSentEnterWhatsApp: string;
   reg_phoneVerifiedWhatsApp: string;
   reg_phoneVerifiedWhatsAppDesc: string;
   reg_phoneVerified: string;
