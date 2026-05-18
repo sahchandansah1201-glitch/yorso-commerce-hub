@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 const requiredFiles = [
   ".github/workflows/ci.yml",
   "docs/backend/production-scale-baseline.md",
+  "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-validation.md",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
@@ -70,6 +71,7 @@ for (const file of requiredFiles) {
 const read = (file) => readFileSync(file, "utf8");
 const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
+const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
@@ -137,7 +139,7 @@ for (const marker of [
   "Queue/backpressure",
   "Observability",
   "Load test",
-  "Supabase may remain as prototype/reference tooling, not as production",
+  "third-party application backends must not be production dependencies",
   "Batch #36 promotes the target",
   "self-hosted offer detail smoke",
   "Batch #50",
@@ -162,11 +164,13 @@ for (const marker of [
   "Batch #68",
   "Batch #69",
   "Batch #70",
+  "Batch #71",
   "notification center",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
   "legacy auth Supabase adapter boundary",
+  "self-hosted production policy",
   "legacy catalog Supabase adapter boundary",
   "legacy supplier access Supabase adapter boundary",
   "supplier directory pagination",
@@ -181,8 +185,21 @@ for (const marker of [
   "API-backed offer catalog detail flow browser e2e",
   "API-backed supplier access notification center browser e2e",
   "API-backed access browser suite",
+  "Supabase, Firebase, Appwrite, Clerk",
+  "third-party application backends must not be production dependencies",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+
+for (const marker of [
+  "YORSO production must run as one self-hosted product on owned server",
+  "Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk",
+  "Supabase files in this repository are not production architecture.",
+  "Backend Boundary",
+  "Deployment Boundary",
+  "Batch #71",
+]) {
+  requireText("docs/backend/self-hosted-production-policy.md", productionPolicy, marker);
 }
 
 for (const marker of [

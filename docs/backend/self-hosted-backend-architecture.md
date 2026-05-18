@@ -457,20 +457,40 @@ Before building feature modules:
 4. Add `.env.example` for self-hosted services.
 5. Add local Docker Compose skeleton.
 6. Add PostgreSQL migration baseline under a self-hosted path.
-7. Mark Supabase migrations as prototype/reference in docs.
+7. Mark Supabase migrations as historical prototype/reference in docs.
 8. Prevent new production code from importing Supabase directly from pages.
 9. Remove the temporary SignIn/ResetPassword Supabase exceptions after the
    self-hosted auth/session adapter is implemented.
 
-## Supabase Transition Rules
+## Production Third-Party Boundary
+
+Production YORSO must be deployable on owned server infrastructure without
+Supabase, Firebase, Appwrite, Clerk, Auth0, hosted BaaS platforms or similar
+third-party application backends.
+
+The production runtime owns:
+
+- auth/session API;
+- PostgreSQL data model and migrations;
+- object storage through MinIO or owned S3-compatible storage;
+- access control and audit logs;
+- notification workers;
+- deployment configuration and recovery procedures.
+
+Hosted BaaS/SaaS products must not become required runtime inputs, systems of
+record, access-control boundaries or deployment prerequisites.
+
+## Legacy Supabase Transition Rules
 
 Allowed:
 
-- keep existing Supabase smoke tests while they protect current prototype flows;
-- use Supabase SQL as reference when designing PostgreSQL migrations;
-- keep generated Supabase types for existing compatibility until adapters are
-  replaced;
-- run Supabase smoke checks when validating the temporary prototype.
+- keep existing Supabase smoke tests only while they protect current prototype
+  flows;
+- use Supabase SQL only as historical reference when designing PostgreSQL
+  migrations;
+- keep generated Supabase types only for legacy compatibility until adapters are
+  retired;
+- run Supabase smoke checks only when validating the temporary prototype.
 
 Not allowed:
 
@@ -479,6 +499,8 @@ Not allowed:
 - treating Supabase RLS as the final production authorization layer;
 - storing production architecture decisions only in Supabase dashboard state;
 - requiring Supabase to deploy YORSO on an owned server.
+- replacing self-hosted production requirements with Firebase, Appwrite, Clerk,
+  Auth0 or similar hosted BaaS/SaaS services.
 
 ## First Implementation Increment
 

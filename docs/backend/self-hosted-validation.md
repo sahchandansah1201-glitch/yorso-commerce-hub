@@ -14,8 +14,11 @@ This repository is moving toward one deployable YORSO product:
 - object storage;
 - workers and operational tooling.
 
-Supabase remains a temporary prototype and schema-validation tool. It must not
-be treated as the future production backend.
+Supabase remains a historical prototype/reference layer only. It must not be
+treated as the future production backend, production auth provider, production
+database, production storage layer or required deployment dependency. The same
+rule applies to Firebase, Appwrite, Clerk, Auth0 and similar hosted BaaS/SaaS
+application backends.
 
 ## Required Commands
 
@@ -652,13 +655,26 @@ Batch #70 adds legacy auth Supabase adapter boundary validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
   auth runtime facade regains a direct Supabase client dependency.
 
+Batch #71 adds self-hosted production policy validation:
+
+- `docs/backend/self-hosted-production-policy.md` states that YORSO production
+  must run as one self-hosted product on owned server infrastructure;
+- Supabase and similar hosted BaaS/SaaS application backends are explicitly
+  excluded from production auth, database, storage, access-control and
+  deployment dependencies;
+- legacy Supabase assets are documented as prototype/reference only;
+- `check:backend-policy` and `check:production-scale-baseline` guard this
+  direction before merge.
+
 ## Production Direction
 
-The self-hosted stack should become the production path. Supabase scripts,
-migrations and smoke tests may remain while they protect the prototype, but new
-production-facing work should target YORSO-owned API contracts and PostgreSQL
-deployment.
+The self-hosted stack is the production path. Supabase scripts, migrations and
+smoke tests may remain only as legacy prototype/reference checks while they are
+being retired, but they must not be required for production deployment. New
+production-facing work must target YORSO-owned API contracts, PostgreSQL,
+owned object storage, Redis/PgBouncer and self-hosted deployment tooling.
 
-If a future change needs Supabase for a temporary prototype flow, document the
-reason and keep it behind an adapter. Do not let page/component code import the
-Supabase client as a production data gateway.
+If a future prototype experiment tries to use Supabase or a similar hosted
+BaaS/SaaS backend, document it as non-production, keep it behind an adapter and
+add a removal path. Do not let page/component code import the Supabase client as
+a production data gateway.

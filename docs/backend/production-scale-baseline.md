@@ -66,8 +66,10 @@ For the self-hosted YORSO product:
   in workers, not inside HTTP request handlers.
 - Access-control-sensitive fields must be shaped by the API before reaching
   the frontend.
-- Supabase may remain as prototype/reference tooling, not as production
-  backend architecture.
+- Supabase, Firebase, Appwrite, Clerk, Auth0, hosted BaaS platforms and similar
+  third-party application backends must not be production dependencies.
+- Legacy Supabase files may remain only as prototype/reference material while
+  they are being retired behind self-hosted YORSO adapters.
 
 ## Current Repository Enforcement
 
@@ -398,6 +400,15 @@ prototype credentials and prevents page-level auth flows from becoming hidden
 Supabase production dependencies. `src/lib/auth-runtime.boundary.test.ts`,
 `check:self-hosted-api` and `check:production-scale-baseline` prevent direct
 Supabase imports from returning to the auth runtime facade.
+
+Batch #71 adds the self-hosted production policy and clarifies the production
+third-party boundary. YORSO production is a self-hosted product running on owned
+server infrastructure: YORSO frontend, YORSO `apps/api`, PostgreSQL, PgBouncer,
+Redis, MinIO or owned object storage, workers and operational tooling. Supabase
+and similar hosted BaaS/SaaS application backends are not used as production
+auth, database, storage, access-control or deployment dependencies. The
+repository may retain legacy Supabase prototype references, but
+production-ready code must route through YORSO-owned contracts and adapters.
 
 ## Release Rule
 

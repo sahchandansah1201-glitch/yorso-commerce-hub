@@ -40,21 +40,29 @@ The frontend already contains the main public and workspace surfaces:
 - Account workspace with sections for personal profile, company profile,
   branches, products, meta-regions and notifications.
 
-The frontend still uses a mixed data model:
+The frontend still uses a mixed prototype data model:
 
 - `mockOffers`, `mockSuppliers`, `mockIntelligence`, `mockAccount` for most
   product state;
 - `localStorage` and `sessionStorage` for account, buyer session, access
   requests and UI state;
-- partial Supabase integration for auth, password reset and catalog reads;
-- Supabase migrations and smoke tooling already exist locally, but they are now
-  treated as prototype/schema-validation assets, not as the production backend.
+- legacy Supabase prototype adapters for auth, password reset, catalog reads
+  and supplier-access compatibility;
+- Supabase migrations and smoke tooling already exist locally, but they are
+  historical prototype assets only. They are not production architecture and
+  must not be required for self-hosted server deployment.
 
 ## Backend Strategy
 
-Build a self-hosted YORSO backend as the production target. Supabase is no longer the future production backend. It can remain as a temporary prototype,
-schema validation environment and migration reference while the self-hosted
-backend is designed and implemented.
+Build a self-hosted YORSO backend as the production target. Supabase is no
+longer the future production backend. Supabase, Firebase, Appwrite, Clerk,
+Auth0, hosted BaaS platforms and similar third-party application backends must
+not be used as production dependencies for YORSO auth, database, storage,
+access control or deployment.
+
+Legacy Supabase code may remain only as historical prototype reference and
+temporary compatibility while the self-hosted replacement is being completed.
+It must be removable without changing product surfaces.
 
 Production target:
 
@@ -62,20 +70,21 @@ Production target:
 - PgBouncer for connection pooling.
 - Backend API service as the only data gateway for the frontend.
 - Redis for cache, sessions, rate limits and short-lived workflow state.
-- Object storage compatible with S3/MinIO for logos, cover images, product
+- MinIO or owned S3-compatible object storage for logos, cover images, product
   photos, certificates and documents.
 - Queue workers for email, notifications, approvals, imports, report generation
   and future agent jobs.
-- Search service for catalog, supplier and product discovery when Postgres
-  indexes are no longer enough.
-- Docker Compose first, then Kubernetes or managed containers only when load
-  requires it.
+- Self-hosted search service for catalog, supplier and product discovery when
+  Postgres indexes are no longer enough.
+- Docker Compose first, then self-hosted Kubernetes or owned container
+  orchestration only when load requires it.
 
 Reasoning:
 
 - YORSO must be deployable as one coherent software system on owned
   infrastructure.
-- The frontend must not depend on Supabase clients as production data gateways.
+- The frontend must not depend on Supabase or similar hosted clients as
+  production data gateways.
 - Postgres fits the YORSO domain: companies, offers, branches, documents,
   access grants, RFQ records and audit logs are relational data.
 - Access control must be enforced in the backend API and database queries, not
@@ -83,7 +92,7 @@ Reasoning:
 - Files, migrations, API contracts, seeds and deployment instructions must stay
   reproducible from this local repository.
 - Supabase has already been useful for validating schema and access ideas, but
-  it should not become a hidden hosting dependency for production.
+  it must not become a hidden hosting dependency for production.
 
 The backend must follow this rule:
 
@@ -92,8 +101,9 @@ The backend must follow this rule:
 
 ## Local File Ownership
 
-All project files must exist locally on this PC. Cloud services may execute or
-store runtime data, but the project must remain reproducible from local files.
+All project files must exist locally on this PC. Production runtime should be
+deployable on owned server infrastructure from local repository files and owned
+configuration. Hosted BaaS/SaaS dashboards must not be the source of truth.
 
 Local files that must be stored in Git or local project folders:
 

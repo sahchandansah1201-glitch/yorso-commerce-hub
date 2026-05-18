@@ -91,3 +91,7 @@ Safety rules:
 Do not design production migrations around Supabase-specific tables, RLS or
 dashboard state. Use PostgreSQL features that can run on the self-hosted YORSO
 stack.
+
+Do not design production migrations around Firebase, Appwrite or similar hosted
+BaaS/SaaS data models either. The self-hosted PostgreSQL schema is the system
+of record for production.
