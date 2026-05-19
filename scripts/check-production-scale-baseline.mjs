@@ -34,6 +34,7 @@ const requiredFiles = [
   "apps/api/src/modules/offers/routes.ts",
   "apps/api/src/modules/suppliers/routes.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
+  "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
@@ -123,6 +124,7 @@ const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
+const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
@@ -221,6 +223,7 @@ for (const marker of [
   "Batch #77",
   "Batch #78",
   "Batch #79",
+  "Batch #80",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -231,6 +234,7 @@ for (const marker of [
   "Redis sign-in backpressure",
   "AUTH_SESSION_CACHE_DRIVER=redis",
   "Redis session cache",
+  "session-cache fail-closed smoke",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -472,6 +476,9 @@ if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-h
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-session-cache-fail-closed:run")) {
+  failures.push("package.json: ci:core must run the session cache fail-closed smoke");
+}
 
 for (const marker of [
   "authSignInSchema",
@@ -593,6 +600,17 @@ for (const marker of [
   "self_hosted_auth_api_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-auth-api.mjs", authApiSmoke, marker);
+}
+
+for (const marker of [
+  "auth_session_cache_fail_closed_sign_in=ok",
+  "auth_session_cache_fail_closed_session=ok",
+  "auth_session_cache_fail_closed_account=ok",
+  "auth_session_cache_fail_closed_catalog=ok",
+  "auth_session_cache_fail_closed_public_catalog=ok",
+  "self_hosted_session_cache_fail_closed_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", sessionCacheFailClosedSmoke, marker);
 }
 
 for (const marker of [

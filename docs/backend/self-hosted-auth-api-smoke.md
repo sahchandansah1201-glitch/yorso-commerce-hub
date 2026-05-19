@@ -54,6 +54,15 @@ The smoke must print:
 - `auth_sign_out_preserves_public_catalog=ok`
 - `self_hosted_auth_api_smoke=ok`
 
+Batch #80 adds the companion fail-closed smoke:
+
+- `auth_session_cache_fail_closed_sign_in=ok`
+- `auth_session_cache_fail_closed_session=ok`
+- `auth_session_cache_fail_closed_account=ok`
+- `auth_session_cache_fail_closed_catalog=ok`
+- `auth_session_cache_fail_closed_public_catalog=ok`
+- `self_hosted_session_cache_fail_closed_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -92,3 +101,13 @@ sign-out must invalidate it before the same session id can be used again. The
 marker `auth_session_cache_invalidation=ok` proves the route authority does not
 keep accepting a cached session after revocation. Production uses the same
 cache contract with `AUTH_SESSION_CACHE_DRIVER=redis`.
+
+Batch #80 adds the negative runtime check for production cache failure mode.
+`smoke:self-hosted-session-cache-fail-closed` starts the compiled API with
+`AUTH_SESSION_CACHE_DRIVER=redis`, `AUTH_SESSION_CACHE_FAIL_MODE=closed` and a
+known-unavailable Redis endpoint. The expected behavior is deliberately strict:
+sign-in and direct session reads return `auth_session_cache_unavailable`,
+protected account routes and authenticated catalog unlock attempts fail closed,
+and anonymous catalog reads still return public redacted data. This protects
+the 10,000 concurrent-user runtime from silently bypassing the session cache
+when production Redis is down.

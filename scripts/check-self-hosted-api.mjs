@@ -54,6 +54,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
+  "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
@@ -181,6 +182,7 @@ const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
+const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
@@ -270,6 +272,12 @@ if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run 
 if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-hosted-auth-api.mjs") {
   failures.push("package.json: smoke:self-hosted-auth-api:run must execute scripts/smoke-self-hosted-auth-api.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-session-cache-fail-closed"] !== "npm run api:build && npm run smoke:self-hosted-session-cache-fail-closed:run") {
+  failures.push("package.json: smoke:self-hosted-session-cache-fail-closed must build and run the session cache fail-closed smoke");
+}
+if (pkg.scripts["smoke:self-hosted-session-cache-fail-closed:run"] !== "node scripts/smoke-self-hosted-session-cache-fail-closed.mjs") {
+  failures.push("package.json: smoke:self-hosted-session-cache-fail-closed:run must execute scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-account-api"] !== "npm run api:build && npm run smoke:self-hosted-account-api:run") {
   failures.push("package.json: smoke:self-hosted-account-api must build and run the self-hosted account API smoke");
 }
@@ -308,6 +316,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-session-cache-fail-closed:run")) {
+  failures.push("package.json: ci:core must run the session cache fail-closed smoke");
 }
 if (!pkg.dependencies?.redis) {
   failures.push("package.json: self-hosted API must include redis dependency for production auth backpressure");
@@ -979,6 +990,18 @@ for (const marker of [
 ]) {
   requireText("scripts/smoke-self-hosted-auth-api.mjs", authApiSmoke, marker);
 }
+for (const marker of [
+  "AUTH_SESSION_CACHE_DRIVER: \"redis\"",
+  "AUTH_SESSION_CACHE_FAIL_MODE: \"closed\"",
+  "auth_session_cache_fail_closed_sign_in=ok",
+  "auth_session_cache_fail_closed_session=ok",
+  "auth_session_cache_fail_closed_account=ok",
+  "auth_session_cache_fail_closed_catalog=ok",
+  "auth_session_cache_fail_closed_public_catalog=ok",
+  "self_hosted_session_cache_fail_closed_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", sessionCacheFailClosedSmoke, marker);
+}
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "account_session_required");
@@ -1344,10 +1367,12 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Bat
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #77");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #78");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #79");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #80");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_retry_after=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_session_cache_invalidation=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_session_cache_fail_closed_smoke=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");

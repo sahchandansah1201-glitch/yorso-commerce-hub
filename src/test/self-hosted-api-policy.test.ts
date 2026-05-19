@@ -119,6 +119,33 @@ describe("self-hosted API policy", () => {
     expect(docs).toContain("Redis session cache");
   });
 
+  it("keeps session-cache Redis outage fail-closed smoke wired into CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const smoke = readFileSync("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-auth-api-smoke.md", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-session-cache-fail-closed"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-session-cache-fail-closed:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-session-cache-fail-closed:run"]).toBe(
+      "node scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-session-cache-fail-closed:run");
+    expect(smoke).toContain("AUTH_SESSION_CACHE_DRIVER: \"redis\"");
+    expect(smoke).toContain("AUTH_SESSION_CACHE_FAIL_MODE: \"closed\"");
+    expect(smoke).toContain("auth_session_cache_fail_closed_sign_in=ok");
+    expect(smoke).toContain("auth_session_cache_fail_closed_session=ok");
+    expect(smoke).toContain("auth_session_cache_fail_closed_account=ok");
+    expect(smoke).toContain("auth_session_cache_fail_closed_catalog=ok");
+    expect(smoke).toContain("auth_session_cache_fail_closed_public_catalog=ok");
+    expect(docs).toContain("Batch #80");
+    expect(baseline).toContain("Batch #80");
+    expect(baseline).toContain("session-cache fail-closed smoke");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");

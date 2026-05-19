@@ -526,6 +526,20 @@ protected-route latency under the 10,000 concurrent-user baseline. Load tests
 must include warm-cache account/catalog reads, cache-miss bursts and sign-out
 invalidation checks before production signoff.
 
+Batch #80 adds a session-cache fail-closed smoke for the production Redis
+failure path. The smoke runs the compiled API with
+`AUTH_SESSION_CACHE_DRIVER=redis`, `AUTH_SESSION_CACHE_FAIL_MODE=closed` and an
+unavailable Redis endpoint. Expected behavior is: sign-in and `/v1/auth/session`
+return `auth_session_cache_unavailable`; protected account reads and
+authenticated catalog unlock attempts fail closed; anonymous catalog reads
+remain available and redacted. This is the negative control for the Batch #79
+cache strategy: the service must not silently fall back to PostgreSQL for
+authenticated requests when production Redis is unavailable, because that would
+turn a cache outage into uncontrolled database pressure at the 10,000
+concurrent-user baseline. Observability must treat this as an incident signal:
+count Redis unavailable events, protected-route fail-closed responses and
+anonymous fallback traffic separately.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

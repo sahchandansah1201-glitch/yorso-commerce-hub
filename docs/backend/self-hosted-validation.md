@@ -769,6 +769,18 @@ Batch #79 adds production session-cache validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the
   session-cache module, production env and smoke marker.
 
+Batch #80 adds negative fail-closed validation for the same boundary:
+
+- `smoke:self-hosted-session-cache-fail-closed` starts the API with Redis
+  session cache enabled and a deliberately unavailable Redis endpoint;
+- sign-in and `/v1/auth/session` must return
+  `auth_session_cache_unavailable`;
+- `/v1/account/me` and authenticated `/v1/offers?...accessLevel=qualified_unlocked`
+  must fail closed instead of falling through to PostgreSQL;
+- anonymous `/v1/offers` must still return public redacted data;
+- `ci:core`, `check:self-hosted-api` and `check:production-scale-baseline`
+  guard the new smoke and markers.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and
