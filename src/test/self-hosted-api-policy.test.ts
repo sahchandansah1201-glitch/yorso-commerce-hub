@@ -111,7 +111,7 @@ describe("self-hosted API policy", () => {
     expect(server).toContain("createSupplierRepository(config)");
     expect(routes).toContain("/v1/suppliers");
     expect(routes).toContain("/v1/suppliers/");
-    expect(routes).toContain("resolveOptionalAccountSession");
+    expect(routes).toContain("resolveOptionalAuthenticatedAccountSession");
     expect(routes).toContain("supplier_not_found");
     expect(service).toContain("shapeSupplierForAccess");
     expect(service).toContain("hasSupplierAccess");
@@ -153,6 +153,7 @@ describe("self-hosted API policy", () => {
     expect(server).toContain("createOfferCatalogRepository(config)");
     expect(routes).toContain("/v1/offers");
     expect(routes).toContain("/v1/offers/");
+    expect(routes).toContain("resolveOptionalAuthenticatedAccountSession");
     expect(routes).toContain("offer_not_found");
     expect(service).toContain("shapeOfferForAccess");
     expect(service).toContain("listAccessibleSupplierIds");

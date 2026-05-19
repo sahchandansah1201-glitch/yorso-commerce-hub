@@ -1,7 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
-import { AccountSessionError, resolveAccountSession, sendAccountSessionError } from "../auth/session.js";
+import {
+  AccountSessionError,
+  type AccountSessionAuthority,
+  resolveAuthenticatedAccountSession,
+  sendAccountSessionError,
+} from "../auth/session.js";
 import type { AccountService } from "./service.js";
 
 type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
@@ -106,11 +111,12 @@ export async function handleAccountRoute(
   response: ServerResponse,
   context: ApiRequestContext,
   service: AccountService,
+  sessionAuthority: AccountSessionAuthority,
   pathname: string,
 ) {
   try {
     if (pathname === "/v1/account/me") {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const profile = await service.getCurrentUserProfile(userId);
@@ -138,7 +144,7 @@ export async function handleAccountRoute(
     }
 
     if (pathname === "/v1/account/company") {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const company = await service.getCompanyProfile(userId);
@@ -167,7 +173,7 @@ export async function handleAccountRoute(
 
     const collection = accountCollections[pathname as keyof typeof accountCollections];
     if (collection) {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const items = await collection.get(service, userId);
@@ -196,7 +202,7 @@ export async function handleAccountRoute(
 
     const collectionItem = matchCollectionItem(pathname);
     if (collectionItem) {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
       const { collection, itemId } = collectionItem;
 
       if (request.method === "GET") {

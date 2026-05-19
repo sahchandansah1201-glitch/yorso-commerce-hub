@@ -10,7 +10,6 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const apiEntry = path.join(repoRoot, "apps/api/dist/index.js");
 const smokeUserId = "00000000-0000-4000-8000-000000000001";
-const smokeSessionId = "self-hosted-access-runtime-e2e";
 
 if (!existsSync(apiEntry)) {
   console.error("Compiled API entry is missing.");
@@ -51,11 +50,12 @@ api.stderr?.on("data", (chunk) => {
 
 try {
   await waitForApi(apiBaseUrl, api);
+  const smokeSession = await signInSmokeBuyer(apiBaseUrl);
 
   await runCommand("npm", ["run", "build"], {
     ...process.env,
     VITE_YORSO_API_URL: apiBaseUrl,
-    VITE_YORSO_ACCOUNT_USER_ID: smokeUserId,
+    VITE_YORSO_ACCOUNT_USER_ID: smokeSession.userId,
   });
 
   await runCommand("npx", [
@@ -70,8 +70,8 @@ try {
     E2E_WEB_SERVER_PORT: String(previewPort),
     E2E_BASE_URL: previewBaseUrl,
     E2E_YORSO_API_URL: apiBaseUrl,
-    E2E_YORSO_ACCOUNT_USER_ID: smokeUserId,
-    E2E_YORSO_SESSION_ID: smokeSessionId,
+    E2E_YORSO_ACCOUNT_USER_ID: smokeSession.userId,
+    E2E_YORSO_SESSION_ID: smokeSession.id,
     E2E_WORKERS: "1",
   });
 
@@ -88,6 +88,26 @@ try {
     await onceExit(api, 3000).catch(() => api.kill("SIGKILL"));
   }
   await rm(storageRoot, { recursive: true, force: true });
+}
+
+async function signInSmokeBuyer(baseUrl) {
+  const response = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: "buyer@example.com",
+      password: "Password1",
+    }),
+  });
+  const body = await response.json();
+  if (!response.ok) {
+    throw new Error(`Could not create self-hosted E2E session: ${response.status} ${JSON.stringify(body)}`);
+  }
+  if (body.session?.userId !== smokeUserId || !body.session?.id) {
+    throw new Error(`Unexpected self-hosted E2E session: ${JSON.stringify(body.session)}`);
+  }
+  console.log("self_hosted_access_runtime_session_authority=ok");
+  return body.session;
 }
 
 async function runCommand(command, args, env) {

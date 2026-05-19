@@ -7,12 +7,11 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const apiEntry = path.join(repoRoot, "apps/api/dist/index.js");
-const smokeUserId = "00000000-0000-4000-8000-000000000044";
-const smokeSessionId = "self-hosted-offer-detail-smoke";
+const smokeUserId = "00000000-0000-4000-8000-000000000001";
 const accountHeaders = {
   "content-type": "application/json",
   "x-yorso-user-id": smokeUserId,
-  "x-yorso-session-id": smokeSessionId,
+  "x-yorso-session-id": "",
 };
 
 if (!existsSync(apiEntry)) {
@@ -68,6 +67,8 @@ async function runSmoke(baseUrl) {
   const live = await fetch(`${baseUrl}/health/live`);
   assertStatus(live, 200, "health live");
   console.log("health_live=ok");
+
+  await signInSmokeBuyer(baseUrl);
 
   const locked = await jsonRequest(baseUrl, "/v1/offers/1?accessLevel=anonymous_locked");
   assertEqual(locked.ok, true, "locked offer detail ok");
@@ -166,6 +167,22 @@ async function runSmoke(baseUrl) {
   assertStatus(validationGuard.response, 400, "offer detail validation guard");
   assertEqual(validationGuard.body?.error?.code, "validation_error", "offer detail validation error");
   console.log("offer_detail_validation_guard=ok");
+}
+
+async function signInSmokeBuyer(baseUrl) {
+  const response = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: "buyer@example.com",
+      password: "Password1",
+    }),
+  });
+  const body = await response.json();
+  assertStatus(response, 200, "self-hosted auth sign-in");
+  assertEqual(body.session?.userId, smokeUserId, "self-hosted auth user id");
+  accountHeaders["x-yorso-session-id"] = body.session.id;
+  console.log("offer_detail_session_authority=ok");
 }
 
 async function jsonRequest(baseUrl, pathName, init = {}) {

@@ -124,11 +124,11 @@ async function routeRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname)) return;
-  if (await handleAccountRoute(request, response, context, accountService, url.pathname)) return;
-  if (await handleStorageRoute(request, response, context, accountService, fileService, url.pathname)) return;
-  if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, url)) return;
-  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, url)) return;
-  if (await handleSupplierDirectoryRoute(request, response, context, supplierService, url)) return;
+  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname)) return;
+  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname)) return;
+  if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
+  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url)) return;
+  if (await handleSupplierDirectoryRoute(request, response, context, supplierService, authService, url)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);
 }
