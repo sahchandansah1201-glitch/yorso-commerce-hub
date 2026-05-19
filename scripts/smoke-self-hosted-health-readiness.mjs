@@ -30,6 +30,7 @@ const scenarios = [
       assertEqual(body.dependencies?.postgres?.status, "skipped", "local postgres skipped");
       assertEqual(body.dependencies?.redis?.status, "skipped", "local redis skipped");
       assertEqual(body.dependencies?.localStorage?.status, "ok", "local storage ok");
+      assertEqual(body.dependencies?.shutdownDrain?.status, "ok", "local shutdown drain ok");
     },
   },
   {
@@ -53,6 +54,7 @@ const scenarios = [
       assertEqual(body.status, "not_ready", "redis unavailable ready status");
       assertEqual(body.dependencies?.redis?.required, true, "redis required");
       assertEqual(body.dependencies?.redis?.status, "unavailable", "redis unavailable");
+      assertEqual(body.dependencies?.shutdownDrain?.status, "ok", "redis scenario shutdown drain ok");
     },
   },
   {
@@ -73,6 +75,7 @@ const scenarios = [
       assertEqual(body.dependencies?.postgres?.required, true, "postgres required");
       assertEqual(body.dependencies?.postgres?.status, "unavailable", "postgres unavailable");
       assertEqual(body.dependencies?.redis?.status, "skipped", "postgres scenario redis skipped");
+      assertEqual(body.dependencies?.shutdownDrain?.status, "ok", "postgres scenario shutdown drain ok");
     },
   },
 ];

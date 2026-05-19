@@ -6,6 +6,7 @@ import { createClient } from "redis";
 import { assertSelfHostedProductionRuntime, type ApiConfig } from "../config.js";
 import type { ApiRequestContext } from "../http.js";
 import { sendJson } from "../http.js";
+import type { ApiLifecycle, ApiLifecycleSnapshot } from "../lifecycle.js";
 
 export function handleLive(response: ServerResponse, context: ApiRequestContext) {
   sendJson(response, 200, {
@@ -32,9 +33,10 @@ export interface ReadinessReport {
   supabaseProductionBackend: false;
   productionScaleBaseline: {
     targetConcurrentUsers: 10_000;
-    readinessChecks: ["postgres", "redis", "local_storage", "production_runtime_config"];
+    readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"];
   };
   dependencies: {
+    shutdownDrain: HealthDependencyResult;
     postgres: HealthDependencyResult;
     redis: HealthDependencyResult;
     localStorage: HealthDependencyResult;
@@ -48,6 +50,7 @@ export interface ReadinessProbe {
 
 export interface ReadinessProbeOptions {
   timeoutMs?: number;
+  lifecycle?: ApiLifecycle;
 }
 
 export class SelfHostedReadinessProbe implements ReadinessProbe {
@@ -58,17 +61,21 @@ export class SelfHostedReadinessProbe implements ReadinessProbe {
     options: ReadinessProbeOptions = {},
   ) {
     this.timeoutMs = options.timeoutMs ?? 750;
+    this.lifecycle = options.lifecycle;
   }
 
+  private readonly lifecycle: ApiLifecycle | undefined;
+
   async check(): Promise<ReadinessReport> {
-    const [postgres, redis, localStorage, productionRuntimeConfig] = await Promise.all([
+    const [shutdownDrain, postgres, redis, localStorage, productionRuntimeConfig] = await Promise.all([
+      checkShutdownDrain(this.lifecycle),
       checkPostgres(this.config, this.timeoutMs),
       checkRedis(this.config, this.timeoutMs),
       checkLocalStorage(this.config, this.timeoutMs),
       checkProductionRuntimeConfig(this.config),
     ]);
 
-    const dependencies = { postgres, redis, localStorage, productionRuntimeConfig };
+    const dependencies = { shutdownDrain, postgres, redis, localStorage, productionRuntimeConfig };
     const ok = Object.values(dependencies).every((dependency) => (
       !dependency.required || dependency.status === "ok"
     ));
@@ -81,11 +88,29 @@ export class SelfHostedReadinessProbe implements ReadinessProbe {
       supabaseProductionBackend: false,
       productionScaleBaseline: {
         targetConcurrentUsers: 10_000,
-        readinessChecks: ["postgres", "redis", "local_storage", "production_runtime_config"],
+        readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],
       },
       dependencies,
     };
   }
+}
+
+function checkShutdownDrain(lifecycle?: ApiLifecycle): HealthDependencyResult {
+  const snapshot = lifecycle?.snapshot();
+  if (!snapshot?.draining) {
+    return {
+      required: true,
+      status: "ok",
+      details: lifecycleDetails(snapshot),
+    };
+  }
+
+  return {
+    required: true,
+    status: "unavailable",
+    reason: "server_draining",
+    details: lifecycleDetails(snapshot),
+  };
 }
 
 export function createReadinessProbe(config: ApiConfig, options?: ReadinessProbeOptions): ReadinessProbe {
@@ -288,4 +313,13 @@ async function closeRedis(client: ReturnType<typeof createClient>) {
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+function lifecycleDetails(snapshot?: ApiLifecycleSnapshot): Record<string, unknown> {
+  return {
+    draining: snapshot?.draining ?? false,
+    drainSignal: snapshot?.drainSignal ?? null,
+    drainStartedAt: snapshot?.drainStartedAt ?? null,
+    activeRequests: snapshot?.activeRequests ?? 0,
+  };
 }

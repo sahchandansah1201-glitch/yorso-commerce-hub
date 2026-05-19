@@ -807,6 +807,20 @@ Batch #82 adds health/readiness validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the readiness contract.
 
+Batch #83 adds graceful shutdown validation:
+
+- `ApiLifecycle` tracks active requests and exposes drain state to readiness;
+- `SIGTERM`/`SIGINT` move the API into `server_draining`;
+- readiness returns `503 not_ready` with `shutdownDrain.reason=server_draining`;
+- live health remains available during the drain window;
+- non-health work receives `503 server_draining` while the process drains;
+- Docker Compose `stop_grace_period` is longer than the default drain plus
+  grace timeout;
+- `smoke:self-hosted-graceful-shutdown` verifies the compiled API behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the graceful shutdown drain contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

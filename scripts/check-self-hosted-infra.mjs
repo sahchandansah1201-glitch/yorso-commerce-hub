@@ -46,6 +46,9 @@ const requiredComposeMarkers = [
   "AUTH_SESSION_CACHE_FAIL_MODE: closed",
   "AUTH_OBSERVABILITY_DRIVER: console",
   "HEALTH_READINESS_TIMEOUT_MS:",
+  "YORSO_SHUTDOWN_DRAIN_DELAY_MS:",
+  "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS:",
+  "stop_grace_period:",
   "/health/ready",
   "S3_ENDPOINT: http://minio:9000",
   "STORAGE_DRIVER: local",
@@ -100,6 +103,8 @@ const requiredEnvKeys = [
   "AUTH_SESSION_CACHE_KEY_PREFIX",
   "AUTH_OBSERVABILITY_DRIVER",
   "HEALTH_READINESS_TIMEOUT_MS",
+  "YORSO_SHUTDOWN_DRAIN_DELAY_MS",
+  "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS",
   "S3_ENDPOINT",
   "S3_REGION",
   "S3_BUCKET",
@@ -127,6 +132,8 @@ requireText(".env.example", envExample, "AUTH_SESSION_CACHE_DRIVER=disabled");
 requireText(".env.example", envExample, "AUTH_SESSION_CACHE_FAIL_MODE=open");
 requireText(".env.example", envExample, "AUTH_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "HEALTH_READINESS_TIMEOUT_MS=750");
+requireText(".env.example", envExample, "YORSO_SHUTDOWN_DRAIN_DELAY_MS=5000");
+requireText(".env.example", envExample, "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS=30000");
 requireText(".env.example", envExample, "STORAGE_DRIVER=local");
 requireText(".env.example", envExample, "STORAGE_LOCAL_ROOT=.data/api-uploads");
 requireText("infra/README.md", infraReadme, "running YORSO without Supabase as a production dependency");

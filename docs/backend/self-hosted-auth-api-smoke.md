@@ -80,6 +80,15 @@ Batch #82 adds the companion health readiness smoke:
 - `health_readiness_postgres_unavailable=ok`
 - `self_hosted_health_readiness_smoke=ok`
 
+Batch #83 adds the companion graceful shutdown smoke:
+
+- `graceful_shutdown_ready_before_signal=ok`
+- `graceful_shutdown_readiness_draining=ok`
+- `graceful_shutdown_live_during_drain=ok`
+- `graceful_shutdown_rejects_new_work=ok`
+- `graceful_shutdown_process_exit=ok`
+- `self_hosted_graceful_shutdown_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -137,6 +146,12 @@ omits raw email, session id and user id values; durable investigation still
 uses `yorso_auth_security_events`, while the JSONL stream feeds owned log
 aggregation and alerting. The smoke verifies both event coverage and the no-PII
 guard.
+
+Batch #83 adds graceful shutdown drain for rolling deploys and operator restarts.
+The API marks readiness unavailable with `server_draining`, keeps live health
+available, rejects new non-health work with `503 server_draining`, waits for
+active requests to finish and then exits. The drain window is configured by
+`YORSO_SHUTDOWN_DRAIN_DELAY_MS` and `YORSO_SHUTDOWN_GRACE_TIMEOUT_MS`.
 
 Batch #82 adds readiness validation for production operations. `/health/live`
 only proves the API process can respond; `/health/ready` and `/v1/health/ready`
