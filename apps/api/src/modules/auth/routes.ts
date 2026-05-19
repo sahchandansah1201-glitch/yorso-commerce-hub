@@ -76,7 +76,13 @@ export async function handleAuthRoute(
       if (error.code === "auth_rate_limited" && error.retryAfterSeconds) {
         response.setHeader("retry-after", String(error.retryAfterSeconds));
       }
-      sendError(response, error.code === "auth_rate_limited" ? 429 : 401, error.code, error.message, context);
+      const status =
+        error.code === "auth_rate_limited"
+          ? 429
+          : error.code === "auth_session_cache_unavailable"
+            ? 503
+            : 401;
+      sendError(response, status, error.code, error.message, context);
       return true;
     }
 

@@ -14,6 +14,7 @@ import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
 import type { AuthRepository } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
+import { createAuthSessionCache } from "./modules/auth/session-cache.js";
 import { AuthService } from "./modules/auth/service.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
@@ -40,7 +41,11 @@ export interface ApiServerOptions {
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
   const authRepository = options.authRepository ?? createAuthRepository(config);
-  const authService = new AuthService(authRepository, createAuthRateLimiter(config, authRepository));
+  const authService = new AuthService(
+    authRepository,
+    createAuthRateLimiter(config, authRepository),
+    createAuthSessionCache(config),
+  );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);

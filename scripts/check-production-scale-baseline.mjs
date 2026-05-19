@@ -25,6 +25,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
   "apps/api/src/modules/auth/rate-limit.ts",
+  "apps/api/src/modules/auth/session-cache.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/modules/account/routes.ts",
@@ -113,6 +114,7 @@ const authPostgresRepository = read("apps/api/src/modules/auth/postgres-reposito
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
 const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
+const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
@@ -218,6 +220,7 @@ for (const marker of [
   "Batch #76",
   "Batch #77",
   "Batch #78",
+  "Batch #79",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -226,6 +229,8 @@ for (const marker of [
   "sign-in backpressure",
   "AUTH_RATE_LIMIT_DRIVER=redis",
   "Redis sign-in backpressure",
+  "AUTH_SESSION_CACHE_DRIVER=redis",
+  "Redis session cache",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -285,6 +290,8 @@ for (const marker of [
   "REDIS_URL=redis://redis:6379",
   "AUTH_RATE_LIMIT_DRIVER=redis",
   "AUTH_RATE_LIMIT_FAIL_MODE=closed",
+  "AUTH_SESSION_CACHE_DRIVER=redis",
+  "AUTH_SESSION_CACHE_FAIL_MODE=closed",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -558,6 +565,18 @@ for (const marker of [
 }
 
 for (const marker of [
+  "RedisAuthSessionCache",
+  "MemoryAuthSessionCache",
+  "DisabledAuthSessionCache",
+  "createAuthSessionCache",
+  "auth_session_cache_redis_error",
+  "cacheKey",
+  "failMode",
+]) {
+  requireText("apps/api/src/modules/auth/session-cache.ts", authSessionCache, marker);
+}
+
+for (const marker of [
   "auth_sign_in=ok",
   "auth_session=ok",
   "auth_sign_out=ok",
@@ -567,6 +586,7 @@ for (const marker of [
   "auth_sign_out_preserves_public_catalog=ok",
   "auth_rate_limit_guard=ok",
   "auth_rate_limit_retry_after=ok",
+  "auth_session_cache_invalidation=ok",
   "retry-after",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",

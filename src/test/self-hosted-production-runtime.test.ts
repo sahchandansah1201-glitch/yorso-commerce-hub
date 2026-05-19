@@ -27,6 +27,8 @@ describe("self-hosted production runtime", () => {
     expect(productionEnv).toContain("REDIS_URL=redis://redis:6379");
     expect(productionEnv).toContain("AUTH_RATE_LIMIT_DRIVER=redis");
     expect(productionEnv).toContain("AUTH_RATE_LIMIT_FAIL_MODE=closed");
+    expect(productionEnv).toContain("AUTH_SESSION_CACHE_DRIVER=redis");
+    expect(productionEnv).toContain("AUTH_SESSION_CACHE_FAIL_MODE=closed");
     expect(productionEnv).toContain("STORAGE_DRIVER=local");
     expect(productionEnv).not.toMatch(/SUPABASE|FIREBASE|APPWRITE|CLERK|AUTH0/i);
     expect(compose).not.toMatch(/SUPABASE/i);

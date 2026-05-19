@@ -17,6 +17,8 @@ const requiredFiles = [
   "apps/api/src/modules/access/service.ts",
   "apps/api/src/modules/auth/factory.ts",
   "apps/api/src/modules/auth/rate-limit.ts",
+  "apps/api/src/modules/auth/session-cache.ts",
+  "apps/api/src/modules/auth/session-cache.test.ts",
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
@@ -149,6 +151,7 @@ const accessRoutes = read("apps/api/src/modules/access/routes.ts");
 const accessService = read("apps/api/src/modules/access/service.ts");
 const authFactory = read("apps/api/src/modules/auth/factory.ts");
 const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
+const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
@@ -778,13 +781,34 @@ for (const marker of [
 ]) {
   requireText("apps/api/src/modules/auth/rate-limit.ts", authRateLimit, marker);
 }
+for (const marker of [
+  "createAuthSessionCache",
+  "RedisAuthSessionCache",
+  "MemoryAuthSessionCache",
+  "DisabledAuthSessionCache",
+  "authSessionCacheConfigFromApiConfig",
+  "auth_session_cache_redis_error",
+  "cacheKey",
+  "failMode",
+]) {
+  requireText("apps/api/src/modules/auth/session-cache.ts", authSessionCache, marker);
+}
 requireText("apps/api/src/server.ts", server, "createAuthRateLimiter(config, authRepository)");
+requireText("apps/api/src/server.ts", server, "createAuthSessionCache(config)");
 requireText("apps/api/src/config.ts", config, "authRateLimitDriver");
 requireText("apps/api/src/config.ts", config, "AUTH_RATE_LIMIT_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
+requireText("apps/api/src/config.ts", config, "authSessionCacheDriver");
+requireText("apps/api/src/config.ts", config, "AUTH_SESSION_CACHE_DRIVER");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_SESSION_CACHE_DRIVER=redis.");
+requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.getSession");
+requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.setSession");
+requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.deleteSession");
+requireText("apps/api/src/modules/auth/service.ts", authService, "auth_session_cache_unavailable");
 for (const [name, text] of [
   ["apps/api/src/modules/auth/factory.ts", authFactory],
   ["apps/api/src/modules/auth/rate-limit.ts", authRateLimit],
+  ["apps/api/src/modules/auth/session-cache.ts", authSessionCache],
   ["apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository],
   ["apps/api/src/modules/auth/repository.ts", authRepository],
   ["apps/api/src/modules/auth/routes.ts", authRoutes],
@@ -948,6 +972,7 @@ for (const marker of [
   "auth_sign_out_preserves_public_catalog=ok",
   "auth_rate_limit_retry_after=ok",
   "auth_rate_limit_guard=ok",
+  "auth_session_cache_invalidation=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
   "self_hosted_auth_api_smoke=ok",
@@ -1318,9 +1343,11 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "sel
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #76");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #77");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #78");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #79");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_retry_after=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_session_cache_invalidation=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");

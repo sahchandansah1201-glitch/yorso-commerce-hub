@@ -507,6 +507,25 @@ must track Redis limiter errors, degraded fail-closed decisions, rate-limited
 attempts, and p95/p99 sign-in latency under burst load before production
 signoff.
 
+Batch #79 adds the Redis session cache runtime for hot authenticated reads.
+PostgreSQL remains the source of truth for issuing, expiring and revoking
+sessions, but protected routes no longer have to hit PostgreSQL for every
+steady-state session read once the cache is warm. The expected read/write
+profile is one Redis `GET` per protected request, one Redis `SETEX` after
+sign-in or cache miss, and one Redis `DEL` after sign-out; PostgreSQL is read
+on cache miss and written on sign-in/sign-out. Production config must set
+`AUTH_SESSION_CACHE_DRIVER=redis`, `AUTH_SESSION_CACHE_FAIL_MODE=closed`,
+`AUTH_SESSION_CACHE_TTL_MS=300000` and
+`AUTH_SESSION_CACHE_KEY_PREFIX=yorso:auth`. Failure mode is explicit:
+protected/authenticated paths fail closed if the production session cache is
+unavailable, while anonymous catalog reads remain public and redacted.
+Backpressure is provided by short TTLs, PgBouncer for database misses, and
+Redis as the hot-path session authority cache. Observability must track cache
+hit/miss ratio, Redis unavailable events, invalid-session reuse and p95/p99
+protected-route latency under the 10,000 concurrent-user baseline. Load tests
+must include warm-cache account/catalog reads, cache-miss bursts and sign-out
+invalidation checks before production signoff.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
