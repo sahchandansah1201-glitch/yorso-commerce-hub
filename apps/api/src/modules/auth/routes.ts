@@ -73,6 +73,9 @@ export async function handleAuthRoute(
     }
   } catch (error) {
     if (error instanceof AuthServiceError) {
+      if (error.code === "auth_rate_limited" && error.retryAfterSeconds) {
+        response.setHeader("retry-after", String(error.retryAfterSeconds));
+      }
       sendError(response, error.code === "auth_rate_limited" ? 429 : 401, error.code, error.message, context);
       return true;
     }

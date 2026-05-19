@@ -10,6 +10,7 @@ import type { SupplierAccessRepository } from "./modules/access/repository.js";
 import { handleSupplierAccessRoute } from "./modules/access/routes.js";
 import { SupplierAccessService } from "./modules/access/service.js";
 import { createAuthRepository } from "./modules/auth/factory.js";
+import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
 import type { AuthRepository } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
@@ -38,7 +39,8 @@ export interface ApiServerOptions {
 }
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
-  const authService = new AuthService(options.authRepository ?? createAuthRepository(config));
+  const authRepository = options.authRepository ?? createAuthRepository(config);
+  const authService = new AuthService(authRepository, createAuthRateLimiter(config, authRepository));
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);

@@ -65,6 +65,10 @@ Target assumptions:
 - Heavy work must move to queues.
 - Search and analytics should not overload the transactional database.
 
+Batch #78 makes this concrete for auth: sign-in backpressure uses Redis as the
+hot counter in production (`AUTH_RATE_LIMIT_DRIVER=redis`) while PostgreSQL
+keeps the durable security-event audit trail.
+
 The mandatory project-wide scale contract is documented in
 `docs/backend/production-scale-baseline.md`. Any production-facing feature must
 either attach a capacity review against that baseline or explicitly remain

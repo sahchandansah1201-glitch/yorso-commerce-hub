@@ -7,11 +7,10 @@ import {
   type AuthSessionResponse,
   type AuthSignOutResponse,
 } from "../../../../../packages/contracts/dist/index.js";
+import { SecurityEventAuthRateLimiter, type AuthRateLimitDecision, type AuthRateLimiter } from "./rate-limit.js";
 import type { AuthRepository, AuthUser } from "./repository.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
-const signInFailureWindowMs = 15 * 60 * 1000;
-const maxFailedSignInAttempts = 5;
 
 export interface AuthRequestMetadata {
   ip?: string | null;
@@ -26,6 +25,7 @@ export class AuthServiceError extends Error {
       | "auth_session_required"
       | "auth_session_invalid",
     message: string,
+    public readonly retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = "AuthServiceError";
@@ -33,7 +33,17 @@ export class AuthServiceError extends Error {
 }
 
 export class AuthService {
-  constructor(private readonly repository: AuthRepository) {}
+  constructor(
+    private readonly repository: AuthRepository,
+    private readonly rateLimiter: AuthRateLimiter = new SecurityEventAuthRateLimiter(repository, {
+      driver: "audit_log",
+      failMode: "open",
+      maxFailedAttempts: 5,
+      windowMs: 15 * 60 * 1000,
+      keyPrefix: "yorso:auth",
+      redisUrl: "redis://localhost:6379",
+    }),
+  ) {}
 
   async signIn(
     payload: unknown,
@@ -41,23 +51,13 @@ export class AuthService {
     metadata: AuthRequestMetadata = {},
   ): Promise<AuthSessionResponse> {
     const parsed = authSignInSchema.parse(payload);
-    const recentFailures = await this.repository.countRecentSecurityEvents({
-      eventType: "sign_in_failed",
-      email: parsed.email,
-      since: new Date(Date.now() - signInFailureWindowMs),
-    });
-    if (recentFailures >= maxFailedSignInAttempts) {
-      await this.repository.recordSecurityEvent({
-        eventType: "sign_in_rate_limited",
-        email: parsed.email,
-        requestId,
-        metadata: securityMetadata(metadata, {
-          failureWindowMs: signInFailureWindowMs,
-          maxFailedAttempts: maxFailedSignInAttempts,
-        }),
-      });
-      throw new AuthServiceError("auth_rate_limited", "Too many sign-in attempts. Try again later.");
-    }
+    const identity = { email: parsed.email, ip: metadata.ip };
+    await this.throwIfRateLimited(
+      await this.rateLimiter.checkSignIn(identity),
+      parsed.email,
+      requestId,
+      metadata,
+    );
 
     const user = await this.repository.findUserByEmail(parsed.email);
 
@@ -69,9 +69,16 @@ export class AuthService {
         requestId,
         metadata: securityMetadata(metadata),
       });
+      await this.throwIfRateLimited(
+        await this.rateLimiter.recordFailedSignIn(identity),
+        parsed.email,
+        requestId,
+        metadata,
+      );
       throw new AuthServiceError("auth_invalid_credentials", "Invalid email or password.");
     }
 
+    await this.rateLimiter.clearSignInFailures(identity);
     const session = await this.repository.createSession(user, authSessionTtlMs);
     await this.repository.recordSecurityEvent({
       eventType: "sign_in_succeeded",
@@ -150,6 +157,36 @@ export class AuthService {
       throw new AuthServiceError("auth_session_invalid", "Auth session is invalid or expired.");
     }
     return session;
+  }
+
+  private async throwIfRateLimited(
+    decision: AuthRateLimitDecision,
+    email: string,
+    requestId: string,
+    metadata: AuthRequestMetadata,
+  ) {
+    if (!decision.limited) return;
+
+    await this.repository.recordSecurityEvent({
+      eventType: "sign_in_rate_limited",
+      email,
+      requestId,
+      metadata: securityMetadata(metadata, {
+        rateLimitSource: decision.source,
+        rateLimitCount: decision.count,
+        rateLimitLimit: decision.limit,
+        retryAfterSeconds: decision.retryAfterSeconds,
+        failureWindowMs: decision.windowMs,
+        failMode: decision.failMode,
+        degraded: decision.degraded,
+        reason: decision.reason,
+      }),
+    });
+    throw new AuthServiceError(
+      "auth_rate_limited",
+      "Too many sign-in attempts. Try again later.",
+      decision.retryAfterSeconds,
+    );
   }
 }
 

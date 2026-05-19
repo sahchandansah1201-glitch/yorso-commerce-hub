@@ -16,6 +16,7 @@ const requiredFiles = [
   "apps/api/src/modules/access/routes.ts",
   "apps/api/src/modules/access/service.ts",
   "apps/api/src/modules/auth/factory.ts",
+  "apps/api/src/modules/auth/rate-limit.ts",
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
@@ -147,6 +148,7 @@ const accessRepository = read("apps/api/src/modules/access/repository.ts");
 const accessRoutes = read("apps/api/src/modules/access/routes.ts");
 const accessService = read("apps/api/src/modules/access/service.ts");
 const authFactory = read("apps/api/src/modules/auth/factory.ts");
+const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
@@ -303,6 +305,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
+}
+if (!pkg.dependencies?.redis) {
+  failures.push("package.json: self-hosted API must include redis dependency for production auth backpressure");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted account API smoke");
@@ -632,6 +637,7 @@ requireText("apps/api/src/server.ts", server, "createFileService(config)");
 requireText("apps/api/src/server.ts", server, "access-control-allow-origin");
 requireText("apps/api/src/server.ts", server, "OPTIONS");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
+requireText("apps/api/src/config.ts", config, "assertSelfHostedProductionRuntime");
 requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
 requireText("apps/api/src/config.ts", config, "storageDriver: z.enum([\"local\"])");
 requireText("apps/api/src/config.ts", config, "storageLocalRoot");
@@ -757,10 +763,28 @@ requireText("apps/api/src/modules/auth/service.ts", authService, "authSignInSche
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_invalid_credentials");
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_rate_limited");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sign_in_rate_limited");
-requireText("apps/api/src/modules/auth/service.ts", authService, "signInFailureWindowMs");
+requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.checkSignIn");
+requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.recordFailedSignIn");
+requireText("apps/api/src/modules/auth/service.ts", authService, "retryAfterSeconds");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sha256:");
+for (const marker of [
+  "createClient",
+  "RedisAuthRateLimiter",
+  "MemoryAuthRateLimiter",
+  "SecurityEventAuthRateLimiter",
+  "hashIdentity",
+  "failMode",
+  "pExpire",
+]) {
+  requireText("apps/api/src/modules/auth/rate-limit.ts", authRateLimit, marker);
+}
+requireText("apps/api/src/server.ts", server, "createAuthRateLimiter(config, authRepository)");
+requireText("apps/api/src/config.ts", config, "authRateLimitDriver");
+requireText("apps/api/src/config.ts", config, "AUTH_RATE_LIMIT_DRIVER");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
 for (const [name, text] of [
   ["apps/api/src/modules/auth/factory.ts", authFactory],
+  ["apps/api/src/modules/auth/rate-limit.ts", authRateLimit],
   ["apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository],
   ["apps/api/src/modules/auth/repository.ts", authRepository],
   ["apps/api/src/modules/auth/routes.ts", authRoutes],
@@ -922,6 +946,7 @@ for (const marker of [
   "auth_sign_out_blocks_access=ok",
   "auth_sign_out_blocks_offer_unlock=ok",
   "auth_sign_out_preserves_public_catalog=ok",
+  "auth_rate_limit_retry_after=ok",
   "auth_rate_limit_guard=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
@@ -1292,8 +1317,10 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "npm
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_api_smoke=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #76");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #77");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #78");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_retry_after=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");

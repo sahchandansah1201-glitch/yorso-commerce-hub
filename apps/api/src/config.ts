@@ -10,6 +10,11 @@ export const apiConfigSchema = z.object({
   publicAppUrl: z.string().url().default("http://localhost:8080"),
   databaseUrl: z.string().regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a PostgreSQL connection string"),
   redisUrl: z.string().regex(/^redis:\/\//, "REDIS_URL must be a Redis connection string"),
+  authRateLimitDriver: z.enum(["audit_log", "memory", "redis"]).default("audit_log"),
+  authRateLimitFailMode: z.enum(["open", "closed"]).default("open"),
+  authSignInFailureWindowMs: z.coerce.number().int().min(60_000).max(24 * 60 * 60 * 1000).default(900_000),
+  authSignInMaxFailedAttempts: z.coerce.number().int().min(2).max(100).default(5),
+  authRateLimitKeyPrefix: z.string().min(1).default("yorso:auth"),
   s3Endpoint: z.string().url(),
   s3Bucket: z.string().min(1),
   storageDriver: z.enum(["local"]).default("local"),
@@ -33,6 +38,11 @@ const localDefaults = {
   YORSO_PUBLIC_APP_URL: "http://localhost:8080",
   DATABASE_URL: "postgres://yorso_app:change-me-local-only@localhost:6432/yorso",
   REDIS_URL: "redis://localhost:6379",
+  AUTH_RATE_LIMIT_DRIVER: "audit_log",
+  AUTH_RATE_LIMIT_FAIL_MODE: "open",
+  AUTH_SIGN_IN_FAILURE_WINDOW_MS: "900000",
+  AUTH_SIGN_IN_MAX_FAILED_ATTEMPTS: "5",
+  AUTH_RATE_LIMIT_KEY_PREFIX: "yorso:auth",
   S3_ENDPOINT: "http://localhost:9000",
   S3_BUCKET: "yorso-local",
   STORAGE_DRIVER: "local",
@@ -55,6 +65,11 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     publicAppUrl: source.YORSO_PUBLIC_APP_URL,
     databaseUrl: source.DATABASE_URL,
     redisUrl: source.REDIS_URL,
+    authRateLimitDriver: source.AUTH_RATE_LIMIT_DRIVER,
+    authRateLimitFailMode: source.AUTH_RATE_LIMIT_FAIL_MODE,
+    authSignInFailureWindowMs: source.AUTH_SIGN_IN_FAILURE_WINDOW_MS,
+    authSignInMaxFailedAttempts: source.AUTH_SIGN_IN_MAX_FAILED_ATTEMPTS,
+    authRateLimitKeyPrefix: source.AUTH_RATE_LIMIT_KEY_PREFIX,
     s3Endpoint: source.S3_ENDPOINT,
     s3Bucket: source.S3_BUCKET,
     storageDriver: source.STORAGE_DRIVER,
@@ -67,8 +82,16 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
   });
 }
 
-export function assertSupabaseIsPrototypeOnly(config: ApiConfig) {
+export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   if (config.nodeEnv === "production" && (config.supabaseUrl || config.supabasePublishableKey)) {
     throw new Error("Supabase env values must stay empty in production self-hosted API config.");
   }
+  if (config.nodeEnv === "production" && config.authRateLimitDriver !== "redis") {
+    throw new Error("Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
+  }
+  if (config.nodeEnv === "production" && config.authRateLimitFailMode !== "closed") {
+    throw new Error("Production self-hosted API must use AUTH_RATE_LIMIT_FAIL_MODE=closed.");
+  }
 }
+
+export const assertSupabaseIsPrototypeOnly = assertSelfHostedProductionRuntime;
