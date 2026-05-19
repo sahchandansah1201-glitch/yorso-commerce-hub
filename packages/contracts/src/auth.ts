@@ -29,7 +29,29 @@ export const authSignOutResponseSchema = z.object({
   requestId: z.string().uuid(),
 });
 
+export const authSecurityEventTypeSchema = z.enum([
+  "sign_in_succeeded",
+  "sign_in_failed",
+  "sign_in_rate_limited",
+  "session_invalid",
+  "sign_out_succeeded",
+  "sign_out_invalid",
+]);
+
+export const authSecurityEventSchema = z.object({
+  id: z.string().min(1).max(160),
+  eventType: authSecurityEventTypeSchema,
+  userId: z.string().uuid().nullable(),
+  email: authEmailSchema.nullable(),
+  sessionId: z.string().min(1).max(160).nullable(),
+  requestId: z.string().uuid(),
+  occurredAt: z.string().datetime(),
+  metadata: z.record(z.string(), z.unknown()).default({}),
+});
+
 export type AuthSignIn = z.infer<typeof authSignInSchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthSessionResponse = z.infer<typeof authSessionResponseSchema>;
 export type AuthSignOutResponse = z.infer<typeof authSignOutResponseSchema>;
+export type AuthSecurityEventType = z.infer<typeof authSecurityEventTypeSchema>;
+export type AuthSecurityEvent = z.infer<typeof authSecurityEventSchema>;

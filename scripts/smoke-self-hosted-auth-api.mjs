@@ -103,6 +103,30 @@ async function runSmoke(baseUrl) {
   assertEqual(invalidPayloadBody.error?.code, "validation_error", "auth validation code");
   console.log("auth_validation_guard=ok");
 
+  const rateLimitPayload = {
+    email: "rate-limit@example.com",
+    password: "Password1",
+  };
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const failed = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(rateLimitPayload),
+    });
+    assertStatus(failed, 401, `rate limit warm-up attempt ${attempt + 1}`);
+    const failedBody = await failed.json();
+    assertEqual(failedBody.error?.code, "auth_invalid_credentials", "rate limit warm-up code");
+  }
+  const limited = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(rateLimitPayload),
+  });
+  assertStatus(limited, 429, "auth rate limit guard");
+  const limitedBody = await limited.json();
+  assertEqual(limitedBody.error?.code, "auth_rate_limited", "auth rate limit code");
+  console.log("auth_rate_limit_guard=ok");
+
   const signOut = await jsonRequest(baseUrl, "/v1/auth/sign-out", {
     method: "POST",
     headers: {

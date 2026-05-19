@@ -7,15 +7,23 @@
       "id": "0000_migration_registry",
       "file": "migrations/0000_migration_registry.sql",
       "description": "Create the self-hosted YORSO migration registry table.",
-      "ownedTables": ["_yorso_migrations"],
+      "ownedTables": [
+        "_yorso_migrations"
+      ],
       "dependsOn": []
     },
     {
       "id": "0001_account_company_baseline",
       "file": "migrations/0001_account_company_baseline.sql",
       "description": "Create user, company and company media baseline tables for the self-hosted account API.",
-      "ownedTables": ["yorso_users", "yorso_companies", "yorso_company_media"],
-      "dependsOn": ["0000_migration_registry"]
+      "ownedTables": [
+        "yorso_users",
+        "yorso_companies",
+        "yorso_company_media"
+      ],
+      "dependsOn": [
+        "0000_migration_registry"
+      ]
     },
     {
       "id": "0002_account_workspace_sections",
@@ -27,7 +35,9 @@
         "yorso_company_meta_regions",
         "yorso_notification_preferences"
       ],
-      "dependsOn": ["0001_account_company_baseline"]
+      "dependsOn": [
+        "0001_account_company_baseline"
+      ]
     },
     {
       "id": "0003_account_files_and_documents",
@@ -37,7 +47,9 @@
         "yorso_file_assets",
         "yorso_company_documents"
       ],
-      "dependsOn": ["0002_account_workspace_sections"]
+      "dependsOn": [
+        "0002_account_workspace_sections"
+      ]
     },
     {
       "id": "0004_supplier_directory",
@@ -46,21 +58,31 @@
       "ownedTables": [
         "yorso_suppliers_directory"
       ],
-      "dependsOn": ["0003_account_files_and_documents"]
+      "dependsOn": [
+        "0003_account_files_and_documents"
+      ]
     },
     {
       "id": "0005_supplier_directory_search_scaling",
       "file": "migrations/0005_supplier_directory_search_scaling.sql",
       "description": "Add index-backed supplier directory search paths for high-concurrency marketplace discovery.",
-      "ownedTables": ["yorso_suppliers_directory"],
-      "dependsOn": ["0004_supplier_directory"]
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0004_supplier_directory"
+      ]
     },
     {
       "id": "0006_offer_catalog",
       "file": "migrations/0006_offer_catalog.sql",
       "description": "Create the self-hosted offer catalog with access-shaped price and supplier identity fields.",
-      "ownedTables": ["yorso_offers_catalog"],
-      "dependsOn": ["0005_supplier_directory_search_scaling"]
+      "ownedTables": [
+        "yorso_offers_catalog"
+      ],
+      "dependsOn": [
+        "0005_supplier_directory_search_scaling"
+      ]
     },
     {
       "id": "0007_supplier_access_flow",
@@ -72,7 +94,9 @@
         "yorso_access_events",
         "yorso_access_notifications"
       ],
-      "dependsOn": ["0006_offer_catalog"]
+      "dependsOn": [
+        "0006_offer_catalog"
+      ]
     },
     {
       "id": "0008_access_notification_ack",
@@ -82,21 +106,31 @@
         "yorso_access_events",
         "yorso_access_notifications"
       ],
-      "dependsOn": ["0007_supplier_access_flow"]
+      "dependsOn": [
+        "0007_supplier_access_flow"
+      ]
     },
     {
       "id": "0009_supplier_directory_pagination_sort",
       "file": "migrations/0009_supplier_directory_pagination_sort.sql",
       "description": "Add stable supplier directory pagination and sort indexes for high-concurrency read paths.",
-      "ownedTables": ["yorso_suppliers_directory"],
-      "dependsOn": ["0008_access_notification_ack"]
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0008_access_notification_ack"
+      ]
     },
     {
       "id": "0010_offer_catalog_pagination_sort",
       "file": "migrations/0010_offer_catalog_pagination_sort.sql",
       "description": "Add stable offer catalog pagination and sort indexes for high-concurrency marketplace reads.",
-      "ownedTables": ["yorso_offers_catalog"],
-      "dependsOn": ["0009_supplier_directory_pagination_sort"]
+      "ownedTables": [
+        "yorso_offers_catalog"
+      ],
+      "dependsOn": [
+        "0009_supplier_directory_pagination_sort"
+      ]
     },
     {
       "id": "0011_auth_sessions",
@@ -106,7 +140,20 @@
         "yorso_auth_credentials",
         "yorso_auth_sessions"
       ],
-      "dependsOn": ["0010_offer_catalog_pagination_sort"]
+      "dependsOn": [
+        "0010_offer_catalog_pagination_sort"
+      ]
+    },
+    {
+      "id": "0012_auth_security_events",
+      "file": "migrations/0012_auth_security_events.sql",
+      "description": "Create self-hosted auth security event audit records and indexes for sign-in backpressure.",
+      "ownedTables": [
+        "yorso_auth_security_events"
+      ],
+      "dependsOn": [
+        "0011_auth_sessions"
+      ]
     }
   ]
 }

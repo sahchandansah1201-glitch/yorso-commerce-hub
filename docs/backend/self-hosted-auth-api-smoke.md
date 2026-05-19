@@ -43,6 +43,7 @@ The smoke must print:
 - `auth_session=ok`
 - `auth_invalid_credentials_guard=ok`
 - `auth_validation_guard=ok`
+- `auth_rate_limit_guard=ok`
 - `auth_sign_out=ok`
 - `auth_sign_out_revokes_session=ok`
 - `auth_sign_out_blocks_account=ok`
@@ -68,3 +69,9 @@ authority. The same signed-out session id must fail closed on protected account
 and supplier-access routes, and it must not unlock catalog data when sent with
 `accessLevel=qualified_unlocked`. Anonymous catalog reads still degrade
 gracefully to public redacted data when no session headers are present.
+
+Batch #77 adds self-hosted auth security events and a first sign-in
+backpressure guard. Repeated failed sign-in attempts for the same email are
+counted from `yorso_auth_security_events`; the sixth failed attempt inside the
+15-minute window returns `429 auth_rate_limited`. The smoke marker
+`auth_rate_limit_guard=ok` proves the guard works over the compiled API.

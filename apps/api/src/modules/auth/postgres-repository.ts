@@ -2,7 +2,12 @@ import { randomBytes } from "node:crypto";
 import { Pool, type PoolConfig, type QueryResult } from "pg";
 import type { AuthSession } from "../../../../../packages/contracts/dist/index.js";
 import type { ApiConfig } from "../../config.js";
-import type { AuthRepository, AuthUser } from "./repository.js";
+import type {
+  AuthRepository,
+  AuthSecurityEventCountQuery,
+  AuthSecurityEventInput,
+  AuthUser,
+} from "./repository.js";
 
 export interface AuthQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -144,5 +149,43 @@ export class PostgresAuthRepository implements AuthRepository {
       [sessionId],
     );
     return result.rows.length > 0;
+  }
+
+  async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {
+    await this.client.query(
+      `
+        insert into yorso_auth_security_events (
+          event_type,
+          user_id,
+          email,
+          session_id,
+          request_id,
+          metadata
+        )
+        values ($1::yorso_auth_security_event_type, $2, $3::citext, $4, $5, $6::jsonb)
+      `,
+      [
+        event.eventType,
+        event.userId ?? null,
+        event.email?.toLowerCase() ?? null,
+        event.sessionId ?? null,
+        event.requestId,
+        JSON.stringify(event.metadata ?? {}),
+      ],
+    );
+  }
+
+  async countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number> {
+    const result = await this.client.query<{ count: string }>(
+      `
+        select count(*)::text as count
+        from yorso_auth_security_events
+        where event_type = $1::yorso_auth_security_event_type
+          and ($2::citext is null or email = $2::citext)
+          and occurred_at >= $3
+      `,
+      [query.eventType, query.email?.toLowerCase() ?? null, query.since.toISOString()],
+    );
+    return Number(result.rows[0]?.count ?? 0);
   }
 }

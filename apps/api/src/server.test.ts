@@ -333,6 +333,36 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("rate-limits repeated self-hosted sign-in failures by email", async () => {
+    const fetchApi = await startTestServer();
+    const payload = {
+      email: "rate-limit@example.com",
+      password: "Password1",
+    };
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await fetchApi("/v1/auth/sign-in", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      expect(response.status).toBe(401);
+      await expect(response.json()).resolves.toMatchObject({
+        ok: false,
+        error: { code: "auth_invalid_credentials" },
+      });
+    }
+
+    const limited = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    expect(limited.status).toBe(429);
+    await expect(limited.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "auth_rate_limited" },
+    });
+  });
+
   it("validates auth payloads and method guards", async () => {
     const invalidPayload = await request("/v1/auth/sign-in", {
       method: "POST",

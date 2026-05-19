@@ -17,6 +17,14 @@ const firstHeader = (value: string | string[] | undefined) =>
 const sessionIdFromHeader = (request: IncomingMessage) =>
   firstHeader(request.headers[accountSessionIdHeaderName])?.trim();
 
+const requestMetadata = (request: IncomingMessage) => ({
+  ip:
+    firstHeader(request.headers["x-forwarded-for"])?.split(",")[0]?.trim() ||
+    request.socket.remoteAddress ||
+    null,
+  userAgent: firstHeader(request.headers["user-agent"])?.slice(0, 240) || null,
+});
+
 export async function handleAuthRoute(
   request: IncomingMessage,
   response: ServerResponse,
@@ -32,7 +40,7 @@ export async function handleAuthRoute(
       }
 
       const payload = await readJsonBody(request);
-      sendJson(response, 200, await service.signIn(payload, context.requestId));
+      sendJson(response, 200, await service.signIn(payload, context.requestId, requestMetadata(request)));
       return true;
     }
 
@@ -42,7 +50,11 @@ export async function handleAuthRoute(
         return true;
       }
 
-      sendJson(response, 200, await service.getSession(sessionIdFromHeader(request), context.requestId));
+      sendJson(
+        response,
+        200,
+        await service.getSession(sessionIdFromHeader(request), context.requestId, requestMetadata(request)),
+      );
       return true;
     }
 
@@ -52,12 +64,16 @@ export async function handleAuthRoute(
         return true;
       }
 
-      sendJson(response, 200, await service.signOut(sessionIdFromHeader(request), context.requestId));
+      sendJson(
+        response,
+        200,
+        await service.signOut(sessionIdFromHeader(request), context.requestId, requestMetadata(request)),
+      );
       return true;
     }
   } catch (error) {
     if (error instanceof AuthServiceError) {
-      sendError(response, 401, error.code, error.message, context);
+      sendError(response, error.code === "auth_rate_limited" ? 429 : 401, error.code, error.message, context);
       return true;
     }
 

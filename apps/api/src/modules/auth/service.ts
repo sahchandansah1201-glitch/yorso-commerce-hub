@@ -10,10 +10,21 @@ import {
 import type { AuthRepository, AuthUser } from "./repository.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
+const signInFailureWindowMs = 15 * 60 * 1000;
+const maxFailedSignInAttempts = 5;
+
+export interface AuthRequestMetadata {
+  ip?: string | null;
+  userAgent?: string | null;
+}
 
 export class AuthServiceError extends Error {
   constructor(
-    public readonly code: "auth_invalid_credentials" | "auth_session_required" | "auth_session_invalid",
+    public readonly code:
+      | "auth_invalid_credentials"
+      | "auth_rate_limited"
+      | "auth_session_required"
+      | "auth_session_invalid",
     message: string,
   ) {
     super(message);
@@ -24,15 +35,52 @@ export class AuthServiceError extends Error {
 export class AuthService {
   constructor(private readonly repository: AuthRepository) {}
 
-  async signIn(payload: unknown, requestId: string): Promise<AuthSessionResponse> {
+  async signIn(
+    payload: unknown,
+    requestId: string,
+    metadata: AuthRequestMetadata = {},
+  ): Promise<AuthSessionResponse> {
     const parsed = authSignInSchema.parse(payload);
+    const recentFailures = await this.repository.countRecentSecurityEvents({
+      eventType: "sign_in_failed",
+      email: parsed.email,
+      since: new Date(Date.now() - signInFailureWindowMs),
+    });
+    if (recentFailures >= maxFailedSignInAttempts) {
+      await this.repository.recordSecurityEvent({
+        eventType: "sign_in_rate_limited",
+        email: parsed.email,
+        requestId,
+        metadata: securityMetadata(metadata, {
+          failureWindowMs: signInFailureWindowMs,
+          maxFailedAttempts: maxFailedSignInAttempts,
+        }),
+      });
+      throw new AuthServiceError("auth_rate_limited", "Too many sign-in attempts. Try again later.");
+    }
+
     const user = await this.repository.findUserByEmail(parsed.email);
 
     if (!user || !verifyPasswordSecret(parsed.password, user)) {
+      await this.repository.recordSecurityEvent({
+        eventType: "sign_in_failed",
+        userId: user?.id ?? null,
+        email: parsed.email,
+        requestId,
+        metadata: securityMetadata(metadata),
+      });
       throw new AuthServiceError("auth_invalid_credentials", "Invalid email or password.");
     }
 
     const session = await this.repository.createSession(user, authSessionTtlMs);
+    await this.repository.recordSecurityEvent({
+      eventType: "sign_in_succeeded",
+      userId: user.id,
+      email: parsed.email,
+      sessionId: session.id,
+      requestId,
+      metadata: securityMetadata(metadata),
+    });
     return authSessionResponseSchema.parse({
       ok: true,
       session,
@@ -40,8 +88,12 @@ export class AuthService {
     });
   }
 
-  async getSession(sessionId: string | undefined, requestId: string): Promise<AuthSessionResponse> {
-    const session = await this.requireSession(sessionId);
+  async getSession(
+    sessionId: string | undefined,
+    requestId: string,
+    metadata: AuthRequestMetadata = {},
+  ): Promise<AuthSessionResponse> {
+    const session = await this.requireSession(sessionId, requestId, metadata, "session_invalid");
     return authSessionResponseSchema.parse({
       ok: true,
       session,
@@ -49,9 +101,21 @@ export class AuthService {
     });
   }
 
-  async signOut(sessionId: string | undefined, requestId: string): Promise<AuthSignOutResponse> {
-    const session = await this.requireSession(sessionId);
+  async signOut(
+    sessionId: string | undefined,
+    requestId: string,
+    metadata: AuthRequestMetadata = {},
+  ): Promise<AuthSignOutResponse> {
+    const session = await this.requireSession(sessionId, requestId, metadata, "sign_out_invalid");
     const signedOut = await this.repository.deleteSession(session.id);
+    await this.repository.recordSecurityEvent({
+      eventType: "sign_out_succeeded",
+      userId: session.userId,
+      email: session.email,
+      sessionId: session.id,
+      requestId,
+      metadata: securityMetadata(metadata),
+    });
     return authSignOutResponseSchema.parse({
       ok: true,
       signedOut,
@@ -59,17 +123,45 @@ export class AuthService {
     });
   }
 
-  private async requireSession(sessionId: string | undefined): Promise<AuthSession> {
+  private async requireSession(
+    sessionId: string | undefined,
+    requestId: string,
+    metadata: AuthRequestMetadata,
+    invalidEventType: "session_invalid" | "sign_out_invalid",
+  ): Promise<AuthSession> {
     if (!sessionId?.trim()) {
+      await this.repository.recordSecurityEvent({
+        eventType: invalidEventType,
+        sessionId: null,
+        requestId,
+        metadata: securityMetadata(metadata, { reason: "missing_session_id" }),
+      });
       throw new AuthServiceError("auth_session_required", "Auth session id is required.");
     }
 
     const session = await this.repository.getSession(sessionId.trim());
     if (!session) {
+      await this.repository.recordSecurityEvent({
+        eventType: invalidEventType,
+        sessionId: sessionId.trim(),
+        requestId,
+        metadata: securityMetadata(metadata, { reason: "invalid_or_expired_session" }),
+      });
       throw new AuthServiceError("auth_session_invalid", "Auth session is invalid or expired.");
     }
     return session;
   }
+}
+
+function securityMetadata(
+  metadata: AuthRequestMetadata,
+  extra: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    ...extra,
+    ip: metadata.ip ?? null,
+    userAgent: metadata.userAgent ?? null,
+  };
 }
 
 function verifyPasswordSecret(password: string, user: AuthUser): boolean {

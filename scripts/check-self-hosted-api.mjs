@@ -740,8 +740,12 @@ requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepo
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "from yorso_users u");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "join yorso_auth_credentials");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_sessions");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_security_events");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "countRecentSecurityEvents");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "revoked_at");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "interface AuthRepository");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "recordSecurityEvent");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "countRecentSecurityEvents");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "class MemoryAuthRepository");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "buyer@example.com");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/sign-in");
@@ -751,6 +755,9 @@ requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "accountSessionId
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "AuthServiceError");
 requireText("apps/api/src/modules/auth/service.ts", authService, "authSignInSchema.parse");
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_invalid_credentials");
+requireText("apps/api/src/modules/auth/service.ts", authService, "auth_rate_limited");
+requireText("apps/api/src/modules/auth/service.ts", authService, "sign_in_rate_limited");
+requireText("apps/api/src/modules/auth/service.ts", authService, "signInFailureWindowMs");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sha256:");
 for (const [name, text] of [
   ["apps/api/src/modules/auth/factory.ts", authFactory],
@@ -915,6 +922,7 @@ for (const marker of [
   "auth_sign_out_blocks_access=ok",
   "auth_sign_out_blocks_offer_unlock=ok",
   "auth_sign_out_preserves_public_catalog=ok",
+  "auth_rate_limit_guard=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
   "self_hosted_auth_api_smoke=ok",
@@ -1283,7 +1291,9 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Sel
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "npm run smoke:self-hosted-auth-api");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_api_smoke=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #76");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #77");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");
