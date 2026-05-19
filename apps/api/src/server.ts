@@ -29,13 +29,14 @@ import type { SupplierRepository } from "./modules/suppliers/repository.js";
 import { handleSupplierDirectoryRoute } from "./modules/suppliers/routes.js";
 import { SupplierDirectoryService } from "./modules/suppliers/service.js";
 import { handleAccountCompanyContract } from "./routes/account.js";
-import { handleLive, handleReady } from "./routes/health.js";
+import { createReadinessProbe, handleLive, handleReady, type ReadinessProbe } from "./routes/health.js";
 
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
   authRepository?: AuthRepository;
   fileService?: FileService;
   offerCatalogRepository?: OfferCatalogRepository;
+  readinessProbe?: ReadinessProbe;
   supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
 }
@@ -60,6 +61,9 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
   );
+  const readinessProbe = options.readinessProbe ?? createReadinessProbe(config, {
+    timeoutMs: config.healthReadinessTimeoutMs,
+  });
 
   return createServer((request, response) => {
     const context = createRequestContext();
@@ -74,6 +78,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       offerCatalogService,
       supplierAccessService,
       supplierService,
+      readinessProbe,
     ).catch((error) => {
       console.error(error);
       sendError(response, 500, "internal_error", "Internal server error.", context);
@@ -92,6 +97,7 @@ async function routeRequest(
   offerCatalogService: OfferCatalogService,
   supplierAccessService: SupplierAccessService,
   supplierService: SupplierDirectoryService,
+  readinessProbe: ReadinessProbe,
 ) {
   applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
@@ -105,7 +111,7 @@ async function routeRequest(
 
   const url = getRequestUrl(request);
 
-  if (url.pathname === "/health/live") {
+  if (url.pathname === "/health/live" || url.pathname === "/v1/health/live") {
     if (request.method !== "GET") {
       methodNotAllowed(response, context);
       return;
@@ -114,12 +120,12 @@ async function routeRequest(
     return;
   }
 
-  if (url.pathname === "/health/ready") {
+  if (url.pathname === "/health/ready" || url.pathname === "/v1/health/ready") {
     if (request.method !== "GET") {
       methodNotAllowed(response, context);
       return;
     }
-    handleReady(response, context, config);
+    await handleReady(response, context, readinessProbe);
     return;
   }
 

@@ -73,6 +73,13 @@ Batch #81 adds the companion auth observability smoke:
 - `auth_observability_no_pii=ok`
 - `self_hosted_auth_observability_smoke=ok`
 
+Batch #82 adds the companion health readiness smoke:
+
+- `health_readiness_local=ok`
+- `health_readiness_redis_unavailable=ok`
+- `health_readiness_postgres_unavailable=ok`
+- `self_hosted_health_readiness_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -130,3 +137,11 @@ omits raw email, session id and user id values; durable investigation still
 uses `yorso_auth_security_events`, while the JSONL stream feeds owned log
 aggregation and alerting. The smoke verifies both event coverage and the no-PII
 guard.
+
+Batch #82 adds readiness validation for production operations. `/health/live`
+only proves the API process can respond; `/health/ready` and `/v1/health/ready`
+check required self-hosted dependencies with bounded timeouts. Local memory
+mode can skip PostgreSQL/Redis, but production Redis and PostgreSQL outages
+must return `503 not_ready` so the orchestrator can stop sending traffic to an
+unhealthy API replica. The smoke verifies both outage paths without requiring a
+live database or Redis server.

@@ -55,6 +55,7 @@ const requiredFiles = [
   "packages/contracts/src/offer-catalog.ts",
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
+  "scripts/smoke-self-hosted-health-readiness.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -186,6 +187,7 @@ const accountCompanyContract = read("packages/contracts/src/account-company.ts")
 const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
+const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -272,6 +274,12 @@ if (pkg.scripts["api:build"] !== "npm run contracts:build && tsc -p apps/api/tsc
 if (pkg.scripts["api:start"] !== "node apps/api/dist/index.js") {
   failures.push("package.json: api:start must run apps/api/dist/index.js");
 }
+if (pkg.scripts["smoke:self-hosted-health-readiness"] !== "npm run api:build && npm run smoke:self-hosted-health-readiness:run") {
+  failures.push("package.json: smoke:self-hosted-health-readiness must build and run the health readiness smoke");
+}
+if (pkg.scripts["smoke:self-hosted-health-readiness:run"] !== "node scripts/smoke-self-hosted-health-readiness.mjs") {
+  failures.push("package.json: smoke:self-hosted-health-readiness:run must execute scripts/smoke-self-hosted-health-readiness.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -325,6 +333,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
   failures.push("package.json: ci:core must run test:api");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readiness:run")) {
+  failures.push("package.json: ci:core must run the self-hosted health readiness smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -645,6 +656,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-access-frontend")) 
 
 requireText("apps/api/src/server.ts", server, "/health/live");
 requireText("apps/api/src/server.ts", server, "/health/ready");
+requireText("apps/api/src/server.ts", server, "/v1/health/live");
+requireText("apps/api/src/server.ts", server, "/v1/health/ready");
+requireText("apps/api/src/server.ts", server, "createReadinessProbe(config");
 requireText("apps/api/src/server.ts", server, "/v1/account/company/schema");
 requireText("apps/api/src/server.ts", server, "handleAccountRoute");
 requireText("apps/api/src/server.ts", server, "handleStorageRoute");
@@ -667,6 +681,29 @@ requireText("apps/api/src/server.ts", server, "access-control-allow-origin");
 requireText("apps/api/src/server.ts", server, "OPTIONS");
 requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
 requireText("apps/api/src/config.ts", config, "assertSelfHostedProductionRuntime");
+requireText("apps/api/src/config.ts", config, "healthReadinessTimeoutMs");
+requireText("apps/api/src/config.ts", config, "HEALTH_READINESS_TIMEOUT_MS");
+for (const marker of [
+  "SelfHostedReadinessProbe",
+  "productionScaleBaseline",
+  "targetConcurrentUsers: 10_000",
+  "checkPostgres",
+  "checkRedis",
+  "checkLocalStorage",
+  "checkProductionRuntimeConfig",
+  "not_ready",
+]) {
+  requireText("apps/api/src/routes/health.ts", read("apps/api/src/routes/health.ts"), marker);
+}
+for (const marker of [
+  "health_readiness_local=ok",
+  "health_readiness_redis_unavailable=ok",
+  "health_readiness_postgres_unavailable=ok",
+  "self_hosted_health_readiness_smoke=ok",
+  "/v1/health/ready",
+]) {
+  requireText("scripts/smoke-self-hosted-health-readiness.mjs", healthReadinessSmoke, marker);
+}
 requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
 requireText("apps/api/src/config.ts", config, "storageDriver: z.enum([\"local\"])");
 requireText("apps/api/src/config.ts", config, "storageLocalRoot");

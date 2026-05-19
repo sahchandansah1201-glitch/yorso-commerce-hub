@@ -29,12 +29,14 @@ const requiredFiles = [
   "apps/api/src/modules/auth/observability.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
+  "apps/api/src/routes/health.ts",
   "apps/api/src/modules/account/routes.ts",
   "apps/api/src/modules/access/routes.ts",
   "apps/api/src/modules/storage/routes.ts",
   "apps/api/src/modules/offers/routes.ts",
   "apps/api/src/modules/suppliers/routes.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
+  "scripts/smoke-self-hosted-health-readiness.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -121,12 +123,14 @@ const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
 const authObservability = read("apps/api/src/modules/auth/observability.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
+const healthRoutes = read("apps/api/src/routes/health.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
 const accessRoutes = read("apps/api/src/modules/access/routes.ts");
 const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
+const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -229,6 +233,7 @@ for (const marker of [
   "Batch #79",
   "Batch #80",
   "Batch #81",
+  "Batch #82",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -241,6 +246,8 @@ for (const marker of [
   "Redis session cache",
   "session-cache fail-closed smoke",
   "auth observability JSONL",
+  "readiness checks",
+  "self-hosted health readiness smoke",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -482,6 +489,15 @@ if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-h
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
+if (pkg.scripts["smoke:self-hosted-health-readiness"] !== "npm run api:build && npm run smoke:self-hosted-health-readiness:run") {
+  failures.push("package.json: smoke:self-hosted-health-readiness must build and run the readiness smoke");
+}
+if (pkg.scripts["smoke:self-hosted-health-readiness:run"] !== "node scripts/smoke-self-hosted-health-readiness.mjs") {
+  failures.push("package.json: smoke:self-hosted-health-readiness:run must execute scripts/smoke-self-hosted-health-readiness.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readiness:run")) {
+  failures.push("package.json: ci:core must run the self-hosted health readiness smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -620,6 +636,26 @@ for (const marker of [
   "self_hosted_session_cache_fail_closed_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", sessionCacheFailClosedSmoke, marker);
+}
+
+for (const marker of [
+  "health_readiness_local=ok",
+  "health_readiness_redis_unavailable=ok",
+  "health_readiness_postgres_unavailable=ok",
+  "self_hosted_health_readiness_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-health-readiness.mjs", healthReadinessSmoke, marker);
+}
+
+for (const marker of [
+  "SelfHostedReadinessProbe",
+  "targetConcurrentUsers: 10_000",
+  "checkPostgres",
+  "checkRedis",
+  "checkLocalStorage",
+  "checkProductionRuntimeConfig",
+]) {
+  requireText("apps/api/src/routes/health.ts", healthRoutes, marker);
 }
 
 for (const marker of [

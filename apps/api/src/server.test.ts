@@ -2,6 +2,7 @@ import type { Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
 import { assertSupabaseIsPrototypeOnly, loadApiConfig } from "./config.js";
 import { createApiServer } from "./server.js";
+import type { ReadinessProbe } from "./routes/health.js";
 
 type JsonBody = Record<string, unknown>;
 const testAccountUserId = "00000000-0000-4000-8000-000000000001";
@@ -84,6 +85,28 @@ async function startTestServer() {
     });
 }
 
+async function startRawTestServer(options: { readinessProbe?: ReadinessProbe } = {}) {
+  await closeServer();
+  server = createApiServer(config, options);
+
+  await new Promise<void>((resolve) => {
+    server?.listen(0, "127.0.0.1", resolve);
+  });
+
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("Expected server address object.");
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  return (path: string, init?: RequestInit) =>
+    fetch(`${baseUrl}${path}`, {
+      ...init,
+      headers: {
+        "content-type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+}
+
 const filePayload = (content: string, fileName = "sample.txt", contentType = "text/plain") => {
   const bytes = Buffer.from(content, "utf8");
   return {
@@ -118,12 +141,68 @@ describe("YORSO self-hosted API skeleton", () => {
     const body = (await response.json()) as JsonBody;
 
     expect(response.status).toBe(200);
+    expect(body.ok).toBe(true);
+    expect(body.status).toBe("ready");
     expect(body.selfHostedBackend).toBe(true);
     expect(body.supabaseProductionBackend).toBe(false);
+    expect(body.productionScaleBaseline).toMatchObject({
+      targetConcurrentUsers: 10_000,
+    });
     expect(body.dependencies).toMatchObject({
-      postgresConfigured: true,
-      redisConfigured: true,
-      objectStorageConfigured: true,
+      postgres: {
+        required: false,
+        status: "skipped",
+      },
+      redis: {
+        required: false,
+        status: "skipped",
+      },
+      localStorage: {
+        required: true,
+        status: "ok",
+      },
+      productionRuntimeConfig: {
+        required: false,
+        status: "skipped",
+      },
+    });
+  });
+
+  it("returns 503 readiness when a required dependency is unavailable", async () => {
+    const fetchApi = await startRawTestServer({
+      readinessProbe: {
+        async check() {
+          return {
+            ok: false,
+            service: "yorso-api",
+            status: "not_ready",
+            selfHostedBackend: true,
+            supabaseProductionBackend: false,
+            productionScaleBaseline: {
+              targetConcurrentUsers: 10_000,
+              readinessChecks: ["postgres", "redis", "local_storage", "production_runtime_config"],
+            },
+            dependencies: {
+              postgres: { required: true, status: "unavailable", reason: "connection refused" },
+              redis: { required: true, status: "ok" },
+              localStorage: { required: true, status: "ok" },
+              productionRuntimeConfig: { required: true, status: "ok" },
+            },
+          };
+        },
+      },
+    });
+    const response = await fetchApi("/v1/health/ready");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(503);
+    expect(body.ok).toBe(false);
+    expect(body.status).toBe("not_ready");
+    expect(body.dependencies).toMatchObject({
+      postgres: {
+        required: true,
+        status: "unavailable",
+      },
     });
   });
 
