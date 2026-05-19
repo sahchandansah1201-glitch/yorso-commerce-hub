@@ -25,6 +25,8 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("image: edoburu/pgbouncer:");
     expect(compose).toContain("POOL_MODE: transaction");
     expect(compose).toContain("image: redis:7-alpine");
+    expect(compose).toContain("AUTH_RATE_LIMIT_DRIVER: redis");
+    expect(compose).toContain("AUTH_RATE_LIMIT_FAIL_MODE: closed");
     expect(compose).toContain("image: minio/minio:");
     expect(compose).toContain("STORAGE_DRIVER: local");
     expect(compose).toContain("yorso-api-uploads:");
@@ -36,6 +38,8 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
     expect(env).toContain("MIGRATION_APPLIED_BY=local-operator");
     expect(env).toContain("PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
+    expect(env).toContain("AUTH_RATE_LIMIT_DRIVER=audit_log");
+    expect(env).toContain("AUTH_RATE_LIMIT_FAIL_MODE=open");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
   });

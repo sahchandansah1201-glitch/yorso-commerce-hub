@@ -24,6 +24,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
+  "apps/api/src/modules/auth/rate-limit.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/modules/account/routes.ts",
@@ -111,6 +112,7 @@ const authFactory = read("apps/api/src/modules/auth/factory.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
+const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
@@ -168,6 +170,10 @@ const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts"
 const frontendNoSupabaseE2E = read("e2e/frontend-no-supabase-env.spec.ts");
 const selfHostedAuthFrontendE2E = read("e2e/signin-self-hosted-auth-flow.spec.ts");
 
+if (!pkg.dependencies?.redis) {
+  failures.push("package.json: redis dependency is required for Batch #78 production auth backpressure");
+}
+
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
 };
@@ -211,12 +217,15 @@ for (const marker of [
   "Batch #75",
   "Batch #76",
   "Batch #77",
+  "Batch #78",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
   "backend session authority",
   "revoked-session behavior",
   "sign-in backpressure",
+  "AUTH_RATE_LIMIT_DRIVER=redis",
+  "Redis sign-in backpressure",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -274,6 +283,8 @@ for (const marker of [
   "ACCOUNT_REPOSITORY=postgres",
   "DATABASE_URL=postgres://",
   "REDIS_URL=redis://redis:6379",
+  "AUTH_RATE_LIMIT_DRIVER=redis",
+  "AUTH_RATE_LIMIT_FAIL_MODE=closed",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -528,9 +539,22 @@ for (const marker of [
   "auth_invalid_credentials",
   "auth_rate_limited",
   "sign_in_rate_limited",
+  "rateLimiter.checkSignIn",
+  "retryAfterSeconds",
   "sha256:",
 ]) {
   requireText("apps/api/src/modules/auth/service.ts", authService, marker);
+}
+
+for (const marker of [
+  "RedisAuthRateLimiter",
+  "SecurityEventAuthRateLimiter",
+  "createClient",
+  "pExpire",
+  "hashIdentity",
+  "failMode",
+]) {
+  requireText("apps/api/src/modules/auth/rate-limit.ts", authRateLimit, marker);
 }
 
 for (const marker of [
@@ -542,6 +566,8 @@ for (const marker of [
   "auth_sign_out_blocks_offer_unlock=ok",
   "auth_sign_out_preserves_public_catalog=ok",
   "auth_rate_limit_guard=ok",
+  "auth_rate_limit_retry_after=ok",
+  "retry-after",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
   "self_hosted_auth_api_smoke=ok",

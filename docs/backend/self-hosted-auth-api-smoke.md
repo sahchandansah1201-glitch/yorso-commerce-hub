@@ -43,6 +43,7 @@ The smoke must print:
 - `auth_session=ok`
 - `auth_invalid_credentials_guard=ok`
 - `auth_validation_guard=ok`
+- `auth_rate_limit_retry_after=ok`
 - `auth_rate_limit_guard=ok`
 - `auth_sign_out=ok`
 - `auth_sign_out_revokes_session=ok`
@@ -75,3 +76,10 @@ backpressure guard. Repeated failed sign-in attempts for the same email are
 counted from `yorso_auth_security_events`; the sixth failed attempt inside the
 15-minute window returns `429 auth_rate_limited`. The smoke marker
 `auth_rate_limit_guard=ok` proves the guard works over the compiled API.
+
+Batch #78 moves the production backpressure path to Redis while preserving the
+audit-log fallback for local tests. Production runtime must use
+`AUTH_RATE_LIMIT_DRIVER=redis` and `AUTH_RATE_LIMIT_FAIL_MODE=closed`; local
+development may use `AUTH_RATE_LIMIT_DRIVER=audit_log`. The 429 response also
+sets `Retry-After: 900`, so clients and edge proxies can back off without
+guessing the lockout window.

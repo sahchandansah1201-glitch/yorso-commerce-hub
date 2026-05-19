@@ -744,6 +744,19 @@ Batch #77 adds auth security-event validation:
   `check:production-scale-baseline` guard the migration, smoke marker and
   10,000 concurrent-user notes.
 
+Batch #78 adds production rate-limit runtime validation:
+
+- `AUTH_RATE_LIMIT_DRIVER=redis` and `AUTH_RATE_LIMIT_FAIL_MODE=closed` are
+  required by the production runtime guard;
+- `AuthService` consumes the shared rate-limiter interface before password
+  verification and records `sign_in_rate_limited` events with limiter metadata;
+- the Redis limiter stores only hashed email/IP keys with TTL, not raw
+  identifiers;
+- local tests keep the audit-log fallback so the API smoke remains deterministic
+  without a live Redis server;
+- `smoke:self-hosted-auth-api` verifies `Retry-After: 900` alongside
+  `auth_rate_limit_guard=ok`.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

@@ -71,6 +71,7 @@ describe("self-hosted API policy", () => {
     const repository = readFileSync("apps/api/src/modules/auth/repository.ts", "utf8");
     const postgresRepository = readFileSync("apps/api/src/modules/auth/postgres-repository.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/auth/service.ts", "utf8");
+    const rateLimit = readFileSync("apps/api/src/modules/auth/rate-limit.ts", "utf8");
     const migration = readFileSync("packages/db/migrations/0012_auth_security_events.sql", "utf8");
     const smoke = readFileSync("scripts/smoke-self-hosted-auth-api.mjs", "utf8");
     const docs = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
@@ -80,11 +81,17 @@ describe("self-hosted API policy", () => {
     expect(repository).toContain("countRecentSecurityEvents");
     expect(postgresRepository).toContain("insert into yorso_auth_security_events");
     expect(migration).toContain("idx_yorso_auth_security_events_email_type_recent");
-    expect(service).toContain("signInFailureWindowMs");
+    expect(service).toContain("rateLimiter.checkSignIn");
+    expect(service).toContain("retryAfterSeconds");
     expect(service).toContain("sign_in_rate_limited");
     expect(service).toContain("auth_rate_limited");
+    expect(rateLimit).toContain("RedisAuthRateLimiter");
+    expect(rateLimit).toContain("hashIdentity");
     expect(smoke).toContain("auth_rate_limit_guard=ok");
+    expect(smoke).toContain("auth_rate_limit_retry_after=ok");
+    expect(smoke).toContain("retry-after");
     expect(docs).toContain("Batch #77");
+    expect(docs).toContain("Batch #78");
     expect(docs).toContain("sign-in backpressure");
   });
 

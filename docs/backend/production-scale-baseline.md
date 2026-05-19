@@ -492,6 +492,21 @@ available. Observability must track `sign_in_failed`,
 `sign_in_rate_limited`, `session_invalid`, and `sign_out_invalid` rates by
 time window before production signoff.
 
+Batch #78 adds Redis sign-in backpressure on the production Redis path. The
+expected write profile for failed sign-ins is one `INCR` plus a bounded TTL per
+hashed email key, with an optional hashed IP key; successful sign-ins clear the
+short-lived Redis bucket and keep the append-only audit event. PostgreSQL
+remains the audit trail, not the hot counter, which prevents credential-stuffing
+bursts from turning into repeated indexed count queries. Production config must
+set `AUTH_RATE_LIMIT_DRIVER=redis`, `AUTH_RATE_LIMIT_FAIL_MODE=closed`,
+`AUTH_SIGN_IN_FAILURE_WINDOW_MS=900000` and
+`AUTH_SIGN_IN_MAX_FAILED_ATTEMPTS=5`. Failure mode is explicit: if Redis is
+unavailable in production, sign-in fails closed with `429 auth_rate_limited`
+and `Retry-After`; local/test mode can use the audit-log fallback. Observability
+must track Redis limiter errors, degraded fail-closed decisions, rate-limited
+attempts, and p95/p99 sign-in latency under burst load before production
+signoff.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

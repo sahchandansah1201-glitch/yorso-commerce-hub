@@ -357,6 +357,7 @@ describe("YORSO self-hosted API skeleton", () => {
       body: JSON.stringify(payload),
     });
     expect(limited.status).toBe(429);
+    expect(limited.headers.get("retry-after")).toBe("900");
     await expect(limited.json()).resolves.toMatchObject({
       ok: false,
       error: { code: "auth_rate_limited" },
@@ -1442,6 +1443,8 @@ describe("YORSO self-hosted API skeleton", () => {
     const productionConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         VITE_SUPABASE_URL: "https://example.supabase.co",
         VITE_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
       },
@@ -1449,5 +1452,29 @@ describe("YORSO self-hosted API skeleton", () => {
     );
 
     expect(() => assertSupabaseIsPrototypeOnly(productionConfig)).toThrow(/Supabase env values/);
+  });
+
+  it("requires Redis fail-closed rate limiting in production config", () => {
+    const productionConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "audit_log",
+        AUTH_RATE_LIMIT_FAIL_MODE: "open",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(productionConfig)).toThrow(/AUTH_RATE_LIMIT_DRIVER=redis/);
+
+    const failOpenConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "open",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(failOpenConfig)).toThrow(/AUTH_RATE_LIMIT_FAIL_MODE=closed/);
   });
 });

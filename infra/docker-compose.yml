@@ -13,6 +13,11 @@ services:
       YORSO_PUBLIC_APP_URL: ${YORSO_PUBLIC_APP_URL:-http://localhost:8080}
       DATABASE_URL: postgres://${POSTGRES_USER:-yorso_app}:${POSTGRES_PASSWORD:-change-me-local-only}@pgbouncer:5432/${POSTGRES_DB:-yorso}
       REDIS_URL: redis://redis:6379
+      AUTH_RATE_LIMIT_DRIVER: redis
+      AUTH_RATE_LIMIT_FAIL_MODE: closed
+      AUTH_SIGN_IN_FAILURE_WINDOW_MS: ${AUTH_SIGN_IN_FAILURE_WINDOW_MS:-900000}
+      AUTH_SIGN_IN_MAX_FAILED_ATTEMPTS: ${AUTH_SIGN_IN_MAX_FAILED_ATTEMPTS:-5}
+      AUTH_RATE_LIMIT_KEY_PREFIX: ${AUTH_RATE_LIMIT_KEY_PREFIX:-yorso:auth}
       S3_ENDPOINT: http://minio:9000
       S3_BUCKET: ${S3_BUCKET:-yorso-local}
       STORAGE_DRIVER: local

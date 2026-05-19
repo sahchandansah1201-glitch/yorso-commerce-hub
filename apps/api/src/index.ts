@@ -1,8 +1,8 @@
-import { assertSupabaseIsPrototypeOnly, loadApiConfig } from "./config.js";
+import { assertSelfHostedProductionRuntime, loadApiConfig } from "./config.js";
 import { createApiServer } from "./server.js";
 
 const config = loadApiConfig();
-assertSupabaseIsPrototypeOnly(config);
+assertSelfHostedProductionRuntime(config);
 
 const server = createApiServer(config);
 

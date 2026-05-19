@@ -123,6 +123,8 @@ async function runSmoke(baseUrl) {
     body: JSON.stringify(rateLimitPayload),
   });
   assertStatus(limited, 429, "auth rate limit guard");
+  assertEqual(limited.headers.get("retry-after"), "900", "auth rate limit retry-after");
+  console.log("auth_rate_limit_retry_after=ok");
   const limitedBody = await limited.json();
   assertEqual(limitedBody.error?.code, "auth_rate_limited", "auth rate limit code");
   console.log("auth_rate_limit_guard=ok");
