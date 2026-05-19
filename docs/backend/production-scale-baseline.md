@@ -466,6 +466,18 @@ for protected routes (`401 account_session_required` or
 `401 account_session_invalid`) and graceful public fallback for anonymous
 catalog reads.
 
+Batch #76 hardens revoked-session behavior. After `/v1/auth/sign-out`, the
+same session id must be rejected by protected account routes, supplier-access
+notification routes, and authenticated catalog unlock attempts. Public catalog
+reads without session headers remain available but return redacted data. At the
+10,000 concurrent-user baseline this keeps the read/write profile explicit:
+sign-out is a session deletion/write, protected reads perform one bounded
+session validation, and catalog reads without credentials avoid unnecessary auth
+lookups. Backpressure and graceful degradation remain fail-closed for revoked
+credentials and fail-open only for anonymous public catalog data. Observability
+must track invalid-session counts, revoked-session reuse attempts and catalog
+downgrade rates before production signoff.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

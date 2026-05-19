@@ -261,6 +261,56 @@ describe("YORSO self-hosted API skeleton", () => {
       error: { code: "auth_session_invalid" },
     });
     expect(revoked.status).toBe(401);
+
+    const revokedHeaders = {
+      "x-yorso-user-id": testAccountUserId,
+      "x-yorso-session-id": sessionId,
+    };
+
+    const accountAfterSignOut = await fetchApi("/v1/account/me", {
+      headers: revokedHeaders,
+    });
+    expect(accountAfterSignOut.status).toBe(401);
+    await expect(accountAfterSignOut.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+
+    const notificationsAfterSignOut = await fetchApi("/v1/access/notifications", {
+      headers: revokedHeaders,
+    });
+    expect(notificationsAfterSignOut.status).toBe(401);
+    await expect(notificationsAfterSignOut.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+
+    const authenticatedCatalogAfterSignOut = await fetchApi("/v1/offers?q=salmon&accessLevel=qualified_unlocked", {
+      headers: revokedHeaders,
+    });
+    expect(authenticatedCatalogAfterSignOut.status).toBe(401);
+    await expect(authenticatedCatalogAfterSignOut.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+
+    const publicCatalogWithoutSession = await fetchApi("/v1/offers?q=salmon&accessLevel=qualified_unlocked", {
+      headers: {
+        "x-yorso-user-id": "",
+        "x-yorso-session-id": "",
+      },
+    });
+    const publicCatalogBody = (await publicCatalogWithoutSession.json()) as JsonBody;
+    expect(publicCatalogWithoutSession.status).toBe(200);
+    expect(publicCatalogBody.offers).toEqual([
+      expect.objectContaining({
+        id: "1",
+        priceMin: null,
+        supplier: expect.objectContaining({ name: null }),
+      }),
+    ]);
+    expect(JSON.stringify(publicCatalogBody)).not.toContain("Nordfjord Sjømat AS");
+    expect(JSON.stringify(publicCatalogBody)).not.toContain("$8.50");
   });
 
   it("rejects invalid auth credentials without revealing which field failed", async () => {

@@ -45,6 +45,27 @@ describe("self-hosted API policy", () => {
     expect(docs).toContain("self_hosted_account_api_smoke=ok");
   });
 
+  it("keeps self-hosted auth smoke fail-closed after sign-out", () => {
+    const smoke = readFileSync("scripts/smoke-self-hosted-auth-api.mjs", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-auth-api-smoke.md", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    for (const marker of [
+      "auth_sign_out_revokes_session=ok",
+      "auth_sign_out_blocks_account=ok",
+      "auth_sign_out_blocks_access=ok",
+      "auth_sign_out_blocks_offer_unlock=ok",
+      "auth_sign_out_preserves_public_catalog=ok",
+    ]) {
+      expect(smoke).toContain(marker);
+      expect(docs).toContain(marker);
+    }
+
+    expect(baseline).toContain("Batch #76");
+    expect(baseline).toContain("revoked-session behavior");
+    expect(baseline).toContain("10,000 concurrent-user baseline");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");

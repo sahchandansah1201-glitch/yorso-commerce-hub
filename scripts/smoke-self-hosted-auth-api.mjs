@@ -121,6 +121,50 @@ async function runSmoke(baseUrl) {
   const afterSignOutBody = await afterSignOut.json();
   assertEqual(afterSignOutBody.error?.code, "auth_session_invalid", "post sign-out session code");
   console.log("auth_sign_out_revokes_session=ok");
+
+  const revokedHeaders = {
+    "x-yorso-user-id": signIn.session.userId,
+    "x-yorso-session-id": signIn.session.id,
+  };
+
+  const accountAfterSignOut = await fetch(`${baseUrl}/v1/account/me`, {
+    headers: revokedHeaders,
+  });
+  assertStatus(accountAfterSignOut, 401, "revoked session account guard");
+  const accountAfterSignOutBody = await accountAfterSignOut.json();
+  assertEqual(accountAfterSignOutBody.error?.code, "account_session_invalid", "revoked session account code");
+  console.log("auth_sign_out_blocks_account=ok");
+
+  const notificationsAfterSignOut = await fetch(`${baseUrl}/v1/access/notifications`, {
+    headers: revokedHeaders,
+  });
+  assertStatus(notificationsAfterSignOut, 401, "revoked session access notification guard");
+  const notificationsAfterSignOutBody = await notificationsAfterSignOut.json();
+  assertEqual(notificationsAfterSignOutBody.error?.code, "account_session_invalid", "revoked session access code");
+  console.log("auth_sign_out_blocks_access=ok");
+
+  const authenticatedCatalogAfterSignOut = await fetch(
+    `${baseUrl}/v1/offers?q=salmon&accessLevel=qualified_unlocked`,
+    { headers: revokedHeaders },
+  );
+  assertStatus(authenticatedCatalogAfterSignOut, 401, "revoked session offer catalog guard");
+  const authenticatedCatalogAfterSignOutBody = await authenticatedCatalogAfterSignOut.json();
+  assertEqual(
+    authenticatedCatalogAfterSignOutBody.error?.code,
+    "account_session_invalid",
+    "revoked session offer catalog code",
+  );
+  console.log("auth_sign_out_blocks_offer_unlock=ok");
+
+  const publicCatalogWithoutSession = await jsonRequest(
+    baseUrl,
+    "/v1/offers?q=salmon&accessLevel=qualified_unlocked",
+  );
+  assertEqual(publicCatalogWithoutSession.offers?.[0]?.priceMin, null, "public catalog price remains locked");
+  assertEqual(publicCatalogWithoutSession.offers?.[0]?.supplier?.name, null, "public catalog supplier remains locked");
+  assertNotIncludes(JSON.stringify(publicCatalogWithoutSession), "Nordfjord Sjømat AS", "public catalog supplier leak");
+  assertNotIncludes(JSON.stringify(publicCatalogWithoutSession), "$8.50", "public catalog price leak");
+  console.log("auth_sign_out_preserves_public_catalog=ok");
 }
 
 async function jsonRequest(baseUrl, pathName, init = {}) {
@@ -201,5 +245,11 @@ function assertEqual(actual, expected, label) {
 function assertString(value, label) {
   if (typeof value !== "string" || value.length < 32) {
     throw new Error(`${label}: expected a session-like string`);
+  }
+}
+
+function assertNotIncludes(value, expectedMissing, label) {
+  if (value.includes(expectedMissing)) {
+    throw new Error(`${label}: expected not to include ${JSON.stringify(expectedMissing)}`);
   }
 }

@@ -45,6 +45,10 @@ The smoke must print:
 - `auth_validation_guard=ok`
 - `auth_sign_out=ok`
 - `auth_sign_out_revokes_session=ok`
+- `auth_sign_out_blocks_account=ok`
+- `auth_sign_out_blocks_access=ok`
+- `auth_sign_out_blocks_offer_unlock=ok`
+- `auth_sign_out_preserves_public_catalog=ok`
 - `self_hosted_auth_api_smoke=ok`
 
 ## Production Scale Notes
@@ -58,3 +62,9 @@ owned-session shape. Production readiness still requires:
 - lockout/backpressure policy;
 - structured auth audit events;
 - load tests for sign-in bursts and steady session reads.
+
+Batch #76 extends the smoke from session issuance/revocation into route
+authority. The same signed-out session id must fail closed on protected account
+and supplier-access routes, and it must not unlock catalog data when sent with
+`accessLevel=qualified_unlocked`. Anonymous catalog reads still degrade
+gracefully to public redacted data when no session headers are present.

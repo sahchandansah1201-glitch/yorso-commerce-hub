@@ -719,6 +719,18 @@ Batch #75 adds backend session authority validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the new
   session authority boundary.
 
+Batch #76 adds revoked-session guards:
+
+- `smoke:self-hosted-auth-api` verifies that a session id rejected after
+  `/v1/auth/sign-out` cannot read `/v1/account/me`,
+  `/v1/access/notifications`, or authenticated `/v1/offers` unlock paths;
+- the same smoke verifies that `/v1/offers` without session headers still
+  returns public redacted catalog data instead of failing the anonymous
+  browsing path;
+- `server.test.ts` covers the same revoked-session behavior at API unit level;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the new
+  Batch #76 smoke markers and documentation.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and
