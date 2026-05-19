@@ -76,6 +76,12 @@ Protected routes fail closed when the production session cache is unavailable,
 and sign-out deletes the cached session before the same id can be accepted
 again.
 
+Batch #80 validates that boundary under failure. The self-hosted fail-closed
+smoke runs the API with Redis session cache enabled and Redis unavailable. It
+requires authenticated paths to reject the request instead of bypassing Redis,
+while anonymous catalog reads continue as redacted public data. This keeps a
+Redis outage from becoming uncontrolled PostgreSQL session-read pressure.
+
 The mandatory project-wide scale contract is documented in
 `docs/backend/production-scale-baseline.md`. Any production-facing feature must
 either attach a capacity review against that baseline or explicitly remain
