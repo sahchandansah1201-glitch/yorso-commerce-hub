@@ -15,6 +15,7 @@
 const STORAGE_KEY = "yorso_buyer_session";
 
 export type SignInMethod = "email" | "phone" | "whatsapp";
+export type BuyerSessionSource = "self_hosted" | "local_contract" | "supabase_prototype";
 
 export interface BuyerSession {
   id: string;
@@ -22,6 +23,9 @@ export interface BuyerSession {
   method: SignInMethod;
   signedInAt: string;
   displayName: string;
+  expiresAt?: string;
+  source?: BuyerSessionSource;
+  userId?: string;
 }
 
 type Listener = (session: BuyerSession | null) => void;
@@ -60,13 +64,25 @@ const deriveDisplayName = (identifier: string, method: SignInMethod): string => 
 };
 
 export const buyerSession = {
-  signIn(input: { identifier: string; method: SignInMethod }): BuyerSession {
+  signIn(input: {
+    displayName?: string;
+    expiresAt?: string;
+    id?: string;
+    identifier: string;
+    method: SignInMethod;
+    signedInAt?: string;
+    source?: BuyerSessionSource;
+    userId?: string;
+  }): BuyerSession {
     const session: BuyerSession = {
-      id: `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+      id: input.id ?? `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
       identifier: input.identifier,
       method: input.method,
-      signedInAt: new Date().toISOString(),
-      displayName: deriveDisplayName(input.identifier, input.method),
+      signedInAt: input.signedInAt ?? new Date().toISOString(),
+      displayName: input.displayName ?? deriveDisplayName(input.identifier, input.method),
+      ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
+      ...(input.source ? { source: input.source } : {}),
+      ...(input.userId ? { userId: input.userId } : {}),
     };
     safeWrite(session);
     notify(session);

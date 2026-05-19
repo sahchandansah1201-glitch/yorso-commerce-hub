@@ -58,6 +58,7 @@ const requiredFiles = [
   "src/lib/auth-runtime.ts",
   "src/lib/auth-runtime.test.ts",
   "src/lib/auth-runtime.boundary.test.ts",
+  "src/lib/buyer-session.test.ts",
   "src/lib/legacy-auth-supabase-adapter.ts",
   "src/pages/SignIn.tsx",
   "src/pages/ResetPassword.tsx",
@@ -93,6 +94,7 @@ const requiredFiles = [
   "e2e/supplier-access-notification-center-api-flow.spec.ts",
   "e2e/self-hosted-access-runtime.spec.ts",
   "e2e/frontend-no-supabase-env.spec.ts",
+  "e2e/signin-self-hosted-auth-flow.spec.ts",
   "src/integrations/supabase/client.ts",
   "src/pages/OfferDetail.tsx",
   "src/lib/supplier-access-api.ts",
@@ -181,6 +183,7 @@ const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs
 const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
 const authRuntimeBoundaryTest = read("src/lib/auth-runtime.boundary.test.ts");
+const buyerSessionTest = read("src/lib/buyer-session.test.ts");
 const legacyAuthSupabaseAdapter = read("src/lib/legacy-auth-supabase-adapter.ts");
 const signInPage = read("src/pages/SignIn.tsx");
 const resetPasswordPage = read("src/pages/ResetPassword.tsx");
@@ -232,6 +235,7 @@ const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spe
 const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
 const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts");
 const frontendNoSupabaseE2E = read("e2e/frontend-no-supabase-env.spec.ts");
+const selfHostedAuthFrontendE2E = read("e2e/signin-self-hosted-auth-flow.spec.ts");
 const supabaseClient = read("src/integrations/supabase/client.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
@@ -306,8 +310,8 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-account-api:run
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {
   failures.push("package.json: ci:core must run the self-hosted offer detail smoke");
 }
-if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts") {
-  failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary");
+if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts src/lib/buyer-session.test.ts") {
+  failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary and buyer session self-hosted fields");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:auth-runtime")) {
   failures.push("package.json: ci:core must run test:auth-runtime");
@@ -444,18 +448,29 @@ for (const marker of [
 }
 for (const marker of [
   "signInWithEmail",
+  "signOutCurrentAuthSession",
+  "readCurrentAuthSession",
+  "isSelfHostedAuthConfigured",
+  "/v1/auth/sign-in",
+  "/v1/auth/session",
+  "/v1/auth/sign-out",
   "requestPasswordReset",
   "observePasswordRecovery",
   "updateRecoveredPassword",
+  "self_hosted",
   "supabase_prototype",
   "local_contract",
   "legacy-auth-supabase-adapter",
+  "buyerSession",
 ]) {
   requireText("src/lib/auth-runtime.ts", authRuntime, marker);
 }
 forbidText("src/lib/auth-runtime.ts", authRuntime, "@/integrations/supabase/client");
 for (const marker of [
   "auth-runtime adapter boundary",
+  "uses self-hosted email sign-in when VITE_YORSO_API_URL is configured",
+  "returns self-hosted auth errors without falling back to local prototype auth",
+  "reads and signs out the current self-hosted browser session",
   "uses local contract auth when Supabase is not configured",
   "delegates email sign-in and reset to prototype Supabase only when configured",
   "observes prototype Supabase recovery events behind the adapter",
@@ -464,10 +479,21 @@ for (const marker of [
 }
 for (const marker of [
   "keeps direct Supabase imports out of auth-runtime.ts",
+  "self_hosted",
+  "/v1/auth/sign-in",
+  "/v1/auth/session",
+  "/v1/auth/sign-out",
   "legacy-auth-supabase-adapter",
   "isLegacyAuthSupabaseConfigured",
 ]) {
   requireText("src/lib/auth-runtime.boundary.test.ts", authRuntimeBoundaryTest, marker);
+}
+for (const marker of [
+  "persists backend session id, user id, source and expiry for API headers",
+  "source: \"self_hosted\"",
+  "userId",
+]) {
+  requireText("src/lib/buyer-session.test.ts", buyerSessionTest, marker);
 }
 for (const marker of [
   "@/integrations/supabase/client",
@@ -480,9 +506,32 @@ for (const marker of [
   requireText("src/lib/legacy-auth-supabase-adapter.ts", legacyAuthSupabaseAdapter, marker);
 }
 requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
+requireText("src/pages/SignIn.tsx", signInPage, "result.session?.userId");
+requireText("src/pages/SignIn.tsx", signInPage, "source: result.source");
 requireText("src/pages/ResetPassword.tsx", resetPasswordPage, "@/lib/auth-runtime");
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend without Supabase env smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-no-supabase-env");
+if (pkg.scripts["smoke:e2e:self-hosted-auth-frontend"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:self-hosted-auth-frontend:run") {
+  failures.push("package.json: smoke:e2e:self-hosted-auth-frontend must build with the self-hosted auth frontend API adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:self-hosted-auth-frontend:run"]?.includes("e2e/signin-self-hosted-auth-flow.spec.ts")) {
+  failures.push("package.json: smoke:e2e:self-hosted-auth-frontend:run must cover self-hosted /signin frontend bridge");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:self-hosted-auth-frontend")) {
+  failures.push("package.json: ci:full must include the self-hosted auth frontend smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted auth frontend smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-auth-frontend");
+for (const marker of [
+  "Batch #74 self-hosted auth frontend guard",
+  "/v1/auth/sign-in",
+  "yorso_buyer_session",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "source: \"self_hosted\"",
+]) {
+  requireText("e2e/signin-self-hosted-auth-flow.spec.ts", selfHostedAuthFrontendE2E, marker);
+}
 if (pkg.scripts["smoke:e2e:self-hosted-access-runtime"] !== "npm run api:build && node scripts/smoke-e2e-self-hosted-access-runtime.mjs") {
   failures.push("package.json: smoke:e2e:self-hosted-access-runtime must build API and run the real self-hosted access runtime browser smoke");
 }

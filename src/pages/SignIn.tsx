@@ -77,9 +77,18 @@ const SignIn = () => {
       return;
     }
     setSigninLoading(false);
-    analytics.track("signin_email", { email });
-    signIn({ identifier: email, method: "email" });
-    analytics.track("workspace_session_started", { method: "email" });
+    analytics.track("signin_email", { email, source: result.source });
+    signIn({
+      displayName: result.session?.displayName,
+      expiresAt: result.session?.expiresAt,
+      id: result.session?.id,
+      identifier: result.session?.email ?? email,
+      method: "email",
+      signedInAt: result.session?.issuedAt,
+      source: result.source,
+      userId: result.session?.userId,
+    });
+    analytics.track("workspace_session_started", { method: "email", source: result.source });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate(redirectTo);
   };
@@ -97,8 +106,8 @@ const SignIn = () => {
       return;
     }
     analytics.track("signin_phone", { phone: phoneNumber });
-    signIn({ identifier: phoneNumber, method: "phone" });
-    analytics.track("workspace_session_started", { method: "phone" });
+    signIn({ identifier: phoneNumber, method: "phone", source: "local_contract" });
+    analytics.track("workspace_session_started", { method: "phone", source: "local_contract" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate(redirectTo);
   };
@@ -177,7 +186,7 @@ const SignIn = () => {
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
                     <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
                   </div>
-                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); signIn({ identifier: phoneNumber, method: "whatsapp" }); analytics.track("workspace_session_started", { method: "whatsapp" }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate(redirectTo), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); signIn({ identifier: phoneNumber, method: "whatsapp", source: "local_contract" }); analytics.track("workspace_session_started", { method: "whatsapp", source: "local_contract" }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate(redirectTo), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                     <WhatsAppIcon className="h-5 w-5" /> {t.signin_getCodeWhatsApp}
                   </Button>
                 </>

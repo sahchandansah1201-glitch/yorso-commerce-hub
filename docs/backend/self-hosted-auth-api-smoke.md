@@ -22,6 +22,19 @@ npm run smoke:self-hosted-auth-api
 The command builds `apps/api`, starts the compiled server in memory mode on a
 free local port, runs HTTP checks and shuts the process down.
 
+## Frontend Bridge Smoke
+
+Batch #74 adds the browser-level companion check:
+
+```bash
+npm run smoke:e2e:self-hosted-auth-frontend
+```
+
+It builds the frontend with `VITE_YORSO_API_URL` pointing at an intercepted
+self-hosted API, signs in through `/signin`, verifies the returned backend
+session is stored in `yorso_buyer_session`, and checks that downstream API
+requests carry `x-yorso-user-id` and `x-yorso-session-id`.
+
 ## Expected Markers
 
 The smoke must print:

@@ -11,7 +11,13 @@ describe("auth-runtime prototype boundary", () => {
 
     expect(authRuntime).toContain("legacy-auth-supabase-adapter");
     expect(authRuntime).toContain("local_contract");
+    expect(authRuntime).toContain("self_hosted");
     expect(authRuntime).toContain("supabase_prototype");
+    expect(authRuntime).toContain("isSelfHostedAuthConfigured");
+    expect(authRuntime).toContain("/v1/auth/sign-in");
+    expect(authRuntime).toContain("/v1/auth/session");
+    expect(authRuntime).toContain("/v1/auth/sign-out");
+    expect(authRuntime).toContain("buyerSession");
     expect(authRuntime).not.toContain("@/integrations/supabase/client");
 
     expect(legacyAdapter).toContain("@/integrations/supabase/client");

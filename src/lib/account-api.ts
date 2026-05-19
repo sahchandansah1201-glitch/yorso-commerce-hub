@@ -239,6 +239,7 @@ export const getConfiguredAccountApiBaseUrl = () =>
   normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
 
 export const getConfiguredAccountUserId = () =>
+  buyerSession.getSession()?.userId ||
   (import.meta.env.VITE_YORSO_ACCOUNT_USER_ID as string | undefined)?.trim() ||
   DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID;
 
