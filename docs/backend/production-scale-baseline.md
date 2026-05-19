@@ -554,6 +554,21 @@ introducing a hosted observability dependency: log aggregation can count
 Failure mode is non-blocking for telemetry emission; auth decisions still rely
 on the owned repository, Redis rate limiter and Redis session cache.
 
+Batch #82 adds production readiness checks for the self-hosted API. `/health/live`
+remains a cheap process liveness probe, while `/health/ready` and
+`/v1/health/ready` now execute bounded readiness checks for PostgreSQL,
+Redis-backed auth hot paths, local file storage and production runtime config.
+The expected read profile is low-frequency orchestrator polling, not user
+traffic. Each dependency check is capped by `HEALTH_READINESS_TIMEOUT_MS` so a
+failing Redis or PostgreSQL path cannot pin request workers at the 10,000
+concurrent-user baseline. Failure mode is explicit: required dependency failure
+returns `503 not_ready`, while local prototype dependencies can be marked as
+`skipped`. Docker Compose now points the API healthcheck at `/health/ready`, and
+the self-hosted health readiness smoke `smoke:self-hosted-health-readiness`
+verifies local readiness, Redis outage, PostgreSQL outage and method guards.
+Observability should count `not_ready`
+responses by dependency and alert before load balancers drain all API replicas.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

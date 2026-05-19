@@ -779,3 +779,13 @@ Supabase env variables are present. This preserves prototype sign-in/recovery
 compatibility while keeping the self-hosted product free to replace auth behind
 the same runtime contract. Guard scripts fail if `auth-runtime.ts` regains a
 direct Supabase client dependency.
+
+Batch #82 adds the production health/readiness boundary for the self-hosted API.
+`/health/live` is intentionally cheap and only proves the process is alive.
+`/health/ready` and `/v1/health/ready` execute bounded checks for PostgreSQL,
+Redis-backed auth hot paths, local storage and production runtime config. The
+API container healthcheck in Docker Compose uses `/health/ready`, so unhealthy
+instances can be drained before they accept buyer traffic. This is a deployment
+control for the 10,000 concurrent-user baseline: dependency outages must surface
+as `503 not_ready`, not as slow request queues against account, catalog or auth
+routes.

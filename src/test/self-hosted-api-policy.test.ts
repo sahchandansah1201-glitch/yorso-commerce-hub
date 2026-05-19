@@ -179,6 +179,42 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("auth observability JSONL");
   });
 
+  it("keeps production health readiness wired through API, smoke and deployment guards", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const health = readFileSync("apps/api/src/routes/health.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-health-readiness.mjs", "utf8");
+    const compose = readFileSync("infra/docker-compose.yml", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-health-readiness"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-health-readiness:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-health-readiness:run"]).toBe(
+      "node scripts/smoke-self-hosted-health-readiness.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-health-readiness:run");
+    expect(health).toContain("SelfHostedReadinessProbe");
+    expect(health).toContain("targetConcurrentUsers: 10_000");
+    expect(health).toContain("checkPostgres");
+    expect(health).toContain("checkRedis");
+    expect(health).toContain("checkLocalStorage");
+    expect(health).toContain("checkProductionRuntimeConfig");
+    expect(server).toContain("/v1/health/ready");
+    expect(server).toContain("createReadinessProbe(config");
+    expect(smoke).toContain("health_readiness_local=ok");
+    expect(smoke).toContain("health_readiness_redis_unavailable=ok");
+    expect(smoke).toContain("health_readiness_postgres_unavailable=ok");
+    expect(smoke).toContain("self_hosted_health_readiness_smoke=ok");
+    expect(compose).toContain("/health/ready");
+    expect(productionEnv).toContain("HEALTH_READINESS_TIMEOUT_MS=750");
+    expect(baseline).toContain("Batch #82");
+    expect(baseline).toContain("self-hosted health readiness smoke");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");

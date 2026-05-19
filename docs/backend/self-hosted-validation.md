@@ -795,6 +795,18 @@ Batch #81 adds auth runtime observability validation:
 - `ci:core`, `check:self-hosted-api` and `check:production-scale-baseline`
   guard the observability smoke and production-scale notes.
 
+Batch #82 adds health/readiness validation:
+
+- `/health/live` and `/v1/health/live` remain process liveness probes;
+- `/health/ready` and `/v1/health/ready` check PostgreSQL, Redis, local storage
+  and production runtime config with `HEALTH_READINESS_TIMEOUT_MS`;
+- Docker Compose uses `/health/ready` for the API container healthcheck;
+- `smoke:self-hosted-health-readiness` verifies local ready state, Redis outage,
+  PostgreSQL outage and method guards;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the readiness contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and
