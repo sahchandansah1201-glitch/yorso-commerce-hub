@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
-import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
+import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import {
   AccountSessionError,
   type AccountSessionAuthority,
@@ -40,6 +40,7 @@ export async function handleSupplierAccessRoute(
   service: SupplierAccessService,
   sessionAuthority: AccountSessionAuthority,
   url: URL,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   try {
     const supplierId = matchSupplierRequestPath(url.pathname);
@@ -60,7 +61,7 @@ export async function handleSupplierAccessRoute(
       }
 
       if (request.method === "POST") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         sendJson(
           response,
           201,
@@ -98,7 +99,7 @@ export async function handleSupplierAccessRoute(
         return true;
       }
 
-      const payload = await readJsonBody(request);
+      const payload = await readJsonBody(request, jsonBodyOptions);
       sendJson(
         response,
         200,
@@ -129,7 +130,7 @@ export async function handleSupplierAccessRoute(
       }
 
       if (request.method === "PATCH") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         sendJson(
           response,
           200,
@@ -163,6 +164,11 @@ export async function handleSupplierAccessRoute(
 
     if (error instanceof Error && error.message === "request_body_too_large") {
       sendError(response, 413, "request_body_too_large", "Request body is too large.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_timeout") {
+      sendError(response, 408, "request_body_timeout", "Request body read timed out.", context);
       return true;
     }
 

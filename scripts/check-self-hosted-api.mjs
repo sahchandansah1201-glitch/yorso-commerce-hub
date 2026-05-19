@@ -59,6 +59,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-health-readiness.mjs",
   "scripts/smoke-self-hosted-graceful-shutdown.mjs",
+  "scripts/smoke-self-hosted-request-guardrails.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -195,6 +196,7 @@ const supplierAccessContract = read("packages/contracts/src/supplier-access.ts")
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
 const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
+const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrails.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -293,6 +295,12 @@ if (pkg.scripts["smoke:self-hosted-graceful-shutdown"] !== "npm run api:build &&
 if (pkg.scripts["smoke:self-hosted-graceful-shutdown:run"] !== "node scripts/smoke-self-hosted-graceful-shutdown.mjs") {
   failures.push("package.json: smoke:self-hosted-graceful-shutdown:run must execute scripts/smoke-self-hosted-graceful-shutdown.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-request-guardrails"] !== "npm run api:build && npm run smoke:self-hosted-request-guardrails:run") {
+  failures.push("package.json: smoke:self-hosted-request-guardrails must build and run the request guardrails smoke");
+}
+if (pkg.scripts["smoke:self-hosted-request-guardrails:run"] !== "node scripts/smoke-self-hosted-request-guardrails.mjs") {
+  failures.push("package.json: smoke:self-hosted-request-guardrails:run must execute scripts/smoke-self-hosted-request-guardrails.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -352,6 +360,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readines
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-graceful-shutdown:run")) {
   failures.push("package.json: ci:core must run the graceful shutdown smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-request-guardrails:run")) {
+  failures.push("package.json: ci:core must run the request guardrails smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -736,6 +747,53 @@ for (const marker of [
   "server_draining",
 ]) {
   requireText("scripts/smoke-self-hosted-graceful-shutdown.mjs", gracefulShutdownSmoke, marker);
+}
+for (const marker of [
+  "request_guardrails_large_body=ok",
+  "request_guardrails_body_idle_timeout=ok",
+  "request_guardrails_large_header=ok",
+  "self_hosted_request_guardrails_smoke=ok",
+  "YORSO_REQUEST_TIMEOUT_MS",
+  "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS",
+  "YORSO_MAX_HEADER_BYTES",
+  "YORSO_JSON_BODY_MAX_BYTES",
+]) {
+  requireText("scripts/smoke-self-hosted-request-guardrails.mjs", requestGuardrailsSmoke, marker);
+}
+for (const marker of [
+  "requestTimeoutMs",
+  "requestBodyIdleTimeoutMs",
+  "headersTimeoutMs",
+  "keepAliveTimeoutMs",
+  "maxHeaderBytes",
+  "jsonBodyMaxBytes",
+  "YORSO_REQUEST_TIMEOUT_MS",
+  "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS",
+  "YORSO_HEADERS_TIMEOUT_MS",
+  "YORSO_KEEP_ALIVE_TIMEOUT_MS",
+  "YORSO_MAX_HEADER_BYTES",
+  "YORSO_JSON_BODY_MAX_BYTES",
+]) {
+  requireText("apps/api/src/config.ts", config, marker);
+}
+for (const marker of [
+  "maxHeaderSize: config.maxHeaderBytes",
+  "server.requestTimeout = config.requestTimeoutMs",
+  "server.headersTimeout = config.headersTimeoutMs",
+  "server.keepAliveTimeout = config.keepAliveTimeoutMs",
+  "request_timeout",
+  "jsonBodyOptions",
+]) {
+  requireText("apps/api/src/server.ts", server, marker);
+}
+for (const marker of [
+  "JsonBodyReadOptions",
+  "request_body_timeout",
+  "request_body_too_large",
+  "content-length",
+  "withBodyIdleTimeout",
+]) {
+  requireText("apps/api/src/http.ts", read("apps/api/src/http.ts"), marker);
 }
 for (const marker of [
   "ApiLifecycle",

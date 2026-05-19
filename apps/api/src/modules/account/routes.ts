@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
-import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
+import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import {
   AccountSessionError,
   type AccountSessionAuthority,
@@ -113,6 +113,7 @@ export async function handleAccountRoute(
   service: AccountService,
   sessionAuthority: AccountSessionAuthority,
   pathname: string,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   try {
     if (pathname === "/v1/account/me") {
@@ -129,7 +130,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         const profile = await service.updateCurrentUserProfile(userId, payload);
         sendJson(response, 200, {
           ok: true,
@@ -157,7 +158,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         const company = await service.updateCompanyProfile(userId, payload);
         sendJson(response, 200, {
           ok: true,
@@ -186,7 +187,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         const items = await collection.replace(service, userId, payload);
         sendJson(response, 200, {
           ok: true,
@@ -217,7 +218,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "POST") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         const item = await collection.create(service, userId, itemId, payload);
         sendJson(response, 201, {
           ok: true,
@@ -228,7 +229,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
-        const payload = await readJsonBody(request);
+        const payload = await readJsonBody(request, jsonBodyOptions);
         const item = await collection.update(service, userId, itemId, payload);
         sendJson(response, 200, {
           ok: true,
@@ -270,6 +271,11 @@ export async function handleAccountRoute(
 
     if (error instanceof Error && error.message === "request_body_too_large") {
       sendError(response, 413, "request_body_too_large", "Request body is too large.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_timeout") {
+      sendError(response, 408, "request_body_timeout", "Request body read timed out.", context);
       return true;
     }
 

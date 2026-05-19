@@ -583,6 +583,26 @@ shutdown smoke, also referenced as the self-hosted graceful shutdown smoke,
 `smoke:self-hosted-graceful-shutdown` verifies ready-before signal, draining
 readiness, live-during-drain, new-work rejection and process exit.
 
+Batch #84 adds request guardrails for the self-hosted API. Runtime config now
+sets `YORSO_REQUEST_TIMEOUT_MS`, `YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS`,
+`YORSO_HEADERS_TIMEOUT_MS`, `YORSO_KEEP_ALIVE_TIMEOUT_MS`,
+`YORSO_MAX_HEADER_BYTES` and `YORSO_JSON_BODY_MAX_BYTES`. These limits create
+bounded failure modes before application code, database pools or file storage
+can be pinned by slow or oversized clients. Oversized JSON bodies return
+`413 request_body_too_large`, stalled body uploads return
+`408 request_body_timeout`, long-running requests return `408 request_timeout`,
+and oversized headers are rejected by the Node HTTP parser with `431`.
+The explicit request timeout and body idle timeout are separate controls:
+request timeout bounds total route work, while body idle timeout bounds time
+between upload chunks.
+At the 10,000 concurrent-user baseline this is the API backpressure layer above
+PgBouncer and Redis: legitimate requests fail fast when a replica is saturated,
+while abusive or broken clients cannot accumulate unbounded memory, sockets or
+worker time. Observability must count each guardrail code separately and alert
+on spikes by route and request id. The self-hosted request guardrails smoke
+`smoke:self-hosted-request-guardrails` verifies large-body rejection, body idle
+timeout and header-size enforcement over the compiled API.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

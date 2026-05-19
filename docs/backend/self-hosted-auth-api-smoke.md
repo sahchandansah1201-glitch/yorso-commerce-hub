@@ -89,6 +89,13 @@ Batch #83 adds the companion graceful shutdown smoke:
 - `graceful_shutdown_process_exit=ok`
 - `self_hosted_graceful_shutdown_smoke=ok`
 
+Batch #84 adds the companion request guardrails smoke:
+
+- `request_guardrails_large_body=ok`
+- `request_guardrails_body_idle_timeout=ok`
+- `request_guardrails_large_header=ok`
+- `self_hosted_request_guardrails_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -152,6 +159,13 @@ The API marks readiness unavailable with `server_draining`, keeps live health
 available, rejects new non-health work with `503 server_draining`, waits for
 active requests to finish and then exits. The drain window is configured by
 `YORSO_SHUTDOWN_DRAIN_DELAY_MS` and `YORSO_SHUTDOWN_GRACE_TIMEOUT_MS`.
+
+Batch #84 adds request guardrails for API backpressure. The compiled API is
+started with small limits and must reject an oversized JSON body with
+`request_body_too_large`, reject a stalled body upload with
+`request_body_timeout`, and reject oversized headers at the HTTP parser layer.
+These checks protect the self-hosted runtime from slow clients and unbounded
+payload memory before account, auth, access or storage handlers perform work.
 
 Batch #82 adds readiness validation for production operations. `/health/live`
 only proves the API process can respond; `/health/ready` and `/v1/health/ready`

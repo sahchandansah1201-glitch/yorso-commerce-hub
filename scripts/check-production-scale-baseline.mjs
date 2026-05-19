@@ -39,6 +39,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-health-readiness.mjs",
   "scripts/smoke-self-hosted-graceful-shutdown.mjs",
+  "scripts/smoke-self-hosted-request-guardrails.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -135,6 +136,7 @@ const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
 const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
+const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrails.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -239,6 +241,7 @@ for (const marker of [
   "Batch #81",
   "Batch #82",
   "Batch #83",
+  "Batch #84",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -255,6 +258,9 @@ for (const marker of [
   "self-hosted health readiness smoke",
   "graceful shutdown drain",
   "self-hosted graceful shutdown smoke",
+  "request timeout",
+  "body idle timeout",
+  "self-hosted request guardrails smoke",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -514,6 +520,15 @@ if (pkg.scripts["smoke:self-hosted-graceful-shutdown:run"] !== "node scripts/smo
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-graceful-shutdown:run")) {
   failures.push("package.json: ci:core must run the graceful shutdown smoke");
 }
+if (pkg.scripts["smoke:self-hosted-request-guardrails"] !== "npm run api:build && npm run smoke:self-hosted-request-guardrails:run") {
+  failures.push("package.json: smoke:self-hosted-request-guardrails must build and run the request guardrails smoke");
+}
+if (pkg.scripts["smoke:self-hosted-request-guardrails:run"] !== "node scripts/smoke-self-hosted-request-guardrails.mjs") {
+  failures.push("package.json: smoke:self-hosted-request-guardrails:run must execute scripts/smoke-self-hosted-request-guardrails.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-request-guardrails:run")) {
+  failures.push("package.json: ci:core must run the request guardrails smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -673,6 +688,45 @@ for (const marker of [
   "server_draining",
 ]) {
   requireText("scripts/smoke-self-hosted-graceful-shutdown.mjs", gracefulShutdownSmoke, marker);
+}
+
+for (const marker of [
+  "request_guardrails_large_body=ok",
+  "request_guardrails_body_idle_timeout=ok",
+  "request_guardrails_large_header=ok",
+  "self_hosted_request_guardrails_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-request-guardrails.mjs", requestGuardrailsSmoke, marker);
+}
+
+for (const marker of [
+  "requestTimeoutMs",
+  "requestBodyIdleTimeoutMs",
+  "headersTimeoutMs",
+  "keepAliveTimeoutMs",
+  "maxHeaderBytes",
+  "jsonBodyMaxBytes",
+]) {
+  requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
+}
+
+for (const marker of [
+  "maxHeaderSize: config.maxHeaderBytes",
+  "server.requestTimeout = config.requestTimeoutMs",
+  "server.headersTimeout = config.headersTimeoutMs",
+  "server.keepAliveTimeout = config.keepAliveTimeoutMs",
+  "request_timeout",
+]) {
+  requireText("apps/api/src/server.ts", read("apps/api/src/server.ts"), marker);
+}
+
+for (const marker of [
+  "JsonBodyReadOptions",
+  "request_body_timeout",
+  "request_body_too_large",
+  "withBodyIdleTimeout",
+]) {
+  requireText("apps/api/src/http.ts", read("apps/api/src/http.ts"), marker);
 }
 
 for (const marker of [
