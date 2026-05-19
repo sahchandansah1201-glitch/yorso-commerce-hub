@@ -1,6 +1,7 @@
+import net from "node:net";
 import type { Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
-import { assertSupabaseIsPrototypeOnly, loadApiConfig } from "./config.js";
+import { assertSupabaseIsPrototypeOnly, loadApiConfig, type ApiConfig } from "./config.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { createApiServer } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
@@ -86,9 +87,9 @@ async function startTestServer() {
     });
 }
 
-async function startRawTestServer(options: { readinessProbe?: ReadinessProbe } = {}) {
+async function startRawTestServer(options: { config?: ApiConfig; readinessProbe?: ReadinessProbe } = {}) {
   await closeServer();
-  server = createApiServer(config, options);
+  server = createApiServer(options.config ?? config, options);
 
   await new Promise<void>((resolve) => {
     server?.listen(0, "127.0.0.1", resolve);
@@ -139,6 +140,46 @@ const filePayload = (content: string, fileName = "sample.txt", contentType = "te
     contentBase64: bytes.toString("base64"),
   };
 };
+
+async function sendSlowBodyRequest(port: number) {
+  return await new Promise<string>((resolve, reject) => {
+    const socket = net.createConnection({ host: "127.0.0.1", port });
+    let response = "";
+    const timeout = setTimeout(() => {
+      socket.destroy();
+      reject(new Error("Timed out waiting for slow body response."));
+    }, 2_000);
+
+    socket.on("connect", () => {
+      socket.write([
+        "POST /v1/auth/sign-in HTTP/1.1",
+        "Host: 127.0.0.1",
+        "Content-Type: application/json",
+        "Content-Length: 128",
+        "",
+        "{\"email\"",
+      ].join("\r\n"));
+    });
+    socket.on("data", (chunk) => {
+      response += chunk.toString("utf8");
+      if (response.includes("request_body_timeout")) {
+        clearTimeout(timeout);
+        socket.end();
+        resolve(response);
+      }
+    });
+    socket.on("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    socket.on("end", () => {
+      if (response) {
+        clearTimeout(timeout);
+        resolve(response);
+      }
+    });
+  });
+}
 
 afterEach(async () => {
   await closeServer();
@@ -232,6 +273,93 @@ describe("YORSO self-hosted API skeleton", () => {
         status: "unavailable",
       },
     });
+  });
+
+  it("returns 408 when route work exceeds the configured request timeout", async () => {
+    const timeoutConfig = loadApiConfig(
+      {
+        NODE_ENV: "test",
+        YORSO_API_PORT: "3000",
+        YORSO_REQUEST_TIMEOUT_MS: "500",
+        YORSO_HEADERS_TIMEOUT_MS: "2000",
+        YORSO_KEEP_ALIVE_TIMEOUT_MS: "500",
+        AUTH_SESSION_CACHE_DRIVER: "memory",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+      },
+      { allowLocalDefaults: true },
+    );
+    const fetchApi = await startRawTestServer({
+      config: timeoutConfig,
+      readinessProbe: {
+        async check() {
+          await new Promise((resolve) => setTimeout(resolve, 750));
+          return {
+            ok: true,
+            service: "yorso-api",
+            status: "ready",
+            selfHostedBackend: true,
+            supabaseProductionBackend: false,
+            productionScaleBaseline: {
+              targetConcurrentUsers: 10_000,
+              readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],
+            },
+            dependencies: {
+              shutdownDrain: { required: true, status: "ok" },
+              postgres: { required: false, status: "skipped" },
+              redis: { required: false, status: "skipped" },
+              localStorage: { required: true, status: "ok" },
+              productionRuntimeConfig: { required: false, status: "skipped" },
+            },
+          };
+        },
+      },
+    });
+
+    const response = await fetchApi("/health/ready");
+    expect(response.status).toBe(408);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "request_timeout" },
+    });
+  });
+
+  it("rejects oversized JSON bodies before route validation", async () => {
+    const response = await request("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "Password1",
+        padding: "x".repeat(70 * 1024),
+      }),
+    });
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "request_body_too_large" },
+    });
+  });
+
+  it("returns 408 when JSON body upload stalls", async () => {
+    const timeoutConfig = loadApiConfig(
+      {
+        NODE_ENV: "test",
+        YORSO_API_PORT: "3000",
+        YORSO_REQUEST_TIMEOUT_MS: "2000",
+        YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS: "500",
+        AUTH_SESSION_CACHE_DRIVER: "memory",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+      },
+      { allowLocalDefaults: true },
+    );
+    const fetchApi = await startRawTestServer({ config: timeoutConfig });
+    await fetchApi("/health/live");
+    const address = server?.address();
+    if (!address || typeof address === "string") throw new Error("Expected server address object.");
+
+    const raw = await sendSlowBodyRequest(address.port);
+    expect(raw).toContain("408");
+    expect(raw).toContain("request_body_timeout");
   });
 
   it("marks readiness unavailable and rejects new work while draining", async () => {

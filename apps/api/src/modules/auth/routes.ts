@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import {
   type ApiRequestContext,
+  type JsonBodyReadOptions,
   methodNotAllowed,
   readJsonBody,
   sendError,
@@ -31,6 +32,7 @@ export async function handleAuthRoute(
   context: ApiRequestContext,
   service: AuthService,
   pathname: string,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   try {
     if (pathname === "/v1/auth/sign-in") {
@@ -39,7 +41,7 @@ export async function handleAuthRoute(
         return true;
       }
 
-      const payload = await readJsonBody(request);
+      const payload = await readJsonBody(request, jsonBodyOptions);
       sendJson(response, 200, await service.signIn(payload, context.requestId, requestMetadata(request)));
       return true;
     }
@@ -98,6 +100,11 @@ export async function handleAuthRoute(
 
     if (error instanceof Error && error.message === "request_body_too_large") {
       sendError(response, 413, "request_body_too_large", "Request body is too large.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_timeout") {
+      sendError(response, 408, "request_body_timeout", "Request body read timed out.", context);
       return true;
     }
 

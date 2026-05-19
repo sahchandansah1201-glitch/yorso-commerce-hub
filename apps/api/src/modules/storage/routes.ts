@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
-import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
+import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import type { AccountService } from "../account/service.js";
 import {
   AccountSessionError,
@@ -18,6 +18,7 @@ export async function handleStorageRoute(
   fileService: FileService,
   sessionAuthority: AccountSessionAuthority,
   pathname: string,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   try {
     if (pathname === "/v1/account/files/by-object-key") {
@@ -51,7 +52,10 @@ export async function handleStorageRoute(
 
       if (request.method === "POST") {
         const company = await accountService.getCompanyProfile(userId);
-        const payload = fileService.parseDocumentCreate(await readJsonBody(request, fileService.maxJsonBodyBytes));
+        const payload = fileService.parseDocumentCreate(await readJsonBody(request, {
+          ...jsonBodyOptions,
+          maxBytes: fileService.maxJsonBodyBytes,
+        }));
         const document = await fileService.createCompanyDocument({ userId, companyId: company.id, payload });
         sendJson(response, 201, { ok: true, document, requestId: context.requestId });
         return true;
@@ -71,7 +75,10 @@ export async function handleStorageRoute(
 
       const slot = pathname.endsWith("/logo") ? "logo" : "cover";
       const company = await accountService.getCompanyProfile(userId);
-      const upload = fileService.parseMediaUpload(await readJsonBody(request, fileService.maxJsonBodyBytes));
+      const upload = fileService.parseMediaUpload(await readJsonBody(request, {
+        ...jsonBodyOptions,
+        maxBytes: fileService.maxJsonBodyBytes,
+      }));
       const asset = await fileService.storeAccountFile({
         userId,
         companyId: company.id,
@@ -130,6 +137,11 @@ export async function handleStorageRoute(
 
     if (error instanceof Error && error.message === "request_body_too_large") {
       sendError(response, 413, "request_body_too_large", "Request body is too large.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_timeout") {
+      sendError(response, 408, "request_body_timeout", "Request body read timed out.", context);
       return true;
     }
 

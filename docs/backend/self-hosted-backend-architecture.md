@@ -800,3 +800,14 @@ the default `YORSO_SHUTDOWN_DRAIN_DELAY_MS=5000` plus
 `YORSO_SHUTDOWN_GRACE_TIMEOUT_MS=30000`. This gives load balancers and
 orchestrators a deterministic rolling-deploy behavior without a hosted runtime
 dependency.
+
+Batch #84 adds the API request guardrails boundary. `apps/api/src/server.ts`
+configures Node HTTP `maxHeaderSize`, `requestTimeout`, `headersTimeout` and
+`keepAliveTimeout` from owned runtime env, and `apps/api/src/http.ts` enforces
+JSON body size plus body idle timeout for route readers. Route modules pass a
+shared `JsonBodyReadOptions` object, so auth, account, access and storage
+payloads all share the same backpressure policy. This keeps self-hosted API
+capacity predictable at the 10,000 concurrent-user baseline: slow body uploads,
+oversized JSON payloads, oversized headers and long-running requests fail with
+explicit retryable or client-error responses instead of occupying sockets and
+memory indefinitely.

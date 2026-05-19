@@ -821,6 +821,22 @@ Batch #83 adds graceful shutdown validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the graceful shutdown drain contract.
 
+Batch #84 adds request guardrails validation:
+
+- `apps/api/src/server.ts` enforces bounded request timeout, header timeout,
+  keep-alive timeout and maximum header bytes from runtime env;
+- `apps/api/src/http.ts` enforces JSON body max bytes and body idle timeout
+  before route validation or repository writes;
+- oversized JSON bodies return `413 request_body_too_large`;
+- stalled body uploads return `408 request_body_timeout`;
+- long-running work returns `408 request_timeout`;
+- oversized headers are rejected by the HTTP parser with `431`;
+- `smoke:self-hosted-request-guardrails` starts the compiled API and verifies
+  large body, body idle timeout and header-size failure modes;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the request timeout and backpressure contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

@@ -11,6 +11,11 @@ export interface ApiRequestContext {
   startedAt: number;
 }
 
+export interface JsonBodyReadOptions {
+  maxBytes?: number;
+  idleTimeoutMs?: number;
+}
+
 export function createRequestContext(): ApiRequestContext {
   return {
     requestId: randomUUID(),
@@ -19,6 +24,7 @@ export function createRequestContext(): ApiRequestContext {
 }
 
 export function sendJson(response: ServerResponse, statusCode: number, body: JsonResponseBody) {
+  if (response.writableEnded) return;
   response.writeHead(statusCode, {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store",
@@ -63,12 +69,29 @@ export function sendValidationError(response: ServerResponse, context: ApiReques
   });
 }
 
-export async function readJsonBody(request: IncomingMessage, maxBytes = 64 * 1024) {
+export async function readJsonBody(
+  request: IncomingMessage,
+  maxBytesOrOptions: number | JsonBodyReadOptions = 64 * 1024,
+) {
+  const options = typeof maxBytesOrOptions === "number"
+    ? { maxBytes: maxBytesOrOptions }
+    : maxBytesOrOptions;
+  const maxBytes = options.maxBytes ?? 64 * 1024;
+  const idleTimeoutMs = options.idleTimeoutMs ?? 5_000;
+  const contentLength = request.headers["content-length"];
+  const declaredLength = Array.isArray(contentLength) ? contentLength[0] : contentLength;
+  if (declaredLength && Number.isFinite(Number(declaredLength)) && Number(declaredLength) > maxBytes) {
+    throw new Error("request_body_too_large");
+  }
+
   const chunks: Buffer[] = [];
   let size = 0;
 
-  for await (const chunk of request) {
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+  const iterator = request[Symbol.asyncIterator]();
+  while (true) {
+    const next = await withBodyIdleTimeout(iterator.next(), idleTimeoutMs);
+    if (next.done) break;
+    const buffer = Buffer.isBuffer(next.value) ? next.value : Buffer.from(next.value);
     size += buffer.byteLength;
     if (size > maxBytes) {
       throw new Error("request_body_too_large");
@@ -82,6 +105,20 @@ export async function readJsonBody(request: IncomingMessage, maxBytes = 64 * 102
     return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown;
   } catch {
     throw new Error("invalid_json");
+  }
+}
+
+async function withBodyIdleTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error("request_body_timeout")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
   }
 }
 

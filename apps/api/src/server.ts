@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { ApiConfig } from "./config.js";
-import { createRequestContext, getRequestUrl, methodNotAllowed, sendError } from "./http.js";
+import { createRequestContext, getRequestUrl, methodNotAllowed, sendError, type JsonBodyReadOptions } from "./http.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
@@ -68,9 +68,22 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     timeoutMs: config.healthReadinessTimeoutMs,
     lifecycle,
   });
+  const jsonBodyOptions = {
+    maxBytes: config.jsonBodyMaxBytes,
+    idleTimeoutMs: config.requestBodyIdleTimeoutMs,
+  } satisfies JsonBodyReadOptions;
 
-  return createServer((request, response) => {
+  const server = createServer({ maxHeaderSize: config.maxHeaderBytes }, (request, response) => {
     const context = createRequestContext();
+    const requestTimer = setTimeout(() => {
+      if (response.writableEnded) return;
+      sendError(response, 408, "request_timeout", "Request exceeded the configured time limit.", context);
+      setTimeout(() => request.destroy(new Error("request_timeout")), 25);
+    }, config.requestTimeoutMs);
+    const clearRequestTimer = () => clearTimeout(requestTimer);
+    response.once("finish", clearRequestTimer);
+    response.once("close", clearRequestTimer);
+
     routeRequest(
       request,
       response,
@@ -84,11 +97,17 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       supplierService,
       readinessProbe,
       lifecycle,
+      jsonBodyOptions,
     ).catch((error) => {
       console.error(error);
+      if (response.writableEnded) return;
       sendError(response, 500, "internal_error", "Internal server error.", context);
     });
   });
+  server.requestTimeout = config.requestTimeoutMs;
+  server.headersTimeout = config.headersTimeoutMs;
+  server.keepAliveTimeout = config.keepAliveTimeoutMs;
+  return server;
 }
 
 async function routeRequest(
@@ -104,6 +123,7 @@ async function routeRequest(
   supplierService: SupplierDirectoryService,
   readinessProbe: ReadinessProbe,
   lifecycle: ApiLifecycle,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
@@ -153,6 +173,7 @@ async function routeRequest(
       supplierAccessService,
       supplierService,
       url,
+      jsonBodyOptions,
     );
   } finally {
     lifecycle.endRequest();
@@ -170,6 +191,7 @@ async function routeWorkRequest(
   supplierAccessService: SupplierAccessService,
   supplierService: SupplierDirectoryService,
   url: URL,
+  jsonBodyOptions: JsonBodyReadOptions,
 ) {
   if (url.pathname === "/v1/account/company/schema") {
     if (request.method !== "GET") {
@@ -180,11 +202,11 @@ async function routeWorkRequest(
     return;
   }
 
-  if (await handleAuthRoute(request, response, context, authService, url.pathname)) return;
-  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname)) return;
-  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname)) return;
+  if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions)) return;
+  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions)) return;
+  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
-  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url)) return;
+  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions)) return;
   if (await handleSupplierDirectoryRoute(request, response, context, supplierService, authService, url)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);

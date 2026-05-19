@@ -46,6 +46,12 @@ const requiredComposeMarkers = [
   "AUTH_SESSION_CACHE_FAIL_MODE: closed",
   "AUTH_OBSERVABILITY_DRIVER: console",
   "HEALTH_READINESS_TIMEOUT_MS:",
+  "YORSO_REQUEST_TIMEOUT_MS:",
+  "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS:",
+  "YORSO_HEADERS_TIMEOUT_MS:",
+  "YORSO_KEEP_ALIVE_TIMEOUT_MS:",
+  "YORSO_MAX_HEADER_BYTES:",
+  "YORSO_JSON_BODY_MAX_BYTES:",
   "YORSO_SHUTDOWN_DRAIN_DELAY_MS:",
   "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS:",
   "stop_grace_period:",
@@ -103,6 +109,12 @@ const requiredEnvKeys = [
   "AUTH_SESSION_CACHE_KEY_PREFIX",
   "AUTH_OBSERVABILITY_DRIVER",
   "HEALTH_READINESS_TIMEOUT_MS",
+  "YORSO_REQUEST_TIMEOUT_MS",
+  "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS",
+  "YORSO_HEADERS_TIMEOUT_MS",
+  "YORSO_KEEP_ALIVE_TIMEOUT_MS",
+  "YORSO_MAX_HEADER_BYTES",
+  "YORSO_JSON_BODY_MAX_BYTES",
   "YORSO_SHUTDOWN_DRAIN_DELAY_MS",
   "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS",
   "S3_ENDPOINT",
@@ -132,6 +144,12 @@ requireText(".env.example", envExample, "AUTH_SESSION_CACHE_DRIVER=disabled");
 requireText(".env.example", envExample, "AUTH_SESSION_CACHE_FAIL_MODE=open");
 requireText(".env.example", envExample, "AUTH_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "HEALTH_READINESS_TIMEOUT_MS=750");
+requireText(".env.example", envExample, "YORSO_REQUEST_TIMEOUT_MS=15000");
+requireText(".env.example", envExample, "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS=5000");
+requireText(".env.example", envExample, "YORSO_HEADERS_TIMEOUT_MS=16000");
+requireText(".env.example", envExample, "YORSO_KEEP_ALIVE_TIMEOUT_MS=5000");
+requireText(".env.example", envExample, "YORSO_MAX_HEADER_BYTES=16384");
+requireText(".env.example", envExample, "YORSO_JSON_BODY_MAX_BYTES=65536");
 requireText(".env.example", envExample, "YORSO_SHUTDOWN_DRAIN_DELAY_MS=5000");
 requireText(".env.example", envExample, "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS=30000");
 requireText(".env.example", envExample, "STORAGE_DRIVER=local");
