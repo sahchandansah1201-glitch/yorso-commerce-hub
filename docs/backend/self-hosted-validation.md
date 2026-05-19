@@ -781,6 +781,20 @@ Batch #80 adds negative fail-closed validation for the same boundary:
 - `ci:core`, `check:self-hosted-api` and `check:production-scale-baseline`
   guard the new smoke and markers.
 
+Batch #81 adds auth runtime observability validation:
+
+- `AUTH_OBSERVABILITY_DRIVER=console` is required by production runtime config
+  and docker-compose;
+- `smoke:self-hosted-auth-observability` starts the compiled API with console
+  telemetry enabled and parses emitted JSONL records;
+- the smoke verifies `auth.sign_in.failed`, `auth.sign_in.rate_limited`,
+  `auth.sign_in.succeeded`, `auth.sign_out.succeeded` and
+  `auth.session.invalid`;
+- the same smoke verifies that raw email, session id and user id values are not
+  present in telemetry payloads;
+- `ci:core`, `check:self-hosted-api` and `check:production-scale-baseline`
+  guard the observability smoke and production-scale notes.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

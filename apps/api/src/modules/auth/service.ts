@@ -15,6 +15,11 @@ import {
   type AuthSessionCacheRead,
   type AuthSessionCacheWrite,
 } from "./session-cache.js";
+import {
+  NoopAuthTelemetrySink,
+  type AuthTelemetryEvent,
+  type AuthTelemetrySink,
+} from "./observability.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
 
@@ -51,6 +56,7 @@ export class AuthService {
       redisUrl: "redis://localhost:6379",
     }),
     private readonly sessionCache: AuthSessionCache = new DisabledAuthSessionCache(),
+    private readonly telemetry: AuthTelemetrySink = new NoopAuthTelemetrySink(),
   ) {}
 
   async signIn(
@@ -77,6 +83,15 @@ export class AuthService {
         requestId,
         metadata: securityMetadata(metadata),
       });
+      await this.emitTelemetry({
+        event: "auth.sign_in.failed",
+        requestId,
+        severity: "warn",
+        outcome: "failure",
+        reason: "invalid_credentials",
+        userKnown: Boolean(user),
+        ...requestPresence(metadata),
+      });
       await this.throwIfRateLimited(
         await this.rateLimiter.recordFailedSignIn(identity),
         parsed.email,
@@ -102,6 +117,15 @@ export class AuthService {
       sessionId: session.id,
       requestId,
       metadata: securityMetadata(metadata),
+    });
+    await this.emitTelemetry({
+      event: "auth.sign_in.succeeded",
+      requestId,
+      severity: "info",
+      outcome: "success",
+      cacheSource: "session_cache",
+      cacheStatus: "set",
+      ...requestPresence(metadata),
     });
     return authSessionResponseSchema.parse({
       ok: true,
@@ -145,6 +169,14 @@ export class AuthService {
       requestId,
       metadata: securityMetadata(metadata),
     });
+    await this.emitTelemetry({
+      event: "auth.sign_out.succeeded",
+      requestId,
+      severity: "info",
+      outcome: "success",
+      signedOut,
+      ...requestPresence(metadata),
+    });
     return authSignOutResponseSchema.parse({
       ok: true,
       signedOut,
@@ -165,6 +197,14 @@ export class AuthService {
         requestId,
         metadata: securityMetadata(metadata, { reason: "missing_session_id" }),
       });
+      await this.emitTelemetry({
+        event: invalidEventType === "sign_out_invalid" ? "auth.sign_out.invalid" : "auth.session.required",
+        requestId,
+        severity: "warn",
+        outcome: "failure",
+        reason: "missing_session_id",
+        ...requestPresence(metadata),
+      });
       throw new AuthServiceError("auth_session_required", "Auth session id is required.");
     }
 
@@ -180,6 +220,14 @@ export class AuthService {
         sessionId: trimmedSessionId,
         requestId,
         metadata: securityMetadata(metadata, { reason: "invalid_or_expired_session" }),
+      });
+      await this.emitTelemetry({
+        event: invalidEventType === "sign_out_invalid" ? "auth.sign_out.invalid" : "auth.session.invalid",
+        requestId,
+        severity: "warn",
+        outcome: "failure",
+        reason: "invalid_or_expired_session",
+        ...requestPresence(metadata),
       });
       throw new AuthServiceError("auth_session_invalid", "Auth session is invalid or expired.");
     }
@@ -216,6 +264,20 @@ export class AuthService {
         reason: decision.reason,
       }),
     });
+    await this.emitTelemetry({
+      event: "auth.sign_in.rate_limited",
+      requestId,
+      severity: "warn",
+      outcome: "blocked",
+      reason: decision.reason ?? "too_many_failed_attempts",
+      rateLimitSource: decision.source,
+      rateLimitCount: decision.count,
+      rateLimitLimit: decision.limit,
+      retryAfterSeconds: decision.retryAfterSeconds,
+      failMode: decision.failMode,
+      degraded: decision.degraded,
+      ...requestPresence(metadata),
+    });
     throw new AuthServiceError(
       "auth_rate_limited",
       "Too many sign-in attempts. Try again later.",
@@ -244,11 +306,38 @@ export class AuthService {
         failMode: result.failMode,
       }),
     });
+    await this.emitTelemetry({
+      event: "auth.session_cache.unavailable",
+      requestId,
+      severity: "error",
+      outcome: "blocked",
+      reason: result.reason,
+      operation,
+      cacheSource: result.source,
+      cacheStatus: result.status,
+      failMode: result.failMode,
+      ...requestPresence(metadata),
+    });
     throw new AuthServiceError(
       "auth_session_cache_unavailable",
       "Auth session cache is unavailable.",
     );
   }
+
+  private async emitTelemetry(event: AuthTelemetryEvent) {
+    try {
+      await this.telemetry.emit(event);
+    } catch (error) {
+      console.error("auth_telemetry_emit_error", error);
+    }
+  }
+}
+
+function requestPresence(metadata: AuthRequestMetadata) {
+  return {
+    ipPresent: Boolean(metadata.ip),
+    userAgentPresent: Boolean(metadata.userAgent),
+  };
 }
 
 function securityMetadata(

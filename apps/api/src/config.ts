@@ -19,6 +19,7 @@ export const apiConfigSchema = z.object({
   authSessionCacheFailMode: z.enum(["open", "closed"]).default("open"),
   authSessionCacheTtlMs: z.coerce.number().int().min(60_000).max(7 * 24 * 60 * 60 * 1000).default(300_000),
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
+  authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   s3Endpoint: z.string().url(),
   s3Bucket: z.string().min(1),
   storageDriver: z.enum(["local"]).default("local"),
@@ -51,6 +52,7 @@ const localDefaults = {
   AUTH_SESSION_CACHE_FAIL_MODE: "open",
   AUTH_SESSION_CACHE_TTL_MS: "300000",
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
+  AUTH_OBSERVABILITY_DRIVER: "disabled",
   S3_ENDPOINT: "http://localhost:9000",
   S3_BUCKET: "yorso-local",
   STORAGE_DRIVER: "local",
@@ -82,6 +84,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheFailMode: source.AUTH_SESSION_CACHE_FAIL_MODE,
     authSessionCacheTtlMs: source.AUTH_SESSION_CACHE_TTL_MS,
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
+    authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
     s3Endpoint: source.S3_ENDPOINT,
     s3Bucket: source.S3_BUCKET,
     storageDriver: source.STORAGE_DRIVER,
@@ -109,6 +112,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.authSessionCacheFailMode !== "closed") {
     throw new Error("Production self-hosted API must use AUTH_SESSION_CACHE_FAIL_MODE=closed.");
+  }
+  if (config.nodeEnv === "production" && config.authObservabilityDriver !== "console") {
+    throw new Error("Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
   }
 }
 

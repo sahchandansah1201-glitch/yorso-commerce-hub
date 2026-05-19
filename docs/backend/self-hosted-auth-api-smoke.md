@@ -63,6 +63,16 @@ Batch #80 adds the companion fail-closed smoke:
 - `auth_session_cache_fail_closed_public_catalog=ok`
 - `self_hosted_session_cache_fail_closed_smoke=ok`
 
+Batch #81 adds the companion auth observability smoke:
+
+- `auth_observability_sign_in_failed=ok`
+- `auth_observability_rate_limited=ok`
+- `auth_observability_sign_in_succeeded=ok`
+- `auth_observability_sign_out_succeeded=ok`
+- `auth_observability_session_invalid=ok`
+- `auth_observability_no_pii=ok`
+- `self_hosted_auth_observability_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -111,3 +121,12 @@ protected account routes and authenticated catalog unlock attempts fail closed,
 and anonymous catalog reads still return public redacted data. This protects
 the 10,000 concurrent-user runtime from silently bypassing the session cache
 when production Redis is down.
+
+Batch #81 adds structured auth runtime telemetry. Production sets
+`AUTH_OBSERVABILITY_DRIVER=console`, and the API writes JSONL events with
+`type=auth_runtime_event` for sign-in failure, rate limiting, successful
+sign-in, sign-out and invalid-session outcomes. The payload intentionally
+omits raw email, session id and user id values; durable investigation still
+uses `yorso_auth_security_events`, while the JSONL stream feeds owned log
+aggregation and alerting. The smoke verifies both event coverage and the no-PII
+guard.

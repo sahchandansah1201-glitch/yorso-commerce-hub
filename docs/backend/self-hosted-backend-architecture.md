@@ -82,6 +82,14 @@ requires authenticated paths to reject the request instead of bypassing Redis,
 while anonymous catalog reads continue as redacted public data. This keeps a
 Redis outage from becoming uncontrolled PostgreSQL session-read pressure.
 
+Batch #81 makes the auth runtime observable without adding a hosted telemetry
+backend. Production sets `AUTH_OBSERVABILITY_DRIVER=console`, and the API emits
+structured `auth_runtime_event` JSONL records for sign-in failure, rate-limit
+blocks, successful sign-in, sign-out and invalid-session outcomes. The payload
+omits raw email, session id and user id values. PostgreSQL keeps the durable
+security-event audit trail; JSONL is the hot operational stream for owned log
+aggregation, alerting and capacity review.
+
 The mandatory project-wide scale contract is documented in
 `docs/backend/production-scale-baseline.md`. Any production-facing feature must
 either attach a capacity review against that baseline or explicitly remain

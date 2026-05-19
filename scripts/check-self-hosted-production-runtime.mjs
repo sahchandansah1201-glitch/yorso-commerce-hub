@@ -81,6 +81,7 @@ for (const key of [
   "AUTH_SESSION_CACHE_FAIL_MODE",
   "AUTH_SESSION_CACHE_TTL_MS",
   "AUTH_SESSION_CACHE_KEY_PREFIX",
+  "AUTH_OBSERVABILITY_DRIVER",
   "STORAGE_DRIVER",
   "STORAGE_LOCAL_ROOT",
   "YORSO_MAX_UPLOAD_BYTES",
@@ -112,6 +113,7 @@ for (const marker of [
   "AUTH_SESSION_CACHE_FAIL_MODE=closed",
   "AUTH_SESSION_CACHE_TTL_MS=300000",
   "AUTH_SESSION_CACHE_KEY_PREFIX=yorso:auth",
+  "AUTH_OBSERVABILITY_DRIVER=console",
   "STORAGE_DRIVER=local",
   "STORAGE_LOCAL_ROOT=/var/lib/yorso/uploads",
 ]) {
@@ -143,6 +145,7 @@ for (const marker of [
   "AUTH_RATE_LIMIT_FAIL_MODE: closed",
   "AUTH_SESSION_CACHE_DRIVER: redis",
   "AUTH_SESSION_CACHE_FAIL_MODE: closed",
+  "AUTH_OBSERVABILITY_DRIVER: console",
   "S3_ENDPOINT: http://minio:9000",
   "STORAGE_DRIVER: local",
   "STORAGE_LOCAL_ROOT: /var/lib/yorso/uploads",

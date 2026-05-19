@@ -146,6 +146,39 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("session-cache fail-closed smoke");
   });
 
+  it("keeps auth observability JSONL wired into production runtime and CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const observability = readFileSync("apps/api/src/modules/auth/observability.ts", "utf8");
+    const observabilityTest = readFileSync("apps/api/src/modules/auth/observability.test.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-auth-observability.mjs", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-auth-api-smoke.md", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-auth-observability"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-auth-observability:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-auth-observability:run"]).toBe(
+      "node scripts/smoke-self-hosted-auth-observability.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-auth-observability:run");
+    expect(observability).toContain("ConsoleAuthTelemetrySink");
+    expect(observability).toContain("auth_runtime_event");
+    expect(observability).toContain("sanitizeAuthTelemetryEvent");
+    expect(observabilityTest).toContain("not.toContain(\"buyer@example.com\")");
+    expect(smoke).toContain("AUTH_OBSERVABILITY_DRIVER: \"console\"");
+    expect(smoke).toContain("auth_observability_no_pii=ok");
+    expect(smoke).toContain("self_hosted_auth_observability_smoke=ok");
+    expect(config).toContain("Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
+    expect(productionEnv).toContain("AUTH_OBSERVABILITY_DRIVER=console");
+    expect(docs).toContain("Batch #81");
+    expect(baseline).toContain("Batch #81");
+    expect(baseline).toContain("auth observability JSONL");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");

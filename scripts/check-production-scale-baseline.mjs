@@ -26,6 +26,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/routes.ts",
   "apps/api/src/modules/auth/rate-limit.ts",
   "apps/api/src/modules/auth/session-cache.ts",
+  "apps/api/src/modules/auth/observability.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/modules/account/routes.ts",
@@ -34,6 +35,7 @@ const requiredFiles = [
   "apps/api/src/modules/offers/routes.ts",
   "apps/api/src/modules/suppliers/routes.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
+  "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
@@ -116,6 +118,7 @@ const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
 const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
 const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
+const authObservability = read("apps/api/src/modules/auth/observability.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
@@ -124,6 +127,7 @@ const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
+const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
@@ -224,6 +228,7 @@ for (const marker of [
   "Batch #78",
   "Batch #79",
   "Batch #80",
+  "Batch #81",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -235,6 +240,7 @@ for (const marker of [
   "AUTH_SESSION_CACHE_DRIVER=redis",
   "Redis session cache",
   "session-cache fail-closed smoke",
+  "auth observability JSONL",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -476,6 +482,9 @@ if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-h
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
+  failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-session-cache-fail-closed:run")) {
   failures.push("package.json: ci:core must run the session cache fail-closed smoke");
 }
@@ -611,6 +620,26 @@ for (const marker of [
   "self_hosted_session_cache_fail_closed_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", sessionCacheFailClosedSmoke, marker);
+}
+
+for (const marker of [
+  "auth_observability_sign_in_failed=ok",
+  "auth_observability_rate_limited=ok",
+  "auth_observability_sign_in_succeeded=ok",
+  "auth_observability_sign_out_succeeded=ok",
+  "auth_observability_session_invalid=ok",
+  "auth_observability_no_pii=ok",
+  "self_hosted_auth_observability_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-auth-observability.mjs", authObservabilitySmoke, marker);
+}
+
+for (const marker of [
+  "auth_runtime_event",
+  "ConsoleAuthTelemetrySink",
+  "sanitizeAuthTelemetryEvent",
+]) {
+  requireText("apps/api/src/modules/auth/observability.ts", authObservability, marker);
 }
 
 for (const marker of [

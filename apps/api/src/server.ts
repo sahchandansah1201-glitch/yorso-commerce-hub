@@ -10,6 +10,7 @@ import type { SupplierAccessRepository } from "./modules/access/repository.js";
 import { handleSupplierAccessRoute } from "./modules/access/routes.js";
 import { SupplierAccessService } from "./modules/access/service.js";
 import { createAuthRepository } from "./modules/auth/factory.js";
+import { createAuthTelemetrySink } from "./modules/auth/observability.js";
 import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
 import type { AuthRepository } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
@@ -45,6 +46,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     authRepository,
     createAuthRateLimiter(config, authRepository),
     createAuthSessionCache(config),
+    createAuthTelemetrySink(config),
   );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
