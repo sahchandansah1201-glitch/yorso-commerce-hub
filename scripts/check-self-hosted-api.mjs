@@ -911,6 +911,10 @@ for (const marker of [
   "auth_sign_in=ok",
   "auth_session=ok",
   "auth_sign_out=ok",
+  "auth_sign_out_blocks_account=ok",
+  "auth_sign_out_blocks_access=ok",
+  "auth_sign_out_blocks_offer_unlock=ok",
+  "auth_sign_out_preserves_public_catalog=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
   "self_hosted_auth_api_smoke=ok",
@@ -1278,6 +1282,8 @@ requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Self-Hosted Auth API Smoke");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "npm run smoke:self-hosted-auth-api");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_api_smoke=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #76");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");
