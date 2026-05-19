@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { ApiConfig } from "./config.js";
 import { createRequestContext, getRequestUrl, methodNotAllowed, sendError } from "./http.js";
+import { ApiLifecycle } from "./lifecycle.js";
 import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
@@ -35,6 +36,7 @@ export interface ApiServerOptions {
   accountRepository?: AccountRepository;
   authRepository?: AuthRepository;
   fileService?: FileService;
+  lifecycle?: ApiLifecycle;
   offerCatalogRepository?: OfferCatalogRepository;
   readinessProbe?: ReadinessProbe;
   supplierAccessRepository?: SupplierAccessRepository;
@@ -61,8 +63,10 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
   );
+  const lifecycle = options.lifecycle ?? new ApiLifecycle();
   const readinessProbe = options.readinessProbe ?? createReadinessProbe(config, {
     timeoutMs: config.healthReadinessTimeoutMs,
+    lifecycle,
   });
 
   return createServer((request, response) => {
@@ -79,6 +83,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       supplierAccessService,
       supplierService,
       readinessProbe,
+      lifecycle,
     ).catch((error) => {
       console.error(error);
       sendError(response, 500, "internal_error", "Internal server error.", context);
@@ -98,6 +103,7 @@ async function routeRequest(
   supplierAccessService: SupplierAccessService,
   supplierService: SupplierDirectoryService,
   readinessProbe: ReadinessProbe,
+  lifecycle: ApiLifecycle,
 ) {
   applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
@@ -129,6 +135,42 @@ async function routeRequest(
     return;
   }
 
+  if (lifecycle.isDraining()) {
+    sendError(response, 503, "server_draining", "Server is draining and not accepting new work.", context);
+    return;
+  }
+
+  lifecycle.beginRequest();
+  try {
+    await routeWorkRequest(
+      request,
+      response,
+      context,
+      authService,
+      accountService,
+      fileService,
+      offerCatalogService,
+      supplierAccessService,
+      supplierService,
+      url,
+    );
+  } finally {
+    lifecycle.endRequest();
+  }
+}
+
+async function routeWorkRequest(
+  request: IncomingMessage,
+  response: ServerResponse,
+  context: ReturnType<typeof createRequestContext>,
+  authService: AuthService,
+  accountService: AccountService,
+  fileService: FileService,
+  offerCatalogService: OfferCatalogService,
+  supplierAccessService: SupplierAccessService,
+  supplierService: SupplierDirectoryService,
+  url: URL,
+) {
   if (url.pathname === "/v1/account/company/schema") {
     if (request.method !== "GET") {
       methodNotAllowed(response, context);

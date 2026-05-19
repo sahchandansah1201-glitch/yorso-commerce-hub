@@ -789,3 +789,14 @@ instances can be drained before they accept buyer traffic. This is a deployment
 control for the 10,000 concurrent-user baseline: dependency outages must surface
 as `503 not_ready`, not as slow request queues against account, catalog or auth
 routes.
+
+Batch #83 adds the API graceful shutdown boundary. `apps/api/src/lifecycle.ts`
+tracks active requests, exposes a drain snapshot to readiness and coordinates
+`server.close`, idle waiting and forced connection closure. During drain,
+`/health/live` stays available, `/health/ready` exposes `server_draining`, and
+new account/catalog/access/storage work is rejected with `503 server_draining`.
+Docker Compose sets `stop_grace_period: 40s`, which is intentionally longer than
+the default `YORSO_SHUTDOWN_DRAIN_DELAY_MS=5000` plus
+`YORSO_SHUTDOWN_GRACE_TIMEOUT_MS=30000`. This gives load balancers and
+orchestrators a deterministic rolling-deploy behavior without a hosted runtime
+dependency.

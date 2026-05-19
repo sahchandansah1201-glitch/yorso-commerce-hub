@@ -44,6 +44,8 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/service.ts",
   "apps/api/src/config.ts",
   "apps/api/src/http.ts",
+  "apps/api/src/lifecycle.ts",
+  "apps/api/src/lifecycle.test.ts",
   "apps/api/src/routes/health.ts",
   "apps/api/src/routes/account.ts",
   "apps/api/src/server.test.ts",
@@ -56,6 +58,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-health-readiness.mjs",
+  "scripts/smoke-self-hosted-graceful-shutdown.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -144,6 +147,9 @@ const pkg = JSON.parse(read("package.json"));
 const ciWorkflow = read(".github/workflows/ci.yml");
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
+const index = read("apps/api/src/index.ts");
+const lifecycle = read("apps/api/src/lifecycle.ts");
+const lifecycleTest = read("apps/api/src/lifecycle.test.ts");
 const accountFactory = read("apps/api/src/modules/account/factory.ts");
 const postgresRepository = read("apps/api/src/modules/account/postgres-repository.ts");
 const accountService = read("apps/api/src/modules/account/service.ts");
@@ -188,6 +194,7 @@ const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
+const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -280,6 +287,12 @@ if (pkg.scripts["smoke:self-hosted-health-readiness"] !== "npm run api:build && 
 if (pkg.scripts["smoke:self-hosted-health-readiness:run"] !== "node scripts/smoke-self-hosted-health-readiness.mjs") {
   failures.push("package.json: smoke:self-hosted-health-readiness:run must execute scripts/smoke-self-hosted-health-readiness.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-graceful-shutdown"] !== "npm run api:build && npm run smoke:self-hosted-graceful-shutdown:run") {
+  failures.push("package.json: smoke:self-hosted-graceful-shutdown must build and run the graceful shutdown smoke");
+}
+if (pkg.scripts["smoke:self-hosted-graceful-shutdown:run"] !== "node scripts/smoke-self-hosted-graceful-shutdown.mjs") {
+  failures.push("package.json: smoke:self-hosted-graceful-shutdown:run must execute scripts/smoke-self-hosted-graceful-shutdown.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -336,6 +349,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readiness:run")) {
   failures.push("package.json: ci:core must run the self-hosted health readiness smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-graceful-shutdown:run")) {
+  failures.push("package.json: ci:core must run the graceful shutdown smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -683,6 +699,10 @@ requireText("apps/api/src/config.ts", config, "assertSupabaseIsPrototypeOnly");
 requireText("apps/api/src/config.ts", config, "assertSelfHostedProductionRuntime");
 requireText("apps/api/src/config.ts", config, "healthReadinessTimeoutMs");
 requireText("apps/api/src/config.ts", config, "HEALTH_READINESS_TIMEOUT_MS");
+requireText("apps/api/src/config.ts", config, "shutdownDrainDelayMs");
+requireText("apps/api/src/config.ts", config, "shutdownGraceTimeoutMs");
+requireText("apps/api/src/config.ts", config, "YORSO_SHUTDOWN_DRAIN_DELAY_MS");
+requireText("apps/api/src/config.ts", config, "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS");
 for (const marker of [
   "SelfHostedReadinessProbe",
   "productionScaleBaseline",
@@ -703,6 +723,65 @@ for (const marker of [
   "/v1/health/ready",
 ]) {
   requireText("scripts/smoke-self-hosted-health-readiness.mjs", healthReadinessSmoke, marker);
+}
+for (const marker of [
+  "graceful_shutdown_ready_before_signal=ok",
+  "graceful_shutdown_readiness_draining=ok",
+  "graceful_shutdown_live_during_drain=ok",
+  "graceful_shutdown_rejects_new_work=ok",
+  "graceful_shutdown_process_exit=ok",
+  "self_hosted_graceful_shutdown_smoke=ok",
+  "YORSO_SHUTDOWN_DRAIN_DELAY_MS",
+  "YORSO_SHUTDOWN_GRACE_TIMEOUT_MS",
+  "server_draining",
+]) {
+  requireText("scripts/smoke-self-hosted-graceful-shutdown.mjs", gracefulShutdownSmoke, marker);
+}
+for (const marker of [
+  "ApiLifecycle",
+  "shutdownApiServer",
+  "activeRequests",
+  "waitForIdle",
+  "closeAllConnections",
+  "YORSO API drain started",
+  "YORSO API drain completed",
+]) {
+  requireText("apps/api/src/lifecycle.ts", lifecycle, marker);
+}
+for (const marker of [
+  "shutdownApiServer",
+  "SIGTERM",
+  "SIGINT",
+  "shutdownDrainDelayMs",
+  "shutdownGraceTimeoutMs",
+]) {
+  requireText("apps/api/src/index.ts", index, marker);
+}
+for (const marker of [
+  "ApiLifecycle",
+  "lifecycle.isDraining()",
+  "server_draining",
+  "lifecycle.beginRequest()",
+  "lifecycle.endRequest()",
+  "createReadinessProbe(config",
+  "lifecycle,",
+]) {
+  requireText("apps/api/src/server.ts", server, marker);
+}
+for (const marker of [
+  "shutdownDrain",
+  "checkShutdownDrain",
+  "server_draining",
+  "readinessChecks: [\"shutdown_drain\", \"postgres\", \"redis\", \"local_storage\", \"production_runtime_config\"]",
+]) {
+  requireText("apps/api/src/routes/health.ts", read("apps/api/src/routes/health.ts"), marker);
+}
+for (const marker of [
+  "API lifecycle drain",
+  "tracks active requests",
+  "marks draining state",
+]) {
+  requireText("apps/api/src/lifecycle.test.ts", lifecycleTest, marker);
 }
 requireText("apps/api/src/config.ts", config, "accountRepository: z.enum([\"memory\", \"postgres\"])");
 requireText("apps/api/src/config.ts", config, "storageDriver: z.enum([\"local\"])");

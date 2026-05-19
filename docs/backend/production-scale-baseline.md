@@ -569,6 +569,20 @@ verifies local readiness, Redis outage, PostgreSQL outage and method guards.
 Observability should count `not_ready`
 responses by dependency and alert before load balancers drain all API replicas.
 
+Batch #83 adds graceful shutdown drain for the self-hosted API. On `SIGTERM`
+or `SIGINT`, the process enters `server_draining`, readiness returns
+`503 not_ready`, live health remains cheap, and new non-health work receives
+`503 server_draining` instead of entering long queues. Existing in-flight
+requests are tracked with `ApiLifecycle.activeRequests` and get a bounded
+window controlled by `YORSO_SHUTDOWN_DRAIN_DELAY_MS` and
+`YORSO_SHUTDOWN_GRACE_TIMEOUT_MS`; if the window expires, the process forces
+connection closure. This protects rolling deploys at the 10,000 concurrent-user
+baseline: load balancers can stop sending traffic before the API exits, while
+clients get an explicit retryable failure mode. The self-hosted graceful
+shutdown smoke, also referenced as the self-hosted graceful shutdown smoke,
+`smoke:self-hosted-graceful-shutdown` verifies ready-before signal, draining
+readiness, live-during-drain, new-work rejection and process exit.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

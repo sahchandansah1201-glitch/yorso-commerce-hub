@@ -71,6 +71,7 @@ npm run db:migrations:apply:live
 npm run smoke:self-hosted-account-postgres
 npm run smoke:self-hosted-workspace-postgres
 npm run smoke:self-hosted-health-readiness
+npm run smoke:self-hosted-graceful-shutdown
 ```
 
 The production frontend should be built with `VITE_YORSO_API_URL` pointing at
@@ -102,8 +103,9 @@ Known production gaps:
   issuance, Batch #78 adds Redis sign-in backpressure and Batch #79 adds the
   Redis session cache boundary, Batch #80 adds fail-closed cache-outage
   validation, Batch #81 adds no-PII JSONL auth observability and Batch #82 adds
-  health/readiness checks, but password hashing policy, MFA, session rotation
-  and audit dashboards remain future work;
+  health/readiness checks. Batch #83 adds graceful shutdown drain for rolling
+  deploys, but password hashing policy, MFA, session rotation and audit
+  dashboards remain future work;
 - queue workers are documented as part of the target topology but not fully
   implemented;
 - the file API currently uses a mounted server volume while MinIO remains the
@@ -125,6 +127,7 @@ npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run check:production-scale-baseline
 npm run smoke:self-hosted-health-readiness
+npm run smoke:self-hosted-graceful-shutdown
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env

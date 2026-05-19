@@ -27,6 +27,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/rate-limit.ts",
   "apps/api/src/modules/auth/session-cache.ts",
   "apps/api/src/modules/auth/observability.ts",
+  "apps/api/src/lifecycle.ts",
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/routes/health.ts",
@@ -37,6 +38,7 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/routes.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-health-readiness.mjs",
+  "scripts/smoke-self-hosted-graceful-shutdown.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -121,6 +123,7 @@ const authRoutes = read("apps/api/src/modules/auth/routes.ts");
 const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
 const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
 const authObservability = read("apps/api/src/modules/auth/observability.ts");
+const apiLifecycle = read("apps/api/src/lifecycle.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const healthRoutes = read("apps/api/src/routes/health.ts");
@@ -131,6 +134,7 @@ const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
+const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -234,6 +238,7 @@ for (const marker of [
   "Batch #80",
   "Batch #81",
   "Batch #82",
+  "Batch #83",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -248,6 +253,8 @@ for (const marker of [
   "auth observability JSONL",
   "readiness checks",
   "self-hosted health readiness smoke",
+  "graceful shutdown drain",
+  "self-hosted graceful shutdown smoke",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -498,6 +505,15 @@ if (pkg.scripts["smoke:self-hosted-health-readiness:run"] !== "node scripts/smok
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readiness:run")) {
   failures.push("package.json: ci:core must run the self-hosted health readiness smoke");
 }
+if (pkg.scripts["smoke:self-hosted-graceful-shutdown"] !== "npm run api:build && npm run smoke:self-hosted-graceful-shutdown:run") {
+  failures.push("package.json: smoke:self-hosted-graceful-shutdown must build and run the graceful shutdown smoke");
+}
+if (pkg.scripts["smoke:self-hosted-graceful-shutdown:run"] !== "node scripts/smoke-self-hosted-graceful-shutdown.mjs") {
+  failures.push("package.json: smoke:self-hosted-graceful-shutdown:run must execute scripts/smoke-self-hosted-graceful-shutdown.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-graceful-shutdown:run")) {
+  failures.push("package.json: ci:core must run the graceful shutdown smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -648,14 +664,38 @@ for (const marker of [
 }
 
 for (const marker of [
+  "graceful_shutdown_ready_before_signal=ok",
+  "graceful_shutdown_readiness_draining=ok",
+  "graceful_shutdown_live_during_drain=ok",
+  "graceful_shutdown_rejects_new_work=ok",
+  "graceful_shutdown_process_exit=ok",
+  "self_hosted_graceful_shutdown_smoke=ok",
+  "server_draining",
+]) {
+  requireText("scripts/smoke-self-hosted-graceful-shutdown.mjs", gracefulShutdownSmoke, marker);
+}
+
+for (const marker of [
   "SelfHostedReadinessProbe",
   "targetConcurrentUsers: 10_000",
+  "shutdownDrain",
+  "server_draining",
   "checkPostgres",
   "checkRedis",
   "checkLocalStorage",
   "checkProductionRuntimeConfig",
 ]) {
   requireText("apps/api/src/routes/health.ts", healthRoutes, marker);
+}
+
+for (const marker of [
+  "ApiLifecycle",
+  "activeRequests",
+  "waitForIdle",
+  "shutdownApiServer",
+  "closeAllConnections",
+]) {
+  requireText("apps/api/src/lifecycle.ts", apiLifecycle, marker);
 }
 
 for (const marker of [

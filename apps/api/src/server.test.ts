@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
 import { assertSupabaseIsPrototypeOnly, loadApiConfig } from "./config.js";
+import { ApiLifecycle } from "./lifecycle.js";
 import { createApiServer } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
 
@@ -107,6 +108,28 @@ async function startRawTestServer(options: { readinessProbe?: ReadinessProbe } =
     });
 }
 
+async function startLifecycleTestServer(lifecycle: ApiLifecycle) {
+  await closeServer();
+  server = createApiServer(config, { lifecycle });
+
+  await new Promise<void>((resolve) => {
+    server?.listen(0, "127.0.0.1", resolve);
+  });
+
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("Expected server address object.");
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  return (path: string, init?: RequestInit) =>
+    fetch(`${baseUrl}${path}`, {
+      ...init,
+      headers: {
+        "content-type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+}
+
 const filePayload = (content: string, fileName = "sample.txt", contentType = "text/plain") => {
   const bytes = Buffer.from(content, "utf8");
   return {
@@ -149,6 +172,10 @@ describe("YORSO self-hosted API skeleton", () => {
       targetConcurrentUsers: 10_000,
     });
     expect(body.dependencies).toMatchObject({
+      shutdownDrain: {
+        required: true,
+        status: "ok",
+      },
       postgres: {
         required: false,
         status: "skipped",
@@ -180,9 +207,10 @@ describe("YORSO self-hosted API skeleton", () => {
             supabaseProductionBackend: false,
             productionScaleBaseline: {
               targetConcurrentUsers: 10_000,
-              readinessChecks: ["postgres", "redis", "local_storage", "production_runtime_config"],
+              readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],
             },
             dependencies: {
+              shutdownDrain: { required: true, status: "ok" },
               postgres: { required: true, status: "unavailable", reason: "connection refused" },
               redis: { required: true, status: "ok" },
               localStorage: { required: true, status: "ok" },
@@ -203,6 +231,41 @@ describe("YORSO self-hosted API skeleton", () => {
         required: true,
         status: "unavailable",
       },
+    });
+  });
+
+  it("marks readiness unavailable and rejects new work while draining", async () => {
+    const lifecycle = new ApiLifecycle();
+    const fetchApi = await startLifecycleTestServer(lifecycle);
+
+    const readyBefore = await fetchApi("/health/ready");
+    expect(readyBefore.status).toBe(200);
+
+    lifecycle.startDraining("SIGTERM");
+
+    const live = await fetchApi("/health/live");
+    expect(live.status).toBe(200);
+
+    const readyAfter = await fetchApi("/v1/health/ready");
+    const readyBody = (await readyAfter.json()) as JsonBody;
+    expect(readyAfter.status).toBe(503);
+    expect(readyBody).toMatchObject({
+      ok: false,
+      status: "not_ready",
+      dependencies: {
+        shutdownDrain: {
+          required: true,
+          status: "unavailable",
+          reason: "server_draining",
+        },
+      },
+    });
+
+    const work = await fetchApi("/v1/account/company/schema");
+    expect(work.status).toBe(503);
+    await expect(work.json()).resolves.toMatchObject({
+      ok: false,
+      error: { code: "server_draining" },
     });
   });
 
