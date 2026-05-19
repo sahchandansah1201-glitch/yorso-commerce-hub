@@ -9,6 +9,12 @@ import {
 } from "../../../../../packages/contracts/dist/index.js";
 import { SecurityEventAuthRateLimiter, type AuthRateLimitDecision, type AuthRateLimiter } from "./rate-limit.js";
 import type { AuthRepository, AuthUser } from "./repository.js";
+import {
+  DisabledAuthSessionCache,
+  type AuthSessionCache,
+  type AuthSessionCacheRead,
+  type AuthSessionCacheWrite,
+} from "./session-cache.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
 
@@ -23,7 +29,8 @@ export class AuthServiceError extends Error {
       | "auth_invalid_credentials"
       | "auth_rate_limited"
       | "auth_session_required"
-      | "auth_session_invalid",
+      | "auth_session_invalid"
+      | "auth_session_cache_unavailable",
     message: string,
     public readonly retryAfterSeconds?: number,
   ) {
@@ -43,6 +50,7 @@ export class AuthService {
       keyPrefix: "yorso:auth",
       redisUrl: "redis://localhost:6379",
     }),
+    private readonly sessionCache: AuthSessionCache = new DisabledAuthSessionCache(),
   ) {}
 
   async signIn(
@@ -80,6 +88,13 @@ export class AuthService {
 
     await this.rateLimiter.clearSignInFailures(identity);
     const session = await this.repository.createSession(user, authSessionTtlMs);
+    await this.throwIfCacheUnavailable(
+      await this.sessionCache.setSession(session),
+      session.id,
+      requestId,
+      metadata,
+      "session_cache_set",
+    );
     await this.repository.recordSecurityEvent({
       eventType: "sign_in_succeeded",
       userId: user.id,
@@ -115,6 +130,13 @@ export class AuthService {
   ): Promise<AuthSignOutResponse> {
     const session = await this.requireSession(sessionId, requestId, metadata, "sign_out_invalid");
     const signedOut = await this.repository.deleteSession(session.id);
+    await this.throwIfCacheUnavailable(
+      await this.sessionCache.deleteSession(session.id),
+      session.id,
+      requestId,
+      metadata,
+      "session_cache_delete",
+    );
     await this.repository.recordSecurityEvent({
       eventType: "sign_out_succeeded",
       userId: session.userId,
@@ -146,16 +168,28 @@ export class AuthService {
       throw new AuthServiceError("auth_session_required", "Auth session id is required.");
     }
 
-    const session = await this.repository.getSession(sessionId.trim());
+    const trimmedSessionId = sessionId.trim();
+    const cached = await this.sessionCache.getSession(trimmedSessionId);
+    await this.throwIfCacheUnavailable(cached, trimmedSessionId, requestId, metadata, "session_cache_get");
+    if (cached.status === "hit") return cached.session;
+
+    const session = await this.repository.getSession(trimmedSessionId);
     if (!session) {
       await this.repository.recordSecurityEvent({
         eventType: invalidEventType,
-        sessionId: sessionId.trim(),
+        sessionId: trimmedSessionId,
         requestId,
         metadata: securityMetadata(metadata, { reason: "invalid_or_expired_session" }),
       });
       throw new AuthServiceError("auth_session_invalid", "Auth session is invalid or expired.");
     }
+    await this.throwIfCacheUnavailable(
+      await this.sessionCache.setSession(session),
+      session.id,
+      requestId,
+      metadata,
+      "session_cache_set_after_miss",
+    );
     return session;
   }
 
@@ -186,6 +220,33 @@ export class AuthService {
       "auth_rate_limited",
       "Too many sign-in attempts. Try again later.",
       decision.retryAfterSeconds,
+    );
+  }
+
+  private async throwIfCacheUnavailable(
+    result: AuthSessionCacheRead | AuthSessionCacheWrite,
+    sessionId: string,
+    requestId: string,
+    metadata: AuthRequestMetadata,
+    operation: string,
+  ) {
+    if (result.status !== "unavailable" || result.failMode !== "closed") return;
+
+    await this.repository.recordSecurityEvent({
+      eventType: "session_invalid",
+      sessionId,
+      requestId,
+      metadata: securityMetadata(metadata, {
+        reason: "session_cache_unavailable",
+        cacheSource: result.source,
+        cacheOperation: operation,
+        cacheReason: result.reason,
+        failMode: result.failMode,
+      }),
+    });
+    throw new AuthServiceError(
+      "auth_session_cache_unavailable",
+      "Auth session cache is unavailable.",
     );
   }
 }

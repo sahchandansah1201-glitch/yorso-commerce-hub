@@ -11,6 +11,9 @@ const config = loadApiConfig(
   {
     NODE_ENV: "test",
     YORSO_API_PORT: "3000",
+    AUTH_SESSION_CACHE_DRIVER: "memory",
+    AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+    AUTH_SESSION_CACHE_TTL_MS: "300000",
   },
   { allowLocalDefaults: true },
 );

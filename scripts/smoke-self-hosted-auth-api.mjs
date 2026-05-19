@@ -27,6 +27,10 @@ const api = spawn(process.execPath, [apiEntry], {
     YORSO_PUBLIC_APP_URL: "http://localhost:8080",
     ACCOUNT_REPOSITORY: "memory",
     STORAGE_DRIVER: "local",
+    AUTH_SESSION_CACHE_DRIVER: "memory",
+    AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+    AUTH_SESSION_CACHE_TTL_MS: "300000",
+    AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
     VITE_SUPABASE_URL: "",
     VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
@@ -147,6 +151,7 @@ async function runSmoke(baseUrl) {
   const afterSignOutBody = await afterSignOut.json();
   assertEqual(afterSignOutBody.error?.code, "auth_session_invalid", "post sign-out session code");
   console.log("auth_sign_out_revokes_session=ok");
+  console.log("auth_session_cache_invalidation=ok");
 
   const revokedHeaders = {
     "x-yorso-user-id": signIn.session.userId,

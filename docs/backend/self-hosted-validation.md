@@ -757,6 +757,18 @@ Batch #78 adds production rate-limit runtime validation:
 - `smoke:self-hosted-auth-api` verifies `Retry-After: 900` alongside
   `auth_rate_limit_guard=ok`.
 
+Batch #79 adds production session-cache validation:
+
+- `AUTH_SESSION_CACHE_DRIVER=redis` and `AUTH_SESSION_CACHE_FAIL_MODE=closed`
+  are required by the production runtime guard;
+- the auth service reads sessions through a cache boundary first, falls back to
+  PostgreSQL on cache miss, and writes the cache after sign-in or miss reload;
+- sign-out deletes the cached session before the same id can be reused;
+- local smoke runs the cache in memory mode and prints
+  `auth_session_cache_invalidation=ok`;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  session-cache module, production env and smoke marker.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

@@ -69,6 +69,13 @@ Batch #78 makes this concrete for auth: sign-in backpressure uses Redis as the
 hot counter in production (`AUTH_RATE_LIMIT_DRIVER=redis`) while PostgreSQL
 keeps the durable security-event audit trail.
 
+Batch #79 extends the same production runtime boundary to sessions: Redis is
+the hot-path session cache (`AUTH_SESSION_CACHE_DRIVER=redis`) and PostgreSQL
+remains the source of truth for session issuance, expiry and revocation.
+Protected routes fail closed when the production session cache is unavailable,
+and sign-out deletes the cached session before the same id can be accepted
+again.
+
 The mandatory project-wide scale contract is documented in
 `docs/backend/production-scale-baseline.md`. Any production-facing feature must
 either attach a capacity review against that baseline or explicitly remain

@@ -42,6 +42,8 @@ const requiredComposeMarkers = [
   "REDIS_URL: redis://redis:6379",
   "AUTH_RATE_LIMIT_DRIVER: redis",
   "AUTH_RATE_LIMIT_FAIL_MODE: closed",
+  "AUTH_SESSION_CACHE_DRIVER: redis",
+  "AUTH_SESSION_CACHE_FAIL_MODE: closed",
   "S3_ENDPOINT: http://minio:9000",
   "STORAGE_DRIVER: local",
   "STORAGE_LOCAL_ROOT: /var/lib/yorso/uploads",
@@ -89,6 +91,10 @@ const requiredEnvKeys = [
   "REDIS_URL",
   "AUTH_RATE_LIMIT_DRIVER",
   "AUTH_RATE_LIMIT_FAIL_MODE",
+  "AUTH_SESSION_CACHE_DRIVER",
+  "AUTH_SESSION_CACHE_FAIL_MODE",
+  "AUTH_SESSION_CACHE_TTL_MS",
+  "AUTH_SESSION_CACHE_KEY_PREFIX",
   "S3_ENDPOINT",
   "S3_REGION",
   "S3_BUCKET",
@@ -112,6 +118,8 @@ requireText(".env.example", envExample, "DATABASE_URL=postgres://yorso_app:chang
 requireText(".env.example", envExample, "MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
 requireText(".env.example", envExample, "PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
 requireText(".env.example", envExample, "VITE_YORSO_ACCOUNT_USER_ID=00000000-0000-4000-8000-000000000001");
+requireText(".env.example", envExample, "AUTH_SESSION_CACHE_DRIVER=disabled");
+requireText(".env.example", envExample, "AUTH_SESSION_CACHE_FAIL_MODE=open");
 requireText(".env.example", envExample, "STORAGE_DRIVER=local");
 requireText(".env.example", envExample, "STORAGE_LOCAL_ROOT=.data/api-uploads");
 requireText("infra/README.md", infraReadme, "running YORSO without Supabase as a production dependency");

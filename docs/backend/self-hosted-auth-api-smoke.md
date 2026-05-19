@@ -47,6 +47,7 @@ The smoke must print:
 - `auth_rate_limit_guard=ok`
 - `auth_sign_out=ok`
 - `auth_sign_out_revokes_session=ok`
+- `auth_session_cache_invalidation=ok`
 - `auth_sign_out_blocks_account=ok`
 - `auth_sign_out_blocks_access=ok`
 - `auth_sign_out_blocks_offer_unlock=ok`
@@ -83,3 +84,11 @@ audit-log fallback for local tests. Production runtime must use
 development may use `AUTH_RATE_LIMIT_DRIVER=audit_log`. The 429 response also
 sets `Retry-After: 900`, so clients and edge proxies can back off without
 guessing the lockout window.
+
+Batch #79 adds session-cache validation. The smoke starts the compiled API with
+`AUTH_SESSION_CACHE_DRIVER=memory` and
+`AUTH_SESSION_CACHE_FAIL_MODE=closed`, so sign-in warms the session cache and
+sign-out must invalidate it before the same session id can be used again. The
+marker `auth_session_cache_invalidation=ok` proves the route authority does not
+keep accepting a cached session after revocation. Production uses the same
+cache contract with `AUTH_SESSION_CACHE_DRIVER=redis`.

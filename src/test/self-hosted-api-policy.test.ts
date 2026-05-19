@@ -95,6 +95,30 @@ describe("self-hosted API policy", () => {
     expect(docs).toContain("sign-in backpressure");
   });
 
+  it("keeps self-hosted session cache fail-closed and sign-out invalidation wired", () => {
+    const service = readFileSync("apps/api/src/modules/auth/service.ts", "utf8");
+    const sessionCache = readFileSync("apps/api/src/modules/auth/session-cache.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-auth-api.mjs", "utf8");
+    const docs = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(sessionCache).toContain("RedisAuthSessionCache");
+    expect(sessionCache).toContain("MemoryAuthSessionCache");
+    expect(sessionCache).toContain("DisabledAuthSessionCache");
+    expect(sessionCache).toContain("createAuthSessionCache");
+    expect(server).toContain("createAuthSessionCache(config)");
+    expect(service).toContain("sessionCache.getSession");
+    expect(service).toContain("sessionCache.setSession");
+    expect(service).toContain("sessionCache.deleteSession");
+    expect(service).toContain("auth_session_cache_unavailable");
+    expect(config).toContain("Production self-hosted API must use AUTH_SESSION_CACHE_DRIVER=redis.");
+    expect(config).toContain("Production self-hosted API must use AUTH_SESSION_CACHE_FAIL_MODE=closed.");
+    expect(smoke).toContain("auth_session_cache_invalidation=ok");
+    expect(docs).toContain("Batch #79");
+    expect(docs).toContain("Redis session cache");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");
