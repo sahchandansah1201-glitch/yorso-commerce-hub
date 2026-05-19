@@ -12,6 +12,7 @@ const accessNotificationAckSql = () => readFileSync("packages/db/migrations/0008
 const supplierPaginationSortSql = () => readFileSync("packages/db/migrations/0009_supplier_directory_pagination_sort.sql", "utf8");
 const offerPaginationSortSql = () => readFileSync("packages/db/migrations/0010_offer_catalog_pagination_sort.sql", "utf8");
 const authSessionsSql = () => readFileSync("packages/db/migrations/0011_auth_sessions.sql", "utf8");
+const authSecurityEventsSql = () => readFileSync("packages/db/migrations/0012_auth_security_events.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -162,8 +163,22 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("Self-hosted auth credential records");
   });
 
+  it("declares self-hosted auth security event audit tables and indexes", () => {
+    const text = authSecurityEventsSql();
+
+    expect(text).toContain("create type yorso_auth_security_event_type as enum");
+    expect(text).toContain("create table if not exists yorso_auth_security_events");
+    expect(text).toContain("sign_in_failed");
+    expect(text).toContain("sign_in_rate_limited");
+    expect(text).toContain("session_invalid");
+    expect(text).toContain("idx_yorso_auth_security_events_email_type_recent");
+    expect(text).toContain("idx_yorso_auth_security_events_session_recent");
+    expect(text).toContain("idx_yorso_auth_security_events_type_recent");
+    expect(text).toContain("10,000 concurrent users");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -183,10 +198,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("create type yorso_supplier_access_status as enum");
     expect(text).toContain("create type yorso_access_grant_scope as enum");
     expect(text).toContain("create type yorso_access_event_type as enum");
+    expect(text).toContain("create type yorso_auth_security_event_type as enum");
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -213,13 +229,15 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_access_notifications_buyer_status_created");
     expect(text).toContain("idx_yorso_auth_sessions_user_active");
     expect(text).toContain("idx_yorso_auth_sessions_active_expiry");
+    expect(text).toContain("idx_yorso_auth_security_events_email_type_recent");
+    expect(text).toContain("idx_yorso_auth_security_events_session_recent");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
     expect(text).toContain("gin_trgm_ops");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -246,6 +264,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0009_supplier_directory_pagination_sort",
       "0010_offer_catalog_pagination_sort",
       "0011_auth_sessions",
+      "0012_auth_security_events",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -320,6 +339,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0011_auth_sessions",
           ownedTables: ["yorso_auth_credentials", "yorso_auth_sessions"],
           dependsOn: ["0010_offer_catalog_pagination_sort"],
+        }),
+        expect.objectContaining({
+          id: "0012_auth_security_events",
+          ownedTables: ["yorso_auth_security_events"],
+          dependsOn: ["0011_auth_sessions"],
         }),
       ]),
     );

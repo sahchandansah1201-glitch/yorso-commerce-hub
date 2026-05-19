@@ -731,6 +731,19 @@ Batch #76 adds revoked-session guards:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the new
   Batch #76 smoke markers and documentation.
 
+Batch #77 adds auth security-event validation:
+
+- `packages/db/migrations/0012_auth_security_events.sql` owns
+  `yorso_auth_security_events` and the event-type enum;
+- `AuthService` records sign-in success/failure, rate-limit, invalid-session
+  and sign-out events through the self-hosted auth repository;
+- repeated failed sign-ins for the same email return `429 auth_rate_limited`
+  after the configured window threshold;
+- `smoke:self-hosted-auth-api` prints `auth_rate_limit_guard=ok`;
+- `check:self-hosted-db`, `check:self-hosted-api` and
+  `check:production-scale-baseline` guard the migration, smoke marker and
+  10,000 concurrent-user notes.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

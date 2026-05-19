@@ -16,6 +16,7 @@ const requiredFiles = [
   "packages/db/migrations/0007_supplier_access_flow.sql",
   "packages/db/migrations/0008_access_notification_ack.sql",
   "packages/db/migrations/0011_auth_sessions.sql",
+  "packages/db/migrations/0012_auth_security_events.sql",
   "packages/db/migration-manifest.json",
   "package.json",
   "packages/contracts/src/auth.ts",
@@ -102,6 +103,7 @@ const offerPaginationSort = read("packages/db/migrations/0010_offer_catalog_pagi
 const supplierAccess = read("packages/db/migrations/0007_supplier_access_flow.sql");
 const accessNotificationAck = read("packages/db/migrations/0008_access_notification_ack.sql");
 const authSessions = read("packages/db/migrations/0011_auth_sessions.sql");
+const authSecurityEvents = read("packages/db/migrations/0012_auth_security_events.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -208,11 +210,13 @@ for (const marker of [
   "Batch #74",
   "Batch #75",
   "Batch #76",
+  "Batch #77",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
   "backend session authority",
   "revoked-session behavior",
+  "sign-in backpressure",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -425,6 +429,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0010_offer_catal
 if (!manifest.migrations?.some((migration) => migration.id === "0011_auth_sessions")) {
   failures.push("packages/db/migration-manifest.json: missing 0011_auth_sessions");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0012_auth_security_events")) {
+  failures.push("packages/db/migration-manifest.json: missing 0012_auth_security_events");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -453,6 +460,8 @@ for (const marker of [
   "authSessionSchema",
   "authSessionResponseSchema",
   "authSignOutResponseSchema",
+  "authSecurityEventTypeSchema",
+  "authSecurityEventSchema",
 ]) {
   requireText("packages/contracts/src/auth.ts", authContract, marker);
 }
@@ -463,6 +472,15 @@ for (const marker of [
   "idx_yorso_auth_sessions_user_active",
 ]) {
   requireText("packages/db/migrations/0011_auth_sessions.sql", authSessions, marker);
+}
+
+for (const marker of [
+  "create table if not exists yorso_auth_security_events",
+  "idx_yorso_auth_security_events_email_type_recent",
+  "idx_yorso_auth_security_events_session_recent",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0012_auth_security_events.sql", authSecurityEvents, marker);
 }
 
 for (const marker of [
@@ -478,6 +496,8 @@ for (const marker of [
   "from yorso_users u",
   "join yorso_auth_credentials",
   "insert into yorso_auth_sessions",
+  "insert into yorso_auth_security_events",
+  "countRecentSecurityEvents",
   "revoked_at",
 ]) {
   requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, marker);
@@ -485,6 +505,8 @@ for (const marker of [
 
 for (const marker of [
   "interface AuthRepository",
+  "recordSecurityEvent",
+  "countRecentSecurityEvents",
   "class MemoryAuthRepository",
   "buyer@example.com",
 ]) {
@@ -504,6 +526,8 @@ for (const marker of [
   "AuthService",
   "authSignInSchema.parse",
   "auth_invalid_credentials",
+  "auth_rate_limited",
+  "sign_in_rate_limited",
   "sha256:",
 ]) {
   requireText("apps/api/src/modules/auth/service.ts", authService, marker);
@@ -517,6 +541,7 @@ for (const marker of [
   "auth_sign_out_blocks_access=ok",
   "auth_sign_out_blocks_offer_unlock=ok",
   "auth_sign_out_preserves_public_catalog=ok",
+  "auth_rate_limit_guard=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
   "self_hosted_auth_api_smoke=ok",

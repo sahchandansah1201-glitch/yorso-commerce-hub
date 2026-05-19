@@ -1,5 +1,9 @@
 import { randomBytes } from "node:crypto";
-import type { AuthSession } from "../../../../../packages/contracts/dist/index.js";
+import type {
+  AuthSecurityEvent,
+  AuthSecurityEventType,
+  AuthSession,
+} from "../../../../../packages/contracts/dist/index.js";
 
 export interface AuthUser {
   id: string;
@@ -13,6 +17,23 @@ export interface AuthRepository {
   createSession(user: Pick<AuthUser, "id" | "email" | "displayName">, ttlMs: number): Promise<AuthSession>;
   getSession(sessionId: string): Promise<AuthSession | null>;
   deleteSession(sessionId: string): Promise<boolean>;
+  recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
+  countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
+}
+
+export interface AuthSecurityEventInput {
+  eventType: AuthSecurityEventType;
+  userId?: string | null;
+  email?: string | null;
+  sessionId?: string | null;
+  requestId: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AuthSecurityEventCountQuery {
+  eventType: AuthSecurityEventType;
+  email?: string | null;
+  since: Date;
 }
 
 const demoAuthUser: AuthUser = {
@@ -28,6 +49,7 @@ const iso = (value: Date) => value.toISOString();
 export class MemoryAuthRepository implements AuthRepository {
   private readonly usersByEmail = new Map<string, AuthUser>();
   private readonly sessions = new Map<string, AuthSession>();
+  private readonly securityEvents: AuthSecurityEvent[] = [];
 
   constructor(users: AuthUser[] = [demoAuthUser]) {
     for (const user of users) {
@@ -70,5 +92,28 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async deleteSession(sessionId: string): Promise<boolean> {
     return this.sessions.delete(sessionId);
+  }
+
+  async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {
+    this.securityEvents.push({
+      id: createSessionId(),
+      eventType: event.eventType,
+      userId: event.userId ?? null,
+      email: event.email?.toLowerCase() ?? null,
+      sessionId: event.sessionId ?? null,
+      requestId: event.requestId,
+      occurredAt: iso(new Date()),
+      metadata: event.metadata ?? {},
+    });
+  }
+
+  async countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number> {
+    const since = query.since.getTime();
+    const email = query.email?.toLowerCase() ?? null;
+    return this.securityEvents.filter((event) => {
+      if (event.eventType !== query.eventType) return false;
+      if (email && event.email !== email) return false;
+      return new Date(event.occurredAt).getTime() >= since;
+    }).length;
   }
 }

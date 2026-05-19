@@ -478,6 +478,20 @@ credentials and fail-open only for anonymous public catalog data. Observability
 must track invalid-session counts, revoked-session reuse attempts and catalog
 downgrade rates before production signoff.
 
+Batch #77 adds self-hosted auth security events and sign-in backpressure. The
+read/write profile is intentionally bounded: every sign-in attempt writes one
+security event, failed sign-ins read a narrow `(email, event_type,
+occurred_at)` index before password verification, and successful session reads
+do not write per-request audit rows. PostgreSQL stores
+`yorso_auth_security_events` with indexes for email/type, session, user and
+event-type timelines; a Redis token-bucket can replace or front the PostgreSQL
+counter when load tests show the sign-in path approaching the 10,000
+concurrent-user target. Failure mode is fail-closed for bursty sign-in attempts
+(`429 auth_rate_limited`) while existing anonymous catalog reads remain
+available. Observability must track `sign_in_failed`,
+`sign_in_rate_limited`, `session_invalid`, and `sign_out_invalid` rates by
+time window before production signoff.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

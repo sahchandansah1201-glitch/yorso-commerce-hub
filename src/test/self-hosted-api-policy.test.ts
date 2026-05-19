@@ -66,6 +66,28 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("10,000 concurrent-user baseline");
   });
 
+  it("keeps self-hosted auth security events and rate-limit guard wired", () => {
+    const contracts = readFileSync("packages/contracts/src/auth.ts", "utf8");
+    const repository = readFileSync("apps/api/src/modules/auth/repository.ts", "utf8");
+    const postgresRepository = readFileSync("apps/api/src/modules/auth/postgres-repository.ts", "utf8");
+    const service = readFileSync("apps/api/src/modules/auth/service.ts", "utf8");
+    const migration = readFileSync("packages/db/migrations/0012_auth_security_events.sql", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-auth-api.mjs", "utf8");
+    const docs = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(contracts).toContain("authSecurityEventTypeSchema");
+    expect(repository).toContain("recordSecurityEvent");
+    expect(repository).toContain("countRecentSecurityEvents");
+    expect(postgresRepository).toContain("insert into yorso_auth_security_events");
+    expect(migration).toContain("idx_yorso_auth_security_events_email_type_recent");
+    expect(service).toContain("signInFailureWindowMs");
+    expect(service).toContain("sign_in_rate_limited");
+    expect(service).toContain("auth_rate_limited");
+    expect(smoke).toContain("auth_rate_limit_guard=ok");
+    expect(docs).toContain("Batch #77");
+    expect(docs).toContain("sign-in backpressure");
+  });
+
   it("keeps row-level account workspace CRUD guarded across API, contracts and adapter", () => {
     const routes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
     const service = readFileSync("apps/api/src/modules/account/service.ts", "utf8");
