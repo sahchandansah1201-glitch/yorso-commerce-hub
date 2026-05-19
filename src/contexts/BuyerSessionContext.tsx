@@ -1,11 +1,25 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { buyerSession, type BuyerSession, type SignInMethod } from "@/lib/buyer-session";
+import {
+  buyerSession,
+  type BuyerSession,
+  type BuyerSessionSource,
+  type SignInMethod,
+} from "@/lib/buyer-session";
 
 interface BuyerSessionContextValue {
   session: BuyerSession | null;
   isSignedIn: boolean;
-  signIn: (input: { identifier: string; method: SignInMethod }) => BuyerSession;
+  signIn: (input: {
+    displayName?: string;
+    expiresAt?: string;
+    id?: string;
+    identifier: string;
+    method: SignInMethod;
+    signedInAt?: string;
+    source?: BuyerSessionSource;
+    userId?: string;
+  }) => BuyerSession;
   signOut: () => void;
 }
 

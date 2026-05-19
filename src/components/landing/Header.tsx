@@ -10,6 +10,7 @@ import { useSignalAlerts } from "@/lib/watched-signals";
 import { AlertsPopover } from "@/components/alerts/AlertsPanel";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import { SupplierAccessNotificationBell } from "@/components/suppliers/SupplierAccessNotificationCenter";
+import { signOutCurrentAuthSession } from "@/lib/auth-runtime";
 
 const langs: Language[] = ["en", "ru", "es"];
 
@@ -22,8 +23,13 @@ const Header = () => {
   const accountRef = useRef<HTMLDivElement | null>(null);
   const { lang, setLang, t } = useLanguage();
   const { unreadCount } = useSignalAlerts();
-  const { session, isSignedIn, signOut } = useBuyerSession();
+  const { session, isSignedIn } = useBuyerSession();
   const initial = (session?.displayName || session?.identifier || "?").trim().charAt(0).toUpperCase();
+
+  const endWorkspaceSession = () => {
+    analytics.track("workspace_session_ended");
+    void signOutCurrentAuthSession();
+  };
 
   // Close alerts popover on outside click / Esc.
   useEffect(() => {
@@ -171,8 +177,7 @@ const Header = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      analytics.track("workspace_session_ended");
-                      signOut();
+                      endWorkspaceSession();
                       setAccountOpen(false);
                     }}
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
@@ -243,8 +248,7 @@ const Header = () => {
                   variant="outline"
                   className="mt-2 w-full gap-2"
                   onClick={() => {
-                    analytics.track("workspace_session_ended");
-                    signOut();
+                    endWorkspaceSession();
                     setMobileOpen(false);
                   }}
                 >

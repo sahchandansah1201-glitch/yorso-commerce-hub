@@ -89,6 +89,12 @@ The self-hosted backend already owns:
 - PostgreSQL migrations and static migration planner;
 - runtime smokes for account, offer detail and access paths.
 
+The frontend auth bridge is also self-hosted-first: set `VITE_YORSO_API_URL`
+to the owned API origin and `/signin` will use `/v1/auth/sign-in`, persist the
+returned backend session id/user id and send those values to account, supplier
+and offer API adapters. Do not configure Supabase, Firebase, Appwrite, Clerk,
+Auth0 or hosted BaaS/SaaS auth variables for production.
+
 Known production gaps:
 
 - production auth hardening is still incomplete: Batch #73 adds session
@@ -115,6 +121,7 @@ npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run check:production-scale-baseline
 npm run smoke:self-hosted-auth-api
+npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env
 npm run ci:core
 ```

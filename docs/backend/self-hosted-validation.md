@@ -38,6 +38,7 @@ npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
 npm run smoke:self-hosted-auth-api
+npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:self-hosted-account-api
 npm run smoke:self-hosted-offer-detail
 npm run smoke:self-hosted-account-postgres
@@ -72,6 +73,7 @@ npm run ci:core
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `smoke:self-hosted-auth-api` | Builds and starts the standalone API, then verifies self-hosted sign-in, session read, sign-out, invalid credentials and validation guards over real HTTP. |
+| `smoke:e2e:self-hosted-auth-frontend` | Builds the frontend with `VITE_YORSO_API_URL` enabled and verifies `/signin` uses the owned auth API, stores backend session/user ids and sends them to downstream self-hosted API calls. |
 | `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership, supplier directory access shaping and offer catalog access shaping over real HTTP. |
 | `smoke:self-hosted-offer-detail` | Builds and starts the standalone API, then verifies `/v1/offers/:id` locked shaping, qualified unlock, not-found, method guard and validation guard over real HTTP. |
 | `smoke:self-hosted-account-postgres` | Optionally applies live migrations and verifies the same account API over a real PostgreSQL repository when `MIGRATION_DATABASE_URL` is set; otherwise exits as skipped. |

@@ -1,10 +1,21 @@
 import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
+import { buyerSession } from "@/lib/buyer-session";
 
-export type AuthRuntimeSource = "supabase_prototype" | "local_contract";
+export type AuthRuntimeSource = "self_hosted" | "supabase_prototype" | "local_contract";
+
+export interface AuthRuntimeSession {
+  displayName: string;
+  email: string;
+  expiresAt: string;
+  id: string;
+  issuedAt: string;
+  userId: string;
+}
 
 export type AuthRuntimeResult =
   | {
       ok: true;
+      session?: AuthRuntimeSession;
       source: AuthRuntimeSource;
     }
   | {
@@ -20,12 +31,36 @@ export const isAuthRuntimeError = (
   result: AuthRuntimeResult,
 ): result is AuthRuntimeError => result.ok === false;
 
+const isAuthRuntimeErrorLike = (value: unknown): value is AuthRuntimeError =>
+  Boolean(
+    value &&
+      typeof value === "object" &&
+      (value as { ok?: unknown }).ok === false &&
+      typeof (value as { code?: unknown }).code === "string" &&
+      typeof (value as { message?: unknown }).message === "string" &&
+      typeof (value as { source?: unknown }).source === "string",
+  );
+
 const localError = (code: string, message: string): AuthRuntimeResult => ({
   ok: false,
   code,
   message,
   source: "local_contract",
 });
+
+const selfHostedError = (code: string, message: string): AuthRuntimeResult => ({
+  ok: false,
+  code,
+  message,
+  source: "self_hosted",
+});
+
+const normalizeBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/, "") ?? "";
+
+const getSelfHostedAuthBaseUrl = () =>
+  normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
+
+export const isSelfHostedAuthConfigured = () => Boolean(getSelfHostedAuthBaseUrl());
 
 const hasLegacyAuthSupabaseEnv = (): boolean =>
   Boolean(
@@ -36,10 +71,80 @@ const hasLegacyAuthSupabaseEnv = (): boolean =>
 const loadLegacyAuthSupabaseAdapter = async () =>
   import("@/lib/legacy-auth-supabase-adapter");
 
+interface SelfHostedAuthSessionResponse {
+  ok: true;
+  requestId: string;
+  session: AuthRuntimeSession;
+}
+
+interface SelfHostedAuthErrorResponse {
+  error?: {
+    code?: string;
+    message?: string;
+  };
+  ok: false;
+  requestId?: string;
+}
+
+const requestSelfHostedAuth = async <T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> => {
+  const baseUrl = getSelfHostedAuthBaseUrl();
+  if (!baseUrl) throw new Error("self_hosted_auth_disabled");
+  const headers = new Headers(init?.headers);
+  if (!headers.has("content-type") && init?.body) {
+    headers.set("content-type", "application/json");
+  }
+  const response = await fetch(`${baseUrl}${path}`, {
+    ...init,
+    headers,
+  });
+  const body = (await response.json().catch(() => ({}))) as T & SelfHostedAuthErrorResponse;
+  if (!response.ok) {
+    const code = body.error?.code ?? `auth_http_${response.status}`;
+    const message = body.error?.message ?? getErrorMessage(code);
+    throw selfHostedError(code, message);
+  }
+  return body;
+};
+
+const signInWithSelfHostedEmail = async (input: {
+  email: string;
+  password: string;
+}): Promise<AuthRuntimeResult> => {
+  try {
+    const response = await requestSelfHostedAuth<SelfHostedAuthSessionResponse>(
+      "/v1/auth/sign-in",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: input.email,
+          password: input.password,
+        }),
+      },
+    );
+    return {
+      ok: true,
+      session: response.session,
+      source: "self_hosted",
+    };
+  } catch (error) {
+    if (isAuthRuntimeErrorLike(error)) {
+      return error;
+    }
+    return selfHostedError("NETWORK_ERROR", getErrorMessage("NETWORK_ERROR"));
+  }
+};
+
 export const signInWithEmail = async (input: {
   email: string;
   password: string;
 }): Promise<AuthRuntimeResult> => {
+  if (isSelfHostedAuthConfigured()) {
+    return signInWithSelfHostedEmail(input);
+  }
+
   if (hasLegacyAuthSupabaseEnv()) {
     const legacyAuth = await loadLegacyAuthSupabaseAdapter();
     if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
@@ -62,6 +167,13 @@ export const requestPasswordReset = async (input: {
   email: string;
   redirectTo: string;
 }): Promise<AuthRuntimeResult> => {
+  if (isSelfHostedAuthConfigured()) {
+    return selfHostedError(
+      "password_reset_unavailable",
+      "Password reset is not available in the self-hosted auth foundation yet.",
+    );
+  }
+
   if (hasLegacyAuthSupabaseEnv()) {
     const legacyAuth = await loadLegacyAuthSupabaseAdapter();
     if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
@@ -79,7 +191,7 @@ export const requestPasswordReset = async (input: {
 export const observePasswordRecovery = (
   onReady: () => void,
 ): (() => void) => {
-  if (!hasLegacyAuthSupabaseEnv()) return () => undefined;
+  if (isSelfHostedAuthConfigured() || !hasLegacyAuthSupabaseEnv()) return () => undefined;
 
   let active = true;
   let cleanup = () => undefined;
@@ -102,6 +214,13 @@ export const observePasswordRecovery = (
 export const updateRecoveredPassword = async (
   password: string,
 ): Promise<AuthRuntimeResult> => {
+  if (isSelfHostedAuthConfigured()) {
+    return selfHostedError(
+      "recovery_unavailable",
+      "Password recovery requires a valid recovery session.",
+    );
+  }
+
   if (!hasLegacyAuthSupabaseEnv()) {
     return localError(
       "recovery_unavailable",
@@ -118,4 +237,65 @@ export const updateRecoveredPassword = async (
   }
 
   return legacyAuth.updatePrototypeRecoveredPassword(password);
+};
+
+export const readCurrentAuthSession = async (): Promise<AuthRuntimeResult> => {
+  if (!isSelfHostedAuthConfigured()) {
+    return localError("self_hosted_auth_disabled", "Self-hosted auth is not configured.");
+  }
+
+  const sessionId = buyerSession.getSession()?.id;
+  if (!sessionId) {
+    return selfHostedError("auth_session_required", "Auth session id is required.");
+  }
+
+  try {
+    const response = await requestSelfHostedAuth<SelfHostedAuthSessionResponse>(
+      "/v1/auth/session",
+      {
+        headers: {
+          "x-yorso-session-id": sessionId,
+        },
+      },
+    );
+    return {
+      ok: true,
+      session: response.session,
+      source: "self_hosted",
+    };
+  } catch (error) {
+    if (isAuthRuntimeErrorLike(error)) {
+      return error;
+    }
+    return selfHostedError("NETWORK_ERROR", getErrorMessage("NETWORK_ERROR"));
+  }
+};
+
+export const signOutCurrentAuthSession = async (): Promise<AuthRuntimeResult> => {
+  if (!isSelfHostedAuthConfigured()) {
+    buyerSession.signOut();
+    return { ok: true, source: "local_contract" };
+  }
+
+  const sessionId = buyerSession.getSession()?.id;
+  if (!sessionId) {
+    buyerSession.signOut();
+    return { ok: true, source: "self_hosted" };
+  }
+
+  buyerSession.signOut();
+  try {
+    await requestSelfHostedAuth<{ ok: true; requestId: string; signedOut: boolean }>(
+      "/v1/auth/sign-out",
+      {
+        method: "POST",
+        headers: {
+          "x-yorso-session-id": sessionId,
+        },
+      },
+    );
+  } catch {
+    // Local session is still cleared so the browser does not keep stale access.
+  }
+  return { ok: true, source: "self_hosted" };
 };

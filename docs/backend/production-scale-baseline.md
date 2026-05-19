@@ -434,6 +434,20 @@ work. At 10,000 concurrent users the important architectural change is that
 auth/session traffic has an owned API contract, an owned persistence schema,
 bounded smoke coverage and no dependency on hosted auth providers.
 
+Batch #74 adds the self-hosted auth frontend bridge. When
+`VITE_YORSO_API_URL` is configured, `/signin` posts email/password to the
+owned `/v1/auth/sign-in` endpoint, stores the returned backend session id and
+user id in `yorso_buyer_session`, and downstream self-hosted API adapters send
+those values as `x-yorso-session-id` and `x-yorso-user-id`. When the API URL
+is empty, the frontend still falls back to local prototype mode for Lovable
+and offline review. Password reset, phone and WhatsApp sign-in are explicitly
+not upgraded by this batch because the Batch #73 backend only owns email
+sign-in/session/sign-out. At 10,000 concurrent users this keeps browser auth
+stateless from the frontend perspective, avoids hosted auth dependencies and
+uses bounded per-action calls rather than polling. Production hardening still
+requires rate limiting, Redis-backed session checks, audit events and load
+tests for sign-in bursts and steady session validation.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
