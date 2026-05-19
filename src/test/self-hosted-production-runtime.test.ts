@@ -30,6 +30,7 @@ describe("self-hosted production runtime", () => {
     expect(productionEnv).toContain("AUTH_SESSION_CACHE_DRIVER=redis");
     expect(productionEnv).toContain("AUTH_SESSION_CACHE_FAIL_MODE=closed");
     expect(productionEnv).toContain("AUTH_OBSERVABILITY_DRIVER=console");
+    expect(productionEnv).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER=console");
     expect(productionEnv).toContain("HEALTH_READINESS_TIMEOUT_MS=750");
     expect(productionEnv).toContain("STORAGE_DRIVER=local");
     expect(productionEnv).not.toMatch(/SUPABASE|FIREBASE|APPWRITE|CLERK|AUTH0/i);

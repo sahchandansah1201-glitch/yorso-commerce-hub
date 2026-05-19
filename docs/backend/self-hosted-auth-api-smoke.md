@@ -96,6 +96,15 @@ Batch #84 adds the companion request guardrails smoke:
 - `request_guardrails_large_header=ok`
 - `self_hosted_request_guardrails_smoke=ok`
 
+Batch #85 adds the companion request observability smoke:
+
+- `request_observability_completed=ok`
+- `request_observability_large_body=ok`
+- `request_observability_body_idle_timeout=ok`
+- `request_observability_large_header=ok`
+- `request_observability_no_pii=ok`
+- `self_hosted_request_observability_smoke=ok`
+
 ## Production Scale Notes
 
 At the 10,000 concurrent-user target this smoke only proves endpoint wiring and
@@ -166,6 +175,12 @@ started with small limits and must reject an oversized JSON body with
 `request_body_timeout`, and reject oversized headers at the HTTP parser layer.
 These checks protect the self-hosted runtime from slow clients and unbounded
 payload memory before account, auth, access or storage handlers perform work.
+
+Batch #85 adds request observability for those guardrails. The compiled API is
+started with `YORSO_REQUEST_OBSERVABILITY_DRIVER=console`, and stdout must
+include sanitized `api_request_event` JSONL records for normal completion,
+large body rejection, body idle timeout and header overflow. The same smoke
+submits a known email and password and fails if either value appears in stdout.
 
 Batch #82 adds readiness validation for production operations. `/health/live`
 only proves the API process can respond; `/health/ready` and `/v1/health/ready`

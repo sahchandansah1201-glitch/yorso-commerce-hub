@@ -9,11 +9,17 @@ export interface JsonResponseBody {
 export interface ApiRequestContext {
   requestId: string;
   startedAt: number;
+  guardrail?: RequestGuardrailContext;
 }
 
 export interface JsonBodyReadOptions {
   maxBytes?: number;
   idleTimeoutMs?: number;
+}
+
+export interface RequestGuardrailContext {
+  code: string;
+  kind: "body_idle_timeout" | "body_size" | "request_timeout" | "server_draining";
 }
 
 export function createRequestContext(): ApiRequestContext {
@@ -39,6 +45,7 @@ export function sendError(
   message: string,
   context: ApiRequestContext,
 ) {
+  markRequestGuardrail(context, code);
   sendJson(response, statusCode, {
     ok: false,
     error: {
@@ -47,6 +54,13 @@ export function sendError(
     },
     requestId: context.requestId,
   });
+}
+
+export function markRequestGuardrail(context: ApiRequestContext, code: string) {
+  if (context.guardrail) return;
+  const kind = requestGuardrailKind(code);
+  if (!kind) return;
+  context.guardrail = { code, kind };
 }
 
 export function sendValidationError(response: ServerResponse, context: ApiRequestContext, error: unknown) {
@@ -119,6 +133,21 @@ async function withBodyIdleTimeout<T>(promise: Promise<T>, timeoutMs: number): P
     ]);
   } finally {
     if (timeout) clearTimeout(timeout);
+  }
+}
+
+function requestGuardrailKind(code: string): RequestGuardrailContext["kind"] | undefined {
+  switch (code) {
+    case "request_timeout":
+      return "request_timeout";
+    case "request_body_timeout":
+      return "body_idle_timeout";
+    case "request_body_too_large":
+      return "body_size";
+    case "server_draining":
+      return "server_draining";
+    default:
+      return undefined;
   }
 }
 
