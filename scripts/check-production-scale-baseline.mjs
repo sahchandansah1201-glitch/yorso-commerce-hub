@@ -23,7 +23,13 @@ const requiredFiles = [
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
+  "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
+  "apps/api/src/modules/account/routes.ts",
+  "apps/api/src/modules/access/routes.ts",
+  "apps/api/src/modules/storage/routes.ts",
+  "apps/api/src/modules/offers/routes.ts",
+  "apps/api/src/modules/suppliers/routes.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
@@ -103,7 +109,13 @@ const authFactory = read("apps/api/src/modules/auth/factory.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
+const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
+const accountRoutes = read("apps/api/src/modules/account/routes.ts");
+const accessRoutes = read("apps/api/src/modules/access/routes.ts");
+const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
+const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
+const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
@@ -194,9 +206,11 @@ for (const marker of [
   "Batch #72",
   "Batch #73",
   "Batch #74",
+  "Batch #75",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
+  "backend session authority",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -1073,6 +1087,31 @@ for (const marker of [
 ]) {
   requireText("e2e/self-hosted-access-runtime.spec.ts", selfHostedAccessRuntimeE2E, marker);
 }
+for (const marker of [
+  "AccountSessionAuthority",
+  "resolveAuthenticatedAccountSession",
+  "resolveOptionalAuthenticatedAccountSession",
+  "Account session does not match the requested user.",
+]) {
+  requireText("apps/api/src/modules/auth/session.ts", authSession, marker);
+}
+for (const [file, text, marker] of [
+  ["apps/api/src/modules/account/routes.ts", accountRoutes, "resolveAuthenticatedAccountSession"],
+  ["apps/api/src/modules/access/routes.ts", accessRoutes, "resolveAuthenticatedAccountSession"],
+  ["apps/api/src/modules/storage/routes.ts", storageRoutes, "resolveAuthenticatedAccountSession"],
+  ["apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAuthenticatedAccountSession"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
+]) {
+  requireText(file, text, marker);
+}
+for (const marker of [
+  "account_session_authority=ok",
+  "account_session_invalid",
+]) {
+  requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
+}
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_session_authority=ok");
+requireText("scripts/smoke-e2e-self-hosted-access-runtime.mjs", selfHostedAccessRuntimeSmoke, "self_hosted_access_runtime_session_authority=ok");
 for (const marker of [
   "VITE_YORSO_API_URL: apiBaseUrl",
   "E2E_YORSO_API_URL: apiBaseUrl",

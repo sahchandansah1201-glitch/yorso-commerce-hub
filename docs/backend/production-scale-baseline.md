@@ -448,6 +448,24 @@ uses bounded per-action calls rather than polling. Production hardening still
 requires rate limiting, Redis-backed session checks, audit events and load
 tests for sign-in bursts and steady session validation.
 
+Batch #75 adds the backend session authority guard. Protected self-hosted API
+routes no longer trust a browser-provided `x-yorso-user-id` by itself:
+`/v1/account/*`, `/v1/account/files/*`, `/v1/access/*`, and authenticated
+catalog/supplier requests must validate `x-yorso-session-id` through the
+owned auth service before using a user id. Public catalog and supplier routes
+remain readable when no session headers are present, but if a client sends
+session headers the API validates them and rejects user/session mismatch. This
+closes the gap between Batch #74 frontend session storage and real backend
+authorization: the client may route a request, but it cannot self-assign an
+account. At 10,000 concurrent users the read profile is one session lookup per
+protected request; the PostgreSQL baseline already indexes active sessions via
+`idx_yorso_auth_sessions_user_active`, and production hardening should add a
+short-lived Redis session cache, request-rate limits, invalid-session metrics,
+and load tests for steady account/catalog traffic. Failure mode is fail-closed
+for protected routes (`401 account_session_required` or
+`401 account_session_invalid`) and graceful public fallback for anonymous
+catalog reads.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -65,6 +65,8 @@ async function installRegisteredBuyer(page: Page) {
             method: "email",
             signedInAt: new Date().toISOString(),
             displayName: "self-hosted buyer",
+            source: "self_hosted",
+            userId: accountUserId,
           }),
         );
       } catch {

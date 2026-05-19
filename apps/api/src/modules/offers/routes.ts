@@ -3,7 +3,8 @@ import { ZodError } from "zod";
 import { methodNotAllowed, sendError, sendJson, sendValidationError, type ApiRequestContext } from "../../http.js";
 import {
   AccountSessionError,
-  resolveOptionalAccountSession,
+  type AccountSessionAuthority,
+  resolveOptionalAuthenticatedAccountSession,
   sendAccountSessionError,
 } from "../auth/session.js";
 import type { OfferCatalogService } from "./service.js";
@@ -15,6 +16,7 @@ export async function handleOfferCatalogRoute(
   response: ServerResponse,
   context: ApiRequestContext,
   service: OfferCatalogService,
+  sessionAuthority: AccountSessionAuthority,
   url: URL,
 ) {
   try {
@@ -24,7 +26,7 @@ export async function handleOfferCatalogRoute(
         return true;
       }
 
-      const session = resolveOptionalAccountSession(request);
+      const session = await resolveOptionalAuthenticatedAccountSession(request, sessionAuthority, context);
       sendJson(
         response,
         200,
@@ -45,7 +47,7 @@ export async function handleOfferCatalogRoute(
 
       const id = decodeURIComponent(url.pathname.slice("/v1/offers/".length));
       if (!id || id.includes("/")) return false;
-      const session = resolveOptionalAccountSession(request);
+      const session = await resolveOptionalAuthenticatedAccountSession(request, sessionAuthority, context);
       sendJson(
         response,
         200,

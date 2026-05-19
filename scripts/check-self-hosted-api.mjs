@@ -563,6 +563,45 @@ for (const marker of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted access runtime browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-access-runtime");
+for (const marker of [
+  "AccountSessionAuthority",
+  "resolveAuthenticatedAccountSession",
+  "resolveOptionalAuthenticatedAccountSession",
+  "Account session does not match the requested user.",
+]) {
+  requireText("apps/api/src/modules/auth/session.ts", authSession, marker);
+}
+for (const [file, text] of [
+  ["apps/api/src/modules/account/routes.ts", accountRoutes],
+  ["apps/api/src/modules/storage/routes.ts", storageRoutes],
+  ["apps/api/src/modules/access/routes.ts", accessRoutes],
+]) {
+  requireText(file, text, "resolveAuthenticatedAccountSession");
+}
+for (const [file, text] of [
+  ["apps/api/src/modules/offers/routes.ts", offerRoutes],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes],
+]) {
+  requireText(file, text, "resolveOptionalAuthenticatedAccountSession");
+}
+for (const marker of [
+  "handleAccountRoute(request, response, context, accountService, authService",
+  "handleStorageRoute(request, response, context, accountService, fileService, authService",
+  "handleOfferCatalogRoute(request, response, context, offerCatalogService, authService",
+  "handleSupplierAccessRoute(request, response, context, supplierAccessService, authService",
+  "handleSupplierDirectoryRoute(request, response, context, supplierService, authService",
+]) {
+  requireText("apps/api/src/server.ts", server, marker);
+}
+for (const marker of [
+  "account_session_authority=ok",
+  "account_session_invalid",
+]) {
+  requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
+}
+requireText("scripts/smoke-self-hosted-offer-detail.mjs", offerDetailSmoke, "offer_detail_session_authority=ok");
+requireText("scripts/smoke-e2e-self-hosted-access-runtime.mjs", selfHostedAccessRuntimeSmoke, "self_hosted_access_runtime_session_authority=ok");
+requireText("e2e/self-hosted-access-runtime.spec.ts", selfHostedAccessRuntimeE2E, "source: \"self_hosted\"");
 if (pkg.scripts["test:supplier-access-frontend"] !== "vitest run src/lib/supplier-access-api.test.ts src/lib/supplier-access-api.boundary.test.ts src/lib/use-supplier-access-state.test.tsx src/lib/use-supplier-access-notifications.test.tsx src/components/offer-detail/SupplierTrustPanel.access.test.tsx src/components/suppliers/SupplierApprovalNotifier.test.tsx src/components/suppliers/SupplierAccessRefreshBanner.test.tsx src/components/suppliers/SupplierAccessNotificationCenter.test.tsx") {
   failures.push("package.json: test:supplier-access-frontend must cover the self-hosted supplier access adapter, state hook, notification feed hook, offer-detail access UI, approval notification bridge, refresh banner and notification center");
 }
@@ -664,7 +703,7 @@ requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "workspace_
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "workspace_item_not_found");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "readJsonBody");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "updateCurrentUserProfile");
-requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "resolveAccountSession(request)");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "resolveAuthenticatedAccountSession(request");
 requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "AccountSessionError");
 requireText("apps/api/src/modules/access/factory.ts", accessFactory, "createSupplierAccessRepository");
 requireText("apps/api/src/modules/access/factory.ts", accessFactory, "PostgresSupplierAccessRepository");
@@ -748,7 +787,7 @@ requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/accoun
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/documents");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/files/");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/files/by-object-key");
-requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "resolveAccountSession(request");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "resolveAuthenticatedAccountSession(request");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "allowQueryUserId: true");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "class FileService");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "checksumSha256");
@@ -771,7 +810,7 @@ requireText("apps/api/src/modules/offers/repository.ts", offerRepository, "norma
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "/v1/offers/");
 requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "offer_not_found");
-requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAccountSession");
+requireText("apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAuthenticatedAccountSession");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "offerCatalogQuerySchema.parse");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "hasSupplierAccess");
 requireText("apps/api/src/modules/offers/service.ts", offerService, "listAccessibleSupplierIds");
@@ -791,7 +830,7 @@ requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, 
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "class MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");
-requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAccountSession");
+requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_not_found");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");

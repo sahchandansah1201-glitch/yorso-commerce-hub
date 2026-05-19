@@ -1,7 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
-import { AccountSessionError, resolveAccountSession, sendAccountSessionError } from "../auth/session.js";
+import {
+  AccountSessionError,
+  type AccountSessionAuthority,
+  resolveAuthenticatedAccountSession,
+  sendAccountSessionError,
+} from "../auth/session.js";
 import type { SupplierAccessService } from "./service.js";
 
 const supplierRequestPrefix = "/v1/access/suppliers/";
@@ -33,12 +38,13 @@ export async function handleSupplierAccessRoute(
   response: ServerResponse,
   context: ApiRequestContext,
   service: SupplierAccessService,
+  sessionAuthority: AccountSessionAuthority,
   url: URL,
 ) {
   try {
     const supplierId = matchSupplierRequestPath(url.pathname);
     if (supplierId) {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         sendJson(
@@ -74,7 +80,7 @@ export async function handleSupplierAccessRoute(
 
     const decisionRequestId = matchDecisionPath(url.pathname);
     if (decisionRequestId) {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
@@ -107,7 +113,7 @@ export async function handleSupplierAccessRoute(
     }
 
     if (url.pathname === "/v1/access/notifications") {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         sendJson(

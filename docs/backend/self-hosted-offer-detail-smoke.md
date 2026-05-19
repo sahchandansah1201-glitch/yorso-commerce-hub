@@ -37,6 +37,7 @@ Expected success markers:
 
 ```text
 offer_detail_locked=ok
+offer_detail_session_authority=ok
 offer_detail_registered_locked=ok
 offer_detail_requires_grant=ok
 offer_detail_unlocked=ok
@@ -59,6 +60,8 @@ This is part of the production scale baseline:
 - the detail endpoint checks the self-hosted supplier-access grant before
   returning qualified fields;
 - detail reads are bounded one-row reads, not unbounded catalog scans;
+- registered and qualified detail reads validate the self-hosted session id
+  before using the buyer user id for grant checks;
 - CI catches method, validation, not-found and access-shaping regressions.
 
 The smoke is intentionally independent from live PostgreSQL. It protects the

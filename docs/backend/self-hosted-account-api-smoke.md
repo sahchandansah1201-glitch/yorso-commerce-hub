@@ -93,6 +93,9 @@ The smoke test protects the production direction:
 - supplier approval must create server-side grants and a buyer notification.
 - frontend approval notifications must be sourced from the self-hosted API when
   configured, without relying on Supabase or unbounded 2-second backend polling.
+- protected account, storage and supplier-access calls must use a real
+  self-hosted auth session from `/v1/auth/sign-in`; `x-yorso-user-id` alone is
+  not authority.
 
 ## Runtime Mode
 
@@ -116,6 +119,7 @@ A successful run prints:
 
 ```text
 health_live=ok
+account_session_authority=ok
 session_required_guard=ok
 account_me=ok
 company_patch=ok

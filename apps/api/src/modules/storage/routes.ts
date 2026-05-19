@@ -2,7 +2,12 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
 import { type ApiRequestContext, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import type { AccountService } from "../account/service.js";
-import { AccountSessionError, resolveAccountSession, sendAccountSessionError } from "../auth/session.js";
+import {
+  AccountSessionError,
+  type AccountSessionAuthority,
+  resolveAuthenticatedAccountSession,
+  sendAccountSessionError,
+} from "../auth/session.js";
 import type { FileService } from "./service.js";
 
 export async function handleStorageRoute(
@@ -11,11 +16,12 @@ export async function handleStorageRoute(
   context: ApiRequestContext,
   accountService: AccountService,
   fileService: FileService,
+  sessionAuthority: AccountSessionAuthority,
   pathname: string,
 ) {
   try {
     if (pathname === "/v1/account/files/by-object-key") {
-      const { userId } = resolveAccountSession(request, { allowQueryUserId: true });
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context, { allowQueryUserId: true });
 
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");
@@ -34,7 +40,7 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/documents") {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const company = await accountService.getCompanyProfile(userId);
@@ -56,7 +62,7 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/company/media/logo" || pathname === "/v1/account/company/media/cover") {
-      const { userId } = resolveAccountSession(request);
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
@@ -94,7 +100,7 @@ export async function handleStorageRoute(
     }
 
     if (pathname.startsWith("/v1/account/files/")) {
-      const { userId } = resolveAccountSession(request, { allowQueryUserId: true });
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context, { allowQueryUserId: true });
 
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");

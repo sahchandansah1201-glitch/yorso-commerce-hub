@@ -5,11 +5,7 @@ import { createApiServer } from "./server.js";
 
 type JsonBody = Record<string, unknown>;
 const testAccountUserId = "00000000-0000-4000-8000-000000000001";
-const testAccountSessionId = "api-test-session";
-const accountSessionHeaders = {
-  "x-yorso-user-id": testAccountUserId,
-  "x-yorso-session-id": testAccountSessionId,
-};
+let activeAccountSessionId = "";
 
 const config = loadApiConfig(
   {
@@ -48,8 +44,34 @@ async function startTestServer() {
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Expected server address object.");
 
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+  const baseFetch = (path: string, init?: RequestInit) =>
+    fetch(`${baseUrl}${path}`, {
+      ...init,
+      headers: {
+        "content-type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+  const signIn = await baseFetch("/v1/auth/sign-in", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "buyer@example.com",
+      password: "Password1",
+    }),
+  });
+  const signInBody = (await signIn.json()) as JsonBody;
+  if (!signIn.ok) {
+    throw new Error(`Could not create API test session: ${JSON.stringify(signInBody)}`);
+  }
+  activeAccountSessionId = String((signInBody.session as JsonBody).id);
+  const accountSessionHeaders = {
+    "x-yorso-user-id": testAccountUserId,
+    "x-yorso-session-id": activeAccountSessionId,
+  };
+
   return (path: string, init?: RequestInit) =>
-    fetch(`http://127.0.0.1:${address.port}${path}`, {
+    fetch(`${baseUrl}${path}`, {
       ...init,
       headers: {
         "content-type": "application/json",
@@ -831,6 +853,39 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("rejects a valid session when the requested user id does not match the session owner", async () => {
+    const mismatch = await request("/v1/account/me", {
+      headers: { "x-yorso-user-id": "99999999-9999-4999-8999-999999999999" },
+    });
+    const mismatchBody = (await mismatch.json()) as JsonBody;
+
+    expect(mismatch.status).toBe(401);
+    expect(mismatchBody).toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+
+    const optionalMismatch = await request("/v1/offers?accessLevel=qualified_unlocked", {
+      headers: { "x-yorso-user-id": "99999999-9999-4999-8999-999999999999" },
+    });
+    const optionalMismatchBody = (await optionalMismatch.json()) as JsonBody;
+    expect(optionalMismatch.status).toBe(401);
+    expect(optionalMismatchBody).toMatchObject({
+      ok: false,
+      error: { code: "account_session_invalid" },
+    });
+
+    const publicOptional = await request("/v1/offers?accessLevel=qualified_unlocked", {
+      headers: { "x-yorso-user-id": "", "x-yorso-session-id": "" },
+    });
+    const publicOptionalBody = (await publicOptional.json()) as JsonBody;
+    expect(publicOptional.status).toBe(200);
+    expect(publicOptionalBody.offers[0]).toMatchObject({
+      priceMin: null,
+      supplier: expect.objectContaining({ name: null }),
+    });
+  });
+
   it("returns the current account user profile", async () => {
     const response = await request("/v1/account/me");
     const body = (await response.json()) as JsonBody;
@@ -1180,7 +1235,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const address = server?.address();
     if (!address || typeof address === "string") throw new Error("Expected server address object.");
     const fileViaQuerySession = await fetch(
-      `http://127.0.0.1:${address.port}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}&accountUserId=${encodeURIComponent(testAccountUserId)}&accountSessionId=${encodeURIComponent(testAccountSessionId)}`,
+      `http://127.0.0.1:${address.port}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(objectKey)}&accountUserId=${encodeURIComponent(testAccountUserId)}&accountSessionId=${encodeURIComponent(activeAccountSessionId)}`,
     );
     expect(fileViaQuerySession.status).toBe(200);
     expect(await fileViaQuerySession.text()).toBe("logo-bytes");

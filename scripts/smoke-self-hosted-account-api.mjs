@@ -10,11 +10,10 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const apiEntry = path.join(repoRoot, "apps/api/dist/index.js");
 const smokeUserId = "00000000-0000-4000-8000-000000000001";
-const smokeSessionId = "self-hosted-account-smoke";
 const accountHeaders = {
   "content-type": "application/json",
   "x-yorso-user-id": smokeUserId,
-  "x-yorso-session-id": smokeSessionId,
+  "x-yorso-session-id": "",
 };
 
 if (!existsSync(apiEntry)) {
@@ -73,6 +72,8 @@ async function runSmoke(baseUrl) {
   const live = await fetch(`${baseUrl}/health/live`);
   assertStatus(live, 200, "health live");
   console.log("health_live=ok");
+
+  await signInSmokeBuyer(baseUrl);
 
   const suppliersLocked = await jsonRequest(baseUrl, "/v1/suppliers?q=salmon&accessLevel=anonymous_locked");
   assertEqual(suppliersLocked.ok, true, "supplier list ok");
@@ -392,6 +393,7 @@ async function runSmoke(baseUrl) {
     },
   });
   assertEqual(notificationCreate.notification?.channel, "agent", "row notification create");
+  console.log("notification_row_create=ok");
   const notificationInvalid = await fetch(`${baseUrl}/v1/account/notifications/n_smoke_33`, {
     method: "PATCH",
     headers: accountHeaders,
@@ -426,20 +428,22 @@ async function runSmoke(baseUrl) {
   console.log("logo_upload=ok");
 
   const logoByAsset = await fetch(
-    `${baseUrl}/v1/account/files/${encodeURIComponent(logoUpload.asset.id)}?accountUserId=${encodeURIComponent(smokeUserId)}&accountSessionId=${encodeURIComponent(smokeSessionId)}`,
+    `${baseUrl}/v1/account/files/${encodeURIComponent(logoUpload.asset.id)}?accountUserId=${encodeURIComponent(smokeUserId)}&accountSessionId=${encodeURIComponent(accountHeaders["x-yorso-session-id"])}`,
   );
   assertStatus(logoByAsset, 200, "logo read by asset id");
   assertEqual(await logoByAsset.text(), logoBytes.toString(), "logo bytes by asset id");
   console.log("logo_read_by_asset=ok");
 
   const wrongUserLogo = await fetch(
-    `${baseUrl}/v1/account/files/${encodeURIComponent(logoUpload.asset.id)}?accountUserId=${encodeURIComponent("99999999-9999-4999-8999-999999999999")}&accountSessionId=${encodeURIComponent(smokeSessionId)}`,
+    `${baseUrl}/v1/account/files/${encodeURIComponent(logoUpload.asset.id)}?accountUserId=${encodeURIComponent("99999999-9999-4999-8999-999999999999")}&accountSessionId=${encodeURIComponent(accountHeaders["x-yorso-session-id"])}`,
   );
-  assertStatus(wrongUserLogo, 404, "wrong user file isolation");
+  assertStatus(wrongUserLogo, 401, "wrong user file isolation");
+  const wrongUserLogoBody = await wrongUserLogo.json();
+  assertEqual(wrongUserLogoBody.error?.code, "account_session_invalid", "wrong user session mismatch");
   console.log("file_owner_guard=ok");
 
   const logoByObjectKey = await fetch(
-    `${baseUrl}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(logoUpload.asset.objectKey)}&accountUserId=${encodeURIComponent(smokeUserId)}&accountSessionId=${encodeURIComponent(smokeSessionId)}`,
+    `${baseUrl}/v1/account/files/by-object-key?objectKey=${encodeURIComponent(logoUpload.asset.objectKey)}&accountUserId=${encodeURIComponent(smokeUserId)}&accountSessionId=${encodeURIComponent(accountHeaders["x-yorso-session-id"])}`,
   );
   assertStatus(logoByObjectKey, 200, "logo read by object key");
   assertEqual(await logoByObjectKey.text(), logoBytes.toString(), "logo bytes by object key");
@@ -474,6 +478,22 @@ async function runSmoke(baseUrl) {
     "document listed",
   );
   console.log("documents_list=ok");
+}
+
+async function signInSmokeBuyer(baseUrl) {
+  const response = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: "buyer@example.com",
+      password: "Password1",
+    }),
+  });
+  const body = await response.json();
+  assertStatus(response, 200, "self-hosted auth sign-in");
+  assertEqual(body.session?.userId, smokeUserId, "self-hosted auth user id");
+  accountHeaders["x-yorso-session-id"] = body.session.id;
+  console.log("account_session_authority=ok");
 }
 
 async function jsonRequest(baseUrl, pathName, init = {}) {

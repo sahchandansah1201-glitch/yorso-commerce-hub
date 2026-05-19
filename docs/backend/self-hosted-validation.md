@@ -703,6 +703,22 @@ Batch #71 adds self-hosted production policy validation:
 - `check:backend-policy` and `check:production-scale-baseline` guard this
   direction before merge.
 
+Batch #75 adds backend session authority validation:
+
+- `apps/api/src/modules/auth/session.ts` exposes
+  `resolveAuthenticatedAccountSession` and
+  `resolveOptionalAuthenticatedAccountSession`;
+- protected account, storage and supplier-access routes validate
+  `x-yorso-session-id` through the self-hosted auth service before using
+  `x-yorso-user-id`;
+- optional offer and supplier directory routes remain public when no session
+  headers are sent, but reject invalid or mismatched sessions instead of
+  accepting client-provided user ids;
+- runtime smokes sign in through `/v1/auth/sign-in` before protected calls and
+  print session-authority markers;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the new
+  session authority boundary.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

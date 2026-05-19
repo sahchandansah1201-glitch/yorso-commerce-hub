@@ -3,7 +3,8 @@ import { ZodError } from "zod";
 import { methodNotAllowed, sendError, sendJson, sendValidationError, type ApiRequestContext } from "../../http.js";
 import {
   AccountSessionError,
-  resolveOptionalAccountSession,
+  type AccountSessionAuthority,
+  resolveOptionalAuthenticatedAccountSession,
   sendAccountSessionError,
 } from "../auth/session.js";
 import type { SupplierDirectoryService } from "./service.js";
@@ -15,6 +16,7 @@ export async function handleSupplierDirectoryRoute(
   response: ServerResponse,
   context: ApiRequestContext,
   service: SupplierDirectoryService,
+  sessionAuthority: AccountSessionAuthority,
   url: URL,
 ) {
   try {
@@ -24,7 +26,7 @@ export async function handleSupplierDirectoryRoute(
         return true;
       }
 
-      const session = resolveOptionalAccountSession(request);
+      const session = await resolveOptionalAuthenticatedAccountSession(request, sessionAuthority, context);
       sendJson(response, 200, await service.listSuppliers(queryParams(url), context.requestId, session
         ? { buyerUserId: session.userId }
         : null));
@@ -39,7 +41,7 @@ export async function handleSupplierDirectoryRoute(
 
       const id = decodeURIComponent(url.pathname.slice("/v1/suppliers/".length));
       if (!id || id.includes("/")) return false;
-      const session = resolveOptionalAccountSession(request);
+      const session = await resolveOptionalAuthenticatedAccountSession(request, sessionAuthority, context);
       sendJson(response, 200, await service.getSupplierById(id, queryParams(url), context.requestId, session
         ? { buyerUserId: session.userId }
         : null));
