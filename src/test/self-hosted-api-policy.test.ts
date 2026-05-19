@@ -179,6 +179,41 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("auth observability JSONL");
   });
 
+  it("keeps request observability JSONL wired into production runtime and CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const observability = readFileSync("apps/api/src/request-observability.ts", "utf8");
+    const observabilityTest = readFileSync("apps/api/src/request-observability.test.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-request-observability.mjs", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const compose = readFileSync("infra/docker-compose.yml", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-auth-api-smoke.md", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-request-observability"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-request-observability:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-request-observability:run"]).toBe(
+      "node scripts/smoke-self-hosted-request-observability.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-request-observability:run");
+    expect(observability).toContain("api_request_event");
+    expect(observability).toContain("request.guardrail_triggered");
+    expect(observability).toContain("normalizeRoute");
+    expect(observabilityTest).toContain("not.toContain(\"buyer@example.com\")");
+    expect(smoke).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER: \"console\"");
+    expect(smoke).toContain("request_observability_no_pii=ok");
+    expect(smoke).toContain("self_hosted_request_observability_smoke=ok");
+    expect(config).toContain("Production self-hosted API must use YORSO_REQUEST_OBSERVABILITY_DRIVER=console.");
+    expect(productionEnv).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER=console");
+    expect(compose).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER: console");
+    expect(docs).toContain("Batch #85");
+    expect(baseline).toContain("Batch #85");
+    expect(baseline).toContain("api_request_event");
+  });
+
   it("keeps production health readiness wired through API, smoke and deployment guards", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

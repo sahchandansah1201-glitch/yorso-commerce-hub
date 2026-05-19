@@ -30,6 +30,7 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("AUTH_SESSION_CACHE_DRIVER: redis");
     expect(compose).toContain("AUTH_SESSION_CACHE_FAIL_MODE: closed");
     expect(compose).toContain("AUTH_OBSERVABILITY_DRIVER: console");
+    expect(compose).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER: console");
     expect(compose).toContain("HEALTH_READINESS_TIMEOUT_MS:");
     expect(compose).toContain("/health/ready");
     expect(compose).toContain("image: minio/minio:");
@@ -48,6 +49,7 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("AUTH_SESSION_CACHE_DRIVER=disabled");
     expect(env).toContain("AUTH_SESSION_CACHE_FAIL_MODE=open");
     expect(env).toContain("AUTH_OBSERVABILITY_DRIVER=disabled");
+    expect(env).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER=disabled");
     expect(env).toContain("HEALTH_READINESS_TIMEOUT_MS=750");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);

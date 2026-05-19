@@ -603,6 +603,27 @@ on spikes by route and request id. The self-hosted request guardrails smoke
 `smoke:self-hosted-request-guardrails` verifies large-body rejection, body idle
 timeout and header-size enforcement over the compiled API.
 
+Batch #85 adds request observability for the same guardrails. Production config
+must set `YORSO_REQUEST_OBSERVABILITY_DRIVER=console`, which writes JSONL
+`api_request_event` records without request payloads, query strings, supplier
+ids, offer ids, email addresses or session ids. The event stream reports
+`request.completed`, `request.guardrail_triggered` and client parser failures
+with normalized route, method, status code, outcome, latency bucket, request id
+and guardrail code. The expected write profile is one small stdout JSONL record
+per HTTP request plus one record for parser-level header overflow; aggregation
+belongs to owned log collection, not a hosted SaaS backend. At the 10,000
+concurrent-user baseline this closes the feedback loop for Batch #84:
+operators can see whether `request_timeout`, `request_body_timeout`,
+`request_body_too_large` or `request_header_too_large` is protecting the API
+or masking a capacity issue. Failure mode is non-blocking: request handling
+must continue even if telemetry emission fails. The self-hosted request
+observability smoke, also referenced as the self-hosted request observability
+smoke, `smoke:self-hosted-request-observability` verifies normal completion
+telemetry, guardrail telemetry, header overflow telemetry and no-PII stdout
+behavior.
+
+Marker: self-hosted request observability smoke.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

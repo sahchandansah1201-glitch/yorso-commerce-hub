@@ -20,6 +20,7 @@ export const apiConfigSchema = z.object({
   authSessionCacheTtlMs: z.coerce.number().int().min(60_000).max(7 * 24 * 60 * 60 * 1000).default(300_000),
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
   authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
+  requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   healthReadinessTimeoutMs: z.coerce.number().int().min(100).max(5_000).default(750),
   requestTimeoutMs: z.coerce.number().int().min(500).max(120_000).default(15_000),
   requestBodyIdleTimeoutMs: z.coerce.number().int().min(500).max(60_000).default(5_000),
@@ -62,6 +63,7 @@ const localDefaults = {
   AUTH_SESSION_CACHE_TTL_MS: "300000",
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
   AUTH_OBSERVABILITY_DRIVER: "disabled",
+  YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
   HEALTH_READINESS_TIMEOUT_MS: "750",
   YORSO_REQUEST_TIMEOUT_MS: "15000",
   YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS: "5000",
@@ -103,6 +105,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheTtlMs: source.AUTH_SESSION_CACHE_TTL_MS,
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
     authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
+    requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
     healthReadinessTimeoutMs: source.HEALTH_READINESS_TIMEOUT_MS,
     requestTimeoutMs: source.YORSO_REQUEST_TIMEOUT_MS,
     requestBodyIdleTimeoutMs: source.YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS,
@@ -142,6 +145,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.authObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
+  }
+  if (config.nodeEnv === "production" && config.requestObservabilityDriver !== "console") {
+    throw new Error("Production self-hosted API must use YORSO_REQUEST_OBSERVABILITY_DRIVER=console.");
   }
 }
 

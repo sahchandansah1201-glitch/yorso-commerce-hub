@@ -21,6 +21,12 @@ import { AuthService } from "./modules/auth/service.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
 import type { FileService } from "./modules/storage/service.js";
+import {
+  buildClientParseTelemetryEvent,
+  buildRequestTelemetryEvent,
+  createRequestTelemetrySink,
+  type RequestTelemetrySink,
+} from "./request-observability.js";
 import { createOfferCatalogRepository } from "./modules/offers/factory.js";
 import type { OfferCatalogRepository } from "./modules/offers/repository.js";
 import { handleOfferCatalogRoute } from "./modules/offers/routes.js";
@@ -39,6 +45,7 @@ export interface ApiServerOptions {
   lifecycle?: ApiLifecycle;
   offerCatalogRepository?: OfferCatalogRepository;
   readinessProbe?: ReadinessProbe;
+  requestTelemetrySink?: RequestTelemetrySink;
   supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
 }
@@ -64,6 +71,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     supplierAccessRepository,
   );
   const lifecycle = options.lifecycle ?? new ApiLifecycle();
+  const requestTelemetrySink = options.requestTelemetrySink ?? createRequestTelemetrySink(config);
   const readinessProbe = options.readinessProbe ?? createReadinessProbe(config, {
     timeoutMs: config.healthReadinessTimeoutMs,
     lifecycle,
@@ -75,6 +83,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
 
   const server = createServer({ maxHeaderSize: config.maxHeaderBytes }, (request, response) => {
     const context = createRequestContext();
+    const requestPath = getRequestUrl(request).pathname;
     const requestTimer = setTimeout(() => {
       if (response.writableEnded) return;
       sendError(response, 408, "request_timeout", "Request exceeded the configured time limit.", context);
@@ -83,6 +92,26 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     const clearRequestTimer = () => clearTimeout(requestTimer);
     response.once("finish", clearRequestTimer);
     response.once("close", clearRequestTimer);
+    let telemetryEmitted = false;
+    const emitRequestTelemetry = (aborted = false) => {
+      if (telemetryEmitted) return;
+      telemetryEmitted = true;
+      const durationMs = Date.now() - context.startedAt;
+      emitTelemetry(requestTelemetrySink, buildRequestTelemetryEvent({
+        config,
+        context,
+        durationMs,
+        method: request.method,
+        path: requestPath,
+        statusCode: aborted ? 499 : response.statusCode,
+        contentLengthPresent: request.headers["content-length"] !== undefined,
+        aborted,
+      }));
+    };
+    response.once("finish", () => emitRequestTelemetry(false));
+    response.once("close", () => {
+      if (!response.writableEnded) emitRequestTelemetry(true);
+    });
 
     routeRequest(
       request,
@@ -107,7 +136,26 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   server.requestTimeout = config.requestTimeoutMs;
   server.headersTimeout = config.headersTimeoutMs;
   server.keepAliveTimeout = config.keepAliveTimeoutMs;
+  server.on("clientError", (error: NodeJS.ErrnoException, socket) => {
+    const headerOverflow = error.code === "HPE_HEADER_OVERFLOW";
+    const statusCode = headerOverflow ? 431 : 400;
+    const statusText = headerOverflow ? "Request Header Fields Too Large" : "Bad Request";
+    emitTelemetry(requestTelemetrySink, buildClientParseTelemetryEvent({
+      config,
+      code: error.code ?? "client_parse_error",
+      statusCode,
+    }));
+    if (socket.writable) {
+      socket.end(`HTTP/1.1 ${statusCode} ${statusText}\r\nConnection: close\r\n\r\n`);
+    }
+  });
   return server;
+}
+
+function emitTelemetry(sink: RequestTelemetrySink, event: Parameters<RequestTelemetrySink["emit"]>[0]) {
+  void sink.emit(event).catch((error) => {
+    console.error("request_telemetry_emit_failed", error);
+  });
 }
 
 async function routeRequest(

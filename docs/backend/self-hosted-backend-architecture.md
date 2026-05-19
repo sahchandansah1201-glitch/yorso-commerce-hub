@@ -811,3 +811,11 @@ capacity predictable at the 10,000 concurrent-user baseline: slow body uploads,
 oversized JSON payloads, oversized headers and long-running requests fail with
 explicit retryable or client-error responses instead of occupying sockets and
 memory indefinitely.
+
+Batch #85 adds the request observability boundary. `apps/api/src/request-observability.ts`
+emits sanitized `api_request_event` JSONL records for normal request completion,
+request guardrails and parser-level header overflow when
+`YORSO_REQUEST_OBSERVABILITY_DRIVER=console`. Routes are normalized before
+logging, query strings are dropped and payload values are never logged. This is
+the owned operational feedback path for API backpressure at the 10,000
+concurrent-user baseline.

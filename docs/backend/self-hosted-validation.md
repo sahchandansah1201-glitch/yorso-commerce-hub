@@ -837,6 +837,21 @@ Batch #84 adds request guardrails validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the request timeout and backpressure contract.
 
+Batch #85 adds request observability validation:
+
+- production runtime config requires `YORSO_REQUEST_OBSERVABILITY_DRIVER=console`;
+- `apps/api/src/request-observability.ts` emits sanitized `api_request_event`
+  JSONL records for normal requests and request guardrails;
+- route values are normalized and query strings are dropped before logging;
+- request payload data, email addresses, passwords and session identifiers must
+  not appear in request telemetry;
+- `smoke:self-hosted-request-observability` verifies completion telemetry,
+  `request_body_too_large`, `request_body_timeout`, `request_header_too_large`
+  and no-PII stdout behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the request observability contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

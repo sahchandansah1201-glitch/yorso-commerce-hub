@@ -73,6 +73,7 @@ npm run smoke:self-hosted-workspace-postgres
 npm run smoke:self-hosted-health-readiness
 npm run smoke:self-hosted-graceful-shutdown
 npm run smoke:self-hosted-request-guardrails
+npm run smoke:self-hosted-request-observability
 ```
 
 The production frontend should be built with `VITE_YORSO_API_URL` pointing at
@@ -105,9 +106,10 @@ Known production gaps:
   Redis session cache boundary, Batch #80 adds fail-closed cache-outage
   validation, Batch #81 adds no-PII JSONL auth observability and Batch #82 adds
   health/readiness checks. Batch #83 adds graceful shutdown drain for rolling
-  deploys, and Batch #84 adds request timeout, body idle timeout, header-size
-  and JSON body-size guardrails. Password hashing policy, MFA, session rotation
-  and audit dashboards remain future work;
+  deploys, Batch #84 adds request timeout, body idle timeout, header-size
+  and JSON body-size guardrails, and Batch #85 adds no-PII request
+  observability for those guardrails. Password hashing policy, MFA, session
+  rotation and audit dashboards remain future work;
 - queue workers are documented as part of the target topology but not fully
   implemented;
 - the file API currently uses a mounted server volume while MinIO remains the
@@ -131,6 +133,7 @@ npm run check:production-scale-baseline
 npm run smoke:self-hosted-health-readiness
 npm run smoke:self-hosted-graceful-shutdown
 npm run smoke:self-hosted-request-guardrails
+npm run smoke:self-hosted-request-observability
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env

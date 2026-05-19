@@ -1721,6 +1721,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
         VITE_SUPABASE_URL: "https://example.supabase.co",
         VITE_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
       },
@@ -1739,6 +1740,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
     );
@@ -1753,6 +1755,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
     );
@@ -1767,10 +1770,27 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
     );
 
     expect(() => assertSupabaseIsPrototypeOnly(noObservabilityConfig)).toThrow(/AUTH_OBSERVABILITY_DRIVER=console/);
+
+    const noRequestObservabilityConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noRequestObservabilityConfig))
+      .toThrow(/YORSO_REQUEST_OBSERVABILITY_DRIVER=console/);
   });
 });
