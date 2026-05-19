@@ -19,6 +19,8 @@ const requiredFiles = [
   "apps/api/src/modules/auth/rate-limit.ts",
   "apps/api/src/modules/auth/session-cache.ts",
   "apps/api/src/modules/auth/session-cache.test.ts",
+  "apps/api/src/modules/auth/observability.ts",
+  "apps/api/src/modules/auth/observability.test.ts",
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
   "apps/api/src/modules/auth/routes.ts",
@@ -54,6 +56,7 @@ const requiredFiles = [
   "packages/contracts/src/supplier-access.ts",
   "packages/contracts/src/supplier-directory.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
+  "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
@@ -153,6 +156,8 @@ const accessService = read("apps/api/src/modules/access/service.ts");
 const authFactory = read("apps/api/src/modules/auth/factory.ts");
 const authRateLimit = read("apps/api/src/modules/auth/rate-limit.ts");
 const authSessionCache = read("apps/api/src/modules/auth/session-cache.ts");
+const authObservability = read("apps/api/src/modules/auth/observability.ts");
+const authObservabilityTest = read("apps/api/src/modules/auth/observability.test.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
 const authRoutes = read("apps/api/src/modules/auth/routes.ts");
@@ -182,6 +187,7 @@ const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
 const supplierAccessContract = read("packages/contracts/src/supplier-access.ts");
 const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
+const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
@@ -272,6 +278,12 @@ if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run 
 if (pkg.scripts["smoke:self-hosted-auth-api:run"] !== "node scripts/smoke-self-hosted-auth-api.mjs") {
   failures.push("package.json: smoke:self-hosted-auth-api:run must execute scripts/smoke-self-hosted-auth-api.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-auth-observability"] !== "npm run api:build && npm run smoke:self-hosted-auth-observability:run") {
+  failures.push("package.json: smoke:self-hosted-auth-observability must build and run the self-hosted auth observability smoke");
+}
+if (pkg.scripts["smoke:self-hosted-auth-observability:run"] !== "node scripts/smoke-self-hosted-auth-observability.mjs") {
+  failures.push("package.json: smoke:self-hosted-auth-observability:run must execute scripts/smoke-self-hosted-auth-observability.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-session-cache-fail-closed"] !== "npm run api:build && npm run smoke:self-hosted-session-cache-fail-closed:run") {
   failures.push("package.json: smoke:self-hosted-session-cache-fail-closed must build and run the session cache fail-closed smoke");
 }
@@ -316,6 +328,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
+  failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-session-cache-fail-closed:run")) {
   failures.push("package.json: ci:core must run the session cache fail-closed smoke");
@@ -806,20 +821,26 @@ for (const marker of [
 }
 requireText("apps/api/src/server.ts", server, "createAuthRateLimiter(config, authRepository)");
 requireText("apps/api/src/server.ts", server, "createAuthSessionCache(config)");
+requireText("apps/api/src/server.ts", server, "createAuthTelemetrySink(config)");
 requireText("apps/api/src/config.ts", config, "authRateLimitDriver");
 requireText("apps/api/src/config.ts", config, "AUTH_RATE_LIMIT_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
 requireText("apps/api/src/config.ts", config, "authSessionCacheDriver");
 requireText("apps/api/src/config.ts", config, "AUTH_SESSION_CACHE_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_SESSION_CACHE_DRIVER=redis.");
+requireText("apps/api/src/config.ts", config, "authObservabilityDriver");
+requireText("apps/api/src/config.ts", config, "AUTH_OBSERVABILITY_DRIVER");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.getSession");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.setSession");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.deleteSession");
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_session_cache_unavailable");
+requireText("apps/api/src/modules/auth/service.ts", authService, "emitTelemetry");
 for (const [name, text] of [
   ["apps/api/src/modules/auth/factory.ts", authFactory],
   ["apps/api/src/modules/auth/rate-limit.ts", authRateLimit],
   ["apps/api/src/modules/auth/session-cache.ts", authSessionCache],
+  ["apps/api/src/modules/auth/observability.ts", authObservability],
   ["apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository],
   ["apps/api/src/modules/auth/repository.ts", authRepository],
   ["apps/api/src/modules/auth/routes.ts", authRoutes],
@@ -991,6 +1012,18 @@ for (const marker of [
   requireText("scripts/smoke-self-hosted-auth-api.mjs", authApiSmoke, marker);
 }
 for (const marker of [
+  "AUTH_OBSERVABILITY_DRIVER: \"console\"",
+  "auth_observability_sign_in_failed=ok",
+  "auth_observability_rate_limited=ok",
+  "auth_observability_sign_in_succeeded=ok",
+  "auth_observability_sign_out_succeeded=ok",
+  "auth_observability_session_invalid=ok",
+  "auth_observability_no_pii=ok",
+  "self_hosted_auth_observability_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-auth-observability.mjs", authObservabilitySmoke, marker);
+}
+for (const marker of [
   "AUTH_SESSION_CACHE_DRIVER: \"redis\"",
   "AUTH_SESSION_CACHE_FAIL_MODE: \"closed\"",
   "auth_session_cache_fail_closed_sign_in=ok",
@@ -1001,6 +1034,26 @@ for (const marker of [
   "self_hosted_session_cache_fail_closed_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-session-cache-fail-closed.mjs", sessionCacheFailClosedSmoke, marker);
+}
+for (const marker of [
+  "AuthTelemetrySink",
+  "ConsoleAuthTelemetrySink",
+  "MemoryAuthTelemetrySink",
+  "sanitizeAuthTelemetryEvent",
+  "auth_runtime_event",
+  "schemaVersion",
+]) {
+  requireText("apps/api/src/modules/auth/observability.ts", authObservability, marker);
+}
+for (const marker of [
+  "auth.sign_in.failed",
+  "auth.sign_in.rate_limited",
+  "auth.sign_in.succeeded",
+  "auth.sign_out.succeeded",
+  "auth.session.invalid",
+  "not.toContain(\"buyer@example.com\")",
+]) {
+  requireText("apps/api/src/modules/auth/observability.test.ts", authObservabilityTest, marker);
 }
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "apps/api/dist/index.js");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "x-yorso-user-id");
@@ -1368,11 +1421,13 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Bat
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #78");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #79");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #80");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #81");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_retry_after=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_session_cache_invalidation=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_session_cache_fail_closed_smoke=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_observability_smoke=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");

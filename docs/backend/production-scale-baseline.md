@@ -540,6 +540,20 @@ concurrent-user baseline. Observability must treat this as an incident signal:
 count Redis unavailable events, protected-route fail-closed responses and
 anonymous fallback traffic separately.
 
+Batch #81 adds auth observability JSONL for the self-hosted runtime. Production
+config must set `AUTH_OBSERVABILITY_DRIVER=console`; local prototype mode can
+keep the driver disabled to avoid noisy test output. The read/write profile is
+append-only stdout JSONL plus existing durable `yorso_auth_security_events`
+writes for security decisions. The JSONL stream emits `auth_runtime_event`
+records for sign-in failures, rate-limit blocks, successful sign-ins, sign-out
+success and invalid-session outcomes, without raw email, session id or user id
+values. This makes the 10,000 concurrent-user auth path operable without
+introducing a hosted observability dependency: log aggregation can count
+`auth.sign_in.rate_limited`, `auth.session.invalid`,
+`auth.session_cache.unavailable` and p95/p99 route latency by request id.
+Failure mode is non-blocking for telemetry emission; auth decisions still rely
+on the owned repository, Redis rate limiter and Redis session cache.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

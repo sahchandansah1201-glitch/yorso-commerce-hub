@@ -29,6 +29,7 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("AUTH_RATE_LIMIT_FAIL_MODE: closed");
     expect(compose).toContain("AUTH_SESSION_CACHE_DRIVER: redis");
     expect(compose).toContain("AUTH_SESSION_CACHE_FAIL_MODE: closed");
+    expect(compose).toContain("AUTH_OBSERVABILITY_DRIVER: console");
     expect(compose).toContain("image: minio/minio:");
     expect(compose).toContain("STORAGE_DRIVER: local");
     expect(compose).toContain("yorso-api-uploads:");
@@ -44,6 +45,7 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("AUTH_RATE_LIMIT_FAIL_MODE=open");
     expect(env).toContain("AUTH_SESSION_CACHE_DRIVER=disabled");
     expect(env).toContain("AUTH_SESSION_CACHE_FAIL_MODE=open");
+    expect(env).toContain("AUTH_OBSERVABILITY_DRIVER=disabled");
     expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
     expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
   });

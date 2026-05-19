@@ -99,8 +99,10 @@ Known production gaps:
 
 - production auth hardening is still incomplete: Batch #73 adds session
   issuance, Batch #78 adds Redis sign-in backpressure and Batch #79 adds the
-  Redis session cache boundary, but password hashing policy, MFA, session
-  rotation and audit dashboards remain future work;
+  Redis session cache boundary, Batch #80 adds fail-closed cache-outage
+  validation and Batch #81 adds no-PII JSONL auth observability, but password
+  hashing policy, MFA, session rotation and audit dashboards remain future
+  work;
 - queue workers are documented as part of the target topology but not fully
   implemented;
 - the file API currently uses a mounted server volume while MinIO remains the
