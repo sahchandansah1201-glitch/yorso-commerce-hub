@@ -1827,7 +1827,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1849,7 +1849,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1867,7 +1867,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1885,7 +1885,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1903,7 +1903,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1932,7 +1932,7 @@ describe("YORSO self-hosted API skeleton", () => {
     );
 
     expect(() => assertSupabaseIsPrototypeOnly(noAuditConfig))
-      .toThrow(/YORSO_AUDIT_DRIVER=console/);
+      .toThrow(/YORSO_AUDIT_DRIVER=postgres/);
 
     const noMetricsConfig = loadApiConfig(
       {
@@ -1941,7 +1941,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "disabled",
@@ -1960,7 +1960,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        YORSO_AUDIT_DRIVER: "console",
+        YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",

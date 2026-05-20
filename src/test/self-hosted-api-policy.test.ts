@@ -305,6 +305,8 @@ describe("self-hosted API policy", () => {
     const audit = readFileSync("apps/api/src/audit.ts", "utf8");
     const auditTest = readFileSync("apps/api/src/audit.test.ts", "utf8");
     const smoke = readFileSync("scripts/smoke-self-hosted-audit-trail.mjs", "utf8");
+    const persistenceSmoke = readFileSync("scripts/smoke-self-hosted-audit-persistence.mjs", "utf8");
+    const migration = readFileSync("packages/db/migrations/0013_api_audit_events.sql", "utf8");
     const config = readFileSync("apps/api/src/config.ts", "utf8");
     const server = readFileSync("apps/api/src/server.ts", "utf8");
     const authRoutes = readFileSync("apps/api/src/modules/auth/routes.ts", "utf8");
@@ -321,17 +323,34 @@ describe("self-hosted API policy", () => {
     expect(pkg.scripts["smoke:self-hosted-audit-trail:run"]).toBe(
       "node scripts/smoke-self-hosted-audit-trail.mjs",
     );
+    expect(pkg.scripts["smoke:self-hosted-audit-persistence"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-audit-persistence:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-audit-persistence:run"]).toBe(
+      "node scripts/smoke-self-hosted-audit-persistence.mjs",
+    );
     expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-audit-trail:run");
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-audit-persistence:run");
     expect(audit).toContain("api_audit_event");
     expect(audit).toContain("actorUserHash");
     expect(audit).toContain("sessionHash");
     expect(audit).toContain("resourceHash");
     expect(audit).toContain("ConsoleAuditSink");
+    expect(audit).toContain("PostgresAuditSink");
+    expect(audit).toContain("api_audit_dropped");
+    expect(audit).toContain("yorso_api_audit_events");
+    expect(audit).toContain("auditMaxInFlight");
     expect(auditTest).toContain("not.toContain(\"sess_secret_123\")");
     expect(smoke).toContain("YORSO_AUDIT_DRIVER: \"console\"");
     expect(smoke).toContain("audit_no_pii=ok");
     expect(smoke).toContain("self_hosted_audit_trail_smoke=ok");
-    expect(config).toContain("Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
+    expect(persistenceSmoke).toContain("audit_persistence_insert=ok");
+    expect(persistenceSmoke).toContain("audit_persistence_hash_only=ok");
+    expect(persistenceSmoke).toContain("audit_persistence_backpressure=ok");
+    expect(persistenceSmoke).toContain("self_hosted_audit_persistence_smoke=ok");
+    expect(migration).toContain("create table if not exists yorso_api_audit_events");
+    expect(migration).toContain("idx_yorso_api_audit_events_action_outcome_time");
+    expect(config).toContain("Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
     expect(server).toContain("createAuditSink(config)");
     expect(authRoutes).toContain("auth.sign_in");
     expect(accountRoutes).toContain("account.company.update");
@@ -339,9 +358,12 @@ describe("self-hosted API policy", () => {
     expect(accessRoutes).toContain("access.supplier.decision");
     expect(storageRoutes).toContain("storage.company_media.upload");
     expect(storageRoutes).toContain("storage.document.create");
-    expect(productionEnv).toContain("YORSO_AUDIT_DRIVER=console");
-    expect(compose).toContain("YORSO_AUDIT_DRIVER: console");
+    expect(productionEnv).toContain("YORSO_AUDIT_DRIVER=postgres");
+    expect(productionEnv).toContain("YORSO_AUDIT_MAX_IN_FLIGHT=2000");
+    expect(compose).toContain("YORSO_AUDIT_DRIVER: postgres");
+    expect(compose).toContain("YORSO_AUDIT_MAX_IN_FLIGHT:");
     expect(baseline).toContain("Batch #88");
+    expect(baseline).toContain("Batch #89");
     expect(baseline).toContain("api_audit_event");
   });
 

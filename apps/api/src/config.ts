@@ -19,7 +19,8 @@ export const apiConfigSchema = z.object({
   authSessionCacheFailMode: z.enum(["open", "closed"]).default("open"),
   authSessionCacheTtlMs: z.coerce.number().int().min(60_000).max(7 * 24 * 60 * 60 * 1000).default(300_000),
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
-  auditDriver: z.enum(["disabled", "console"]).default("disabled"),
+  auditDriver: z.enum(["disabled", "console", "postgres"]).default("disabled"),
+  auditMaxInFlight: z.coerce.number().int().min(1).max(50_000).default(2_000),
   authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
@@ -66,6 +67,7 @@ const localDefaults = {
   AUTH_SESSION_CACHE_TTL_MS: "300000",
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
   YORSO_AUDIT_DRIVER: "disabled",
+  YORSO_AUDIT_MAX_IN_FLIGHT: "2000",
   AUTH_OBSERVABILITY_DRIVER: "disabled",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
@@ -111,6 +113,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheTtlMs: source.AUTH_SESSION_CACHE_TTL_MS,
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
     auditDriver: source.YORSO_AUDIT_DRIVER,
+    auditMaxInFlight: source.YORSO_AUDIT_MAX_IN_FLIGHT,
     authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
@@ -155,8 +158,8 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   if (config.nodeEnv === "production" && config.authObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
   }
-  if (config.nodeEnv === "production" && config.auditDriver !== "console") {
-    throw new Error("Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
+  if (config.nodeEnv === "production" && config.auditDriver !== "postgres") {
+    throw new Error("Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
   }
   if (config.nodeEnv === "production" && config.errorObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use YORSO_ERROR_OBSERVABILITY_DRIVER=console.");

@@ -891,7 +891,7 @@ Batch #87 adds metrics validation:
 
 Batch #88 adds audit trail validation:
 
-- production runtime config requires `YORSO_AUDIT_DRIVER=console`;
+- local runtime validation can use `YORSO_AUDIT_DRIVER=console`;
 - `apps/api/src/audit.ts` emits sanitized `api_audit_event` JSONL records;
 - auth, account, supplier-access and storage routes record protected mutations
   and auth outcomes through the audit sink;
@@ -906,6 +906,23 @@ Batch #88 adds audit trail validation:
 - `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the audit trail contract.
+
+Batch #89 adds durable audit persistence validation:
+
+- production runtime config requires `YORSO_AUDIT_DRIVER=postgres`;
+- production/runtime env defines `YORSO_AUDIT_MAX_IN_FLIGHT=2000`;
+- `packages/db/migrations/0013_api_audit_events.sql` creates
+  `yorso_api_audit_events` for sanitized audit envelopes only;
+- audit persistence indexes support time, action/outcome, actor-hash,
+  resource-hash and correlation-id investigations;
+- `PostgresAuditSink` writes to PostgreSQL and applies in-flight backpressure;
+- backpressure emits sanitized `api_audit_dropped` metadata without raw user,
+  session, supplier, file or business values;
+- `smoke:self-hosted-audit-persistence` verifies insert shape, hash-only
+  parameters and backpressure behavior without requiring a live database;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-db`,
+  `check:self-hosted-infra`, `check:self-hosted-production-runtime` and
+  `check:production-scale-baseline` guard the durable audit contract.
 
 ## Production Direction
 
