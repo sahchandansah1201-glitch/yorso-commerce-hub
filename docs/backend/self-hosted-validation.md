@@ -889,6 +889,24 @@ Batch #87 adds metrics validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the metrics contract.
 
+Batch #88 adds audit trail validation:
+
+- production runtime config requires `YORSO_AUDIT_DRIVER=console`;
+- `apps/api/src/audit.ts` emits sanitized `api_audit_event` JSONL records;
+- auth, account, supplier-access and storage routes record protected mutations
+  and auth outcomes through the audit sink;
+- audit events include request id, correlation id, action, outcome, route and
+  hashed actor/session/resource identifiers only;
+- audit events must not include request bodies, query strings, email
+  addresses, passwords, raw user ids, raw session ids, supplier ids, file names
+  or business profile values;
+- `smoke:self-hosted-audit-trail` verifies auth failure/success, company
+  update, supplier access request/decision, notification ack, file/document
+  upload and no-PII stdout behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the audit trail contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

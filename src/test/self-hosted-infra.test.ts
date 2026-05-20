@@ -29,6 +29,7 @@ describe("self-hosted infra validation", () => {
     expect(compose).toContain("AUTH_RATE_LIMIT_FAIL_MODE: closed");
     expect(compose).toContain("AUTH_SESSION_CACHE_DRIVER: redis");
     expect(compose).toContain("AUTH_SESSION_CACHE_FAIL_MODE: closed");
+    expect(compose).toContain("YORSO_AUDIT_DRIVER: console");
     expect(compose).toContain("AUTH_OBSERVABILITY_DRIVER: console");
     expect(compose).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER: console");
     expect(compose).toContain("YORSO_METRICS_DRIVER: prometheus");
@@ -50,6 +51,7 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("AUTH_RATE_LIMIT_FAIL_MODE=open");
     expect(env).toContain("AUTH_SESSION_CACHE_DRIVER=disabled");
     expect(env).toContain("AUTH_SESSION_CACHE_FAIL_MODE=open");
+    expect(env).toContain("YORSO_AUDIT_DRIVER=disabled");
     expect(env).toContain("AUTH_OBSERVABILITY_DRIVER=disabled");
     expect(env).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER=disabled");
     expect(env).toContain("YORSO_METRICS_DRIVER=disabled");

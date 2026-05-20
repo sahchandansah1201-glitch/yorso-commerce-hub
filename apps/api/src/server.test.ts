@@ -1827,6 +1827,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1848,6 +1849,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1865,6 +1867,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1882,6 +1885,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1899,6 +1903,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
         YORSO_METRICS_DRIVER: "prometheus",
@@ -1910,6 +1915,25 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(() => assertSupabaseIsPrototypeOnly(noErrorObservabilityConfig))
       .toThrow(/YORSO_ERROR_OBSERVABILITY_DRIVER=console/);
 
+    const noAuditConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "disabled",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noAuditConfig))
+      .toThrow(/YORSO_AUDIT_DRIVER=console/);
+
     const noMetricsConfig = loadApiConfig(
       {
         NODE_ENV: "production",
@@ -1917,6 +1941,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "disabled",
@@ -1935,6 +1960,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "console",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_METRICS_DRIVER: "prometheus",

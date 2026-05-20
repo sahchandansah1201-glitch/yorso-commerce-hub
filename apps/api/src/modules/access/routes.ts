@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
+import { auditFromRequest, type AuditSink } from "../../audit.js";
 import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import {
   AccountSessionError,
@@ -41,11 +42,12 @@ export async function handleSupplierAccessRoute(
   sessionAuthority: AccountSessionAuthority,
   url: URL,
   jsonBodyOptions: JsonBodyReadOptions,
+  auditSink: AuditSink,
 ) {
   try {
     const supplierId = matchSupplierRequestPath(url.pathname);
     if (supplierId) {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         sendJson(
@@ -62,16 +64,23 @@ export async function handleSupplierAccessRoute(
 
       if (request.method === "POST") {
         const payload = await readJsonBody(request, jsonBodyOptions);
-        sendJson(
-          response,
-          201,
-          await service.requestSupplierAccess({
-            buyerUserId: userId,
-            supplierId,
-            payload,
-            requestId: context.requestId,
-          }),
-        );
+        const result = await service.requestSupplierAccess({
+          buyerUserId: userId,
+          supplierId,
+          payload,
+          requestId: context.requestId,
+        });
+        auditFromRequest(auditSink, context, request, {
+          action: "access.supplier.request",
+          actorUserId: userId,
+          outcome: "success",
+          resourceId: result.request?.id ?? supplierId,
+          resourceType: "supplier_access_request",
+          route: supplierRequestPrefix + ":supplierId/request",
+          sessionId,
+          statusCode: 201,
+        });
+        sendJson(response, 201, result);
         return true;
       }
 
@@ -81,7 +90,7 @@ export async function handleSupplierAccessRoute(
 
     const decisionRequestId = matchDecisionPath(url.pathname);
     if (decisionRequestId) {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
@@ -100,21 +109,29 @@ export async function handleSupplierAccessRoute(
       }
 
       const payload = await readJsonBody(request, jsonBodyOptions);
-      sendJson(
-        response,
-        200,
-        await service.decideSupplierAccessRequest({
-          requestIdParam: decisionRequestId,
-          actorUserId: userId,
-          payload,
-          responseRequestId: context.requestId,
-        }),
-      );
+      const result = await service.decideSupplierAccessRequest({
+        requestIdParam: decisionRequestId,
+        actorUserId: userId,
+        payload,
+        responseRequestId: context.requestId,
+      });
+      auditFromRequest(auditSink, context, request, {
+        action: "access.supplier.decision",
+        actorUserId: userId,
+        outcome: "success",
+        reason: result.request.status,
+        resourceId: decisionRequestId,
+        resourceType: "supplier_access_request",
+        route: decisionPrefix + ":requestId/decision",
+        sessionId,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
       return true;
     }
 
     if (url.pathname === "/v1/access/notifications") {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         sendJson(
@@ -131,15 +148,22 @@ export async function handleSupplierAccessRoute(
 
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
-        sendJson(
-          response,
-          200,
-          await service.acknowledgeNotifications({
-            buyerUserId: userId,
-            payload,
-            requestId: context.requestId,
-          }),
-        );
+        const result = await service.acknowledgeNotifications({
+          buyerUserId: userId,
+          payload,
+          requestId: context.requestId,
+        });
+        auditFromRequest(auditSink, context, request, {
+          action: "access.notifications.ack",
+          actorUserId: userId,
+          outcome: "success",
+          resourceId: userId,
+          resourceType: "access_notifications",
+          route: "/v1/access/notifications",
+          sessionId,
+          statusCode: 200,
+        });
+        sendJson(response, 200, result);
         return true;
       }
 

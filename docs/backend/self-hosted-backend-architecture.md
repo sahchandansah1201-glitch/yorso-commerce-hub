@@ -838,3 +838,12 @@ monitoring primitives for the self-hosted product without Supabase, Firebase,
 Appwrite, Clerk, Auth0 or hosted observability dependencies. Labels stay
 low-cardinality and sanitized: normalized route, method, status class, outcome,
 error category/code and guardrail kind only.
+
+Batch #88 adds the audit trail boundary. `apps/api/src/audit.ts` emits
+sanitized `api_audit_event` JSONL records when `YORSO_AUDIT_DRIVER=console`.
+Auth, account, supplier-access and storage routes call the audit sink after
+protected mutations and auth outcomes. Raw identities are never logged:
+actor, session and resource references are SHA-256 derived hashes, and audit
+events do not include request bodies, file names, emails, passwords, supplier
+ids or business profile values. This keeps auditability inside the owned
+self-hosted stack while preserving the no-hosted-BaaS production policy.

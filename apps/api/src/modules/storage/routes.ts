@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
+import { auditFromRequest, type AuditSink } from "../../audit.js";
 import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import type { AccountService } from "../account/service.js";
 import {
@@ -19,6 +20,7 @@ export async function handleStorageRoute(
   sessionAuthority: AccountSessionAuthority,
   pathname: string,
   jsonBodyOptions: JsonBodyReadOptions,
+  auditSink: AuditSink,
 ) {
   try {
     if (pathname === "/v1/account/files/by-object-key") {
@@ -41,7 +43,7 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/documents") {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const company = await accountService.getCompanyProfile(userId);
@@ -57,6 +59,16 @@ export async function handleStorageRoute(
           maxBytes: fileService.maxJsonBodyBytes,
         }));
         const document = await fileService.createCompanyDocument({ userId, companyId: company.id, payload });
+        auditFromRequest(auditSink, context, request, {
+          action: "storage.document.create",
+          actorUserId: userId,
+          outcome: "success",
+          resourceId: document.id,
+          resourceType: "company_document",
+          route: "/v1/account/documents",
+          sessionId,
+          statusCode: 201,
+        });
         sendJson(response, 201, { ok: true, document, requestId: context.requestId });
         return true;
       }
@@ -66,7 +78,7 @@ export async function handleStorageRoute(
     }
 
     if (pathname === "/v1/account/company/media/logo" || pathname === "/v1/account/company/media/cover") {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
@@ -97,6 +109,17 @@ export async function handleStorageRoute(
             },
       });
 
+      auditFromRequest(auditSink, context, request, {
+        action: "storage.company_media.upload",
+        actorUserId: userId,
+        outcome: "success",
+        reason: slot,
+        resourceId: asset.id,
+        resourceType: "account_file_asset",
+        route: "/v1/account/company/media/:slot",
+        sessionId,
+        statusCode: 201,
+      });
       sendJson(response, 201, {
         ok: true,
         asset,

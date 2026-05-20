@@ -676,6 +676,29 @@ behavior.
 Marker: self-hosted metrics smoke.
 Marker: Prometheus metrics endpoint.
 
+Batch #88 adds a structured production audit trail for risk-bearing backend
+actions. Production config must set `YORSO_AUDIT_DRIVER=console`, which writes
+sanitized `api_audit_event` JSONL records for auth sign-in/sign-out,
+account/company mutations, supplier access request/decision actions,
+notification acknowledgements and account file/document uploads. Audit records
+include request id, correlation id, action, outcome, normalized route and
+hashed actor/session/resource identifiers. They deliberately omit raw emails,
+passwords, user ids, session ids, supplier ids, file names, uploaded payloads,
+query strings and business profile values.
+
+At the 10,000 concurrent-user baseline this gives operators and compliance
+reviewers an owned accountability stream without adding hosted audit/SIEM
+dependencies. Expected write profile is one small JSONL record per protected
+mutation plus auth success/failure events. Failure mode is non-blocking:
+requests must continue if audit emission fails, while emission failures write a
+sanitized `api_audit_emit_failed` envelope. The self-hosted audit trail smoke,
+also referenced as the self-hosted audit trail smoke,
+`smoke:self-hosted-audit-trail` verifies auth, account, access, notification
+and storage audit events plus no-PII log behavior.
+
+Marker: self-hosted audit trail smoke.
+Marker: api_audit_event.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
