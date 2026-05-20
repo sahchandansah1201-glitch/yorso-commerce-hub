@@ -944,6 +944,66 @@ Marker: self-hosted admin access review smoke.
 Marker: API-backed admin access review browser e2e.
 Marker: self_hosted_admin_access_review_smoke=ok.
 
+Batch #97 adds the admin access grants console and revoke runtime. Operators
+now have a self-hosted admin list at `GET /v1/admin/access-grants`, protected
+by the same self-hosted session authority and `admin` role guard as runtime
+status, audit and review. The list groups active or expired
+`supplier_identity` and `offer_price` grants by buyer and supplier. It returns
+review-safe buyer labels, supplier context, scopes, grant age, request status
+and expiry state. It does not return raw session ids, buyer emails, passwords
+or storage credentials.
+
+The revoke path is `POST /v1/admin/access-grants/:grantId/revoke`. It expires
+all active grants for the same buyer and supplier, updates the linked request
+to `revoked` when present and records a `supplier_access_revoked` event. After
+revocation, offer detail, offer catalog and supplier directory access checks
+must downgrade the buyer again and mask supplier identity plus exact price.
+
+Expected read/write profile: the grants console is a low-frequency operator
+read path with occasional revoke writes. Reads are paginated with `limit` and
+`offset`, default to active grants and are bounded to 100 rows by contract.
+Writes are idempotent at the access state level because revoked grants become
+expired and catalog access checks read only active grants.
+
+Cache, queue and backpressure strategy: no browser background polling is added.
+The admin UI refreshes on demand. API request guardrails, auth session cache,
+rate limits and existing audit backpressure apply. If a revoke fails, access is
+not partially represented in the UI as successful; the backend response remains
+the source of truth.
+
+Database indexing and pagination strategy: migration
+`0018_admin_access_grants_console` adds active, expired, buyer, supplier and
+revoked-event indexes. Marketplace hot paths continue using narrow
+buyer/supplier/scope access checks, while admin scans stay on bounded
+pagination.
+
+Failure mode and graceful degradation: missing session, invalid session,
+non-admin role, invalid grant id and missing grant all fail closed. When the
+self-hosted API is not configured, `/admin/access-grants` shows an explicit
+disabled state and does not invent grant data.
+
+Observability and load-test plan: sanitized audit actions
+`admin.access_grants.read` and `admin.access_grants.revoke` are emitted.
+Smoke and browser tests verify auth guard, role guard, list, revoke,
+post-revoke catalog masking and validation. Load testing should include mixed
+admin list reads, revoke writes and buyer catalog/detail reads, with buyer
+catalog traffic remaining dominant.
+
+Marker: Batch #97.
+Marker: /v1/admin/access-grants.
+Marker: /v1/admin/access-grants/:grantId/revoke.
+Marker: admin.access_grants.read.
+Marker: admin.access_grants.revoke.
+Marker: 0018_admin_access_grants_console.
+Marker: admin-access-grants-page.
+Marker: admin-access-grants-table.
+Marker: test:admin-access-grants-frontend.
+Marker: smoke:self-hosted-admin-access-grants.
+Marker: smoke:e2e:admin-access-grants.
+Marker: self-hosted admin access grants smoke.
+Marker: API-backed admin access grants browser e2e.
+Marker: self_hosted_admin_access_grants_smoke=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

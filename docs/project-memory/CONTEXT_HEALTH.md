@@ -1,17 +1,17 @@
 # Context Health
 
-Обновлено: 2026-05-20
+Обновлено: 2026-05-21
 
 ## Текущий статус
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-05-20"
+last_checkpoint: "2026-05-21"
 last_handoff_ready: true
-recommended_action: "finish Batch #96 commit, PR, checks and merge; then continue with a large Batch #97"
+recommended_action: "finish Batch #97 commit, PR, GitHub checks and merge; then continue with a large Batch #98"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch96-supplier-access-review-console"
-current_batch: 96
+active_branch: "codex/batch97-admin-access-grants-console"
+current_batch: 97
 ```
 
 ## Уровни риска

@@ -32,6 +32,13 @@ const requiredFiles = [
   "src/pages/admin/AdminAccessRequests.tsx",
   "src/pages/admin/AdminAccessRequests.test.tsx",
   "e2e/admin-access-review.spec.ts",
+  "src/lib/admin-access-grants-api.ts",
+  "src/lib/admin-access-grants-api.test.ts",
+  "src/lib/use-admin-access-grants.ts",
+  "src/lib/use-admin-access-grants.test.tsx",
+  "src/pages/admin/AdminAccessGrants.tsx",
+  "src/pages/admin/AdminAccessGrants.test.tsx",
+  "e2e/admin-access-grants.spec.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -100,6 +107,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-admin-audit.mjs",
   "scripts/smoke-self-hosted-admin-runtime-status.mjs",
   "scripts/smoke-self-hosted-admin-access-review.mjs",
+  "scripts/smoke-self-hosted-admin-access-grants.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -174,12 +182,14 @@ const requiredFiles = [
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-offer-detail-smoke.md",
   "docs/backend/self-hosted-admin-access-review-smoke.md",
+  "docs/backend/self-hosted-admin-access-grants-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+  "packages/db/migrations/0018_admin_access_grants_console.sql",
   "scripts/admin-audit-retention.mjs",
 ];
 
@@ -227,6 +237,13 @@ const useAdminAccessReviewTest = read("src/lib/use-admin-access-review.test.tsx"
 const adminAccessReviewPage = read("src/pages/admin/AdminAccessRequests.tsx");
 const adminAccessReviewPageTest = read("src/pages/admin/AdminAccessRequests.test.tsx");
 const adminAccessReviewE2E = read("e2e/admin-access-review.spec.ts");
+const adminAccessGrantsApi = read("src/lib/admin-access-grants-api.ts");
+const adminAccessGrantsApiTest = read("src/lib/admin-access-grants-api.test.ts");
+const useAdminAccessGrants = read("src/lib/use-admin-access-grants.ts");
+const useAdminAccessGrantsTest = read("src/lib/use-admin-access-grants.test.tsx");
+const adminAccessGrantsPage = read("src/pages/admin/AdminAccessGrants.tsx");
+const adminAccessGrantsPageTest = read("src/pages/admin/AdminAccessGrants.test.tsx");
+const adminAccessGrantsE2E = read("e2e/admin-access-grants.spec.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -278,6 +295,7 @@ const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
 const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
+const adminAccessGrantsSmoke = read("scripts/smoke-self-hosted-admin-access-grants.mjs");
 const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccessMigration = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardeningMigration = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
@@ -350,6 +368,7 @@ const supabaseClient = read("src/integrations/supabase/client.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
 const adminAccessReviewSmokeDocs = read("docs/backend/self-hosted-admin-access-review-smoke.md");
+const adminAccessGrantsSmokeDocs = read("docs/backend/self-hosted-admin-access-grants-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
 const workspacePostgresSmokeDocs = read("docs/backend/self-hosted-workspace-postgres-smoke.md");
 
@@ -523,6 +542,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-s
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-review:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin access review smoke");
 }
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-grants:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin access grants smoke");
+}
 if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
   failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
 }
@@ -534,6 +556,12 @@ if (pkg.scripts["test:admin-access-review-frontend"] !== "vitest run src/lib/adm
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-review-frontend")) {
   failures.push("package.json: ci:core must run the admin access review frontend tests");
+}
+if (pkg.scripts["test:admin-access-grants-frontend"] !== "vitest run src/lib/admin-access-grants-api.test.ts src/lib/use-admin-access-grants.test.tsx src/pages/admin/AdminAccessGrants.test.tsx") {
+  failures.push("package.json: test:admin-access-grants-frontend must cover the admin access grants adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-grants-frontend")) {
+  failures.push("package.json: ci:core must run the admin access grants frontend tests");
 }
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
@@ -554,6 +582,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-review")) 
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access review browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-review");
+if (pkg.scripts["smoke:e2e:admin-access-grants"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-access-grants:run") {
+  failures.push("package.json: smoke:e2e:admin-access-grants must build with the self-hosted admin access grants adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-access-grants:run"]?.includes("e2e/admin-access-grants.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-access-grants:run must cover /admin/access-grants browser behavior");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-grants")) {
+  failures.push("package.json: ci:full must include the admin access grants browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access grants browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-grants");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
@@ -1217,10 +1256,28 @@ for (const marker of [
   requireText("scripts/smoke-self-hosted-admin-access-review.mjs", adminAccessReviewSmoke, marker);
 }
 for (const marker of [
+  "admin_access_grants_auth_guard=ok",
+  "admin_access_grants_role_guard=ok",
+  "admin_access_grants_list=ok",
+  "admin_access_grants_revoke=ok",
+  "admin_access_grants_revoke_masks_catalog=ok",
+  "admin_access_grants_filters=ok",
+  "admin_access_grants_validation_guard=ok",
+  "self_hosted_admin_access_grants_smoke=ok",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/${encodeURIComponent(grantList.items[0].id)}/revoke",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-access-grants.mjs", adminAccessGrantsSmoke, marker);
+}
+for (const marker of [
   "/v1/admin/access-requests",
   "/v1/admin/access-requests/:requestId/decision",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/:grantId/revoke",
   "admin.access_requests.read",
   "admin.access_requests.decision",
+  "admin.access_grants.read",
+  "admin.access_grants.revoke",
   "admin_role_required",
   "resolveAuthenticatedAccountSession",
 ]) {
@@ -1228,15 +1285,24 @@ for (const marker of [
 }
 for (const marker of [
   "listReviewRequests",
+  "listAdminGrants",
+  "revokeAdminGrant",
   "supplierAccessReviewQuerySchema",
   "supplierAccessReviewListResponseSchema",
+  "supplierAccessGrantQuerySchema",
+  "supplierAccessGrantListResponseSchema",
+  "supplierAccessGrantRevokeResponseSchema",
 ]) {
   requireText("apps/api/src/modules/access/service.ts", accessService, marker);
 }
 for (const marker of [
   "listReviewRequests",
+  "listAdminGrants",
+  "revokeGrant",
   "SupplierAccessReviewItem",
   "SupplierAccessReviewSummary",
+  "SupplierAccessGrantAdminItem",
+  "SupplierAccessGrantSummary",
 ]) {
   requireText("apps/api/src/modules/access/repository.ts", accessRepository, marker);
   requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, marker);
@@ -1245,7 +1311,12 @@ for (const marker of [
   "supplierAccessReviewQuerySchema",
   "supplierAccessReviewItemSchema",
   "supplierAccessReviewListResponseSchema",
+  "supplierAccessGrantQuerySchema",
+  "supplierAccessGrantAdminItemSchema",
+  "supplierAccessGrantListResponseSchema",
+  "supplierAccessGrantRevokeResponseSchema",
   "SupplierAccessReviewListResponse",
+  "SupplierAccessGrantListResponse",
 ]) {
   requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, marker);
 }
@@ -1317,6 +1388,76 @@ for (const marker of [
   "admin-access-review-forbidden",
 ]) {
   requireText("e2e/admin-access-review.spec.ts", adminAccessReviewE2E, marker);
+}
+for (const marker of [
+  "createAdminAccessGrantsApiClient",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/${encodeURIComponent(grantId)}/revoke",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_access_grants_api_disabled",
+  "admin_access_grants_session_required",
+  "admin_role_required",
+]) {
+  requireText("src/lib/admin-access-grants-api.ts", adminAccessGrantsApi, marker);
+}
+for (const marker of [
+  "disabled without self-hosted API URL",
+  "lists grants with session headers",
+  "posts revoke through the admin grants endpoint",
+  "maps forbidden and invalid response errors",
+]) {
+  requireText("src/lib/admin-access-grants-api.test.ts", adminAccessGrantsApiTest, marker);
+}
+for (const marker of [
+  "useAdminAccessGrants",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+  "client.revoke",
+]) {
+  requireText("src/lib/use-admin-access-grants.ts", useAdminAccessGrants, marker);
+}
+for (const marker of [
+  "returns disabled and session-required states",
+  "loads grants and refreshes after revoke",
+  "maps admin role failures to forbidden state",
+]) {
+  requireText("src/lib/use-admin-access-grants.test.tsx", useAdminAccessGrantsTest, marker);
+}
+for (const marker of [
+  "admin-access-grants-page",
+  "admin-access-grants-table",
+  "admin-access-grants-summary",
+  "admin-access-grants-disabled",
+  "admin-access-grants-session-required",
+  "admin-access-grants-forbidden",
+  "admin-access-grants-search",
+  "admin-access-grants-status-filter",
+  "admin-access-grants-pagination",
+  "/admin/access-requests",
+]) {
+  requireText("src/pages/admin/AdminAccessGrants.tsx", adminAccessGrantsPage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "loads grants, revokes access",
+  "Нужна роль администратора",
+  "admin-access-grants-revoke",
+]) {
+  requireText("src/pages/admin/AdminAccessGrants.test.tsx", adminAccessGrantsPageTest, marker);
+}
+for (const marker of [
+  "Batch #97 browser guard",
+  "/admin/access-grants",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/:grantId/revoke",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-access-grants-table",
+  "admin-access-grants-forbidden",
+]) {
+  requireText("e2e/admin-access-grants.spec.ts", adminAccessGrantsE2E, marker);
 }
 for (const marker of [
   "createAdminRuntimeApiClient",
@@ -2361,6 +2502,18 @@ for (const marker of [
 ]) {
   requireText("docs/backend/self-hosted-admin-access-review-smoke.md", adminAccessReviewSmokeDocs, marker);
 }
+for (const marker of [
+  "Batch #97",
+  "npm run smoke:self-hosted-admin-access-grants",
+  "admin_access_grants_auth_guard=ok",
+  "admin_access_grants_role_guard=ok",
+  "admin_access_grants_revoke=ok",
+  "admin_access_grants_revoke_masks_catalog=ok",
+  "self_hosted_admin_access_grants_smoke=ok",
+  "0018_admin_access_grants_console.sql",
+]) {
+  requireText("docs/backend/self-hosted-admin-access-grants-smoke.md", adminAccessGrantsSmokeDocs, marker);
+}
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "Self-Hosted Account PostgreSQL Smoke");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "npm run smoke:self-hosted-account-postgres");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=skipped");
@@ -2385,6 +2538,9 @@ forbidText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, "@/integr
 forbidText("src/lib/admin-access-review-api.ts", adminAccessReviewApi, "@/integrations/supabase/client");
 forbidText("src/lib/use-admin-access-review.ts", useAdminAccessReview, "@/integrations/supabase/client");
 forbidText("src/pages/admin/AdminAccessRequests.tsx", adminAccessReviewPage, "@/integrations/supabase/client");
+forbidText("src/lib/admin-access-grants-api.ts", adminAccessGrantsApi, "@/integrations/supabase/client");
+forbidText("src/lib/use-admin-access-grants.ts", useAdminAccessGrants, "@/integrations/supabase/client");
+forbidText("src/pages/admin/AdminAccessGrants.tsx", adminAccessGrantsPage, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/factory.ts", accessFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/repository.ts", accessRepository, "@/integrations/supabase/client");

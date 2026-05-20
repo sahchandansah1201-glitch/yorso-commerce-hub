@@ -181,6 +181,63 @@ export const supplierAccessReviewListResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierAccessGrantStatusFilterSchema = z.enum([
+  "active",
+  "expired",
+  "all",
+]);
+
+export const supplierAccessGrantQuerySchema = z.object({
+  status: supplierAccessGrantStatusFilterSchema.default("active"),
+  q: z.string().trim().min(1).max(120).optional(),
+  limit: accessPaginationLimitSchema,
+  offset: accessPaginationOffsetSchema,
+});
+
+export const supplierAccessGrantAdminItemSchema = z.object({
+  id: z.string().min(1).max(120),
+  buyer: supplierAccessReviewBuyerSchema,
+  supplier: supplierAccessReviewSupplierSchema,
+  supplierId: z.string().min(1).max(80),
+  buyerUserId: z.string().uuid(),
+  scopes: z.array(supplierAccessGrantScopeSchema).min(1).max(2),
+  grants: z.array(supplierAccessGrantSchema).min(1).max(4),
+  request: supplierAccessRequestSchema.nullable(),
+  grantedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().nullable(),
+  grantedByUserId: z.string().uuid().nullable(),
+  ageHours: z.number().min(0),
+  isActive: z.boolean(),
+});
+
+export const supplierAccessGrantSummarySchema = z.object({
+  active: z.number().int().min(0),
+  expired: z.number().int().min(0),
+  total: z.number().int().min(0),
+});
+
+export const supplierAccessGrantListResponseSchema = z.object({
+  ok: z.literal(true),
+  items: z.array(supplierAccessGrantAdminItemSchema),
+  limit: z.number().int().min(1).max(100),
+  offset: z.number().int().min(0).max(10_000),
+  total: z.number().int().min(0),
+  summary: supplierAccessGrantSummarySchema,
+  requestId: z.string(),
+});
+
+export const supplierAccessGrantRevokeSchema = z.object({
+  reason: z.string().trim().max(1000).optional(),
+});
+
+export const supplierAccessGrantRevokeResponseSchema = z.object({
+  ok: z.literal(true),
+  revokedGrants: z.array(supplierAccessGrantSchema),
+  request: supplierAccessRequestSchema.nullable(),
+  accessGranted: z.literal(false),
+  requestId: z.string(),
+});
+
 export type SupplierAccessStatus = z.infer<typeof supplierAccessStatusSchema>;
 export type SupplierAccessIntent = z.infer<typeof supplierAccessIntentSchema>;
 export type SupplierAccessGrantScope = z.infer<typeof supplierAccessGrantScopeSchema>;
@@ -200,3 +257,10 @@ export type SupplierAccessReviewSupplier = z.infer<typeof supplierAccessReviewSu
 export type SupplierAccessReviewItem = z.infer<typeof supplierAccessReviewItemSchema>;
 export type SupplierAccessReviewSummary = z.infer<typeof supplierAccessReviewSummarySchema>;
 export type SupplierAccessReviewListResponse = z.infer<typeof supplierAccessReviewListResponseSchema>;
+export type SupplierAccessGrantStatusFilter = z.infer<typeof supplierAccessGrantStatusFilterSchema>;
+export type SupplierAccessGrantQuery = z.infer<typeof supplierAccessGrantQuerySchema>;
+export type SupplierAccessGrantAdminItem = z.infer<typeof supplierAccessGrantAdminItemSchema>;
+export type SupplierAccessGrantSummary = z.infer<typeof supplierAccessGrantSummarySchema>;
+export type SupplierAccessGrantListResponse = z.infer<typeof supplierAccessGrantListResponseSchema>;
+export type SupplierAccessGrantRevoke = z.infer<typeof supplierAccessGrantRevokeSchema>;
+export type SupplierAccessGrantRevokeResponse = z.infer<typeof supplierAccessGrantRevokeResponseSchema>;

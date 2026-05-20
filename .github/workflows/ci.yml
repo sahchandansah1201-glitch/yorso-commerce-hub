@@ -158,6 +158,9 @@ jobs:
       - name: Run admin access review browser smoke
         run: npm run smoke:e2e:admin-access-review
 
+      - name: Run admin access grants browser smoke
+        run: npm run smoke:e2e:admin-access-grants
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

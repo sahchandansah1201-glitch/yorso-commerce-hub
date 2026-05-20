@@ -43,6 +43,7 @@ import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessD
 import TypographyAudit from "./pages/dev/TypographyAudit.tsx";
 import AdminRuntimeStatus from "./pages/admin/AdminRuntimeStatus.tsx";
 import AdminAccessRequests from "./pages/admin/AdminAccessRequests.tsx";
+import AdminAccessGrants from "./pages/admin/AdminAccessGrants.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
@@ -99,6 +100,7 @@ const App = () => (
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
                 <Route path="/admin/access-requests" element={<AdminAccessRequests />} />
+                <Route path="/admin/access-grants" element={<AdminAccessGrants />} />
                 <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
                 {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}

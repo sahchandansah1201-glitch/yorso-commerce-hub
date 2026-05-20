@@ -15,6 +15,9 @@ const decisionPrefix = "/v1/access/supplier-requests/";
 const adminReviewRoute = "/v1/admin/access-requests";
 const adminDecisionPrefix = "/v1/admin/access-requests/";
 const adminDecisionRoutePattern = "/v1/admin/access-requests/:requestId/decision";
+const adminGrantsRoute = "/v1/admin/access-grants";
+const adminGrantRevokePrefix = "/v1/admin/access-grants/";
+const adminGrantRevokeRoutePattern = "/v1/admin/access-grants/:grantId/revoke";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const queryParams = (url: URL) => Object.fromEntries(url.searchParams.entries());
@@ -44,6 +47,15 @@ function matchAdminDecisionPath(pathname: string) {
   );
   if (!requestId || requestId.includes("/")) return null;
   return requestId;
+}
+
+function matchAdminGrantRevokePath(pathname: string) {
+  if (!pathname.startsWith(adminGrantRevokePrefix) || !pathname.endsWith("/revoke")) return null;
+  const grantId = decodeURIComponent(
+    pathname.slice(adminGrantRevokePrefix.length, -"/revoke".length),
+  );
+  if (!grantId || grantId.includes("/")) return null;
+  return grantId;
 }
 
 export async function handleSupplierAccessRoute(
@@ -89,6 +101,101 @@ export async function handleSupplierAccessRoute(
         outcome: "success",
         resourceType: "supplier_access_request",
         route: adminReviewRoute,
+        sessionId,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
+    if (url.pathname === adminGrantsRoute) {
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, authService, context);
+      if (!(await authService.hasRole(userId, "admin"))) {
+        auditFromRequest(auditSink, context, request, {
+          action: "admin.access_grants.read",
+          actorUserId: userId,
+          outcome: "blocked",
+          reason: "admin_role_required",
+          resourceType: "supplier_access_grant",
+          route: adminGrantsRoute,
+          sessionId,
+          statusCode: 403,
+        });
+        sendError(response, 403, "admin_role_required", "Admin role is required.", context);
+        return true;
+      }
+
+      if (request.method !== "GET") {
+        methodNotAllowed(response, context, "GET");
+        return true;
+      }
+
+      const result = await service.listAdminGrants({
+        rawQuery: queryParams(url),
+        requestId: context.requestId,
+      });
+      auditFromRequest(auditSink, context, request, {
+        action: "admin.access_grants.read",
+        actorUserId: userId,
+        outcome: "success",
+        resourceType: "supplier_access_grant",
+        route: adminGrantsRoute,
+        sessionId,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
+    const adminGrantId = matchAdminGrantRevokePath(url.pathname);
+    if (adminGrantId) {
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, authService, context);
+      if (!(await authService.hasRole(userId, "admin"))) {
+        auditFromRequest(auditSink, context, request, {
+          action: "admin.access_grants.revoke",
+          actorUserId: userId,
+          outcome: "blocked",
+          reason: "admin_role_required",
+          resourceId: adminGrantId,
+          resourceType: "supplier_access_grant",
+          route: adminGrantRevokeRoutePattern,
+          sessionId,
+          statusCode: 403,
+        });
+        sendError(response, 403, "admin_role_required", "Admin role is required.", context);
+        return true;
+      }
+
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      if (!uuidPattern.test(adminGrantId)) {
+        sendError(
+          response,
+          404,
+          "supplier_access_grant_not_found",
+          "Supplier access grant was not found.",
+          context,
+        );
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.revokeAdminGrant({
+        grantIdParam: adminGrantId,
+        actorUserId: userId,
+        payload,
+        responseRequestId: context.requestId,
+      });
+      auditFromRequest(auditSink, context, request, {
+        action: "admin.access_grants.revoke",
+        actorUserId: userId,
+        outcome: "success",
+        resourceId: adminGrantId,
+        resourceType: "supplier_access_grant",
+        route: adminGrantRevokeRoutePattern,
         sessionId,
         statusCode: 200,
       });
@@ -306,6 +413,11 @@ export async function handleSupplierAccessRoute(
 
     if (error instanceof Error && error.message === "supplier_access_request_not_found") {
       sendError(response, 404, error.message, "Supplier access request was not found.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_access_grant_not_found") {
+      sendError(response, 404, error.message, "Supplier access grant was not found.", context);
       return true;
     }
 

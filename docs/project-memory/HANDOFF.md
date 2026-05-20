@@ -17,27 +17,27 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #96 is implemented locally on branch `codex/batch96-supplier-access-review-console`.
-- Batch #96 adds a supplier access review console for self-hosted admins/operators.
+- Batch #97 is implemented locally on branch `codex/batch97-admin-access-grants-console`.
+- Batch #97 adds a self-hosted admin access grants console for active/expired supplier-access grants and revocation.
 - Confirmed implementation surfaces:
-  - `GET /v1/admin/access-requests`;
-  - `POST /v1/admin/access-requests/:requestId/decision`;
-  - `/admin/access-requests` frontend page;
-  - `0017_supplier_access_review_queue` DB indexes;
-  - unit, API, smoke, browser e2e, guard, docs and CI wiring.
+  - `GET /v1/admin/access-grants`;
+  - `POST /v1/admin/access-grants/:grantId/revoke`;
+  - `/admin/access-grants` frontend page;
+  - `0018_admin_access_grants_console` DB indexes;
+  - contracts, memory/PostgreSQL repositories, service/routes, admin UI, browser e2e, runtime smoke, guard scripts, docs and CI wiring.
 - Pending handoff steps: commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #96 publication:
+Finish Batch #97 publication:
 1. run final diff/status checks;
-2. commit and push branch codex/batch96-supplier-access-review-console;
-3. open PR [codex] Batch #96 supplier access review console;
+2. commit and push branch codex/batch97-admin-access-grants-console;
+3. open PR [codex] Batch #97 admin access grants console;
 4. merge after checks pass;
-5. give Lovable Prompt #96 to sync latest GitHub main.
+5. give Lovable Prompt #97 to sync latest GitHub main.
 
-Then choose Batch #97 as another large connected production batch.
+Then choose Batch #98 as another large connected production batch.
 ```
 
 ## Rules

@@ -1,6 +1,10 @@
 import {
   supplierAccessDecisionResponseSchema,
   supplierAccessDecisionSchema,
+  supplierAccessGrantListResponseSchema,
+  supplierAccessGrantQuerySchema,
+  supplierAccessGrantRevokeResponseSchema,
+  supplierAccessGrantRevokeSchema,
   supplierAccessNotificationsAckResponseSchema,
   supplierAccessNotificationsAckSchema,
   supplierAccessNotificationsResponseSchema,
@@ -84,6 +88,44 @@ export class SupplierAccessService {
       total: result.total,
       summary: result.summary,
       requestId: input.requestId,
+    });
+  }
+
+  async listAdminGrants(input: {
+    rawQuery: Record<string, string | undefined>;
+    requestId: string;
+  }) {
+    const query = supplierAccessGrantQuerySchema.parse(input.rawQuery);
+    const result = await this.repository.listAdminGrants(query);
+    return supplierAccessGrantListResponseSchema.parse({
+      ok: true,
+      items: result.items,
+      limit: query.limit,
+      offset: query.offset,
+      total: result.total,
+      summary: result.summary,
+      requestId: input.requestId,
+    });
+  }
+
+  async revokeAdminGrant(input: {
+    grantIdParam: string;
+    actorUserId: string;
+    payload: unknown;
+    responseRequestId: string;
+  }) {
+    const payload = supplierAccessGrantRevokeSchema.parse(input.payload ?? {});
+    const result = await this.repository.revokeGrant({
+      grantId: input.grantIdParam,
+      actorUserId: input.actorUserId,
+      reason: payload.reason,
+    });
+
+    return supplierAccessGrantRevokeResponseSchema.parse({
+      ok: true,
+      ...result,
+      accessGranted: false,
+      requestId: input.responseRequestId,
     });
   }
 

@@ -31,3 +31,20 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed.
   - `npm run smoke:e2e:admin-access-review` passed, 2 browser tests.
   - `npm run ci:core` passed.
+
+## 2026-05-21
+
+- Implemented Batch #97 locally on `codex/batch97-admin-access-grants-console`.
+- Added admin access grant contracts, admin grant list/revoke API endpoints, service/repository support, PostgreSQL grant-console indexes, frontend admin grants page, API adapter, hook, smoke script, e2e spec, docs, guard scripts and CI wiring.
+- Confirmed Batch #97 revoke behavior: admin revocation expires both `supplier_identity` and `offer_price` grants, downgrades buyer offer access back to `registered_locked`, and masks supplier identity and exact price again.
+- Confirmed Batch #97 checks:
+  - `npm run test:admin-access-grants-frontend` passed, 10 tests.
+  - `npm run test:api` passed, 123 tests.
+  - `npm run test:db-contract` passed, 23 tests.
+  - `npm run test:db-migrations` passed, 16 tests.
+  - `npm run smoke:self-hosted-admin-access-grants` passed.
+  - `npm run smoke:e2e:admin-access-grants` passed, 2 browser tests.
+  - `npm run check:self-hosted-db` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run ci:core` passed.

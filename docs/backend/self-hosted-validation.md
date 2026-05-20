@@ -1036,6 +1036,24 @@ Batch #96 adds supplier access review validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the
   Batch #96 supplier access review contract.
 
+Batch #97 adds supplier access grants validation:
+
+- `GET /v1/admin/access-grants` requires a self-hosted session and `admin`
+  role;
+- `POST /v1/admin/access-grants/:grantId/revoke` expires both supplier
+  identity and offer price grants for the same buyer and supplier;
+- revoked access must downgrade offer catalog/detail and supplier directory
+  responses back to locked data shaping;
+- `0018_admin_access_grants_console` provides active, expired, buyer, supplier
+  and revoke-event indexes for bounded operator reads;
+- `smoke:self-hosted-admin-access-grants` verifies auth guard, role guard,
+  active list, revoke, post-revoke masking, expired filter and validation;
+- `test:admin-access-grants-frontend` covers adapter, hook and page states;
+- `smoke:e2e:admin-access-grants` verifies browser headers, row refresh and
+  role-guard rendering with an API-backed mock;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  Batch #97 supplier access grants contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

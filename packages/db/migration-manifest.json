@@ -209,6 +209,18 @@
       "dependsOn": [
         "0016_admin_audit_retention_runtime"
       ]
+    },
+    {
+      "id": "0018_admin_access_grants_console",
+      "file": "migrations/0018_admin_access_grants_console.sql",
+      "description": "Add admin access-grants console indexes for revoke and grant audit workflows.",
+      "ownedTables": [
+        "yorso_access_grants",
+        "yorso_access_events"
+      ],
+      "dependsOn": [
+        "0017_supplier_access_review_queue"
+      ]
     }
   ]
 }

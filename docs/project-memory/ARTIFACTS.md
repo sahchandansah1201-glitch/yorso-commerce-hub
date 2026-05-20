@@ -38,3 +38,18 @@
 - `e2e/admin-access-review.spec.ts`: browser smoke for admin review queue and forbidden role state.
 - `scripts/smoke-self-hosted-admin-access-review.mjs`: self-hosted runtime smoke.
 - `docs/backend/self-hosted-admin-access-review-smoke.md`: smoke documentation.
+
+## Batch #97 Admin Access Grants Console
+
+- `packages/contracts/src/supplier-access.ts`: admin grant list/revoke DTOs and query/status schemas.
+- `apps/api/src/modules/access/routes.ts`: admin access grant list and revoke endpoints.
+- `apps/api/src/modules/access/service.ts`: admin grant list/revoke orchestration.
+- `apps/api/src/modules/access/repository.ts`: memory repository admin grant implementation.
+- `apps/api/src/modules/access/postgres-repository.ts`: PostgreSQL admin grant implementation.
+- `packages/db/migrations/0018_admin_access_grants_console.sql`: grant-console indexes for active/expired admin reads.
+- `src/lib/admin-access-grants-api.ts`: frontend self-hosted admin grants API client.
+- `src/lib/use-admin-access-grants.ts`: frontend admin grants hook.
+- `src/pages/admin/AdminAccessGrants.tsx`: admin/operator grants console page.
+- `e2e/admin-access-grants.spec.ts`: browser smoke for grant list/revoke and forbidden role state.
+- `scripts/smoke-self-hosted-admin-access-grants.mjs`: self-hosted runtime smoke.
+- `docs/backend/self-hosted-admin-access-grants-smoke.md`: smoke documentation.
