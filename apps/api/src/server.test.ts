@@ -5,11 +5,13 @@ import { assertSupabaseIsPrototypeOnly, loadApiConfig, type ApiConfig } from "./
 import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { InMemoryPrometheusMetricsRegistry } from "./metrics.js";
+import { MemoryAdminAuditRepository } from "./modules/admin-audit/repository.js";
 import { createApiServer, type ApiServerOptions } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
 
 type JsonBody = Record<string, unknown>;
 const testAccountUserId = "00000000-0000-4000-8000-000000000001";
+const testAdminUserId = "00000000-0000-4000-8000-000000000090";
 let activeAccountSessionId = "";
 
 const config = loadApiConfig(
@@ -109,6 +111,23 @@ async function startRawTestServer(options: ApiServerOptions & { config?: ApiConf
         ...(init?.headers ?? {}),
       },
     });
+}
+
+async function signIn(fetchApi: Awaited<ReturnType<typeof startRawTestServer>>, email: string) {
+  const response = await fetchApi("/v1/auth/sign-in", {
+    method: "POST",
+    body: JSON.stringify({
+      email,
+      password: "Password1",
+    }),
+  });
+  const body = (await response.json()) as JsonBody;
+  if (!response.ok) throw new Error(`Could not sign in ${email}: ${JSON.stringify(body)}`);
+  const session = body.session as JsonBody;
+  return {
+    "x-yorso-session-id": String(session.id),
+    "x-yorso-user-id": String(session.userId),
+  };
 }
 
 async function startLifecycleTestServer(lifecycle: ApiLifecycle) {
@@ -464,6 +483,119 @@ describe("YORSO self-hosted API skeleton", () => {
     const invalidMethod = await request("/health/live", { method: "POST" });
     expect(invalidMethod.status).toBe(405);
     expect(invalidMethod.headers.get("allow")).toBe("GET");
+  });
+
+  it("serves admin-only audit event pages with cursor pagination", async () => {
+    const fetchApi = await startRawTestServer({
+      adminAuditRepository: new MemoryAdminAuditRepository([
+        {
+          action: "account.company.update",
+          actorUserHash: "sha256:111111111111111111111111",
+          auditId: "aud_1",
+          correlationId: "corr-1",
+          httpMethod: "PATCH",
+          occurredAt: "2026-05-20T10:00:00.000Z",
+          outcome: "success",
+          reason: null,
+          requestId: "req-1",
+          resourceHash: "sha256:222222222222222222222222",
+          resourceType: "company_profile",
+          route: "/v1/account/company",
+          sessionHash: "sha256:333333333333333333333333",
+          statusCode: 200,
+        },
+        {
+          action: "auth.sign_in",
+          actorUserHash: "sha256:444444444444444444444444",
+          auditId: "aud_2",
+          correlationId: "corr-2",
+          httpMethod: "POST",
+          occurredAt: "2026-05-20T10:01:00.000Z",
+          outcome: "success",
+          reason: null,
+          requestId: "req-2",
+          resourceHash: "sha256:555555555555555555555555",
+          resourceType: "auth_session",
+          route: "/v1/auth/sign-in",
+          sessionHash: "sha256:666666666666666666666666",
+          statusCode: 200,
+        },
+      ]),
+    });
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const first = await fetchApi("/v1/admin/audit-events?outcome=success&limit=1", {
+      headers: adminHeaders,
+    });
+    const firstBody = (await first.json()) as JsonBody;
+
+    expect(first.status).toBe(200);
+    expect(firstBody.events).toHaveLength(1);
+    expect((firstBody.events as JsonBody[])[0].auditId).toBe("aud_2");
+    expect(firstBody.nextCursor).toEqual(expect.any(String));
+
+    const second = await fetchApi(`/v1/admin/audit-events?outcome=success&limit=1&cursor=${firstBody.nextCursor}`, {
+      headers: adminHeaders,
+    });
+    const secondBody = (await second.json()) as JsonBody;
+
+    expect(second.status).toBe(200);
+    expect((secondBody.events as JsonBody[])[0].auditId).toBe("aud_1");
+    expect(secondBody.nextCursor).toBeNull();
+  });
+
+  it("blocks non-admin sessions from reading audit events", async () => {
+    const fetchApi = await startRawTestServer({
+      adminAuditRepository: new MemoryAdminAuditRepository(),
+    });
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+
+    const response = await fetchApi("/v1/admin/audit-events", {
+      headers: buyerHeaders,
+    });
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(403);
+    expect(body.error).toMatchObject({
+      code: "admin_role_required",
+    });
+  });
+
+  it("exports admin audit events as JSONL without raw identifiers", async () => {
+    const fetchApi = await startRawTestServer({
+      adminAuditRepository: new MemoryAdminAuditRepository([
+        {
+          action: "account.company.update",
+          actorUserHash: "sha256:111111111111111111111111",
+          auditId: "aud_1",
+          correlationId: "corr-1",
+          httpMethod: "PATCH",
+          occurredAt: "2026-05-20T10:00:00.000Z",
+          outcome: "success",
+          reason: null,
+          requestId: "req-1",
+          resourceHash: "sha256:222222222222222222222222",
+          resourceType: "company_profile",
+          route: "/v1/account/company",
+          sessionHash: "sha256:333333333333333333333333",
+          statusCode: 200,
+        },
+      ]),
+    });
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const response = await fetchApi("/v1/admin/audit-events/export?limit=1000", {
+      headers: adminHeaders,
+    });
+    const text = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/x-ndjson");
+    expect(response.headers.get("x-next-cursor")).toBe("");
+    expect(text).toContain("\"auditId\":\"aud_1\"");
+    expect(text).toContain("\"actorUserHash\":\"sha256:111111111111111111111111\"");
+    expect(text).not.toContain(testAdminUserId);
+    expect(text).not.toContain("admin@example.com");
   });
 
   it("emits sanitized error telemetry for API error responses", async () => {

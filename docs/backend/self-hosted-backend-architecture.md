@@ -854,3 +854,11 @@ hash and correlation id. `YORSO_AUDIT_MAX_IN_FLIGHT` bounds synchronous audit
 writes; under pressure the API emits sanitized `api_audit_dropped` metadata
 instead of building an unbounded queue. This keeps auditability inside the
 owned self-hosted stack while preserving the no-hosted-BaaS production policy.
+
+Batch #90 adds the admin audit read/export boundary. `yorso_user_roles` is the
+owned role source for protected operator routes, and `/v1/admin/audit-events`
+plus `/v1/admin/audit-events/export` require a valid self-hosted session with
+the `admin` role. Audit reads are cursor-paginated, filter only sanitized audit
+columns and return hash-only identifiers. The JSONL export endpoint is bounded
+per request and returns `x-next-cursor` instead of creating an unbounded API
+stream.

@@ -47,6 +47,8 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("0010_offer_catalog_pagination_sort planned");
     expect(output).toContain("0011_auth_sessions planned");
     expect(output).toContain("0012_auth_security_events planned");
+    expect(output).toContain("0013_api_audit_events planned");
+    expect(output).toContain("0014_admin_audit_access planned");
   });
 
   it("prints static dry-run apply without requiring a database", () => {
@@ -54,7 +56,7 @@ describe("self-hosted DB migration CLI", () => {
 
     expect(output).toContain("Dry-run apply preview from local plan");
     expect(output).toContain("dryRun=true");
-    expect(output).toContain("pending=14");
+    expect(output).toContain("pending=15");
     expect(output).toContain("pending 0007_supplier_access_flow");
     expect(output).toContain("pending 0008_access_notification_ack");
     expect(output).toContain("pending 0009_supplier_directory_pagination_sort");
@@ -62,6 +64,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("pending 0011_auth_sessions");
     expect(output).toContain("pending 0012_auth_security_events");
     expect(output).toContain("pending 0013_api_audit_events");
+    expect(output).toContain("pending 0014_admin_audit_access");
   });
 
   it("blocks live apply without explicit confirmation", () => {

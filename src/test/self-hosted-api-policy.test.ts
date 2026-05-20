@@ -367,6 +367,55 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("api_audit_event");
   });
 
+  it("keeps admin audit read/export protected by self-hosted roles", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const contract = readFileSync("packages/contracts/src/admin-audit.ts", "utf8");
+    const authRepository = readFileSync("apps/api/src/modules/auth/repository.ts", "utf8");
+    const authPostgresRepository = readFileSync("apps/api/src/modules/auth/postgres-repository.ts", "utf8");
+    const authService = readFileSync("apps/api/src/modules/auth/service.ts", "utf8");
+    const repository = readFileSync("apps/api/src/modules/admin-audit/repository.ts", "utf8");
+    const postgresRepository = readFileSync("apps/api/src/modules/admin-audit/postgres-repository.ts", "utf8");
+    const routes = readFileSync("apps/api/src/modules/admin-audit/routes.ts", "utf8");
+    const service = readFileSync("apps/api/src/modules/admin-audit/service.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const migration = readFileSync("packages/db/migrations/0014_admin_audit_access.sql", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-admin-audit.mjs", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-admin-audit"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-admin-audit:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-admin-audit:run"]).toBe(
+      "node scripts/smoke-self-hosted-admin-audit.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-admin-audit:run");
+    expect(contract).toContain("adminUserRoleSchema");
+    expect(contract).toContain("adminAuditQuerySchema");
+    expect(authRepository).toContain("hasRole");
+    expect(authPostgresRepository).toContain("from yorso_user_roles");
+    expect(authService).toContain("hasRole(userId");
+    expect(repository).toContain("encodeAuditCursor");
+    expect(postgresRepository).toContain("from yorso_api_audit_events");
+    expect(postgresRepository).toContain("order by occurred_at desc, audit_id desc");
+    expect(routes).toContain("/v1/admin/audit-events");
+    expect(routes).toContain("/v1/admin/audit-events/export");
+    expect(routes).toContain("admin_role_required");
+    expect(routes).toContain("application/x-ndjson");
+    expect(routes).toContain("admin.audit_events.read");
+    expect(routes).toContain("admin.audit_events.export");
+    expect(service).toContain("AdminAuditService");
+    expect(server).toContain("handleAdminAuditRoute");
+    expect(migration).toContain("create table if not exists yorso_user_roles");
+    expect(migration).toContain("idx_yorso_api_audit_events_status_time");
+    expect(smoke).toContain("admin_audit_auth_guard=ok");
+    expect(smoke).toContain("admin_audit_role_guard=ok");
+    expect(smoke).toContain("admin_audit_export=ok");
+    expect(baseline).toContain("Batch #90");
+    expect(baseline).toContain("self-hosted admin audit smoke");
+  });
+
   it("keeps production health readiness wired through API, smoke and deployment guards", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { Pool, type PoolConfig, type QueryResult } from "pg";
-import type { AuthSession } from "../../../../../packages/contracts/dist/index.js";
+import type { AdminUserRole, AuthSession } from "../../../../../packages/contracts/dist/index.js";
 import type { ApiConfig } from "../../config.js";
 import type {
   AuthRepository,
@@ -149,6 +149,21 @@ export class PostgresAuthRepository implements AuthRepository {
       [sessionId],
     );
     return result.rows.length > 0;
+  }
+
+  async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {
+    const result = await this.client.query<{ exists: boolean }>(
+      `
+        select exists(
+          select 1
+          from yorso_user_roles
+          where user_id = $1
+            and role = $2
+        ) as exists
+      `,
+      [userId, role],
+    );
+    return result.rows[0]?.exists ?? false;
   }
 
   async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {
