@@ -83,7 +83,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     },
   );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
-  const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config));
+  const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
   const offerCatalogService = new OfferCatalogService(
@@ -307,6 +307,7 @@ async function routeRequest(
       supplierService,
       url,
       auditSink,
+      metricsRegistry,
       jsonBodyOptions,
     );
   } finally {
@@ -327,6 +328,7 @@ async function routeWorkRequest(
   supplierService: SupplierDirectoryService,
   url: URL,
   auditSink: AuditSink,
+  metricsRegistry: MetricsRegistry,
   jsonBodyOptions: JsonBodyReadOptions,
 ) {
   if (url.pathname === "/v1/account/company/schema") {
@@ -339,7 +341,7 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
-  if (await handleAdminAuditRoute(request, response, context, adminAuditService, authService, url, auditSink)) return;
+  if (await handleAdminAuditRoute(request, response, context, adminAuditService, authService, url, auditSink, metricsRegistry)) return;
   if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;

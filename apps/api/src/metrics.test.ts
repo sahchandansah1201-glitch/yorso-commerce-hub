@@ -82,4 +82,34 @@ describe("self-hosted API metrics registry", () => {
     expect(text).toContain('yorso_api_auth_rate_limit_events_total{outcome="failure",reason="invalid_credentials",source="redis"} 1');
     expect(text).not.toContain("buyer@example.com");
   });
+
+  it("collects admin audit read and export counters without identifiers", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observeAdminAudit({
+      operation: "list",
+      outcome: "success",
+      limit: 50,
+      resultCount: 12,
+    });
+    registry.observeAdminAudit({
+      operation: "export",
+      outcome: "failure",
+      reason: "admin_audit_export_window_too_large",
+      limit: 10_000,
+      resultCount: 0,
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="lte_50",operation="list",outcome="success",reason="none"} 1',
+    );
+    expect(text).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="gt_1000",operation="export",outcome="failure",reason="admin_audit_export_window_too_large"} 1',
+    );
+    expect(text).toContain('yorso_api_admin_audit_rows_total{operation="list"} 12');
+    expect(text).not.toContain("admin@example.com");
+    expect(text).not.toContain("00000000-0000-4000-8000-000000000090");
+  });
 });

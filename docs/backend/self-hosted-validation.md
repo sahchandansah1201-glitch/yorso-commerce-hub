@@ -940,6 +940,18 @@ Batch #90 adds admin audit read/export validation:
 - `ci:core`, `check:self-hosted-api`, `check:self-hosted-db` and
   `check:production-scale-baseline` guard the admin audit contract.
 
+Batch #91 extends the validation:
+
+- `packages/db/migrations/0015_admin_audit_retention_query_hardening.sql`
+  adds route/status investigation indexes and `yorso_purge_api_audit_events`;
+- `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS` limits JSONL export windows;
+- `YORSO_ADMIN_AUDIT_RETENTION_DAYS` documents and guards retention;
+- `smoke:self-hosted-admin-audit` also verifies route/status filtering,
+  export-window rejection and Prometheus admin audit metrics;
+- `check:self-hosted-production-runtime`, `check:self-hosted-api`,
+  `check:self-hosted-db` and `check:production-scale-baseline` guard the new
+  admin audit hardening markers.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

@@ -176,6 +176,17 @@
       "dependsOn": [
         "0013_api_audit_events"
       ]
+    },
+    {
+      "id": "0015_admin_audit_retention_query_hardening",
+      "file": "migrations/0015_admin_audit_retention_query_hardening.sql",
+      "description": "Add admin audit retention helper and route/status query indexes for production-scale read/export paths.",
+      "ownedTables": [
+        "yorso_api_audit_events"
+      ],
+      "dependsOn": [
+        "0014_admin_audit_access"
+      ]
     }
   ]
 }

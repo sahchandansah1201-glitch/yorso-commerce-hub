@@ -27,7 +27,16 @@ describe("admin audit repository", () => {
       event({ auditId: "aud_1", occurredAt: "2026-05-20T10:00:00.000Z", outcome: "success" }),
       event({ auditId: "aud_2", occurredAt: "2026-05-20T10:01:00.000Z", outcome: "blocked" }),
       event({ auditId: "aud_3", occurredAt: "2026-05-20T10:02:00.000Z", outcome: "success", action: "auth.sign_in" }),
+      event({ auditId: "aud_4", occurredAt: "2026-05-20T10:03:00.000Z", outcome: "failure", route: "/v1/admin/audit-events", statusCode: 400 }),
     ]);
+
+    const statusFiltered = await repository.listAuditEvents({
+      limit: 10,
+      route: "/v1/admin/audit-events",
+      statusClass: "4xx",
+    });
+
+    expect(statusFiltered.events.map((item) => item.auditId)).toEqual(["aud_4"]);
 
     const first = await repository.listAuditEvents({ limit: 1, outcome: "success" });
 
@@ -81,6 +90,9 @@ describe("admin audit repository", () => {
       outcome: "success",
       resourceHash: "sha256:222222222222222222222222",
       resourceType: "company_profile",
+      route: "/v1/account/company",
+      statusClass: "2xx",
+      statusCode: 200,
       to: "2026-05-21T00:00:00.000Z",
     });
 
@@ -93,6 +105,9 @@ describe("admin audit repository", () => {
     expect(queries[0].sql).toContain("from yorso_api_audit_events");
     expect(queries[0].sql).toContain("action = $1");
     expect(queries[0].sql).toContain("actor_user_hash = $2");
+    expect(queries[0].sql).toContain("route = $7");
+    expect(queries[0].sql).toContain("status_code = $8");
+    expect(queries[0].sql).toContain("status_code between $9 and $10");
     expect(queries[0].sql).toContain("order by occurred_at desc, audit_id desc");
     expect(queries[0].params).toEqual([
       "account.company.update",
@@ -101,6 +116,10 @@ describe("admin audit repository", () => {
       "success",
       "sha256:222222222222222222222222",
       "company_profile",
+      "/v1/account/company",
+      200,
+      200,
+      299,
       "2026-05-20T00:00:00.000Z",
       "2026-05-21T00:00:00.000Z",
       51,

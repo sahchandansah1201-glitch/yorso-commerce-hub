@@ -21,6 +21,8 @@ export const apiConfigSchema = z.object({
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
   auditDriver: z.enum(["disabled", "console", "postgres"]).default("disabled"),
   auditMaxInFlight: z.coerce.number().int().min(1).max(50_000).default(2_000),
+  adminAuditExportMaxWindowDays: z.coerce.number().int().min(1).max(366).default(31),
+  adminAuditRetentionDays: z.coerce.number().int().min(30).max(3_650).default(365),
   authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
@@ -68,6 +70,8 @@ const localDefaults = {
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
   YORSO_AUDIT_DRIVER: "disabled",
   YORSO_AUDIT_MAX_IN_FLIGHT: "2000",
+  YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "31",
+  YORSO_ADMIN_AUDIT_RETENTION_DAYS: "365",
   AUTH_OBSERVABILITY_DRIVER: "disabled",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
@@ -114,6 +118,8 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
     auditDriver: source.YORSO_AUDIT_DRIVER,
     auditMaxInFlight: source.YORSO_AUDIT_MAX_IN_FLIGHT,
+    adminAuditExportMaxWindowDays: source.YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS,
+    adminAuditRetentionDays: source.YORSO_ADMIN_AUDIT_RETENTION_DAYS,
     authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
@@ -160,6 +166,12 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.auditDriver !== "postgres") {
     throw new Error("Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
+  }
+  if (config.nodeEnv === "production" && config.adminAuditRetentionDays < 365) {
+    throw new Error("Production self-hosted API must keep YORSO_ADMIN_AUDIT_RETENTION_DAYS at 365 or higher.");
+  }
+  if (config.nodeEnv === "production" && config.adminAuditExportMaxWindowDays > 31) {
+    throw new Error("Production self-hosted API must keep YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS at 31 or lower.");
   }
   if (config.nodeEnv === "production" && config.errorObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use YORSO_ERROR_OBSERVABILITY_DRIVER=console.");

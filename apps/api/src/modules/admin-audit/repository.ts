@@ -64,6 +64,9 @@ function matchesEvent(event: AdminAuditEvent, query: AdminAuditQuery | AdminAudi
   if (query.outcome && event.outcome !== query.outcome) return false;
   if (query.resourceHash && event.resourceHash !== query.resourceHash) return false;
   if (query.resourceType && event.resourceType !== query.resourceType) return false;
+  if (query.route && event.route !== query.route) return false;
+  if (query.statusCode && event.statusCode !== query.statusCode) return false;
+  if (query.statusClass && statusClass(event.statusCode) !== query.statusClass) return false;
   if (query.from && event.occurredAt < query.from) return false;
   if (query.to && event.occurredAt > query.to) return false;
   return true;
@@ -72,4 +75,9 @@ function matchesEvent(event: AdminAuditEvent, query: AdminAuditQuery | AdminAudi
 function compareAuditEventsDesc(left: AdminAuditEvent, right: AdminAuditEvent) {
   const byTime = right.occurredAt.localeCompare(left.occurredAt);
   return byTime || right.auditId.localeCompare(left.auditId);
+}
+
+function statusClass(statusCode: number | null) {
+  if (!statusCode) return null;
+  return `${Math.floor(statusCode / 100)}xx`;
 }

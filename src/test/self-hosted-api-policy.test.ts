@@ -381,6 +381,11 @@ describe("self-hosted API policy", () => {
     const service = readFileSync("apps/api/src/modules/admin-audit/service.ts", "utf8");
     const server = readFileSync("apps/api/src/server.ts", "utf8");
     const migration = readFileSync("packages/db/migrations/0014_admin_audit_access.sql", "utf8");
+    const retentionMigration = readFileSync(
+      "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
+      "utf8",
+    );
+    const metrics = readFileSync("apps/api/src/metrics.ts", "utf8");
     const smoke = readFileSync("scripts/smoke-self-hosted-admin-audit.mjs", "utf8");
     const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
 
@@ -393,11 +398,14 @@ describe("self-hosted API policy", () => {
     expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-admin-audit:run");
     expect(contract).toContain("adminUserRoleSchema");
     expect(contract).toContain("adminAuditQuerySchema");
+    expect(contract).toContain("adminAuditStatusClassSchema");
     expect(authRepository).toContain("hasRole");
     expect(authPostgresRepository).toContain("from yorso_user_roles");
     expect(authService).toContain("hasRole(userId");
     expect(repository).toContain("encodeAuditCursor");
+    expect(repository).toContain("statusClass");
     expect(postgresRepository).toContain("from yorso_api_audit_events");
+    expect(postgresRepository).toContain("status_code between");
     expect(postgresRepository).toContain("order by occurred_at desc, audit_id desc");
     expect(routes).toContain("/v1/admin/audit-events");
     expect(routes).toContain("/v1/admin/audit-events/export");
@@ -405,14 +413,26 @@ describe("self-hosted API policy", () => {
     expect(routes).toContain("application/x-ndjson");
     expect(routes).toContain("admin.audit_events.read");
     expect(routes).toContain("admin.audit_events.export");
+    expect(routes).toContain("observeAdminAudit");
     expect(service).toContain("AdminAuditService");
+    expect(service).toContain("AdminAuditQueryError");
+    expect(service).toContain("admin_audit_export_window_too_large");
     expect(server).toContain("handleAdminAuditRoute");
     expect(migration).toContain("create table if not exists yorso_user_roles");
     expect(migration).toContain("idx_yorso_api_audit_events_status_time");
+    expect(retentionMigration).toContain("idx_yorso_api_audit_events_route_status_time");
+    expect(retentionMigration).toContain("idx_yorso_api_audit_events_outcome_status_time");
+    expect(retentionMigration).toContain("yorso_purge_api_audit_events");
+    expect(metrics).toContain("yorso_api_admin_audit_requests_total");
+    expect(metrics).toContain("yorso_api_admin_audit_rows_total");
     expect(smoke).toContain("admin_audit_auth_guard=ok");
     expect(smoke).toContain("admin_audit_role_guard=ok");
+    expect(smoke).toContain("admin_audit_route_status_filter=ok");
     expect(smoke).toContain("admin_audit_export=ok");
+    expect(smoke).toContain("admin_audit_export_window_guard=ok");
+    expect(smoke).toContain("admin_audit_metrics=ok");
     expect(baseline).toContain("Batch #90");
+    expect(baseline).toContain("Batch #91");
     expect(baseline).toContain("self-hosted admin audit smoke");
   });
 

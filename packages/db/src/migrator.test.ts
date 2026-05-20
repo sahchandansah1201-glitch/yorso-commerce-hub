@@ -26,6 +26,7 @@ describe("self-hosted DB migration planner", () => {
       "0012_auth_security_events",
       "0013_api_audit_events",
       "0014_admin_audit_access",
+      "0015_admin_audit_retention_query_hardening",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -43,6 +44,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0012_auth_security_events.sql",
       "migrations/0013_api_audit_events.sql",
       "migrations/0014_admin_audit_access.sql",
+      "migrations/0015_admin_audit_retention_query_hardening.sql",
     ]);
   });
 
@@ -72,6 +74,7 @@ describe("self-hosted DB migration planner", () => {
     const authSecurityEvents = plan.migrations[12];
     const apiAuditEvents = plan.migrations[13];
     const adminAuditAccess = plan.migrations[14];
+    const adminAuditRetentionQueryHardening = plan.migrations[15];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -103,6 +106,9 @@ describe("self-hosted DB migration planner", () => {
     expect(adminAuditAccess.dependsOn).toEqual(["0013_api_audit_events"]);
     expect(adminAuditAccess.sql).toContain("create table if not exists yorso_user_roles");
     expect(adminAuditAccess.sql).toContain("idx_yorso_api_audit_events_status_time");
+    expect(adminAuditRetentionQueryHardening.dependsOn).toEqual(["0014_admin_audit_access"]);
+    expect(adminAuditRetentionQueryHardening.sql).toContain("yorso_purge_api_audit_events");
+    expect(adminAuditRetentionQueryHardening.sql).toContain("idx_yorso_api_audit_events_route_status_time");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

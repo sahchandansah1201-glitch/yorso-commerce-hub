@@ -176,3 +176,9 @@ Batch #90 adds `smoke:self-hosted-admin-audit` to the deploy validation path.
 The smoke verifies that admin audit reads require a valid backend session plus
 the `admin` role, that ordinary buyer sessions receive `admin_role_required`,
 and that JSONL export is bounded and served from the self-hosted API.
+
+Batch #91 adds admin audit hardening to deploy validation. Production env must
+set `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS=31` and
+`YORSO_ADMIN_AUDIT_RETENTION_DAYS=365` or stricter retention. The admin audit
+smoke verifies route/status filters, export-window rejection and Prometheus
+metrics before a deployment is considered ready.

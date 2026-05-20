@@ -8,10 +8,19 @@ export type MetricsDriver = "disabled" | "prometheus";
 
 export interface MetricsRegistry {
   enabled: boolean;
+  observeAdminAudit(event: AdminAuditMetricsEvent): void;
   observeRequest(event: RequestTelemetryEvent): void;
   observeError(event: ErrorTelemetryEvent): void;
   observeAuth(event: AuthTelemetryEvent): void;
   renderPrometheusText(options?: { lifecycle?: ApiLifecycle }): string;
+}
+
+export interface AdminAuditMetricsEvent {
+  operation: "list" | "export";
+  outcome: "success" | "failure" | "blocked";
+  reason?: string | null;
+  resultCount?: number;
+  limit?: number;
 }
 
 const durationBuckets = [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
@@ -24,6 +33,10 @@ export function createMetricsRegistry(config: ApiConfig): MetricsRegistry {
 
 export class NoopMetricsRegistry implements MetricsRegistry {
   readonly enabled = false;
+
+  observeAdminAudit(): void {
+    // Metrics stay disabled in local prototype mode unless explicitly enabled.
+  }
 
   observeRequest(): void {
     // Metrics stay disabled in local prototype mode unless explicitly enabled.
@@ -51,6 +64,21 @@ export class InMemoryPrometheusMetricsRegistry implements MetricsRegistry {
   readonly enabled = true;
   private readonly counters = new Map<string, number>();
   private readonly duration = new Map<string, { count: number; sum: number; buckets: number[] }>();
+
+  observeAdminAudit(event: AdminAuditMetricsEvent): void {
+    this.increment("yorso_api_admin_audit_requests_total", {
+      operation: label(event.operation),
+      outcome: label(event.outcome),
+      reason: label(event.reason ?? "none"),
+      limit_bucket: adminAuditLimitBucket(event.limit),
+    });
+
+    if (event.resultCount !== undefined) {
+      this.increment("yorso_api_admin_audit_rows_total", {
+        operation: label(event.operation),
+      }, Math.max(0, event.resultCount));
+    }
+  }
 
   observeRequest(event: RequestTelemetryEvent): void {
     const method = label(event.method ?? "UNKNOWN");
@@ -221,4 +249,12 @@ function label(value: string) {
 
 function roundMetric(value: number) {
   return Math.round(value * 1_000_000) / 1_000_000;
+}
+
+function adminAuditLimitBucket(limit: number | undefined) {
+  if (limit === undefined) return "unknown";
+  if (limit <= 50) return "lte_50";
+  if (limit <= 500) return "lte_500";
+  if (limit <= 1_000) return "lte_1000";
+  return "gt_1000";
 }

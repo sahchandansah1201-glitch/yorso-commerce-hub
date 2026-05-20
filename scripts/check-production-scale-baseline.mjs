@@ -19,6 +19,7 @@ const requiredFiles = [
   "packages/db/migrations/0012_auth_security_events.sql",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
+  "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
   "packages/db/migration-manifest.json",
   "package.json",
   "packages/contracts/src/auth.ts",
@@ -132,6 +133,7 @@ const authSessions = read("packages/db/migrations/0011_auth_sessions.sql");
 const authSecurityEvents = read("packages/db/migrations/0012_auth_security_events.sql");
 const apiAuditEvents = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccess = read("packages/db/migrations/0014_admin_audit_access.sql");
+const adminAuditRetentionQueryHardening = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -280,6 +282,7 @@ for (const marker of [
   "Batch #88",
   "Batch #89",
   "Batch #90",
+  "Batch #91",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -314,6 +317,9 @@ for (const marker of [
   "yorso_user_roles",
   "admin.audit_events.read",
   "admin.audit_events.export",
+  "admin audit retention",
+  "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
+  "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
   "api_audit_dropped",
   "YORSO_AUDIT_DRIVER=postgres",
   "YORSO_AUDIT_MAX_IN_FLIGHT",
@@ -892,6 +898,14 @@ for (const marker of [
   requireText("packages/db/migrations/0014_admin_audit_access.sql", adminAuditAccess, marker);
 }
 for (const marker of [
+  "idx_yorso_api_audit_events_route_status_time",
+  "idx_yorso_api_audit_events_outcome_status_time",
+  "create or replace function yorso_purge_api_audit_events",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", adminAuditRetentionQueryHardening, marker);
+}
+for (const marker of [
   "audit_persistence_insert=ok",
   "audit_persistence_hash_only=ok",
   "audit_persistence_backpressure=ok",
@@ -904,7 +918,10 @@ for (const marker of [
   "admin_audit_auth_guard=ok",
   "admin_audit_role_guard=ok",
   "admin_audit_list=ok",
+  "admin_audit_route_status_filter=ok",
   "admin_audit_export=ok",
+  "admin_audit_export_window_guard=ok",
+  "admin_audit_metrics=ok",
   "admin_audit_validation_guard=ok",
   "self_hosted_admin_audit_smoke=ok",
 ]) {
@@ -914,6 +931,7 @@ for (const marker of [
   "MemoryAdminAuditRepository",
   "encodeAuditCursor",
   "decodeAuditCursorValue",
+  "statusClass",
 ]) {
   requireText("apps/api/src/modules/admin-audit/repository.ts", adminAuditRepository, marker);
 }
@@ -921,6 +939,7 @@ for (const marker of [
   "PostgresAdminAuditRepository",
   "from yorso_api_audit_events",
   "order by occurred_at desc, audit_id desc",
+  "status_code between",
 ]) {
   requireText("apps/api/src/modules/admin-audit/postgres-repository.ts", adminAuditPostgresRepository, marker);
 }
@@ -931,11 +950,14 @@ for (const marker of [
   "application/x-ndjson",
   "admin.audit_events.read",
   "admin.audit_events.export",
+  "observeAdminAudit",
 ]) {
   requireText("apps/api/src/modules/admin-audit/routes.ts", adminAuditRoutes, marker);
 }
 for (const marker of [
   "AdminAuditService",
+  "AdminAuditQueryError",
+  "admin_audit_export_window_too_large",
   "adminAuditQuerySchema",
   "adminAuditExportQuerySchema",
 ]) {
@@ -972,6 +994,8 @@ for (const marker of [
   "yorso_api_request_duration_seconds",
   "yorso_api_errors_total",
   "yorso_api_auth_events_total",
+  "yorso_api_admin_audit_requests_total",
+  "yorso_api_admin_audit_rows_total",
   "yorso_api_readiness_checks_total",
   "yorso_api_production_baseline_concurrent_users",
 ]) {
@@ -993,6 +1017,10 @@ for (const marker of [
   "YORSO_AUDIT_DRIVER",
   "auditMaxInFlight",
   "YORSO_AUDIT_MAX_IN_FLIGHT",
+  "adminAuditExportMaxWindowDays",
+  "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
+  "adminAuditRetentionDays",
+  "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
 ]) {
