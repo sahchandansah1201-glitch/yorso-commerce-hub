@@ -205,3 +205,39 @@ npm run admin:audit:retention -- --apply --retention-days=365 --batch-size=1000 
 The API deletes through `yorso_purge_api_audit_events_batch`, so production
 retention jobs stay bounded and can be repeated by cron or an external
 orchestrator without depending on Supabase or another hosted backend.
+
+## Admin Runtime Status
+
+Batch #93 adds an operator status read path:
+
+```bash
+YORSO_API_URL=https://api.example.com \
+YORSO_ADMIN_EMAIL=admin@example.com \
+YORSO_ADMIN_PASSWORD=... \
+node -e '
+const base = process.env.YORSO_API_URL;
+const email = process.env.YORSO_ADMIN_EMAIL;
+const password = process.env.YORSO_ADMIN_PASSWORD;
+const session = await fetch(`${base}/v1/auth/sign-in`, {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: JSON.stringify({ email, password }),
+}).then((response) => response.json());
+const status = await fetch(`${base}/v1/admin/runtime/status`, {
+  headers: {
+    "x-yorso-user-id": session.session.userId,
+    "x-yorso-session-id": session.session.id,
+  },
+}).then((response) => response.json());
+console.log(JSON.stringify(status, null, 2));
+'
+```
+
+The status payload is safe to use in runbooks because it reports only driver
+names, guardrail limits, lifecycle state and production policy. It must not
+contain `DATABASE_URL`, `REDIS_URL`, S3 endpoints, buckets, filesystem paths,
+emails, raw user ids, raw session ids or secrets. Validate locally with:
+
+```bash
+npm run smoke:self-hosted-admin-runtime-status
+```

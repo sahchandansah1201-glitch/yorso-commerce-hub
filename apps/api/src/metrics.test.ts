@@ -122,4 +122,30 @@ describe("self-hosted API metrics registry", () => {
     expect(text).not.toContain("admin@example.com");
     expect(text).not.toContain("00000000-0000-4000-8000-000000000090");
   });
+
+  it("collects admin runtime status counters without secrets or identifiers", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observeAdminRuntime({
+      operation: "status",
+      outcome: "success",
+    });
+    registry.observeAdminRuntime({
+      operation: "status",
+      outcome: "blocked",
+      reason: "admin_role_required",
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="success",reason="none"} 1',
+    );
+    expect(text).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="blocked",reason="admin_role_required"} 1',
+    );
+    expect(text).not.toContain("admin@example.com");
+    expect(text).not.toContain("postgres://");
+    expect(text).not.toContain("redis://");
+  });
 });
