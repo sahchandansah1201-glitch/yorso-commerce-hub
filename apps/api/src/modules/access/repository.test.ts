@@ -144,4 +144,63 @@ describe("MemorySupplierAccessRepository", () => {
     expect(filtered.items[0].request.id).toBe(first.id);
     expect(JSON.stringify(filtered)).not.toContain("admin@example.com");
   });
+
+  it("lists active grants for admins and revokes both supplier identity and offer price access", async () => {
+    const repository = new MemorySupplierAccessRepository();
+    const request = await repository.createOrReuseRequest({ buyerUserId, supplierId });
+    const approved = await repository.decideRequest({
+      requestId: request.id,
+      actorUserId: reviewerUserId,
+      decision: { status: "approved" },
+    });
+
+    const active = await repository.listAdminGrants({
+      limit: 25,
+      offset: 0,
+      status: "active",
+    });
+    expect(active.total).toBe(1);
+    expect(active.summary).toMatchObject({
+      active: 1,
+      expired: 0,
+      total: 1,
+    });
+    expect(active.items[0]).toMatchObject({
+      buyerUserId,
+      supplierId,
+      isActive: true,
+      scopes: ["offer_price", "supplier_identity"],
+    });
+    expect(active.items[0].grants).toHaveLength(2);
+
+    const revoked = await repository.revokeGrant({
+      actorUserId: reviewerUserId,
+      grantId: approved.grants.find((grant) => grant.scope === "supplier_identity")?.id ?? "",
+      reason: "Commercial access ended",
+    });
+    expect(revoked.revokedGrants.map((grant) => grant.scope).sort()).toEqual([
+      "offer_price",
+      "supplier_identity",
+    ]);
+    expect(revoked.request).toMatchObject({
+      id: request.id,
+      status: "revoked",
+      decidedByUserId: reviewerUserId,
+    });
+    expect(revoked.revokedGrants.every((grant) => grant.expiresAt)).toBe(true);
+    await expect(repository.hasSupplierAccess({ buyerUserId, supplierId })).resolves.toBe(false);
+    await expect(repository.listAccessibleSupplierIds({ buyerUserId })).resolves.toEqual([]);
+
+    const expired = await repository.listAdminGrants({
+      limit: 25,
+      offset: 0,
+      status: "expired",
+    });
+    expect(expired.total).toBe(1);
+    expect(expired.items[0]).toMatchObject({
+      isActive: false,
+      expiresAt: expect.any(String),
+      request: expect.objectContaining({ status: "revoked" }),
+    });
+  });
 });

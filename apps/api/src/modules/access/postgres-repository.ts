@@ -4,6 +4,9 @@ import type {
   SupplierAccessDecision,
   SupplierAccessEventType,
   SupplierAccessGrant,
+  SupplierAccessGrantAdminItem,
+  SupplierAccessGrantQuery,
+  SupplierAccessGrantSummary,
   SupplierAccessGrantScope,
   SupplierAccessNotification,
   SupplierAccessRequest,
@@ -61,6 +64,40 @@ interface AccessGrantRow extends Record<string, unknown> {
   granted_by_user_id: string | null;
   granted_at: Date | string;
   expires_at: Date | string | null;
+}
+
+interface AccessGrantAdminRow extends Record<string, unknown> {
+  group_id: string;
+  buyer_user_id: string;
+  supplier_id: string;
+  granted_at: Date | string;
+  expires_at: Date | string | null;
+  granted_by_user_id: string | null;
+  is_active: boolean;
+  total_count: string | number;
+  buyer_display_name: string | null;
+  buyer_company_name: string | null;
+  buyer_account_role: "buyer" | "supplier" | "both" | null;
+  buyer_country_code: string | null;
+  supplier_masked_name: string | null;
+  supplier_company_name: string | null;
+  supplier_country: string | null;
+  supplier_city: string | null;
+  supplier_verification_level: "documents_reviewed" | "basic" | "unverified" | null;
+  request_id: string | null;
+  request_status: SupplierAccessStatus | null;
+  request_intent: "exact_price" | null;
+  request_message: string | null;
+  request_created_at: Date | string | null;
+  request_updated_at: Date | string | null;
+  request_decided_at: Date | string | null;
+  request_decided_by_user_id: string | null;
+  grant_id: string;
+  grant_scope: SupplierAccessGrantScope;
+  grant_offer_id: string | null;
+  grant_granted_by_user_id: string | null;
+  grant_granted_at: Date | string;
+  grant_expires_at: Date | string | null;
 }
 
 interface AccessNotificationRow extends Record<string, unknown> {
@@ -133,6 +170,35 @@ const mapGrant = (row: AccessGrantRow): SupplierAccessGrant => ({
   grantedByUserId: row.granted_by_user_id,
   grantedAt: ensureIso(row.granted_at),
   expiresAt: ensureIsoNullable(row.expires_at),
+});
+
+const requestFromGrantRow = (row: AccessGrantAdminRow): SupplierAccessRequest | null => {
+  if (!row.request_id || !row.request_status || !row.request_intent || !row.request_created_at || !row.request_updated_at) {
+    return null;
+  }
+  return {
+    id: row.request_id,
+    buyerUserId: row.buyer_user_id,
+    supplierId: row.supplier_id,
+    status: row.request_status,
+    intent: row.request_intent,
+    message: row.request_message ?? "",
+    createdAt: ensureIso(row.request_created_at),
+    updatedAt: ensureIso(row.request_updated_at),
+    decidedAt: ensureIsoNullable(row.request_decided_at),
+    decidedByUserId: row.request_decided_by_user_id,
+  };
+};
+
+const grantFromAdminRow = (row: AccessGrantAdminRow): SupplierAccessGrant => ({
+  id: row.grant_id,
+  buyerUserId: row.buyer_user_id,
+  supplierId: row.supplier_id,
+  scope: row.grant_scope,
+  offerId: row.grant_offer_id,
+  grantedByUserId: row.grant_granted_by_user_id,
+  grantedAt: ensureIso(row.grant_granted_at),
+  expiresAt: ensureIsoNullable(row.grant_expires_at),
 });
 
 const mapNotification = (row: AccessNotificationRow): SupplierAccessNotification => ({
@@ -255,6 +321,206 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
     };
   }
 
+  async listAdminGrants(input: SupplierAccessGrantQuery) {
+    const statusFilter = input.status;
+    const search = input.q ? `%${input.q.toLowerCase()}%` : null;
+    const result = await this.client.query<AccessGrantAdminRow>(
+      `
+        with grant_groups as (
+          select
+            buyer_user_id,
+            supplier_id,
+            coalesce(
+              min(id::text) filter (where scope = 'supplier_identity'),
+              min(id::text)
+            ) as group_id,
+            min(granted_at) as granted_at,
+            max(expires_at) filter (where expires_at is not null) as expires_at,
+            min(granted_by_user_id::text)::uuid as granted_by_user_id,
+            bool_or(expires_at is null or expires_at > now()) as is_active
+          from yorso_access_grants
+          group by buyer_user_id, supplier_id
+        ),
+        filtered as (
+          select
+            gg.*,
+            concat_ws(' ', u.first_name, u.last_name) as buyer_display_name,
+            c.trade_name as buyer_company_name,
+            c.account_role as buyer_account_role,
+            c.country_code as buyer_country_code,
+            s.masked_name as supplier_masked_name,
+            case when gg.is_active then s.company_name else null end as supplier_company_name,
+            s.country as supplier_country,
+            s.city as supplier_city,
+            s.verification_level as supplier_verification_level,
+            r.id as request_id,
+            r.status as request_status,
+            r.intent as request_intent,
+            r.message as request_message,
+            r.created_at as request_created_at,
+            r.updated_at as request_updated_at,
+            r.decided_at as request_decided_at,
+            r.decided_by_user_id as request_decided_by_user_id,
+            count(*) over() as total_count
+          from grant_groups gg
+          left join yorso_users u on u.id = gg.buyer_user_id
+          left join yorso_companies c on c.owner_user_id = gg.buyer_user_id
+          left join yorso_suppliers_directory s on s.id = gg.supplier_id
+          left join lateral (
+            select *
+            from yorso_supplier_access_requests r
+            where r.buyer_user_id = gg.buyer_user_id
+              and r.supplier_id = gg.supplier_id
+            order by r.updated_at desc, r.id asc
+            limit 1
+          ) r on true
+          where (
+            $1::text = 'all'
+            or ($1::text = 'active' and gg.is_active)
+            or ($1::text = 'expired' and not gg.is_active)
+          )
+          and (
+            $2::text is null
+            or lower(gg.group_id) like $2::text
+            or lower(gg.buyer_user_id::text) like $2::text
+            or lower(gg.supplier_id) like $2::text
+            or lower(coalesce(u.first_name, '') || ' ' || coalesce(u.last_name, '')) like $2::text
+            or lower(coalesce(c.trade_name, '')) like $2::text
+            or lower(coalesce(s.masked_name, '')) like $2::text
+            or lower(coalesce(s.company_name, '')) like $2::text
+            or lower(coalesce(s.country, '')) like $2::text
+            or lower(coalesce(r.message, '')) like $2::text
+          )
+          order by gg.is_active desc, gg.granted_at desc, gg.group_id asc
+          limit $3
+          offset $4
+        )
+        select
+          f.*,
+          g.id as grant_id,
+          g.scope as grant_scope,
+          g.offer_id as grant_offer_id,
+          g.granted_by_user_id as grant_granted_by_user_id,
+          g.granted_at as grant_granted_at,
+          g.expires_at as grant_expires_at
+        from filtered f
+        join yorso_access_grants g
+          on g.buyer_user_id = f.buyer_user_id
+         and g.supplier_id = f.supplier_id
+        order by f.is_active desc, f.granted_at desc, f.group_id asc, g.scope asc
+      `,
+      [statusFilter, search, input.limit, input.offset],
+    );
+
+    const grouped = new Map<string, AccessGrantAdminRow[]>();
+    for (const row of result.rows) {
+      grouped.set(row.group_id, [...(grouped.get(row.group_id) ?? []), row]);
+    }
+
+    const items: SupplierAccessGrantAdminItem[] = [...grouped.values()].map((rows) => {
+      const row = rows[0];
+      const grants = rows.map(grantFromAdminRow);
+      const grantedAt = ensureIso(row.granted_at);
+      return {
+        id: row.group_id,
+        buyer: {
+          userId: row.buyer_user_id,
+          displayName: row.buyer_display_name,
+          companyName: row.buyer_company_name,
+          accountRole: row.buyer_account_role,
+          countryCode: row.buyer_country_code,
+        },
+        supplier: {
+          supplierId: row.supplier_id,
+          maskedName: row.supplier_masked_name,
+          companyName: row.supplier_company_name,
+          country: row.supplier_country,
+          city: row.supplier_city,
+          verificationLevel: row.supplier_verification_level,
+        },
+        supplierId: row.supplier_id,
+        buyerUserId: row.buyer_user_id,
+        scopes: [...new Set(grants.map((grant) => grant.scope))].sort(),
+        grants,
+        request: requestFromGrantRow(row),
+        grantedAt,
+        expiresAt: ensureIsoNullable(row.expires_at),
+        grantedByUserId: row.granted_by_user_id,
+        ageHours: ageHours(row.granted_at),
+        isActive: row.is_active,
+      };
+    });
+
+    const summary = await this.grantsSummary();
+    return {
+      items,
+      summary,
+      total: Number(result.rows[0]?.total_count ?? 0),
+    };
+  }
+
+  async revokeGrant(input: { grantId: string; actorUserId: string; reason?: string }) {
+    const target = await this.client.query<AccessGrantRow>(
+      `
+        select *
+        from yorso_access_grants
+        where id = $1
+        limit 1
+      `,
+      [input.grantId],
+    );
+    if (!target.rows[0]) throw new Error("supplier_access_grant_not_found");
+    const grant = mapGrant(target.rows[0]);
+
+    const revoked = await this.client.query<AccessGrantRow>(
+      `
+        update yorso_access_grants
+        set expires_at = now(),
+            updated_at = now()
+        where buyer_user_id = $1
+          and supplier_id = $2
+          and (expires_at is null or expires_at > now())
+        returning *
+      `,
+      [grant.buyerUserId, grant.supplierId],
+    );
+
+    const requestResult = await this.client.query<AccessRequestRow>(
+      `
+        update yorso_supplier_access_requests
+        set status = 'revoked',
+            message = coalesce($3, message),
+            decided_at = now(),
+            decided_by_user_id = $4,
+            updated_at = now()
+        where buyer_user_id = $1
+          and supplier_id = $2
+        returning *
+      `,
+      [grant.buyerUserId, grant.supplierId, input.reason ?? null, input.actorUserId],
+    );
+    const request = requestResult.rows[0] ? mapRequest(requestResult.rows[0]) : null;
+
+    await this.client.query(
+      `
+        insert into yorso_access_events (buyer_user_id, supplier_id, request_id, event_type, actor_user_id, metadata)
+        values ($1, $2, $3, 'supplier_access_revoked', $4, $5)
+      `,
+      [
+        grant.buyerUserId,
+        grant.supplierId,
+        request?.id ?? null,
+        input.actorUserId,
+        JSON.stringify({ grantId: input.grantId, reason: input.reason ?? "" }),
+      ],
+    );
+
+    return {
+      request,
+      revokedGrants: revoked.rows.map(mapGrant),
+    };
+  }
+
   async decideRequest(input: {
     requestId: string;
     actorUserId: string;
@@ -279,6 +545,19 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
     await this.insertEvent(request, eventTypeForStatus(request.status), input.actorUserId);
 
     const grants = request.status === "approved" ? await this.upsertApprovalGrants(request, input.actorUserId) : [];
+    if (request.status === "revoked") {
+      await this.client.query(
+        `
+          update yorso_access_grants
+          set expires_at = now(),
+              updated_at = now()
+          where buyer_user_id = $1
+            and supplier_id = $2
+            and (expires_at is null or expires_at > now())
+        `,
+        [request.buyerUserId, request.supplierId],
+      );
+    }
     const notification = request.status === "approved" ? await this.createApprovalNotification(request) : null;
 
     return { request, grants, notification };
@@ -447,6 +726,28 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
       summary[row.status] = Number(row.count);
     }
     summary.open = summary.sent + summary.pending;
+    return summary;
+  }
+
+  private async grantsSummary(): Promise<SupplierAccessGrantSummary> {
+    const result = await this.client.query<{ is_active: boolean; count: string | number }>(
+      `
+        with grant_groups as (
+          select bool_or(expires_at is null or expires_at > now()) as is_active
+          from yorso_access_grants
+          group by buyer_user_id, supplier_id
+        )
+        select is_active, count(*) as count
+        from grant_groups
+        group by is_active
+      `,
+    );
+    const summary: SupplierAccessGrantSummary = { active: 0, expired: 0, total: 0 };
+    for (const row of result.rows) {
+      if (row.is_active) summary.active = Number(row.count);
+      else summary.expired = Number(row.count);
+    }
+    summary.total = summary.active + summary.expired;
     return summary;
   }
 }

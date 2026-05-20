@@ -22,6 +22,7 @@ const requiredFiles = [
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
   "packages/db/migrations/0017_supplier_access_review_queue.sql",
+  "packages/db/migrations/0018_admin_access_grants_console.sql",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -58,6 +59,13 @@ const requiredFiles = [
   "src/pages/admin/AdminAccessRequests.tsx",
   "src/pages/admin/AdminAccessRequests.test.tsx",
   "e2e/admin-access-review.spec.ts",
+  "src/lib/admin-access-grants-api.ts",
+  "src/lib/admin-access-grants-api.test.ts",
+  "src/lib/use-admin-access-grants.ts",
+  "src/lib/use-admin-access-grants.test.tsx",
+  "src/pages/admin/AdminAccessGrants.tsx",
+  "src/pages/admin/AdminAccessGrants.test.tsx",
+  "e2e/admin-access-grants.spec.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -78,6 +86,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-admin-audit.mjs",
   "scripts/smoke-self-hosted-admin-runtime-status.mjs",
   "scripts/smoke-self-hosted-admin-access-review.mjs",
+  "scripts/smoke-self-hosted-admin-access-grants.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -192,6 +201,13 @@ const useAdminAccessReviewTest = read("src/lib/use-admin-access-review.test.tsx"
 const adminAccessReviewPage = read("src/pages/admin/AdminAccessRequests.tsx");
 const adminAccessReviewPageTest = read("src/pages/admin/AdminAccessRequests.test.tsx");
 const adminAccessReviewE2E = read("e2e/admin-access-review.spec.ts");
+const adminAccessGrantsApi = read("src/lib/admin-access-grants-api.ts");
+const adminAccessGrantsApiTest = read("src/lib/admin-access-grants-api.test.ts");
+const useAdminAccessGrants = read("src/lib/use-admin-access-grants.ts");
+const useAdminAccessGrantsTest = read("src/lib/use-admin-access-grants.test.tsx");
+const adminAccessGrantsPage = read("src/pages/admin/AdminAccessGrants.tsx");
+const adminAccessGrantsPageTest = read("src/pages/admin/AdminAccessGrants.test.tsx");
+const adminAccessGrantsE2E = read("e2e/admin-access-grants.spec.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -212,6 +228,7 @@ const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
 const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
+const adminAccessGrantsSmoke = read("scripts/smoke-self-hosted-admin-access-grants.mjs");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -330,6 +347,7 @@ for (const marker of [
   "Batch #94",
   "Batch #95",
   "Batch #96",
+  "Batch #97",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -727,6 +745,9 @@ if (pkg.scripts["smoke:self-hosted-admin-access-review:run"] !== "node scripts/s
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-review:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin access review smoke");
 }
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-grants:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin access grants smoke");
+}
 if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
   failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
 }
@@ -738,6 +759,12 @@ if (pkg.scripts["test:admin-access-review-frontend"] !== "vitest run src/lib/adm
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-review-frontend")) {
   failures.push("package.json: ci:core must run the admin access review frontend tests");
+}
+if (pkg.scripts["test:admin-access-grants-frontend"] !== "vitest run src/lib/admin-access-grants-api.test.ts src/lib/use-admin-access-grants.test.tsx src/pages/admin/AdminAccessGrants.test.tsx") {
+  failures.push("package.json: test:admin-access-grants-frontend must cover the admin access grants adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-grants-frontend")) {
+  failures.push("package.json: ci:core must run the admin access grants frontend tests");
 }
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
@@ -761,6 +788,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-review")) 
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access review browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-review");
+if (pkg.scripts["smoke:e2e:admin-access-grants"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-access-grants:run") {
+  failures.push("package.json: smoke:e2e:admin-access-grants must build with the self-hosted admin access grants adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-access-grants:run"]?.includes("e2e/admin-access-grants.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-access-grants:run must cover /admin/access-grants browser behavior");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-grants")) {
+  failures.push("package.json: ci:full must include the admin access grants browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access grants browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-grants");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -1080,6 +1118,18 @@ for (const marker of [
   requireText("scripts/smoke-self-hosted-admin-access-review.mjs", adminAccessReviewSmoke, marker);
 }
 for (const marker of [
+  "admin_access_grants_auth_guard=ok",
+  "admin_access_grants_role_guard=ok",
+  "admin_access_grants_list=ok",
+  "admin_access_grants_revoke=ok",
+  "admin_access_grants_revoke_masks_catalog=ok",
+  "admin_access_grants_filters=ok",
+  "admin_access_grants_validation_guard=ok",
+  "self_hosted_admin_access_grants_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-access-grants.mjs", adminAccessGrantsSmoke, marker);
+}
+for (const marker of [
   "idx_yorso_supplier_access_requests_review_open",
   "idx_yorso_supplier_access_requests_review_all",
   "idx_yorso_supplier_access_requests_review_buyer",
@@ -1088,10 +1138,23 @@ for (const marker of [
   requireText("packages/db/migrations/0017_supplier_access_review_queue.sql", supplierAccessReviewQueue, marker);
 }
 for (const marker of [
+  "idx_yorso_access_grants_admin_active",
+  "idx_yorso_access_grants_admin_expired",
+  "idx_yorso_access_grants_admin_buyer_active",
+  "idx_yorso_access_grants_admin_supplier_active",
+  "10,000 concurrent-user production baseline",
+]) {
+  requireText("packages/db/migrations/0018_admin_access_grants_console.sql", read("packages/db/migrations/0018_admin_access_grants_console.sql"), marker);
+}
+for (const marker of [
   "/v1/admin/access-requests",
   "/v1/admin/access-requests/:requestId/decision",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/:grantId/revoke",
   "admin.access_requests.read",
   "admin.access_requests.decision",
+  "admin.access_grants.read",
+  "admin.access_grants.revoke",
   "resolveAuthenticatedAccountSession",
 ]) {
   requireText("apps/api/src/modules/access/routes.ts", accessRoutes, marker);
@@ -1150,6 +1213,61 @@ for (const marker of [
   "x-yorso-session-id",
 ]) {
   requireText("e2e/admin-access-review.spec.ts", adminAccessReviewE2E, marker);
+}
+for (const marker of [
+  "createAdminAccessGrantsApiClient",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "/v1/admin/access-grants",
+]) {
+  requireText("src/lib/admin-access-grants-api.ts", adminAccessGrantsApi, marker);
+}
+for (const marker of [
+  "disabled without self-hosted API URL",
+  "lists grants with session headers",
+  "posts revoke through the admin grants endpoint",
+]) {
+  requireText("src/lib/admin-access-grants-api.test.ts", adminAccessGrantsApiTest, marker);
+}
+for (const marker of [
+  "useAdminAccessGrants",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-access-grants.ts", useAdminAccessGrants, marker);
+}
+for (const marker of [
+  "loads grants and refreshes after revoke",
+  "maps admin role failures to forbidden state",
+]) {
+  requireText("src/lib/use-admin-access-grants.test.tsx", useAdminAccessGrantsTest, marker);
+}
+for (const marker of [
+  "admin-access-grants-page",
+  "admin-access-grants-table",
+  "admin-access-grants-summary",
+  "admin-access-grants-pagination",
+  "Self-hosted access control",
+]) {
+  requireText("src/pages/admin/AdminAccessGrants.tsx", adminAccessGrantsPage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "loads grants, revokes access",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminAccessGrants.test.tsx", adminAccessGrantsPageTest, marker);
+}
+for (const marker of [
+  "Batch #97 browser guard",
+  "/admin/access-grants",
+  "/v1/admin/access-grants",
+  "/v1/admin/access-grants/:grantId/revoke",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+]) {
+  requireText("e2e/admin-access-grants.spec.ts", adminAccessGrantsE2E, marker);
 }
 for (const marker of [
   "createAdminRuntimeApiClient",

@@ -927,3 +927,19 @@ request message, status, age and SLA bucket. It does not render buyer emails,
 phone numbers, raw session ids or backend credentials. The review queue is
 indexed by `0017_supplier_access_review_queue` for open queue reads, history
 pagination and buyer support lookups.
+
+Batch #97 adds the matching access grants console and revoke runtime. The owned
+backend exposes `GET /v1/admin/access-grants` for active, expired or all grant
+groups and `POST /v1/admin/access-grants/:grantId/revoke` for access
+revocation. Both routes require a valid self-hosted session and the owned
+`admin` role. Revocation expires both supplier identity and offer price grants
+for the buyer and supplier, records a `supplier_access_revoked` event and moves
+the linked request to `revoked` when present.
+
+The frontend route `/admin/access-grants` is an operator control surface, not a
+customer support CRM. It shows grant scope, buyer/company label, supplier
+context, grant age and request status. It does not render admin session ids,
+buyer emails, passwords, storage credentials or backend connection strings. The
+grant console is indexed by `0018_admin_access_grants_console` so active,
+expired, buyer and supplier scans remain bounded for the 10,000 concurrent-user
+baseline.

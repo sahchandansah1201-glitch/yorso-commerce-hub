@@ -4,6 +4,9 @@ import type {
   SupplierAccessEvent,
   SupplierAccessEventType,
   SupplierAccessGrant,
+  SupplierAccessGrantAdminItem,
+  SupplierAccessGrantQuery,
+  SupplierAccessGrantSummary,
   SupplierAccessNotification,
   SupplierAccessRequest,
   SupplierAccessReviewItem,
@@ -19,6 +22,19 @@ export interface SupplierAccessRepository {
     items: SupplierAccessReviewItem[];
     summary: SupplierAccessReviewSummary;
     total: number;
+  }>;
+  listAdminGrants(input: SupplierAccessGrantQuery): Promise<{
+    items: SupplierAccessGrantAdminItem[];
+    summary: SupplierAccessGrantSummary;
+    total: number;
+  }>;
+  revokeGrant(input: {
+    grantId: string;
+    actorUserId: string;
+    reason?: string;
+  }): Promise<{
+    request: SupplierAccessRequest | null;
+    revokedGrants: SupplierAccessGrant[];
   }>;
   decideRequest(input: {
     requestId: string;
@@ -84,6 +100,38 @@ const accessReviewMatches = (
     request.intent,
     request.message,
   ].some((value) => value.toLowerCase().includes(needle));
+};
+
+const emptyGrantSummary = (): SupplierAccessGrantSummary => ({
+  active: 0,
+  expired: 0,
+  total: 0,
+});
+
+const isGrantActive = (grant: SupplierAccessGrant) =>
+  !grant.expiresAt || new Date(grant.expiresAt).getTime() > Date.now();
+
+const grantGroupMatches = (
+  grants: SupplierAccessGrant[],
+  request: SupplierAccessRequest | null,
+  query: SupplierAccessGrantQuery,
+) => {
+  const active = grants.some(isGrantActive);
+  if (query.status === "active" && !active) return false;
+  if (query.status === "expired" && active) return false;
+  if (!query.q) return true;
+
+  const needle = query.q.toLowerCase();
+  const values = [
+    grants[0]?.id ?? "",
+    grants[0]?.buyerUserId ?? "",
+    grants[0]?.supplierId ?? "",
+    request?.id ?? "",
+    request?.status ?? "",
+    request?.message ?? "",
+    ...grants.map((grant) => grant.scope),
+  ];
+  return values.some((value) => value.toLowerCase().includes(needle));
 };
 
 export class MemorySupplierAccessRepository implements SupplierAccessRepository {
@@ -169,6 +217,120 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
     };
   }
 
+  async listAdminGrants(input: SupplierAccessGrantQuery) {
+    const grouped = this.groupGrants();
+    const summary = emptyGrantSummary();
+
+    for (const grants of grouped.values()) {
+      const active = grants.some(isGrantActive);
+      summary.total += 1;
+      if (active) summary.active += 1;
+      else summary.expired += 1;
+    }
+
+    const filtered = [...grouped.values()]
+      .filter((grants) => {
+        const request = this.requests.get(this.key(grants[0].buyerUserId, grants[0].supplierId)) ?? null;
+        return grantGroupMatches(grants, request, input);
+      })
+      .sort(
+        (a, b) =>
+          b[0].grantedAt.localeCompare(a[0].grantedAt) ||
+          a[0].buyerUserId.localeCompare(b[0].buyerUserId) ||
+          a[0].supplierId.localeCompare(b[0].supplierId),
+      );
+
+    const items = filtered.slice(input.offset, input.offset + input.limit).map((grants) => {
+      const primary = grants.find((grant) => grant.scope === "supplier_identity") ?? grants[0];
+      const active = grants.some(isGrantActive);
+      const request = this.requests.get(this.key(primary.buyerUserId, primary.supplierId)) ?? null;
+      const grantedAt = grants.map((grant) => grant.grantedAt).sort()[0];
+      const expiresAtValues = grants
+        .map((grant) => grant.expiresAt)
+        .filter((value): value is string => Boolean(value))
+        .sort();
+      return {
+        id: primary.id,
+        buyer: {
+          userId: primary.buyerUserId,
+          displayName: "Buyer account",
+          companyName: null,
+          accountRole: "buyer" as const,
+          countryCode: null,
+        },
+        supplier: {
+          supplierId: primary.supplierId,
+          maskedName: `${primary.supplierId} supplier`,
+          companyName: active ? `${primary.supplierId} company` : null,
+          country: null,
+          city: null,
+          verificationLevel: null,
+        },
+        supplierId: primary.supplierId,
+        buyerUserId: primary.buyerUserId,
+        scopes: grants.map((grant) => grant.scope).sort(),
+        grants: clone(grants.sort((a, b) => a.scope.localeCompare(b.scope))),
+        request: request ? clone(request) : null,
+        grantedAt,
+        expiresAt: active ? null : expiresAtValues.at(-1) ?? null,
+        grantedByUserId: primary.grantedByUserId,
+        ageHours: Math.max(0, (Date.now() - new Date(grantedAt).getTime()) / 3_600_000),
+        isActive: active,
+      } satisfies SupplierAccessGrantAdminItem;
+    });
+
+    return {
+      items: clone(items),
+      summary,
+      total: filtered.length,
+    };
+  }
+
+  async revokeGrant(input: { grantId: string; actorUserId: string; reason?: string }) {
+    const target = this.grants.get(input.grantId) ?? [...this.grants.values()].find((grant) => grant.id === input.grantId);
+    if (!target) throw new Error("supplier_access_grant_not_found");
+
+    const at = nowIso();
+    const revokedGrants: SupplierAccessGrant[] = [];
+    for (const [key, grant] of this.grants.entries()) {
+      if (grant.buyerUserId !== target.buyerUserId || grant.supplierId !== target.supplierId || !isGrantActive(grant)) {
+        continue;
+      }
+      const revoked: SupplierAccessGrant = { ...grant, expiresAt: at };
+      this.grants.set(key, revoked);
+      revokedGrants.push(revoked);
+    }
+
+    const request = this.requests.get(this.key(target.buyerUserId, target.supplierId)) ?? null;
+    const updatedRequest = request
+      ? {
+          ...request,
+          status: "revoked" as const,
+          message: input.reason ?? request.message,
+          updatedAt: at,
+          decidedAt: at,
+          decidedByUserId: input.actorUserId,
+        }
+      : null;
+    if (updatedRequest) this.requests.set(this.key(updatedRequest.buyerUserId, updatedRequest.supplierId), updatedRequest);
+
+    this.events.push({
+      id: randomUUID(),
+      buyerUserId: target.buyerUserId,
+      supplierId: target.supplierId,
+      requestId: updatedRequest?.id ?? null,
+      eventType: "supplier_access_revoked",
+      actorUserId: input.actorUserId,
+      metadata: { grantId: input.grantId, reason: input.reason ?? "" },
+      createdAt: at,
+    });
+
+    return {
+      request: clone(updatedRequest),
+      revokedGrants: clone(revokedGrants.sort((a, b) => a.scope.localeCompare(b.scope))),
+    };
+  }
+
   async decideRequest(input: { requestId: string; actorUserId: string; decision: SupplierAccessDecision }) {
     const request = [...this.requests.values()].find((item) => item.id === input.requestId);
     if (!request) throw new Error("supplier_access_request_not_found");
@@ -186,6 +348,13 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
     this.events.push(this.createEvent(updated, eventTypeForStatus(updated.status), input.actorUserId));
 
     const grants = updated.status === "approved" ? this.upsertApprovalGrants(updated, input.actorUserId, at) : [];
+    if (updated.status === "revoked") {
+      await this.revokeGrant({
+        actorUserId: input.actorUserId,
+        grantId: `${updated.buyerUserId}:${updated.supplierId}:supplier_identity`,
+        reason: input.decision.message,
+      }).catch(() => ({ request: updated, revokedGrants: [] }));
+    }
     const notification = updated.status === "approved" ? this.createApprovalNotification(updated, at) : null;
 
     return {
@@ -277,6 +446,17 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
       metadata: {},
       createdAt: nowIso(),
     };
+  }
+
+  private groupGrants() {
+    const grouped = new Map<string, SupplierAccessGrant[]>();
+    for (const grant of this.grants.values()) {
+      const key = this.key(grant.buyerUserId, grant.supplierId);
+      const next = grouped.get(key) ?? [];
+      next.push(clone(grant));
+      grouped.set(key, next);
+    }
+    return grouped;
   }
 
   private upsertApprovalGrants(

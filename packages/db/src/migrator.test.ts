@@ -29,6 +29,7 @@ describe("self-hosted DB migration planner", () => {
       "0015_admin_audit_retention_query_hardening",
       "0016_admin_audit_retention_runtime",
       "0017_supplier_access_review_queue",
+      "0018_admin_access_grants_console",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -49,6 +50,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0015_admin_audit_retention_query_hardening.sql",
       "migrations/0016_admin_audit_retention_runtime.sql",
       "migrations/0017_supplier_access_review_queue.sql",
+      "migrations/0018_admin_access_grants_console.sql",
     ]);
   });
 
@@ -81,6 +83,7 @@ describe("self-hosted DB migration planner", () => {
     const adminAuditRetentionQueryHardening = plan.migrations[15];
     const adminAuditRetentionRuntime = plan.migrations[16];
     const supplierAccessReviewQueue = plan.migrations[17];
+    const adminAccessGrantsConsole = plan.migrations[18];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -120,6 +123,8 @@ describe("self-hosted DB migration planner", () => {
     expect(adminAuditRetentionRuntime.sql).toContain("idx_yorso_api_audit_events_retention_scan");
     expect(supplierAccessReviewQueue.dependsOn).toEqual(["0016_admin_audit_retention_runtime"]);
     expect(supplierAccessReviewQueue.sql).toContain("idx_yorso_supplier_access_requests_review_open");
+    expect(adminAccessGrantsConsole.dependsOn).toEqual(["0017_supplier_access_review_queue"]);
+    expect(adminAccessGrantsConsole.sql).toContain("idx_yorso_access_grants_admin_active");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {
