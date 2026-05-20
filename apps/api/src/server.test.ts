@@ -624,9 +624,48 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(serialized).not.toContain("buyer@example.com");
     expect(serialized).not.toContain(testAdminUserId);
 
+    const diagnosticsResponse = await fetchApi("/v1/admin/runtime/diagnostics", { headers: adminHeaders });
+    const diagnostics = (await diagnosticsResponse.json()) as JsonBody;
+    const serializedDiagnostics = JSON.stringify(diagnostics);
+
+    expect(diagnosticsResponse.status).toBe(200);
+    expect(diagnostics).toMatchObject({
+      ok: true,
+      selfHostedBackend: true,
+      productionScaleBaseline: {
+        targetConcurrentUsers: 10_000,
+        status: "policy_required",
+      },
+      diagnostics: {
+        overallStatus: expect.stringMatching(/^(pass|warn|fail)$/),
+        passCount: expect.any(Number),
+        warnCount: expect.any(Number),
+        failCount: expect.any(Number),
+      },
+      productionPolicy: {
+        supabaseProductionBackend: false,
+        hostedBaasProductionBackend: false,
+        secretsIncluded: false,
+      },
+    });
+    expect((diagnostics.diagnostics as JsonBody).checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "production_policy", status: "pass" }),
+        expect.objectContaining({ id: "capacity_baseline", status: "pass" }),
+        expect.objectContaining({ id: "request_guardrails" }),
+      ]),
+    );
+    expect(serializedDiagnostics).not.toContain("postgres://");
+    expect(serializedDiagnostics).not.toContain("redis://");
+    expect(serializedDiagnostics).not.toContain("admin@example.com");
+    expect(serializedDiagnostics).not.toContain(testAdminUserId);
+
     const metrics = metricsRegistry.renderPrometheusText();
     expect(metrics).toContain(
       'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="success",reason="none"} 1',
+    );
+    expect(metrics).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="diagnostics",outcome="success",reason="none"} 1',
     );
     expect(metrics).toContain(
       'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="blocked",reason="admin_role_required"} 1',

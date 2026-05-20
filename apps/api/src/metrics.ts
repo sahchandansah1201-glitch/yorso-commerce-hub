@@ -25,7 +25,7 @@ export interface AdminAuditMetricsEvent {
 }
 
 export interface AdminRuntimeMetricsEvent {
-  operation: "status";
+  operation: "status" | "diagnostics";
   outcome: "success" | "failure" | "blocked";
   reason?: string | null;
 }

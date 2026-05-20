@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { buyerSession } from "@/lib/buyer-session";
-import type { AdminRuntimeStatus } from "@/lib/admin-runtime-api";
+import type { AdminRuntimeDiagnostics, AdminRuntimeStatus } from "@/lib/admin-runtime-api";
 import AdminRuntimeStatusPage from "./AdminRuntimeStatus";
 
 const statusPayload = (patch: Partial<AdminRuntimeStatus> = {}): AdminRuntimeStatus => ({
@@ -56,6 +56,59 @@ const statusPayload = (patch: Partial<AdminRuntimeStatus> = {}): AdminRuntimeSta
     drainStarted: false,
     shutdownDrainDelayMs: 5_000,
     shutdownGraceTimeoutMs: 30_000,
+  },
+  productionPolicy: {
+    supabaseProductionBackend: false,
+    hostedBaasProductionBackend: false,
+    prototypeSupabaseConfigured: false,
+    secretsIncluded: false,
+  },
+  ...patch,
+});
+
+const diagnosticsPayload = (patch: Partial<AdminRuntimeDiagnostics> = {}): AdminRuntimeDiagnostics => ({
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000695",
+  generatedAt: "2026-05-20T10:00:00.000Z",
+  selfHostedBackend: true,
+  productionScaleBaseline: {
+    targetConcurrentUsers: 10_000,
+    status: "policy_required",
+  },
+  diagnostics: {
+    checks: [
+      {
+        action: "Keep hosted BaaS disabled for production runtime.",
+        id: "production_policy",
+        label: "Self-hosted production policy",
+        severity: "critical",
+        status: "pass",
+        summary: "Production policy flags are safe.",
+      },
+      {
+        action: "Use Redis with fail-closed behavior before production traffic.",
+        id: "auth_rate_limit",
+        label: "Auth rate limit runtime",
+        severity: "critical",
+        status: "pass",
+        summary: "Auth rate limit runtime is production-aligned.",
+      },
+    ],
+    failCount: 0,
+    overallStatus: "pass",
+    passCount: 2,
+    productionReady: true,
+    warnCount: 0,
+  },
+  capacityPlan: {
+    backpressureStrategy: "Reuse request timeout and audit backpressure.",
+    cacheStrategy: "Use explicit refresh only.",
+    databaseStrategy: "Diagnostics does not scan business tables.",
+    failureMode: "Do not fabricate fallback diagnostics.",
+    loadTestPlan: "Include endpoint in operator smoke tests.",
+    observabilityPlan: "Emit metrics and audit events without secrets.",
+    readProfile: "Low-frequency admin read path.",
+    writeProfile: "No writes.",
   },
   productionPolicy: {
     supabaseProductionBackend: false,
@@ -125,8 +178,8 @@ describe("AdminRuntimeStatus page", () => {
 
   it("renders sanitized production runtime status for admins", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
-    const fetchImpl = vi.fn(async () =>
-      new Response(JSON.stringify(statusPayload()), {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) =>
+      new Response(JSON.stringify(String(input).endsWith("/diagnostics") ? diagnosticsPayload() : statusPayload()), {
         headers: { "content-type": "application/json" },
       }),
     );
@@ -143,6 +196,10 @@ describe("AdminRuntimeStatus page", () => {
     expect(screen.getByTestId("admin-runtime-auth")).toHaveTextContent("redis");
     expect(screen.getByTestId("admin-runtime-auth")).toHaveTextContent("closed");
     expect(screen.getByTestId("admin-runtime-guardrails")).toHaveTextContent("15,000 ms");
+    expect(screen.getByTestId("admin-runtime-diagnostics")).toHaveTextContent("Runtime diagnostics");
+    expect(screen.getByTestId("admin-runtime-diagnostics-overall")).toHaveTextContent("pass");
+    expect(screen.getByTestId("admin-runtime-capacity-plan")).toHaveTextContent("Low-frequency admin read path.");
+    expect(screen.getByTestId("admin-runtime-capacity-plan")).toHaveTextContent("No writes.");
 
     const bodyText = document.body.textContent ?? "";
     expect(bodyText).not.toContain("admin@yorso.test");

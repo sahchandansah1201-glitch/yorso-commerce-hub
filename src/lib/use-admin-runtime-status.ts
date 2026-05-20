@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AdminRuntimeApiError,
   createAdminRuntimeApiClient,
+  type AdminRuntimeDiagnostics,
   type AdminRuntimeStatus,
 } from "@/lib/admin-runtime-api";
 import type { BuyerSession } from "@/lib/buyer-session";
@@ -10,43 +11,51 @@ export type AdminRuntimeStatusState =
   | {
       status: "disabled";
       data: null;
+      diagnostics: null;
       error: null;
     }
   | {
       status: "session_required";
       data: null;
+      diagnostics: null;
       error: AdminRuntimeApiError | null;
     }
   | {
       status: "forbidden";
       data: null;
+      diagnostics: null;
       error: AdminRuntimeApiError;
     }
   | {
       status: "loading";
       data: AdminRuntimeStatus | null;
+      diagnostics: AdminRuntimeDiagnostics | null;
       error: null;
     }
   | {
       status: "ready";
       data: AdminRuntimeStatus;
+      diagnostics: AdminRuntimeDiagnostics;
       error: null;
     }
   | {
       status: "error";
       data: AdminRuntimeStatus | null;
+      diagnostics: AdminRuntimeDiagnostics | null;
       error: Error;
     };
 
 const disabledState: AdminRuntimeStatusState = {
   status: "disabled",
   data: null,
+  diagnostics: null,
   error: null,
 };
 
 const sessionRequiredState: AdminRuntimeStatusState = {
   status: "session_required",
   data: null,
+  diagnostics: null,
   error: null,
 };
 
@@ -56,7 +65,7 @@ export function useAdminRuntimeStatus(session: BuyerSession | null) {
   const [state, setState] = useState<AdminRuntimeStatusState>(() => {
     if (!client.enabled) return disabledState;
     if (!session?.id || !session.userId) return sessionRequiredState;
-    return { status: "loading", data: null, error: null };
+    return { status: "loading", data: null, diagnostics: null, error: null };
   });
 
   const refresh = useCallback(() => {
@@ -81,28 +90,30 @@ export function useAdminRuntimeStatus(session: BuyerSession | null) {
     setState((current) => ({
       status: "loading",
       data: current.status === "ready" || current.status === "loading" ? current.data : null,
+      diagnostics: current.status === "ready" || current.status === "loading" ? current.diagnostics : null,
       error: null,
     }));
 
-    void client.status()
-      .then((data) => {
-        if (!cancelled) setState({ status: "ready", data, error: null });
+    void Promise.all([client.status(), client.diagnostics()])
+      .then(([data, diagnostics]) => {
+        if (!cancelled) setState({ status: "ready", data, diagnostics, error: null });
       })
       .catch((error: unknown) => {
         if (cancelled) return;
         if (error instanceof AdminRuntimeApiError) {
           if (error.code === "admin_role_required") {
-            setState({ status: "forbidden", data: null, error });
+            setState({ status: "forbidden", data: null, diagnostics: null, error });
             return;
           }
           if (error.code === "admin_runtime_session_required") {
-            setState({ status: "session_required", data: null, error });
+            setState({ status: "session_required", data: null, diagnostics: null, error });
             return;
           }
         }
         setState({
           status: "error",
           data: null,
+          diagnostics: null,
           error: error instanceof Error ? error : new Error(String(error)),
         });
       });

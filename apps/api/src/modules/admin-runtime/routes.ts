@@ -7,7 +7,8 @@ import { resolveAuthenticatedAccountSession, sendAccountSessionError, type Accou
 import type { AuthService } from "../auth/service.js";
 import type { AdminRuntimeService } from "./service.js";
 
-const route = "/v1/admin/runtime/status";
+const statusRoute = "/v1/admin/runtime/status";
+const diagnosticsRoute = "/v1/admin/runtime/diagnostics";
 
 export async function handleAdminRuntimeRoute(
   request: IncomingMessage,
@@ -19,7 +20,7 @@ export async function handleAdminRuntimeRoute(
   auditSink: AuditSink,
   metricsRegistry: MetricsRegistry,
 ) {
-  if (pathname !== route) return false;
+  if (pathname !== statusRoute && pathname !== diagnosticsRoute) return false;
 
   if (request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
@@ -30,21 +31,35 @@ export async function handleAdminRuntimeRoute(
   try {
     session = await resolveAuthenticatedAccountSession(request, authService, context);
     if (!(await authService.hasRole(session.userId, "admin"))) {
-      auditRuntimeStatus(auditSink, context, request, session, "blocked", "admin_role_required", 403);
-      metricsRegistry.observeAdminRuntime({ operation: "status", outcome: "blocked", reason: "admin_role_required" });
+      auditRuntimeStatus(auditSink, context, request, pathname, session, "blocked", "admin_role_required", 403);
+      metricsRegistry.observeAdminRuntime({
+        operation: runtimeOperation(pathname),
+        outcome: "blocked",
+        reason: "admin_role_required",
+      });
       sendError(response, 403, "admin_role_required", "Admin role is required.", context);
       return true;
     }
 
-    const status = service.getStatus(context.requestId);
-    auditRuntimeStatus(auditSink, context, request, session, "success", null, 200);
-    metricsRegistry.observeAdminRuntime({ operation: "status", outcome: "success", reason: null });
-    sendJson(response, 200, status);
+    const payload = pathname === diagnosticsRoute
+      ? service.getDiagnostics(context.requestId)
+      : service.getStatus(context.requestId);
+    auditRuntimeStatus(auditSink, context, request, pathname, session, "success", null, 200);
+    metricsRegistry.observeAdminRuntime({
+      operation: runtimeOperation(pathname),
+      outcome: "success",
+      reason: null,
+    });
+    sendJson(response, 200, payload);
     return true;
   } catch (error) {
     if (isAccountSessionError(error)) {
-      auditRuntimeStatus(auditSink, context, request, session, "failure", error.code, 401);
-      metricsRegistry.observeAdminRuntime({ operation: "status", outcome: "failure", reason: error.code });
+      auditRuntimeStatus(auditSink, context, request, pathname, session, "failure", error.code, 401);
+      metricsRegistry.observeAdminRuntime({
+        operation: runtimeOperation(pathname),
+        outcome: "failure",
+        reason: error.code,
+      });
       sendAccountSessionError(response, context, error);
       return true;
     }
@@ -60,13 +75,14 @@ function auditRuntimeStatus(
   auditSink: AuditSink,
   context: ApiRequestContext,
   request: IncomingMessage,
+  route: string,
   session: { userId: string; sessionId: string } | undefined,
   outcome: "success" | "failure" | "blocked",
   reason: string | null,
   statusCode: number,
 ) {
   auditFromRequest(auditSink, context, request, {
-    action: "admin.runtime.status.read",
+    action: route === diagnosticsRoute ? "admin.runtime.diagnostics.read" : "admin.runtime.status.read",
     actorUserId: session?.userId,
     outcome,
     reason,
@@ -75,4 +91,8 @@ function auditRuntimeStatus(
     sessionId: session?.sessionId,
     statusCode,
   });
+}
+
+function runtimeOperation(pathname: string): "status" | "diagnostics" {
+  return pathname === diagnosticsRoute ? "diagnostics" : "status";
 }

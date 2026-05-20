@@ -1104,6 +1104,8 @@ for (const marker of [
 for (const marker of [
   "AdminRuntimeService",
   "adminRuntimeStatusSchema",
+  "adminRuntimeDiagnosticsSchema",
+  "buildDiagnosticChecks",
   "targetConcurrentUsers: 10_000",
   "supabaseProductionBackend: false",
   "hostedBaasProductionBackend: false",
@@ -1113,7 +1115,9 @@ for (const marker of [
 }
 for (const marker of [
   "/v1/admin/runtime/status",
+  "/v1/admin/runtime/diagnostics",
   "admin.runtime.status.read",
+  "admin.runtime.diagnostics.read",
   "admin_role_required",
   "resolveAuthenticatedAccountSession",
   "observeAdminRuntime",
@@ -1141,10 +1145,12 @@ for (const marker of [
   "admin_runtime_status_auth_guard=ok",
   "admin_runtime_status_role_guard=ok",
   "admin_runtime_status_read=ok",
+  "admin_runtime_diagnostics_read=ok",
   "admin_runtime_status_no_secrets=ok",
   "admin_runtime_status_metrics=ok",
   "self_hosted_admin_runtime_status_smoke=ok",
   "/v1/admin/runtime/status",
+  "/v1/admin/runtime/diagnostics",
   "targetConcurrentUsers",
   "supabaseProductionBackend",
   "hostedBaasProductionBackend",
@@ -1154,6 +1160,8 @@ for (const marker of [
 for (const marker of [
   "createAdminRuntimeApiClient",
   "/v1/admin/runtime/status",
+  "/v1/admin/runtime/diagnostics",
+  "AdminRuntimeDiagnostics",
   "ACCOUNT_USER_ID_HEADER",
   "ACCOUNT_SESSION_ID_HEADER",
   "admin_runtime_api_disabled",
@@ -1169,6 +1177,7 @@ for (const marker of [
 for (const marker of [
   "stays disabled when VITE_YORSO_API_URL is empty",
   "loads sanitized runtime status with self-hosted session headers",
+  "loads sanitized diagnostics through the same self-hosted session boundary",
   "maps admin role failures to admin_role_required",
 ]) {
   requireText("src/lib/admin-runtime-api.test.ts", adminRuntimeApiTest, marker);
@@ -1176,6 +1185,7 @@ for (const marker of [
 for (const marker of [
   "useAdminRuntimeStatus",
   "AdminRuntimeApiError",
+  "client.diagnostics",
   "status: \"disabled\"",
   "status: \"session_required\"",
   "status: \"forbidden\"",
@@ -1196,6 +1206,8 @@ for (const marker of [
   "admin-runtime-auth",
   "admin-runtime-audit",
   "admin-runtime-lifecycle",
+  "admin-runtime-diagnostics",
+  "admin-runtime-capacity-plan",
   "admin-runtime-no-secrets",
   "10,000 concurrent users",
   "10 000 одновременных пользователей",
@@ -1206,6 +1218,7 @@ for (const marker of [
 }
 for (const marker of [
   "Self-hosted API is not connected",
+  "admin-runtime-diagnostics-overall",
   "admin-runtime-session-required",
   "admin-runtime-forbidden",
   "postgres://",
@@ -1215,11 +1228,14 @@ for (const marker of [
 }
 for (const marker of [
   "Batch #94 browser guard",
+  "Batch #95 diagnostics",
   "/admin/runtime",
   "/v1/admin/runtime/status",
+  "/v1/admin/runtime/diagnostics",
   "x-yorso-user-id",
   "x-yorso-session-id",
   "admin-runtime-scale",
+  "admin-runtime-diagnostics",
   "admin-runtime-no-secrets",
   "postgres://",
 ]) {

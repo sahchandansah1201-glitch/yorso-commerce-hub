@@ -104,7 +104,20 @@ async function runSmoke(baseUrl) {
   assertEqual(status.lifecycle?.drainSignalPresent, false, "admin runtime lifecycle signal");
   console.log("admin_runtime_status_read=ok");
 
+  const diagnostics = await jsonRequest(baseUrl, "/v1/admin/runtime/diagnostics", adminHeaders);
+  assertEqual(diagnostics.ok, true, "admin runtime diagnostics ok");
+  assertEqual(diagnostics.selfHostedBackend, true, "admin runtime diagnostics self-hosted backend");
+  assertEqual(diagnostics.productionScaleBaseline?.targetConcurrentUsers, 10_000, "admin runtime diagnostics baseline");
+  assertEqual(diagnostics.productionPolicy?.supabaseProductionBackend, false, "admin runtime diagnostics no Supabase production");
+  assertEqual(diagnostics.productionPolicy?.hostedBaasProductionBackend, false, "admin runtime diagnostics no hosted BaaS production");
+  assertEqual(diagnostics.productionPolicy?.secretsIncluded, false, "admin runtime diagnostics no secrets flag");
+  assertContains(JSON.stringify(diagnostics.diagnostics?.checks ?? []), "production_policy", "admin runtime diagnostics production policy check");
+  assertContains(JSON.stringify(diagnostics.diagnostics?.checks ?? []), "capacity_baseline", "admin runtime diagnostics capacity check");
+  assertContains(JSON.stringify(diagnostics.capacityPlan ?? {}), "10,000", "admin runtime diagnostics capacity plan");
+  console.log("admin_runtime_diagnostics_read=ok");
+
   const serializedStatus = JSON.stringify(status);
+  const serializedDiagnostics = JSON.stringify(diagnostics);
   for (const forbidden of [
     "postgres://",
     "redis://",
@@ -118,6 +131,7 @@ async function runSmoke(baseUrl) {
     "00000000-0000-4000-8000-000000000001",
   ]) {
     assertNotContains(serializedStatus, forbidden, `admin runtime secret/PII guard ${forbidden}`);
+    assertNotContains(serializedDiagnostics, forbidden, `admin runtime diagnostics secret/PII guard ${forbidden}`);
   }
   console.log("admin_runtime_status_no_secrets=ok");
 
@@ -131,6 +145,11 @@ async function runSmoke(baseUrl) {
     metrics,
     'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="blocked",reason="admin_role_required"}',
     "admin runtime status role guard metrics",
+  );
+  assertContains(
+    metrics,
+    'yorso_api_admin_runtime_status_requests_total{operation="diagnostics",outcome="success",reason="none"}',
+    "admin runtime diagnostics success metrics",
   );
   console.log("admin_runtime_status_metrics=ok");
 }

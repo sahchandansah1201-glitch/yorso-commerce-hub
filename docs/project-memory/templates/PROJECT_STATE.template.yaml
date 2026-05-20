@@ -1,0 +1,29 @@
+project: "Project name"
+updated_at: "YYYY-MM-DD"
+owner: "Owner name"
+current_goal: "Current goal"
+active_workstream: "Current workstream"
+status: "active"
+
+last_completed:
+  - "Most recent completed item"
+
+current_position:
+  summary: "Where the work stands now"
+  current_file_or_range: ""
+  current_owner: ""
+
+next_actions:
+  - "Next concrete action"
+
+quality_rules:
+  - "Rule that must not be forgotten"
+
+critical_files:
+  - "path/to/important-file"
+
+open_questions:
+  - "Question or uncertainty"
+
+do_not_do:
+  - "Known anti-goal or forbidden action"

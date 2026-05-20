@@ -3,6 +3,7 @@ import {
   AdminRuntimeApiError,
   createAdminRuntimeApiClient,
   isAdminRuntimeApiConfigured,
+  type AdminRuntimeDiagnostics,
   type AdminRuntimeStatus,
 } from "@/lib/admin-runtime-api";
 
@@ -54,6 +55,51 @@ const statusPayload = (patch: Partial<AdminRuntimeStatus> = {}): AdminRuntimeSta
     drainStarted: false,
     shutdownDrainDelayMs: 5_000,
     shutdownGraceTimeoutMs: 30_000,
+  },
+  productionPolicy: {
+    supabaseProductionBackend: false,
+    hostedBaasProductionBackend: false,
+    prototypeSupabaseConfigured: false,
+    secretsIncluded: false,
+  },
+  ...patch,
+});
+
+const diagnosticsPayload = (patch: Partial<AdminRuntimeDiagnostics> = {}): AdminRuntimeDiagnostics => ({
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000594",
+  generatedAt: "2026-05-20T10:00:00.000Z",
+  selfHostedBackend: true,
+  productionScaleBaseline: {
+    targetConcurrentUsers: 10_000,
+    status: "policy_required",
+  },
+  diagnostics: {
+    checks: [
+      {
+        action: "Keep hosted BaaS disabled for production.",
+        id: "production_policy",
+        label: "Self-hosted production policy",
+        severity: "critical",
+        status: "pass",
+        summary: "Production policy is clean.",
+      },
+    ],
+    failCount: 0,
+    overallStatus: "pass",
+    passCount: 1,
+    productionReady: true,
+    warnCount: 0,
+  },
+  capacityPlan: {
+    backpressureStrategy: "Use request guardrails and audit backpressure.",
+    cacheStrategy: "Use explicit refresh only.",
+    databaseStrategy: "Use indexed operator paths.",
+    failureMode: "Do not fabricate fallback diagnostics.",
+    loadTestPlan: "Include in operator smoke tests.",
+    observabilityPlan: "Emit audit and metrics without secrets.",
+    readProfile: "Low-frequency admin read path.",
+    writeProfile: "No writes.",
   },
   productionPolicy: {
     supabaseProductionBackend: false,
@@ -130,6 +176,47 @@ describe("admin-runtime-api", () => {
     expect(headers.get("x-yorso-session-id")).toBe("session-admin-94");
   });
 
+  it("loads sanitized diagnostics through the same self-hosted session boundary", async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async (_input, _init) =>
+      new Response(JSON.stringify(diagnosticsPayload()), {
+        headers: { "content-type": "application/json" },
+        status: 200,
+      }),
+    );
+    const client = createAdminRuntimeApiClient({
+      baseUrl: "https://api.yorso.test/",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      sessionId: "session-admin-95",
+      userId: "00000000-0000-4000-8000-000000000095",
+    });
+
+    await expect(client.diagnostics()).resolves.toMatchObject({
+      selfHostedBackend: true,
+      diagnostics: {
+        overallStatus: "pass",
+        productionReady: true,
+      },
+      productionScaleBaseline: { targetConcurrentUsers: 10_000 },
+      productionPolicy: {
+        hostedBaasProductionBackend: false,
+        secretsIncluded: false,
+        supabaseProductionBackend: false,
+      },
+    });
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "https://api.yorso.test/v1/admin/runtime/diagnostics",
+      expect.objectContaining({
+        method: "GET",
+        headers: expect.any(Headers),
+      }),
+    );
+    const firstCall = fetchImpl.mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
+    const headers = firstCall[1]?.headers as Headers;
+    expect(headers.get("x-yorso-user-id")).toBe("00000000-0000-4000-8000-000000000095");
+    expect(headers.get("x-yorso-session-id")).toBe("session-admin-95");
+  });
+
   it("maps admin role failures to admin_role_required", async () => {
     const fetchImpl = vi.fn(async () =>
       new Response(JSON.stringify({
@@ -172,6 +259,33 @@ describe("admin-runtime-api", () => {
 
     await expect(client.status()).rejects.toBeInstanceOf(AdminRuntimeApiError);
     await expect(client.status()).rejects.toMatchObject({
+      code: "admin_runtime_invalid_response",
+    });
+  });
+
+  it("rejects diagnostics that violate the production policy shape", async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({
+        ...diagnosticsPayload(),
+        productionPolicy: {
+          supabaseProductionBackend: true,
+          hostedBaasProductionBackend: false,
+          prototypeSupabaseConfigured: true,
+          secretsIncluded: false,
+        },
+      }), {
+        headers: { "content-type": "application/json" },
+        status: 200,
+      }),
+    );
+    const client = createAdminRuntimeApiClient({
+      baseUrl: "https://api.yorso.test",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      sessionId: "session-admin-95",
+      userId: "00000000-0000-4000-8000-000000000095",
+    });
+
+    await expect(client.diagnostics()).rejects.toMatchObject({
       code: "admin_runtime_invalid_response",
     });
   });

@@ -871,6 +871,37 @@ Marker: /admin/runtime.
 Marker: test:admin-runtime-frontend.
 Marker: smoke:e2e:admin-runtime-status.
 
+Batch #95 expands the admin runtime surface from static status to actionable
+diagnostics. The backend adds `GET /v1/admin/runtime/diagnostics`, protected by
+the same self-hosted session and `admin` role boundary as runtime status. The
+endpoint returns derived checks for production policy, the 10,000 concurrent
+users baseline, auth rate limiting, session cache, observability, audit
+durability, request guardrails and lifecycle drain. It also returns a capacity
+plan with read/write profile, cache strategy, backpressure strategy, database
+strategy, failure mode, observability plan and load-test plan.
+
+Expected profile: diagnostics is a low-frequency operator read path. It does
+not scan business data, does not call hosted BaaS, does not expose secrets and
+does not mutate runtime state. It is deliberately explicit-refresh only in the
+browser UI, so open admin tabs cannot create background load. The endpoint uses
+the same request guardrails, audit sink and Prometheus counter as runtime
+status, with operation label `diagnostics`.
+
+The frontend extends `/admin/runtime` with a diagnostics panel and capacity
+plan. It reuses `src/lib/admin-runtime-api.ts` and
+`src/lib/use-admin-runtime-status.ts`, loading status and diagnostics together
+through self-hosted session headers. Disabled, missing-session and non-admin
+states remain explicit. The UI must not render emails, raw ids, session ids,
+connection strings, storage endpoints or secrets.
+
+Marker: Batch #95.
+Marker: admin runtime diagnostics.
+Marker: /v1/admin/runtime/diagnostics.
+Marker: admin.runtime.diagnostics.read.
+Marker: admin_runtime_diagnostics_read=ok.
+Marker: admin-runtime-diagnostics.
+Marker: admin-runtime-capacity-plan.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
