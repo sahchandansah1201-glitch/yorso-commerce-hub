@@ -18,6 +18,13 @@ const requiredFiles = [
   "apps/api/src/modules/admin-audit/service.ts",
   "apps/api/src/modules/admin-runtime/routes.ts",
   "apps/api/src/modules/admin-runtime/service.ts",
+  "src/lib/admin-runtime-api.ts",
+  "src/lib/admin-runtime-api.test.ts",
+  "src/lib/use-admin-runtime-status.ts",
+  "src/lib/use-admin-runtime-status.test.tsx",
+  "src/pages/admin/AdminRuntimeStatus.tsx",
+  "src/pages/admin/AdminRuntimeStatus.test.tsx",
+  "e2e/admin-runtime-status.spec.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -197,6 +204,13 @@ const adminAuditRoutes = read("apps/api/src/modules/admin-audit/routes.ts");
 const adminAuditService = read("apps/api/src/modules/admin-audit/service.ts");
 const adminRuntimeRoutes = read("apps/api/src/modules/admin-runtime/routes.ts");
 const adminRuntimeService = read("apps/api/src/modules/admin-runtime/service.ts");
+const adminRuntimeApi = read("src/lib/admin-runtime-api.ts");
+const adminRuntimeApiTest = read("src/lib/admin-runtime-api.test.ts");
+const useAdminRuntimeStatus = read("src/lib/use-admin-runtime-status.ts");
+const useAdminRuntimeStatusTest = read("src/lib/use-admin-runtime-status.test.tsx");
+const adminRuntimePage = read("src/pages/admin/AdminRuntimeStatus.tsx");
+const adminRuntimePageTest = read("src/pages/admin/AdminRuntimeStatus.test.tsx");
+const adminRuntimeE2E = read("e2e/admin-runtime-status.spec.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -482,6 +496,20 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-audit:run
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-status:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin runtime status smoke");
 }
+if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
+  failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-runtime-frontend")) {
+  failures.push("package.json: ci:core must run the admin runtime frontend tests");
+}
+if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
+  failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-runtime-status:run"]?.includes("e2e/admin-runtime-status.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-runtime-status:run must cover /admin/runtime browser behavior");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin runtime status browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-runtime-status");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
@@ -1122,6 +1150,80 @@ for (const marker of [
   "hostedBaasProductionBackend",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-runtime-status.mjs", adminRuntimeSmoke, marker);
+}
+for (const marker of [
+  "createAdminRuntimeApiClient",
+  "/v1/admin/runtime/status",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_runtime_api_disabled",
+  "admin_runtime_session_required",
+  "admin_role_required",
+  "targetConcurrentUsers !== 10_000",
+  "supabaseProductionBackend !== false",
+  "hostedBaasProductionBackend !== false",
+  "secretsIncluded !== false",
+]) {
+  requireText("src/lib/admin-runtime-api.ts", adminRuntimeApi, marker);
+}
+for (const marker of [
+  "stays disabled when VITE_YORSO_API_URL is empty",
+  "loads sanitized runtime status with self-hosted session headers",
+  "maps admin role failures to admin_role_required",
+]) {
+  requireText("src/lib/admin-runtime-api.test.ts", adminRuntimeApiTest, marker);
+}
+for (const marker of [
+  "useAdminRuntimeStatus",
+  "AdminRuntimeApiError",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-runtime-status.ts", useAdminRuntimeStatus, marker);
+}
+for (const marker of [
+  "returns disabled state without VITE_YORSO_API_URL",
+  "loads runtime status and supports explicit refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-runtime-status.test.tsx", useAdminRuntimeStatusTest, marker);
+}
+for (const marker of [
+  "admin-runtime-page",
+  "admin-runtime-policy",
+  "admin-runtime-guardrails",
+  "admin-runtime-auth",
+  "admin-runtime-audit",
+  "admin-runtime-lifecycle",
+  "admin-runtime-no-secrets",
+  "10,000 concurrent users",
+  "10 000 одновременных пользователей",
+  "Supabase production backend",
+  "Hosted BaaS production backend",
+]) {
+  requireText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "admin-runtime-session-required",
+  "admin-runtime-forbidden",
+  "postgres://",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminRuntimeStatus.test.tsx", adminRuntimePageTest, marker);
+}
+for (const marker of [
+  "Batch #94 browser guard",
+  "/admin/runtime",
+  "/v1/admin/runtime/status",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-runtime-scale",
+  "admin-runtime-no-secrets",
+  "postgres://",
+]) {
+  requireText("e2e/admin-runtime-status.spec.ts", adminRuntimeE2E, marker);
 }
 for (const marker of [
   "YORSO_API_URL",
@@ -2088,6 +2190,9 @@ forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/i
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/admin-runtime/routes.ts", adminRuntimeRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/admin-runtime/service.ts", adminRuntimeService, "@/integrations/supabase/client");
+forbidText("src/lib/admin-runtime-api.ts", adminRuntimeApi, "@/integrations/supabase/client");
+forbidText("src/lib/use-admin-runtime-status.ts", useAdminRuntimeStatus, "@/integrations/supabase/client");
+forbidText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/factory.ts", accessFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/repository.ts", accessRepository, "@/integrations/supabase/client");

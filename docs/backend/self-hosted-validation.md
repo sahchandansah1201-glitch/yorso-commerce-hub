@@ -980,6 +980,23 @@ Batch #93 adds admin runtime status validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the
   Batch #93 admin runtime status contract.
 
+Batch #94 adds admin runtime UI validation:
+
+- `/admin/runtime` is the operator-facing frontend route for the same
+  self-hosted runtime status contract;
+- the route uses the self-hosted API adapter and sends `x-yorso-user-id` plus
+  `x-yorso-session-id` from the browser session;
+- disabled, missing-session and non-admin states are rendered explicitly;
+- the page renders the 10,000 concurrent-user policy, runtime drivers, auth
+  protection, request guardrails, audit limits, lifecycle state and production
+  policy without rendering emails, raw ids, session ids, connection strings or
+  storage endpoints;
+- `test:admin-runtime-frontend` covers adapter, hook and page behavior;
+- `smoke:e2e:admin-runtime-status` verifies the browser route with an
+  API-backed mock and guards the no-secret UI contract;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  Batch #94 admin runtime UI contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

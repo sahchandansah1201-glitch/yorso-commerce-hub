@@ -152,6 +152,9 @@ jobs:
       - name: Run self-hosted auth frontend smoke
         run: npm run smoke:e2e:self-hosted-auth-frontend
 
+      - name: Run admin runtime status browser smoke
+        run: npm run smoke:e2e:admin-runtime-status
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

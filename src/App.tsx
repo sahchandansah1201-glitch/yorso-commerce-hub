@@ -41,6 +41,7 @@ import BlogArticle from "./pages/BlogArticle.tsx";
 import RegistrationFunnelDashboard from "./pages/dashboard/RegistrationFunnelDashboard.tsx";
 import ResendEffectivenessDashboard from "./pages/dashboard/ResendEffectivenessDashboard.tsx";
 import TypographyAudit from "./pages/dev/TypographyAudit.tsx";
+import AdminRuntimeStatus from "./pages/admin/AdminRuntimeStatus.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
@@ -96,6 +97,7 @@ const App = () => (
                 <Route path="/profile/company-spam" element={<Navigate to="/account/notifications" replace />} />
                 <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
                 <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
+                <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
                 {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                 {legacyRedirects.flatMap(({ from, to }) => [

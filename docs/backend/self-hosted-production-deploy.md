@@ -241,3 +241,25 @@ emails, raw user ids, raw session ids or secrets. Validate locally with:
 ```bash
 npm run smoke:self-hosted-admin-runtime-status
 ```
+
+## Admin Runtime UI
+
+Batch #94 adds the browser status console:
+
+```bash
+VITE_YORSO_API_URL=https://api.example.com npm run build
+```
+
+Then open `/admin/runtime` in the frontend. The page is for self-hosted admin
+sessions only. It displays safe runtime facts from `/v1/admin/runtime/status`:
+production baseline, runtime drivers, auth backpressure, request guardrails,
+audit limits, lifecycle drain state and the policy that hosted BaaS is not a
+production backend. It must not display emails, raw user ids, raw session ids,
+connection strings, storage endpoints or secrets.
+
+Validate the UI contract with:
+
+```bash
+npm run test:admin-runtime-frontend
+npm run smoke:e2e:admin-runtime-status
+```
