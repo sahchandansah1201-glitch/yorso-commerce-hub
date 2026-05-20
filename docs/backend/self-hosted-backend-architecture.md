@@ -862,3 +862,10 @@ the `admin` role. Audit reads are cursor-paginated, filter only sanitized audit
 columns and return hash-only identifiers. The JSONL export endpoint is bounded
 per request and returns `x-next-cursor` instead of creating an unbounded API
 stream.
+
+Batch #91 adds the production hardening layer for that boundary. Admin audit
+queries can filter by `route`, `statusCode` and `statusClass`; exports are
+bounded by `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS`; retention is governed by
+`YORSO_ADMIN_AUDIT_RETENTION_DAYS` and the owned
+`yorso_purge_api_audit_events` maintenance function. Prometheus exposes admin
+audit request and row counters with low-cardinality labels only.

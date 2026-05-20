@@ -598,6 +598,66 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(text).not.toContain("admin@example.com");
   });
 
+  it("rejects oversized admin audit export windows and emits admin audit metrics", async () => {
+    const metricsRegistry = new InMemoryPrometheusMetricsRegistry();
+    const fetchApi = await startRawTestServer({
+      adminAuditRepository: new MemoryAdminAuditRepository([
+        {
+          action: "account.company.update",
+          actorUserHash: "sha256:111111111111111111111111",
+          auditId: "aud_1",
+          correlationId: "corr-1",
+          httpMethod: "PATCH",
+          occurredAt: "2026-05-20T10:00:00.000Z",
+          outcome: "success",
+          reason: null,
+          requestId: "req-1",
+          resourceHash: "sha256:222222222222222222222222",
+          resourceType: "company_profile",
+          route: "/v1/account/company",
+          sessionHash: "sha256:333333333333333333333333",
+          statusCode: 200,
+        },
+      ]),
+      metricsRegistry,
+    });
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const filtered = await fetchApi(
+      "/v1/admin/audit-events?route=/v1/account/company&statusClass=2xx&statusCode=200&limit=25",
+      { headers: adminHeaders },
+    );
+    const filteredBody = (await filtered.json()) as JsonBody;
+
+    expect(filtered.status).toBe(200);
+    expect((filteredBody.events as JsonBody[])[0]).toMatchObject({
+      auditId: "aud_1",
+      route: "/v1/account/company",
+      statusCode: 200,
+    });
+
+    const invalidWindow = await fetchApi(
+      "/v1/admin/audit-events/export?from=2026-01-01T00:00:00.000Z&to=2026-03-15T00:00:00.000Z",
+      { headers: adminHeaders },
+    );
+    const invalidWindowBody = (await invalidWindow.json()) as JsonBody;
+
+    expect(invalidWindow.status).toBe(400);
+    expect(invalidWindowBody.error).toMatchObject({
+      code: "admin_audit_export_window_too_large",
+    });
+
+    const metrics = metricsRegistry.renderPrometheusText();
+    expect(metrics).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="lte_50",operation="list",outcome="success",reason="none"} 1',
+    );
+    expect(metrics).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="unknown",operation="export",outcome="failure",reason="admin_audit_export_window_too_large"} 1',
+    );
+    expect(metrics).not.toContain(testAdminUserId);
+    expect(metrics).not.toContain("admin@example.com");
+  });
+
   it("emits sanitized error telemetry for API error responses", async () => {
     const errorTelemetrySink = new MemoryErrorTelemetrySink();
     const fetchApi = await startRawTestServer({ errorTelemetrySink });
@@ -2065,6 +2125,46 @@ describe("YORSO self-hosted API skeleton", () => {
 
     expect(() => assertSupabaseIsPrototypeOnly(noAuditConfig))
       .toThrow(/YORSO_AUDIT_DRIVER=postgres/);
+
+    const shortAuditRetentionConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "postgres",
+        YORSO_ADMIN_AUDIT_RETENTION_DAYS: "180",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(shortAuditRetentionConfig))
+      .toThrow(/YORSO_ADMIN_AUDIT_RETENTION_DAYS/);
+
+    const wideAuditExportConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        YORSO_AUDIT_DRIVER: "postgres",
+        YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "90",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(wideAuditExportConfig))
+      .toThrow(/YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS/);
 
     const noMetricsConfig = loadApiConfig(
       {

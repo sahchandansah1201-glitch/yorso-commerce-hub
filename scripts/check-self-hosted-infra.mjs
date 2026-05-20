@@ -46,6 +46,8 @@ const requiredComposeMarkers = [
   "AUTH_SESSION_CACHE_FAIL_MODE: closed",
   "YORSO_AUDIT_DRIVER: postgres",
   "YORSO_AUDIT_MAX_IN_FLIGHT:",
+  "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS:",
+  "YORSO_ADMIN_AUDIT_RETENTION_DAYS:",
   "AUTH_OBSERVABILITY_DRIVER: console",
   "YORSO_ERROR_OBSERVABILITY_DRIVER: console",
   "YORSO_METRICS_DRIVER: prometheus",
@@ -114,6 +116,8 @@ const requiredEnvKeys = [
   "AUTH_SESSION_CACHE_KEY_PREFIX",
   "YORSO_AUDIT_DRIVER",
   "YORSO_AUDIT_MAX_IN_FLIGHT",
+  "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
+  "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
   "AUTH_OBSERVABILITY_DRIVER",
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "YORSO_METRICS_DRIVER",
@@ -154,6 +158,8 @@ requireText(".env.example", envExample, "AUTH_SESSION_CACHE_DRIVER=disabled");
 requireText(".env.example", envExample, "AUTH_SESSION_CACHE_FAIL_MODE=open");
 requireText(".env.example", envExample, "YORSO_AUDIT_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_AUDIT_MAX_IN_FLIGHT=2000");
+requireText(".env.example", envExample, "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS=31");
+requireText(".env.example", envExample, "YORSO_ADMIN_AUDIT_RETENTION_DAYS=365");
 requireText(".env.example", envExample, "AUTH_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_ERROR_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_METRICS_DRIVER=disabled");

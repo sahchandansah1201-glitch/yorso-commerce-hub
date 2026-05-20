@@ -3,9 +3,10 @@ import { ZodError } from "zod";
 import { auditFromRequest, type AuditSink } from "../../audit.js";
 import type { ApiRequestContext } from "../../http.js";
 import { getRequestUrl, methodNotAllowed, sendError, sendJson, sendValidationError } from "../../http.js";
+import type { MetricsRegistry } from "../../metrics.js";
 import { resolveAuthenticatedAccountSession, sendAccountSessionError, type AccountSessionError } from "../auth/session.js";
 import type { AuthService } from "../auth/service.js";
-import type { AdminAuditService } from "./service.js";
+import { AdminAuditQueryError, type AdminAuditService } from "./service.js";
 
 export async function handleAdminAuditRoute(
   request: IncomingMessage,
@@ -15,6 +16,7 @@ export async function handleAdminAuditRoute(
   authService: AuthService,
   url: URL,
   auditSink: AuditSink,
+  metricsRegistry: MetricsRegistry,
 ) {
   if (url.pathname !== "/v1/admin/audit-events" && url.pathname !== "/v1/admin/audit-events/export") {
     return false;
@@ -30,6 +32,7 @@ export async function handleAdminAuditRoute(
     session = await resolveAuthenticatedAccountSession(request, authService, context);
     if (!(await authService.hasRole(session.userId, "admin"))) {
       auditAdminRead(auditSink, context, request, url.pathname, session, "blocked", "admin_role_required", 403);
+      observeAdminAudit(metricsRegistry, url.pathname, "blocked", "admin_role_required");
       sendError(response, 403, "admin_role_required", "Admin role is required.", context);
       return true;
     }
@@ -38,6 +41,7 @@ export async function handleAdminAuditRoute(
       const query = service.parseExportQuery(queryPayload(url));
       const page = await service.exportAuditEvents(query);
       auditAdminRead(auditSink, context, request, url.pathname, session, "success", null, 200);
+      observeAdminAudit(metricsRegistry, url.pathname, "success", null, query.limit, page.events.length);
       response.writeHead(200, {
         "cache-control": "no-store",
         "content-disposition": "attachment; filename=\"yorso-audit-events.jsonl\"",
@@ -50,22 +54,32 @@ export async function handleAdminAuditRoute(
 
     const result = await service.listAuditEvents(queryPayload(url), context.requestId);
     auditAdminRead(auditSink, context, request, url.pathname, session, "success", null, 200);
+    observeAdminAudit(metricsRegistry, url.pathname, "success", null, result.limit, result.events.length);
     sendJson(response, 200, result);
     return true;
   } catch (error) {
     if (isAccountSessionError(error)) {
       auditAdminRead(auditSink, context, request, url.pathname, session, "failure", error.code, 401);
+      observeAdminAudit(metricsRegistry, url.pathname, "failure", error.code);
       sendAccountSessionError(response, context, error);
       return true;
     }
     if (error instanceof ZodError) {
       auditAdminRead(auditSink, context, request, url.pathname, session, "failure", "validation_error", 400);
+      observeAdminAudit(metricsRegistry, url.pathname, "failure", "validation_error");
       sendValidationError(response, context, error);
       return true;
     }
     if (error instanceof Error && error.message === "invalid_audit_cursor") {
       auditAdminRead(auditSink, context, request, url.pathname, session, "failure", "invalid_audit_cursor", 400);
+      observeAdminAudit(metricsRegistry, url.pathname, "failure", "invalid_audit_cursor");
       sendError(response, 400, "invalid_audit_cursor", "Audit cursor is invalid.", context);
+      return true;
+    }
+    if (error instanceof AdminAuditQueryError) {
+      auditAdminRead(auditSink, context, request, url.pathname, session, "failure", error.code, 400);
+      observeAdminAudit(metricsRegistry, url.pathname, "failure", error.code);
+      sendError(response, 400, error.code, error.message, context);
       return true;
     }
     throw error;
@@ -99,5 +113,22 @@ function auditAdminRead(
     route,
     sessionId: session?.sessionId,
     statusCode,
+  });
+}
+
+function observeAdminAudit(
+  metricsRegistry: MetricsRegistry,
+  route: string,
+  outcome: "success" | "failure" | "blocked",
+  reason: string | null,
+  limit?: number,
+  resultCount?: number,
+) {
+  metricsRegistry.observeAdminAudit({
+    operation: route.endsWith("/export") ? "export" : "list",
+    outcome,
+    reason,
+    limit,
+    resultCount,
   });
 }

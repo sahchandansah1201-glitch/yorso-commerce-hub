@@ -6,6 +6,8 @@ export const adminAuditOutcomeSchema = z.enum(["success", "failure", "blocked"])
 
 export const adminAuditCursorSchema = z.string().min(12).max(512).regex(/^[A-Za-z0-9_-]+$/);
 
+export const adminAuditStatusClassSchema = z.enum(["2xx", "3xx", "4xx", "5xx"]);
+
 export const adminAuditEventSchema = z.object({
   auditId: z.string().min(4).max(180),
   occurredAt: z.string().datetime(),
@@ -33,6 +35,9 @@ export const adminAuditQuerySchema = z.object({
   outcome: adminAuditOutcomeSchema.optional(),
   resourceHash: z.string().trim().regex(/^sha256:[a-f0-9]{24}$/).optional(),
   resourceType: z.string().trim().min(1).max(120).optional(),
+  route: z.string().trim().min(1).max(260).optional(),
+  statusClass: adminAuditStatusClassSchema.optional(),
+  statusCode: z.coerce.number().int().min(100).max(599).optional(),
   to: z.string().datetime().optional(),
 });
 

@@ -26,6 +26,7 @@ const files = [
   "packages/db/migrations/0012_auth_security_events.sql",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
+  "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
 ];
 
 const failures = [];
@@ -50,7 +51,8 @@ const authSessionsSql = read("packages/db/migrations/0011_auth_sessions.sql");
 const authSecurityEventsSql = read("packages/db/migrations/0012_auth_security_events.sql");
 const apiAuditEventsSql = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccessSql = read("packages/db/migrations/0014_admin_audit_access.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}`;
+const adminAuditRetentionQueryHardeningSql = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -278,6 +280,16 @@ for (const marker of [
   requireText("packages/db/migrations/0014_admin_audit_access.sql", adminAuditAccessSql, marker);
 }
 
+for (const marker of [
+  "idx_yorso_api_audit_events_route_status_time",
+  "idx_yorso_api_audit_events_outcome_status_time",
+  "create or replace function yorso_purge_api_audit_events",
+  "delete from yorso_api_audit_events",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", adminAuditRetentionQueryHardeningSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -329,6 +341,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0013_api_audit_e
 if (!manifest.migrations?.some((migration) => migration.id === "0014_admin_audit_access")) {
   failures.push("packages/db/migration-manifest.json: missing 0014_admin_audit_access");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0015_admin_audit_retention_query_hardening")) {
+  failures.push("packages/db/migration-manifest.json: missing 0015_admin_audit_retention_query_hardening");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -373,6 +388,9 @@ if (!manifest.migrations?.[13]?.dependsOn?.includes("0012_auth_security_events")
 }
 if (!manifest.migrations?.[14]?.dependsOn?.includes("0013_api_audit_events")) {
   failures.push("packages/db/migration-manifest.json: admin audit access must depend on API audit events");
+}
+if (!manifest.migrations?.[15]?.dependsOn?.includes("0014_admin_audit_access")) {
+  failures.push("packages/db/migration-manifest.json: admin audit retention/query hardening must depend on admin audit access");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

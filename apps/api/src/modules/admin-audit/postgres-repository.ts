@@ -114,6 +114,13 @@ function buildWhereClause(query: AdminAuditQuery | AdminAuditExportQuery) {
   if (query.outcome) push("outcome = ?", query.outcome);
   if (query.resourceHash) push("resource_hash = ?", query.resourceHash);
   if (query.resourceType) push("resource_type = ?", query.resourceType);
+  if (query.route) push("route = ?", query.route);
+  if (query.statusCode) push("status_code = ?", query.statusCode);
+  if (query.statusClass) {
+    const statusClassStart = Number(query.statusClass[0]) * 100;
+    params.push(statusClassStart, statusClassStart + 99);
+    clauses.push(`status_code between $${params.length - 1} and $${params.length}`);
+  }
   if (query.from) push("occurred_at >= ?", query.from);
   if (query.to) push("occurred_at <= ?", query.to);
   if (query.cursor) {

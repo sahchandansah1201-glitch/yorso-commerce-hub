@@ -29,6 +29,7 @@ const api = spawn(process.execPath, [apiEntry], {
     YORSO_API_PORT: String(freePort),
     YORSO_PUBLIC_APP_URL: "http://localhost:8080",
     ACCOUNT_REPOSITORY: "memory",
+    YORSO_METRICS_DRIVER: "prometheus",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
     VITE_SUPABASE_URL: "",
@@ -83,6 +84,15 @@ async function runSmoke(baseUrl) {
   assertEqual(list.limit, 25, "admin audit list limit");
   console.log("admin_audit_list=ok");
 
+  const routeFiltered = await jsonRequest(
+    baseUrl,
+    "/v1/admin/audit-events?route=/v1/admin/audit-events&statusClass=4xx&limit=25",
+    adminHeaders,
+  );
+  assertEqual(routeFiltered.ok, true, "admin audit route/status filter ok");
+  assertArray(routeFiltered.events, "admin audit route/status filter events");
+  console.log("admin_audit_route_status_filter=ok");
+
   const exportResponse = await fetch(`${baseUrl}/v1/admin/audit-events/export?limit=1000`, {
     headers: adminHeaders,
   });
@@ -96,6 +106,37 @@ async function runSmoke(baseUrl) {
   });
   assertStatus(invalid, 400, "admin audit validation guard");
   console.log("admin_audit_validation_guard=ok");
+
+  const invalidRange = await fetch(
+    `${baseUrl}/v1/admin/audit-events/export?from=2026-01-01T00:00:00.000Z&to=2026-03-15T00:00:00.000Z`,
+    { headers: adminHeaders },
+  );
+  assertStatus(invalidRange, 400, "admin audit export window guard");
+  const invalidRangeBody = await invalidRange.json();
+  assertEqual(
+    invalidRangeBody.error?.code,
+    "admin_audit_export_window_too_large",
+    "admin audit export window guard code",
+  );
+  console.log("admin_audit_export_window_guard=ok");
+
+  const metrics = await textRequest(baseUrl, "/metrics");
+  assertContains(
+    metrics,
+    'yorso_api_admin_audit_requests_total{limit_bucket="lte_50",operation="list",outcome="success",reason="none"}',
+    "admin audit list metrics",
+  );
+  assertContains(
+    metrics,
+    'yorso_api_admin_audit_requests_total{limit_bucket="lte_1000",operation="export",outcome="success",reason="none"}',
+    "admin audit export metrics",
+  );
+  assertContains(
+    metrics,
+    'yorso_api_admin_audit_requests_total{limit_bucket="unknown",operation="export",outcome="failure",reason="admin_audit_export_window_too_large"}',
+    "admin audit export guard metrics",
+  );
+  console.log("admin_audit_metrics=ok");
 }
 
 async function signIn(baseUrl, email) {
@@ -123,6 +164,15 @@ async function jsonRequest(baseUrl, pathName, headers) {
     throw new Error(`GET ${pathName} failed with ${response.status}: ${text}`);
   }
   return response.json();
+}
+
+async function textRequest(baseUrl, pathName) {
+  const response = await fetch(`${baseUrl}${pathName}`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`GET ${pathName} failed with ${response.status}: ${text}`);
+  }
+  return response.text();
 }
 
 async function waitForApi(baseUrl, child) {

@@ -747,6 +747,33 @@ Marker: admin.audit_events.read.
 Marker: admin.audit_events.export.
 Marker: yorso_user_roles.
 
+Batch #91 hardens the admin audit runtime for production operation. The admin
+audit query contract now includes exact `route`, exact `statusCode` and
+coarse `statusClass` filters so operators can inspect failure classes without
+exporting broad date ranges. Export requests still cap at 10,000 rows, and
+the API additionally enforces `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS`
+with a production maximum of 31 days. Retention is explicit through
+`YORSO_ADMIN_AUDIT_RETENTION_DAYS`, with production guarded at 365 days or
+higher, and the database owns a controlled
+`yorso_purge_api_audit_events(p_before timestamptz)` maintenance helper.
+
+The database adds `idx_yorso_api_audit_events_route_status_time` and
+`idx_yorso_api_audit_events_outcome_status_time` for high-volume admin
+investigation paths. Prometheus metrics add
+`yorso_api_admin_audit_requests_total` and
+`yorso_api_admin_audit_rows_total`, labelled only by operation, outcome,
+reason and limit bucket, never by raw user, email, session or supplier data.
+The admin audit smoke now verifies route/status filtering, export-window
+rejection and metrics emission in addition to the Batch #90 auth and role
+guards.
+
+Marker: Batch #91.
+Marker: admin audit retention.
+Marker: yorso_purge_api_audit_events.
+Marker: yorso_api_admin_audit_requests_total.
+Marker: YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS.
+Marker: YORSO_ADMIN_AUDIT_RETENTION_DAYS.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
