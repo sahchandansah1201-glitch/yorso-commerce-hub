@@ -44,6 +44,8 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/service.ts",
   "apps/api/src/config.ts",
   "apps/api/src/http.ts",
+  "apps/api/src/audit.ts",
+  "apps/api/src/audit.test.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/error-observability.test.ts",
   "apps/api/src/metrics.ts",
@@ -69,6 +71,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-request-observability.mjs",
   "scripts/smoke-self-hosted-error-observability.mjs",
   "scripts/smoke-self-hosted-metrics.mjs",
+  "scripts/smoke-self-hosted-audit-trail.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -157,6 +160,7 @@ const pkg = JSON.parse(read("package.json"));
 const ciWorkflow = read(".github/workflows/ci.yml");
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
+const audit = read("apps/api/src/audit.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -212,6 +216,7 @@ const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrail
 const requestObservabilitySmoke = read("scripts/smoke-self-hosted-request-observability.mjs");
 const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observability.mjs");
 const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
+const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -334,6 +339,12 @@ if (pkg.scripts["smoke:self-hosted-metrics"] !== "npm run api:build && npm run s
 if (pkg.scripts["smoke:self-hosted-metrics:run"] !== "node scripts/smoke-self-hosted-metrics.mjs") {
   failures.push("package.json: smoke:self-hosted-metrics:run must execute scripts/smoke-self-hosted-metrics.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-audit-trail"] !== "npm run api:build && npm run smoke:self-hosted-audit-trail:run") {
+  failures.push("package.json: smoke:self-hosted-audit-trail must build and run the audit trail smoke");
+}
+if (pkg.scripts["smoke:self-hosted-audit-trail:run"] !== "node scripts/smoke-self-hosted-audit-trail.mjs") {
+  failures.push("package.json: smoke:self-hosted-audit-trail:run must execute scripts/smoke-self-hosted-audit-trail.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -405,6 +416,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-error-observabi
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-metrics:run")) {
   failures.push("package.json: ci:core must run the self-hosted metrics smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-trail:run")) {
+  failures.push("package.json: ci:core must run the self-hosted audit trail smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -838,6 +852,34 @@ for (const marker of [
   requireText("scripts/smoke-self-hosted-metrics.mjs", metricsSmoke, marker);
 }
 for (const marker of [
+  "audit_auth_failure=ok",
+  "audit_auth_success=ok",
+  "audit_account_update=ok",
+  "audit_access_request=ok",
+  "audit_access_decision=ok",
+  "audit_notification_ack=ok",
+  "audit_storage_upload=ok",
+  "audit_no_pii=ok",
+  "self_hosted_audit_trail_smoke=ok",
+  "YORSO_AUDIT_DRIVER",
+]) {
+  requireText("scripts/smoke-self-hosted-audit-trail.mjs", auditTrailSmoke, marker);
+}
+for (const marker of [
+  "AuditSink",
+  "ConsoleAuditSink",
+  "NoopAuditSink",
+  "MemoryAuditSink",
+  "api_audit_event",
+  "auditHash",
+  "emitAuditEvent",
+  "actorUserHash",
+  "sessionHash",
+  "resourceHash",
+]) {
+  requireText("apps/api/src/audit.ts", audit, marker);
+}
+for (const marker of [
   "RequestTelemetrySink",
   "api_request_event",
   "request.completed",
@@ -885,6 +927,9 @@ for (const marker of [
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "metricsDriver",
   "YORSO_METRICS_DRIVER",
+  "auditDriver",
+  "YORSO_AUDIT_DRIVER",
+  "Production self-hosted API must use YORSO_AUDIT_DRIVER=console.",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
   "YORSO_REQUEST_TIMEOUT_MS",
@@ -1145,6 +1190,17 @@ requireText("apps/api/src/config.ts", config, "Production self-hosted API must u
 requireText("apps/api/src/config.ts", config, "metricsDriver");
 requireText("apps/api/src/config.ts", config, "YORSO_METRICS_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
+requireText("apps/api/src/config.ts", config, "auditDriver");
+requireText("apps/api/src/config.ts", config, "YORSO_AUDIT_DRIVER");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
+requireText("apps/api/src/server.ts", server, "createAuditSink(config)");
+requireText("apps/api/src/server.ts", server, "auditSink");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "auth.sign_in");
+requireText("apps/api/src/modules/account/routes.ts", accountRoutes, "account.company.update");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "access.supplier.request");
+requireText("apps/api/src/modules/access/routes.ts", accessRoutes, "access.supplier.decision");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "storage.company_media.upload");
+requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "storage.document.create");
 requireText("apps/api/src/server.ts", server, "createMetricsRegistry(config)");
 requireText("apps/api/src/server.ts", server, "renderMetricsResponse(metricsRegistry");
 requireText("apps/api/src/server.ts", server, "metricsRegistry.observeRequest");

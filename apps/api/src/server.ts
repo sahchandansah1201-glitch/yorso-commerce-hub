@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createAuditSink, type AuditSink } from "./audit.js";
 import type { ApiConfig } from "./config.js";
 import {
   buildClientParseErrorTelemetryEvent,
@@ -47,6 +48,7 @@ import { createReadinessProbe, handleLive, handleReady, type ReadinessProbe } fr
 
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
+  auditSink?: AuditSink;
   authRepository?: AuthRepository;
   fileService?: FileService;
   lifecycle?: ApiLifecycle;
@@ -61,6 +63,7 @@ export interface ApiServerOptions {
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
   const metricsRegistry = options.metricsRegistry ?? createMetricsRegistry(config);
+  const auditSink = options.auditSink ?? createAuditSink(config);
   const authTelemetrySink = createAuthTelemetrySink(config);
   const authRepository = options.authRepository ?? createAuthRepository(config);
   const authService = new AuthService(
@@ -157,6 +160,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       readinessProbe,
       lifecycle,
       metricsRegistry,
+      auditSink,
       jsonBodyOptions,
     ).catch((error) => {
       if (response.writableEnded) return;
@@ -229,6 +233,7 @@ async function routeRequest(
   readinessProbe: ReadinessProbe,
   lifecycle: ApiLifecycle,
   metricsRegistry: MetricsRegistry,
+  auditSink: AuditSink,
   jsonBodyOptions: JsonBodyReadOptions,
 ) {
   applyCorsHeaders(request, response, config);
@@ -292,6 +297,7 @@ async function routeRequest(
       supplierAccessService,
       supplierService,
       url,
+      auditSink,
       jsonBodyOptions,
     );
   } finally {
@@ -310,6 +316,7 @@ async function routeWorkRequest(
   supplierAccessService: SupplierAccessService,
   supplierService: SupplierDirectoryService,
   url: URL,
+  auditSink: AuditSink,
   jsonBodyOptions: JsonBodyReadOptions,
 ) {
   if (url.pathname === "/v1/account/company/schema") {
@@ -321,11 +328,11 @@ async function routeWorkRequest(
     return;
   }
 
-  if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions)) return;
-  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions)) return;
-  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions)) return;
+  if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
-  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions)) return;
+  if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions, auditSink)) return;
   if (await handleSupplierDirectoryRoute(request, response, context, supplierService, authService, url)) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);

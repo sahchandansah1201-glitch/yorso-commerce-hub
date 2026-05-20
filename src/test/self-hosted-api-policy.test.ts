@@ -298,6 +298,53 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("Prometheus metrics endpoint");
   });
 
+  it("keeps production audit trail wired into protected actions without PII", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const audit = readFileSync("apps/api/src/audit.ts", "utf8");
+    const auditTest = readFileSync("apps/api/src/audit.test.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-audit-trail.mjs", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const authRoutes = readFileSync("apps/api/src/modules/auth/routes.ts", "utf8");
+    const accountRoutes = readFileSync("apps/api/src/modules/account/routes.ts", "utf8");
+    const accessRoutes = readFileSync("apps/api/src/modules/access/routes.ts", "utf8");
+    const storageRoutes = readFileSync("apps/api/src/modules/storage/routes.ts", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const compose = readFileSync("infra/docker-compose.yml", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-audit-trail"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-audit-trail:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-audit-trail:run"]).toBe(
+      "node scripts/smoke-self-hosted-audit-trail.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-audit-trail:run");
+    expect(audit).toContain("api_audit_event");
+    expect(audit).toContain("actorUserHash");
+    expect(audit).toContain("sessionHash");
+    expect(audit).toContain("resourceHash");
+    expect(audit).toContain("ConsoleAuditSink");
+    expect(auditTest).toContain("not.toContain(\"sess_secret_123\")");
+    expect(smoke).toContain("YORSO_AUDIT_DRIVER: \"console\"");
+    expect(smoke).toContain("audit_no_pii=ok");
+    expect(smoke).toContain("self_hosted_audit_trail_smoke=ok");
+    expect(config).toContain("Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
+    expect(server).toContain("createAuditSink(config)");
+    expect(authRoutes).toContain("auth.sign_in");
+    expect(accountRoutes).toContain("account.company.update");
+    expect(accessRoutes).toContain("access.supplier.request");
+    expect(accessRoutes).toContain("access.supplier.decision");
+    expect(storageRoutes).toContain("storage.company_media.upload");
+    expect(storageRoutes).toContain("storage.document.create");
+    expect(productionEnv).toContain("YORSO_AUDIT_DRIVER=console");
+    expect(compose).toContain("YORSO_AUDIT_DRIVER: console");
+    expect(baseline).toContain("Batch #88");
+    expect(baseline).toContain("api_audit_event");
+  });
+
   it("keeps production health readiness wired through API, smoke and deployment guards", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

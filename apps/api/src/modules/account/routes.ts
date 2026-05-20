@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
+import { auditFromRequest, type AuditSink } from "../../audit.js";
 import { type ApiRequestContext, type JsonBodyReadOptions, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import {
   AccountSessionError,
@@ -114,10 +115,11 @@ export async function handleAccountRoute(
   sessionAuthority: AccountSessionAuthority,
   pathname: string,
   jsonBodyOptions: JsonBodyReadOptions,
+  auditSink: AuditSink,
 ) {
   try {
     if (pathname === "/v1/account/me") {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const profile = await service.getCurrentUserProfile(userId);
@@ -132,6 +134,15 @@ export async function handleAccountRoute(
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
         const profile = await service.updateCurrentUserProfile(userId, payload);
+        auditAccountMutation(auditSink, context, request, {
+          action: "account.user.update",
+          actorUserId: userId,
+          resourceId: userId,
+          resourceType: "user_profile",
+          route: pathname,
+          sessionId,
+          statusCode: 200,
+        });
         sendJson(response, 200, {
           ok: true,
           user: profile,
@@ -145,7 +156,7 @@ export async function handleAccountRoute(
     }
 
     if (pathname === "/v1/account/company") {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const company = await service.getCompanyProfile(userId);
@@ -160,6 +171,15 @@ export async function handleAccountRoute(
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
         const company = await service.updateCompanyProfile(userId, payload);
+        auditAccountMutation(auditSink, context, request, {
+          action: "account.company.update",
+          actorUserId: userId,
+          resourceId: company.id,
+          resourceType: "company_profile",
+          route: pathname,
+          sessionId,
+          statusCode: 200,
+        });
         sendJson(response, 200, {
           ok: true,
           company,
@@ -174,7 +194,7 @@ export async function handleAccountRoute(
 
     const collection = accountCollections[pathname as keyof typeof accountCollections];
     if (collection) {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
       if (request.method === "GET") {
         const items = await collection.get(service, userId);
@@ -189,6 +209,15 @@ export async function handleAccountRoute(
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
         const items = await collection.replace(service, userId, payload);
+        auditAccountMutation(auditSink, context, request, {
+          action: `account.${collection.key}.replace`,
+          actorUserId: userId,
+          resourceId: userId,
+          resourceType: `account_${collection.key}`,
+          route: pathname,
+          sessionId,
+          statusCode: 200,
+        });
         sendJson(response, 200, {
           ok: true,
           [collection.key]: items,
@@ -203,7 +232,7 @@ export async function handleAccountRoute(
 
     const collectionItem = matchCollectionItem(pathname);
     if (collectionItem) {
-      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
       const { collection, itemId } = collectionItem;
 
       if (request.method === "GET") {
@@ -220,6 +249,15 @@ export async function handleAccountRoute(
       if (request.method === "POST") {
         const payload = await readJsonBody(request, jsonBodyOptions);
         const item = await collection.create(service, userId, itemId, payload);
+        auditAccountMutation(auditSink, context, request, {
+          action: `account.${collection.key}.create`,
+          actorUserId: userId,
+          resourceId: itemId,
+          resourceType: `account_${collection.key}`,
+          route: collection.prefix + ":id",
+          sessionId,
+          statusCode: 201,
+        });
         sendJson(response, 201, {
           ok: true,
           [collection.key]: item,
@@ -231,6 +269,15 @@ export async function handleAccountRoute(
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
         const item = await collection.update(service, userId, itemId, payload);
+        auditAccountMutation(auditSink, context, request, {
+          action: `account.${collection.key}.update`,
+          actorUserId: userId,
+          resourceId: itemId,
+          resourceType: `account_${collection.key}`,
+          route: collection.prefix + ":id",
+          sessionId,
+          statusCode: 200,
+        });
         sendJson(response, 200, {
           ok: true,
           [collection.key]: item,
@@ -241,6 +288,15 @@ export async function handleAccountRoute(
 
       if (request.method === "DELETE") {
         const item = await collection.remove(service, userId, itemId);
+        auditAccountMutation(auditSink, context, request, {
+          action: `account.${collection.key}.delete`,
+          actorUserId: userId,
+          resourceId: itemId,
+          resourceType: `account_${collection.key}`,
+          route: collection.prefix + ":id",
+          sessionId,
+          statusCode: 200,
+        });
         sendJson(response, 200, {
           ok: true,
           deletedId: itemId,
@@ -298,4 +354,24 @@ export async function handleAccountRoute(
   }
 
   return false;
+}
+
+function auditAccountMutation(
+  auditSink: AuditSink,
+  context: ApiRequestContext,
+  request: IncomingMessage,
+  input: {
+    action: string;
+    actorUserId: string;
+    resourceId: string;
+    resourceType: string;
+    route: string;
+    sessionId: string;
+    statusCode: number;
+  },
+) {
+  auditFromRequest(auditSink, context, request, {
+    ...input,
+    outcome: "success",
+  });
 }

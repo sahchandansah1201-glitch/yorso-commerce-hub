@@ -31,6 +31,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/routes/health.ts",
+  "apps/api/src/audit.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -46,6 +47,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-request-observability.mjs",
   "scripts/smoke-self-hosted-error-observability.mjs",
   "scripts/smoke-self-hosted-metrics.mjs",
+  "scripts/smoke-self-hosted-audit-trail.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -134,6 +136,7 @@ const apiLifecycle = read("apps/api/src/lifecycle.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const healthRoutes = read("apps/api/src/routes/health.ts");
+const audit = read("apps/api/src/audit.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -149,6 +152,7 @@ const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrail
 const requestObservabilitySmoke = read("scripts/smoke-self-hosted-request-observability.mjs");
 const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observability.mjs");
 const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
+const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -257,6 +261,7 @@ for (const marker of [
   "Batch #85",
   "Batch #86",
   "Batch #87",
+  "Batch #88",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -580,6 +585,15 @@ if (pkg.scripts["smoke:self-hosted-metrics:run"] !== "node scripts/smoke-self-ho
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-metrics:run")) {
   failures.push("package.json: ci:core must run the self-hosted metrics smoke");
 }
+if (pkg.scripts["smoke:self-hosted-audit-trail"] !== "npm run api:build && npm run smoke:self-hosted-audit-trail:run") {
+  failures.push("package.json: smoke:self-hosted-audit-trail must build and run the audit trail smoke");
+}
+if (pkg.scripts["smoke:self-hosted-audit-trail:run"] !== "node scripts/smoke-self-hosted-audit-trail.mjs") {
+  failures.push("package.json: smoke:self-hosted-audit-trail:run must execute scripts/smoke-self-hosted-audit-trail.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-trail:run")) {
+  failures.push("package.json: ci:core must run the self-hosted audit trail smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -786,6 +800,31 @@ for (const marker of [
 }
 
 for (const marker of [
+  "audit_auth_failure=ok",
+  "audit_auth_success=ok",
+  "audit_account_update=ok",
+  "audit_access_request=ok",
+  "audit_access_decision=ok",
+  "audit_notification_ack=ok",
+  "audit_storage_upload=ok",
+  "audit_no_pii=ok",
+  "self_hosted_audit_trail_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-audit-trail.mjs", auditTrailSmoke, marker);
+}
+
+for (const marker of [
+  "api_audit_event",
+  "AuditSink",
+  "ConsoleAuditSink",
+  "actorUserHash",
+  "sessionHash",
+  "resourceHash",
+]) {
+  requireText("apps/api/src/audit.ts", audit, marker);
+}
+
+for (const marker of [
   "api_request_event",
   "request.completed",
   "request.guardrail_triggered",
@@ -832,16 +871,21 @@ for (const marker of [
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "metricsDriver",
   "YORSO_METRICS_DRIVER",
+  "auditDriver",
+  "YORSO_AUDIT_DRIVER",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
 ]) {
   requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
 }
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
 
 for (const marker of [
   "createRequestTelemetrySink",
   "createErrorTelemetrySink",
+  "createAuditSink",
+  "auditSink",
   "createMetricsRegistry",
   "renderMetricsResponse",
   "metricsRegistry.observeRequest",
