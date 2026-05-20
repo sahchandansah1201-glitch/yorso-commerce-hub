@@ -870,6 +870,25 @@ Batch #86 adds error observability validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the error observability contract.
 
+Batch #87 adds metrics validation:
+
+- production runtime config requires `YORSO_METRICS_DRIVER=prometheus`;
+- `apps/api/src/metrics.ts` exposes a Prometheus-compatible registry;
+- `/metrics` and `/v1/metrics` return Prometheus text with
+  `yorso_api_requests_total`, `yorso_api_request_duration_seconds`,
+  `yorso_api_errors_total`, `yorso_api_auth_events_total`,
+  `yorso_api_guardrails_total`, `yorso_api_readiness_checks_total` and lifecycle
+  gauges;
+- labels are low-cardinality and sanitized: normalized route, method, status
+  class, outcome, error category/code and guardrail kind only;
+- metrics must not include payload values, query strings, email addresses,
+  passwords, supplier ids, offer ids or session ids;
+- `smoke:self-hosted-metrics` verifies Prometheus output, request histogram,
+  error, auth, guardrail and readiness counters plus no-PII behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the metrics contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

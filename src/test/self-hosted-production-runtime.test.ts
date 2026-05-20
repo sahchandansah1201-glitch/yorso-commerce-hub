@@ -31,6 +31,7 @@ describe("self-hosted production runtime", () => {
     expect(productionEnv).toContain("AUTH_SESSION_CACHE_FAIL_MODE=closed");
     expect(productionEnv).toContain("AUTH_OBSERVABILITY_DRIVER=console");
     expect(productionEnv).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER=console");
+    expect(productionEnv).toContain("YORSO_METRICS_DRIVER=prometheus");
     expect(productionEnv).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER=console");
     expect(productionEnv).toContain("HEALTH_READINESS_TIMEOUT_MS=750");
     expect(productionEnv).toContain("STORAGE_DRIVER=local");

@@ -46,6 +46,7 @@ const requiredComposeMarkers = [
   "AUTH_SESSION_CACHE_FAIL_MODE: closed",
   "AUTH_OBSERVABILITY_DRIVER: console",
   "YORSO_ERROR_OBSERVABILITY_DRIVER: console",
+  "YORSO_METRICS_DRIVER: prometheus",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER: console",
   "HEALTH_READINESS_TIMEOUT_MS:",
   "YORSO_REQUEST_TIMEOUT_MS:",
@@ -111,6 +112,7 @@ const requiredEnvKeys = [
   "AUTH_SESSION_CACHE_KEY_PREFIX",
   "AUTH_OBSERVABILITY_DRIVER",
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
+  "YORSO_METRICS_DRIVER",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
   "HEALTH_READINESS_TIMEOUT_MS",
   "YORSO_REQUEST_TIMEOUT_MS",
@@ -148,6 +150,7 @@ requireText(".env.example", envExample, "AUTH_SESSION_CACHE_DRIVER=disabled");
 requireText(".env.example", envExample, "AUTH_SESSION_CACHE_FAIL_MODE=open");
 requireText(".env.example", envExample, "AUTH_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_ERROR_OBSERVABILITY_DRIVER=disabled");
+requireText(".env.example", envExample, "YORSO_METRICS_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_REQUEST_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "HEALTH_READINESS_TIMEOUT_MS=750");
 requireText(".env.example", envExample, "YORSO_REQUEST_TIMEOUT_MS=15000");

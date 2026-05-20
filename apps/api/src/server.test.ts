@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { assertSupabaseIsPrototypeOnly, loadApiConfig, type ApiConfig } from "./config.js";
 import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
+import { InMemoryPrometheusMetricsRegistry } from "./metrics.js";
 import { createApiServer, type ApiServerOptions } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
 
@@ -533,6 +534,33 @@ describe("YORSO self-hosted API skeleton", () => {
       retryable: true,
     }));
     expect(JSON.stringify(errorTelemetrySink.events)).not.toContain("postgres-password-never-log");
+  });
+
+  it("exposes Prometheus metrics for request, error and auth telemetry", async () => {
+    const metricsRegistry = new InMemoryPrometheusMetricsRegistry();
+    const fetchApi = await startRawTestServer({ metricsRegistry });
+
+    await fetchApi("/health/live");
+    await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "metrics@example.com",
+        password: "NoLogThisSecret1",
+      }),
+    });
+    const metrics = await fetchApi("/metrics");
+    const text = await metrics.text();
+
+    expect(metrics.status).toBe(200);
+    expect(metrics.headers.get("content-type")).toContain("text/plain");
+    expect(text).toContain("yorso_api_metrics_enabled 1");
+    expect(text).toContain("yorso_api_production_baseline_concurrent_users 10000");
+    expect(text).toContain('yorso_api_requests_total{method="GET",outcome="success",route="/health/live",status_class="2xx"} 1');
+    expect(text).toContain('yorso_api_errors_total{category="auth",error_code="auth_invalid_credentials",retryable="false",status_class="4xx"} 1');
+    expect(text).toContain('yorso_api_auth_events_total{event="auth.sign_in.failed",outcome="failure",reason="invalid_credentials"} 1');
+    expect(text).toContain("yorso_api_request_duration_seconds_bucket");
+    expect(text).not.toContain("metrics@example.com");
+    expect(text).not.toContain("NoLogThisSecret1");
   });
 
   it("handles browser CORS preflight for account endpoints", async () => {
@@ -1801,6 +1829,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
         VITE_SUPABASE_URL: "https://example.supabase.co",
         VITE_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
@@ -1821,6 +1850,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1837,6 +1867,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1853,6 +1884,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1869,6 +1901,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1876,6 +1909,24 @@ describe("YORSO self-hosted API skeleton", () => {
 
     expect(() => assertSupabaseIsPrototypeOnly(noErrorObservabilityConfig))
       .toThrow(/YORSO_ERROR_OBSERVABILITY_DRIVER=console/);
+
+    const noMetricsConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "disabled",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noMetricsConfig))
+      .toThrow(/YORSO_METRICS_DRIVER=prometheus/);
 
     const noRequestObservabilityConfig = loadApiConfig(
       {
@@ -1886,6 +1937,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
       },
       { allowLocalDefaults: true },

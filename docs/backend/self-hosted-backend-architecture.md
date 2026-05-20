@@ -829,3 +829,12 @@ error response, and `apps/api/src/server.ts` exposes those ids through
 from request telemetry: request logs measure throughput and guardrail rates,
 while error logs give support and operators a safe incident handle without
 payloads, query strings, stack traces, raw emails, passwords or session ids.
+
+Batch #87 adds the metrics boundary. `apps/api/src/metrics.ts` exposes an
+in-memory Prometheus registry when `YORSO_METRICS_DRIVER=prometheus`.
+`apps/api/src/server.ts` feeds it from request, error and auth telemetry and
+serves `/metrics` plus `/v1/metrics` as Prometheus text. This creates owned
+monitoring primitives for the self-hosted product without Supabase, Firebase,
+Appwrite, Clerk, Auth0 or hosted observability dependencies. Labels stay
+low-cardinality and sanitized: normalized route, method, status class, outcome,
+error category/code and guardrail kind only.

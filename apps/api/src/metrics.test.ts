@@ -1,0 +1,85 @@
+import { describe, expect, it } from "vitest";
+import { InMemoryPrometheusMetricsRegistry, NoopMetricsRegistry } from "./metrics.js";
+
+describe("self-hosted API metrics registry", () => {
+  it("renders disabled metrics without collecting runtime labels", () => {
+    const registry = new NoopMetricsRegistry();
+    expect(registry.enabled).toBe(false);
+    expect(registry.renderPrometheusText()).toContain("yorso_api_metrics_enabled 0");
+  });
+
+  it("collects request counters, histograms, readiness and guardrail totals", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observeRequest({
+      event: "request.completed",
+      requestId: "req_1",
+      method: "GET",
+      route: "/health/ready",
+      statusCode: 200,
+      durationMs: 42,
+      latencyBucket: "<50ms",
+      outcome: "success",
+    });
+    registry.observeRequest({
+      event: "request.guardrail_triggered",
+      requestId: "req_2",
+      method: "POST",
+      route: "/v1/auth/sign-in",
+      statusCode: 413,
+      durationMs: 7,
+      latencyBucket: "<50ms",
+      outcome: "blocked",
+      reason: "request_body_too_large",
+      guardrailCode: "request_body_too_large",
+      guardrailKind: "body_size",
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain("yorso_api_metrics_enabled 1");
+    expect(text).toContain("yorso_api_production_baseline_concurrent_users 10000");
+    expect(text).toContain('yorso_api_requests_total{method="GET",outcome="success",route="/health/ready",status_class="2xx"} 1');
+    expect(text).toContain('yorso_api_readiness_checks_total{route="/health/ready",status="ready"} 1');
+    expect(text).toContain('yorso_api_guardrails_total{code="request_body_too_large",kind="body_size",route="/v1/auth/sign-in"} 1');
+    expect(text).toContain("yorso_api_request_duration_seconds_bucket");
+    expect(text).toContain("yorso_api_request_duration_seconds_sum");
+  });
+
+  it("collects sanitized error, auth, cache and rate-limit metrics", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observeError({
+      event: "error.response",
+      errorId: "err_1",
+      requestId: "req_1",
+      correlationId: "req_1",
+      method: "POST",
+      route: "/v1/auth/sign-in?email=buyer@example.com",
+      statusCode: 401,
+      durationMs: 5,
+      severity: "warn",
+      category: "auth",
+      errorCode: "auth_invalid_credentials",
+      retryable: false,
+    });
+    registry.observeAuth({
+      event: "auth.sign_in.failed",
+      requestId: "req_1",
+      outcome: "failure",
+      reason: "invalid_credentials",
+      cacheSource: "session_cache",
+      cacheStatus: "miss",
+      rateLimitSource: "redis",
+      retryAfterSeconds: 60,
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain('yorso_api_errors_total{category="auth",error_code="auth_invalid_credentials",retryable="false",status_class="4xx"} 1');
+    expect(text).toContain('yorso_api_auth_events_total{event="auth.sign_in.failed",outcome="failure",reason="invalid_credentials"} 1');
+    expect(text).toContain('yorso_api_auth_session_cache_events_total{source="session_cache",status="miss"} 1');
+    expect(text).toContain('yorso_api_auth_rate_limit_events_total{outcome="failure",reason="invalid_credentials",source="redis"} 1');
+    expect(text).not.toContain("buyer@example.com");
+  });
+});

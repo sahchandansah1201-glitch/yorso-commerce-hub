@@ -21,6 +21,7 @@ export const apiConfigSchema = z.object({
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
   authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
+  metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
   requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   healthReadinessTimeoutMs: z.coerce.number().int().min(100).max(5_000).default(750),
   requestTimeoutMs: z.coerce.number().int().min(500).max(120_000).default(15_000),
@@ -65,6 +66,7 @@ const localDefaults = {
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
   AUTH_OBSERVABILITY_DRIVER: "disabled",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
+  YORSO_METRICS_DRIVER: "disabled",
   YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
   HEALTH_READINESS_TIMEOUT_MS: "750",
   YORSO_REQUEST_TIMEOUT_MS: "15000",
@@ -108,6 +110,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
     authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
+    metricsDriver: source.YORSO_METRICS_DRIVER,
     requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
     healthReadinessTimeoutMs: source.HEALTH_READINESS_TIMEOUT_MS,
     requestTimeoutMs: source.YORSO_REQUEST_TIMEOUT_MS,
@@ -151,6 +154,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.errorObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use YORSO_ERROR_OBSERVABILITY_DRIVER=console.");
+  }
+  if (config.nodeEnv === "production" && config.metricsDriver !== "prometheus") {
+    throw new Error("Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
   }
   if (config.nodeEnv === "production" && config.requestObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use YORSO_REQUEST_OBSERVABILITY_DRIVER=console.");
