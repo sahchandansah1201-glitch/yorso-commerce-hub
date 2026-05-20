@@ -809,6 +809,39 @@ Marker: admin_audit_csv_export=ok.
 Marker: admin_audit_retention_apply=ok.
 Marker: admin:audit:retention.
 
+Batch #93 adds the admin runtime status boundary. Operators now have
+`GET /v1/admin/runtime/status`, protected by the same self-hosted session and
+`admin` role guard as the audit console. The endpoint reports only safe runtime
+facts: self-hosted backend status, the 10,000 concurrent-user production
+baseline, selected driver names, request guardrail limits, admin audit
+retention/export limits, lifecycle drain state and the explicit policy that
+Supabase or another hosted BaaS is not the production backend.
+
+The endpoint deliberately excludes connection strings, S3 endpoints and
+buckets, filesystem paths, secrets, emails, raw user ids, session ids and
+business payload values. This keeps the operator surface useful during
+incidents without turning it into a data-leak path. Prometheus records
+`yorso_api_admin_runtime_status_requests_total` with low-cardinality labels
+only: operation, outcome and reason. The smoke
+`smoke:self-hosted-admin-runtime-status` validates auth guard, admin role guard,
+safe payload shape, no-secret serialization and metrics emission.
+
+Expected profile: admin runtime status is a low-frequency operator read path.
+It performs no database, Redis or object-storage probing and therefore cannot
+amplify an incident by adding dependency load. Failure mode is fail-closed:
+missing session, invalid session or non-admin role returns 401/403. Observability
+comes from the admin audit action `admin.runtime.status.read`, request/error
+telemetry and the Prometheus counter
+`yorso_api_admin_runtime_status_requests_total`.
+
+Marker: Batch #93.
+Marker: /v1/admin/runtime/status.
+Marker: admin.runtime.status.read.
+Marker: admin runtime status.
+Marker: self-hosted admin runtime status smoke.
+Marker: yorso_api_admin_runtime_status_requests_total.
+Marker: admin_runtime_status_no_secrets=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

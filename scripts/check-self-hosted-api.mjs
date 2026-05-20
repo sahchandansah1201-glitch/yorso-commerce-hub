@@ -16,6 +16,8 @@ const requiredFiles = [
   "apps/api/src/modules/admin-audit/repository.test.ts",
   "apps/api/src/modules/admin-audit/routes.ts",
   "apps/api/src/modules/admin-audit/service.ts",
+  "apps/api/src/modules/admin-runtime/routes.ts",
+  "apps/api/src/modules/admin-runtime/service.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -68,6 +70,7 @@ const requiredFiles = [
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
   "packages/contracts/src/admin-audit.ts",
+  "packages/contracts/src/admin-runtime.ts",
   "packages/contracts/src/auth.ts",
   "packages/contracts/src/offer-catalog.ts",
   "packages/contracts/src/supplier-access.ts",
@@ -81,6 +84,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-audit-trail.mjs",
   "scripts/smoke-self-hosted-audit-persistence.mjs",
   "scripts/smoke-self-hosted-admin-audit.mjs",
+  "scripts/smoke-self-hosted-admin-runtime-status.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -191,6 +195,8 @@ const adminAuditPostgresRepository = read("apps/api/src/modules/admin-audit/post
 const adminAuditRepository = read("apps/api/src/modules/admin-audit/repository.ts");
 const adminAuditRoutes = read("apps/api/src/modules/admin-audit/routes.ts");
 const adminAuditService = read("apps/api/src/modules/admin-audit/service.ts");
+const adminRuntimeRoutes = read("apps/api/src/modules/admin-runtime/routes.ts");
+const adminRuntimeService = read("apps/api/src/modules/admin-runtime/service.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -225,6 +231,7 @@ const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
 const adminAuditContract = read("packages/contracts/src/admin-audit.ts");
+const adminRuntimeContract = read("packages/contracts/src/admin-runtime.ts");
 const authContract = read("packages/contracts/src/auth.ts");
 const accountCompanyContract = read("packages/contracts/src/account-company.ts");
 const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
@@ -239,6 +246,7 @@ const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
 const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
+const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
 const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccessMigration = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardeningMigration = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
@@ -384,6 +392,12 @@ if (pkg.scripts["smoke:self-hosted-admin-audit"] !== "npm run api:build && npm r
 if (pkg.scripts["smoke:self-hosted-admin-audit:run"] !== "node scripts/smoke-self-hosted-admin-audit.mjs") {
   failures.push("package.json: smoke:self-hosted-admin-audit:run must execute scripts/smoke-self-hosted-admin-audit.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-admin-runtime-status"] !== "npm run api:build && npm run smoke:self-hosted-admin-runtime-status:run") {
+  failures.push("package.json: smoke:self-hosted-admin-runtime-status must build and run the admin runtime status smoke");
+}
+if (pkg.scripts["smoke:self-hosted-admin-runtime-status:run"] !== "node scripts/smoke-self-hosted-admin-runtime-status.mjs") {
+  failures.push("package.json: smoke:self-hosted-admin-runtime-status:run must execute scripts/smoke-self-hosted-admin-runtime-status.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -464,6 +478,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-persisten
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-audit:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin audit smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-status:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin runtime status smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -958,6 +975,16 @@ for (const marker of [
   requireText("packages/contracts/src/admin-audit.ts", adminAuditContract, marker);
 }
 for (const marker of [
+  "adminRuntimeStatusSchema",
+  "targetConcurrentUsers",
+  "prototypeSupabaseConfigured",
+  "secretsIncluded",
+  "requestGuardrails",
+  "adminAudit",
+]) {
+  requireText("packages/contracts/src/admin-runtime.ts", adminRuntimeContract, marker);
+}
+for (const marker of [
   "hasRole",
   "AdminUserRole",
 ]) {
@@ -1041,8 +1068,29 @@ for (const marker of [
   "createAdminAuditRepository",
   "AdminAuditService",
   "handleAdminAuditRoute",
+  "AdminRuntimeService",
+  "handleAdminRuntimeRoute",
 ]) {
   requireText("apps/api/src/server.ts", server, marker);
+}
+for (const marker of [
+  "AdminRuntimeService",
+  "adminRuntimeStatusSchema",
+  "targetConcurrentUsers: 10_000",
+  "supabaseProductionBackend: false",
+  "hostedBaasProductionBackend: false",
+  "secretsIncluded: false",
+]) {
+  requireText("apps/api/src/modules/admin-runtime/service.ts", adminRuntimeService, marker);
+}
+for (const marker of [
+  "/v1/admin/runtime/status",
+  "admin.runtime.status.read",
+  "admin_role_required",
+  "resolveAuthenticatedAccountSession",
+  "observeAdminRuntime",
+]) {
+  requireText("apps/api/src/modules/admin-runtime/routes.ts", adminRuntimeRoutes, marker);
 }
 for (const marker of [
   "admin_audit_auth_guard=ok",
@@ -1060,6 +1108,20 @@ for (const marker of [
   "self_hosted_admin_audit_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-audit.mjs", adminAuditSmoke, marker);
+}
+for (const marker of [
+  "admin_runtime_status_auth_guard=ok",
+  "admin_runtime_status_role_guard=ok",
+  "admin_runtime_status_read=ok",
+  "admin_runtime_status_no_secrets=ok",
+  "admin_runtime_status_metrics=ok",
+  "self_hosted_admin_runtime_status_smoke=ok",
+  "/v1/admin/runtime/status",
+  "targetConcurrentUsers",
+  "supabaseProductionBackend",
+  "hostedBaasProductionBackend",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-runtime-status.mjs", adminRuntimeSmoke, marker);
 }
 for (const marker of [
   "YORSO_API_URL",
@@ -2024,6 +2086,8 @@ forbidText("apps/api/src/modules/account/postgres-repository.ts", postgresReposi
 forbidText("apps/api/src/modules/account/service.ts", accountService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/repository.ts", accountRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/admin-runtime/routes.ts", adminRuntimeRoutes, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/admin-runtime/service.ts", adminRuntimeService, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/factory.ts", accessFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/repository.ts", accessRepository, "@/integrations/supabase/client");

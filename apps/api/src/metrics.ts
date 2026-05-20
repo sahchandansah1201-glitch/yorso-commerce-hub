@@ -9,6 +9,7 @@ export type MetricsDriver = "disabled" | "prometheus";
 export interface MetricsRegistry {
   enabled: boolean;
   observeAdminAudit(event: AdminAuditMetricsEvent): void;
+  observeAdminRuntime(event: AdminRuntimeMetricsEvent): void;
   observeRequest(event: RequestTelemetryEvent): void;
   observeError(event: ErrorTelemetryEvent): void;
   observeAuth(event: AuthTelemetryEvent): void;
@@ -23,6 +24,12 @@ export interface AdminAuditMetricsEvent {
   limit?: number;
 }
 
+export interface AdminRuntimeMetricsEvent {
+  operation: "status";
+  outcome: "success" | "failure" | "blocked";
+  reason?: string | null;
+}
+
 const durationBuckets = [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
 const maxLabelLength = 96;
 
@@ -35,6 +42,10 @@ export class NoopMetricsRegistry implements MetricsRegistry {
   readonly enabled = false;
 
   observeAdminAudit(): void {
+    // Metrics stay disabled in local prototype mode unless explicitly enabled.
+  }
+
+  observeAdminRuntime(): void {
     // Metrics stay disabled in local prototype mode unless explicitly enabled.
   }
 
@@ -78,6 +89,14 @@ export class InMemoryPrometheusMetricsRegistry implements MetricsRegistry {
         operation: label(event.operation),
       }, Math.max(0, event.resultCount));
     }
+  }
+
+  observeAdminRuntime(event: AdminRuntimeMetricsEvent): void {
+    this.increment("yorso_api_admin_runtime_status_requests_total", {
+      operation: label(event.operation),
+      outcome: label(event.outcome),
+      reason: label(event.reason ?? "none"),
+    });
   }
 
   observeRequest(event: RequestTelemetryEvent): void {

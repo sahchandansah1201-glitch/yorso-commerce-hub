@@ -966,6 +966,20 @@ Batch #92 extends the validation again:
 - `check:self-hosted-api`, `check:self-hosted-db` and
   `check:production-scale-baseline` guard the Batch #92 markers.
 
+Batch #93 adds admin runtime status validation:
+
+- `GET /v1/admin/runtime/status` requires a self-hosted session and `admin`
+  role;
+- the response confirms `selfHostedBackend`, `targetConcurrentUsers: 10000`,
+  request guardrails, admin audit retention/export limits and lifecycle drain
+  state;
+- the response excludes secrets, connection strings, storage endpoints, emails,
+  raw user ids and raw session ids;
+- `smoke:self-hosted-admin-runtime-status` verifies auth guard, role guard,
+  safe payload shape, no-secret serialization and Prometheus status metrics;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  Batch #93 admin runtime status contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

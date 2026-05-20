@@ -561,6 +561,78 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("serves admin runtime status without secrets or hosted-backend leakage", async () => {
+    const metricsRegistry = new InMemoryPrometheusMetricsRegistry();
+    const fetchApi = await startRawTestServer({ metricsRegistry });
+
+    const missingSession = await fetchApi("/v1/admin/runtime/status");
+    expect(missingSession.status).toBe(401);
+
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const blocked = await fetchApi("/v1/admin/runtime/status", { headers: buyerHeaders });
+    const blockedBody = (await blocked.json()) as JsonBody;
+    expect(blocked.status).toBe(403);
+    expect(blockedBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+    const response = await fetchApi("/v1/admin/runtime/status", { headers: adminHeaders });
+    const body = (await response.json()) as JsonBody;
+    const serialized = JSON.stringify(body);
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      ok: true,
+      selfHostedBackend: true,
+      productionScaleBaseline: {
+        targetConcurrentUsers: 10_000,
+        status: "policy_required",
+      },
+      runtime: {
+        nodeEnv: "test",
+        accountRepository: "memory",
+      },
+      auth: {
+        rateLimitFailMode: "open",
+        sessionCacheDriver: "memory",
+        sessionCacheFailMode: "closed",
+      },
+      productionPolicy: {
+        supabaseProductionBackend: false,
+        hostedBaasProductionBackend: false,
+        secretsIncluded: false,
+      },
+    });
+    expect(body.requestGuardrails).toMatchObject({
+      requestTimeoutMs: config.requestTimeoutMs,
+      requestBodyIdleTimeoutMs: config.requestBodyIdleTimeoutMs,
+      maxHeaderBytes: config.maxHeaderBytes,
+      jsonBodyMaxBytes: config.jsonBodyMaxBytes,
+    });
+    expect(body.adminAudit).toMatchObject({
+      exportMaxWindowDays: config.adminAuditExportMaxWindowDays,
+      retentionDays: config.adminAuditRetentionDays,
+    });
+    expect(body.lifecycle).toMatchObject({
+      draining: false,
+      drainSignalPresent: false,
+      drainStarted: false,
+    });
+    expect(serialized).not.toContain("postgres://");
+    expect(serialized).not.toContain("redis://");
+    expect(serialized).not.toContain("change-me");
+    expect(serialized).not.toContain("admin@example.com");
+    expect(serialized).not.toContain("buyer@example.com");
+    expect(serialized).not.toContain(testAdminUserId);
+
+    const metrics = metricsRegistry.renderPrometheusText();
+    expect(metrics).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="success",reason="none"} 1',
+    );
+    expect(metrics).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="blocked",reason="admin_role_required"} 1',
+    );
+  });
+
   it("exports admin audit events as JSONL without raw identifiers", async () => {
     const fetchApi = await startRawTestServer({
       adminAuditRepository: new MemoryAdminAuditRepository([

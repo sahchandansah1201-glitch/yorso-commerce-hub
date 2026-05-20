@@ -878,3 +878,12 @@ The apply path uses `yorso_purge_api_audit_events_batch` and
 bounded chunks instead of one long transaction. Admin audit export also supports
 explicit CSV output through `format=csv`, with server-side quoting and the same
 window and pagination limits as JSONL.
+
+Batch #93 adds an admin runtime status read path for self-hosted operations:
+`GET /v1/admin/runtime/status`. It is not a generic debug endpoint. It exposes
+only bounded, non-secret runtime facts: driver names, configured guardrail
+limits, lifecycle drain state, admin audit retention/export limits and the
+10,000 concurrent-user production policy. It does not return connection
+strings, storage paths, raw ids, emails, sessions, buckets or secrets. This is
+the operator-facing status boundary for the owned backend, not a hosted
+Supabase or BaaS management surface.

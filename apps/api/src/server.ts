@@ -18,6 +18,8 @@ import { createAdminAuditRepository } from "./modules/admin-audit/factory.js";
 import type { AdminAuditRepository } from "./modules/admin-audit/repository.js";
 import { handleAdminAuditRoute } from "./modules/admin-audit/routes.js";
 import { AdminAuditService } from "./modules/admin-audit/service.js";
+import { handleAdminRuntimeRoute } from "./modules/admin-runtime/routes.js";
+import { AdminRuntimeService } from "./modules/admin-runtime/service.js";
 import { createSupplierAccessRepository } from "./modules/access/factory.js";
 import type { SupplierAccessRepository } from "./modules/access/repository.js";
 import { handleSupplierAccessRoute } from "./modules/access/routes.js";
@@ -84,6 +86,8 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);
+  const lifecycle = options.lifecycle ?? new ApiLifecycle();
+  const adminRuntimeService = new AdminRuntimeService(config, lifecycle);
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
   const offerCatalogService = new OfferCatalogService(
@@ -95,7 +99,6 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
   );
-  const lifecycle = options.lifecycle ?? new ApiLifecycle();
   const errorTelemetrySink = options.errorTelemetrySink ?? createErrorTelemetrySink(config);
   const requestTelemetrySink = options.requestTelemetrySink ?? createRequestTelemetrySink(config);
   const readinessProbe = options.readinessProbe ?? createReadinessProbe(config, {
@@ -160,6 +163,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       authService,
       accountService,
       adminAuditService,
+      adminRuntimeService,
       fileService,
       offerCatalogService,
       supplierAccessService,
@@ -234,6 +238,7 @@ async function routeRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
   supplierAccessService: SupplierAccessService,
@@ -301,6 +306,7 @@ async function routeRequest(
       authService,
       accountService,
       adminAuditService,
+      adminRuntimeService,
       fileService,
       offerCatalogService,
       supplierAccessService,
@@ -322,6 +328,7 @@ async function routeWorkRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
   supplierAccessService: SupplierAccessService,
@@ -341,6 +348,16 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleAdminRuntimeRoute(
+    request,
+    response,
+    context,
+    adminRuntimeService,
+    authService,
+    url.pathname,
+    auditSink,
+    metricsRegistry,
+  )) return;
   if (await handleAdminAuditRoute(
     request,
     response,
