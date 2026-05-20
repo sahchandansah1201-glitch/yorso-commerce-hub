@@ -819,3 +819,13 @@ request guardrails and parser-level header overflow when
 logging, query strings are dropped and payload values are never logged. This is
 the owned operational feedback path for API backpressure at the 10,000
 concurrent-user baseline.
+
+Batch #86 adds the error observability boundary. `apps/api/src/error-observability.ts`
+emits sanitized `api_error_event` JSONL records for structured API errors and
+parser-level failures when `YORSO_ERROR_OBSERVABILITY_DRIVER=console`.
+`apps/api/src/http.ts` assigns `errorId` and `correlationId` to every JSON
+error response, and `apps/api/src/server.ts` exposes those ids through
+`x-error-id`, `x-request-id` and `x-correlation-id`. Error telemetry is separate
+from request telemetry: request logs measure throughput and guardrail rates,
+while error logs give support and operators a safe incident handle without
+payloads, query strings, stack traces, raw emails, passwords or session ids.

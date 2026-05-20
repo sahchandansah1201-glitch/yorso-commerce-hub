@@ -214,6 +214,50 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("api_request_event");
   });
 
+  it("keeps error observability JSONL wired into production runtime and CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const observability = readFileSync("apps/api/src/error-observability.ts", "utf8");
+    const observabilityTest = readFileSync("apps/api/src/error-observability.test.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-error-observability.mjs", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const http = readFileSync("apps/api/src/http.ts", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const compose = readFileSync("infra/docker-compose.yml", "utf8");
+    const docs = readFileSync("docs/backend/self-hosted-auth-api-smoke.md", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-error-observability"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-error-observability:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-error-observability:run"]).toBe(
+      "node scripts/smoke-self-hosted-error-observability.mjs",
+    );
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-error-observability:run");
+    expect(observability).toContain("api_error_event");
+    expect(observability).toContain("error.response");
+    expect(observability).toContain("error.client_parse");
+    expect(observability).toContain("sanitizeErrorTelemetryEvent");
+    expect(observabilityTest).toContain("not.toContain(\"buyer@example.com\")");
+    expect(smoke).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER: \"console\"");
+    expect(smoke).toContain("error_observability_no_pii=ok");
+    expect(smoke).toContain("self_hosted_error_observability_smoke=ok");
+    expect(config).toContain("Production self-hosted API must use YORSO_ERROR_OBSERVABILITY_DRIVER=console.");
+    expect(server).toContain("createErrorTelemetrySink");
+    expect(server).toContain("buildErrorTelemetryEvent");
+    expect(server).toContain("buildClientParseErrorTelemetryEvent");
+    expect(http).toContain("markApiError");
+    expect(http).toContain("x-error-id");
+    expect(http).toContain("correlationId");
+    expect(productionEnv).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER=console");
+    expect(compose).toContain("YORSO_ERROR_OBSERVABILITY_DRIVER: console");
+    expect(docs).toContain("Batch #86");
+    expect(baseline).toContain("Batch #86");
+    expect(baseline).toContain("api_error_event");
+  });
+
   it("keeps production health readiness wired through API, smoke and deployment guards", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

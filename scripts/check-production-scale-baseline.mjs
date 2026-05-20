@@ -31,6 +31,7 @@ const requiredFiles = [
   "apps/api/src/modules/auth/session.ts",
   "apps/api/src/modules/auth/service.ts",
   "apps/api/src/routes/health.ts",
+  "apps/api/src/error-observability.ts",
   "apps/api/src/request-observability.ts",
   "apps/api/src/modules/account/routes.ts",
   "apps/api/src/modules/access/routes.ts",
@@ -42,6 +43,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-graceful-shutdown.mjs",
   "scripts/smoke-self-hosted-request-guardrails.mjs",
   "scripts/smoke-self-hosted-request-observability.mjs",
+  "scripts/smoke-self-hosted-error-observability.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -130,6 +132,7 @@ const apiLifecycle = read("apps/api/src/lifecycle.ts");
 const authSession = read("apps/api/src/modules/auth/session.ts");
 const authService = read("apps/api/src/modules/auth/service.ts");
 const healthRoutes = read("apps/api/src/routes/health.ts");
+const errorObservability = read("apps/api/src/error-observability.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
 const accessRoutes = read("apps/api/src/modules/access/routes.ts");
@@ -141,6 +144,7 @@ const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mj
 const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
 const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrails.mjs");
 const requestObservabilitySmoke = read("scripts/smoke-self-hosted-request-observability.mjs");
+const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observability.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -247,6 +251,7 @@ for (const marker of [
   "Batch #83",
   "Batch #84",
   "Batch #85",
+  "Batch #86",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -269,6 +274,9 @@ for (const marker of [
   "request observability",
   "api_request_event",
   "self-hosted request observability smoke",
+  "error observability",
+  "api_error_event",
+  "self-hosted error observability smoke",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
   "auth runtime adapter boundary",
@@ -546,6 +554,15 @@ if (pkg.scripts["smoke:self-hosted-request-observability:run"] !== "node scripts
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-request-observability:run")) {
   failures.push("package.json: ci:core must run the request observability smoke");
 }
+if (pkg.scripts["smoke:self-hosted-error-observability"] !== "npm run api:build && npm run smoke:self-hosted-error-observability:run") {
+  failures.push("package.json: smoke:self-hosted-error-observability must build and run the error observability smoke");
+}
+if (pkg.scripts["smoke:self-hosted-error-observability:run"] !== "node scripts/smoke-self-hosted-error-observability.mjs") {
+  failures.push("package.json: smoke:self-hosted-error-observability:run must execute scripts/smoke-self-hosted-error-observability.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-error-observability:run")) {
+  failures.push("package.json: ci:core must run the error observability smoke");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -728,6 +745,17 @@ for (const marker of [
 }
 
 for (const marker of [
+  "error_observability_response_envelope=ok",
+  "error_observability_auth_error=ok",
+  "error_observability_guardrail_error=ok",
+  "error_observability_parser_error=ok",
+  "error_observability_no_pii=ok",
+  "self_hosted_error_observability_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-error-observability.mjs", errorObservabilitySmoke, marker);
+}
+
+for (const marker of [
   "api_request_event",
   "request.completed",
   "request.guardrail_triggered",
@@ -739,12 +767,26 @@ for (const marker of [
 }
 
 for (const marker of [
+  "api_error_event",
+  "error.response",
+  "error.client_parse",
+  "errorId",
+  "correlationId",
+  "sanitizeErrorTelemetryEvent",
+  "request_header_too_large",
+]) {
+  requireText("apps/api/src/error-observability.ts", errorObservability, marker);
+}
+
+for (const marker of [
   "requestTimeoutMs",
   "requestBodyIdleTimeoutMs",
   "headersTimeoutMs",
   "keepAliveTimeoutMs",
   "maxHeaderBytes",
   "jsonBodyMaxBytes",
+  "errorObservabilityDriver",
+  "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
 ]) {
@@ -753,13 +795,19 @@ for (const marker of [
 
 for (const marker of [
   "createRequestTelemetrySink",
+  "createErrorTelemetrySink",
   "buildRequestTelemetryEvent",
+  "buildErrorTelemetryEvent",
   "buildClientParseTelemetryEvent",
+  "buildClientParseErrorTelemetryEvent",
+  "api_internal_error",
   "maxHeaderSize: config.maxHeaderBytes",
   "server.requestTimeout = config.requestTimeoutMs",
   "server.headersTimeout = config.headersTimeoutMs",
   "server.keepAliveTimeout = config.keepAliveTimeoutMs",
   "server.on(\"clientError\"",
+  "x-correlation-id",
+  "x-error-id",
   "request_timeout",
 ]) {
   requireText("apps/api/src/server.ts", read("apps/api/src/server.ts"), marker);
@@ -767,6 +815,10 @@ for (const marker of [
 
 for (const marker of [
   "JsonBodyReadOptions",
+  "ApiErrorContext",
+  "markApiError",
+  "errorId",
+  "correlationId",
   "request_body_timeout",
   "request_body_too_large",
   "withBodyIdleTimeout",

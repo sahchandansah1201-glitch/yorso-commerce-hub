@@ -852,6 +852,24 @@ Batch #85 adds request observability validation:
   `check:self-hosted-production-runtime` and `check:production-scale-baseline`
   guard the request observability contract.
 
+Batch #86 adds error observability validation:
+
+- production runtime config requires `YORSO_ERROR_OBSERVABILITY_DRIVER=console`;
+- `apps/api/src/http.ts` adds `errorId`, `correlationId`, `x-error-id` and
+  `x-correlation-id` to structured JSON errors;
+- `apps/api/src/error-observability.ts` emits sanitized `api_error_event`
+  JSONL records for error responses and parser/header errors;
+- error telemetry includes route, status, error code, category, retryability,
+  request id, correlation id and error id;
+- error telemetry must not include payload values, query strings, email
+  addresses, passwords, session ids or stack traces;
+- `smoke:self-hosted-error-observability` verifies envelope correlation,
+  `auth_invalid_credentials`, `request_body_too_large`,
+  `request_header_too_large` and no-PII stderr/stdout behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-infra`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`
+  guard the error observability contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

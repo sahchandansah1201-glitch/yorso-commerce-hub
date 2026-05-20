@@ -44,6 +44,8 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/service.ts",
   "apps/api/src/config.ts",
   "apps/api/src/http.ts",
+  "apps/api/src/error-observability.ts",
+  "apps/api/src/error-observability.test.ts",
   "apps/api/src/request-observability.ts",
   "apps/api/src/request-observability.test.ts",
   "apps/api/src/lifecycle.ts",
@@ -63,6 +65,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-graceful-shutdown.mjs",
   "scripts/smoke-self-hosted-request-guardrails.mjs",
   "scripts/smoke-self-hosted-request-observability.mjs",
+  "scripts/smoke-self-hosted-error-observability.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -151,6 +154,7 @@ const pkg = JSON.parse(read("package.json"));
 const ciWorkflow = read(".github/workflows/ci.yml");
 const server = read("apps/api/src/server.ts");
 const config = read("apps/api/src/config.ts");
+const errorObservability = read("apps/api/src/error-observability.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
 const index = read("apps/api/src/index.ts");
 const lifecycle = read("apps/api/src/lifecycle.ts");
@@ -202,6 +206,7 @@ const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mj
 const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
 const requestGuardrailsSmoke = read("scripts/smoke-self-hosted-request-guardrails.mjs");
 const requestObservabilitySmoke = read("scripts/smoke-self-hosted-request-observability.mjs");
+const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observability.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -312,6 +317,12 @@ if (pkg.scripts["smoke:self-hosted-request-observability"] !== "npm run api:buil
 if (pkg.scripts["smoke:self-hosted-request-observability:run"] !== "node scripts/smoke-self-hosted-request-observability.mjs") {
   failures.push("package.json: smoke:self-hosted-request-observability:run must execute scripts/smoke-self-hosted-request-observability.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-error-observability"] !== "npm run api:build && npm run smoke:self-hosted-error-observability:run") {
+  failures.push("package.json: smoke:self-hosted-error-observability must build and run the error observability smoke");
+}
+if (pkg.scripts["smoke:self-hosted-error-observability:run"] !== "node scripts/smoke-self-hosted-error-observability.mjs") {
+  failures.push("package.json: smoke:self-hosted-error-observability:run must execute scripts/smoke-self-hosted-error-observability.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -377,6 +388,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-request-guardra
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-request-observability:run")) {
   failures.push("package.json: ci:core must run the request observability smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-error-observability:run")) {
+  failures.push("package.json: ci:core must run the error observability smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -786,6 +800,17 @@ for (const marker of [
   requireText("scripts/smoke-self-hosted-request-observability.mjs", requestObservabilitySmoke, marker);
 }
 for (const marker of [
+  "error_observability_response_envelope=ok",
+  "error_observability_auth_error=ok",
+  "error_observability_guardrail_error=ok",
+  "error_observability_parser_error=ok",
+  "error_observability_no_pii=ok",
+  "self_hosted_error_observability_smoke=ok",
+  "YORSO_ERROR_OBSERVABILITY_DRIVER",
+]) {
+  requireText("scripts/smoke-self-hosted-error-observability.mjs", errorObservabilitySmoke, marker);
+}
+for (const marker of [
   "RequestTelemetrySink",
   "api_request_event",
   "request.completed",
@@ -798,12 +823,26 @@ for (const marker of [
   requireText("apps/api/src/request-observability.ts", requestObservability, marker);
 }
 for (const marker of [
+  "ErrorTelemetrySink",
+  "api_error_event",
+  "error.response",
+  "error.client_parse",
+  "errorId",
+  "correlationId",
+  "sanitizeErrorTelemetryEvent",
+  "request_header_too_large",
+]) {
+  requireText("apps/api/src/error-observability.ts", errorObservability, marker);
+}
+for (const marker of [
   "requestTimeoutMs",
   "requestBodyIdleTimeoutMs",
   "headersTimeoutMs",
   "keepAliveTimeoutMs",
   "maxHeaderBytes",
   "jsonBodyMaxBytes",
+  "errorObservabilityDriver",
+  "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
   "YORSO_REQUEST_TIMEOUT_MS",
@@ -817,13 +856,19 @@ for (const marker of [
 }
 for (const marker of [
   "createRequestTelemetrySink",
+  "createErrorTelemetrySink",
   "buildRequestTelemetryEvent",
+  "buildErrorTelemetryEvent",
+  "buildClientParseErrorTelemetryEvent",
+  "api_internal_error",
   "buildClientParseTelemetryEvent",
   "maxHeaderSize: config.maxHeaderBytes",
   "server.requestTimeout = config.requestTimeoutMs",
   "server.headersTimeout = config.headersTimeoutMs",
   "server.keepAliveTimeout = config.keepAliveTimeoutMs",
   "server.on(\"clientError\"",
+  "x-correlation-id",
+  "x-error-id",
   "request_timeout",
   "jsonBodyOptions",
 ]) {
@@ -831,6 +876,10 @@ for (const marker of [
 }
 for (const marker of [
   "JsonBodyReadOptions",
+  "ApiErrorContext",
+  "markApiError",
+  "errorId",
+  "correlationId",
   "request_body_timeout",
   "request_body_too_large",
   "content-length",
@@ -1048,6 +1097,9 @@ requireText("apps/api/src/config.ts", config, "Production self-hosted API must u
 requireText("apps/api/src/config.ts", config, "authObservabilityDriver");
 requireText("apps/api/src/config.ts", config, "AUTH_OBSERVABILITY_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");
+requireText("apps/api/src/config.ts", config, "errorObservabilityDriver");
+requireText("apps/api/src/config.ts", config, "YORSO_ERROR_OBSERVABILITY_DRIVER");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_ERROR_OBSERVABILITY_DRIVER=console.");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.getSession");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.setSession");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sessionCache.deleteSession");

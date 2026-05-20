@@ -624,6 +624,28 @@ behavior.
 
 Marker: self-hosted request observability smoke.
 
+Batch #86 adds structured API error observability and correlation. Production
+config must set `YORSO_ERROR_OBSERVABILITY_DRIVER=console`, which writes JSONL
+`api_error_event` records for structured error responses and parser-level
+client errors. Every JSON error response now carries `requestId`,
+`correlationId` and an `error.errorId`; the same ids are also exposed through
+`x-request-id`, `x-correlation-id` and `x-error-id` response headers. Error
+events include only safe operational fields: normalized route, method, status
+code, error code, category, retryability, request id, correlation id and error
+id. They deliberately omit payload values, query strings, email addresses,
+passwords, raw session ids and stack traces. The expected write profile is one
+small stderr JSONL record per 4xx/5xx response plus parser errors; this is
+separate from request telemetry so operators can build error-rate and
+guardrail-rate alerts independently. At the 10,000 concurrent-user baseline
+this gives support and SRE teams a stable handle for incident triage without
+scraping user data from application logs. Failure mode is non-blocking:
+request handling continues if error telemetry emission fails. The self-hosted
+error observability smoke, also referenced as the self-hosted error
+observability smoke, `smoke:self-hosted-error-observability` verifies error
+envelopes, auth errors, guardrail errors, parser errors and no-PII log output.
+
+Marker: self-hosted error observability smoke.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
