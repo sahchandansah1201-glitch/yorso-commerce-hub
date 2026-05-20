@@ -8,6 +8,7 @@ import {
 } from "./error-observability.js";
 import { createRequestContext, getRequestUrl, methodNotAllowed, sendError, type JsonBodyReadOptions } from "./http.js";
 import { ApiLifecycle } from "./lifecycle.js";
+import { createMetricsRegistry, renderMetricsResponse, type MetricsRegistry } from "./metrics.js";
 import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
@@ -49,6 +50,7 @@ export interface ApiServerOptions {
   authRepository?: AuthRepository;
   fileService?: FileService;
   lifecycle?: ApiLifecycle;
+  metricsRegistry?: MetricsRegistry;
   offerCatalogRepository?: OfferCatalogRepository;
   errorTelemetrySink?: ErrorTelemetrySink;
   readinessProbe?: ReadinessProbe;
@@ -58,12 +60,19 @@ export interface ApiServerOptions {
 }
 
 export function createApiServer(config: ApiConfig, options: ApiServerOptions = {}) {
+  const metricsRegistry = options.metricsRegistry ?? createMetricsRegistry(config);
+  const authTelemetrySink = createAuthTelemetrySink(config);
   const authRepository = options.authRepository ?? createAuthRepository(config);
   const authService = new AuthService(
     authRepository,
     createAuthRateLimiter(config, authRepository),
     createAuthSessionCache(config),
-    createAuthTelemetrySink(config),
+    {
+      async emit(event) {
+        await authTelemetrySink.emit(event);
+        metricsRegistry.observeAuth(event);
+      },
+    },
   );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
   const fileService = options.fileService ?? createFileService(config);
@@ -105,7 +114,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       if (telemetryEmitted) return;
       telemetryEmitted = true;
       const durationMs = Date.now() - context.startedAt;
-      emitTelemetry(requestTelemetrySink, buildRequestTelemetryEvent({
+      const requestEvent = buildRequestTelemetryEvent({
         config,
         context,
         durationMs,
@@ -114,7 +123,9 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
         statusCode: aborted ? 499 : response.statusCode,
         contentLengthPresent: request.headers["content-length"] !== undefined,
         aborted,
-      }), "request_telemetry_emit_failed");
+      });
+      emitTelemetry(requestTelemetrySink, requestEvent, "request_telemetry_emit_failed");
+      metricsRegistry.observeRequest(requestEvent);
       const errorEvent = buildErrorTelemetryEvent({
         context,
         durationMs,
@@ -122,7 +133,10 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
         path: requestPath,
         contentLengthPresent: request.headers["content-length"] !== undefined,
       });
-      if (errorEvent) emitTelemetry(errorTelemetrySink, errorEvent, "error_telemetry_emit_failed");
+      if (errorEvent) {
+        emitTelemetry(errorTelemetrySink, errorEvent, "error_telemetry_emit_failed");
+        metricsRegistry.observeError(errorEvent);
+      }
     };
     response.once("finish", () => emitRequestTelemetry(false));
     response.once("close", () => {
@@ -142,6 +156,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       supplierService,
       readinessProbe,
       lifecycle,
+      metricsRegistry,
       jsonBodyOptions,
     ).catch((error) => {
       if (response.writableEnded) return;
@@ -170,12 +185,15 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       code: error.code ?? "client_parse_error",
       statusCode,
     });
-    emitTelemetry(requestTelemetrySink, buildClientParseTelemetryEvent({
+    const requestEvent = buildClientParseTelemetryEvent({
       config,
       code: error.code ?? "client_parse_error",
       statusCode,
-    }), "request_telemetry_emit_failed");
+    });
+    emitTelemetry(requestTelemetrySink, requestEvent, "request_telemetry_emit_failed");
     emitTelemetry(errorTelemetrySink, errorEvent, "error_telemetry_emit_failed");
+    metricsRegistry.observeRequest(requestEvent);
+    metricsRegistry.observeError(errorEvent);
     if (socket.writable) {
       socket.end([
         `HTTP/1.1 ${statusCode} ${statusText}`,
@@ -210,6 +228,7 @@ async function routeRequest(
   supplierService: SupplierDirectoryService,
   readinessProbe: ReadinessProbe,
   lifecycle: ApiLifecycle,
+  metricsRegistry: MetricsRegistry,
   jsonBodyOptions: JsonBodyReadOptions,
 ) {
   applyCorsHeaders(request, response, config);
@@ -240,6 +259,18 @@ async function routeRequest(
       return;
     }
     await handleReady(response, context, readinessProbe);
+    return;
+  }
+
+  if (url.pathname === "/metrics" || url.pathname === "/v1/metrics") {
+    if (request.method !== "GET") {
+      methodNotAllowed(response, context);
+      return;
+    }
+    response.writeHead(200, {
+      "content-type": "text/plain; version=0.0.4; charset=utf-8",
+    });
+    response.end(renderMetricsResponse(metricsRegistry, { lifecycle }));
     return;
   }
 

@@ -258,6 +258,46 @@ describe("self-hosted API policy", () => {
     expect(baseline).toContain("api_error_event");
   });
 
+  it("keeps Prometheus metrics wired into production runtime and CI", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const metrics = readFileSync("apps/api/src/metrics.ts", "utf8");
+    const metricsTest = readFileSync("apps/api/src/metrics.test.ts", "utf8");
+    const smoke = readFileSync("scripts/smoke-self-hosted-metrics.mjs", "utf8");
+    const config = readFileSync("apps/api/src/config.ts", "utf8");
+    const server = readFileSync("apps/api/src/server.ts", "utf8");
+    const productionEnv = readFileSync(".env.production.example", "utf8");
+    const compose = readFileSync("infra/docker-compose.yml", "utf8");
+    const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
+
+    expect(pkg.scripts["smoke:self-hosted-metrics"]).toBe(
+      "npm run api:build && npm run smoke:self-hosted-metrics:run",
+    );
+    expect(pkg.scripts["smoke:self-hosted-metrics:run"]).toBe("node scripts/smoke-self-hosted-metrics.mjs");
+    expect(pkg.scripts["ci:core"]).toContain("npm run smoke:self-hosted-metrics:run");
+    expect(metrics).toContain("InMemoryPrometheusMetricsRegistry");
+    expect(metrics).toContain("yorso_api_requests_total");
+    expect(metrics).toContain("yorso_api_request_duration_seconds");
+    expect(metrics).toContain("yorso_api_errors_total");
+    expect(metrics).toContain("yorso_api_auth_events_total");
+    expect(metrics).toContain("yorso_api_production_baseline_concurrent_users");
+    expect(metricsTest).toContain("not.toContain(\"buyer@example.com\")");
+    expect(smoke).toContain("YORSO_METRICS_DRIVER: \"prometheus\"");
+    expect(smoke).toContain("metrics_no_pii=ok");
+    expect(smoke).toContain("self_hosted_metrics_smoke=ok");
+    expect(config).toContain("Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
+    expect(server).toContain("createMetricsRegistry(config)");
+    expect(server).toContain("renderMetricsResponse(metricsRegistry");
+    expect(server).toContain("metricsRegistry.observeRequest");
+    expect(server).toContain("metricsRegistry.observeError");
+    expect(server).toContain("metricsRegistry.observeAuth");
+    expect(productionEnv).toContain("YORSO_METRICS_DRIVER=prometheus");
+    expect(compose).toContain("YORSO_METRICS_DRIVER: prometheus");
+    expect(baseline).toContain("Batch #87");
+    expect(baseline).toContain("Prometheus metrics endpoint");
+  });
+
   it("keeps production health readiness wired through API, smoke and deployment guards", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

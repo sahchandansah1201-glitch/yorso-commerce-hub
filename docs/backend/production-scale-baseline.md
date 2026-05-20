@@ -646,6 +646,36 @@ envelopes, auth errors, guardrail errors, parser errors and no-PII log output.
 
 Marker: self-hosted error observability smoke.
 
+Batch #87 adds a Prometheus-compatible metrics endpoint for the self-hosted API.
+Production config must set `YORSO_METRICS_DRIVER=prometheus`, which keeps an
+in-process low-cardinality metrics registry and exposes `/metrics` and
+`/v1/metrics` in Prometheus text format. The registry derives counters and
+histograms from the sanitized request, error and auth telemetry events already
+introduced in Batches #85 and #86. Metrics include
+`yorso_api_requests_total`, `yorso_api_request_duration_seconds`,
+`yorso_api_errors_total`, `yorso_api_guardrails_total`,
+`yorso_api_auth_events_total`, `yorso_api_auth_session_cache_events_total`,
+`yorso_api_auth_rate_limit_events_total`, `yorso_api_readiness_checks_total`
+and lifecycle gauges. Labels are bounded to normalized route, method, status
+class, outcome, error category/code and guardrail kind. They deliberately omit
+query strings, payload values, raw supplier ids, offer ids, email addresses,
+passwords and session ids.
+
+At the 10,000 concurrent-user baseline this turns request/error telemetry into
+operational SLO inputs without sending production data to a hosted monitoring
+backend. Prometheus or an owned scraper can collect the endpoint from the same
+self-hosted network as the API. Failure mode is local and bounded: metrics
+collection is in-memory, low-cardinality and non-blocking. If the driver is
+disabled in prototype mode, `/metrics` still reports `yorso_api_metrics_enabled
+0` so operators can detect misconfiguration. The self-hosted metrics smoke,
+also referenced as the self-hosted metrics smoke,
+`smoke:self-hosted-metrics` verifies Prometheus output, request histogram,
+error counter, auth counter, guardrail counter, readiness counter and no-PII
+behavior.
+
+Marker: self-hosted metrics smoke.
+Marker: Prometheus metrics endpoint.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

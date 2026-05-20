@@ -75,6 +75,7 @@ npm run smoke:self-hosted-graceful-shutdown
 npm run smoke:self-hosted-request-guardrails
 npm run smoke:self-hosted-request-observability
 npm run smoke:self-hosted-error-observability
+npm run smoke:self-hosted-metrics
 ```
 
 The production frontend should be built with `VITE_YORSO_API_URL` pointing at
@@ -136,6 +137,7 @@ npm run smoke:self-hosted-graceful-shutdown
 npm run smoke:self-hosted-request-guardrails
 npm run smoke:self-hosted-request-observability
 npm run smoke:self-hosted-error-observability
+npm run smoke:self-hosted-metrics
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env
@@ -150,3 +152,9 @@ Batch #86 adds `smoke:self-hosted-error-observability` to the deploy
 validation path. It verifies that buyer-visible API errors expose request,
 correlation and error ids, while the server writes sanitized `api_error_event`
 JSONL records without payload values or credentials.
+
+Batch #87 adds `smoke:self-hosted-metrics` to the deploy validation path. It
+verifies that `YORSO_METRICS_DRIVER=prometheus` exposes `/metrics` with
+Prometheus-compatible request, error, auth, guardrail and readiness metrics
+without leaking buyer emails, passwords, supplier ids, offer ids, query values
+or session ids.
