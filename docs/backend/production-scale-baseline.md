@@ -714,6 +714,39 @@ Marker: api_audit_event.
 Marker: self-hosted audit persistence smoke.
 Marker: yorso_api_audit_events.
 
+Batch #90 adds the admin audit read/export boundary on top of durable audit
+storage. The self-hosted API now exposes `GET /v1/admin/audit-events` and
+`GET /v1/admin/audit-events/export`, both protected by backend session
+validation plus the owned `yorso_user_roles` table. Ordinary buyer or supplier
+sessions receive `403 admin_role_required`; anonymous requests receive the
+existing session guard. This is deliberately not a Supabase/Auth0/Clerk role
+check.
+
+The read profile is operator-heavy and bounded: filters are limited to
+sanitized fields (`action`, `outcome`, `actorUserHash`, `resourceType`,
+`resourceHash`, `correlationId`, `from`, `to`) and pagination is cursor-based
+over `(occurred_at, audit_id)`. JSON responses cap at 500 rows; JSONL export
+caps at 10,000 rows per call and returns `x-next-cursor` for continuation.
+The database adds `yorso_user_roles`, `idx_yorso_user_roles_role_user`,
+`idx_yorso_api_audit_events_status_time` and
+`idx_yorso_api_audit_events_route_time` to keep admin reads bounded at the
+10,000 concurrent-user baseline. Export is intentionally page-oriented rather
+than a long-running streaming job; future worker-based exports can reuse the
+same repository contract.
+
+Failure mode is fail-closed. If the session is missing, invalid or non-admin,
+audit reads are denied and a sanitized admin audit event is emitted. Returned
+records expose only the durable audit envelope fields: hashed actor, session
+and resource references, no emails, no passwords, no raw user ids, no raw
+session ids, no supplier ids, no file names and no request bodies. The
+self-hosted admin audit smoke, `smoke:self-hosted-admin-audit`, validates
+auth guard, role guard, list endpoint, JSONL export and query validation.
+
+Marker: self-hosted admin audit smoke.
+Marker: admin.audit_events.read.
+Marker: admin.audit_events.export.
+Marker: yorso_user_roles.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

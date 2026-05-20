@@ -924,6 +924,22 @@ Batch #89 adds durable audit persistence validation:
   `check:self-hosted-infra`, `check:self-hosted-production-runtime` and
   `check:production-scale-baseline` guard the durable audit contract.
 
+Batch #90 adds admin audit read/export validation:
+
+- `packages/db/migrations/0014_admin_audit_access.sql` creates
+  `yorso_user_roles` and read-support indexes for audit status/route filters;
+- `apps/api/src/modules/admin-audit/*` exposes an admin-only repository,
+  service and route layer;
+- `/v1/admin/audit-events` returns cursor-paginated JSON with a maximum of 500
+  rows per request;
+- `/v1/admin/audit-events/export` returns bounded JSONL with a maximum of
+  10,000 rows per request and an `x-next-cursor` continuation header;
+- non-admin sessions are denied with `403 admin_role_required`;
+- `smoke:self-hosted-admin-audit` verifies session guard, role guard, list,
+  export and validation behavior;
+- `ci:core`, `check:self-hosted-api`, `check:self-hosted-db` and
+  `check:production-scale-baseline` guard the admin audit contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

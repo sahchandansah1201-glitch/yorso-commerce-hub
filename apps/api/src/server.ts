@@ -14,6 +14,10 @@ import { createAccountRepository } from "./modules/account/factory.js";
 import type { AccountRepository } from "./modules/account/repository.js";
 import { handleAccountRoute } from "./modules/account/routes.js";
 import { AccountService } from "./modules/account/service.js";
+import { createAdminAuditRepository } from "./modules/admin-audit/factory.js";
+import type { AdminAuditRepository } from "./modules/admin-audit/repository.js";
+import { handleAdminAuditRoute } from "./modules/admin-audit/routes.js";
+import { AdminAuditService } from "./modules/admin-audit/service.js";
 import { createSupplierAccessRepository } from "./modules/access/factory.js";
 import type { SupplierAccessRepository } from "./modules/access/repository.js";
 import { handleSupplierAccessRoute } from "./modules/access/routes.js";
@@ -48,6 +52,7 @@ import { createReadinessProbe, handleLive, handleReady, type ReadinessProbe } fr
 
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
+  adminAuditRepository?: AdminAuditRepository;
   auditSink?: AuditSink;
   authRepository?: AuthRepository;
   fileService?: FileService;
@@ -78,6 +83,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     },
   );
   const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
+  const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config));
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
   const offerCatalogService = new OfferCatalogService(
@@ -153,6 +159,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       config,
       authService,
       accountService,
+      adminAuditService,
       fileService,
       offerCatalogService,
       supplierAccessService,
@@ -226,6 +233,7 @@ async function routeRequest(
   config: ApiConfig,
   authService: AuthService,
   accountService: AccountService,
+  adminAuditService: AdminAuditService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
   supplierAccessService: SupplierAccessService,
@@ -292,6 +300,7 @@ async function routeRequest(
       context,
       authService,
       accountService,
+      adminAuditService,
       fileService,
       offerCatalogService,
       supplierAccessService,
@@ -311,6 +320,7 @@ async function routeWorkRequest(
   context: ReturnType<typeof createRequestContext>,
   authService: AuthService,
   accountService: AccountService,
+  adminAuditService: AdminAuditService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
   supplierAccessService: SupplierAccessService,
@@ -329,6 +339,7 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleAdminAuditRoute(request, response, context, adminAuditService, authService, url, auditSink)) return;
   if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;

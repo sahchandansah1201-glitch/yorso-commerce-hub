@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import {
+  type AdminUserRole,
   authSessionResponseSchema,
   authSignInSchema,
   authSignOutResponseSchema,
@@ -182,6 +183,10 @@ export class AuthService {
       signedOut,
       requestId,
     });
+  }
+
+  async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {
+    return this.repository.hasRole(userId, role);
   }
 
   private async requireSession(

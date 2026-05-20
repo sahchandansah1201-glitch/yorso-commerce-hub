@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type {
+  AdminUserRole,
   AuthSecurityEvent,
   AuthSecurityEventType,
   AuthSession,
@@ -17,6 +18,7 @@ export interface AuthRepository {
   createSession(user: Pick<AuthUser, "id" | "email" | "displayName">, ttlMs: number): Promise<AuthSession>;
   getSession(sessionId: string): Promise<AuthSession | null>;
   deleteSession(sessionId: string): Promise<boolean>;
+  hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
   recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
   countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
 }
@@ -43,17 +45,34 @@ const demoAuthUser: AuthUser = {
   passwordSecret: "plain:Password1",
 };
 
+const demoAdminUser: AuthUser = {
+  id: "00000000-0000-4000-8000-000000000090",
+  email: "admin@example.com",
+  displayName: "Demo Admin",
+  passwordSecret: "plain:Password1",
+};
+
 const createSessionId = () => randomBytes(32).toString("hex");
 const iso = (value: Date) => value.toISOString();
 
 export class MemoryAuthRepository implements AuthRepository {
   private readonly usersByEmail = new Map<string, AuthUser>();
+  private readonly rolesByUserId = new Map<string, Set<AdminUserRole>>();
   private readonly sessions = new Map<string, AuthSession>();
   private readonly securityEvents: AuthSecurityEvent[] = [];
 
-  constructor(users: AuthUser[] = [demoAuthUser]) {
+  constructor(
+    users: AuthUser[] = [demoAuthUser, demoAdminUser],
+    roles: Record<string, AdminUserRole[]> = {
+      [demoAuthUser.id]: ["buyer"],
+      [demoAdminUser.id]: ["admin"],
+    },
+  ) {
     for (const user of users) {
       this.usersByEmail.set(user.email.toLowerCase(), { ...user, email: user.email.toLowerCase() });
+    }
+    for (const [userId, userRoles] of Object.entries(roles)) {
+      this.rolesByUserId.set(userId, new Set(userRoles));
     }
   }
 
@@ -92,6 +111,10 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async deleteSession(sessionId: string): Promise<boolean> {
     return this.sessions.delete(sessionId);
+  }
+
+  async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {
+    return this.rolesByUserId.get(userId)?.has(role) ?? false;
   }
 
   async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {

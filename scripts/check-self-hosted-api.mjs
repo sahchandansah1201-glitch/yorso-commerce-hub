@@ -10,6 +10,12 @@ const requiredFiles = [
   "apps/api/src/modules/account/repository.ts",
   "apps/api/src/modules/account/service.ts",
   "apps/api/src/modules/account/routes.ts",
+  "apps/api/src/modules/admin-audit/factory.ts",
+  "apps/api/src/modules/admin-audit/postgres-repository.ts",
+  "apps/api/src/modules/admin-audit/repository.ts",
+  "apps/api/src/modules/admin-audit/repository.test.ts",
+  "apps/api/src/modules/admin-audit/routes.ts",
+  "apps/api/src/modules/admin-audit/service.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -61,6 +67,7 @@ const requiredFiles = [
   "apps/api/vitest.config.ts",
   "apps/api/Dockerfile",
   "packages/contracts/src/account-session.ts",
+  "packages/contracts/src/admin-audit.ts",
   "packages/contracts/src/auth.ts",
   "packages/contracts/src/offer-catalog.ts",
   "packages/contracts/src/supplier-access.ts",
@@ -73,6 +80,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-metrics.mjs",
   "scripts/smoke-self-hosted-audit-trail.mjs",
   "scripts/smoke-self-hosted-audit-persistence.mjs",
+  "scripts/smoke-self-hosted-admin-audit.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -149,6 +157,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
   "packages/db/migrations/0013_api_audit_events.sql",
+  "packages/db/migrations/0014_admin_audit_access.sql",
 ];
 
 const failures = [];
@@ -174,6 +183,11 @@ const postgresRepository = read("apps/api/src/modules/account/postgres-repositor
 const accountService = read("apps/api/src/modules/account/service.ts");
 const accountRepository = read("apps/api/src/modules/account/repository.ts");
 const accountRoutes = read("apps/api/src/modules/account/routes.ts");
+const adminAuditFactory = read("apps/api/src/modules/admin-audit/factory.ts");
+const adminAuditPostgresRepository = read("apps/api/src/modules/admin-audit/postgres-repository.ts");
+const adminAuditRepository = read("apps/api/src/modules/admin-audit/repository.ts");
+const adminAuditRoutes = read("apps/api/src/modules/admin-audit/routes.ts");
+const adminAuditService = read("apps/api/src/modules/admin-audit/service.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -207,6 +221,7 @@ const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
 const accountSessionContract = read("packages/contracts/src/account-session.ts");
+const adminAuditContract = read("packages/contracts/src/admin-audit.ts");
 const authContract = read("packages/contracts/src/auth.ts");
 const accountCompanyContract = read("packages/contracts/src/account-company.ts");
 const offerCatalogContract = read("packages/contracts/src/offer-catalog.ts");
@@ -220,7 +235,9 @@ const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observabil
 const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
 const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
+const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
+const adminAuditAccessMigration = read("packages/db/migrations/0014_admin_audit_access.sql");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -355,6 +372,12 @@ if (pkg.scripts["smoke:self-hosted-audit-persistence"] !== "npm run api:build &&
 if (pkg.scripts["smoke:self-hosted-audit-persistence:run"] !== "node scripts/smoke-self-hosted-audit-persistence.mjs") {
   failures.push("package.json: smoke:self-hosted-audit-persistence:run must execute scripts/smoke-self-hosted-audit-persistence.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-admin-audit"] !== "npm run api:build && npm run smoke:self-hosted-admin-audit:run") {
+  failures.push("package.json: smoke:self-hosted-admin-audit must build and run the admin audit smoke");
+}
+if (pkg.scripts["smoke:self-hosted-admin-audit:run"] !== "node scripts/smoke-self-hosted-admin-audit.mjs") {
+  failures.push("package.json: smoke:self-hosted-admin-audit:run must execute scripts/smoke-self-hosted-admin-audit.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -432,6 +455,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-trail:run
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-persistence:run")) {
   failures.push("package.json: ci:core must run the self-hosted audit persistence smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-audit:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin audit smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -915,6 +941,87 @@ for (const marker of [
   "self_hosted_audit_persistence_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-audit-persistence.mjs", auditPersistenceSmoke, marker);
+}
+for (const marker of [
+  "adminUserRoleSchema",
+  "adminAuditQuerySchema",
+  "adminAuditExportQuerySchema",
+  "adminAuditListResponseSchema",
+]) {
+  requireText("packages/contracts/src/admin-audit.ts", adminAuditContract, marker);
+}
+for (const marker of [
+  "hasRole",
+  "AdminUserRole",
+]) {
+  requireText("apps/api/src/modules/auth/repository.ts", authRepository, marker);
+  requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, marker);
+  requireText("apps/api/src/modules/auth/service.ts", authService, marker);
+}
+for (const marker of [
+  "create table if not exists yorso_user_roles",
+  "idx_yorso_user_roles_role_user",
+  "idx_yorso_api_audit_events_status_time",
+  "idx_yorso_api_audit_events_route_time",
+]) {
+  requireText("packages/db/migrations/0014_admin_audit_access.sql", adminAuditAccessMigration, marker);
+}
+for (const marker of [
+  "PostgresAdminAuditRepository",
+  "from yorso_api_audit_events",
+  "order by occurred_at desc, audit_id desc",
+  "decodeAuditCursorValue",
+]) {
+  requireText("apps/api/src/modules/admin-audit/postgres-repository.ts", adminAuditPostgresRepository, marker);
+}
+for (const marker of [
+  "MemoryAdminAuditRepository",
+  "encodeAuditCursor",
+  "decodeAuditCursorValue",
+]) {
+  requireText("apps/api/src/modules/admin-audit/repository.ts", adminAuditRepository, marker);
+}
+for (const marker of [
+  "AdminAuditService",
+  "adminAuditQuerySchema",
+  "adminAuditExportQuerySchema",
+]) {
+  requireText("apps/api/src/modules/admin-audit/service.ts", adminAuditService, marker);
+}
+for (const marker of [
+  "/v1/admin/audit-events",
+  "/v1/admin/audit-events/export",
+  "admin_role_required",
+  "application/x-ndjson",
+  "admin.audit_events.read",
+  "admin.audit_events.export",
+  "resolveAuthenticatedAccountSession",
+]) {
+  requireText("apps/api/src/modules/admin-audit/routes.ts", adminAuditRoutes, marker);
+}
+for (const marker of [
+  "createAdminAuditRepository",
+  "PostgresAdminAuditRepository",
+  "MemoryAdminAuditRepository",
+]) {
+  requireText("apps/api/src/modules/admin-audit/factory.ts", adminAuditFactory, marker);
+}
+for (const marker of [
+  "createAdminAuditRepository",
+  "AdminAuditService",
+  "handleAdminAuditRoute",
+]) {
+  requireText("apps/api/src/server.ts", server, marker);
+}
+for (const marker of [
+  "admin_audit_auth_guard=ok",
+  "admin_audit_role_guard=ok",
+  "admin_audit_list=ok",
+  "admin_audit_export=ok",
+  "admin_audit_validation_guard=ok",
+  "self_hosted_admin_audit_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-audit.mjs", adminAuditSmoke, marker);
 }
 for (const marker of [
   "RequestTelemetrySink",

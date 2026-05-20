@@ -165,6 +165,17 @@
       "dependsOn": [
         "0012_auth_security_events"
       ]
+    },
+    {
+      "id": "0014_admin_audit_access",
+      "file": "migrations/0014_admin_audit_access.sql",
+      "description": "Create self-hosted admin roles and audit read/export support indexes.",
+      "ownedTables": [
+        "yorso_user_roles"
+      ],
+      "dependsOn": [
+        "0013_api_audit_events"
+      ]
     }
   ]
 }

@@ -140,6 +140,7 @@ npm run smoke:self-hosted-error-observability
 npm run smoke:self-hosted-metrics
 npm run smoke:self-hosted-audit-trail
 npm run smoke:self-hosted-audit-persistence
+npm run smoke:self-hosted-admin-audit
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env
@@ -170,3 +171,8 @@ Batch #89 adds `smoke:self-hosted-audit-persistence` to the deploy validation
 path. Production config must use `YORSO_AUDIT_DRIVER=postgres` and
 `YORSO_AUDIT_MAX_IN_FLIGHT`; the smoke verifies PostgreSQL insert shape,
 hash-only audit parameters and bounded backpressure behavior.
+
+Batch #90 adds `smoke:self-hosted-admin-audit` to the deploy validation path.
+The smoke verifies that admin audit reads require a valid backend session plus
+the `admin` role, that ordinary buyer sessions receive `admin_role_required`,
+and that JSONL export is bounded and served from the self-hosted API.
