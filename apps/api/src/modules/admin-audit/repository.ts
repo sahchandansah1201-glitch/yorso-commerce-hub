@@ -10,11 +10,20 @@ export interface AdminAuditPage {
 }
 
 export interface AdminAuditRepository {
+  countAuditEventsBefore(cutoff: string): Promise<number>;
   listAuditEvents(query: AdminAuditQuery | AdminAuditExportQuery): Promise<AdminAuditPage>;
+  purgeAuditEventsBefore(cutoff: string, options: { batchSize: number; maxBatches: number }): Promise<{
+    deletedCount: number;
+    batchesRun: number;
+  }>;
 }
 
 export class MemoryAdminAuditRepository implements AdminAuditRepository {
   constructor(private readonly events: AdminAuditEvent[] = []) {}
+
+  async countAuditEventsBefore(cutoff: string): Promise<number> {
+    return this.events.filter((event) => event.occurredAt < cutoff).length;
+  }
 
   async listAuditEvents(query: AdminAuditQuery | AdminAuditExportQuery): Promise<AdminAuditPage> {
     const filtered = this.events
@@ -27,6 +36,27 @@ export class MemoryAdminAuditRepository implements AdminAuditRepository {
     return {
       events,
       nextCursor: hasNextPage && events.length ? encodeAuditCursor(events[events.length - 1]) : null,
+    };
+  }
+
+  async purgeAuditEventsBefore(cutoff: string, options: { batchSize: number; maxBatches: number }) {
+    const maxDelete = options.batchSize * options.maxBatches;
+    const sortedVictims = this.events
+      .filter((event) => event.occurredAt < cutoff)
+      .sort(compareAuditEventsAsc)
+      .slice(0, maxDelete);
+    const victimIds = new Set(sortedVictims.map((event) => event.auditId));
+    let writeIndex = 0;
+    for (const event of this.events) {
+      if (!victimIds.has(event.auditId)) {
+        this.events[writeIndex] = event;
+        writeIndex += 1;
+      }
+    }
+    this.events.length = writeIndex;
+    return {
+      batchesRun: Math.ceil(sortedVictims.length / options.batchSize),
+      deletedCount: sortedVictims.length,
     };
   }
 }
@@ -75,6 +105,11 @@ function matchesEvent(event: AdminAuditEvent, query: AdminAuditQuery | AdminAudi
 function compareAuditEventsDesc(left: AdminAuditEvent, right: AdminAuditEvent) {
   const byTime = right.occurredAt.localeCompare(left.occurredAt);
   return byTime || right.auditId.localeCompare(left.auditId);
+}
+
+function compareAuditEventsAsc(left: AdminAuditEvent, right: AdminAuditEvent) {
+  const byTime = left.occurredAt.localeCompare(right.occurredAt);
+  return byTime || left.auditId.localeCompare(right.auditId);
 }
 
 function statusClass(statusCode: number | null) {

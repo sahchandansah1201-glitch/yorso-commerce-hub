@@ -869,3 +869,12 @@ bounded by `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS`; retention is governed by
 `YORSO_ADMIN_AUDIT_RETENTION_DAYS` and the owned
 `yorso_purge_api_audit_events` maintenance function. Prometheus exposes admin
 audit request and row counters with low-cardinality labels only.
+
+Batch #92 adds the operational retention runtime. Admin retention is no longer
+only a database helper: it is an admin-only self-hosted API action,
+`POST /v1/admin/audit-events/retention`, plus the `admin:audit:retention` CLI.
+The apply path uses `yorso_purge_api_audit_events_batch` and
+`idx_yorso_api_audit_events_retention_scan` so old audit rows are deleted in
+bounded chunks instead of one long transaction. Admin audit export also supports
+explicit CSV output through `format=csv`, with server-side quoting and the same
+window and pagination limits as JSONL.

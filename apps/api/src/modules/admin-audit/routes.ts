@@ -1,8 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
+import type { AdminAuditEvent } from "../../../../../packages/contracts/dist/index.js";
 import { auditFromRequest, type AuditSink } from "../../audit.js";
-import type { ApiRequestContext } from "../../http.js";
-import { getRequestUrl, methodNotAllowed, sendError, sendJson, sendValidationError } from "../../http.js";
+import type { ApiRequestContext, JsonBodyReadOptions } from "../../http.js";
+import { getRequestUrl, methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError } from "../../http.js";
 import type { MetricsRegistry } from "../../metrics.js";
 import { resolveAuthenticatedAccountSession, sendAccountSessionError, type AccountSessionError } from "../auth/session.js";
 import type { AuthService } from "../auth/service.js";
@@ -17,12 +18,22 @@ export async function handleAdminAuditRoute(
   url: URL,
   auditSink: AuditSink,
   metricsRegistry: MetricsRegistry,
+  jsonBodyOptions: JsonBodyReadOptions = {},
 ) {
-  if (url.pathname !== "/v1/admin/audit-events" && url.pathname !== "/v1/admin/audit-events/export") {
+  if (
+    url.pathname !== "/v1/admin/audit-events" &&
+    url.pathname !== "/v1/admin/audit-events/export" &&
+    url.pathname !== "/v1/admin/audit-events/retention"
+  ) {
     return false;
   }
 
-  if (request.method !== "GET") {
+  if (url.pathname === "/v1/admin/audit-events/retention" && request.method !== "POST") {
+    methodNotAllowed(response, context, "POST");
+    return true;
+  }
+
+  if (url.pathname !== "/v1/admin/audit-events/retention" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
     return true;
   }
@@ -37,11 +48,30 @@ export async function handleAdminAuditRoute(
       return true;
     }
 
+    if (url.pathname === "/v1/admin/audit-events/retention") {
+      const body = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.runRetention(body, context.requestId);
+      auditAdminRead(auditSink, context, request, url.pathname, session, "success", null, 200);
+      observeAdminAudit(metricsRegistry, url.pathname, "success", null, result.batchSize, result.deletedCount);
+      sendJson(response, 200, result);
+      return true;
+    }
+
     if (url.pathname === "/v1/admin/audit-events/export") {
       const query = service.parseExportQuery(queryPayload(url));
       const page = await service.exportAuditEvents(query);
       auditAdminRead(auditSink, context, request, url.pathname, session, "success", null, 200);
       observeAdminAudit(metricsRegistry, url.pathname, "success", null, query.limit, page.events.length);
+      if (query.format === "csv") {
+        response.writeHead(200, {
+          "cache-control": "no-store",
+          "content-disposition": "attachment; filename=\"yorso-audit-events.csv\"",
+          "content-type": "text/csv; charset=utf-8",
+          "x-next-cursor": page.nextCursor ?? "",
+        });
+        response.end(formatAuditEventsCsv(page.events));
+        return true;
+      }
       response.writeHead(200, {
         "cache-control": "no-store",
         "content-disposition": "attachment; filename=\"yorso-audit-events.jsonl\"",
@@ -105,7 +135,11 @@ function auditAdminRead(
   statusCode: number,
 ) {
   auditFromRequest(auditSink, context, request, {
-    action: route.endsWith("/export") ? "admin.audit_events.export" : "admin.audit_events.read",
+    action: route.endsWith("/export")
+      ? "admin.audit_events.export"
+      : route.endsWith("/retention")
+        ? "admin.audit_events.retention"
+        : "admin.audit_events.read",
     actorUserId: session?.userId,
     outcome,
     reason,
@@ -125,10 +159,40 @@ function observeAdminAudit(
   resultCount?: number,
 ) {
   metricsRegistry.observeAdminAudit({
-    operation: route.endsWith("/export") ? "export" : "list",
+    operation: route.endsWith("/export") ? "export" : route.endsWith("/retention") ? "retention" : "list",
     outcome,
     reason,
     limit,
     resultCount,
   });
+}
+
+const csvColumns = [
+  "auditId",
+  "occurredAt",
+  "requestId",
+  "correlationId",
+  "action",
+  "outcome",
+  "httpMethod",
+  "route",
+  "statusCode",
+  "actorUserHash",
+  "sessionHash",
+  "resourceType",
+  "resourceHash",
+  "reason",
+] as const;
+
+export function formatAuditEventsCsv(events: AdminAuditEvent[]) {
+  const rows = [
+    csvColumns.join(","),
+    ...events.map((event) => csvColumns.map((column) => csvCell(event[column])).join(",")),
+  ];
+  return `${rows.join("\n")}\n`;
+}
+
+function csvCell(value: string | number | null) {
+  const text = value === null ? "" : String(value);
+  return `"${text.replace(/"/g, "\"\"")}"`;
 }

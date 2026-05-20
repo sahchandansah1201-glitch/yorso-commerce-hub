@@ -187,6 +187,17 @@
       "dependsOn": [
         "0014_admin_audit_access"
       ]
+    },
+    {
+      "id": "0016_admin_audit_retention_runtime",
+      "file": "migrations/0016_admin_audit_retention_runtime.sql",
+      "description": "Add bounded admin audit retention runtime helper for production maintenance jobs.",
+      "ownedTables": [
+        "yorso_api_audit_events"
+      ],
+      "dependsOn": [
+        "0015_admin_audit_retention_query_hardening"
+      ]
     }
   ]
 }

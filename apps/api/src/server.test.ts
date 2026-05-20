@@ -598,6 +598,102 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(text).not.toContain("admin@example.com");
   });
 
+  it("exports admin audit events as escaped CSV and runs bounded retention", async () => {
+    const metricsRegistry = new InMemoryPrometheusMetricsRegistry();
+    const repository = new MemoryAdminAuditRepository([
+      {
+        action: "account.company.update",
+        actorUserHash: "sha256:111111111111111111111111",
+        auditId: "aud_1",
+        correlationId: "corr-1",
+        httpMethod: "PATCH",
+        occurredAt: "2026-05-20T10:00:00.000Z",
+        outcome: "success",
+        reason: "quoted_reason",
+        requestId: "req-1",
+        resourceHash: "sha256:222222222222222222222222",
+        resourceType: "company_profile",
+        route: "/v1/account/company",
+        sessionHash: "sha256:333333333333333333333333",
+        statusCode: 200,
+      },
+      {
+        action: "admin.audit_events.read",
+        actorUserHash: "sha256:444444444444444444444444",
+        auditId: "aud_2",
+        correlationId: "corr-2",
+        httpMethod: "GET",
+        occurredAt: "2026-05-20T10:01:00.000Z",
+        outcome: "success",
+        reason: "contains_\"quote\"",
+        requestId: "req-2",
+        resourceHash: null,
+        resourceType: "api_audit_events",
+        route: "/v1/admin/audit-events",
+        sessionHash: "sha256:555555555555555555555555",
+        statusCode: 200,
+      },
+    ]);
+    const fetchApi = await startRawTestServer({ adminAuditRepository: repository, metricsRegistry });
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const csv = await fetchApi("/v1/admin/audit-events/export?format=csv&limit=1000", {
+      headers: adminHeaders,
+    });
+    const csvText = await csv.text();
+
+    expect(csv.status).toBe(200);
+    expect(csv.headers.get("content-type")).toContain("text/csv");
+    expect(csvText).toContain("auditId,occurredAt,requestId");
+    expect(csvText).toContain("\"contains_\"\"quote\"\"\"");
+    expect(csvText).not.toContain(testAdminUserId);
+    expect(csvText).not.toContain("admin@example.com");
+
+    const dryRun = await fetchApi("/v1/admin/audit-events/retention", {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({
+        before: "2026-05-20T10:02:00.000Z",
+        mode: "dry_run",
+        batchSize: 1,
+        maxBatches: 1,
+      }),
+    });
+    await expect(dryRun.json()).resolves.toMatchObject({
+      ok: true,
+      mode: "dry_run",
+      scannedBeforeCutoff: 2,
+      deletedCount: 0,
+      remainingBeforeCutoff: 2,
+    });
+
+    const apply = await fetchApi("/v1/admin/audit-events/retention", {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({
+        before: "2026-05-20T10:02:00.000Z",
+        mode: "apply",
+        batchSize: 1,
+        maxBatches: 1,
+      }),
+    });
+    await expect(apply.json()).resolves.toMatchObject({
+      ok: true,
+      mode: "apply",
+      scannedBeforeCutoff: 2,
+      deletedCount: 1,
+      remainingBeforeCutoff: 1,
+    });
+
+    const metrics = metricsRegistry.renderPrometheusText();
+    expect(metrics).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="lte_1000",operation="export",outcome="success",reason="none"} 1',
+    );
+    expect(metrics).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="lte_50",operation="retention",outcome="success",reason="none"} 2',
+    );
+  });
+
   it("rejects oversized admin audit export windows and emits admin audit metrics", async () => {
     const metricsRegistry = new InMemoryPrometheusMetricsRegistry();
     const fetchApi = await startRawTestServer({

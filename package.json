@@ -38,6 +38,7 @@
     "smoke:self-hosted-audit-persistence:run": "node scripts/smoke-self-hosted-audit-persistence.mjs",
     "smoke:self-hosted-admin-audit": "npm run api:build && npm run smoke:self-hosted-admin-audit:run",
     "smoke:self-hosted-admin-audit:run": "node scripts/smoke-self-hosted-admin-audit.mjs",
+    "admin:audit:retention": "node scripts/admin-audit-retention.mjs",
     "smoke:self-hosted-auth-api": "npm run api:build && npm run smoke:self-hosted-auth-api:run",
     "smoke:self-hosted-auth-api:run": "node scripts/smoke-self-hosted-auth-api.mjs",
     "smoke:self-hosted-session-cache-fail-closed": "npm run api:build && npm run smoke:self-hosted-session-cache-fail-closed:run",

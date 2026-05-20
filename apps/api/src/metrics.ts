@@ -16,7 +16,7 @@ export interface MetricsRegistry {
 }
 
 export interface AdminAuditMetricsEvent {
-  operation: "list" | "export";
+  operation: "list" | "export" | "retention";
   outcome: "success" | "failure" | "blocked";
   reason?: string | null;
   resultCount?: number;

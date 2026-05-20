@@ -101,6 +101,15 @@ async function runSmoke(baseUrl) {
   assertEqual(exportResponse.headers.get("x-next-cursor"), "", "admin audit export next cursor");
   console.log("admin_audit_export=ok");
 
+  const csvExportResponse = await fetch(`${baseUrl}/v1/admin/audit-events/export?format=csv&limit=1000`, {
+    headers: adminHeaders,
+  });
+  const csvExportText = await csvExportResponse.text();
+  assertStatus(csvExportResponse, 200, "admin audit csv export");
+  assertContains(csvExportResponse.headers.get("content-type") ?? "", "text/csv", "admin audit csv content type");
+  assertContains(csvExportText, "auditId,occurredAt,requestId", "admin audit csv header");
+  console.log("admin_audit_csv_export=ok");
+
   const invalid = await fetch(`${baseUrl}/v1/admin/audit-events?limit=100000`, {
     headers: adminHeaders,
   });
@@ -137,6 +146,47 @@ async function runSmoke(baseUrl) {
     "admin audit export guard metrics",
   );
   console.log("admin_audit_metrics=ok");
+
+  const retentionDryRun = await fetch(`${baseUrl}/v1/admin/audit-events/retention`, {
+    method: "POST",
+    headers: adminHeaders,
+    body: JSON.stringify({
+      before: "2999-01-01T00:00:00.000Z",
+      mode: "dry_run",
+      batchSize: 10,
+      maxBatches: 2,
+    }),
+  });
+  const retentionDryRunBody = await retentionDryRun.json();
+  assertStatus(retentionDryRun, 200, "admin audit retention dry run");
+  assertEqual(retentionDryRunBody.mode, "dry_run", "admin audit retention dry-run mode");
+  assertEqual(retentionDryRunBody.deletedCount, 0, "admin audit retention dry-run delete count");
+  console.log("admin_audit_retention_dry_run=ok");
+
+  const retentionApply = await fetch(`${baseUrl}/v1/admin/audit-events/retention`, {
+    method: "POST",
+    headers: adminHeaders,
+    body: JSON.stringify({
+      before: "2999-01-01T00:00:00.000Z",
+      mode: "apply",
+      batchSize: 2,
+      maxBatches: 1,
+    }),
+  });
+  const retentionApplyBody = await retentionApply.json();
+  assertStatus(retentionApply, 200, "admin audit retention apply");
+  if (retentionApplyBody.deletedCount > 2) {
+    throw new Error(`admin audit retention apply: expected at most 2 deleted rows, got ${retentionApplyBody.deletedCount}`);
+  }
+  console.log("admin_audit_retention_apply=ok");
+
+  const retentionMetrics = await textRequest(baseUrl, "/metrics");
+  assertContains(
+    retentionMetrics,
+    'yorso_api_admin_audit_requests_total{limit_bucket="lte_50",operation="retention",outcome="success",reason="none"}',
+    "admin audit retention metrics",
+  );
+  console.log("admin_audit_retention_metrics=ok");
 }
 
 async function signIn(baseUrl, email) {

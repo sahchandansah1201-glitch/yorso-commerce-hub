@@ -774,6 +774,41 @@ Marker: yorso_api_admin_audit_requests_total.
 Marker: YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS.
 Marker: YORSO_ADMIN_AUDIT_RETENTION_DAYS.
 
+Batch #92 turns admin audit retention into an operator-safe runtime path. The
+API now exposes `POST /v1/admin/audit-events/retention` for admin-only dry-run
+and apply operations. Retention uses `yorso_purge_api_audit_events_batch`
+instead of deleting an unlimited time range in one transaction. Each request is
+bounded by `batchSize` and `maxBatches`, and the database scans
+`idx_yorso_api_audit_events_retention_scan` in `(occurred_at, audit_id)` order.
+This keeps maintenance work predictable while the marketplace is serving the
+10,000 concurrent-user baseline.
+
+Batch #92 also adds CSV export for sanitized audit events. JSONL remains the
+default export format, CSV is explicit through `format=csv`, and both formats
+reuse the same bounded page contract, export-window guard and `x-next-cursor`
+continuation. CSV cells are quoted and escaped server-side. Prometheus admin
+audit counters now include the `retention` operation with low-cardinality
+labels only. The `admin:audit:retention` CLI calls the self-hosted API using an
+admin session and supports dry-run by default, with `--apply` required for
+deletion.
+
+Expected profile: admin retention is a low-frequency maintenance write path,
+not a buyer-facing request path. It scans old audit rows through an ordered
+index, deletes in bounded batches and reports remaining rows before the cutoff.
+Failure mode is fail-closed: missing admin session, non-admin role, invalid
+payload or retention validation errors do not delete rows. Observability comes
+from `yorso_api_admin_audit_requests_total`,
+`yorso_api_admin_audit_rows_total`, the admin audit event for the retention
+operation and the smoke markers `admin_audit_retention_dry_run=ok`,
+`admin_audit_retention_apply=ok` and `admin_audit_retention_metrics=ok`.
+
+Marker: Batch #92.
+Marker: yorso_purge_api_audit_events_batch.
+Marker: idx_yorso_api_audit_events_retention_scan.
+Marker: admin_audit_csv_export=ok.
+Marker: admin_audit_retention_apply=ok.
+Marker: admin:audit:retention.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

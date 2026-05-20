@@ -2,21 +2,29 @@ import {
   adminAuditExportQuerySchema,
   adminAuditListResponseSchema,
   adminAuditQuerySchema,
+  adminAuditRetentionRequestSchema,
+  adminAuditRetentionResponseSchema,
   type AdminAuditExportQuery,
   type AdminAuditListResponse,
   type AdminAuditQuery,
+  type AdminAuditRetentionResponse,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { ApiConfig } from "../../config.js";
 import type { AdminAuditRepository } from "./repository.js";
 
 export class AdminAuditService {
   private readonly exportMaxWindowDays: number;
+  private readonly retentionDays: number;
 
   constructor(
     private readonly repository: AdminAuditRepository,
-    options: Pick<ApiConfig, "adminAuditExportMaxWindowDays"> | { adminAuditExportMaxWindowDays?: number } = {},
+    options: Pick<ApiConfig, "adminAuditExportMaxWindowDays" | "adminAuditRetentionDays"> | {
+      adminAuditExportMaxWindowDays?: number;
+      adminAuditRetentionDays?: number;
+    } = {},
   ) {
     this.exportMaxWindowDays = options.adminAuditExportMaxWindowDays ?? 31;
+    this.retentionDays = options.adminAuditRetentionDays ?? 365;
   }
 
   async listAuditEvents(payload: unknown, requestId: string): Promise<AdminAuditListResponse> {
@@ -49,6 +57,35 @@ export class AdminAuditService {
     validateTimeRange(query, { exportMaxWindowDays: this.exportMaxWindowDays, isExport: true });
     return query;
   }
+
+  async runRetention(payload: unknown, requestId: string): Promise<AdminAuditRetentionResponse> {
+    const request = adminAuditRetentionRequestSchema.parse(payload);
+    const retentionDays = request.retentionDays ?? this.retentionDays;
+    const before = request.before ?? cutoffFromRetentionDays(retentionDays);
+    const scannedBeforeCutoff = await this.repository.countAuditEventsBefore(before);
+    const purge = request.mode === "apply"
+      ? await this.repository.purgeAuditEventsBefore(before, {
+        batchSize: request.batchSize,
+        maxBatches: request.maxBatches,
+      })
+      : { batchesRun: 0, deletedCount: 0 };
+    const remainingBeforeCutoff = request.mode === "apply"
+      ? await this.repository.countAuditEventsBefore(before)
+      : scannedBeforeCutoff;
+
+    return adminAuditRetentionResponseSchema.parse({
+      ok: true,
+      before,
+      batchSize: request.batchSize,
+      deletedCount: purge.deletedCount,
+      maxBatches: request.maxBatches,
+      mode: request.mode,
+      remainingBeforeCutoff,
+      requestId,
+      retentionDays,
+      scannedBeforeCutoff,
+    });
+  }
 }
 
 export class AdminAuditQueryError extends Error {
@@ -80,4 +117,8 @@ function validateTimeRange(
       `Audit export window must be ${options.exportMaxWindowDays} days or less.`,
     );
   }
+}
+
+function cutoffFromRetentionDays(retentionDays: number) {
+  return new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
 }
