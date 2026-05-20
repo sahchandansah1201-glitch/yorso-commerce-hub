@@ -84,4 +84,64 @@ describe("MemorySupplierAccessRepository", () => {
       expect.objectContaining({ id: approved.notification?.id, status: "read" }),
     ]);
   });
+
+  it("lists access requests for the admin review queue with bounded filters and summary", async () => {
+    const repository = new MemorySupplierAccessRepository();
+    const first = await repository.createOrReuseRequest({
+      buyerUserId,
+      supplierId,
+      message: "Need exact price for salmon",
+    });
+    const second = await repository.createOrReuseRequest({
+      buyerUserId: "00000000-0000-4000-8000-000000000099",
+      supplierId: "sup-ec-051",
+      message: "Shrimp price request",
+    });
+
+    await repository.decideRequest({
+      requestId: second.id,
+      actorUserId: reviewerUserId,
+      decision: { status: "pending" },
+    });
+
+    const open = await repository.listReviewRequests({
+      limit: 25,
+      offset: 0,
+      status: "open",
+    });
+    expect(open.total).toBe(2);
+    expect(open.summary).toMatchObject({
+      approved: 0,
+      open: 2,
+      pending: 1,
+      rejected: 0,
+      revoked: 0,
+      sent: 1,
+    });
+    expect(open.items).toEqual([
+      expect.objectContaining({
+        request: expect.objectContaining({
+          id: second.id,
+          status: "pending",
+        }),
+        decisionSla: "fresh",
+      }),
+      expect.objectContaining({
+        request: expect.objectContaining({
+          id: first.id,
+          status: "sent",
+        }),
+      }),
+    ]);
+
+    const filtered = await repository.listReviewRequests({
+      limit: 25,
+      offset: 0,
+      q: "salmon",
+      status: "all",
+    });
+    expect(filtered.total).toBe(1);
+    expect(filtered.items[0].request.id).toBe(first.id);
+    expect(JSON.stringify(filtered)).not.toContain("admin@example.com");
+  });
 });

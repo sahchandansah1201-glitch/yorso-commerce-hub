@@ -13,20 +13,31 @@ Project: `yorso-commerce-hub`
 
 ## Current Goal
 
-Keep the Yorso commerce hub recoverable across ChatGPT/Codex context limits and continue future feature work from project files.
+Continue self-hosted production backend/frontend batches for Yorso with large connected PRs and explicit quality gates.
 
 ## Current Status
 
-- Project-memory black box has been created.
-- `AGENTS.md` has been added for project-level agent rules.
-- Repository was clean before adding project-memory files.
-- Detailed product/feature status should be refreshed before the next implementation task.
+- Batch #96 is implemented locally on branch `codex/batch96-supplier-access-review-console`.
+- Batch #96 adds a supplier access review console for self-hosted admins/operators.
+- Confirmed implementation surfaces:
+  - `GET /v1/admin/access-requests`;
+  - `POST /v1/admin/access-requests/:requestId/decision`;
+  - `/admin/access-requests` frontend page;
+  - `0017_supplier_access_review_queue` DB indexes;
+  - unit, API, smoke, browser e2e, guard, docs and CI wiring.
+- Pending handoff steps: commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Before continuing feature work, inspect git status, read AGENTS.md, and apply the Engineer Agent Action Contract.
-Batch #95 must be a large connected production batch unless a concrete blocker is stated before implementation.
+Finish Batch #96 publication:
+1. run final diff/status checks;
+2. commit and push branch codex/batch96-supplier-access-review-console;
+3. open PR [codex] Batch #96 supplier access review console;
+4. merge after checks pass;
+5. give Lovable Prompt #96 to sync latest GitHub main.
+
+Then choose Batch #97 as another large connected production batch.
 ```
 
 ## Rules

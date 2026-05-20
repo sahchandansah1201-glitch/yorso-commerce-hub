@@ -25,6 +25,13 @@ const requiredFiles = [
   "src/pages/admin/AdminRuntimeStatus.tsx",
   "src/pages/admin/AdminRuntimeStatus.test.tsx",
   "e2e/admin-runtime-status.spec.ts",
+  "src/lib/admin-access-review-api.ts",
+  "src/lib/admin-access-review-api.test.ts",
+  "src/lib/use-admin-access-review.ts",
+  "src/lib/use-admin-access-review.test.tsx",
+  "src/pages/admin/AdminAccessRequests.tsx",
+  "src/pages/admin/AdminAccessRequests.test.tsx",
+  "e2e/admin-access-review.spec.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -92,6 +99,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-audit-persistence.mjs",
   "scripts/smoke-self-hosted-admin-audit.mjs",
   "scripts/smoke-self-hosted-admin-runtime-status.mjs",
+  "scripts/smoke-self-hosted-admin-access-review.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -165,6 +173,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-auth-api-smoke.md",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-offer-detail-smoke.md",
+  "docs/backend/self-hosted-admin-access-review-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
   "packages/db/migrations/0013_api_audit_events.sql",
@@ -211,6 +220,13 @@ const useAdminRuntimeStatusTest = read("src/lib/use-admin-runtime-status.test.ts
 const adminRuntimePage = read("src/pages/admin/AdminRuntimeStatus.tsx");
 const adminRuntimePageTest = read("src/pages/admin/AdminRuntimeStatus.test.tsx");
 const adminRuntimeE2E = read("e2e/admin-runtime-status.spec.ts");
+const adminAccessReviewApi = read("src/lib/admin-access-review-api.ts");
+const adminAccessReviewApiTest = read("src/lib/admin-access-review-api.test.ts");
+const useAdminAccessReview = read("src/lib/use-admin-access-review.ts");
+const useAdminAccessReviewTest = read("src/lib/use-admin-access-review.test.tsx");
+const adminAccessReviewPage = read("src/pages/admin/AdminAccessRequests.tsx");
+const adminAccessReviewPageTest = read("src/pages/admin/AdminAccessRequests.test.tsx");
+const adminAccessReviewE2E = read("e2e/admin-access-review.spec.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -261,6 +277,7 @@ const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
+const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
 const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccessMigration = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardeningMigration = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
@@ -332,6 +349,7 @@ const selfHostedAuthFrontendE2E = read("e2e/signin-self-hosted-auth-flow.spec.ts
 const supabaseClient = read("src/integrations/supabase/client.ts");
 const accountApiSmokeDocs = read("docs/backend/self-hosted-account-api-smoke.md");
 const offerDetailSmokeDocs = read("docs/backend/self-hosted-offer-detail-smoke.md");
+const adminAccessReviewSmokeDocs = read("docs/backend/self-hosted-admin-access-review-smoke.md");
 const accountPostgresSmokeDocs = read("docs/backend/self-hosted-account-postgres-smoke.md");
 const workspacePostgresSmokeDocs = read("docs/backend/self-hosted-workspace-postgres-smoke.md");
 
@@ -411,6 +429,12 @@ if (pkg.scripts["smoke:self-hosted-admin-runtime-status"] !== "npm run api:build
 }
 if (pkg.scripts["smoke:self-hosted-admin-runtime-status:run"] !== "node scripts/smoke-self-hosted-admin-runtime-status.mjs") {
   failures.push("package.json: smoke:self-hosted-admin-runtime-status:run must execute scripts/smoke-self-hosted-admin-runtime-status.mjs");
+}
+if (pkg.scripts["smoke:self-hosted-admin-access-review"] !== "npm run api:build && npm run smoke:self-hosted-admin-access-review:run") {
+  failures.push("package.json: smoke:self-hosted-admin-access-review must build and run the admin access review smoke");
+}
+if (pkg.scripts["smoke:self-hosted-admin-access-review:run"] !== "node scripts/smoke-self-hosted-admin-access-review.mjs") {
+  failures.push("package.json: smoke:self-hosted-admin-access-review:run must execute scripts/smoke-self-hosted-admin-access-review.mjs");
 }
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
@@ -496,11 +520,20 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-audit:run
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-status:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin runtime status smoke");
 }
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-review:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin access review smoke");
+}
 if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
   failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-runtime-frontend")) {
   failures.push("package.json: ci:core must run the admin runtime frontend tests");
+}
+if (pkg.scripts["test:admin-access-review-frontend"] !== "vitest run src/lib/admin-access-review-api.test.ts src/lib/use-admin-access-review.test.tsx src/pages/admin/AdminAccessRequests.test.tsx") {
+  failures.push("package.json: test:admin-access-review-frontend must cover the admin access review adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-review-frontend")) {
+  failures.push("package.json: ci:core must run the admin access review frontend tests");
 }
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
@@ -510,6 +543,17 @@ if (!pkg.scripts["smoke:e2e:admin-runtime-status:run"]?.includes("e2e/admin-runt
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin runtime status browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-runtime-status");
+if (pkg.scripts["smoke:e2e:admin-access-review"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-access-review:run") {
+  failures.push("package.json: smoke:e2e:admin-access-review must build with the self-hosted admin access review adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-access-review:run"]?.includes("e2e/admin-access-review.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-access-review:run must cover /admin/access-requests browser behavior");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-review")) {
+  failures.push("package.json: ci:full must include the admin access review browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access review browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-review");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
@@ -1156,6 +1200,123 @@ for (const marker of [
   "hostedBaasProductionBackend",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-runtime-status.mjs", adminRuntimeSmoke, marker);
+}
+for (const marker of [
+  "admin_access_review_auth_guard=ok",
+  "admin_access_review_role_guard=ok",
+  "admin_access_review_list=ok",
+  "admin_access_review_pending=ok",
+  "admin_access_review_approve=ok",
+  "admin_access_review_filters=ok",
+  "admin_access_review_decision_notification=ok",
+  "admin_access_review_validation_guard=ok",
+  "self_hosted_admin_access_review_smoke=ok",
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/${requestId}/decision",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-access-review.mjs", adminAccessReviewSmoke, marker);
+}
+for (const marker of [
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/:requestId/decision",
+  "admin.access_requests.read",
+  "admin.access_requests.decision",
+  "admin_role_required",
+  "resolveAuthenticatedAccountSession",
+]) {
+  requireText("apps/api/src/modules/access/routes.ts", accessRoutes, marker);
+}
+for (const marker of [
+  "listReviewRequests",
+  "supplierAccessReviewQuerySchema",
+  "supplierAccessReviewListResponseSchema",
+]) {
+  requireText("apps/api/src/modules/access/service.ts", accessService, marker);
+}
+for (const marker of [
+  "listReviewRequests",
+  "SupplierAccessReviewItem",
+  "SupplierAccessReviewSummary",
+]) {
+  requireText("apps/api/src/modules/access/repository.ts", accessRepository, marker);
+  requireText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, marker);
+}
+for (const marker of [
+  "supplierAccessReviewQuerySchema",
+  "supplierAccessReviewItemSchema",
+  "supplierAccessReviewListResponseSchema",
+  "SupplierAccessReviewListResponse",
+]) {
+  requireText("packages/contracts/src/supplier-access.ts", supplierAccessContract, marker);
+}
+for (const marker of [
+  "createAdminAccessReviewApiClient",
+  "/v1/admin/access-requests",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_access_review_api_disabled",
+  "admin_access_review_session_required",
+  "admin_role_required",
+]) {
+  requireText("src/lib/admin-access-review-api.ts", adminAccessReviewApi, marker);
+}
+for (const marker of [
+  "disabled without self-hosted API URL",
+  "lists review requests with session headers",
+  "posts approve decisions",
+  "maps forbidden and invalid response errors",
+]) {
+  requireText("src/lib/admin-access-review-api.test.ts", adminAccessReviewApiTest, marker);
+}
+for (const marker of [
+  "useAdminAccessReview",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+  "client.decide",
+]) {
+  requireText("src/lib/use-admin-access-review.ts", useAdminAccessReview, marker);
+}
+for (const marker of [
+  "returns disabled and session-required states",
+  "loads review queue and refreshes after decision",
+  "maps admin role failures to forbidden state",
+]) {
+  requireText("src/lib/use-admin-access-review.test.tsx", useAdminAccessReviewTest, marker);
+}
+for (const marker of [
+  "admin-access-review-page",
+  "admin-access-review-queue",
+  "admin-access-review-summary",
+  "admin-access-review-disabled",
+  "admin-access-review-session-required",
+  "admin-access-review-forbidden",
+  "admin-access-review-search",
+  "admin-access-review-status-filter",
+  "admin-access-review-pagination",
+  "/admin/runtime",
+]) {
+  requireText("src/pages/admin/AdminAccessRequests.tsx", adminAccessReviewPage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "loads review queue, sends admin decision",
+  "Нужна роль администратора",
+  "admin-access-review-approve",
+]) {
+  requireText("src/pages/admin/AdminAccessRequests.test.tsx", adminAccessReviewPageTest, marker);
+}
+for (const marker of [
+  "Batch #96 browser guard",
+  "/admin/access-requests",
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/:requestId/decision",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-access-review-queue",
+  "admin-access-review-forbidden",
+]) {
+  requireText("e2e/admin-access-review.spec.ts", adminAccessReviewE2E, marker);
 }
 for (const marker of [
   "createAdminRuntimeApiClient",
@@ -2188,6 +2349,18 @@ requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDo
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "offer_detail_locked=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "offer_detail_unlocked=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "self_hosted_offer_detail_smoke=ok");
+for (const marker of [
+  "Self-Hosted Admin Access Review Smoke",
+  "npm run smoke:self-hosted-admin-access-review",
+  "admin_access_review_auth_guard=ok",
+  "admin_access_review_role_guard=ok",
+  "admin_access_review_approve=ok",
+  "admin_access_review_decision_notification=ok",
+  "self_hosted_admin_access_review_smoke=ok",
+  "0017_supplier_access_review_queue.sql",
+]) {
+  requireText("docs/backend/self-hosted-admin-access-review-smoke.md", adminAccessReviewSmokeDocs, marker);
+}
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "Self-Hosted Account PostgreSQL Smoke");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "npm run smoke:self-hosted-account-postgres");
 requireText("docs/backend/self-hosted-account-postgres-smoke.md", accountPostgresSmokeDocs, "self_hosted_account_postgres_smoke=skipped");
@@ -2209,6 +2382,9 @@ forbidText("apps/api/src/modules/admin-runtime/service.ts", adminRuntimeService,
 forbidText("src/lib/admin-runtime-api.ts", adminRuntimeApi, "@/integrations/supabase/client");
 forbidText("src/lib/use-admin-runtime-status.ts", useAdminRuntimeStatus, "@/integrations/supabase/client");
 forbidText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, "@/integrations/supabase/client");
+forbidText("src/lib/admin-access-review-api.ts", adminAccessReviewApi, "@/integrations/supabase/client");
+forbidText("src/lib/use-admin-access-review.ts", useAdminAccessReview, "@/integrations/supabase/client");
+forbidText("src/pages/admin/AdminAccessRequests.tsx", adminAccessReviewPage, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/factory.ts", accessFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/postgres-repository.ts", accessPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/access/repository.ts", accessRepository, "@/integrations/supabase/client");

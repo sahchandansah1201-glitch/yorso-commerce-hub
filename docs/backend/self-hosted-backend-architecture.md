@@ -911,3 +911,19 @@ operator checklist plus capacity plan. It is a control-plane read surface, not
 a secret viewer and not a hosted-BaaS console. The intended use is fast
 deployment verification and incident triage while preserving low cardinality
 metrics and sanitized audit events.
+
+Batch #96 adds the supplier access review console as the first operator-facing
+workflow that changes buyer access. The owned backend exposes
+`GET /v1/admin/access-requests` for a paginated review queue and
+`POST /v1/admin/access-requests/:requestId/decision` for decisions. Both routes
+require a valid self-hosted session and the owned `admin` role. They reuse the
+existing supplier access repository and service, so approval produces the same
+supplier identity grant, offer price grant and buyer notification as the
+existing access flow.
+
+The frontend route `/admin/access-requests` is a bounded review console, not a
+CRM or secret viewer. It shows buyer/company labels, masked supplier context,
+request message, status, age and SLA bucket. It does not render buyer emails,
+phone numbers, raw session ids or backend credentials. The review queue is
+indexed by `0017_supplier_access_review_queue` for open queue reads, history
+pagination and buyer support lookups.

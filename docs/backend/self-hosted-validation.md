@@ -1017,6 +1017,25 @@ Batch #95 adds admin runtime diagnostics validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the
   Batch #95 admin runtime diagnostics contract.
 
+Batch #96 adds supplier access review validation:
+
+- `GET /v1/admin/access-requests` requires a self-hosted session and `admin`
+  role;
+- `POST /v1/admin/access-requests/:requestId/decision` approves, rejects,
+  marks pending or revokes an existing supplier access request;
+- approval creates `supplier_identity` and `offer_price` grants and a buyer
+  `price_access_approved` notification through the existing access service;
+- `0017_supplier_access_review_queue` provides bounded open-queue and history
+  indexes for the operator path;
+- `smoke:self-hosted-admin-access-review` verifies auth guard, role guard,
+  list filtering, pending decision, approval grants, buyer notification and
+  invalid-decision validation;
+- `test:admin-access-review-frontend` covers adapter, hook and page states;
+- `smoke:e2e:admin-access-review` verifies browser headers, row refresh and
+  role-guard rendering with an API-backed mock;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  Batch #96 supplier access review contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

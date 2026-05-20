@@ -23,3 +23,18 @@
 - `infra/`: infrastructure area.
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
+
+## Batch #96 Supplier Access Review Console
+
+- `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
+- `apps/api/src/modules/access/routes.ts`: admin review list and decision endpoints.
+- `apps/api/src/modules/access/service.ts`: admin review orchestration.
+- `apps/api/src/modules/access/repository.ts`: memory repository review queue implementation.
+- `apps/api/src/modules/access/postgres-repository.ts`: PostgreSQL review queue implementation.
+- `packages/db/migrations/0017_supplier_access_review_queue.sql`: queue indexes for review reads.
+- `src/lib/admin-access-review-api.ts`: frontend self-hosted admin review API client.
+- `src/lib/use-admin-access-review.ts`: frontend admin review hook.
+- `src/pages/admin/AdminAccessRequests.tsx`: admin/operator review console page.
+- `e2e/admin-access-review.spec.ts`: browser smoke for admin review queue and forbidden role state.
+- `scripts/smoke-self-hosted-admin-access-review.mjs`: self-hosted runtime smoke.
+- `docs/backend/self-hosted-admin-access-review-smoke.md`: smoke documentation.

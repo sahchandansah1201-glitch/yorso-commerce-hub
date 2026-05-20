@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const accessPaginationLimitSchema = z.coerce.number().int().min(1).max(100).default(25);
+const accessPaginationOffsetSchema = z.coerce.number().int().min(0).max(10_000).default(0);
+
 export const supplierAccessStatusSchema = z.enum([
   "sent",
   "pending",
@@ -117,6 +120,67 @@ export const supplierAccessNotificationsAckResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierAccessReviewStatusFilterSchema = z.enum([
+  "open",
+  "all",
+  "sent",
+  "pending",
+  "approved",
+  "rejected",
+  "revoked",
+]);
+
+export const supplierAccessReviewQuerySchema = z.object({
+  status: supplierAccessReviewStatusFilterSchema.default("open"),
+  q: z.string().trim().min(1).max(120).optional(),
+  limit: accessPaginationLimitSchema,
+  offset: accessPaginationOffsetSchema,
+});
+
+export const supplierAccessReviewBuyerSchema = z.object({
+  userId: z.string().uuid(),
+  displayName: z.string().min(1).max(180).nullable(),
+  companyName: z.string().min(2).max(180).nullable(),
+  accountRole: z.enum(["buyer", "supplier", "both"]).nullable(),
+  countryCode: z.string().length(2).nullable(),
+});
+
+export const supplierAccessReviewSupplierSchema = z.object({
+  supplierId: z.string().min(1).max(80),
+  maskedName: z.string().min(2).max(180).nullable(),
+  companyName: z.string().min(2).max(180).nullable(),
+  country: z.string().min(2).max(120).nullable(),
+  city: z.string().min(1).max(120).nullable(),
+  verificationLevel: z.enum(["documents_reviewed", "basic", "unverified"]).nullable(),
+});
+
+export const supplierAccessReviewItemSchema = z.object({
+  request: supplierAccessRequestSchema,
+  buyer: supplierAccessReviewBuyerSchema,
+  supplier: supplierAccessReviewSupplierSchema,
+  ageHours: z.number().min(0),
+  decisionSla: z.enum(["fresh", "due_today", "overdue"]),
+});
+
+export const supplierAccessReviewSummarySchema = z.object({
+  sent: z.number().int().min(0),
+  pending: z.number().int().min(0),
+  approved: z.number().int().min(0),
+  rejected: z.number().int().min(0),
+  revoked: z.number().int().min(0),
+  open: z.number().int().min(0),
+});
+
+export const supplierAccessReviewListResponseSchema = z.object({
+  ok: z.literal(true),
+  items: z.array(supplierAccessReviewItemSchema),
+  limit: z.number().int().min(1).max(100),
+  offset: z.number().int().min(0).max(10_000),
+  total: z.number().int().min(0),
+  summary: supplierAccessReviewSummarySchema,
+  requestId: z.string(),
+});
+
 export type SupplierAccessStatus = z.infer<typeof supplierAccessStatusSchema>;
 export type SupplierAccessIntent = z.infer<typeof supplierAccessIntentSchema>;
 export type SupplierAccessGrantScope = z.infer<typeof supplierAccessGrantScopeSchema>;
@@ -129,3 +193,10 @@ export type SupplierAccessRequestCreate = z.infer<typeof supplierAccessRequestCr
 export type SupplierAccessDecision = z.infer<typeof supplierAccessDecisionSchema>;
 export type SupplierAccessNotificationsAck = z.infer<typeof supplierAccessNotificationsAckSchema>;
 export type SupplierAccessNotificationsAckResponse = z.infer<typeof supplierAccessNotificationsAckResponseSchema>;
+export type SupplierAccessReviewStatusFilter = z.infer<typeof supplierAccessReviewStatusFilterSchema>;
+export type SupplierAccessReviewQuery = z.infer<typeof supplierAccessReviewQuerySchema>;
+export type SupplierAccessReviewBuyer = z.infer<typeof supplierAccessReviewBuyerSchema>;
+export type SupplierAccessReviewSupplier = z.infer<typeof supplierAccessReviewSupplierSchema>;
+export type SupplierAccessReviewItem = z.infer<typeof supplierAccessReviewItemSchema>;
+export type SupplierAccessReviewSummary = z.infer<typeof supplierAccessReviewSummarySchema>;
+export type SupplierAccessReviewListResponse = z.infer<typeof supplierAccessReviewListResponseSchema>;

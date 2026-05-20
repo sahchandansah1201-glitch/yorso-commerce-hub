@@ -19,6 +19,8 @@ const adminAuditRetentionQueryHardeningSql = () =>
   readFileSync("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", "utf8");
 const adminAuditRetentionRuntimeSql = () =>
   readFileSync("packages/db/migrations/0016_admin_audit_retention_runtime.sql", "utf8");
+const supplierAccessReviewQueueSql = () =>
+  readFileSync("packages/db/migrations/0017_supplier_access_review_queue.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -228,6 +230,16 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("10,000 concurrent users");
   });
 
+  it("declares supplier access review queue indexes", () => {
+    const text = supplierAccessReviewQueueSql();
+
+    expect(text).toContain("idx_yorso_supplier_access_requests_review_open");
+    expect(text).toContain("where status in ('sent', 'pending')");
+    expect(text).toContain("idx_yorso_supplier_access_requests_review_all");
+    expect(text).toContain("idx_yorso_supplier_access_requests_review_buyer");
+    expect(text).toContain("10,000 concurrent-user production baseline");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
     const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}`;
 
@@ -296,7 +308,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -328,6 +340,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0014_admin_audit_access",
       "0015_admin_audit_retention_query_hardening",
       "0016_admin_audit_retention_runtime",
+      "0017_supplier_access_review_queue",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -427,6 +440,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0016_admin_audit_retention_runtime",
           ownedTables: ["yorso_api_audit_events"],
           dependsOn: ["0015_admin_audit_retention_query_hardening"],
+        }),
+        expect.objectContaining({
+          id: "0017_supplier_access_review_queue",
+          ownedTables: ["yorso_supplier_access_requests"],
+          dependsOn: ["0016_admin_audit_retention_runtime"],
         }),
       ]),
     );
