@@ -4,6 +4,8 @@ import {
   supplierAccessNotificationsAckResponseSchema,
   supplierAccessNotificationsAckSchema,
   supplierAccessNotificationsResponseSchema,
+  supplierAccessReviewListResponseSchema,
+  supplierAccessReviewQuerySchema,
   supplierAccessRequestCreateSchema,
   supplierAccessRequestResponseSchema,
 } from "../../../../../packages/contracts/dist/index.js";
@@ -65,6 +67,23 @@ export class SupplierAccessService {
       ok: true,
       ...result,
       requestId: input.responseRequestId,
+    });
+  }
+
+  async listReviewRequests(input: {
+    rawQuery: Record<string, string | undefined>;
+    requestId: string;
+  }) {
+    const query = supplierAccessReviewQuerySchema.parse(input.rawQuery);
+    const result = await this.repository.listReviewRequests(query);
+    return supplierAccessReviewListResponseSchema.parse({
+      ok: true,
+      items: result.items,
+      limit: query.limit,
+      offset: query.offset,
+      total: result.total,
+      summary: result.summary,
+      requestId: input.requestId,
     });
   }
 

@@ -902,6 +902,48 @@ Marker: admin_runtime_diagnostics_read=ok.
 Marker: admin-runtime-diagnostics.
 Marker: admin-runtime-capacity-plan.
 
+Batch #96 adds the supplier access review console. Operators now have a
+self-hosted admin queue at `GET /v1/admin/access-requests`, protected by the
+same browser session authority and `admin` role guard as runtime status and
+audit. The queue returns only review-safe context: request status, buyer display
+or company label, masked supplier context, request message, age and SLA bucket.
+It does not return buyer emails, phone numbers, raw session ids or passwords.
+
+The decision path is `POST /v1/admin/access-requests/:requestId/decision`.
+It reuses the existing supplier access decision service, so approval creates
+`supplier_identity` and `offer_price` grants and creates the buyer
+`price_access_approved` notification. Rejection, pending and revoke decisions
+do not create grants. The frontend route `/admin/access-requests` uses
+`src/lib/admin-access-review-api.ts` and `src/lib/use-admin-access-review.ts`
+with explicit disabled, session-required, forbidden and error states.
+
+Expected profile: the review console is a low-frequency operator read/write
+path, not a buyer-facing hot path. Reads are paginated with `limit` and
+`offset`, default to the open queue and are supported by
+`0017_supplier_access_review_queue` indexes for open status, history ordering
+and buyer support lookup. The path degrades fail-closed on missing session,
+invalid session or non-admin role. Observability comes from sanitized audit
+actions `admin.access_requests.read` and `admin.access_requests.decision`,
+standard request/error telemetry and the smoke marker
+`self_hosted_admin_access_review_smoke=ok`. Load testing should include mixed
+operator search, paginated open queue reads and approval writes while buyer
+catalog traffic remains dominant.
+
+Marker: Batch #96.
+Marker: /v1/admin/access-requests.
+Marker: /v1/admin/access-requests/:requestId/decision.
+Marker: admin.access_requests.read.
+Marker: admin.access_requests.decision.
+Marker: 0017_supplier_access_review_queue.
+Marker: admin-access-review-page.
+Marker: admin-access-review-queue.
+Marker: test:admin-access-review-frontend.
+Marker: smoke:self-hosted-admin-access-review.
+Marker: smoke:e2e:admin-access-review.
+Marker: self-hosted admin access review smoke.
+Marker: API-backed admin access review browser e2e.
+Marker: self_hosted_admin_access_review_smoke=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

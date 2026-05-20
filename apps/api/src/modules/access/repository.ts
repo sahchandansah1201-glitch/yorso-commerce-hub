@@ -6,12 +6,20 @@ import type {
   SupplierAccessGrant,
   SupplierAccessNotification,
   SupplierAccessRequest,
+  SupplierAccessReviewItem,
+  SupplierAccessReviewQuery,
+  SupplierAccessReviewSummary,
   SupplierAccessStatus,
 } from "../../../../../packages/contracts/dist/index.js";
 
 export interface SupplierAccessRepository {
   getRequest(input: { buyerUserId: string; supplierId: string }): Promise<SupplierAccessRequest | null>;
   createOrReuseRequest(input: { buyerUserId: string; supplierId: string; message?: string }): Promise<SupplierAccessRequest>;
+  listReviewRequests(input: SupplierAccessReviewQuery): Promise<{
+    items: SupplierAccessReviewItem[];
+    summary: SupplierAccessReviewSummary;
+    total: number;
+  }>;
   decideRequest(input: {
     requestId: string;
     actorUserId: string;
@@ -36,6 +44,46 @@ const eventTypeForStatus = (status: SupplierAccessStatus): SupplierAccessEventTy
   if (status === "rejected") return "supplier_access_rejected";
   if (status === "revoked") return "supplier_access_revoked";
   return "supplier_access_requested";
+};
+
+const emptySummary = (): SupplierAccessReviewSummary => ({
+  approved: 0,
+  open: 0,
+  pending: 0,
+  rejected: 0,
+  revoked: 0,
+  sent: 0,
+});
+
+const decisionSla = (createdAt: string): SupplierAccessReviewItem["decisionSla"] => {
+  const ageHours = (Date.now() - new Date(createdAt).getTime()) / 3_600_000;
+  if (ageHours >= 48) return "overdue";
+  if (ageHours >= 24) return "due_today";
+  return "fresh";
+};
+
+const reviewStatusPriority = (status: SupplierAccessStatus) => {
+  if (status === "pending") return 0;
+  if (status === "sent") return 1;
+  return 2;
+};
+
+const accessReviewMatches = (
+  request: SupplierAccessRequest,
+  query: SupplierAccessReviewQuery,
+) => {
+  if (query.status === "open" && request.status !== "sent" && request.status !== "pending") return false;
+  if (query.status !== "open" && query.status !== "all" && request.status !== query.status) return false;
+  if (!query.q) return true;
+  const needle = query.q.toLowerCase();
+  return [
+    request.id,
+    request.buyerUserId,
+    request.supplierId,
+    request.status,
+    request.intent,
+    request.message,
+  ].some((value) => value.toLowerCase().includes(needle));
 };
 
 export class MemorySupplierAccessRepository implements SupplierAccessRepository {
@@ -72,6 +120,53 @@ export class MemorySupplierAccessRepository implements SupplierAccessRepository 
     this.requests.set(this.key(input.buyerUserId, input.supplierId), request);
     this.events.push(this.createEvent(request, "supplier_access_requested", input.buyerUserId));
     return clone(request);
+  }
+
+  async listReviewRequests(input: SupplierAccessReviewQuery) {
+    const summary = emptySummary();
+    for (const request of this.requests.values()) {
+      summary[request.status] += 1;
+      if (request.status === "sent" || request.status === "pending") summary.open += 1;
+    }
+
+    const filtered = [...this.requests.values()]
+      .filter((request) => accessReviewMatches(request, input))
+      .sort(
+        (a, b) =>
+          reviewStatusPriority(a.status) - reviewStatusPriority(b.status) ||
+          b.updatedAt.localeCompare(a.updatedAt) ||
+          a.id.localeCompare(b.id),
+      );
+
+    const items = filtered.slice(input.offset, input.offset + input.limit).map((request) => {
+      const ageHours = Math.max(0, (Date.now() - new Date(request.createdAt).getTime()) / 3_600_000);
+      return {
+        request: clone(request),
+        buyer: {
+          userId: request.buyerUserId,
+          displayName: "Buyer account",
+          companyName: null,
+          accountRole: "buyer" as const,
+          countryCode: null,
+        },
+        supplier: {
+          supplierId: request.supplierId,
+          maskedName: `${request.supplierId} supplier`,
+          companyName: null,
+          country: null,
+          city: null,
+          verificationLevel: null,
+        },
+        ageHours,
+        decisionSla: decisionSla(request.createdAt),
+      } satisfies SupplierAccessReviewItem;
+    });
+
+    return {
+      items: clone(items),
+      summary,
+      total: filtered.length,
+    };
   }
 
   async decideRequest(input: { requestId: string; actorUserId: string; decision: SupplierAccessDecision }) {

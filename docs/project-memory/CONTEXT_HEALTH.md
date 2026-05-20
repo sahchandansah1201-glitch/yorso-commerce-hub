@@ -8,8 +8,10 @@
 context_risk: "medium"
 last_checkpoint: "2026-05-20"
 last_handoff_ready: true
-recommended_action: "continue with Batch #95 only after applying the Engineer Agent Action Contract"
+recommended_action: "finish Batch #96 commit, PR, checks and merge; then continue with a large Batch #97"
 current_project: "yorso-commerce-hub"
+active_branch: "codex/batch96-supplier-access-review-console"
+current_batch: 96
 ```
 
 ## Уровни риска

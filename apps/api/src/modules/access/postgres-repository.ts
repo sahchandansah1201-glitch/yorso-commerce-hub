@@ -7,6 +7,9 @@ import type {
   SupplierAccessGrantScope,
   SupplierAccessNotification,
   SupplierAccessRequest,
+  SupplierAccessReviewItem,
+  SupplierAccessReviewQuery,
+  SupplierAccessReviewSummary,
   SupplierAccessStatus,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessRepository } from "./repository.js";
@@ -34,6 +37,19 @@ interface AccessRequestRow extends Record<string, unknown> {
   updated_at: Date | string;
   decided_at: Date | string | null;
   decided_by_user_id: string | null;
+}
+
+interface AccessReviewRow extends AccessRequestRow {
+  buyer_display_name: string | null;
+  buyer_company_name: string | null;
+  buyer_account_role: "buyer" | "supplier" | "both" | null;
+  buyer_country_code: string | null;
+  supplier_masked_name: string | null;
+  supplier_company_name: string | null;
+  supplier_country: string | null;
+  supplier_city: string | null;
+  supplier_verification_level: "documents_reviewed" | "basic" | "unverified" | null;
+  total_count: string | number;
 }
 
 interface AccessGrantRow extends Record<string, unknown> {
@@ -73,6 +89,39 @@ const mapRequest = (row: AccessRequestRow): SupplierAccessRequest => ({
   updatedAt: ensureIso(row.updated_at),
   decidedAt: ensureIsoNullable(row.decided_at),
   decidedByUserId: row.decided_by_user_id,
+});
+
+const ageHours = (createdAt: Date | string) => {
+  const diff = Date.now() - new Date(createdAt).getTime();
+  return Math.max(0, diff / 3_600_000);
+};
+
+const decisionSla = (createdAt: Date | string): SupplierAccessReviewItem["decisionSla"] => {
+  const hours = ageHours(createdAt);
+  if (hours >= 48) return "overdue";
+  if (hours >= 24) return "due_today";
+  return "fresh";
+};
+
+const mapReviewItem = (row: AccessReviewRow): SupplierAccessReviewItem => ({
+  request: mapRequest(row),
+  buyer: {
+    userId: row.buyer_user_id,
+    displayName: row.buyer_display_name,
+    companyName: row.buyer_company_name,
+    accountRole: row.buyer_account_role,
+    countryCode: row.buyer_country_code,
+  },
+  supplier: {
+    supplierId: row.supplier_id,
+    maskedName: row.supplier_masked_name,
+    companyName: row.supplier_company_name,
+    country: row.supplier_country,
+    city: row.supplier_city,
+    verificationLevel: row.supplier_verification_level,
+  },
+  ageHours: ageHours(row.created_at),
+  decisionSla: decisionSla(row.created_at),
 });
 
 const mapGrant = (row: AccessGrantRow): SupplierAccessGrant => ({
@@ -143,6 +192,67 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
     const request = mapRequest(result.rows[0]);
     await this.insertEvent(request, "supplier_access_requested", input.buyerUserId);
     return request;
+  }
+
+  async listReviewRequests(input: SupplierAccessReviewQuery) {
+    const statusFilter = input.status;
+    const search = input.q ? `%${input.q.toLowerCase()}%` : null;
+    const result = await this.client.query<AccessReviewRow>(
+      `
+        select
+          r.*,
+          concat_ws(' ', u.first_name, u.last_name) as buyer_display_name,
+          c.trade_name as buyer_company_name,
+          c.account_role as buyer_account_role,
+          c.country_code as buyer_country_code,
+          s.masked_name as supplier_masked_name,
+          s.company_name as supplier_company_name,
+          s.country as supplier_country,
+          s.city as supplier_city,
+          s.verification_level as supplier_verification_level,
+          count(*) over() as total_count
+        from yorso_supplier_access_requests r
+        left join yorso_users u on u.id = r.buyer_user_id
+        left join yorso_companies c on c.owner_user_id = r.buyer_user_id
+        left join yorso_suppliers_directory s on s.id = r.supplier_id
+        where (
+          $1::text = 'all'
+          or ($1::text = 'open' and r.status in ('sent', 'pending'))
+          or r.status::text = $1::text
+        )
+        and (
+          $2::text is null
+          or lower(r.id::text) like $2::text
+          or lower(r.buyer_user_id::text) like $2::text
+          or lower(r.supplier_id) like $2::text
+          or lower(coalesce(u.first_name, '') || ' ' || coalesce(u.last_name, '')) like $2::text
+          or lower(coalesce(c.trade_name, '')) like $2::text
+          or lower(coalesce(s.masked_name, '')) like $2::text
+          or lower(coalesce(s.company_name, '')) like $2::text
+          or lower(coalesce(s.country, '')) like $2::text
+          or lower(coalesce(r.message, '')) like $2::text
+        )
+        order by
+          case when r.status in ('sent', 'pending') then 0 else 1 end asc,
+          case
+            when r.status = 'pending' then 0
+            when r.status = 'sent' then 1
+            else 2
+          end asc,
+          r.updated_at desc,
+          r.id asc
+        limit $3
+        offset $4
+      `,
+      [statusFilter, search, input.limit, input.offset],
+    );
+
+    const summary = await this.reviewSummary();
+    return {
+      items: result.rows.map(mapReviewItem),
+      summary,
+      total: Number(result.rows[0]?.total_count ?? 0),
+    };
   }
 
   async decideRequest(input: {
@@ -315,5 +425,28 @@ export class PostgresSupplierAccessRepository implements SupplierAccessRepositor
       ],
     );
     return notification;
+  }
+
+  private async reviewSummary(): Promise<SupplierAccessReviewSummary> {
+    const result = await this.client.query<{ status: SupplierAccessStatus; count: string | number }>(
+      `
+        select status, count(*) as count
+        from yorso_supplier_access_requests
+        group by status
+      `,
+    );
+    const summary: SupplierAccessReviewSummary = {
+      approved: 0,
+      open: 0,
+      pending: 0,
+      rejected: 0,
+      revoked: 0,
+      sent: 0,
+    };
+    for (const row of result.rows) {
+      summary[row.status] = Number(row.count);
+    }
+    summary.open = summary.sent + summary.pending;
+    return summary;
   }
 }

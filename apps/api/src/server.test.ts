@@ -672,6 +672,114 @@ describe("YORSO self-hosted API skeleton", () => {
     );
   });
 
+  it("serves an admin supplier access review queue and decision path", async () => {
+    const fetchApi = await startRawTestServer();
+
+    const missingSession = await fetchApi("/v1/admin/access-requests");
+    expect(missingSession.status).toBe(401);
+
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const buyerRead = await fetchApi("/v1/admin/access-requests", {
+      headers: buyerHeaders,
+    });
+    const buyerReadBody = (await buyerRead.json()) as JsonBody;
+    expect(buyerRead.status).toBe(403);
+    expect(buyerReadBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      body: JSON.stringify({ message: "Need exact price for a container" }),
+      headers: buyerHeaders,
+      method: "POST",
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+    expect(accessRequest.status).toBe(201);
+
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+    const queue = await fetchApi("/v1/admin/access-requests?status=open&q=sup-no-001&limit=10", {
+      headers: adminHeaders,
+    });
+    const queueBody = (await queue.json()) as JsonBody;
+    expect(queue.status).toBe(200);
+    expect(queueBody).toMatchObject({
+      ok: true,
+      total: 1,
+      summary: {
+        open: 1,
+        sent: 1,
+      },
+    });
+    expect(queueBody.items).toEqual([
+      expect.objectContaining({
+        request: expect.objectContaining({
+          id: requestId,
+          buyerUserId: testAccountUserId,
+          supplierId: "sup-no-001",
+          status: "sent",
+        }),
+        buyer: expect.objectContaining({
+          userId: testAccountUserId,
+        }),
+        supplier: expect.objectContaining({
+          supplierId: "sup-no-001",
+        }),
+      }),
+    ]);
+    expect(JSON.stringify(queueBody)).not.toContain("buyer@example.com");
+    expect(JSON.stringify(queueBody)).not.toContain(activeAccountSessionId);
+
+    const approved = await fetchApi(`/v1/admin/access-requests/${requestId}/decision`, {
+      body: JSON.stringify({ status: "approved" }),
+      headers: adminHeaders,
+      method: "POST",
+    });
+    const approvedBody = (await approved.json()) as JsonBody;
+    expect(approved.status).toBe(200);
+    expect(approvedBody).toMatchObject({
+      ok: true,
+      request: {
+        id: requestId,
+        status: "approved",
+      },
+      notification: {
+        buyerUserId: testAccountUserId,
+        supplierId: "sup-no-001",
+        status: "unread",
+        type: "price_access_approved",
+      },
+    });
+    expect((approvedBody.grants as JsonBody[]).map((grant) => grant.scope).sort()).toEqual([
+      "offer_price",
+      "supplier_identity",
+    ]);
+
+    const approvedQueue = await fetchApi("/v1/admin/access-requests?status=approved&q=sup-no-001", {
+      headers: adminHeaders,
+    });
+    const approvedQueueBody = (await approvedQueue.json()) as JsonBody;
+    expect(approvedQueue.status).toBe(200);
+    expect(approvedQueueBody.total).toBe(1);
+    expect((approvedQueueBody.items as JsonBody[])[0]).toMatchObject({
+      request: {
+        id: requestId,
+        status: "approved",
+      },
+    });
+
+    const buyerNotifications = await fetchApi("/v1/access/notifications", {
+      headers: buyerHeaders,
+    });
+    const buyerNotificationsBody = (await buyerNotifications.json()) as JsonBody;
+    expect(buyerNotifications.status).toBe(200);
+    expect(buyerNotificationsBody.notifications).toEqual([
+      expect.objectContaining({
+        supplierId: "sup-no-001",
+        type: "price_access_approved",
+        status: "unread",
+      }),
+    ]);
+  });
+
   it("exports admin audit events as JSONL without raw identifiers", async () => {
     const fetchApi = await startRawTestServer({
       adminAuditRepository: new MemoryAdminAuditRepository([

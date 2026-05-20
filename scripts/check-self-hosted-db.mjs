@@ -28,6 +28,7 @@ const files = [
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+  "packages/db/migrations/0017_supplier_access_review_queue.sql",
 ];
 
 const failures = [];
@@ -54,7 +55,8 @@ const apiAuditEventsSql = read("packages/db/migrations/0013_api_audit_events.sql
 const adminAuditAccessSql = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardeningSql = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
 const adminAuditRetentionRuntimeSql = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}`;
+const supplierAccessReviewQueueSql = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -301,6 +303,15 @@ for (const marker of [
   requireText("packages/db/migrations/0016_admin_audit_retention_runtime.sql", adminAuditRetentionRuntimeSql, marker);
 }
 
+for (const marker of [
+  "idx_yorso_supplier_access_requests_review_open",
+  "idx_yorso_supplier_access_requests_review_all",
+  "idx_yorso_supplier_access_requests_review_buyer",
+  "10,000 concurrent-user production baseline",
+]) {
+  requireText("packages/db/migrations/0017_supplier_access_review_queue.sql", supplierAccessReviewQueueSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -358,6 +369,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0015_admin_audit
 if (!manifest.migrations?.some((migration) => migration.id === "0016_admin_audit_retention_runtime")) {
   failures.push("packages/db/migration-manifest.json: missing 0016_admin_audit_retention_runtime");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0017_supplier_access_review_queue")) {
+  failures.push("packages/db/migration-manifest.json: missing 0017_supplier_access_review_queue");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -408,6 +422,9 @@ if (!manifest.migrations?.[15]?.dependsOn?.includes("0014_admin_audit_access")) 
 }
 if (!manifest.migrations?.[16]?.dependsOn?.includes("0015_admin_audit_retention_query_hardening")) {
   failures.push("packages/db/migration-manifest.json: admin audit retention runtime must depend on retention/query hardening");
+}
+if (!manifest.migrations?.[17]?.dependsOn?.includes("0016_admin_audit_retention_runtime")) {
+  failures.push("packages/db/migration-manifest.json: supplier access review queue must depend on admin audit retention runtime");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

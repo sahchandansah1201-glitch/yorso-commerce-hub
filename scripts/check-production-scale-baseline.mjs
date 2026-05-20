@@ -21,6 +21,7 @@ const requiredFiles = [
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+  "packages/db/migrations/0017_supplier_access_review_queue.sql",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -50,6 +51,13 @@ const requiredFiles = [
   "src/pages/admin/AdminRuntimeStatus.tsx",
   "src/pages/admin/AdminRuntimeStatus.test.tsx",
   "e2e/admin-runtime-status.spec.ts",
+  "src/lib/admin-access-review-api.ts",
+  "src/lib/admin-access-review-api.test.ts",
+  "src/lib/use-admin-access-review.ts",
+  "src/lib/use-admin-access-review.test.tsx",
+  "src/pages/admin/AdminAccessRequests.tsx",
+  "src/pages/admin/AdminAccessRequests.test.tsx",
+  "e2e/admin-access-review.spec.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -69,6 +77,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-audit-persistence.mjs",
   "scripts/smoke-self-hosted-admin-audit.mjs",
   "scripts/smoke-self-hosted-admin-runtime-status.mjs",
+  "scripts/smoke-self-hosted-admin-access-review.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -147,6 +156,7 @@ const apiAuditEvents = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccess = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardening = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
 const adminAuditRetentionRuntime = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
+const supplierAccessReviewQueue = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -175,6 +185,13 @@ const useAdminRuntimeStatusTest = read("src/lib/use-admin-runtime-status.test.ts
 const adminRuntimePage = read("src/pages/admin/AdminRuntimeStatus.tsx");
 const adminRuntimePageTest = read("src/pages/admin/AdminRuntimeStatus.test.tsx");
 const adminRuntimeE2E = read("e2e/admin-runtime-status.spec.ts");
+const adminAccessReviewApi = read("src/lib/admin-access-review-api.ts");
+const adminAccessReviewApiTest = read("src/lib/admin-access-review-api.test.ts");
+const useAdminAccessReview = read("src/lib/use-admin-access-review.ts");
+const useAdminAccessReviewTest = read("src/lib/use-admin-access-review.test.tsx");
+const adminAccessReviewPage = read("src/pages/admin/AdminAccessRequests.tsx");
+const adminAccessReviewPageTest = read("src/pages/admin/AdminAccessRequests.test.tsx");
+const adminAccessReviewE2E = read("e2e/admin-access-review.spec.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -194,6 +211,7 @@ const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
+const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -311,6 +329,7 @@ for (const marker of [
   "Batch #93",
   "Batch #94",
   "Batch #95",
+  "Batch #96",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -349,10 +368,16 @@ for (const marker of [
   "admin runtime status",
   "admin runtime UI",
   "admin runtime diagnostics",
+  "supplier access review console",
   "self-hosted admin runtime status smoke",
+  "self-hosted admin access review smoke",
   "API-backed admin runtime status browser e2e",
+  "API-backed admin access review browser e2e",
   "/v1/admin/runtime/diagnostics",
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/:requestId/decision",
   "admin-runtime-diagnostics",
+  "admin-access-review-queue",
   "yorso_api_admin_runtime_status_requests_total",
   "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
   "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
@@ -578,6 +603,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0011_auth_sessio
 if (!manifest.migrations?.some((migration) => migration.id === "0012_auth_security_events")) {
   failures.push("packages/db/migration-manifest.json: missing 0012_auth_security_events");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0017_supplier_access_review_queue")) {
+  failures.push("packages/db/migration-manifest.json: missing 0017_supplier_access_review_queue");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -690,11 +718,26 @@ if (pkg.scripts["smoke:self-hosted-admin-runtime-status:run"] !== "node scripts/
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-status:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin runtime status smoke");
 }
+if (pkg.scripts["smoke:self-hosted-admin-access-review"] !== "npm run api:build && npm run smoke:self-hosted-admin-access-review:run") {
+  failures.push("package.json: smoke:self-hosted-admin-access-review must build and run the admin access review smoke");
+}
+if (pkg.scripts["smoke:self-hosted-admin-access-review:run"] !== "node scripts/smoke-self-hosted-admin-access-review.mjs") {
+  failures.push("package.json: smoke:self-hosted-admin-access-review:run must execute scripts/smoke-self-hosted-admin-access-review.mjs");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-access-review:run")) {
+  failures.push("package.json: ci:core must run the self-hosted admin access review smoke");
+}
 if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
   failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-runtime-frontend")) {
   failures.push("package.json: ci:core must run the admin runtime frontend tests");
+}
+if (pkg.scripts["test:admin-access-review-frontend"] !== "vitest run src/lib/admin-access-review-api.test.ts src/lib/use-admin-access-review.test.tsx src/pages/admin/AdminAccessRequests.test.tsx") {
+  failures.push("package.json: test:admin-access-review-frontend must cover the admin access review adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-access-review-frontend")) {
+  failures.push("package.json: ci:core must run the admin access review frontend tests");
 }
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
@@ -707,6 +750,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-runtime-status"))
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin runtime status browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-runtime-status");
+if (pkg.scripts["smoke:e2e:admin-access-review"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-access-review:run") {
+  failures.push("package.json: smoke:e2e:admin-access-review must build with the self-hosted admin access review adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-access-review:run"]?.includes("e2e/admin-access-review.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-access-review:run must cover /admin/access-requests browser behavior");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-access-review")) {
+  failures.push("package.json: ci:full must include the admin access review browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin access review browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-access-review");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -1011,6 +1065,91 @@ for (const marker of [
   "self_hosted_admin_runtime_status_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-runtime-status.mjs", adminRuntimeSmoke, marker);
+}
+for (const marker of [
+  "admin_access_review_auth_guard=ok",
+  "admin_access_review_role_guard=ok",
+  "admin_access_review_list=ok",
+  "admin_access_review_pending=ok",
+  "admin_access_review_approve=ok",
+  "admin_access_review_filters=ok",
+  "admin_access_review_decision_notification=ok",
+  "admin_access_review_validation_guard=ok",
+  "self_hosted_admin_access_review_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-access-review.mjs", adminAccessReviewSmoke, marker);
+}
+for (const marker of [
+  "idx_yorso_supplier_access_requests_review_open",
+  "idx_yorso_supplier_access_requests_review_all",
+  "idx_yorso_supplier_access_requests_review_buyer",
+  "10,000 concurrent-user production baseline",
+]) {
+  requireText("packages/db/migrations/0017_supplier_access_review_queue.sql", supplierAccessReviewQueue, marker);
+}
+for (const marker of [
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/:requestId/decision",
+  "admin.access_requests.read",
+  "admin.access_requests.decision",
+  "resolveAuthenticatedAccountSession",
+]) {
+  requireText("apps/api/src/modules/access/routes.ts", accessRoutes, marker);
+}
+for (const marker of [
+  "createAdminAccessReviewApiClient",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "/v1/admin/access-requests",
+]) {
+  requireText("src/lib/admin-access-review-api.ts", adminAccessReviewApi, marker);
+}
+for (const marker of [
+  "disabled without self-hosted API URL",
+  "lists review requests with session headers",
+  "posts approve decisions",
+]) {
+  requireText("src/lib/admin-access-review-api.test.ts", adminAccessReviewApiTest, marker);
+}
+for (const marker of [
+  "useAdminAccessReview",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-access-review.ts", useAdminAccessReview, marker);
+}
+for (const marker of [
+  "loads review queue and refreshes after decision",
+  "maps admin role failures to forbidden state",
+]) {
+  requireText("src/lib/use-admin-access-review.test.tsx", useAdminAccessReviewTest, marker);
+}
+for (const marker of [
+  "admin-access-review-page",
+  "admin-access-review-queue",
+  "admin-access-review-summary",
+  "admin-access-review-pagination",
+  "Self-hosted review path",
+]) {
+  requireText("src/pages/admin/AdminAccessRequests.tsx", adminAccessReviewPage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "loads review queue, sends admin decision",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminAccessRequests.test.tsx", adminAccessReviewPageTest, marker);
+}
+for (const marker of [
+  "Batch #96 browser guard",
+  "/admin/access-requests",
+  "/v1/admin/access-requests",
+  "/v1/admin/access-requests/:requestId/decision",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+]) {
+  requireText("e2e/admin-access-review.spec.ts", adminAccessReviewE2E, marker);
 }
 for (const marker of [
   "createAdminRuntimeApiClient",

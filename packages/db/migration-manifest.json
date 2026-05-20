@@ -198,6 +198,17 @@
       "dependsOn": [
         "0015_admin_audit_retention_query_hardening"
       ]
+    },
+    {
+      "id": "0017_supplier_access_review_queue",
+      "file": "migrations/0017_supplier_access_review_queue.sql",
+      "description": "Add operator review queue indexes for supplier access request decisions.",
+      "ownedTables": [
+        "yorso_supplier_access_requests"
+      ],
+      "dependsOn": [
+        "0016_admin_audit_retention_runtime"
+      ]
     }
   ]
 }
