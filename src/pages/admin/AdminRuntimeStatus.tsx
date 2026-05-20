@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import { useLanguage } from "@/i18n/LanguageContext";
 import type { Language } from "@/i18n/translations";
-import type { AdminRuntimeStatus } from "@/lib/admin-runtime-api";
+import type { AdminRuntimeDiagnosticCheck, AdminRuntimeDiagnostics, AdminRuntimeStatus } from "@/lib/admin-runtime-api";
 import { useAdminRuntimeStatus } from "@/lib/use-admin-runtime-status";
 
 type RuntimeCopy = {
@@ -90,6 +90,23 @@ type RuntimeCopy = {
   sessionTtl: string;
   attempts: string;
   window: string;
+  diagnostics: string;
+  diagnosticsBody: string;
+  overall: string;
+  checksPassed: string;
+  checksWarned: string;
+  checksFailed: string;
+  productionReady: string;
+  needsAttention: string;
+  capacityPlan: string;
+  readProfile: string;
+  writeProfile: string;
+  cacheStrategy: string;
+  backpressureStrategy: string;
+  databaseStrategy: string;
+  failureMode: string;
+  observabilityPlan: string;
+  loadTestPlan: string;
 };
 
 const COPY: Record<Language, RuntimeCopy> = {
@@ -159,6 +176,23 @@ const COPY: Record<Language, RuntimeCopy> = {
     sessionTtl: "Session cache TTL",
     attempts: "Failed attempts",
     window: "Failure window",
+    diagnostics: "Runtime diagnostics",
+    diagnosticsBody: "Actionable checks for production readiness. The list is derived from sanitized runtime configuration.",
+    overall: "Overall",
+    checksPassed: "Passed",
+    checksWarned: "Warnings",
+    checksFailed: "Failed",
+    productionReady: "Production ready",
+    needsAttention: "Needs attention",
+    capacityPlan: "Capacity plan",
+    readProfile: "Read profile",
+    writeProfile: "Write profile",
+    cacheStrategy: "Cache strategy",
+    backpressureStrategy: "Backpressure strategy",
+    databaseStrategy: "Database strategy",
+    failureMode: "Failure mode",
+    observabilityPlan: "Observability plan",
+    loadTestPlan: "Load-test plan",
   },
   ru: {
     title: "Статус runtime администратора",
@@ -226,6 +260,23 @@ const COPY: Record<Language, RuntimeCopy> = {
     sessionTtl: "Session cache TTL",
     attempts: "Failed attempts",
     window: "Failure window",
+    diagnostics: "Runtime diagnostics",
+    diagnosticsBody: "Actionable checks для production readiness. Список построен из безопасной runtime-конфигурации.",
+    overall: "Итог",
+    checksPassed: "Пройдено",
+    checksWarned: "Warnings",
+    checksFailed: "Failed",
+    productionReady: "Production ready",
+    needsAttention: "Требует внимания",
+    capacityPlan: "Capacity plan",
+    readProfile: "Read profile",
+    writeProfile: "Write profile",
+    cacheStrategy: "Cache strategy",
+    backpressureStrategy: "Backpressure strategy",
+    databaseStrategy: "Database strategy",
+    failureMode: "Failure mode",
+    observabilityPlan: "Observability plan",
+    loadTestPlan: "Load-test plan",
   },
   es: {
     title: "Estado runtime de administrador",
@@ -293,6 +344,23 @@ const COPY: Record<Language, RuntimeCopy> = {
     sessionTtl: "Session cache TTL",
     attempts: "Failed attempts",
     window: "Failure window",
+    diagnostics: "Runtime diagnostics",
+    diagnosticsBody: "Checks accionables para production readiness. La lista se deriva de configuración runtime sanitizada.",
+    overall: "General",
+    checksPassed: "Pasados",
+    checksWarned: "Warnings",
+    checksFailed: "Failed",
+    productionReady: "Production ready",
+    needsAttention: "Requiere atención",
+    capacityPlan: "Capacity plan",
+    readProfile: "Read profile",
+    writeProfile: "Write profile",
+    cacheStrategy: "Cache strategy",
+    backpressureStrategy: "Backpressure strategy",
+    databaseStrategy: "Database strategy",
+    failureMode: "Failure mode",
+    observabilityPlan: "Observability plan",
+    loadTestPlan: "Load-test plan",
   },
 };
 
@@ -462,6 +530,113 @@ const RuntimeGrid = ({ copy, status }: { copy: RuntimeCopy; status: AdminRuntime
   </div>
 );
 
+const diagnosticClassName = (status: AdminRuntimeDiagnosticCheck["status"]) => {
+  if (status === "pass") return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (status === "warn") return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-red-200 bg-red-50 text-red-800";
+};
+
+const DiagnosticsPanel = ({
+  copy,
+  diagnostics,
+}: {
+  copy: RuntimeCopy;
+  diagnostics: AdminRuntimeDiagnostics;
+}) => {
+  const planRows = [
+    [copy.readProfile, diagnostics.capacityPlan.readProfile],
+    [copy.writeProfile, diagnostics.capacityPlan.writeProfile],
+    [copy.cacheStrategy, diagnostics.capacityPlan.cacheStrategy],
+    [copy.backpressureStrategy, diagnostics.capacityPlan.backpressureStrategy],
+    [copy.databaseStrategy, diagnostics.capacityPlan.databaseStrategy],
+    [copy.failureMode, diagnostics.capacityPlan.failureMode],
+    [copy.observabilityPlan, diagnostics.capacityPlan.observabilityPlan],
+    [copy.loadTestPlan, diagnostics.capacityPlan.loadTestPlan],
+  ] as const;
+
+  return (
+    <section className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]" data-testid="admin-runtime-diagnostics">
+      <Card className="border-slate-200 bg-white shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle className="text-xl">{copy.diagnostics}</CardTitle>
+              <CardDescription>{copy.diagnosticsBody}</CardDescription>
+            </div>
+            <Badge
+              variant="outline"
+              className={diagnosticClassName(diagnostics.diagnostics.overallStatus)}
+              data-testid="admin-runtime-diagnostics-overall"
+            >
+              {copy.overall}: {diagnostics.diagnostics.overallStatus}
+            </Badge>
+          </div>
+          <div className="grid gap-2 pt-2 sm:grid-cols-4">
+            <StatusCount label={copy.checksPassed} value={diagnostics.diagnostics.passCount} tone="pass" />
+            <StatusCount label={copy.checksWarned} value={diagnostics.diagnostics.warnCount} tone="warn" />
+            <StatusCount label={copy.checksFailed} value={diagnostics.diagnostics.failCount} tone="fail" />
+            <StatusCount
+              label={diagnostics.diagnostics.productionReady ? copy.productionReady : copy.needsAttention}
+              value={diagnostics.diagnostics.productionReady ? copy.yes : copy.no}
+              tone={diagnostics.diagnostics.productionReady ? "pass" : "warn"}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3" data-testid="admin-runtime-diagnostics-checks">
+            {diagnostics.diagnostics.checks.map((check) => (
+              <article key={check.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-slate-950">{check.label}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{check.summary}</p>
+                  </div>
+                  <Badge variant="outline" className={diagnosticClassName(check.status)}>
+                    {check.status}
+                  </Badge>
+                </div>
+                <p className="mt-3 text-sm text-slate-700">{check.action}</p>
+              </article>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200 bg-white shadow-sm" data-testid="admin-runtime-capacity-plan">
+        <CardHeader>
+          <CardTitle className="text-xl">{copy.capacityPlan}</CardTitle>
+          <CardDescription>{copy.targetUsersBody}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <dl className="space-y-3">
+            {planRows.map(([label, value]) => (
+              <div key={label} className="rounded-2xl bg-slate-50 p-3">
+                <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</dt>
+                <dd className="mt-1 text-sm leading-6 text-slate-800">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </CardContent>
+      </Card>
+    </section>
+  );
+};
+
+const StatusCount = ({
+  label,
+  tone,
+  value,
+}: {
+  label: string;
+  tone: AdminRuntimeDiagnosticCheck["status"];
+  value: number | string;
+}) => (
+  <div className={`rounded-2xl border px-3 py-2 ${diagnosticClassName(tone)}`}>
+    <div className="text-lg font-semibold">{value}</div>
+    <div className="text-xs font-medium uppercase tracking-[0.14em] opacity-80">{label}</div>
+  </div>
+);
+
 const StatePanel = ({
   children,
   icon: Icon,
@@ -609,6 +784,9 @@ export default function AdminRuntimeStatusPage() {
             </Alert>
 
             <RuntimeGrid copy={copy} status={status} />
+            {runtime.diagnostics ? (
+              <DiagnosticsPanel copy={copy} diagnostics={runtime.diagnostics} />
+            ) : null}
           </div>
         ) : null}
       </main>

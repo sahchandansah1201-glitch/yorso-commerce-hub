@@ -135,6 +135,10 @@ describe("self-hosted API metrics registry", () => {
       outcome: "blocked",
       reason: "admin_role_required",
     });
+    registry.observeAdminRuntime({
+      operation: "diagnostics",
+      outcome: "success",
+    });
 
     const text = registry.renderPrometheusText();
 
@@ -143,6 +147,9 @@ describe("self-hosted API metrics registry", () => {
     );
     expect(text).toContain(
       'yorso_api_admin_runtime_status_requests_total{operation="status",outcome="blocked",reason="admin_role_required"} 1',
+    );
+    expect(text).toContain(
+      'yorso_api_admin_runtime_status_requests_total{operation="diagnostics",outcome="success",reason="none"} 1',
     );
     expect(text).not.toContain("admin@example.com");
     expect(text).not.toContain("postgres://");

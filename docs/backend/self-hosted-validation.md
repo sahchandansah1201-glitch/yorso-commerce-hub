@@ -997,6 +997,26 @@ Batch #94 adds admin runtime UI validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` guard the
   Batch #94 admin runtime UI contract.
 
+Batch #95 adds admin runtime diagnostics validation:
+
+- `GET /v1/admin/runtime/diagnostics` uses the same self-hosted session and
+  `admin` role protection as `/v1/admin/runtime/status`;
+- diagnostics returns checks for production policy, capacity baseline, auth
+  rate limiting, session cache, observability, audit durability, request
+  guardrails and lifecycle drain;
+- diagnostics returns a capacity plan covering read/write profile, cache,
+  backpressure, database strategy, failure mode, observability and load-test
+  plan;
+- diagnostics excludes secrets, connection strings, storage endpoints, emails,
+  raw user ids and raw session ids;
+- `smoke:self-hosted-admin-runtime-status` verifies
+  `admin_runtime_diagnostics_read=ok` and diagnostics metrics;
+- `test:admin-runtime-frontend` verifies adapter, hook and page diagnostics;
+- `smoke:e2e:admin-runtime-status` verifies the browser diagnostics panel and
+  capacity plan;
+- `check:self-hosted-api` and `check:production-scale-baseline` guard the
+  Batch #95 admin runtime diagnostics contract.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

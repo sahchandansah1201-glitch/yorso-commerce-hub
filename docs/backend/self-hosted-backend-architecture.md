@@ -896,3 +896,18 @@ It is not a configuration editor, secret viewer or replacement for metrics
 dashboards. Prometheus, audit retention and runtime logs remain backend
 responsibilities; the UI is a quick status console for deployment and incident
 checks.
+
+Batch #95 adds admin runtime diagnostics on the same boundary. The API exposes
+`GET /v1/admin/runtime/diagnostics`, which is derived from sanitized runtime
+configuration and lifecycle state. It does not perform dependency scans,
+business-table reads or storage listing. Diagnostics summarizes whether the
+owned backend is aligned with the self-hosted production policy, 10,000
+concurrent-user baseline, auth backpressure, Redis session cache expectation,
+Prometheus/JSONL observability, durable audit storage, request guardrails and
+graceful shutdown drain.
+
+The `/admin/runtime` frontend now renders this diagnostics response as an
+operator checklist plus capacity plan. It is a control-plane read surface, not
+a secret viewer and not a hosted-BaaS console. The intended use is fast
+deployment verification and incident triage while preserving low cardinality
+metrics and sanitized audit events.

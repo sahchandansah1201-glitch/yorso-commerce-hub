@@ -1,0 +1,60 @@
+project: "yorso-commerce-hub"
+updated_at: "2026-05-20"
+owner: "istokdmgmail.com"
+status: "active"
+
+source_policy:
+  source_of_truth: "Repository files plus explicit user-provided messages."
+  chat_memory_rule: "Do not treat old chat history as authoritative unless confirmed by files or explicit handoff."
+  uncertainty_rule: "Mark unsupported claims as hypotheses."
+
+repository:
+  cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
+  git_status_confirmed_at: "2026-05-17"
+  dirty_worktree_before_project_memory: false
+
+project_identity:
+  summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
+  confirmed_from:
+    - "README.md"
+    - "package.json"
+    - "repository structure"
+  package_name: "vite_react_shadcn_ts"
+  main_areas:
+    - "src/"
+    - "apps/"
+    - "packages/"
+    - "infra/"
+    - "supabase/"
+    - "e2e/"
+    - "docs/"
+
+active_workstream:
+  id: "self_hosted_production_batches"
+  summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
+
+next_actions:
+  - "Apply the Engineer Agent Action Contract from AGENTS.md."
+  - "Batch #95 must be a large connected production batch unless a concrete blocker is stated before implementation."
+  - "Include Batch Size Report after each completed batch."
+
+quality_rules:
+  - "Use repository files as source of truth."
+  - "Do not invent old-chat context."
+  - "Do not store secrets in docs/project-memory."
+  - "For production-facing work, include a 10000 concurrent users capacity review."
+  - "Repeated user process instructions must be promoted to explicit working contracts before continuing."
+
+critical_files:
+  - "AGENTS.md"
+  - "package.json"
+  - "README.md"
+  - "docs/project-memory/CONTEXT_HEALTH.md"
+  - "docs/project-memory/PROJECT_STATE.yaml"
+  - "docs/project-memory/HANDOFF.md"
+  - "docs/project-memory/NEXT_ACTIONS.md"
+  - "docs/project-memory/WORKLOG.md"
+  - "docs/project-memory/ARTIFACTS.md"
+
+open_questions:
+  - "Detailed current product status should be refreshed before the next feature task."

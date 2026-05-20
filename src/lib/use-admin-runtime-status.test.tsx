@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BuyerSession } from "@/lib/buyer-session";
-import type { AdminRuntimeStatus } from "@/lib/admin-runtime-api";
+import type { AdminRuntimeDiagnostics, AdminRuntimeStatus } from "@/lib/admin-runtime-api";
 import { useAdminRuntimeStatus } from "@/lib/use-admin-runtime-status";
 
 const adminSession: BuyerSession = {
@@ -71,6 +71,50 @@ const statusPayload: AdminRuntimeStatus = {
   },
 };
 
+const diagnosticsPayload: AdminRuntimeDiagnostics = {
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000595",
+  generatedAt: "2026-05-20T10:00:00.000Z",
+  selfHostedBackend: true,
+  productionScaleBaseline: {
+    targetConcurrentUsers: 10_000,
+    status: "policy_required",
+  },
+  diagnostics: {
+    checks: [
+      {
+        action: "Keep hosted BaaS disabled for production.",
+        id: "production_policy",
+        label: "Self-hosted production policy",
+        severity: "critical",
+        status: "pass",
+        summary: "Production policy is clean.",
+      },
+    ],
+    failCount: 0,
+    overallStatus: "pass",
+    passCount: 1,
+    productionReady: true,
+    warnCount: 0,
+  },
+  capacityPlan: {
+    backpressureStrategy: "Use guardrails.",
+    cacheStrategy: "Use explicit refresh.",
+    databaseStrategy: "Use indexed paths.",
+    failureMode: "No fallback fabrication.",
+    loadTestPlan: "Run operator smoke tests.",
+    observabilityPlan: "Emit metrics.",
+    readProfile: "Low-frequency admin read.",
+    writeProfile: "No writes.",
+  },
+  productionPolicy: {
+    supabaseProductionBackend: false,
+    hostedBaasProductionBackend: false,
+    prototypeSupabaseConfigured: false,
+    secretsIncluded: false,
+  },
+};
+
 describe("useAdminRuntimeStatus", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -88,8 +132,8 @@ describe("useAdminRuntimeStatus", () => {
 
   it("loads runtime status and supports explicit refresh", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
-    const fetchImpl = vi.fn(async () =>
-      new Response(JSON.stringify(statusPayload), {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) =>
+      new Response(JSON.stringify(String(input).endsWith("/diagnostics") ? diagnosticsPayload : statusPayload), {
         headers: { "content-type": "application/json" },
       }),
     );
@@ -99,12 +143,13 @@ describe("useAdminRuntimeStatus", () => {
 
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.data?.productionScaleBaseline.targetConcurrentUsers).toBe(10_000);
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(result.current.diagnostics?.diagnostics.productionReady).toBe(true);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
 
     act(() => {
       result.current.refresh();
     });
-    await waitFor(() => expect(fetchImpl).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(fetchImpl).toHaveBeenCalledTimes(4));
   });
 
   it("maps 403 responses to forbidden state", async () => {

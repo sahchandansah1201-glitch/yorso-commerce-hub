@@ -263,3 +263,26 @@ Validate the UI contract with:
 npm run test:admin-runtime-frontend
 npm run smoke:e2e:admin-runtime-status
 ```
+
+## Admin Runtime Diagnostics
+
+Batch #95 adds the diagnostics endpoint and browser panel:
+
+```bash
+const diagnostics = await fetch(`${base}/v1/admin/runtime/diagnostics`, {
+  headers: {
+    "x-yorso-user-id": session.session.userId,
+    "x-yorso-session-id": session.session.id,
+  },
+}).then((response) => response.json());
+console.log(JSON.stringify(diagnostics, null, 2));
+```
+
+The diagnostics payload is safe for operator runbooks. It reports derived
+checks and capacity-plan text only. It must not include `DATABASE_URL`,
+`REDIS_URL`, object-storage endpoints, buckets, filesystem paths, emails, raw
+user ids, raw session ids or secrets.
+
+The `/admin/runtime` page renders diagnostics as an explicit checklist and
+capacity plan. It does not poll by default. Operators use the refresh button
+when validating a deployment or investigating a runtime change.

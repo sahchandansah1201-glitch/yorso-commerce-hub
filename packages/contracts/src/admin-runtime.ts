@@ -69,3 +69,64 @@ export const adminRuntimeStatusSchema = z.object({
 });
 
 export type AdminRuntimeStatus = z.infer<typeof adminRuntimeStatusSchema>;
+
+export const adminRuntimeDiagnosticStatusSchema = z.enum(["pass", "warn", "fail"]);
+
+export const adminRuntimeDiagnosticSeveritySchema = z.enum(["info", "warning", "critical"]);
+
+export const adminRuntimeDiagnosticCheckSchema = z.object({
+  action: z.string().min(1),
+  id: z.enum([
+    "production_policy",
+    "capacity_baseline",
+    "auth_rate_limit",
+    "session_cache",
+    "observability",
+    "audit_durability",
+    "request_guardrails",
+    "lifecycle_drain",
+  ]),
+  label: z.string().min(1),
+  severity: adminRuntimeDiagnosticSeveritySchema,
+  status: adminRuntimeDiagnosticStatusSchema,
+  summary: z.string().min(1),
+});
+
+export const adminRuntimeDiagnosticsSchema = z.object({
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  generatedAt: z.string().datetime(),
+  selfHostedBackend: z.literal(true),
+  productionScaleBaseline: z.object({
+    targetConcurrentUsers: z.literal(10_000),
+    status: z.literal("policy_required"),
+  }),
+  diagnostics: z.object({
+    overallStatus: adminRuntimeDiagnosticStatusSchema,
+    productionReady: z.boolean(),
+    passCount: z.number().int().min(0),
+    warnCount: z.number().int().min(0),
+    failCount: z.number().int().min(0),
+    checks: z.array(adminRuntimeDiagnosticCheckSchema).min(1),
+  }),
+  capacityPlan: z.object({
+    readProfile: z.string().min(1),
+    writeProfile: z.string().min(1),
+    cacheStrategy: z.string().min(1),
+    backpressureStrategy: z.string().min(1),
+    databaseStrategy: z.string().min(1),
+    failureMode: z.string().min(1),
+    observabilityPlan: z.string().min(1),
+    loadTestPlan: z.string().min(1),
+  }),
+  productionPolicy: z.object({
+    supabaseProductionBackend: z.literal(false),
+    hostedBaasProductionBackend: z.literal(false),
+    prototypeSupabaseConfigured: z.boolean(),
+    secretsIncluded: z.literal(false),
+  }),
+});
+
+export type AdminRuntimeDiagnosticStatus = z.infer<typeof adminRuntimeDiagnosticStatusSchema>;
+export type AdminRuntimeDiagnosticCheck = z.infer<typeof adminRuntimeDiagnosticCheckSchema>;
+export type AdminRuntimeDiagnostics = z.infer<typeof adminRuntimeDiagnosticsSchema>;
