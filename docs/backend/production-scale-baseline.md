@@ -842,6 +842,35 @@ Marker: self-hosted admin runtime status smoke.
 Marker: yorso_api_admin_runtime_status_requests_total.
 Marker: admin_runtime_status_no_secrets=ok.
 
+Batch #94 adds the admin runtime UI on top of the same endpoint. The frontend
+route `/admin/runtime` is an operator-only status surface for the self-hosted
+product. It uses `src/lib/admin-runtime-api.ts` and
+`src/lib/use-admin-runtime-status.ts` to call `/v1/admin/runtime/status` with
+`x-yorso-user-id` and `x-yorso-session-id` from the self-hosted browser
+session. The page has explicit disabled, session-required and admin-role
+states, so prototype mode does not invent backend health data.
+
+The UI shows only sanitized facts already allowed by Batch #93: the 10,000
+concurrent-user policy, runtime drivers, auth backpressure, request guardrails,
+audit limits, lifecycle drain state and production policy. It must not render
+emails, raw user ids, session ids, connection strings, storage endpoints or
+secret values. `test:admin-runtime-frontend` covers the adapter, hook and page.
+`smoke:e2e:admin-runtime-status` covers the browser route with an API-backed
+mock and verifies request headers, no-secret rendering and the 403 admin-role
+state.
+
+Expected profile: `/admin/runtime` is a low-frequency operator read path. It
+must never poll aggressively; refresh is explicit through the UI. At the 10,000
+concurrent-user baseline it adds negligible load and degrades safely to
+disabled/session-required/forbidden states.
+
+Marker: Batch #94.
+Marker: admin runtime UI.
+Marker: API-backed admin runtime status browser e2e.
+Marker: /admin/runtime.
+Marker: test:admin-runtime-frontend.
+Marker: smoke:e2e:admin-runtime-status.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

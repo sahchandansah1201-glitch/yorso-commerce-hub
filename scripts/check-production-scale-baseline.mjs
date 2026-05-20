@@ -43,6 +43,13 @@ const requiredFiles = [
   "apps/api/src/modules/admin-audit/service.ts",
   "apps/api/src/modules/admin-runtime/routes.ts",
   "apps/api/src/modules/admin-runtime/service.ts",
+  "src/lib/admin-runtime-api.ts",
+  "src/lib/admin-runtime-api.test.ts",
+  "src/lib/use-admin-runtime-status.ts",
+  "src/lib/use-admin-runtime-status.test.tsx",
+  "src/pages/admin/AdminRuntimeStatus.tsx",
+  "src/pages/admin/AdminRuntimeStatus.test.tsx",
+  "e2e/admin-runtime-status.spec.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -161,6 +168,13 @@ const adminAuditRoutes = read("apps/api/src/modules/admin-audit/routes.ts");
 const adminAuditService = read("apps/api/src/modules/admin-audit/service.ts");
 const adminRuntimeRoutes = read("apps/api/src/modules/admin-runtime/routes.ts");
 const adminRuntimeService = read("apps/api/src/modules/admin-runtime/service.ts");
+const adminRuntimeApi = read("src/lib/admin-runtime-api.ts");
+const adminRuntimeApiTest = read("src/lib/admin-runtime-api.test.ts");
+const useAdminRuntimeStatus = read("src/lib/use-admin-runtime-status.ts");
+const useAdminRuntimeStatusTest = read("src/lib/use-admin-runtime-status.test.tsx");
+const adminRuntimePage = read("src/pages/admin/AdminRuntimeStatus.tsx");
+const adminRuntimePageTest = read("src/pages/admin/AdminRuntimeStatus.test.tsx");
+const adminRuntimeE2E = read("e2e/admin-runtime-status.spec.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -295,6 +309,7 @@ for (const marker of [
   "Batch #91",
   "Batch #92",
   "Batch #93",
+  "Batch #94",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -331,7 +346,9 @@ for (const marker of [
   "admin.audit_events.export",
   "admin audit retention",
   "admin runtime status",
+  "admin runtime UI",
   "self-hosted admin runtime status smoke",
+  "API-backed admin runtime status browser e2e",
   "yorso_api_admin_runtime_status_requests_total",
   "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
   "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
@@ -669,6 +686,23 @@ if (pkg.scripts["smoke:self-hosted-admin-runtime-status:run"] !== "node scripts/
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-runtime-status:run")) {
   failures.push("package.json: ci:core must run the self-hosted admin runtime status smoke");
 }
+if (pkg.scripts["test:admin-runtime-frontend"] !== "vitest run src/lib/admin-runtime-api.test.ts src/lib/use-admin-runtime-status.test.tsx src/pages/admin/AdminRuntimeStatus.test.tsx") {
+  failures.push("package.json: test:admin-runtime-frontend must cover the admin runtime adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-runtime-frontend")) {
+  failures.push("package.json: ci:core must run the admin runtime frontend tests");
+}
+if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
+  failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
+}
+if (!pkg.scripts["smoke:e2e:admin-runtime-status:run"]?.includes("e2e/admin-runtime-status.spec.ts")) {
+  failures.push("package.json: smoke:e2e:admin-runtime-status:run must cover /admin/runtime browser behavior");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-runtime-status")) {
+  failures.push("package.json: ci:full must include the admin runtime browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin runtime status browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-runtime-status");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-observability:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth observability smoke");
 }
@@ -972,6 +1006,80 @@ for (const marker of [
   "self_hosted_admin_runtime_status_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-runtime-status.mjs", adminRuntimeSmoke, marker);
+}
+for (const marker of [
+  "createAdminRuntimeApiClient",
+  "/v1/admin/runtime/status",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_runtime_api_disabled",
+  "admin_runtime_session_required",
+  "admin_role_required",
+  "targetConcurrentUsers !== 10_000",
+  "supabaseProductionBackend !== false",
+  "hostedBaasProductionBackend !== false",
+  "secretsIncluded !== false",
+]) {
+  requireText("src/lib/admin-runtime-api.ts", adminRuntimeApi, marker);
+}
+for (const marker of [
+  "stays disabled when VITE_YORSO_API_URL is empty",
+  "loads sanitized runtime status with self-hosted session headers",
+  "maps admin role failures to admin_role_required",
+]) {
+  requireText("src/lib/admin-runtime-api.test.ts", adminRuntimeApiTest, marker);
+}
+for (const marker of [
+  "useAdminRuntimeStatus",
+  "AdminRuntimeApiError",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-runtime-status.ts", useAdminRuntimeStatus, marker);
+}
+for (const marker of [
+  "returns disabled state without VITE_YORSO_API_URL",
+  "loads runtime status and supports explicit refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-runtime-status.test.tsx", useAdminRuntimeStatusTest, marker);
+}
+for (const marker of [
+  "admin-runtime-page",
+  "admin-runtime-policy",
+  "admin-runtime-guardrails",
+  "admin-runtime-auth",
+  "admin-runtime-audit",
+  "admin-runtime-lifecycle",
+  "admin-runtime-no-secrets",
+  "10,000 concurrent users",
+  "10 000 одновременных пользователей",
+  "Supabase production backend",
+  "Hosted BaaS production backend",
+]) {
+  requireText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, marker);
+}
+for (const marker of [
+  "Self-hosted API is not connected",
+  "admin-runtime-session-required",
+  "admin-runtime-forbidden",
+  "postgres://",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminRuntimeStatus.test.tsx", adminRuntimePageTest, marker);
+}
+for (const marker of [
+  "Batch #94 browser guard",
+  "/admin/runtime",
+  "/v1/admin/runtime/status",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-runtime-scale",
+  "admin-runtime-no-secrets",
+  "postgres://",
+]) {
+  requireText("e2e/admin-runtime-status.spec.ts", adminRuntimeE2E, marker);
 }
 for (const marker of [
   "AdminRuntimeService",

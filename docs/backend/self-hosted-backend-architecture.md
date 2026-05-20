@@ -887,3 +887,12 @@ limits, lifecycle drain state, admin audit retention/export limits and the
 strings, storage paths, raw ids, emails, sessions, buckets or secrets. This is
 the operator-facing status boundary for the owned backend, not a hosted
 Supabase or BaaS management surface.
+
+Batch #94 adds the matching frontend operator surface at `/admin/runtime`.
+The page reads the self-hosted runtime status endpoint with browser session
+headers and renders only safe operational facts. It has explicit states for
+missing API configuration, missing self-hosted session and missing admin role.
+It is not a configuration editor, secret viewer or replacement for metrics
+dashboards. Prometheus, audit retention and runtime logs remain backend
+responsibilities; the UI is a quick status console for deployment and incident
+checks.
