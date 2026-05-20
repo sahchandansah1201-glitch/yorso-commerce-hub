@@ -42,7 +42,18 @@ export const adminAuditQuerySchema = z.object({
 });
 
 export const adminAuditExportQuerySchema = adminAuditQuerySchema.extend({
+  format: z.enum(["jsonl", "csv"]).default("jsonl"),
   limit: z.coerce.number().int().min(1).max(10_000).default(1_000),
+});
+
+export const adminAuditRetentionModeSchema = z.enum(["dry_run", "apply"]);
+
+export const adminAuditRetentionRequestSchema = z.object({
+  batchSize: z.coerce.number().int().min(1).max(5_000).default(1_000),
+  before: z.string().datetime().optional(),
+  maxBatches: z.coerce.number().int().min(1).max(100).default(1),
+  mode: adminAuditRetentionModeSchema.default("dry_run"),
+  retentionDays: z.coerce.number().int().min(30).max(3_650).optional(),
 });
 
 export const adminAuditListResponseSchema = z.object({
@@ -53,8 +64,23 @@ export const adminAuditListResponseSchema = z.object({
   requestId: z.string().uuid(),
 });
 
+export const adminAuditRetentionResponseSchema = z.object({
+  ok: z.literal(true),
+  before: z.string().datetime(),
+  batchSize: z.number().int().min(1),
+  deletedCount: z.number().int().min(0),
+  maxBatches: z.number().int().min(1),
+  mode: adminAuditRetentionModeSchema,
+  remainingBeforeCutoff: z.number().int().min(0),
+  requestId: z.string().uuid(),
+  retentionDays: z.number().int().min(30),
+  scannedBeforeCutoff: z.number().int().min(0),
+});
+
 export type AdminUserRole = z.infer<typeof adminUserRoleSchema>;
 export type AdminAuditEvent = z.infer<typeof adminAuditEventSchema>;
 export type AdminAuditQuery = z.infer<typeof adminAuditQuerySchema>;
 export type AdminAuditExportQuery = z.infer<typeof adminAuditExportQuerySchema>;
 export type AdminAuditListResponse = z.infer<typeof adminAuditListResponseSchema>;
+export type AdminAuditRetentionRequest = z.infer<typeof adminAuditRetentionRequestSchema>;
+export type AdminAuditRetentionResponse = z.infer<typeof adminAuditRetentionResponseSchema>;

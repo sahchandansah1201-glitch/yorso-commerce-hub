@@ -159,6 +159,8 @@ const requiredFiles = [
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
+  "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+  "scripts/admin-audit-retention.mjs",
 ];
 
 const failures = [];
@@ -240,6 +242,8 @@ const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccessMigration = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardeningMigration = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
+const adminAuditRetentionRuntimeMigration = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
+const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -977,6 +981,13 @@ for (const marker of [
   requireText("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", adminAuditRetentionQueryHardeningMigration, marker);
 }
 for (const marker of [
+  "idx_yorso_api_audit_events_retention_scan",
+  "create or replace function yorso_purge_api_audit_events_batch",
+  "p_limit must be between 1 and 5000",
+]) {
+  requireText("packages/db/migrations/0016_admin_audit_retention_runtime.sql", adminAuditRetentionRuntimeMigration, marker);
+}
+for (const marker of [
   "PostgresAdminAuditRepository",
   "from yorso_api_audit_events",
   "order by occurred_at desc, audit_id desc",
@@ -999,14 +1010,19 @@ for (const marker of [
   "admin_audit_export_window_too_large",
   "adminAuditQuerySchema",
   "adminAuditExportQuerySchema",
+  "adminAuditRetentionRequestSchema",
+  "runRetention",
 ]) {
   requireText("apps/api/src/modules/admin-audit/service.ts", adminAuditService, marker);
 }
 for (const marker of [
   "/v1/admin/audit-events",
   "/v1/admin/audit-events/export",
+  "/v1/admin/audit-events/retention",
   "admin_role_required",
   "application/x-ndjson",
+  "text/csv",
+  "formatAuditEventsCsv",
   "admin.audit_events.read",
   "admin.audit_events.export",
   "observeAdminAudit",
@@ -1034,12 +1050,25 @@ for (const marker of [
   "admin_audit_list=ok",
   "admin_audit_route_status_filter=ok",
   "admin_audit_export=ok",
+  "admin_audit_csv_export=ok",
   "admin_audit_export_window_guard=ok",
   "admin_audit_metrics=ok",
+  "admin_audit_retention_dry_run=ok",
+  "admin_audit_retention_apply=ok",
+  "admin_audit_retention_metrics=ok",
   "admin_audit_validation_guard=ok",
   "self_hosted_admin_audit_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-audit.mjs", adminAuditSmoke, marker);
+}
+for (const marker of [
+  "YORSO_API_URL",
+  "YORSO_ADMIN_EMAIL",
+  "YORSO_ADMIN_PASSWORD",
+  "/v1/admin/audit-events/retention",
+  "admin_audit_retention=",
+]) {
+  requireText("scripts/admin-audit-retention.mjs", adminAuditRetentionCli, marker);
 }
 for (const marker of [
   "RequestTelemetrySink",

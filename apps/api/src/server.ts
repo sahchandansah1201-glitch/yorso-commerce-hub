@@ -341,7 +341,17 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
-  if (await handleAdminAuditRoute(request, response, context, adminAuditService, authService, url, auditSink, metricsRegistry)) return;
+  if (await handleAdminAuditRoute(
+    request,
+    response,
+    context,
+    adminAuditService,
+    authService,
+    url,
+    auditSink,
+    metricsRegistry,
+    jsonBodyOptions,
+  )) return;
   if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;

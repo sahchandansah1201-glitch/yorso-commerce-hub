@@ -20,6 +20,8 @@ const requiredFiles = [
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
+  "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+  "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
   "packages/contracts/src/auth.ts",
@@ -134,6 +136,7 @@ const authSecurityEvents = read("packages/db/migrations/0012_auth_security_event
 const apiAuditEvents = read("packages/db/migrations/0013_api_audit_events.sql");
 const adminAuditAccess = read("packages/db/migrations/0014_admin_audit_access.sql");
 const adminAuditRetentionQueryHardening = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
+const adminAuditRetentionRuntime = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -171,6 +174,7 @@ const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
 const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
 const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
 const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
+const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
@@ -283,6 +287,7 @@ for (const marker of [
   "Batch #89",
   "Batch #90",
   "Batch #91",
+  "Batch #92",
   "notification center",
   "self-hosted auth/session foundation",
   "self-hosted auth frontend bridge",
@@ -906,6 +911,14 @@ for (const marker of [
   requireText("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", adminAuditRetentionQueryHardening, marker);
 }
 for (const marker of [
+  "idx_yorso_api_audit_events_retention_scan",
+  "create or replace function yorso_purge_api_audit_events_batch",
+  "p_limit must be between 1 and 5000",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0016_admin_audit_retention_runtime.sql", adminAuditRetentionRuntime, marker);
+}
+for (const marker of [
   "audit_persistence_insert=ok",
   "audit_persistence_hash_only=ok",
   "audit_persistence_backpressure=ok",
@@ -920,12 +933,24 @@ for (const marker of [
   "admin_audit_list=ok",
   "admin_audit_route_status_filter=ok",
   "admin_audit_export=ok",
+  "admin_audit_csv_export=ok",
   "admin_audit_export_window_guard=ok",
   "admin_audit_metrics=ok",
+  "admin_audit_retention_dry_run=ok",
+  "admin_audit_retention_apply=ok",
+  "admin_audit_retention_metrics=ok",
   "admin_audit_validation_guard=ok",
   "self_hosted_admin_audit_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-audit.mjs", adminAuditSmoke, marker);
+}
+for (const marker of [
+  "YORSO_API_URL",
+  "YORSO_ADMIN_EMAIL",
+  "YORSO_ADMIN_PASSWORD",
+  "/v1/admin/audit-events/retention",
+]) {
+  requireText("scripts/admin-audit-retention.mjs", adminAuditRetentionCli, marker);
 }
 for (const marker of [
   "MemoryAdminAuditRepository",
@@ -946,10 +971,14 @@ for (const marker of [
 for (const marker of [
   "/v1/admin/audit-events",
   "/v1/admin/audit-events/export",
+  "/v1/admin/audit-events/retention",
   "admin_role_required",
   "application/x-ndjson",
+  "text/csv",
   "admin.audit_events.read",
   "admin.audit_events.export",
+  "admin.audit_events.retention",
+  "formatAuditEventsCsv",
   "observeAdminAudit",
 ]) {
   requireText("apps/api/src/modules/admin-audit/routes.ts", adminAuditRoutes, marker);
@@ -960,6 +989,8 @@ for (const marker of [
   "admin_audit_export_window_too_large",
   "adminAuditQuerySchema",
   "adminAuditExportQuerySchema",
+  "adminAuditRetentionRequestSchema",
+  "runRetention",
 ]) {
   requireText("apps/api/src/modules/admin-audit/service.ts", adminAuditService, marker);
 }

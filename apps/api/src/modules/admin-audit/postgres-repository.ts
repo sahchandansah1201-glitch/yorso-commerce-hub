@@ -98,6 +98,35 @@ export class PostgresAdminAuditRepository implements AdminAuditRepository {
       nextCursor: hasNextPage && events.length ? encodeAuditCursor(events[events.length - 1]) : null,
     };
   }
+
+  async countAuditEventsBefore(cutoff: string): Promise<number> {
+    const result = await this.client.query<{ total: string | number }>(
+      `
+        select count(*)::bigint as total
+        from yorso_api_audit_events
+        where occurred_at < $1
+      `,
+      [cutoff],
+    );
+    return Number(result.rows[0]?.total ?? 0);
+  }
+
+  async purgeAuditEventsBefore(cutoff: string, options: { batchSize: number; maxBatches: number }) {
+    let deletedCount = 0;
+    let batchesRun = 0;
+    for (let batch = 0; batch < options.maxBatches; batch += 1) {
+      const result = await this.client.query<{ deleted_count: string | number }>(
+        "select yorso_purge_api_audit_events_batch($1, $2) as deleted_count",
+        [cutoff, options.batchSize],
+      );
+      const batchDeleted = Number(result.rows[0]?.deleted_count ?? 0);
+      if (batchDeleted <= 0) break;
+      deletedCount += batchDeleted;
+      batchesRun += 1;
+      if (batchDeleted < options.batchSize) break;
+    }
+    return { batchesRun, deletedCount };
+  }
 }
 
 function buildWhereClause(query: AdminAuditQuery | AdminAuditExportQuery) {

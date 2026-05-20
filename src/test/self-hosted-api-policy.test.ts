@@ -385,8 +385,13 @@ describe("self-hosted API policy", () => {
       "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
       "utf8",
     );
+    const retentionRuntimeMigration = readFileSync(
+      "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
+      "utf8",
+    );
     const metrics = readFileSync("apps/api/src/metrics.ts", "utf8");
     const smoke = readFileSync("scripts/smoke-self-hosted-admin-audit.mjs", "utf8");
+    const retentionCli = readFileSync("scripts/admin-audit-retention.mjs", "utf8");
     const baseline = readFileSync("docs/backend/production-scale-baseline.md", "utf8");
 
     expect(pkg.scripts["smoke:self-hosted-admin-audit"]).toBe(
@@ -399,6 +404,7 @@ describe("self-hosted API policy", () => {
     expect(contract).toContain("adminUserRoleSchema");
     expect(contract).toContain("adminAuditQuerySchema");
     expect(contract).toContain("adminAuditStatusClassSchema");
+    expect(contract).toContain("adminAuditRetentionRequestSchema");
     expect(authRepository).toContain("hasRole");
     expect(authPostgresRepository).toContain("from yorso_user_roles");
     expect(authService).toContain("hasRole(userId");
@@ -406,33 +412,48 @@ describe("self-hosted API policy", () => {
     expect(repository).toContain("statusClass");
     expect(postgresRepository).toContain("from yorso_api_audit_events");
     expect(postgresRepository).toContain("status_code between");
+    expect(postgresRepository).toContain("yorso_purge_api_audit_events_batch");
     expect(postgresRepository).toContain("order by occurred_at desc, audit_id desc");
     expect(routes).toContain("/v1/admin/audit-events");
     expect(routes).toContain("/v1/admin/audit-events/export");
+    expect(routes).toContain("/v1/admin/audit-events/retention");
     expect(routes).toContain("admin_role_required");
     expect(routes).toContain("application/x-ndjson");
+    expect(routes).toContain("text/csv");
+    expect(routes).toContain("formatAuditEventsCsv");
     expect(routes).toContain("admin.audit_events.read");
     expect(routes).toContain("admin.audit_events.export");
+    expect(routes).toContain("admin.audit_events.retention");
     expect(routes).toContain("observeAdminAudit");
     expect(service).toContain("AdminAuditService");
     expect(service).toContain("AdminAuditQueryError");
     expect(service).toContain("admin_audit_export_window_too_large");
+    expect(service).toContain("runRetention");
     expect(server).toContain("handleAdminAuditRoute");
     expect(migration).toContain("create table if not exists yorso_user_roles");
     expect(migration).toContain("idx_yorso_api_audit_events_status_time");
     expect(retentionMigration).toContain("idx_yorso_api_audit_events_route_status_time");
     expect(retentionMigration).toContain("idx_yorso_api_audit_events_outcome_status_time");
     expect(retentionMigration).toContain("yorso_purge_api_audit_events");
+    expect(retentionRuntimeMigration).toContain("idx_yorso_api_audit_events_retention_scan");
+    expect(retentionRuntimeMigration).toContain("yorso_purge_api_audit_events_batch");
     expect(metrics).toContain("yorso_api_admin_audit_requests_total");
     expect(metrics).toContain("yorso_api_admin_audit_rows_total");
     expect(smoke).toContain("admin_audit_auth_guard=ok");
     expect(smoke).toContain("admin_audit_role_guard=ok");
     expect(smoke).toContain("admin_audit_route_status_filter=ok");
     expect(smoke).toContain("admin_audit_export=ok");
+    expect(smoke).toContain("admin_audit_csv_export=ok");
     expect(smoke).toContain("admin_audit_export_window_guard=ok");
     expect(smoke).toContain("admin_audit_metrics=ok");
+    expect(smoke).toContain("admin_audit_retention_dry_run=ok");
+    expect(smoke).toContain("admin_audit_retention_apply=ok");
+    expect(smoke).toContain("admin_audit_retention_metrics=ok");
+    expect(retentionCli).toContain("admin_audit_retention=");
+    expect(retentionCli).toContain("/v1/admin/audit-events/retention");
     expect(baseline).toContain("Batch #90");
     expect(baseline).toContain("Batch #91");
+    expect(baseline).toContain("Batch #92");
     expect(baseline).toContain("self-hosted admin audit smoke");
   });
 

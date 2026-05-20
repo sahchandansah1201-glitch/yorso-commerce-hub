@@ -17,6 +17,8 @@ const apiAuditEventsSql = () => readFileSync("packages/db/migrations/0013_api_au
 const adminAuditAccessSql = () => readFileSync("packages/db/migrations/0014_admin_audit_access.sql", "utf8");
 const adminAuditRetentionQueryHardeningSql = () =>
   readFileSync("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql", "utf8");
+const adminAuditRetentionRuntimeSql = () =>
+  readFileSync("packages/db/migrations/0016_admin_audit_retention_runtime.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -216,8 +218,18 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("10,000 concurrent users");
   });
 
+  it("declares bounded admin audit retention runtime helper", () => {
+    const text = adminAuditRetentionRuntimeSql();
+
+    expect(text).toContain("idx_yorso_api_audit_events_retention_scan");
+    expect(text).toContain("create or replace function yorso_purge_api_audit_events_batch");
+    expect(text).toContain("p_limit must be between 1 and 5000");
+    expect(text).toContain("order by occurred_at asc, audit_id asc");
+    expect(text).toContain("10,000 concurrent users");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -241,7 +253,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -276,6 +288,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_api_audit_events_route_time");
     expect(text).toContain("idx_yorso_api_audit_events_route_status_time");
     expect(text).toContain("idx_yorso_api_audit_events_outcome_status_time");
+    expect(text).toContain("idx_yorso_api_audit_events_retention_scan");
     expect(text).toContain("idx_yorso_user_roles_role_user");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
@@ -283,7 +296,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -314,6 +327,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0013_api_audit_events",
       "0014_admin_audit_access",
       "0015_admin_audit_retention_query_hardening",
+      "0016_admin_audit_retention_runtime",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -408,6 +422,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0015_admin_audit_retention_query_hardening",
           ownedTables: ["yorso_api_audit_events"],
           dependsOn: ["0014_admin_audit_access"],
+        }),
+        expect.objectContaining({
+          id: "0016_admin_audit_retention_runtime",
+          ownedTables: ["yorso_api_audit_events"],
+          dependsOn: ["0015_admin_audit_retention_query_hardening"],
         }),
       ]),
     );

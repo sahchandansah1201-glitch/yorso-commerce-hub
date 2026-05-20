@@ -952,6 +952,20 @@ Batch #91 extends the validation:
   `check:self-hosted-db` and `check:production-scale-baseline` guard the new
   admin audit hardening markers.
 
+Batch #92 extends the validation again:
+
+- `packages/db/migrations/0016_admin_audit_retention_runtime.sql` adds
+  `yorso_purge_api_audit_events_batch` and the retention scan index;
+- `POST /v1/admin/audit-events/retention` supports dry-run and bounded apply;
+- `admin:audit:retention` gives operators a CLI that defaults to dry-run and
+  requires `--apply` for deletion;
+- `/v1/admin/audit-events/export?format=csv` verifies escaped CSV output while
+  preserving the same pagination and export-window limits;
+- `smoke:self-hosted-admin-audit` verifies CSV export, retention dry-run,
+  retention apply and retention Prometheus metrics;
+- `check:self-hosted-api`, `check:self-hosted-db` and
+  `check:production-scale-baseline` guard the Batch #92 markers.
+
 ## Production Direction
 
 The self-hosted stack is the production path. Supabase scripts, migrations and

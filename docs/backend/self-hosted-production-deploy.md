@@ -182,3 +182,26 @@ set `YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS=31` and
 `YORSO_ADMIN_AUDIT_RETENTION_DAYS=365` or stricter retention. The admin audit
 smoke verifies route/status filters, export-window rejection and Prometheus
 metrics before a deployment is considered ready.
+
+Batch #92 adds the admin audit retention runbook path. Operators should first
+run a dry-run:
+
+```bash
+YORSO_API_URL=https://api.example.com \
+YORSO_ADMIN_EMAIL=admin@example.com \
+YORSO_ADMIN_PASSWORD=... \
+npm run admin:audit:retention -- --retention-days=365 --batch-size=1000 --max-batches=1
+```
+
+Deletion requires an explicit apply flag:
+
+```bash
+YORSO_API_URL=https://api.example.com \
+YORSO_ADMIN_EMAIL=admin@example.com \
+YORSO_ADMIN_PASSWORD=... \
+npm run admin:audit:retention -- --apply --retention-days=365 --batch-size=1000 --max-batches=10
+```
+
+The API deletes through `yorso_purge_api_audit_events_batch`, so production
+retention jobs stay bounded and can be repeated by cron or an external
+orchestrator without depending on Supabase or another hosted backend.

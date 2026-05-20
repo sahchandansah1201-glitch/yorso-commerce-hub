@@ -99,6 +99,12 @@ describe("self-hosted API metrics registry", () => {
       limit: 10_000,
       resultCount: 0,
     });
+    registry.observeAdminAudit({
+      operation: "retention",
+      outcome: "success",
+      limit: 1_000,
+      resultCount: 450,
+    });
 
     const text = registry.renderPrometheusText();
 
@@ -108,7 +114,11 @@ describe("self-hosted API metrics registry", () => {
     expect(text).toContain(
       'yorso_api_admin_audit_requests_total{limit_bucket="gt_1000",operation="export",outcome="failure",reason="admin_audit_export_window_too_large"} 1',
     );
+    expect(text).toContain(
+      'yorso_api_admin_audit_requests_total{limit_bucket="lte_1000",operation="retention",outcome="success",reason="none"} 1',
+    );
     expect(text).toContain('yorso_api_admin_audit_rows_total{operation="list"} 12');
+    expect(text).toContain('yorso_api_admin_audit_rows_total{operation="retention"} 450');
     expect(text).not.toContain("admin@example.com");
     expect(text).not.toContain("00000000-0000-4000-8000-000000000090");
   });
