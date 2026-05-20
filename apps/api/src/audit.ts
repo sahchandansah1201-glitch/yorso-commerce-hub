@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
+import { Pool, type PoolConfig, type QueryResult } from "pg";
 import type { ApiConfig } from "./config.js";
 import type { ApiRequestContext } from "./http.js";
 
@@ -43,6 +44,14 @@ export interface AuditSink {
   emit(event: AuditEvent): Promise<void>;
 }
 
+export interface AuditQueryClient {
+  query<Row extends Record<string, unknown> = Record<string, unknown>>(
+    sql: string,
+    params?: readonly unknown[],
+  ): Promise<Pick<QueryResult<Row>, "rows">>;
+  end?(): Promise<void>;
+}
+
 export class NoopAuditSink implements AuditSink {
   async emit() {
     // Audit can be disabled for local prototype runs.
@@ -63,10 +72,91 @@ export class MemoryAuditSink implements AuditSink {
   }
 }
 
+export class PostgresAuditSink implements AuditSink {
+  private readonly client: AuditQueryClient;
+  private inFlight = 0;
+
+  constructor(
+    config: Pick<ApiConfig, "auditMaxInFlight" | "databaseUrl">,
+    options: { client?: AuditQueryClient } = {},
+  ) {
+    this.client = options.client ?? new Pool({ connectionString: config.databaseUrl } satisfies PoolConfig);
+    this.maxInFlight = config.auditMaxInFlight;
+  }
+
+  readonly maxInFlight: number;
+
+  async emit(event: AuditEvent) {
+    if (this.inFlight >= this.maxInFlight) {
+      console.error(JSON.stringify({
+        type: "api_audit_dropped",
+        schemaVersion: 1,
+        service: "yorso-api",
+        component: "audit",
+        occurredAt: new Date().toISOString(),
+        auditId: event.auditId,
+        requestId: event.requestId,
+        correlationId: event.correlationId,
+        action: event.action,
+        reason: "audit_backpressure",
+      }));
+      return;
+    }
+
+    this.inFlight += 1;
+    try {
+      await this.client.query(
+        `
+          insert into yorso_api_audit_events (
+            audit_id,
+            occurred_at,
+            request_id,
+            correlation_id,
+            action,
+            outcome,
+            http_method,
+            route,
+            status_code,
+            actor_user_hash,
+            session_hash,
+            resource_type,
+            resource_hash,
+            reason,
+            event
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15::jsonb)
+          on conflict (audit_id) do nothing
+        `,
+        [
+          event.auditId,
+          event.occurredAt,
+          event.requestId,
+          event.correlationId,
+          event.action,
+          event.outcome,
+          event.httpMethod ?? null,
+          event.route ?? null,
+          event.statusCode ?? null,
+          event.actorUserHash ?? null,
+          event.sessionHash ?? null,
+          event.resourceType ?? null,
+          event.resourceHash ?? null,
+          event.reason ?? null,
+          JSON.stringify(event),
+        ],
+      );
+    } finally {
+      this.inFlight -= 1;
+    }
+  }
+}
+
 export function createAuditSink(config: ApiConfig): AuditSink {
   switch (config.auditDriver) {
     case "console":
       return new ConsoleAuditSink();
+    case "postgres":
+      return new PostgresAuditSink(config);
     case "disabled":
       return new NoopAuditSink();
   }

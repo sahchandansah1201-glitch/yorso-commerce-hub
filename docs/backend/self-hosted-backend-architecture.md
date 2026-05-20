@@ -840,10 +840,17 @@ low-cardinality and sanitized: normalized route, method, status class, outcome,
 error category/code and guardrail kind only.
 
 Batch #88 adds the audit trail boundary. `apps/api/src/audit.ts` emits
-sanitized `api_audit_event` JSONL records when `YORSO_AUDIT_DRIVER=console`.
-Auth, account, supplier-access and storage routes call the audit sink after
-protected mutations and auth outcomes. Raw identities are never logged:
-actor, session and resource references are SHA-256 derived hashes, and audit
-events do not include request bodies, file names, emails, passwords, supplier
-ids or business profile values. This keeps auditability inside the owned
-self-hosted stack while preserving the no-hosted-BaaS production policy.
+sanitized `api_audit_event` JSONL records through a console sink for local
+runtime validation. Auth, account, supplier-access and storage routes call the
+audit sink after protected mutations and auth outcomes. Raw identities are
+never logged: actor, session and resource references are SHA-256 derived
+hashes, and audit events do not include request bodies, file names, emails,
+passwords, supplier ids or business profile values.
+
+Batch #89 makes that audit boundary durable for production. Production runtime
+uses `YORSO_AUDIT_DRIVER=postgres` and writes the sanitized envelope to
+`yorso_api_audit_events`, indexed by time, action/outcome, actor hash, resource
+hash and correlation id. `YORSO_AUDIT_MAX_IN_FLIGHT` bounds synchronous audit
+writes; under pressure the API emits sanitized `api_audit_dropped` metadata
+instead of building an unbounded queue. This keeps auditability inside the
+owned self-hosted stack while preserving the no-hosted-BaaS production policy.

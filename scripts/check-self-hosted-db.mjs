@@ -24,6 +24,7 @@ const files = [
   "packages/db/migrations/0010_offer_catalog_pagination_sort.sql",
   "packages/db/migrations/0011_auth_sessions.sql",
   "packages/db/migrations/0012_auth_security_events.sql",
+  "packages/db/migrations/0013_api_audit_events.sql",
 ];
 
 const failures = [];
@@ -46,7 +47,8 @@ const supplierPaginationSortSql = read("packages/db/migrations/0009_supplier_dir
 const offerPaginationSortSql = read("packages/db/migrations/0010_offer_catalog_pagination_sort.sql");
 const authSessionsSql = read("packages/db/migrations/0011_auth_sessions.sql");
 const authSecurityEventsSql = read("packages/db/migrations/0012_auth_security_events.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}`;
+const apiAuditEventsSql = read("packages/db/migrations/0013_api_audit_events.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -251,6 +253,19 @@ for (const marker of [
   requireText("packages/db/migrations/0012_auth_security_events.sql", authSecurityEventsSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_api_audit_events",
+  "idx_yorso_api_audit_events_occurred_at",
+  "idx_yorso_api_audit_events_action_outcome_time",
+  "idx_yorso_api_audit_events_actor_time",
+  "idx_yorso_api_audit_events_resource_time",
+  "idx_yorso_api_audit_events_correlation",
+  "api_audit_event",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0013_api_audit_events.sql", apiAuditEventsSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -296,6 +311,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0011_auth_sessio
 if (!manifest.migrations?.some((migration) => migration.id === "0012_auth_security_events")) {
   failures.push("packages/db/migration-manifest.json: missing 0012_auth_security_events");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0013_api_audit_events")) {
+  failures.push("packages/db/migration-manifest.json: missing 0013_api_audit_events");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -334,6 +352,9 @@ if (!manifest.migrations?.[11]?.dependsOn?.includes("0010_offer_catalog_paginati
 }
 if (!manifest.migrations?.[12]?.dependsOn?.includes("0011_auth_sessions")) {
   failures.push("packages/db/migration-manifest.json: auth security events must depend on auth sessions");
+}
+if (!manifest.migrations?.[13]?.dependsOn?.includes("0012_auth_security_events")) {
+  failures.push("packages/db/migration-manifest.json: API audit events must depend on auth security events");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

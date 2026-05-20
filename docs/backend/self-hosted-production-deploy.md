@@ -139,6 +139,7 @@ npm run smoke:self-hosted-request-observability
 npm run smoke:self-hosted-error-observability
 npm run smoke:self-hosted-metrics
 npm run smoke:self-hosted-audit-trail
+npm run smoke:self-hosted-audit-persistence
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:e2e:frontend-no-supabase-env
@@ -161,7 +162,11 @@ without leaking buyer emails, passwords, supplier ids, offer ids, query values
 or session ids.
 
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
-It verifies that `YORSO_AUDIT_DRIVER=console` writes sanitized
-`api_audit_event` records for auth, account, access, notification and storage
-actions without leaking emails, passwords, raw ids, file names or business
-profile values.
+It verifies that the console audit sink writes sanitized `api_audit_event`
+records for auth, account, access, notification and storage actions without
+leaking emails, passwords, raw ids, file names or business profile values.
+
+Batch #89 adds `smoke:self-hosted-audit-persistence` to the deploy validation
+path. Production config must use `YORSO_AUDIT_DRIVER=postgres` and
+`YORSO_AUDIT_MAX_IN_FLIGHT`; the smoke verifies PostgreSQL insert shape,
+hash-only audit parameters and bounded backpressure behavior.

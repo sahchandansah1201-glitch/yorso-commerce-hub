@@ -154,6 +154,17 @@
       "dependsOn": [
         "0011_auth_sessions"
       ]
+    },
+    {
+      "id": "0013_api_audit_events",
+      "file": "migrations/0013_api_audit_events.sql",
+      "description": "Create durable sanitized API audit event storage for the self-hosted backend.",
+      "ownedTables": [
+        "yorso_api_audit_events"
+      ],
+      "dependsOn": [
+        "0012_auth_security_events"
+      ]
     }
   ]
 }

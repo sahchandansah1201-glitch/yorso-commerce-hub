@@ -72,6 +72,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-error-observability.mjs",
   "scripts/smoke-self-hosted-metrics.mjs",
   "scripts/smoke-self-hosted-audit-trail.mjs",
+  "scripts/smoke-self-hosted-audit-persistence.mjs",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
@@ -147,6 +148,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-offer-detail-smoke.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
+  "packages/db/migrations/0013_api_audit_events.sql",
 ];
 
 const failures = [];
@@ -217,6 +219,8 @@ const requestObservabilitySmoke = read("scripts/smoke-self-hosted-request-observ
 const errorObservabilitySmoke = read("scripts/smoke-self-hosted-error-observability.mjs");
 const metricsSmoke = read("scripts/smoke-self-hosted-metrics.mjs");
 const auditTrailSmoke = read("scripts/smoke-self-hosted-audit-trail.mjs");
+const auditPersistenceSmoke = read("scripts/smoke-self-hosted-audit-persistence.mjs");
+const apiAuditEventsMigration = read("packages/db/migrations/0013_api_audit_events.sql");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -345,6 +349,12 @@ if (pkg.scripts["smoke:self-hosted-audit-trail"] !== "npm run api:build && npm r
 if (pkg.scripts["smoke:self-hosted-audit-trail:run"] !== "node scripts/smoke-self-hosted-audit-trail.mjs") {
   failures.push("package.json: smoke:self-hosted-audit-trail:run must execute scripts/smoke-self-hosted-audit-trail.mjs");
 }
+if (pkg.scripts["smoke:self-hosted-audit-persistence"] !== "npm run api:build && npm run smoke:self-hosted-audit-persistence:run") {
+  failures.push("package.json: smoke:self-hosted-audit-persistence must build and run the audit persistence smoke");
+}
+if (pkg.scripts["smoke:self-hosted-audit-persistence:run"] !== "node scripts/smoke-self-hosted-audit-persistence.mjs") {
+  failures.push("package.json: smoke:self-hosted-audit-persistence:run must execute scripts/smoke-self-hosted-audit-persistence.mjs");
+}
 if (pkg.scripts["smoke:self-hosted-auth-api"] !== "npm run api:build && npm run smoke:self-hosted-auth-api:run") {
   failures.push("package.json: smoke:self-hosted-auth-api must build and run the self-hosted auth API smoke");
 }
@@ -419,6 +429,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-metrics:run")) 
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-trail:run")) {
   failures.push("package.json: ci:core must run the self-hosted audit trail smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-audit-persistence:run")) {
+  failures.push("package.json: ci:core must run the self-hosted audit persistence smoke");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
@@ -868,9 +881,13 @@ for (const marker of [
 for (const marker of [
   "AuditSink",
   "ConsoleAuditSink",
+  "PostgresAuditSink",
   "NoopAuditSink",
   "MemoryAuditSink",
   "api_audit_event",
+  "api_audit_dropped",
+  "yorso_api_audit_events",
+  "auditMaxInFlight",
   "auditHash",
   "emitAuditEvent",
   "actorUserHash",
@@ -878,6 +895,26 @@ for (const marker of [
   "resourceHash",
 ]) {
   requireText("apps/api/src/audit.ts", audit, marker);
+}
+for (const marker of [
+  "create table if not exists yorso_api_audit_events",
+  "idx_yorso_api_audit_events_occurred_at",
+  "idx_yorso_api_audit_events_action_outcome_time",
+  "idx_yorso_api_audit_events_actor_time",
+  "idx_yorso_api_audit_events_resource_time",
+  "idx_yorso_api_audit_events_correlation",
+  "10,000 concurrent users",
+]) {
+  requireText("packages/db/migrations/0013_api_audit_events.sql", apiAuditEventsMigration, marker);
+}
+for (const marker of [
+  "PostgresAuditSink",
+  "audit_persistence_insert=ok",
+  "audit_persistence_hash_only=ok",
+  "audit_persistence_backpressure=ok",
+  "self_hosted_audit_persistence_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-audit-persistence.mjs", auditPersistenceSmoke, marker);
 }
 for (const marker of [
   "RequestTelemetrySink",
@@ -929,7 +966,9 @@ for (const marker of [
   "YORSO_METRICS_DRIVER",
   "auditDriver",
   "YORSO_AUDIT_DRIVER",
-  "Production self-hosted API must use YORSO_AUDIT_DRIVER=console.",
+  "auditMaxInFlight",
+  "YORSO_AUDIT_MAX_IN_FLIGHT",
+  "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
   "YORSO_REQUEST_TIMEOUT_MS",
@@ -1192,7 +1231,9 @@ requireText("apps/api/src/config.ts", config, "YORSO_METRICS_DRIVER");
 requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
 requireText("apps/api/src/config.ts", config, "auditDriver");
 requireText("apps/api/src/config.ts", config, "YORSO_AUDIT_DRIVER");
-requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_AUDIT_DRIVER=console.");
+requireText("apps/api/src/config.ts", config, "auditMaxInFlight");
+requireText("apps/api/src/config.ts", config, "YORSO_AUDIT_MAX_IN_FLIGHT");
+requireText("apps/api/src/config.ts", config, "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
 requireText("apps/api/src/server.ts", server, "createAuditSink(config)");
 requireText("apps/api/src/server.ts", server, "auditSink");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "auth.sign_in");

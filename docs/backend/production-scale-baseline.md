@@ -676,28 +676,43 @@ behavior.
 Marker: self-hosted metrics smoke.
 Marker: Prometheus metrics endpoint.
 
-Batch #88 adds a structured production audit trail for risk-bearing backend
-actions. Production config must set `YORSO_AUDIT_DRIVER=console`, which writes
-sanitized `api_audit_event` JSONL records for auth sign-in/sign-out,
-account/company mutations, supplier access request/decision actions,
-notification acknowledgements and account file/document uploads. Audit records
-include request id, correlation id, action, outcome, normalized route and
-hashed actor/session/resource identifiers. They deliberately omit raw emails,
+Batch #88 adds a structured audit trail for risk-bearing backend actions. The
+console driver remains a deterministic local smoke path that writes sanitized
+`api_audit_event` JSONL records for auth sign-in/sign-out, account/company
+mutations, supplier access request/decision actions, notification
+acknowledgements and account file/document uploads. Audit records include
+request id, correlation id, action, outcome, normalized route and hashed
+actor/session/resource identifiers. They deliberately omit raw emails,
 passwords, user ids, session ids, supplier ids, file names, uploaded payloads,
 query strings and business profile values.
 
-At the 10,000 concurrent-user baseline this gives operators and compliance
-reviewers an owned accountability stream without adding hosted audit/SIEM
-dependencies. Expected write profile is one small JSONL record per protected
-mutation plus auth success/failure events. Failure mode is non-blocking:
-requests must continue if audit emission fails, while emission failures write a
-sanitized `api_audit_emit_failed` envelope. The self-hosted audit trail smoke,
-also referenced as the self-hosted audit trail smoke,
-`smoke:self-hosted-audit-trail` verifies auth, account, access, notification
-and storage audit events plus no-PII log behavior.
+Batch #89 makes production audit durable. Production config must set
+`YORSO_AUDIT_DRIVER=postgres`, which persists the same sanitized audit envelope
+to `yorso_api_audit_events`. The write profile is one small audit row for each
+protected mutation and auth outcome. The database owns indexes for
+`occurred_at`, `action/outcome/time`, `actor_user_hash/time`,
+`resource_type/resource_hash/time` and `correlation_id`, so compliance and
+support queries stay bounded at the 10,000 concurrent-user baseline.
+
+The persistence path is non-blocking and bounded by
+`YORSO_AUDIT_MAX_IN_FLIGHT`. If the in-flight limit is reached, the API drops
+the audit write and emits a sanitized `api_audit_dropped` envelope instead of
+holding user requests behind an unbounded audit queue. If PostgreSQL write
+fails, `emitAuditEvent` still emits sanitized `api_audit_emit_failed` metadata
+without raw identities or payload data. This keeps auditability inside the
+owned self-hosted stack without hosted audit/SIEM dependencies.
+
+The self-hosted audit trail smoke, also referenced as the self-hosted audit
+trail smoke, `smoke:self-hosted-audit-trail` verifies auth, account, access,
+notification and storage audit events plus no-PII log behavior. The durable
+audit smoke, `smoke:self-hosted-audit-persistence`, verifies PostgreSQL insert
+shape, hash-only parameters and backpressure drop behavior without requiring a
+live database.
 
 Marker: self-hosted audit trail smoke.
 Marker: api_audit_event.
+Marker: self-hosted audit persistence smoke.
+Marker: yorso_api_audit_events.
 
 ## Release Rule
 
