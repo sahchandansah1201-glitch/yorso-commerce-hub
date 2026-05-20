@@ -2,8 +2,9 @@ import net from "node:net";
 import type { Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
 import { assertSupabaseIsPrototypeOnly, loadApiConfig, type ApiConfig } from "./config.js";
+import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
-import { createApiServer } from "./server.js";
+import { createApiServer, type ApiServerOptions } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
 
 type JsonBody = Record<string, unknown>;
@@ -87,7 +88,7 @@ async function startTestServer() {
     });
 }
 
-async function startRawTestServer(options: { config?: ApiConfig; readinessProbe?: ReadinessProbe } = {}) {
+async function startRawTestServer(options: ApiServerOptions & { config?: ApiConfig; readinessProbe?: ReadinessProbe } = {}) {
   await closeServer();
   server = createApiServer(options.config ?? config, options);
 
@@ -445,15 +446,93 @@ describe("YORSO self-hosted API skeleton", () => {
 
   it("returns structured errors for unsupported routes and methods", async () => {
     const missing = await request("/missing");
+    const missingBody = (await missing.json()) as JsonBody;
     expect(missing.status).toBe(404);
-    await expect(missing.json()).resolves.toMatchObject({
+    expect(missing.headers.get("x-error-id")).toMatch(/^err_/);
+    expect(missing.headers.get("x-correlation-id")).toBe(missing.headers.get("x-request-id"));
+    expect(missingBody).toMatchObject({
       ok: false,
-      error: { code: "not_found" },
+      correlationId: missing.headers.get("x-correlation-id"),
+      requestId: missing.headers.get("x-request-id"),
+      error: {
+        code: "not_found",
+        errorId: missing.headers.get("x-error-id"),
+      },
     });
 
     const invalidMethod = await request("/health/live", { method: "POST" });
     expect(invalidMethod.status).toBe(405);
     expect(invalidMethod.headers.get("allow")).toBe("GET");
+  });
+
+  it("emits sanitized error telemetry for API error responses", async () => {
+    const errorTelemetrySink = new MemoryErrorTelemetrySink();
+    const fetchApi = await startRawTestServer({ errorTelemetrySink });
+
+    const invalidPayload = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "telemetry@example.com",
+        password: "NoLogThisSecret1",
+      }),
+    });
+    expect(invalidPayload.status).toBe(401);
+    const invalidPayloadBody = (await invalidPayload.json()) as JsonBody;
+    expect(invalidPayload.headers.get("x-error-id")).toBe((invalidPayloadBody.error as JsonBody).errorId);
+    expect(invalidPayload.headers.get("x-correlation-id")).toBe(invalidPayload.headers.get("x-request-id"));
+
+    expect(errorTelemetrySink.events).toContainEqual(expect.objectContaining({
+      type: "api_error_event",
+      event: "error.response",
+      category: "auth",
+      errorCode: "auth_invalid_credentials",
+      errorId: invalidPayload.headers.get("x-error-id"),
+      requestId: invalidPayload.headers.get("x-request-id"),
+      correlationId: invalidPayload.headers.get("x-correlation-id"),
+      route: "/v1/auth/sign-in",
+      statusCode: 401,
+      retryable: false,
+    }));
+    expect(JSON.stringify(errorTelemetrySink.events)).not.toContain("telemetry@example.com");
+    expect(JSON.stringify(errorTelemetrySink.events)).not.toContain("NoLogThisSecret1");
+  });
+
+  it("emits server-category error telemetry when route work throws", async () => {
+    const errorTelemetrySink = new MemoryErrorTelemetrySink();
+    const fetchApi = await startRawTestServer({
+      errorTelemetrySink,
+      readinessProbe: {
+        async check() {
+          throw new Error("postgres-password-never-log");
+        },
+      },
+    });
+
+    const response = await fetchApi("/health/ready");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(500);
+    expect(body).toMatchObject({
+      ok: false,
+      correlationId: response.headers.get("x-correlation-id"),
+      requestId: response.headers.get("x-request-id"),
+      error: {
+        code: "internal_error",
+        errorId: response.headers.get("x-error-id"),
+      },
+    });
+    expect(errorTelemetrySink.events).toContainEqual(expect.objectContaining({
+      type: "api_error_event",
+      event: "error.response",
+      severity: "error",
+      category: "server",
+      errorCode: "internal_error",
+      errorId: response.headers.get("x-error-id"),
+      route: "/health/ready",
+      statusCode: 500,
+      retryable: true,
+    }));
+    expect(JSON.stringify(errorTelemetrySink.events)).not.toContain("postgres-password-never-log");
   });
 
   it("handles browser CORS preflight for account endpoints", async () => {
@@ -1721,6 +1800,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
         VITE_SUPABASE_URL: "https://example.supabase.co",
         VITE_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
@@ -1740,6 +1820,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1755,6 +1836,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
@@ -1770,12 +1852,30 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
       },
       { allowLocalDefaults: true },
     );
 
     expect(() => assertSupabaseIsPrototypeOnly(noObservabilityConfig)).toThrow(/AUTH_OBSERVABILITY_DRIVER=console/);
+
+    const noErrorObservabilityConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noErrorObservabilityConfig))
+      .toThrow(/YORSO_ERROR_OBSERVABILITY_DRIVER=console/);
 
     const noRequestObservabilityConfig = loadApiConfig(
       {
@@ -1785,6 +1885,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
         AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
         YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
       },
       { allowLocalDefaults: true },

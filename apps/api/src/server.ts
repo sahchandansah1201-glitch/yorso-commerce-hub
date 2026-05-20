@@ -1,5 +1,11 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { ApiConfig } from "./config.js";
+import {
+  buildClientParseErrorTelemetryEvent,
+  buildErrorTelemetryEvent,
+  createErrorTelemetrySink,
+  type ErrorTelemetrySink,
+} from "./error-observability.js";
 import { createRequestContext, getRequestUrl, methodNotAllowed, sendError, type JsonBodyReadOptions } from "./http.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { createAccountRepository } from "./modules/account/factory.js";
@@ -44,6 +50,7 @@ export interface ApiServerOptions {
   fileService?: FileService;
   lifecycle?: ApiLifecycle;
   offerCatalogRepository?: OfferCatalogRepository;
+  errorTelemetrySink?: ErrorTelemetrySink;
   readinessProbe?: ReadinessProbe;
   requestTelemetrySink?: RequestTelemetrySink;
   supplierAccessRepository?: SupplierAccessRepository;
@@ -71,6 +78,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     supplierAccessRepository,
   );
   const lifecycle = options.lifecycle ?? new ApiLifecycle();
+  const errorTelemetrySink = options.errorTelemetrySink ?? createErrorTelemetrySink(config);
   const requestTelemetrySink = options.requestTelemetrySink ?? createRequestTelemetrySink(config);
   const readinessProbe = options.readinessProbe ?? createReadinessProbe(config, {
     timeoutMs: config.healthReadinessTimeoutMs,
@@ -106,7 +114,15 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
         statusCode: aborted ? 499 : response.statusCode,
         contentLengthPresent: request.headers["content-length"] !== undefined,
         aborted,
-      }));
+      }), "request_telemetry_emit_failed");
+      const errorEvent = buildErrorTelemetryEvent({
+        context,
+        durationMs,
+        method: request.method,
+        path: requestPath,
+        contentLengthPresent: request.headers["content-length"] !== undefined,
+      });
+      if (errorEvent) emitTelemetry(errorTelemetrySink, errorEvent, "error_telemetry_emit_failed");
     };
     response.once("finish", () => emitRequestTelemetry(false));
     response.once("close", () => {
@@ -128,9 +144,19 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       lifecycle,
       jsonBodyOptions,
     ).catch((error) => {
-      console.error(error);
       if (response.writableEnded) return;
       sendError(response, 500, "internal_error", "Internal server error.", context);
+      console.error(JSON.stringify({
+        type: "api_internal_error",
+        schemaVersion: 1,
+        service: "yorso-api",
+        component: "http",
+        occurredAt: new Date().toISOString(),
+        requestId: context.requestId,
+        correlationId: context.correlationId,
+        errorId: context.error?.errorId,
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      }));
     });
   });
   server.requestTimeout = config.requestTimeoutMs;
@@ -140,21 +166,34 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     const headerOverflow = error.code === "HPE_HEADER_OVERFLOW";
     const statusCode = headerOverflow ? 431 : 400;
     const statusText = headerOverflow ? "Request Header Fields Too Large" : "Bad Request";
+    const errorEvent = buildClientParseErrorTelemetryEvent({
+      code: error.code ?? "client_parse_error",
+      statusCode,
+    });
     emitTelemetry(requestTelemetrySink, buildClientParseTelemetryEvent({
       config,
       code: error.code ?? "client_parse_error",
       statusCode,
-    }));
+    }), "request_telemetry_emit_failed");
+    emitTelemetry(errorTelemetrySink, errorEvent, "error_telemetry_emit_failed");
     if (socket.writable) {
-      socket.end(`HTTP/1.1 ${statusCode} ${statusText}\r\nConnection: close\r\n\r\n`);
+      socket.end([
+        `HTTP/1.1 ${statusCode} ${statusText}`,
+        "Connection: close",
+        `x-request-id: ${errorEvent.requestId}`,
+        `x-correlation-id: ${errorEvent.correlationId}`,
+        `x-error-id: ${errorEvent.errorId}`,
+        "",
+        "",
+      ].join("\r\n"));
     }
   });
   return server;
 }
 
-function emitTelemetry(sink: RequestTelemetrySink, event: Parameters<RequestTelemetrySink["emit"]>[0]) {
+function emitTelemetry<T>(sink: { emit(event: T): Promise<void> }, event: T, failureMarker: string) {
   void sink.emit(event).catch((error) => {
-    console.error("request_telemetry_emit_failed", error);
+    console.error(failureMarker, error);
   });
 }
 
@@ -175,6 +214,7 @@ async function routeRequest(
 ) {
   applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
+  response.setHeader("x-correlation-id", context.correlationId);
   response.setHeader("x-yorso-backend", "self-hosted");
 
   if (request.method === "OPTIONS") {

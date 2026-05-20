@@ -182,6 +182,21 @@ include sanitized `api_request_event` JSONL records for normal completion,
 large body rejection, body idle timeout and header overflow. The same smoke
 submits a known email and password and fails if either value appears in stdout.
 
+Batch #86 adds structured error observability and correlation. The compiled API
+is started with `YORSO_ERROR_OBSERVABILITY_DRIVER=console`, and stderr must
+include sanitized `api_error_event` JSONL records for not-found responses,
+auth failures, request guardrails and parser/header errors. Error responses
+carry `requestId`, `correlationId`, `error.errorId`, `x-request-id`,
+`x-correlation-id` and `x-error-id`, so support can correlate a buyer-visible
+failure with server logs without logging payload values. The smoke verifies:
+
+- `error_observability_response_envelope=ok`
+- `error_observability_auth_error=ok`
+- `error_observability_guardrail_error=ok`
+- `error_observability_parser_error=ok`
+- `error_observability_no_pii=ok`
+- `self_hosted_error_observability_smoke=ok`
+
 Batch #82 adds readiness validation for production operations. `/health/live`
 only proves the API process can respond; `/health/ready` and `/v1/health/ready`
 check required self-hosted dependencies with bounded timeouts. Local memory
