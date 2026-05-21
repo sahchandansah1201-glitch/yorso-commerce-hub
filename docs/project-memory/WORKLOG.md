@@ -60,3 +60,15 @@ Keep this file factual and append-only.
   - `npm run check:self-hosted-api` passed.
   - `npm run check:production-scale-baseline` passed.
   - `npm run ci:core` passed.
+- Started Batch #99 locally on `codex/batch99-admin-operator-hub`.
+- Added a self-hosted admin operations overview endpoint, frontend admin hub, shared admin operator navigation, API adapter, hook, tests, smoke, e2e, docs and guard coverage.
+- Confirmed Batch #99 targeted checks:
+  - `npm run test:admin-operations-frontend` passed, 10 tests.
+  - `npm run api:build` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:self-hosted-admin-operations` passed.
+  - `npm run lint` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run smoke:e2e:admin-operations` passed, 2 tests.
+  - `npm run ci:core` passed.

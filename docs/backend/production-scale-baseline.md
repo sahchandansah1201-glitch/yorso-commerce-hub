@@ -1049,6 +1049,43 @@ Marker: check:engineering-lessons.
 Marker: test:engineering-lessons.
 Marker: API-backed e2e release policy.
 
+Batch #99 adds the admin operations hub as a larger connected batch. It is not
+a single screen-only change. The batch includes a new protected backend
+endpoint, frontend adapter, hook, operator page, shared admin navigation, browser
+e2e, self-hosted smoke, CI wiring, docs and guard-script enforcement.
+
+Runtime endpoint: `GET /v1/admin/operations/overview`.
+
+Expected read/write profile: low-frequency admin read path. One request fans out
+to sanitized runtime status, diagnostics, access review preview and access grants
+preview. It performs no writes. Operator decisions and grant revocations stay in
+their dedicated endpoints.
+
+Cache, queue and backpressure strategy: the browser does not poll this endpoint
+by default. Operators must use explicit refresh. The backend returns bounded
+5-row previews and reuses request timeout, admin session guard, role guard and
+audit backpressure controls.
+
+Database indexing and pagination strategy: Batch #99 uses existing indexed admin
+access review and grants list paths with `limit=5`. Future expansion must add
+rollups or indexed filters before increasing counts or preview width.
+
+Failure mode and graceful degradation: if API, session or role validation fails,
+the frontend shows disabled, session-required, forbidden or error states. It
+does not fabricate admin data from local mocks.
+
+Observability and load-test plan: the endpoint emits admin audit reads and is
+covered by `smoke:self-hosted-admin-operations`, `smoke:e2e:admin-operations`,
+`check:self-hosted-api` and `check:production-scale-baseline`. It remains a
+low-frequency operator path in the 10,000 concurrent users plan.
+
+Marker: Batch #99.
+Marker: admin operations hub.
+Marker: smoke:self-hosted-admin-operations.
+Marker: smoke:e2e:admin-operations.
+Marker: admin_operations_overview=ok.
+Marker: admin_operations_no_secrets=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

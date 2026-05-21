@@ -18,6 +18,8 @@ import { createAdminAuditRepository } from "./modules/admin-audit/factory.js";
 import type { AdminAuditRepository } from "./modules/admin-audit/repository.js";
 import { handleAdminAuditRoute } from "./modules/admin-audit/routes.js";
 import { AdminAuditService } from "./modules/admin-audit/service.js";
+import { handleAdminOperationsRoute } from "./modules/admin-operations/routes.js";
+import { AdminOperationsService } from "./modules/admin-operations/service.js";
 import { handleAdminRuntimeRoute } from "./modules/admin-runtime/routes.js";
 import { AdminRuntimeService } from "./modules/admin-runtime/service.js";
 import { createSupplierAccessRepository } from "./modules/access/factory.js";
@@ -95,6 +97,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     supplierAccessRepository,
   );
   const supplierAccessService = new SupplierAccessService(supplierAccessRepository);
+  const adminOperationsService = new AdminOperationsService(adminRuntimeService, supplierAccessService);
   const supplierService = new SupplierDirectoryService(
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
@@ -163,6 +166,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       authService,
       accountService,
       adminAuditService,
+      adminOperationsService,
       adminRuntimeService,
       fileService,
       offerCatalogService,
@@ -238,6 +242,7 @@ async function routeRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminOperationsService: AdminOperationsService,
   adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
@@ -306,6 +311,7 @@ async function routeRequest(
       authService,
       accountService,
       adminAuditService,
+      adminOperationsService,
       adminRuntimeService,
       fileService,
       offerCatalogService,
@@ -328,6 +334,7 @@ async function routeWorkRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminOperationsService: AdminOperationsService,
   adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
   offerCatalogService: OfferCatalogService,
@@ -348,6 +355,15 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleAdminOperationsRoute(
+    request,
+    response,
+    context,
+    adminOperationsService,
+    authService,
+    url.pathname,
+    auditSink,
+  )) return;
   if (await handleAdminRuntimeRoute(
     request,
     response,

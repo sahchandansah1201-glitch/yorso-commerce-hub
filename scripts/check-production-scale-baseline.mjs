@@ -68,6 +68,17 @@ const requiredFiles = [
   "src/pages/admin/AdminAccessGrants.tsx",
   "src/pages/admin/AdminAccessGrants.test.tsx",
   "e2e/admin-access-grants.spec.ts",
+  "apps/api/src/modules/admin-operations/routes.ts",
+  "apps/api/src/modules/admin-operations/service.ts",
+  "packages/contracts/src/admin-operations.ts",
+  "src/components/admin/AdminOperatorNav.tsx",
+  "src/lib/admin-operations-api.ts",
+  "src/lib/admin-operations-api.test.ts",
+  "src/lib/use-admin-operations-overview.ts",
+  "src/lib/use-admin-operations-overview.test.tsx",
+  "src/pages/admin/AdminOperations.tsx",
+  "src/pages/admin/AdminOperations.test.tsx",
+  "e2e/admin-operations.spec.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -89,6 +100,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-admin-runtime-status.mjs",
   "scripts/smoke-self-hosted-admin-access-review.mjs",
   "scripts/smoke-self-hosted-admin-access-grants.mjs",
+  "scripts/smoke-self-hosted-admin-operations.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -218,6 +230,17 @@ const useAdminAccessGrantsTest = read("src/lib/use-admin-access-grants.test.tsx"
 const adminAccessGrantsPage = read("src/pages/admin/AdminAccessGrants.tsx");
 const adminAccessGrantsPageTest = read("src/pages/admin/AdminAccessGrants.test.tsx");
 const adminAccessGrantsE2E = read("e2e/admin-access-grants.spec.ts");
+const adminOperationsRoutes = read("apps/api/src/modules/admin-operations/routes.ts");
+const adminOperationsService = read("apps/api/src/modules/admin-operations/service.ts");
+const adminOperationsContract = read("packages/contracts/src/admin-operations.ts");
+const adminOperatorNav = read("src/components/admin/AdminOperatorNav.tsx");
+const adminOperationsApi = read("src/lib/admin-operations-api.ts");
+const adminOperationsApiTest = read("src/lib/admin-operations-api.test.ts");
+const useAdminOperationsOverview = read("src/lib/use-admin-operations-overview.ts");
+const useAdminOperationsOverviewTest = read("src/lib/use-admin-operations-overview.test.tsx");
+const adminOperationsPage = read("src/pages/admin/AdminOperations.tsx");
+const adminOperationsPageTest = read("src/pages/admin/AdminOperations.test.tsx");
+const adminOperationsE2E = read("e2e/admin-operations.spec.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -239,6 +262,7 @@ const adminAuditSmoke = read("scripts/smoke-self-hosted-admin-audit.mjs");
 const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.mjs");
 const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
 const adminAccessGrantsSmoke = read("scripts/smoke-self-hosted-admin-access-grants.mjs");
+const adminOperationsSmoke = read("scripts/smoke-self-hosted-admin-operations.mjs");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -1339,6 +1363,122 @@ for (const marker of [
 ]) {
   requireText("e2e/admin-access-grants.spec.ts", adminAccessGrantsE2E, marker);
 }
+for (const marker of [
+  "adminOperationsOverviewSchema",
+  "targetConcurrentUsers",
+  "operatorLinks",
+]) {
+  requireText("packages/contracts/src/admin-operations.ts", adminOperationsContract, marker);
+}
+for (const marker of [
+  "AdminOperationsService",
+  "listReviewRequests",
+  "listAdminGrants",
+  "limit: \"5\"",
+  "10,000",
+]) {
+  requireText("apps/api/src/modules/admin-operations/service.ts", adminOperationsService, marker);
+}
+for (const marker of [
+  "/v1/admin/operations/overview",
+  "resolveAuthenticatedAccountSession",
+  "admin_role_required",
+  "admin.operations.overview.read",
+]) {
+  requireText("apps/api/src/modules/admin-operations/routes.ts", adminOperationsRoutes, marker);
+}
+for (const marker of [
+  "AdminOperatorNav",
+  "/admin/access-requests",
+  "/admin/access-grants",
+  "/admin/runtime",
+]) {
+  requireText("src/components/admin/AdminOperatorNav.tsx", adminOperatorNav, marker);
+}
+for (const marker of [
+  "createAdminOperationsApiClient",
+  "/v1/admin/operations/overview",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "targetConcurrentUsers !== 10_000",
+]) {
+  requireText("src/lib/admin-operations-api.ts", adminOperationsApi, marker);
+}
+for (const marker of [
+  "loads overview with self-hosted session headers",
+  "maps admin role and invalid response failures",
+]) {
+  requireText("src/lib/admin-operations-api.test.ts", adminOperationsApiTest, marker);
+}
+for (const marker of [
+  "useAdminOperationsOverview",
+  "client.overview",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-operations-overview.ts", useAdminOperationsOverview, marker);
+}
+for (const marker of [
+  "loads overview and supports explicit refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-operations-overview.test.tsx", useAdminOperationsOverviewTest, marker);
+}
+for (const marker of [
+  "admin-operations-page",
+  "admin-operations-overview",
+  "admin-operations-capacity-plan",
+  "AdminOperatorNav",
+  "10,000 concurrent users",
+]) {
+  requireText("src/pages/admin/AdminOperations.tsx", adminOperationsPage, marker);
+}
+for (const marker of [
+  "renders sanitized operator overview for admins",
+  "Нужна роль администратора",
+  "postgres://",
+]) {
+  requireText("src/pages/admin/AdminOperations.test.tsx", adminOperationsPageTest, marker);
+}
+for (const marker of [
+  "Batch #99 browser guard",
+  "/admin",
+  "/v1/admin/operations/overview",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-operations-overview",
+]) {
+  requireText("e2e/admin-operations.spec.ts", adminOperationsE2E, marker);
+}
+for (const marker of [
+  "admin_operations_auth_guard=ok",
+  "admin_operations_role_guard=ok",
+  "admin_operations_overview=ok",
+  "admin_operations_review_summary=ok",
+  "admin_operations_grants_summary=ok",
+  "admin_operations_no_secrets=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-operations.mjs", adminOperationsSmoke, marker);
+}
+if (pkg.scripts["smoke:self-hosted-admin-operations"] !== "npm run api:build && npm run smoke:self-hosted-admin-operations:run") {
+  failures.push("package.json: smoke:self-hosted-admin-operations must build with the admin operations self-hosted API smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-operations:run")) {
+  failures.push("package.json: ci:core must include the admin operations self-hosted smoke");
+}
+if (pkg.scripts["test:admin-operations-frontend"] !== "vitest run src/lib/admin-operations-api.test.ts src/lib/use-admin-operations-overview.test.tsx src/pages/admin/AdminOperations.test.tsx") {
+  failures.push("package.json: test:admin-operations-frontend must cover adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-operations-frontend")) {
+  failures.push("package.json: ci:core must include admin operations frontend tests");
+}
+if (pkg.scripts["smoke:e2e:admin-operations"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-operations:run") {
+  failures.push("package.json: smoke:e2e:admin-operations must build with the self-hosted admin operations adapter enabled");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-operations")) {
+  failures.push("package.json: ci:full must include admin operations browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin operations browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-operations");
 for (const marker of [
   "createAdminRuntimeApiClient",
   "/v1/admin/runtime/status",

@@ -12,7 +12,7 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-21"
   dirty_worktree_before_project_memory: true
-  active_branch: "codex/batch98-engineering-lessons-guards"
+  active_branch: "codex/batch99-admin-operator-hub"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
@@ -34,29 +34,37 @@ active_workstream:
   id: "self_hosted_production_batches"
   summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
   current_batch:
-    id: 98
-    summary: "Engineering lessons and release guards that convert Batch #96/#97 mistakes into documented rules, automated checks, tests and CI wiring."
+    id: 99
+    summary: "Admin operations hub that aggregates runtime status, access-review queue and active grants for self-hosted operator workflow."
     status: "validated_locally_pending_commit_pr_merge"
     confirmed_files:
-      - "AGENTS.md"
-      - "scripts/lib/e2e-script-policy.mjs"
-      - "scripts/check-engineering-lessons.mjs"
-      - "src/test/engineering-lessons-guard.test.ts"
-      - "docs/project-memory/ENGINEERING_LESSONS.md"
-      - "docs/backend/engineering-quality-gates.md"
+      - "packages/contracts/src/admin-operations.ts"
+      - "apps/api/src/modules/admin-operations/service.ts"
+      - "apps/api/src/modules/admin-operations/routes.ts"
+      - "src/pages/admin/AdminOperations.tsx"
+      - "src/components/admin/AdminOperatorNav.tsx"
+      - "src/lib/admin-operations-api.ts"
+      - "src/lib/use-admin-operations-overview.ts"
+      - "e2e/admin-operations.spec.ts"
+      - "scripts/smoke-self-hosted-admin-operations.mjs"
+      - "docs/backend/self-hosted-admin-operations-smoke.md"
       - "docs/backend/production-scale-baseline.md"
 
 next_actions:
-  - "Apply the Engineer Agent Action Contract from AGENTS.md."
-  - "Finish Batch #98 by running engineering lesson checks, production guards, ci:core, committing, pushing, opening PR, and merging after checks pass."
-  - "Batch #99 must continue as a large connected production batch unless a concrete blocker is stated before implementation."
+  - "Finish Batch #99 by running ci:core, diff/status checks, committing, pushing, opening PR, and merging after checks pass."
+  - "Provide a numbered Lovable sync prompt after Batch #99 reaches main."
+  - "Batch #100 should continue the larger-batch contract unless a concrete blocker is stated before implementation."
   - "Include Batch Size Report after each completed batch."
 
 last_confirmed_checks:
-  - "npm run check:engineering-lessons: passed."
-  - "npm run test:engineering-lessons: passed, 4 tests."
+  - "npm run test:admin-operations-frontend: passed, 10 tests."
+  - "npm run api:build: passed."
   - "npm run check:self-hosted-api: passed."
   - "npm run check:production-scale-baseline: passed."
+  - "npm run smoke:self-hosted-admin-operations: passed."
+  - "npm run lint: passed."
+  - "npx tsc -b --noEmit: passed."
+  - "npm run smoke:e2e:admin-operations: passed, 2 tests."
   - "npm run ci:core: passed."
 
 quality_rules:
@@ -78,4 +86,4 @@ critical_files:
   - "docs/project-memory/ARTIFACTS.md"
 
 open_questions:
-  - "Batch #98 scope should be chosen after Batch #97 is merged and Lovable sync is confirmed."
+  - "GitHub Actions status for Batch #99 is not confirmed until PR is opened and checks complete."

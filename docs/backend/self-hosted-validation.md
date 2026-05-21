@@ -1066,3 +1066,24 @@ If a future prototype experiment tries to use Supabase or a similar hosted
 BaaS/SaaS backend, document it as non-production, keep it behind an adapter and
 add a removal path. Do not let page/component code import the Supabase client as
 a production data gateway.
+## Batch #99 Admin Operations Validation
+
+Batch #99 adds the following validation surface:
+
+```bash
+npm run test:admin-operations-frontend
+npm run smoke:self-hosted-admin-operations
+npm run smoke:e2e:admin-operations
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/operations/overview` requires a valid self-hosted session;
+- buyer sessions receive `admin_role_required`;
+- admin sessions receive sanitized runtime and access overview data;
+- review and grants previews stay bounded to 5 rows;
+- frontend adapter sends `x-yorso-user-id` and `x-yorso-session-id`;
+- `/admin` renders disabled, session-required, forbidden, error and ready states;
+- operator payloads do not render emails, session ids or connection strings.
