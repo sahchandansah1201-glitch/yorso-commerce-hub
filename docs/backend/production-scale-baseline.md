@@ -1179,6 +1179,75 @@ Marker: smoke:self-hosted-admin-incidents.
 Marker: smoke:e2e:admin-incidents.
 Marker: admin_incidents_acknowledge=ok.
 
+## Batch #102 Admin Incident Workflow
+
+Batch #102 extends the admin incident response layer from acknowledge/resolve
+into a bounded operator workflow. The backend keeps incidents derived from
+runtime diagnostics and admin audit summaries, then stores only durable operator
+workflow state: assignment, escalation, resolution status and timeline events.
+The frontend extends `/admin/incidents` with assignment input, escalation
+control, SLA status, due status, timeline preview, operator runbook steps and a
+workload summary for assignment coverage, SLA breach rate, source mix and
+escalation load.
+
+Runtime endpoints:
+
+- `GET /v1/admin/incidents`;
+- `GET /v1/admin/incidents/:incidentId`;
+- `POST /v1/admin/incidents/:incidentId/acknowledge`;
+- `POST /v1/admin/incidents/:incidentId/workflow`.
+- `POST /v1/admin/incidents/workflow/bulk`.
+- `GET /v1/admin/incidents/export`.
+
+Expected read/write profile: admin-only, low-QPS control-plane traffic. Reads
+remain paginated and bounded, with typed filters for status, severity, source,
+assignment state, escalation level and SLA state. Writes are sparse operator
+actions: assign, comment, escalate, resolve and bounded bulk workflow updates
+for up to 25 incidents per request. Export is sanitized, filter-bound and
+limited by the same query caps. No buyer marketplace path reads the incident
+workflow tables.
+
+Cache, queue and backpressure strategy: no browser polling and no background
+queue in this batch. Operators refresh explicitly. Existing self-hosted admin
+session checks, role checks, API guardrails, request timeouts, audit
+backpressure, metrics and error telemetry remain active.
+
+Database indexing and pagination strategy: `0020_admin_incident_workflow.sql`
+adds `yorso_admin_incident_events` with incident/time, actor/time and type/time
+indexes, plus acknowledgement indexes for assignee and escalation. Timeline
+reads are limited per incident and never scan raw audit payloads.
+
+Failure mode and graceful degradation: invalid workflow actions return typed
+validation errors. Disabled API, missing session, forbidden role and backend
+failures still render explicit UI states. The UI displays hashed operator
+identifiers only and must not render raw user ids, sessions, email addresses,
+connection strings or storage endpoints.
+
+Observability and load-test plan: Batch #102 is covered by
+`smoke:self-hosted-admin-incidents`, `test:admin-incidents-frontend`,
+`smoke:e2e:admin-incidents`, `test:db-contract`, `test:db-migrations`,
+`check:self-hosted-db`, `check:self-hosted-api` and
+`check:production-scale-baseline`. Load tests should treat this as a
+low-frequency admin control-plane workflow separate from the 10,000 concurrent
+buyer/supplier hot path.
+
+Marker: Batch #102.
+Marker: admin incident workflow.
+Marker: /v1/admin/incidents/:incidentId/workflow.
+Marker: /v1/admin/incidents/workflow/bulk.
+Marker: /v1/admin/incidents/export.
+Marker: yorso_admin_incident_events.
+Marker: admin_incidents_assign=ok.
+Marker: admin_incidents_escalate=ok.
+Marker: admin_incidents_comment=ok.
+Marker: admin_incidents_workload_summary=ok.
+Marker: admin_incidents_bulk_workflow=ok.
+Marker: admin_incidents_export_json=ok.
+Marker: admin_incidents_export_csv=ok.
+Marker: admin_incidents_workflow_filters=ok.
+Marker: admin_incidents_workflow_validation_guard=ok.
+Marker: admin_incidents_bulk_workflow_validation_guard=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

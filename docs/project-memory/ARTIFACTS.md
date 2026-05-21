@@ -100,3 +100,16 @@
 - `e2e/admin-incidents.spec.ts`: API-backed browser smoke for incident list and acknowledge flow.
 - `scripts/smoke-self-hosted-admin-incidents.mjs`: self-hosted runtime smoke for auth guard, role guard, incident list/detail/acknowledge/resolve and secret guards.
 - `docs/backend/self-hosted-admin-incidents-smoke.md`: incident response smoke documentation and 10,000 concurrent users notes.
+
+## Batch #102 Admin Incident Workflow
+
+- `packages/contracts/src/admin-incidents.ts`: workflow action, timeline, SLA and escalation DTOs.
+- `packages/contracts/src/admin-incidents.ts`: runbook and workload-summary DTOs for assignment coverage, SLA risk, escalation load and source mix.
+- `apps/api/src/modules/admin-incidents/`: workflow service/repository/routes for assign, comment, escalate, resolve, bulk workflow and sanitized export actions.
+- `packages/db/migrations/0020_admin_incident_workflow.sql`: durable assignment/escalation fields and indexed `yorso_admin_incident_events` timeline table.
+- `src/lib/admin-incidents-api.ts`: frontend self-hosted workflow API client.
+- `src/lib/use-admin-incidents.ts`: frontend hook workflow action bridge.
+- `src/pages/admin/AdminIncidents.tsx`: incident workflow controls, bulk workflow panel, export buttons, workflow filters, runbook steps, SLA/due state, workload summary and timeline preview.
+- `e2e/admin-incidents.spec.ts`: API-backed browser smoke for assignment/escalation workflow, bulk workflow, export and workload summary rendering.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime smoke markers for assign, escalate, comment, bulk workflow, export, workload summary, workflow filters and workflow validation.
+- `docs/backend/production-scale-baseline.md`: Batch #102 10,000 concurrent users capacity review.

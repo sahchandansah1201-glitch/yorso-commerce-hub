@@ -92,12 +92,16 @@ async function runSmoke(baseUrl) {
   assertArray(list.incidents, "admin incidents list rows");
   assertNumberAtLeast(list.summary.total, 1, "admin incidents total");
   assertNumberAtLeast(list.summary.open, 1, "admin incidents open");
+  assertNumberAtLeast(list.summary.unassigned, 1, "admin incidents unassigned workload");
+  assertNumberAtLeast(list.summary.breachRatePct, 0, "admin incidents breach rate");
+  assertNumberAtLeast(list.summary.oldestOpenMinutes, 0, "admin incidents oldest open minutes");
   const incident = list.incidents[0];
   assertTruthy(incident.id, "admin incidents first id");
   assertTruthy(incident.title, "admin incidents first title");
   assertArray(incident.recommendedActions, "admin incidents recommended actions");
   console.log("admin_incidents_list=ok");
   console.log("admin_incidents_summary=ok");
+  console.log("admin_incidents_workload_summary=ok");
 
   const detail = await jsonRequest(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}`, adminHeaders);
   assertEqual(detail.ok, true, "admin incident detail ok");
@@ -116,21 +120,108 @@ async function runSmoke(baseUrl) {
   console.log("admin_incidents_acknowledge=ok");
   console.log("admin_incidents_no_secrets=ok");
 
+  const assigned = await postJson(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, adminHeaders, {
+    action: "assign",
+    assignedToUserId: adminHeaders["x-yorso-user-id"],
+    note: "Assigning to incident commander.",
+  });
+  assertEqual(assigned.incident.status, "acknowledged", "admin incident assign status");
+  assertContains(assigned.incident.assignedToUserHash, "sha256:", "admin incident assigned user hash");
+  assertContains(JSON.stringify(assigned.timeline), "assigned", "admin incident assignment timeline");
+  console.log("admin_incidents_assign=ok");
+
+  const escalated = await postJson(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, adminHeaders, {
+    action: "escalate",
+    escalationLevel: "engineering",
+    note: "Escalating after repeated blocked admin attempts.",
+  });
+  assertEqual(escalated.incident.escalationLevel, "engineering", "admin incident escalation level");
+  assertContains(JSON.stringify(escalated.timeline), "escalated", "admin incident escalation timeline");
+  console.log("admin_incidents_escalate=ok");
+
+  const commented = await postJson(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, adminHeaders, {
+    action: "comment",
+    note: "Operator comment without secrets.",
+  });
+  assertContains(JSON.stringify(commented.timeline), "commented", "admin incident comment timeline");
+  console.log("admin_incidents_comment=ok");
+
+  const bulkEscalated = await postJson(baseUrl, "/v1/admin/incidents/workflow/bulk", adminHeaders, {
+    action: "escalate",
+    escalationLevel: "executive",
+    incidentIds: [incident.id, "audit:missing"],
+    note: "Bulk escalation smoke.",
+  });
+  assertEqual(bulkEscalated.ok, true, "admin incidents bulk workflow ok");
+  assertEqual(bulkEscalated.succeeded, 1, "admin incidents bulk workflow success count");
+  assertEqual(bulkEscalated.failed[0]?.code, "admin_incident_not_found", "admin incidents bulk partial failure");
+  assertEqual(bulkEscalated.incidents[0]?.escalationLevel, "executive", "admin incidents bulk escalation");
+  assertNotContains(JSON.stringify(bulkEscalated), "admin@example.com", "admin incidents bulk no email");
+  console.log("admin_incidents_bulk_workflow=ok");
+
   const acknowledgedList = await jsonRequest(baseUrl, "/v1/admin/incidents?status=acknowledged&limit=25", adminHeaders);
   assertEqual(acknowledgedList.ok, true, "admin incidents acknowledged list ok");
   assertContains(JSON.stringify(acknowledgedList), incident.id, "admin incidents acknowledged filter includes incident");
   console.log("admin_incidents_status_filter=ok");
+
+  const workflowFilteredList = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents?status=acknowledged&assigned=assigned&escalationLevel=executive&slaStatus=${commented.incident.slaStatus}&limit=25`,
+    adminHeaders,
+  );
+  assertEqual(workflowFilteredList.ok, true, "admin incidents workflow filter list ok");
+  assertContains(JSON.stringify(workflowFilteredList), incident.id, "admin incidents workflow filters include incident");
+  assertNumberAtLeast(workflowFilteredList.summary.assigned, 1, "admin incidents assigned summary");
+  assertNumberAtLeast(workflowFilteredList.summary.executiveEscalations, 1, "admin incidents executive summary");
+  console.log("admin_incidents_workflow_filters=ok");
+
+  const exportJson = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/export?format=json&status=acknowledged&assigned=assigned&limit=25`,
+    adminHeaders,
+  );
+  assertEqual(exportJson.ok, true, "admin incidents JSON export ok");
+  assertNumberAtLeast(exportJson.count, 1, "admin incidents JSON export count");
+  assertNotContains(JSON.stringify(exportJson), "admin@example.com", "admin incidents JSON export no email");
+  console.log("admin_incidents_export_json=ok");
+
+  const exportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/export?format=csv&status=acknowledged&assigned=assigned&limit=25`,
+    { headers: adminHeaders },
+  );
+  assertStatus(exportCsv, 200, "admin incidents CSV export");
+  const exportCsvBody = await exportCsv.text();
+  assertContains(exportCsvBody, "\"id\",\"status\"", "admin incidents CSV export header");
+  assertNotContains(exportCsvBody, "admin@example.com", "admin incidents CSV export no email");
+  console.log("admin_incidents_export_csv=ok");
 
   const resolved = await postJson(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}/acknowledge`, adminHeaders, {
     note: "Resolved after smoke verification.",
     status: "resolved",
   });
   assertEqual(resolved.incident.status, "resolved", "admin incident resolve status");
+  assertEqual(resolved.incident.slaStatus, "ok", "admin incident resolved SLA status");
   console.log("admin_incidents_resolve=ok");
 
   const invalid = await fetch(`${baseUrl}/v1/admin/incidents?limit=100000`, { headers: adminHeaders });
   assertStatus(invalid, 400, "admin incidents validation guard");
   console.log("admin_incidents_validation_guard=ok");
+
+  const invalidWorkflow = await fetch(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, {
+    body: JSON.stringify({ action: "assign" }),
+    headers: adminHeaders,
+    method: "POST",
+  });
+  assertStatus(invalidWorkflow, 400, "admin incidents workflow validation guard");
+  console.log("admin_incidents_workflow_validation_guard=ok");
+
+  const invalidBulkWorkflow = await fetch(`${baseUrl}/v1/admin/incidents/workflow/bulk`, {
+    body: JSON.stringify({ action: "comment", incidentIds: [] }),
+    headers: adminHeaders,
+    method: "POST",
+  });
+  assertStatus(invalidBulkWorkflow, 400, "admin incidents bulk workflow validation guard");
+  console.log("admin_incidents_bulk_workflow_validation_guard=ok");
 }
 
 async function signIn(baseUrl, email) {

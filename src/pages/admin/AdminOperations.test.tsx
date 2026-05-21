@@ -5,11 +5,39 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { buyerSession } from "@/lib/buyer-session";
+import type { AdminIncidentSummary } from "@/lib/admin-incidents-api";
 import type { AdminOperationsOverview } from "@/lib/admin-operations-api";
 import AdminOperations from "./AdminOperations";
 
 const adminUserId = "00000000-0000-4000-8000-000000000099";
 const adminSessionId = "session-admin-operations-page";
+
+const incidentSummary = (patch: Partial<AdminIncidentSummary> = {}): AdminIncidentSummary => ({
+  acknowledged: 0,
+  access: 0,
+  assigned: 0,
+  assignmentCoveragePct: 0,
+  atRisk: 0,
+  audit: 1,
+  breachRatePct: 100,
+  breached: 1,
+  critical: 0,
+  engineeringEscalations: 0,
+  escalated: 0,
+  executiveEscalations: 0,
+  high: 1,
+  leadEscalations: 0,
+  open: 1,
+  openCritical: 0,
+  oldestOpenMinutes: 66,
+  policy: 0,
+  resolved: 0,
+  runtime: 0,
+  security: 0,
+  total: 1,
+  unassigned: 1,
+  ...patch,
+});
 
 const overviewPayload = (): AdminOperationsOverview => ({
   access: {
@@ -29,8 +57,13 @@ const overviewPayload = (): AdminOperationsOverview => ({
       {
         acknowledgedAt: null,
         acknowledgedByUserHash: null,
+        assignedAt: null,
+        assignedToUserHash: null,
         count: 3,
         description: "Admin route blocks need operator review.",
+        dueAt: "2026-05-20T10:54:00.000Z",
+        escalatedAt: null,
+        escalationLevel: "none",
         evidence: [{ label: "Audit events", value: "3 blocked admin audit reads" }],
         firstSeenAt: "2026-05-20T09:54:00.000Z",
         id: "audit:admin-blocked:v1-admin-audit-events",
@@ -39,13 +72,34 @@ const overviewPayload = (): AdminOperationsOverview => ({
         recommendedActions: ["Inspect blocked admin attempts."],
         relatedAuditIds: ["aud_ops_2"],
         route: "/v1/admin/audit-events",
+        runbook: [
+          {
+            description: "Confirm admin role and review recent blocked attempts.",
+            label: "Confirm scope",
+            ownerRole: "operator",
+            targetMinutes: 15,
+          },
+        ],
         severity: "high",
+        slaStatus: "breached",
         source: "audit",
         status: "open",
+        timelinePreview: [
+          {
+            actorUserHash: null,
+            assignedToUserHash: null,
+            escalationLevel: null,
+            eventId: "audit:admin-blocked:v1-admin-audit-events:created",
+            note: null,
+            occurredAt: "2026-05-20T09:54:00.000Z",
+            status: "open",
+            type: "created",
+          },
+        ],
         title: "Admin route blocked",
       },
     ],
-    summary: { acknowledged: 0, critical: 0, high: 1, open: 1, resolved: 0, total: 1 },
+    summary: incidentSummary(),
   },
   audit: {
     recent: [

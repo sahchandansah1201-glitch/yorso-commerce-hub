@@ -232,6 +232,18 @@
       "dependsOn": [
         "0018_admin_access_grants_console"
       ]
+    },
+    {
+      "id": "0020_admin_incident_workflow",
+      "file": "migrations/0020_admin_incident_workflow.sql",
+      "description": "Add durable admin incident assignment, escalation and timeline workflow state.",
+      "ownedTables": [
+        "yorso_admin_incident_acknowledgements",
+        "yorso_admin_incident_events"
+      ],
+      "dependsOn": [
+        "0019_admin_incident_acknowledgements"
+      ]
     }
   ]
 }

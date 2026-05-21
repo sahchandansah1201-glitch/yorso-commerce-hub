@@ -1000,3 +1000,32 @@ runtime or audit-derived issues without becoming an unbounded reporting page.
 
 The incident response layer has no Supabase, Firebase, Appwrite, Clerk, Auth0 or
 hosted BaaS production dependency.
+
+## Batch #102 Admin Incident Workflow
+
+Batch #102 turns the incident response page into a bounded operator workflow
+without making incident handling part of the buyer/supplier hot path. The API
+adds `POST /v1/admin/incidents/:incidentId/workflow` for assignment, operator
+comments, escalation and resolution actions, plus
+`POST /v1/admin/incidents/workflow/bulk` for bounded bulk workflow updates.
+It also exposes `GET /v1/admin/incidents/export` for sanitized JSON/CSV
+operator handoff exports.
+The existing acknowledge endpoint remains available for the simple
+acknowledgement path.
+
+The durable state model stays narrow:
+
+- `yorso_admin_incident_acknowledgements` stores current workflow state such as
+  status, assignee, escalation level and resolution timestamps;
+- `yorso_admin_incident_events` stores timeline events with hashed operator
+  display data and bounded per-incident reads.
+
+The frontend page `/admin/incidents` renders SLA status, due time, assignee
+hash, escalation state, typed workflow filters, selected-incident bulk actions,
+timeline preview, operator runbook steps and workload summary cards for
+assignment coverage, SLA breach rate, escalation load and source mix. It never
+renders raw user ids, session ids, emails, connection strings or storage
+endpoints.
+
+The workflow remains self-hosted only. It has no Supabase, Firebase, Appwrite,
+Clerk, Auth0 or hosted BaaS production dependency.

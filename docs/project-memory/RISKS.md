@@ -2,9 +2,9 @@
 
 ## Active Risks
 
-- Risk: Batch #101 is implemented locally but not yet merged to `main`.
-  Impact: Lovable will not see the admin incident response console until the PR is merged and synced.
-  Mitigation: Complete remaining validation, commit, push, PR, checks and merge before starting Batch #102.
+- Risk: Batch #102 is implemented locally but not yet merged to `main`.
+  Impact: Lovable will not see the admin incident workflow until the PR is merged and synced.
+  Mitigation: Local validation has passed; commit, push, PR, wait for GitHub checks and merge before starting Batch #103.
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
   Impact: Work may be applied in the wrong repository.
@@ -37,6 +37,10 @@
 - Risk: Incident response can become a dumping ground for unbounded logs.
   Impact: Operator pages may slow down during outages and leak sensitive audit context.
   Mitigation: Batch #101 derives bounded incidents from runtime diagnostics and audit summaries, stores only acknowledgement state, keeps `/admin/incidents` admin-only and adds smoke/e2e secret guards.
+
+- Risk: Incident workflow can expose raw operator identities or become a high-write control-plane path during outages.
+  Impact: Browser pages could leak user ids, or operator updates could add pressure while the service is degraded.
+  Mitigation: Batch #102 accepts raw assignee ids only in admin requests, returns hashed identifiers to the browser, stores bounded timeline events in `yorso_admin_incident_events`, limits bulk workflow to selected incident ids, sanitizes export, avoids polling and keeps the workflow behind self-hosted admin session and role guards.
 
 ## Resolved Risks
 
