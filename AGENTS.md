@@ -58,3 +58,8 @@
    - If a batch must be smaller, state the blocker before implementation.
    - Each completed batch must include a Batch Size Report: files changed, layers touched, tests added, docs/guards updated, and plan items closed.
    - User instruction "Увеличивай объем кода в каждом batch / PR" is a standing workflow rule, not a one-off preference.
+   - Failure Learning Contract:
+     - When a batch exposes a process or code mistake, record it in `docs/project-memory/ENGINEERING_LESSONS.md` with symptom, root cause, fix and guard.
+     - API-backed e2e specs that require `VITE_YORSO_API_URL` must not be added to generic `smoke:e2e:run`; use a dedicated `smoke:e2e:*` script that builds with `VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api`.
+     - Do not run two Vite build-based e2e commands in parallel when both write to shared `dist/`; run sequentially or isolate output directories.
+     - Memory repository smoke tests must assert stable contract fields, not production display names unavailable to the memory repository.

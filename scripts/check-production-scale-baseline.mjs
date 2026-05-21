@@ -8,6 +8,8 @@ const requiredFiles = [
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
   "docs/backend/self-hosted-validation.md",
+  "docs/backend/engineering-quality-gates.md",
+  "docs/project-memory/ENGINEERING_LESSONS.md",
   ".env.production.example",
   "packages/db/migrations/0005_supplier_directory_search_scaling.sql",
   "packages/db/migrations/0009_supplier_directory_pagination_sort.sql",
@@ -93,7 +95,10 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
   "scripts/smoke-frontend-no-supabase-env.mjs",
+  "scripts/lib/e2e-script-policy.mjs",
+  "scripts/check-engineering-lessons.mjs",
   "scripts/check-self-hosted-production-runtime.mjs",
+  "src/test/engineering-lessons-guard.test.ts",
   "src/lib/auth-runtime.ts",
   "src/lib/auth-runtime.test.ts",
   "src/lib/auth-runtime.boundary.test.ts",
@@ -153,6 +158,11 @@ const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
 const architecture = read("docs/backend/self-hosted-backend-architecture.md");
 const validation = read("docs/backend/self-hosted-validation.md");
+const engineeringQualityGates = read("docs/backend/engineering-quality-gates.md");
+const engineeringLessons = read("docs/project-memory/ENGINEERING_LESSONS.md");
+const engineeringLessonsCheck = read("scripts/check-engineering-lessons.mjs");
+const e2eScriptPolicy = read("scripts/lib/e2e-script-policy.mjs");
+const engineeringLessonsTest = read("src/test/engineering-lessons-guard.test.ts");
 const supplierScaling = read("packages/db/migrations/0005_supplier_directory_search_scaling.sql");
 const supplierPaginationSort = read("packages/db/migrations/0009_supplier_directory_pagination_sort.sql");
 const offerCatalog = read("packages/db/migrations/0006_offer_catalog.sql");
@@ -631,6 +641,66 @@ if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-produ
 
 if (!pkg.scripts["ci:core"]?.includes("npm run check:production-scale-baseline")) {
   failures.push("package.json: ci:core must run check:production-scale-baseline");
+}
+
+if (pkg.scripts["check:engineering-lessons"] !== "node scripts/check-engineering-lessons.mjs") {
+  failures.push("package.json: check:engineering-lessons script missing or incorrect");
+}
+if (pkg.scripts["test:engineering-lessons"] !== "vitest run src/test/engineering-lessons-guard.test.ts") {
+  failures.push("package.json: test:engineering-lessons script missing or incorrect");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run check:engineering-lessons")) {
+  failures.push("package.json: ci:core must run check:engineering-lessons");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:engineering-lessons")) {
+  failures.push("package.json: ci:core must run test:engineering-lessons");
+}
+for (const marker of [
+  "Batch #98",
+  "check:engineering-lessons",
+  "test:engineering-lessons",
+  "API-backed e2e release policy",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
+  "Batch #98",
+  "API-backed e2e specs",
+  "shared Vite `dist/` directory",
+  "Memory repository smoke tests",
+]) {
+  requireText("docs/backend/engineering-quality-gates.md", engineeringQualityGates, marker);
+}
+for (const marker of [
+  "Batch #98",
+  "VITE_YORSO_API_URL",
+  "shared `dist/`",
+  "memory repository",
+  "stable contract fields",
+]) {
+  requireText("docs/project-memory/ENGINEERING_LESSONS.md", engineeringLessons, marker);
+}
+for (const marker of [
+  "analyzeE2EScriptPolicy",
+  "API-backed spec",
+  "smoke:e2e:run",
+  "admin grants supplier id",
+]) {
+  requireText("scripts/check-engineering-lessons.mjs", engineeringLessonsCheck, marker);
+}
+for (const marker of [
+  "API_BACKED_E2E_ENV",
+  "GENERIC_BROWSER_SMOKE_SCRIPT",
+  "hasParallelBuildRisk",
+]) {
+  requireText("scripts/lib/e2e-script-policy.mjs", e2eScriptPolicy, marker);
+}
+for (const marker of [
+  "keeps API-backed e2e specs out of the generic browser smoke",
+  "fails a synthetic package when an API-backed spec is also in smoke:e2e:run",
+  "admin grants supplier id",
+]) {
+  requireText("src/test/engineering-lessons-guard.test.ts", engineeringLessonsTest, marker);
 }
 
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-offer-detail:run")) {

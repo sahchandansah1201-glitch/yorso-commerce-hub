@@ -48,3 +48,15 @@ Keep this file factual and append-only.
   - `npm run check:self-hosted-api` passed.
   - `npm run check:production-scale-baseline` passed.
   - `npm run ci:core` passed.
+- Started Batch #98 locally on `codex/batch98-engineering-lessons-guards`.
+- Converted Batch #96/#97 process mistakes into explicit engineering lessons and release gates.
+- Added `docs/project-memory/ENGINEERING_LESSONS.md` with symptoms, root causes, fixes and guards for deterministic queues, localization source, memory-repository assertions, API-backed e2e isolation and shared `dist/` races.
+- Added `scripts/lib/e2e-script-policy.mjs`, `scripts/check-engineering-lessons.mjs` and `src/test/engineering-lessons-guard.test.ts`.
+- Wired `check:engineering-lessons` and `test:engineering-lessons` into `ci:core`.
+- Added Batch #98 production-scale notes for the API-backed e2e release policy.
+- Confirmed Batch #98 checks:
+  - `npm run check:engineering-lessons` passed.
+  - `npm run test:engineering-lessons` passed, 4 tests.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run ci:core` passed.

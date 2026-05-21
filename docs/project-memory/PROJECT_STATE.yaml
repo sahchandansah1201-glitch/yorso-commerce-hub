@@ -12,7 +12,7 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-21"
   dirty_worktree_before_project_memory: true
-  active_branch: "codex/batch97-admin-access-grants-console"
+  active_branch: "codex/batch98-engineering-lessons-guards"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
@@ -34,37 +34,27 @@ active_workstream:
   id: "self_hosted_production_batches"
   summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
   current_batch:
-    id: 97
-    summary: "Admin access grants console for listing active/expired supplier-access grants and revoking granted supplier identity and offer-price access."
-    status: "implemented_locally_pending_commit_pr_merge"
+    id: 98
+    summary: "Engineering lessons and release guards that convert Batch #96/#97 mistakes into documented rules, automated checks, tests and CI wiring."
+    status: "validated_locally_pending_commit_pr_merge"
     confirmed_files:
-      - "packages/contracts/src/supplier-access.ts"
-      - "apps/api/src/modules/access/routes.ts"
-      - "apps/api/src/modules/access/service.ts"
-      - "apps/api/src/modules/access/repository.ts"
-      - "apps/api/src/modules/access/postgres-repository.ts"
-      - "packages/db/migrations/0018_admin_access_grants_console.sql"
-      - "src/lib/admin-access-grants-api.ts"
-      - "src/lib/use-admin-access-grants.ts"
-      - "src/pages/admin/AdminAccessGrants.tsx"
-      - "e2e/admin-access-grants.spec.ts"
-      - "scripts/smoke-self-hosted-admin-access-grants.mjs"
-      - "docs/backend/self-hosted-admin-access-grants-smoke.md"
+      - "AGENTS.md"
+      - "scripts/lib/e2e-script-policy.mjs"
+      - "scripts/check-engineering-lessons.mjs"
+      - "src/test/engineering-lessons-guard.test.ts"
+      - "docs/project-memory/ENGINEERING_LESSONS.md"
+      - "docs/backend/engineering-quality-gates.md"
+      - "docs/backend/production-scale-baseline.md"
 
 next_actions:
   - "Apply the Engineer Agent Action Contract from AGENTS.md."
-  - "Finish Batch #97 by running final git checks, committing, pushing, opening PR, and merging after checks pass."
-  - "Batch #98 must continue as a large connected production batch unless a concrete blocker is stated before implementation."
+  - "Finish Batch #98 by running engineering lesson checks, production guards, ci:core, committing, pushing, opening PR, and merging after checks pass."
+  - "Batch #99 must continue as a large connected production batch unless a concrete blocker is stated before implementation."
   - "Include Batch Size Report after each completed batch."
 
 last_confirmed_checks:
-  - "npm run test:admin-access-grants-frontend: passed, 10 tests."
-  - "npm run test:api: passed, 123 tests."
-  - "npm run test:db-contract: passed, 23 tests."
-  - "npm run test:db-migrations: passed, 16 tests."
-  - "npm run smoke:self-hosted-admin-access-grants: passed."
-  - "npm run smoke:e2e:admin-access-grants: passed, 2 browser tests."
-  - "npm run check:self-hosted-db: passed."
+  - "npm run check:engineering-lessons: passed."
+  - "npm run test:engineering-lessons: passed, 4 tests."
   - "npm run check:self-hosted-api: passed."
   - "npm run check:production-scale-baseline: passed."
   - "npm run ci:core: passed."
