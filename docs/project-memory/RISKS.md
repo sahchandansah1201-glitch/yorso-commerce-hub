@@ -2,9 +2,9 @@
 
 ## Active Risks
 
-- Risk: Batch #97 is implemented locally but not yet merged to `main`.
-  Impact: Lovable will not see the admin access grants console until the PR is merged and synced.
-  Mitigation: Complete commit, push, PR, checks and merge before starting Batch #98.
+- Risk: Batch #98 is implemented locally but not yet merged to `main`.
+  Impact: Lovable will not see the engineering lesson guards until the PR is merged and synced.
+  Mitigation: Complete validation, commit, push, PR, checks and merge before starting Batch #99.
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
   Impact: Work may be applied in the wrong repository.
@@ -22,7 +22,18 @@
   Impact: Incorrect revocation could break an active buyer workflow or leave stale access visible.
   Mitigation: Batch #97 revokes both supplier identity and offer-price grants together, emits audit/action paths, adds runtime smoke for remasking, and adds browser e2e for the admin grants console.
 
+- Risk: API-backed browser specs can fail in generic smoke.
+  Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
+  Mitigation: Batch #98 adds `check:engineering-lessons`, `test:engineering-lessons` and an e2e script policy that keeps API-backed specs out of `smoke:e2e:run`.
+
+- Risk: Parallel Vite builds can race on shared `dist/`.
+  Impact: Running two build-based e2e commands concurrently can overwrite preview assets and produce nondeterministic failures.
+  Mitigation: Batch #98 forbids parallel tokens in `smoke:e2e*` package scripts unless future work isolates output directories.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.
   Resolution: Added `docs/project-memory/` and `AGENTS.md`.
+
+- Risk: Batch #97 was implemented locally but not yet merged to `main`.
+  Resolution: Batch #97 is present on main as `[codex] Batch #97 admin access grants console`; Batch #98 now builds on top of it.

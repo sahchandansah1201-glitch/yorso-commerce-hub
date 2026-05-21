@@ -53,3 +53,13 @@
 - `e2e/admin-access-grants.spec.ts`: browser smoke for grant list/revoke and forbidden role state.
 - `scripts/smoke-self-hosted-admin-access-grants.mjs`: self-hosted runtime smoke.
 - `docs/backend/self-hosted-admin-access-grants-smoke.md`: smoke documentation.
+
+## Batch #98 Engineering Lessons Guards
+
+- `docs/project-memory/ENGINEERING_LESSONS.md`: durable record of Batch #96/#97 mistakes, root causes, fixes and guards.
+- `docs/backend/engineering-quality-gates.md`: engineering quality gate documentation.
+- `scripts/lib/e2e-script-policy.mjs`: reusable package-script policy for API-backed e2e isolation and build-race prevention.
+- `scripts/check-engineering-lessons.mjs`: release guard for engineering lessons, project-memory markers, package scripts and stable smoke assertions.
+- `src/test/engineering-lessons-guard.test.ts`: Vitest coverage for the e2e policy and memory-repository smoke assertion rule.
+- `AGENTS.md`: Failure Learning Contract added to the Engineer Agent Action Contract.
+- `docs/backend/production-scale-baseline.md`: Batch #98 production-scale release gate note.

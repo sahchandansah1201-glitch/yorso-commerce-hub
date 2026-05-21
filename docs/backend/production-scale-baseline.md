@@ -1004,6 +1004,51 @@ Marker: self-hosted admin access grants smoke.
 Marker: API-backed admin access grants browser e2e.
 Marker: self_hosted_admin_access_grants_smoke=ok.
 
+Batch #98 adds engineering lessons release gates after the Batch #96 and
+Batch #97 correction cycle. The goal is to convert repeated implementation
+mistakes into durable project checks instead of relying on chat memory. The
+new gate records lessons in project memory, checks API-backed browser smoke
+isolation, prevents parallel Vite build-based e2e commands from racing on
+shared `dist/`, and keeps memory-repository smoke assertions tied to stable
+contract fields.
+
+API-backed e2e release policy: any browser spec that requires
+`VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api` must run through a
+dedicated `smoke:e2e:*` script and must not be added to generic
+`smoke:e2e:run`. Generic browser smoke stays safe for local prototype mode.
+API-backed suites remain explicit release checks for self-hosted API paths.
+
+Expected read/write profile: Batch #98 adds no runtime marketplace traffic.
+It adds release-time reads of `package.json`, AGENTS rules, project-memory,
+smoke scripts and docs. The checks are bounded file scans and one Vitest suite.
+
+Cache, queue and backpressure strategy: no cache or queue is added. The
+failure mode is fail-fast in CI before release, not runtime backpressure.
+Browser suites that rebuild Vite assets must run sequentially or use isolated
+outputs to avoid shared `dist/` races.
+
+Database indexing and pagination strategy: no database schema changes. The
+policy protects future database-backed and API-backed releases by keeping
+API-only browser specs out of prototype smoke and by requiring stable
+contract-field assertions.
+
+Failure mode and graceful degradation: if a future batch adds an API-backed
+spec to generic smoke, runs build-based e2e commands in parallel, or removes
+the lesson records, `check:engineering-lessons` fails. If a production-facing
+batch exposes a process mistake, the mitigation must be recorded as an
+engineering lesson with a guard before the batch is considered complete.
+
+Observability and load-test plan: Batch #98 is a release-observability guard.
+The relevant signal is CI failure with a specific lesson-policy report. Runtime
+load tests are unchanged, but API-backed browser smoke isolation prevents
+false failures from masking real self-hosted access-flow regressions at the
+10000 concurrent-user baseline.
+
+Marker: Batch #98.
+Marker: check:engineering-lessons.
+Marker: test:engineering-lessons.
+Marker: API-backed e2e release policy.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

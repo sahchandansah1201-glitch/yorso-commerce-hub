@@ -17,27 +17,29 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #97 is implemented locally on branch `codex/batch97-admin-access-grants-console`.
-- Batch #97 adds a self-hosted admin access grants console for active/expired supplier-access grants and revocation.
-- Confirmed implementation surfaces:
-  - `GET /v1/admin/access-grants`;
-  - `POST /v1/admin/access-grants/:grantId/revoke`;
-  - `/admin/access-grants` frontend page;
-  - `0018_admin_access_grants_console` DB indexes;
-  - contracts, memory/PostgreSQL repositories, service/routes, admin UI, browser e2e, runtime smoke, guard scripts, docs and CI wiring.
+- Batch #98 is implemented locally on branch `codex/batch98-engineering-lessons-guards`.
+- Batch #98 converts concrete Batch #96/#97 mistakes into durable engineering rules:
+  - AGENTS Failure Learning Contract;
+  - project-memory engineering lessons;
+  - API-backed e2e script policy;
+  - stable memory-repository smoke assertion policy;
+  - release checks and Vitest guard suite.
+- Local validation passed: `check:engineering-lessons`, `test:engineering-lessons`, `check:self-hosted-api`, `check:production-scale-baseline` and `ci:core`.
 - Pending handoff steps: commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #97 publication:
+Finish Batch #98 publication:
 1. run final diff/status checks;
-2. commit and push branch codex/batch97-admin-access-grants-console;
-3. open PR [codex] Batch #97 admin access grants console;
-4. merge after checks pass;
-5. give Lovable Prompt #97 to sync latest GitHub main.
+2. run npm run check:engineering-lessons and npm run test:engineering-lessons;
+3. run npm run check:self-hosted-api, npm run check:production-scale-baseline and npm run ci:core;
+4. commit and push branch codex/batch98-engineering-lessons-guards;
+5. open PR [codex] Batch #98 engineering lessons guards;
+6. merge after checks pass;
+7. give Lovable Prompt #98 to sync latest GitHub main.
 
-Then choose Batch #98 as another large connected production batch.
+Then choose Batch #99 as another large connected production batch.
 ```
 
 ## Rules
