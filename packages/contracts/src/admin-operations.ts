@@ -4,6 +4,10 @@ import {
   adminAuditOutcomeSchema,
 } from "./admin-audit.js";
 import {
+  adminIncidentListResponseSchema,
+  adminIncidentSchema,
+} from "./admin-incidents.js";
+import {
   adminRuntimeDiagnosticsSchema,
   adminRuntimeStatusSchema,
 } from "./admin-runtime.js";
@@ -21,7 +25,7 @@ import {
 export const adminOperationsLinkSchema = z.object({
   description: z.string().min(1),
   href: z.string().min(1),
-  id: z.enum(["overview", "runtime", "access_requests", "access_grants", "audit"]),
+  id: z.enum(["overview", "runtime", "access_requests", "access_grants", "audit", "incidents"]),
   label: z.string().min(1),
 });
 
@@ -44,6 +48,7 @@ export const adminOperationsReadinessItemSchema = z.object({
     "audit",
     "access_review",
     "access_grants",
+    "incidents",
     "scale_baseline",
     "security",
   ]),
@@ -59,6 +64,7 @@ export const adminOperationsActionSchema = z.object({
     "review_requests",
     "inspect_grants",
     "inspect_runtime",
+    "inspect_incidents",
     "inspect_audit",
     "export_audit",
     "run_retention",
@@ -99,6 +105,10 @@ export const adminOperationsOverviewSchema = z.object({
   }),
   capacityPlan: adminOperationsCapacityPlanSchema,
   generatedAt: z.string().datetime(),
+  incidents: z.object({
+    recent: z.array(adminIncidentSchema).max(5),
+    summary: adminIncidentListResponseSchema.shape.summary,
+  }),
   ok: z.literal(true),
   operatorActions: z.array(adminOperationsActionSchema).min(4),
   operatorLinks: z.array(adminOperationsLinkSchema).min(4),

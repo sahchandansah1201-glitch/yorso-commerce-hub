@@ -978,3 +978,25 @@ console.
 The command center and audit page do not use Supabase or another hosted BaaS as
 production infrastructure. Missing API, missing session, forbidden role and
 backend errors render explicit UI states instead of local mock operator data.
+
+## Batch #101 Admin Incident Response
+
+Batch #101 adds the self-hosted incident response layer for operators. Incidents
+are derived from runtime diagnostics and bounded admin audit reads. The backend
+stores durable operator acknowledgement and resolution state in PostgreSQL
+through `yorso_admin_incident_acknowledgements`.
+
+The API surface is:
+
+- `GET /v1/admin/incidents`;
+- `GET /v1/admin/incidents/:incidentId`;
+- `POST /v1/admin/incidents/:incidentId/acknowledge`.
+
+All routes use the self-hosted account session guard and admin role boundary.
+The frontend page `/admin/incidents` uses the same admin operator navigation as
+runtime, access review, grants, operations and audit. `/admin` also receives a
+bounded incident summary so the command center points operators to active
+runtime or audit-derived issues without becoming an unbounded reporting page.
+
+The incident response layer has no Supabase, Firebase, Appwrite, Clerk, Auth0 or
+hosted BaaS production dependency.

@@ -2,9 +2,9 @@
 
 ## Active Risks
 
-- Risk: Batch #100 is implemented locally but not yet merged to `main`.
-  Impact: Lovable will not see the admin command center and audit page until the PR is merged and synced.
-  Mitigation: Complete remaining validation, commit, push, PR, checks and merge before starting Batch #101.
+- Risk: Batch #101 is implemented locally but not yet merged to `main`.
+  Impact: Lovable will not see the admin incident response console until the PR is merged and synced.
+  Mitigation: Complete remaining validation, commit, push, PR, checks and merge before starting Batch #102.
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
   Impact: Work may be applied in the wrong repository.
@@ -33,6 +33,10 @@
 - Risk: Admin operations overview can become a hot operator endpoint during incidents.
   Impact: Unbounded list reads or secret leakage would slow operations and expose sensitive runtime data.
   Mitigation: Batch #99 uses bounded previews, self-hosted admin session guard, runtime smoke secret checks, frontend state tests, browser smoke and production-scale guard markers. Batch #100 keeps audit samples bounded, adds no polling and guards `/admin/audit` as a self-hosted admin-only page.
+
+- Risk: Incident response can become a dumping ground for unbounded logs.
+  Impact: Operator pages may slow down during outages and leak sensitive audit context.
+  Mitigation: Batch #101 derives bounded incidents from runtime diagnostics and audit summaries, stores only acknowledgement state, keeps `/admin/incidents` admin-only and adds smoke/e2e secret guards.
 
 ## Resolved Risks
 

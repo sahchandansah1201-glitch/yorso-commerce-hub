@@ -1133,6 +1133,52 @@ Marker: smoke:e2e:admin-audit-events.
 Marker: admin_operations_audit_summary=ok.
 Marker: admin_operations_readiness=ok.
 
+Batch #101 adds the admin incident response layer. The backend derives incidents
+from runtime diagnostics and bounded admin audit reads, then stores only durable
+operator acknowledgement state in `yorso_admin_incident_acknowledgements`.
+The frontend adds `/admin/incidents` and the command center receives a bounded
+incident preview through `GET /v1/admin/operations/overview`.
+
+Runtime endpoints:
+
+- `GET /v1/admin/incidents`;
+- `GET /v1/admin/incidents/:incidentId`;
+- `POST /v1/admin/incidents/:incidentId/acknowledge`;
+- `GET /v1/admin/operations/overview`, with incident summary.
+
+Expected read/write profile: low-frequency admin reads and sparse incident
+acknowledgement writes. No buyer catalog or supplier directory hot path depends
+on the incident console.
+
+Cache, queue and backpressure strategy: no browser polling. Operators use
+explicit refresh and typed filters. Existing API request guardrails, admin
+session validation, admin role validation, request timeouts, audit backpressure
+and error observability protect the path.
+
+Database indexing and pagination strategy: incident derivation stays bounded by
+runtime diagnostic size and audit query limits. Durable acknowledgement state is
+indexed by status and actor in `0019_admin_incident_acknowledgements.sql`.
+
+Failure mode and graceful degradation: disabled API, missing self-hosted session,
+forbidden role, invalid payload and backend errors render explicit UI/API
+responses. The frontend must not fabricate admin incident data when the API is
+configured.
+
+Observability and load-test plan: Batch #101 is covered by
+`smoke:self-hosted-admin-incidents`, `test:admin-incidents-frontend`,
+`smoke:e2e:admin-incidents`, `check:self-hosted-db`,
+`check:self-hosted-api` and `check:production-scale-baseline`. Load testing
+should treat `/admin/incidents` as a low-QPS control-plane workflow separate
+from buyer marketplace traffic at the 10,000 concurrent users baseline.
+
+Marker: Batch #101.
+Marker: admin incident response.
+Marker: /admin/incidents.
+Marker: /v1/admin/incidents.
+Marker: smoke:self-hosted-admin-incidents.
+Marker: smoke:e2e:admin-incidents.
+Marker: admin_incidents_acknowledge=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

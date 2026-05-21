@@ -11,6 +11,10 @@
  * - /admin renders audit summary, readiness and operator actions;
  * - the audit action links to /admin/audit;
  * - recent audit rows stay bounded and sanitized.
+ *
+ * Batch #101 browser guard:
+ * - /admin includes incident summary, incident readiness and a link to /admin/incidents;
+ * - incident feed remains bounded and sanitized.
  */
 import { expect, test, type Page, type Route } from "@playwright/test";
 
@@ -21,6 +25,29 @@ const overviewPayload = () => ({
   access: {
     grants: { recent: [], summary: { active: 2, expired: 1, total: 3 }, total: 3 },
     review: { recent: [], summary: { approved: 0, open: 2, pending: 1, rejected: 0, revoked: 0, sent: 1 }, total: 4 },
+  },
+  incidents: {
+    recent: [
+      {
+        acknowledgedAt: null,
+        acknowledgedByUserHash: null,
+        count: 2,
+        description: "Admin audit blocks need operator review.",
+        evidence: [{ label: "Audit events", value: "2 blocked admin attempts" }],
+        firstSeenAt: "2026-05-20T09:50:00.000Z",
+        id: "audit:admin-blocked:v1-admin-audit-events",
+        lastSeenAt: "2026-05-20T10:00:00.000Z",
+        note: null,
+        recommendedActions: ["Review admin roles."],
+        relatedAuditIds: ["aud_e2e_2"],
+        route: "/v1/admin/audit-events",
+        severity: "high",
+        source: "audit",
+        status: "open",
+        title: "Admin route blocked",
+      },
+    ],
+    summary: { acknowledged: 0, critical: 0, high: 1, open: 1, resolved: 0, total: 1 },
   },
   audit: {
     recent: [
@@ -83,6 +110,7 @@ const overviewPayload = () => ({
     { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
     { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "primary" },
     { description: "Export audit", href: "/v1/admin/audit-events/export?format=csv&limit=1000", id: "export_audit", label: "Export audit CSV", priority: "secondary" },
+    { description: "Triage incidents", href: "/admin/incidents", id: "inspect_incidents", label: "Triage incidents", priority: "primary" },
   ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
@@ -90,6 +118,7 @@ const overviewPayload = () => ({
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
     { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
+    { description: "Incidents", href: "/admin/incidents", id: "incidents", label: "Incidents" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -101,6 +130,14 @@ const overviewPayload = () => ({
   readiness: {
     fail: 0,
     items: [
+      {
+        action: "Triage open incidents.",
+        detail: "1 open incident.",
+        id: "incidents",
+        label: "Incident queue",
+        route: "/admin/incidents",
+        status: "warn",
+      },
       {
         action: "Open runtime diagnostics.",
         detail: "Runtime diagnostics report pass.",
@@ -283,8 +320,11 @@ test.describe("Admin operations hub", () => {
     await expect(page.getByTestId("admin-operations-grants-card")).toContainText("2");
     await expect(page.getByTestId("admin-operations-runtime-card")).toContainText("pass");
     await expect(page.getByTestId("admin-operations-audit-card")).toContainText("1");
+    await expect(page.getByTestId("admin-operations-incidents-card")).toContainText("1");
     await expect(page.getByTestId("admin-operations-readiness")).toContainText("Audit activity");
+    await expect(page.getByTestId("admin-operations-incident-feed")).toContainText("Admin route blocked");
     await expect(page.getByTestId("admin-operations-actions")).toContainText("Inspect audit trail");
+    await expect(page.getByTestId("admin-operations-actions")).toContainText("Triage incidents");
     await expect(page.getByTestId("admin-operations-audit-feed")).toContainText("admin.operations.overview.read");
     await expect(page.getByTestId("admin-operations-capacity-plan")).toContainText("Low-frequency admin overview read.");
     await expect(page.getByTestId("admin-operator-nav-overview")).toHaveAttribute("aria-current", "page");
@@ -292,6 +332,7 @@ test.describe("Admin operations hub", () => {
     await expect(page.getByTestId("admin-operator-nav-access-grants")).toHaveAttribute("href", "/admin/access-grants");
     await expect(page.getByTestId("admin-operator-nav-runtime")).toHaveAttribute("href", "/admin/runtime");
     await expect(page.getByTestId("admin-operator-nav-audit")).toHaveAttribute("href", "/admin/audit");
+    await expect(page.getByTestId("admin-operator-nav-incidents")).toHaveAttribute("href", "/admin/incidents");
 
     expect(requestHeaders[0]["x-yorso-user-id"]).toBe(USER_ID);
     expect(requestHeaders[0]["x-yorso-session-id"]).toBe(SESSION_ID);

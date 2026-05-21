@@ -25,6 +25,7 @@ const requiredFiles = [
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
   "packages/db/migrations/0017_supplier_access_review_queue.sql",
   "packages/db/migrations/0018_admin_access_grants_console.sql",
+  "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -47,6 +48,11 @@ const requiredFiles = [
   "apps/api/src/modules/admin-audit/service.ts",
   "apps/api/src/modules/admin-runtime/routes.ts",
   "apps/api/src/modules/admin-runtime/service.ts",
+  "apps/api/src/modules/admin-incidents/factory.ts",
+  "apps/api/src/modules/admin-incidents/postgres-repository.ts",
+  "apps/api/src/modules/admin-incidents/repository.ts",
+  "apps/api/src/modules/admin-incidents/routes.ts",
+  "apps/api/src/modules/admin-incidents/service.ts",
   "src/lib/admin-runtime-api.ts",
   "src/lib/admin-runtime-api.test.ts",
   "src/lib/use-admin-runtime-status.ts",
@@ -79,6 +85,14 @@ const requiredFiles = [
   "src/pages/admin/AdminOperations.tsx",
   "src/pages/admin/AdminOperations.test.tsx",
   "e2e/admin-operations.spec.ts",
+  "packages/contracts/src/admin-incidents.ts",
+  "src/lib/admin-incidents-api.ts",
+  "src/lib/admin-incidents-api.test.ts",
+  "src/lib/use-admin-incidents.ts",
+  "src/lib/use-admin-incidents.test.tsx",
+  "src/pages/admin/AdminIncidents.tsx",
+  "src/pages/admin/AdminIncidents.test.tsx",
+  "e2e/admin-incidents.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -108,6 +122,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-admin-access-review.mjs",
   "scripts/smoke-self-hosted-admin-access-grants.mjs",
   "scripts/smoke-self-hosted-admin-operations.mjs",
+  "scripts/smoke-self-hosted-admin-incidents.mjs",
   "scripts/smoke-self-hosted-auth-observability.mjs",
   "scripts/smoke-self-hosted-session-cache-fail-closed.mjs",
   "scripts/smoke-self-hosted-account-api.mjs",
@@ -216,6 +231,9 @@ const adminAuditRoutes = read("apps/api/src/modules/admin-audit/routes.ts");
 const adminAuditService = read("apps/api/src/modules/admin-audit/service.ts");
 const adminRuntimeRoutes = read("apps/api/src/modules/admin-runtime/routes.ts");
 const adminRuntimeService = read("apps/api/src/modules/admin-runtime/service.ts");
+const adminIncidentsRoutes = read("apps/api/src/modules/admin-incidents/routes.ts");
+const adminIncidentsService = read("apps/api/src/modules/admin-incidents/service.ts");
+const adminIncidentsContract = read("packages/contracts/src/admin-incidents.ts");
 const adminRuntimeApi = read("src/lib/admin-runtime-api.ts");
 const adminRuntimeApiTest = read("src/lib/admin-runtime-api.test.ts");
 const useAdminRuntimeStatus = read("src/lib/use-admin-runtime-status.ts");
@@ -248,6 +266,13 @@ const useAdminOperationsOverviewTest = read("src/lib/use-admin-operations-overvi
 const adminOperationsPage = read("src/pages/admin/AdminOperations.tsx");
 const adminOperationsPageTest = read("src/pages/admin/AdminOperations.test.tsx");
 const adminOperationsE2E = read("e2e/admin-operations.spec.ts");
+const adminIncidentsApi = read("src/lib/admin-incidents-api.ts");
+const adminIncidentsApiTest = read("src/lib/admin-incidents-api.test.ts");
+const useAdminIncidents = read("src/lib/use-admin-incidents.ts");
+const useAdminIncidentsTest = read("src/lib/use-admin-incidents.test.tsx");
+const adminIncidentsPage = read("src/pages/admin/AdminIncidents.tsx");
+const adminIncidentsPageTest = read("src/pages/admin/AdminIncidents.test.tsx");
+const adminIncidentsE2E = read("e2e/admin-incidents.spec.ts");
 const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
 const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
 const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
@@ -277,6 +302,7 @@ const adminRuntimeSmoke = read("scripts/smoke-self-hosted-admin-runtime-status.m
 const adminAccessReviewSmoke = read("scripts/smoke-self-hosted-admin-access-review.mjs");
 const adminAccessGrantsSmoke = read("scripts/smoke-self-hosted-admin-access-grants.mjs");
 const adminOperationsSmoke = read("scripts/smoke-self-hosted-admin-operations.mjs");
+const adminIncidentsSmoke = read("scripts/smoke-self-hosted-admin-incidents.mjs");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
 const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cache-fail-closed.mjs");
@@ -672,6 +698,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0012_auth_securi
 if (!manifest.migrations?.some((migration) => migration.id === "0017_supplier_access_review_queue")) {
   failures.push("packages/db/migration-manifest.json: missing 0017_supplier_access_review_queue");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0019_admin_incident_acknowledgements")) {
+  failures.push("packages/db/migration-manifest.json: missing 0019_admin_incident_acknowledgements");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -700,6 +729,31 @@ for (const marker of [
   "API-backed e2e release policy",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
+  "Batch #101",
+  "admin incident response",
+  "/v1/admin/incidents",
+  "smoke:self-hosted-admin-incidents",
+  "smoke:e2e:admin-incidents",
+  "10,000 concurrent users baseline",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
+  "Batch #101 Admin Incident Response",
+  "/v1/admin/incidents",
+  "yorso_admin_incident_acknowledgements",
+  "no Supabase",
+]) {
+  requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
+}
+for (const marker of [
+  "Batch #101 Admin Incident Response Validation",
+  "npm run test:admin-incidents-frontend",
+  "npm run smoke:self-hosted-admin-incidents",
+]) {
+  requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
 for (const marker of [
   "Batch #98",
@@ -1392,6 +1446,7 @@ for (const marker of [
   "listReviewRequests",
   "listAdminGrants",
   "listAuditEvents",
+  "listIncidents",
   "summarizeAuditEvents",
   "buildReadiness",
   "limit: \"5\"",
@@ -1413,7 +1468,9 @@ for (const marker of [
   "/admin/access-grants",
   "/admin/runtime",
   "/admin/audit",
+  "/admin/incidents",
   "admin-operator-nav-audit",
+  "admin-operator-nav-incidents",
 ]) {
   requireText("src/components/admin/AdminOperatorNav.tsx", adminOperatorNav, marker);
 }
@@ -1449,8 +1506,10 @@ for (const marker of [
   "admin-operations-page",
   "admin-operations-overview",
   "admin-operations-audit-card",
+  "admin-operations-incidents-card",
   "admin-operations-readiness",
   "admin-operations-actions",
+  "admin-operations-incident-feed",
   "admin-operations-audit-feed",
   "admin-operations-capacity-plan",
   "AdminOperatorNav",
@@ -1468,12 +1527,14 @@ for (const marker of [
 for (const marker of [
   "Batch #99 browser guard",
   "Batch #100 browser guard",
+  "Batch #101 browser guard",
   "/admin",
   "/v1/admin/operations/overview",
   "x-yorso-user-id",
   "x-yorso-session-id",
   "admin-operations-overview",
   "admin-operations-audit-feed",
+  "admin-operations-incident-feed",
   "admin-operations-readiness",
 ]) {
   requireText("e2e/admin-operations.spec.ts", adminOperationsE2E, marker);
@@ -1485,11 +1546,92 @@ for (const marker of [
   "admin_operations_review_summary=ok",
   "admin_operations_grants_summary=ok",
   "admin_operations_audit_summary=ok",
+  "admin_operations_incidents_summary=ok",
   "admin_operations_readiness=ok",
   "admin_operations_operator_actions=ok",
   "admin_operations_no_secrets=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-operations.mjs", adminOperationsSmoke, marker);
+}
+for (const marker of [
+  "adminIncidentSchema",
+  "adminIncidentListResponseSchema",
+  "adminIncidentAcknowledgeResponseSchema",
+]) {
+  requireText("packages/contracts/src/admin-incidents.ts", adminIncidentsContract, marker);
+}
+for (const marker of [
+  "AdminIncidentService",
+  "runtimeService.getDiagnostics",
+  "auditService.listAuditEvents",
+  "10,000 concurrent users",
+]) {
+  requireText("apps/api/src/modules/admin-incidents/service.ts", adminIncidentsService, marker);
+}
+for (const marker of [
+  "/v1/admin/incidents",
+  "resolveAuthenticatedAccountSession",
+  "admin_role_required",
+  "admin.incidents.acknowledge",
+]) {
+  requireText("apps/api/src/modules/admin-incidents/routes.ts", adminIncidentsRoutes, marker);
+}
+for (const marker of [
+  "createAdminIncidentsApiClient",
+  "/v1/admin/incidents",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+]) {
+  requireText("src/lib/admin-incidents-api.ts", adminIncidentsApi, marker);
+}
+for (const marker of [
+  "loads incidents with filters and self-hosted session headers",
+  "acknowledges incidents without leaking session data",
+]) {
+  requireText("src/lib/admin-incidents-api.test.ts", adminIncidentsApiTest, marker);
+}
+for (const marker of [
+  "useAdminIncidents",
+  "client.list",
+  "client.acknowledge",
+]) {
+  requireText("src/lib/use-admin-incidents.ts", useAdminIncidents, marker);
+}
+for (const marker of [
+  "loads incidents and supports acknowledge refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-incidents.test.tsx", useAdminIncidentsTest, marker);
+}
+for (const marker of [
+  "admin-incidents-page",
+  "admin-incidents-summary",
+  "admin-incidents-list",
+  "AdminOperatorNav",
+]) {
+  requireText("src/pages/admin/AdminIncidents.tsx", adminIncidentsPage, marker);
+}
+for (const marker of [
+  "renders incidents and acknowledges from the console",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminIncidents.test.tsx", adminIncidentsPageTest, marker);
+}
+for (const marker of [
+  "Batch #101 browser guard",
+  "/admin/incidents",
+  "/v1/admin/incidents",
+  "admin-incidents-page",
+]) {
+  requireText("e2e/admin-incidents.spec.ts", adminIncidentsE2E, marker);
+}
+for (const marker of [
+  "admin_incidents_auth_guard=ok",
+  "admin_incidents_acknowledge=ok",
+  "admin_incidents_no_secrets=ok",
+  "self_hosted_admin_incidents_smoke=ok",
+]) {
+  requireText("scripts/smoke-self-hosted-admin-incidents.mjs", adminIncidentsSmoke, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",
@@ -1560,6 +1702,18 @@ if (pkg.scripts["test:admin-operations-frontend"] !== "vitest run src/lib/admin-
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-operations-frontend")) {
   failures.push("package.json: ci:core must include admin operations frontend tests");
 }
+if (pkg.scripts["smoke:self-hosted-admin-incidents"] !== "npm run api:build && npm run smoke:self-hosted-admin-incidents:run") {
+  failures.push("package.json: smoke:self-hosted-admin-incidents must build with the admin incidents self-hosted API smoke");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-incidents:run")) {
+  failures.push("package.json: ci:core must include the admin incidents self-hosted smoke");
+}
+if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/pages/admin/AdminIncidents.test.tsx") {
+  failures.push("package.json: test:admin-incidents-frontend must cover admin incidents adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {
+  failures.push("package.json: ci:core must include admin incidents frontend tests");
+}
 if (pkg.scripts["test:admin-audit-frontend"] !== "vitest run src/lib/admin-audit-api.test.ts src/lib/use-admin-audit-events.test.tsx src/pages/admin/AdminAuditEvents.test.tsx") {
   failures.push("package.json: test:admin-audit-frontend must cover admin audit adapter, hook and page");
 }
@@ -1574,6 +1728,14 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-operations")) {
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin operations browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-operations");
+if (pkg.scripts["smoke:e2e:admin-incidents"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incidents:run") {
+  failures.push("package.json: smoke:e2e:admin-incidents must build with the self-hosted admin incidents adapter enabled");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incidents")) {
+  failures.push("package.json: ci:full must include admin incidents browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incidents browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incidents");
 if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
   failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
 }

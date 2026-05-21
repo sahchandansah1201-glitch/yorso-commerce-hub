@@ -8,10 +8,10 @@
 context_risk: "medium"
 last_checkpoint: "2026-05-21"
 last_handoff_ready: true
-recommended_action: "finish Batch #100 remaining validation, commit, PR, GitHub checks and merge; then continue with a large Batch #101"
+recommended_action: "finish Batch #101 validation, commit, PR, GitHub checks and merge; then continue with a larger Batch #102"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch100-admin-operations-command-center"
-current_batch: 100
+active_branch: "codex/batch101-admin-incident-response"
+current_batch: 101
 ```
 
 ## Уровни риска

@@ -24,6 +24,29 @@ const overviewPayload = (): AdminOperationsOverview => ({
       total: 6,
     },
   },
+  incidents: {
+    recent: [
+      {
+        acknowledgedAt: null,
+        acknowledgedByUserHash: null,
+        count: 3,
+        description: "Admin route blocks need operator review.",
+        evidence: [{ label: "Audit events", value: "3 blocked admin audit reads" }],
+        firstSeenAt: "2026-05-20T09:54:00.000Z",
+        id: "audit:admin-blocked:v1-admin-audit-events",
+        lastSeenAt: "2026-05-20T10:00:00.000Z",
+        note: null,
+        recommendedActions: ["Inspect blocked admin attempts."],
+        relatedAuditIds: ["aud_ops_2"],
+        route: "/v1/admin/audit-events",
+        severity: "high",
+        source: "audit",
+        status: "open",
+        title: "Admin route blocked",
+      },
+    ],
+    summary: { acknowledged: 0, critical: 0, high: 1, open: 1, resolved: 0, total: 1 },
+  },
   audit: {
     recent: [
       {
@@ -85,6 +108,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
     { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
     { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "primary" },
     { description: "Export audit", href: "/v1/admin/audit-events/export?format=csv&limit=1000", id: "export_audit", label: "Export audit CSV", priority: "secondary" },
+    { description: "Triage incidents", href: "/admin/incidents", id: "inspect_incidents", label: "Triage incidents", priority: "primary" },
   ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
@@ -92,6 +116,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
     { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
+    { description: "Incidents", href: "/admin/incidents", id: "incidents", label: "Incidents" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -103,6 +128,14 @@ const overviewPayload = (): AdminOperationsOverview => ({
   readiness: {
     fail: 0,
     items: [
+      {
+        action: "Triage open incidents.",
+        detail: "1 open incident.",
+        id: "incidents",
+        label: "Incident queue",
+        route: "/admin/incidents",
+        status: "warn",
+      },
       {
         action: "Open runtime diagnostics.",
         detail: "Runtime diagnostics report pass.",
@@ -326,14 +359,18 @@ describe("AdminOperations page", () => {
     expect(screen.getByTestId("admin-operations-runtime-card")).toHaveTextContent("pass");
     expect(screen.getByTestId("admin-operations-baseline-card")).toHaveTextContent("10,000");
     expect(screen.getByTestId("admin-operations-audit-card")).toHaveTextContent("1");
+    expect(screen.getByTestId("admin-operations-incidents-card")).toHaveTextContent("1");
     expect(screen.getByTestId("admin-operations-readiness")).toHaveTextContent("Audit activity");
+    expect(screen.getByTestId("admin-operations-incident-feed")).toHaveTextContent("Admin route blocked");
     expect(screen.getByTestId("admin-operations-actions")).toHaveTextContent("Inspect audit trail");
+    expect(screen.getByTestId("admin-operations-actions")).toHaveTextContent("Triage incidents");
     expect(screen.getByTestId("admin-operations-audit-feed")).toHaveTextContent("admin.operations.overview.read");
     expect(screen.getByTestId("admin-operations-capacity-plan")).toHaveTextContent("Low-frequency admin overview read.");
     expect(screen.getByTestId("admin-operator-nav-access-requests")).toHaveAttribute("href", "/admin/access-requests");
     expect(screen.getByTestId("admin-operator-nav-access-grants")).toHaveAttribute("href", "/admin/access-grants");
     expect(screen.getByTestId("admin-operator-nav-runtime")).toHaveAttribute("href", "/admin/runtime");
     expect(screen.getByTestId("admin-operator-nav-audit")).toHaveAttribute("href", "/admin/audit");
+    expect(screen.getByTestId("admin-operator-nav-incidents")).toHaveAttribute("href", "/admin/incidents");
 
     const bodyText = document.body.textContent ?? "";
     expect(bodyText).not.toContain("admin@yorso.test");

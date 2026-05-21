@@ -30,6 +30,7 @@ const files = [
   "packages/db/migrations/0016_admin_audit_retention_runtime.sql",
   "packages/db/migrations/0017_supplier_access_review_queue.sql",
   "packages/db/migrations/0018_admin_access_grants_console.sql",
+  "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
 ];
 
 const failures = [];
@@ -58,7 +59,8 @@ const adminAuditRetentionQueryHardeningSql = read("packages/db/migrations/0015_a
 const adminAuditRetentionRuntimeSql = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
 const supplierAccessReviewQueueSql = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
 const adminAccessGrantsConsoleSql = read("packages/db/migrations/0018_admin_access_grants_console.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}`;
+const adminIncidentAcknowledgementsSql = read("packages/db/migrations/0019_admin_incident_acknowledgements.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -325,6 +327,17 @@ for (const marker of [
   requireText("packages/db/migrations/0018_admin_access_grants_console.sql", adminAccessGrantsConsoleSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_admin_incident_acknowledgements",
+  "incident_id text primary key",
+  "acknowledged_by_user_id uuid not null references yorso_users(id)",
+  "idx_yorso_admin_incident_ack_status_updated",
+  "idx_yorso_admin_incident_ack_actor_updated",
+  "10,000 concurrent-user production baseline",
+]) {
+  requireText("packages/db/migrations/0019_admin_incident_acknowledgements.sql", adminIncidentAcknowledgementsSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -388,6 +401,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0017_supplier_ac
 if (!manifest.migrations?.some((migration) => migration.id === "0018_admin_access_grants_console")) {
   failures.push("packages/db/migration-manifest.json: missing 0018_admin_access_grants_console");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0019_admin_incident_acknowledgements")) {
+  failures.push("packages/db/migration-manifest.json: missing 0019_admin_incident_acknowledgements");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -444,6 +460,9 @@ if (!manifest.migrations?.[17]?.dependsOn?.includes("0016_admin_audit_retention_
 }
 if (!manifest.migrations?.[18]?.dependsOn?.includes("0017_supplier_access_review_queue")) {
   failures.push("packages/db/migration-manifest.json: admin access grants console must depend on supplier access review queue");
+}
+if (!manifest.migrations?.[19]?.dependsOn?.includes("0018_admin_access_grants_console")) {
+  failures.push("packages/db/migration-manifest.json: admin incident acknowledgements must depend on admin access grants console");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
