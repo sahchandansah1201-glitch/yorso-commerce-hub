@@ -89,6 +89,9 @@ async function runSmoke(baseUrl) {
   assertEqual(emptyOverview.access.review.summary.open, 0, "empty overview open requests");
   assertEqual(emptyOverview.access.grants.summary.active, 0, "empty overview active grants");
   console.log("admin_operations_overview=ok");
+  console.log("admin_operations_audit_summary=ok");
+  console.log("admin_operations_readiness=ok");
+  console.log("admin_operations_operator_actions=ok");
 
   await postJson(baseUrl, "/v1/access/suppliers/sup-no-001/request", buyerHeaders, {
     message: "Need exact weekly salmon price.",
@@ -140,6 +143,23 @@ function assertOverviewShape(value, label) {
   assertContains(JSON.stringify(value.capacityPlan ?? {}), "10,000", `${label} capacity baseline`);
   assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/access-requests", `${label} review link`);
   assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/access-grants", `${label} grants link`);
+  assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/audit", `${label} audit link`);
+  assertContains(JSON.stringify(value.operatorActions ?? []), "/admin/audit", `${label} audit action`);
+  assertContains(JSON.stringify(value.operatorActions ?? []), "/v1/admin/audit-events/export", `${label} audit export action`);
+  assertContains(JSON.stringify(value.readiness?.items ?? []), "\"id\":\"audit\"", `${label} audit readiness`);
+  assertContains(JSON.stringify(value.readiness?.items ?? []), "\"id\":\"scale_baseline\"", `${label} scale readiness`);
+  if (!Array.isArray(value.audit?.recent)) {
+    throw new Error(`${label}: expected audit.recent array`);
+  }
+  if (value.audit.recent.length > 5) {
+    throw new Error(`${label}: expected audit.recent to be capped at 5 rows, got ${value.audit.recent.length}`);
+  }
+  if (typeof value.audit?.summary?.sampleSize !== "number") {
+    throw new Error(`${label}: expected audit.summary.sampleSize number`);
+  }
+  if (typeof value.audit?.summary?.blocked !== "number") {
+    throw new Error(`${label}: expected audit.summary.blocked number`);
+  }
 }
 
 async function signIn(baseUrl, email) {

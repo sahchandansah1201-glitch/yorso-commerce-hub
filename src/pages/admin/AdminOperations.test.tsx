@@ -24,6 +24,49 @@ const overviewPayload = (): AdminOperationsOverview => ({
       total: 6,
     },
   },
+  audit: {
+    recent: [
+      {
+        action: "admin.operations.overview.read",
+        actorUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+        auditId: "aud_ops_1",
+        correlationId: "corr_ops_1",
+        httpMethod: "GET",
+        occurredAt: "2026-05-20T10:00:00.000Z",
+        outcome: "success",
+        reason: null,
+        requestId: "req_ops_1",
+        resourceHash: null,
+        resourceType: "admin_operations_overview",
+        route: "/v1/admin/operations/overview",
+        sessionHash: "sha256:bbbbbbbbbbbbbbbbbbbbbbbb",
+        statusCode: 200,
+      },
+      {
+        action: "admin.access.review.blocked",
+        actorUserHash: "sha256:cccccccccccccccccccccccc",
+        auditId: "aud_ops_2",
+        correlationId: "corr_ops_2",
+        httpMethod: "GET",
+        occurredAt: "2026-05-20T09:58:00.000Z",
+        outcome: "blocked",
+        reason: "admin_role_required",
+        requestId: "req_ops_2",
+        resourceHash: null,
+        resourceType: "admin_access_review",
+        route: "/v1/admin/access-requests",
+        sessionHash: null,
+        statusCode: 403,
+      },
+    ],
+    summary: {
+      blocked: 1,
+      failure: 0,
+      sampleSize: 2,
+      statusClasses: { "2xx": 1, "4xx": 1 },
+      success: 1,
+    },
+  },
   capacityPlan: {
     backpressureStrategy: "Use explicit refresh, bounded previews and request guardrails.",
     cacheStrategy: "No browser auto polling.",
@@ -36,11 +79,19 @@ const overviewPayload = (): AdminOperationsOverview => ({
   },
   generatedAt: "2026-05-20T10:00:00.000Z",
   ok: true,
+  operatorActions: [
+    { description: "Review queue", href: "/admin/access-requests", id: "review_requests", label: "Review access queue", priority: "primary" },
+    { description: "Inspect grants", href: "/admin/access-grants", id: "inspect_grants", label: "Inspect active grants", priority: "primary" },
+    { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
+    { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "primary" },
+    { description: "Export audit", href: "/v1/admin/audit-events/export?format=csv&limit=1000", id: "export_audit", label: "Export audit CSV", priority: "secondary" },
+  ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
     { description: "Runtime", href: "/admin/runtime", id: "runtime", label: "Runtime" },
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
+    { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -49,6 +100,62 @@ const overviewPayload = (): AdminOperationsOverview => ({
     supabaseProductionBackend: false,
   },
   productionScaleBaseline: { status: "policy_required", targetConcurrentUsers: 10_000 },
+  readiness: {
+    fail: 0,
+    items: [
+      {
+        action: "Open runtime diagnostics.",
+        detail: "Runtime diagnostics report pass.",
+        id: "runtime",
+        label: "Runtime diagnostics",
+        route: "/admin/runtime",
+        status: "pass",
+      },
+      {
+        action: "Inspect recent audit events.",
+        detail: "Recent audit sample has no failed backend actions.",
+        id: "audit",
+        label: "Audit activity",
+        route: "/admin/audit",
+        status: "warn",
+      },
+      {
+        action: "Process open access requests.",
+        detail: "2 open supplier access requests.",
+        id: "access_review",
+        label: "Access review queue",
+        route: "/admin/access-requests",
+        status: "pass",
+      },
+      {
+        action: "Review active grants.",
+        detail: "3 active grants.",
+        id: "access_grants",
+        label: "Grant hygiene",
+        route: "/admin/access-grants",
+        status: "pass",
+      },
+      {
+        action: "Keep production capacity policy visible.",
+        detail: "Target baseline remains 10,000 concurrent users.",
+        id: "scale_baseline",
+        label: "Scale baseline",
+        route: null,
+        status: "pass",
+      },
+      {
+        action: "Keep hosted BaaS out of production runtime.",
+        detail: "Self-hosted production policy is enforced.",
+        id: "security",
+        label: "Self-hosted policy",
+        route: null,
+        status: "pass",
+      },
+    ],
+    pass: 5,
+    status: "warn",
+    warn: 1,
+  },
   requestId: "00000000-0000-4000-8000-000000000199",
   runtime: {
     diagnostics: {
@@ -218,10 +325,15 @@ describe("AdminOperations page", () => {
     expect(screen.getByTestId("admin-operations-grants-card")).toHaveTextContent("2");
     expect(screen.getByTestId("admin-operations-runtime-card")).toHaveTextContent("pass");
     expect(screen.getByTestId("admin-operations-baseline-card")).toHaveTextContent("10,000");
+    expect(screen.getByTestId("admin-operations-audit-card")).toHaveTextContent("1");
+    expect(screen.getByTestId("admin-operations-readiness")).toHaveTextContent("Audit activity");
+    expect(screen.getByTestId("admin-operations-actions")).toHaveTextContent("Inspect audit trail");
+    expect(screen.getByTestId("admin-operations-audit-feed")).toHaveTextContent("admin.operations.overview.read");
     expect(screen.getByTestId("admin-operations-capacity-plan")).toHaveTextContent("Low-frequency admin overview read.");
     expect(screen.getByTestId("admin-operator-nav-access-requests")).toHaveAttribute("href", "/admin/access-requests");
     expect(screen.getByTestId("admin-operator-nav-access-grants")).toHaveAttribute("href", "/admin/access-grants");
     expect(screen.getByTestId("admin-operator-nav-runtime")).toHaveAttribute("href", "/admin/runtime");
+    expect(screen.getByTestId("admin-operator-nav-audit")).toHaveAttribute("href", "/admin/audit");
 
     const bodyText = document.body.textContent ?? "";
     expect(bodyText).not.toContain("admin@yorso.test");

@@ -164,6 +164,9 @@ jobs:
       - name: Run admin operations browser smoke
         run: npm run smoke:e2e:admin-operations
 
+      - name: Run admin audit events browser smoke
+        run: npm run smoke:e2e:admin-audit-events
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

@@ -45,6 +45,7 @@ import AdminRuntimeStatus from "./pages/admin/AdminRuntimeStatus.tsx";
 import AdminAccessRequests from "./pages/admin/AdminAccessRequests.tsx";
 import AdminAccessGrants from "./pages/admin/AdminAccessGrants.tsx";
 import AdminOperations from "./pages/admin/AdminOperations.tsx";
+import AdminAuditEvents from "./pages/admin/AdminAuditEvents.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
@@ -104,6 +105,7 @@ const App = () => (
                 <Route path="/admin/access-requests" element={<AdminAccessRequests />} />
                 <Route path="/admin/access-grants" element={<AdminAccessGrants />} />
                 <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
+                <Route path="/admin/audit" element={<AdminAuditEvents />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
                 {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                 {legacyRedirects.flatMap(({ from, to }) => [

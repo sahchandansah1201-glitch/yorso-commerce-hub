@@ -1087,3 +1087,31 @@ The validation checks:
 - frontend adapter sends `x-yorso-user-id` and `x-yorso-session-id`;
 - `/admin` renders disabled, session-required, forbidden, error and ready states;
 - operator payloads do not render emails, session ids or connection strings.
+
+## Batch #100 Admin Command Center Validation
+
+Batch #100 adds the following validation surface:
+
+```bash
+npm run test:admin-operations-frontend
+npm run test:admin-audit-frontend
+npm run smoke:self-hosted-admin-operations
+npm run smoke:e2e:admin-operations
+npm run smoke:e2e:admin-audit-events
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/operations/overview` includes audit summary, readiness and operator
+  actions without leaking secrets;
+- `/admin` renders audit card, readiness checklist, action shortcuts and recent
+  audit feed;
+- `/admin/audit` renders disabled, session-required, forbidden, loading, error
+  and ready states;
+- `/admin/audit` sends only supported audit filters and self-hosted session
+  headers to `/v1/admin/audit-events`;
+- CSV export points to `/v1/admin/audit-events/export?format=csv`;
+- the browser smoke keeps admin audit reads on the self-hosted API contract,
+  not Supabase or another hosted BaaS.

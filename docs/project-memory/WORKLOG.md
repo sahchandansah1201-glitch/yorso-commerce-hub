@@ -72,3 +72,19 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed.
   - `npm run smoke:e2e:admin-operations` passed, 2 tests.
   - `npm run ci:core` passed.
+- Started Batch #100 locally on `codex/batch100-admin-operations-command-center`.
+- Expanded the admin operations hub into a command center with audit summary, readiness checklist, operator actions and recent audit feed.
+- Added `/admin/audit` page, admin audit API adapter, hook, page tests and API-backed browser e2e.
+- Updated self-hosted admin operations smoke, production-scale docs, self-hosted architecture docs, validation docs and guard scripts for Batch #100.
+- Confirmed Batch #100 targeted checks so far:
+  - `npm run test:admin-operations-frontend` passed, 10 tests.
+  - `npm run test:admin-audit-frontend` passed, 10 tests.
+  - `npm run api:build` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:self-hosted-admin-operations:run` passed after `api:build`.
+  - `npm run lint` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run smoke:e2e:admin-operations` passed, 2 tests.
+  - `npm run smoke:e2e:admin-audit-events` passed, 2 tests.
+  - `npm run ci:core` passed.
