@@ -63,3 +63,16 @@
 - `src/test/engineering-lessons-guard.test.ts`: Vitest coverage for the e2e policy and memory-repository smoke assertion rule.
 - `AGENTS.md`: Failure Learning Contract added to the Engineer Agent Action Contract.
 - `docs/backend/production-scale-baseline.md`: Batch #98 production-scale release gate note.
+
+## Batch #99 Admin Operator Hub
+
+- `packages/contracts/src/admin-operations.ts`: admin operations overview DTOs and production-capacity shape.
+- `apps/api/src/modules/admin-operations/service.ts`: self-hosted admin overview aggregation across runtime, access-review queue and active grants.
+- `apps/api/src/modules/admin-operations/routes.ts`: admin-protected `GET /v1/admin/operations/overview`.
+- `src/lib/admin-operations-api.ts`: frontend self-hosted admin operations API client.
+- `src/lib/use-admin-operations-overview.ts`: frontend hook for disabled/session/forbidden/ready states.
+- `src/pages/admin/AdminOperations.tsx`: admin operations hub page at `/admin`.
+- `src/components/admin/AdminOperatorNav.tsx`: shared admin navigation for operations, runtime, requests and grants.
+- `e2e/admin-operations.spec.ts`: browser smoke for the admin operations hub and admin role guard.
+- `scripts/smoke-self-hosted-admin-operations.mjs`: self-hosted runtime smoke for auth, role, overview, access summaries and secret guards.
+- `docs/backend/self-hosted-admin-operations-smoke.md`: runtime smoke documentation.

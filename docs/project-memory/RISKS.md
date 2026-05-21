@@ -2,9 +2,9 @@
 
 ## Active Risks
 
-- Risk: Batch #98 is implemented locally but not yet merged to `main`.
-  Impact: Lovable will not see the engineering lesson guards until the PR is merged and synced.
-  Mitigation: Complete validation, commit, push, PR, checks and merge before starting Batch #99.
+- Risk: Batch #99 is implemented locally but not yet merged to `main`.
+  Impact: Lovable will not see the admin operations hub until the PR is merged and synced.
+  Mitigation: Complete `ci:core`, commit, push, PR, checks and merge before starting Batch #100.
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
   Impact: Work may be applied in the wrong repository.
@@ -30,10 +30,14 @@
   Impact: Running two build-based e2e commands concurrently can overwrite preview assets and produce nondeterministic failures.
   Mitigation: Batch #98 forbids parallel tokens in `smoke:e2e*` package scripts unless future work isolates output directories.
 
+- Risk: Admin operations overview can become a hot operator endpoint during incidents.
+  Impact: Unbounded list reads or secret leakage would slow operations and expose sensitive runtime data.
+  Mitigation: Batch #99 uses bounded previews, self-hosted admin session guard, runtime smoke secret checks, frontend state tests, browser smoke and production-scale guard markers.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.
   Resolution: Added `docs/project-memory/` and `AGENTS.md`.
 
-- Risk: Batch #97 was implemented locally but not yet merged to `main`.
-  Resolution: Batch #97 is present on main as `[codex] Batch #97 admin access grants console`; Batch #98 now builds on top of it.
+- Risk: Batch #98 was implemented locally but not yet merged to `main`.
+  Resolution: Batch #98 is present on main as `[codex] Batch #98 engineering lessons guards`; Batch #99 now builds on top of it.

@@ -10,6 +10,7 @@ import {
   ShieldX,
   XCircle,
 } from "lucide-react";
+import { AdminOperatorNav } from "@/components/admin/AdminOperatorNav";
 import Header from "@/components/landing/Header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -244,6 +245,7 @@ export default function AdminAccessGrants() {
     <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       <Header />
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8" data-testid="admin-access-grants-page">
+        <AdminOperatorNav />
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
           <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
             <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">

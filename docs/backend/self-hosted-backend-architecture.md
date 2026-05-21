@@ -943,3 +943,21 @@ buyer emails, passwords, storage credentials or backend connection strings. The
 grant console is indexed by `0018_admin_access_grants_console` so active,
 expired, buyer and supplier scans remain bounded for the 10,000 concurrent-user
 baseline.
+## Batch #99 Admin Operations Hub
+
+Batch #99 adds `GET /v1/admin/operations/overview` as the self-hosted operator
+landing endpoint. It aggregates sanitized runtime status, runtime diagnostics,
+open supplier access requests and active access grants behind the same
+self-hosted admin session boundary used by the existing admin consoles.
+
+The endpoint is intentionally bounded:
+
+- no background polling in the frontend;
+- access request preview limit is 5;
+- access grant preview limit is 5;
+- no writes;
+- no session ids, emails, connection strings or storage endpoints in the payload;
+- no Supabase or hosted BaaS dependency.
+
+This keeps the admin hub usable at the 10,000 concurrent users baseline without
+turning it into an unbounded reporting endpoint.

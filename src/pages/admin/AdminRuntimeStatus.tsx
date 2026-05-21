@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { AdminOperatorNav } from "@/components/admin/AdminOperatorNav";
 import Header from "@/components/landing/Header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -707,6 +708,7 @@ export default function AdminRuntimeStatusPage() {
     <div className="min-h-screen bg-slate-50">
       <Header />
       <main className="container max-w-7xl py-8 lg:py-12" data-testid="admin-runtime-page">
+        <AdminOperatorNav />
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl space-y-2">
             <Badge variant="outline" className="border-slate-200 bg-white text-slate-700">
