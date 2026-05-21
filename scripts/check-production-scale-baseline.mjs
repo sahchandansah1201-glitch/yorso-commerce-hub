@@ -79,6 +79,13 @@ const requiredFiles = [
   "src/pages/admin/AdminOperations.tsx",
   "src/pages/admin/AdminOperations.test.tsx",
   "e2e/admin-operations.spec.ts",
+  "src/lib/admin-audit-api.ts",
+  "src/lib/admin-audit-api.test.ts",
+  "src/lib/use-admin-audit-events.ts",
+  "src/lib/use-admin-audit-events.test.tsx",
+  "src/pages/admin/AdminAuditEvents.tsx",
+  "src/pages/admin/AdminAuditEvents.test.tsx",
+  "e2e/admin-audit-events.spec.ts",
   "apps/api/src/error-observability.ts",
   "apps/api/src/metrics.ts",
   "apps/api/src/request-observability.ts",
@@ -241,6 +248,13 @@ const useAdminOperationsOverviewTest = read("src/lib/use-admin-operations-overvi
 const adminOperationsPage = read("src/pages/admin/AdminOperations.tsx");
 const adminOperationsPageTest = read("src/pages/admin/AdminOperations.test.tsx");
 const adminOperationsE2E = read("e2e/admin-operations.spec.ts");
+const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
+const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
+const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
+const useAdminAuditEventsTest = read("src/lib/use-admin-audit-events.test.tsx");
+const adminAuditEventsPage = read("src/pages/admin/AdminAuditEvents.tsx");
+const adminAuditEventsPageTest = read("src/pages/admin/AdminAuditEvents.test.tsx");
+const adminAuditEventsE2E = read("e2e/admin-audit-events.spec.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
 const metrics = read("apps/api/src/metrics.ts");
 const requestObservability = read("apps/api/src/request-observability.ts");
@@ -1367,6 +1381,9 @@ for (const marker of [
   "adminOperationsOverviewSchema",
   "targetConcurrentUsers",
   "operatorLinks",
+  "operatorActions",
+  "adminOperationsAuditSummarySchema",
+  "adminOperationsReadinessItemSchema",
 ]) {
   requireText("packages/contracts/src/admin-operations.ts", adminOperationsContract, marker);
 }
@@ -1374,6 +1391,9 @@ for (const marker of [
   "AdminOperationsService",
   "listReviewRequests",
   "listAdminGrants",
+  "listAuditEvents",
+  "summarizeAuditEvents",
+  "buildReadiness",
   "limit: \"5\"",
   "10,000",
 ]) {
@@ -1392,6 +1412,8 @@ for (const marker of [
   "/admin/access-requests",
   "/admin/access-grants",
   "/admin/runtime",
+  "/admin/audit",
+  "admin-operator-nav-audit",
 ]) {
   requireText("src/components/admin/AdminOperatorNav.tsx", adminOperatorNav, marker);
 }
@@ -1426,6 +1448,10 @@ for (const marker of [
 for (const marker of [
   "admin-operations-page",
   "admin-operations-overview",
+  "admin-operations-audit-card",
+  "admin-operations-readiness",
+  "admin-operations-actions",
+  "admin-operations-audit-feed",
   "admin-operations-capacity-plan",
   "AdminOperatorNav",
   "10,000 concurrent users",
@@ -1441,11 +1467,14 @@ for (const marker of [
 }
 for (const marker of [
   "Batch #99 browser guard",
+  "Batch #100 browser guard",
   "/admin",
   "/v1/admin/operations/overview",
   "x-yorso-user-id",
   "x-yorso-session-id",
   "admin-operations-overview",
+  "admin-operations-audit-feed",
+  "admin-operations-readiness",
 ]) {
   requireText("e2e/admin-operations.spec.ts", adminOperationsE2E, marker);
 }
@@ -1455,9 +1484,69 @@ for (const marker of [
   "admin_operations_overview=ok",
   "admin_operations_review_summary=ok",
   "admin_operations_grants_summary=ok",
+  "admin_operations_audit_summary=ok",
+  "admin_operations_readiness=ok",
+  "admin_operations_operator_actions=ok",
   "admin_operations_no_secrets=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-operations.mjs", adminOperationsSmoke, marker);
+}
+for (const marker of [
+  "createAdminAuditApiClient",
+  "/v1/admin/audit-events",
+  "/v1/admin/audit-events/export",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_audit_api_disabled",
+  "admin_audit_session_required",
+  "admin_role_required",
+]) {
+  requireText("src/lib/admin-audit-api.ts", adminAuditFrontendApi, marker);
+}
+for (const marker of [
+  "sends filters with self-hosted session headers",
+  "maps admin role and invalid response failures",
+]) {
+  requireText("src/lib/admin-audit-api.test.ts", adminAuditFrontendApiTest, marker);
+}
+for (const marker of [
+  "useAdminAuditEvents",
+  "client.list",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-audit-events.ts", useAdminAuditEvents, marker);
+}
+for (const marker of [
+  "loads audit events and supports refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-audit-events.test.tsx", useAdminAuditEventsTest, marker);
+}
+for (const marker of [
+  "admin-audit-page",
+  "admin-audit-events",
+  "admin-audit-filters",
+  "admin-audit-export-csv",
+  "AdminOperatorNav",
+]) {
+  requireText("src/pages/admin/AdminAuditEvents.tsx", adminAuditEventsPage, marker);
+}
+for (const marker of [
+  "renders audit events and sends filters",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminAuditEvents.test.tsx", adminAuditEventsPageTest, marker);
+}
+for (const marker of [
+  "Batch #100 browser guard",
+  "/admin/audit",
+  "/v1/admin/audit-events",
+  "/v1/admin/audit-events/export",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-audit-page",
+]) {
+  requireText("e2e/admin-audit-events.spec.ts", adminAuditEventsE2E, marker);
 }
 if (pkg.scripts["smoke:self-hosted-admin-operations"] !== "npm run api:build && npm run smoke:self-hosted-admin-operations:run") {
   failures.push("package.json: smoke:self-hosted-admin-operations must build with the admin operations self-hosted API smoke");
@@ -1471,6 +1560,12 @@ if (pkg.scripts["test:admin-operations-frontend"] !== "vitest run src/lib/admin-
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-operations-frontend")) {
   failures.push("package.json: ci:core must include admin operations frontend tests");
 }
+if (pkg.scripts["test:admin-audit-frontend"] !== "vitest run src/lib/admin-audit-api.test.ts src/lib/use-admin-audit-events.test.tsx src/pages/admin/AdminAuditEvents.test.tsx") {
+  failures.push("package.json: test:admin-audit-frontend must cover admin audit adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-audit-frontend")) {
+  failures.push("package.json: ci:core must include admin audit frontend tests");
+}
 if (pkg.scripts["smoke:e2e:admin-operations"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-operations:run") {
   failures.push("package.json: smoke:e2e:admin-operations must build with the self-hosted admin operations adapter enabled");
 }
@@ -1479,6 +1574,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-operations")) {
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin operations browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-operations");
+if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
+  failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-audit-events:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-audit-events.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-audit-events:run must execute e2e/admin-audit-events.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-audit-events")) {
+  failures.push("package.json: ci:full must include admin audit browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin audit events browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-audit-events");
 for (const marker of [
   "createAdminRuntimeApiClient",
   "/v1/admin/runtime/status",

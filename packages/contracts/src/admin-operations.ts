@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  adminAuditEventSchema,
+  adminAuditOutcomeSchema,
+} from "./admin-audit.js";
+import {
   adminRuntimeDiagnosticsSchema,
   adminRuntimeStatusSchema,
 } from "./admin-runtime.js";
@@ -32,6 +36,50 @@ export const adminOperationsCapacityPlanSchema = z.object({
   writeProfile: z.string().min(1),
 });
 
+export const adminOperationsReadinessItemSchema = z.object({
+  action: z.string().min(1),
+  detail: z.string().min(1),
+  id: z.enum([
+    "runtime",
+    "audit",
+    "access_review",
+    "access_grants",
+    "scale_baseline",
+    "security",
+  ]),
+  label: z.string().min(1),
+  route: z.string().min(1).nullable(),
+  status: z.enum(["pass", "warn", "fail"]),
+});
+
+export const adminOperationsActionSchema = z.object({
+  description: z.string().min(1),
+  href: z.string().min(1),
+  id: z.enum([
+    "review_requests",
+    "inspect_grants",
+    "inspect_runtime",
+    "inspect_audit",
+    "export_audit",
+    "run_retention",
+  ]),
+  label: z.string().min(1),
+  priority: z.enum(["primary", "secondary", "danger"]),
+});
+
+export const adminOperationsAuditSummarySchema = z.object({
+  blocked: z.number().int().min(0),
+  failure: z.number().int().min(0),
+  sampleSize: z.number().int().min(0).max(25),
+  statusClasses: z.object({
+    "2xx": z.number().int().min(0).optional(),
+    "3xx": z.number().int().min(0).optional(),
+    "4xx": z.number().int().min(0).optional(),
+    "5xx": z.number().int().min(0).optional(),
+  }),
+  success: z.number().int().min(0),
+});
+
 export const adminOperationsOverviewSchema = z.object({
   access: z.object({
     grants: z.object({
@@ -45,12 +93,24 @@ export const adminOperationsOverviewSchema = z.object({
       total: z.number().int().min(0),
     }),
   }),
+  audit: z.object({
+    recent: z.array(adminAuditEventSchema).max(5),
+    summary: adminOperationsAuditSummarySchema,
+  }),
   capacityPlan: adminOperationsCapacityPlanSchema,
   generatedAt: z.string().datetime(),
   ok: z.literal(true),
+  operatorActions: z.array(adminOperationsActionSchema).min(4),
   operatorLinks: z.array(adminOperationsLinkSchema).min(4),
   productionPolicy: adminRuntimeStatusSchema.shape.productionPolicy,
   productionScaleBaseline: adminRuntimeStatusSchema.shape.productionScaleBaseline,
+  readiness: z.object({
+    fail: z.number().int().min(0),
+    items: z.array(adminOperationsReadinessItemSchema).min(4),
+    pass: z.number().int().min(0),
+    status: z.enum(["pass", "warn", "fail"]),
+    warn: z.number().int().min(0),
+  }),
   requestId: z.string().uuid(),
   runtime: z.object({
     diagnostics: adminRuntimeDiagnosticsSchema,
@@ -61,4 +121,8 @@ export const adminOperationsOverviewSchema = z.object({
 
 export type AdminOperationsCapacityPlan = z.infer<typeof adminOperationsCapacityPlanSchema>;
 export type AdminOperationsLink = z.infer<typeof adminOperationsLinkSchema>;
+export type AdminOperationsAction = z.infer<typeof adminOperationsActionSchema>;
+export type AdminOperationsAuditOutcome = z.infer<typeof adminAuditOutcomeSchema>;
+export type AdminOperationsAuditSummary = z.infer<typeof adminOperationsAuditSummarySchema>;
 export type AdminOperationsOverview = z.infer<typeof adminOperationsOverviewSchema>;
+export type AdminOperationsReadinessItem = z.infer<typeof adminOperationsReadinessItemSchema>;

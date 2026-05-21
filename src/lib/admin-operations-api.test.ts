@@ -19,6 +19,33 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
       total: 6,
     },
   },
+  audit: {
+    recent: [
+      {
+        action: "admin.operations.overview.read",
+        actorUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+        auditId: "aud_api_1",
+        correlationId: "corr_api_1",
+        httpMethod: "GET",
+        occurredAt: "2026-05-20T10:00:00.000Z",
+        outcome: "success",
+        reason: null,
+        requestId: "req_api_1",
+        resourceHash: null,
+        resourceType: "admin_operations_overview",
+        route: "/v1/admin/operations/overview",
+        sessionHash: "sha256:bbbbbbbbbbbbbbbbbbbbbbbb",
+        statusCode: 200,
+      },
+    ],
+    summary: {
+      blocked: 0,
+      failure: 0,
+      sampleSize: 1,
+      statusClasses: { "2xx": 1 },
+      success: 1,
+    },
+  },
   capacityPlan: {
     backpressureStrategy: "Explicit refresh and bounded preview rows.",
     cacheStrategy: "No browser auto polling.",
@@ -31,11 +58,18 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
   },
   generatedAt: "2026-05-20T10:00:00.000Z",
   ok: true,
+  operatorActions: [
+    { description: "Review queue", href: "/admin/access-requests", id: "review_requests", label: "Review access queue", priority: "primary" },
+    { description: "Inspect grants", href: "/admin/access-grants", id: "inspect_grants", label: "Inspect active grants", priority: "primary" },
+    { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
+    { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "secondary" },
+  ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
     { description: "Runtime", href: "/admin/runtime", id: "runtime", label: "Runtime" },
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
+    { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -46,6 +80,46 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
   productionScaleBaseline: {
     status: "policy_required",
     targetConcurrentUsers: 10_000,
+  },
+  readiness: {
+    fail: 0,
+    items: [
+      {
+        action: "Open runtime diagnostics.",
+        detail: "Runtime diagnostics report pass.",
+        id: "runtime",
+        label: "Runtime diagnostics",
+        route: "/admin/runtime",
+        status: "pass",
+      },
+      {
+        action: "Inspect recent audit events.",
+        detail: "Recent audit sample has no failed backend actions.",
+        id: "audit",
+        label: "Audit activity",
+        route: "/admin/audit",
+        status: "pass",
+      },
+      {
+        action: "Process open access requests.",
+        detail: "2 open supplier access requests.",
+        id: "access_review",
+        label: "Access review queue",
+        route: "/admin/access-requests",
+        status: "pass",
+      },
+      {
+        action: "Review active grants.",
+        detail: "3 active grants.",
+        id: "access_grants",
+        label: "Grant hygiene",
+        route: "/admin/access-grants",
+        status: "pass",
+      },
+    ],
+    pass: 4,
+    status: "pass",
+    warn: 0,
   },
   requestId: "00000000-0000-4000-8000-000000000199",
   runtime: {
@@ -195,6 +269,8 @@ describe("admin-operations-api", () => {
         grants: { summary: { active: 2 } },
         review: { summary: { open: 2 } },
       },
+      audit: { summary: { sampleSize: 1 } },
+      readiness: { status: "pass" },
       productionPolicy: {
         hostedBaasProductionBackend: false,
         secretsIncluded: false,

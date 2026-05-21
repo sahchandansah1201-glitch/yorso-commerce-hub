@@ -961,3 +961,20 @@ The endpoint is intentionally bounded:
 
 This keeps the admin hub usable at the 10,000 concurrent users baseline without
 turning it into an unbounded reporting endpoint.
+
+## Batch #100 Admin Command Center
+
+Batch #100 expands the admin operations hub into a command-center surface. The
+same endpoint now includes bounded admin audit summary data, a readiness
+checklist and direct operator actions. It remains a low-frequency control-plane
+read path and does not become a reporting engine.
+
+The frontend adds `/admin/audit` as a read-only admin audit events page. It uses
+the owned self-hosted API via `GET /v1/admin/audit-events` and CSV export via
+`GET /v1/admin/audit-events/export?format=csv`. The route uses the same
+self-hosted session headers and admin role boundary as the rest of the admin
+console.
+
+The command center and audit page do not use Supabase or another hosted BaaS as
+production infrastructure. Missing API, missing session, forbidden role and
+backend errors render explicit UI states instead of local mock operator data.

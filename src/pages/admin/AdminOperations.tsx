@@ -5,8 +5,11 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Database,
+  ExternalLink,
+  FileClock,
   Gauge,
   KeyRound,
+  ListChecks,
   Lock,
   RefreshCw,
   ShieldCheck,
@@ -26,6 +29,9 @@ import { useAdminOperationsOverview } from "@/lib/use-admin-operations-overview"
 
 type OperationsCopy = {
   activeGrants: string;
+  auditBody: string;
+  auditFailures: string;
+  auditSample: string;
   auditTrail: string;
   baseline: string;
   capacityPlan: string;
@@ -38,9 +44,13 @@ type OperationsCopy = {
   loading: string;
   noSecrets: string;
   openRequests: string;
+  operatorActions: string;
   overview: string;
   pending: string;
+  readiness: string;
+  readinessBody: string;
   readProfile: string;
+  recentAudit: string;
   recentGrants: string;
   recentRequests: string;
   refresh: string;
@@ -56,11 +66,17 @@ type OperationsCopy = {
   totalGrants: string;
   totalRequests: string;
   writeProfile: string;
+  statusPass: string;
+  statusWarn: string;
+  statusFail: string;
 };
 
 const COPY: Record<Language, OperationsCopy> = {
   en: {
     activeGrants: "Active grants",
+    auditBody: "Recent audit sample is bounded to 25 events for summary and five visible rows for scanning.",
+    auditFailures: "Audit failures",
+    auditSample: "Audit sample",
     auditTrail: "Audit trail",
     baseline: "10,000 concurrent users baseline",
     capacityPlan: "Capacity plan",
@@ -73,9 +89,13 @@ const COPY: Record<Language, OperationsCopy> = {
     loading: "Loading operations overview...",
     noSecrets: "No session ids, emails or connection strings are rendered.",
     openRequests: "Open requests",
+    operatorActions: "Operator actions",
     overview: "Operations overview",
     pending: "Pending",
+    readiness: "Readiness",
+    readinessBody: "Checklist derived from runtime diagnostics, audit activity, access queues and self-hosted policy.",
     readProfile: "Read profile",
+    recentAudit: "Recent audit activity",
     recentGrants: "Recent grants",
     recentRequests: "Recent requests",
     refresh: "Refresh overview",
@@ -91,9 +111,15 @@ const COPY: Record<Language, OperationsCopy> = {
     totalGrants: "Total grants",
     totalRequests: "Total requests",
     writeProfile: "Write profile",
+    statusPass: "Pass",
+    statusWarn: "Warn",
+    statusFail: "Fail",
   },
   ru: {
     activeGrants: "Активные доступы",
+    auditBody: "Recent audit sample ограничен 25 событиями для summary и пятью видимыми строками для сканирования.",
+    auditFailures: "Audit failures",
+    auditSample: "Audit sample",
     auditTrail: "Журнал аудита",
     baseline: "Baseline 10 000 одновременных пользователей",
     capacityPlan: "Capacity plan",
@@ -106,9 +132,13 @@ const COPY: Record<Language, OperationsCopy> = {
     loading: "Загружаем operations overview...",
     noSecrets: "Session id, emails и connection strings не отображаются.",
     openRequests: "Открытые запросы",
+    operatorActions: "Operator actions",
     overview: "Operations overview",
     pending: "Pending",
+    readiness: "Readiness",
+    readinessBody: "Checklist формируется из runtime diagnostics, audit activity, access queue и self-hosted policy.",
     readProfile: "Read profile",
+    recentAudit: "Recent audit activity",
     recentGrants: "Последние доступы",
     recentRequests: "Последние запросы",
     refresh: "Обновить overview",
@@ -124,9 +154,15 @@ const COPY: Record<Language, OperationsCopy> = {
     totalGrants: "Всего доступов",
     totalRequests: "Всего запросов",
     writeProfile: "Write profile",
+    statusPass: "Pass",
+    statusWarn: "Warn",
+    statusFail: "Fail",
   },
   es: {
     activeGrants: "Accesos activos",
+    auditBody: "Recent audit sample se limita a 25 eventos para summary y cinco filas visibles para revisión rápida.",
+    auditFailures: "Audit failures",
+    auditSample: "Audit sample",
     auditTrail: "Audit trail",
     baseline: "Baseline de 10.000 usuarios simultáneos",
     capacityPlan: "Capacity plan",
@@ -139,9 +175,13 @@ const COPY: Record<Language, OperationsCopy> = {
     loading: "Cargando operations overview...",
     noSecrets: "No se muestran session ids, emails ni connection strings.",
     openRequests: "Solicitudes abiertas",
+    operatorActions: "Operator actions",
     overview: "Operations overview",
     pending: "Pending",
+    readiness: "Readiness",
+    readinessBody: "Checklist derivado de runtime diagnostics, audit activity, access queues y self-hosted policy.",
     readProfile: "Read profile",
+    recentAudit: "Recent audit activity",
     recentGrants: "Accesos recientes",
     recentRequests: "Solicitudes recientes",
     refresh: "Actualizar overview",
@@ -157,6 +197,9 @@ const COPY: Record<Language, OperationsCopy> = {
     totalGrants: "Accesos totales",
     totalRequests: "Solicitudes totales",
     writeProfile: "Write profile",
+    statusPass: "Pass",
+    statusWarn: "Warn",
+    statusFail: "Fail",
   },
 };
 
@@ -257,7 +300,7 @@ export default function AdminOperations() {
 function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOperationsOverview }) {
   return (
     <div className="space-y-6" data-testid="admin-operations-overview">
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard
           description={copy.requestsBody}
           icon={<ClipboardCheck className="h-5 w-5" />}
@@ -285,6 +328,13 @@ function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOp
           label={copy.baseline}
           testId="admin-operations-baseline-card"
           value={data.productionScaleBaseline.targetConcurrentUsers.toLocaleString("en-US")}
+        />
+        <MetricCard
+          description={copy.auditBody}
+          icon={<FileClock className="h-5 w-5" />}
+          label={copy.auditFailures}
+          testId="admin-operations-audit-card"
+          value={data.audit.summary.failure + data.audit.summary.blocked}
         />
       </section>
 
@@ -338,6 +388,79 @@ function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOp
         </Card>
       </section>
 
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <Card data-testid="admin-operations-readiness">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-orange-700" />
+              {copy.readiness}
+            </CardTitle>
+            <CardDescription>{copy.readinessBody}</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 md:grid-cols-2">
+            {data.readiness.items.map((item) => (
+              <div className="rounded-2xl border bg-background p-4" key={item.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-foreground">{item.label}</p>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                  </div>
+                  <Badge variant={item.status === "fail" ? "destructive" : item.status === "warn" ? "secondary" : "default"}>
+                    {statusLabel(copy, item.status)}
+                  </Badge>
+                </div>
+                {item.route && (
+                  <Link className="mt-3 inline-flex text-sm font-semibold text-orange-700 hover:text-orange-800" to={item.route}>
+                    {item.action}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card data-testid="admin-operations-actions">
+          <CardHeader>
+            <CardTitle>{copy.operatorActions}</CardTitle>
+            <CardDescription>{copy.noSecrets}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {data.operatorActions.map((action) => (
+              <OperatorActionButton action={action} key={action.id} />
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
+      <Card data-testid="admin-operations-audit-feed">
+        <CardHeader>
+          <CardTitle>{copy.recentAudit}</CardTitle>
+          <CardDescription>
+            {copy.auditSample}: {data.audit.summary.sampleSize}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {data.audit.recent.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{copy.auditSample}: 0</p>
+          ) : data.audit.recent.map((event) => (
+            <div className="rounded-2xl border bg-background p-4" key={event.auditId}>
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={event.outcome === "success" ? "default" : event.outcome === "blocked" ? "secondary" : "destructive"}>
+                      {event.outcome}
+                    </Badge>
+                    <p className="font-semibold text-foreground">{event.action}</p>
+                  </div>
+                  <p className="mt-2 truncate text-sm text-muted-foreground">{event.route ?? "unknown route"}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">{event.statusCode ?? "no status"}</p>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       <Card data-testid="admin-operations-capacity-plan">
         <CardHeader>
           <CardTitle>{copy.capacityPlan}</CardTitle>
@@ -355,6 +478,40 @@ function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOp
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function statusLabel(copy: OperationsCopy, status: "pass" | "warn" | "fail") {
+  if (status === "fail") return copy.statusFail;
+  if (status === "warn") return copy.statusWarn;
+  return copy.statusPass;
+}
+
+function OperatorActionButton({ action }: { action: AdminOperationsOverview["operatorActions"][number] }) {
+  const content = (
+    <>
+      <span>
+        <span className="block font-semibold">{action.label}</span>
+        <span className="mt-1 block text-xs font-normal opacity-80">{action.description}</span>
+      </span>
+      <ExternalLink className="h-4 w-4 shrink-0" />
+    </>
+  );
+  const className = "h-auto w-full justify-between gap-3 rounded-2xl px-4 py-3 text-left";
+  const variant = action.priority === "primary" ? "default" : action.priority === "danger" ? "destructive" : "outline";
+
+  if (action.href.startsWith("/admin")) {
+    return (
+      <Button asChild className={className} variant={variant}>
+        <Link to={action.href}>{content}</Link>
+      </Button>
+    );
+  }
+
+  return (
+    <Button asChild className={className} variant={variant}>
+      <a href={action.href}>{content}</a>
+    </Button>
   );
 }
 

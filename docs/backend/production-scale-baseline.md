@@ -1086,6 +1086,53 @@ Marker: smoke:e2e:admin-operations.
 Marker: admin_operations_overview=ok.
 Marker: admin_operations_no_secrets=ok.
 
+Batch #100 expands the operator layer into a command center rather than another
+single-purpose page. The batch connects backend overview aggregation, admin
+audit summaries, operator readiness, direct operator actions, `/admin/audit`
+frontend, browser smoke, docs and guard scripts.
+
+Runtime endpoints:
+
+- `GET /v1/admin/operations/overview`;
+- `GET /v1/admin/audit-events`;
+- `GET /v1/admin/audit-events/export?format=csv`.
+
+Expected read/write profile: low-frequency admin reads only. The operations
+overview fans out to runtime status, runtime diagnostics, access review preview,
+access grants preview and a bounded admin audit sample. The audit page performs
+paginated audit reads and bounded CSV export. No Batch #100 endpoint writes
+business data.
+
+Cache, queue and backpressure strategy: no browser polling is added. Operators
+use explicit refresh and navigation. Backend request guardrails, admin session
+validation, admin role validation, audit retention/export limits and the
+existing request/error/metrics observability remain the pressure controls.
+
+Database indexing and pagination strategy: access previews remain capped at 5.
+Audit events are read through the existing admin audit repository paths with
+supported route/outcome/status filters. The UI sends only typed filter values
+and does not expose arbitrary SQL sort or filter strings.
+
+Failure mode and graceful degradation: disabled API, missing self-hosted session,
+forbidden role and backend error states are explicit. The frontend does not
+fallback to local mock admin data when the API is configured. Payloads must not
+include session ids, emails, passwords, connection strings or storage endpoints.
+
+Observability and load-test plan: Batch #100 is covered by
+`smoke:self-hosted-admin-operations`, `test:admin-operations-frontend`,
+`test:admin-audit-frontend`, `smoke:e2e:admin-operations`,
+`smoke:e2e:admin-audit-events`, `check:self-hosted-api` and
+`check:production-scale-baseline`. Load testing should keep admin operations
+traffic separated from buyer catalog traffic because this remains a low-QPS
+operator control plane at the 10,000 concurrent-user baseline.
+
+Marker: Batch #100.
+Marker: admin operations command center.
+Marker: /admin/audit.
+Marker: smoke:e2e:admin-audit-events.
+Marker: admin_operations_audit_summary=ok.
+Marker: admin_operations_readiness=ok.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

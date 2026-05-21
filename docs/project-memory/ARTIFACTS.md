@@ -76,3 +76,15 @@
 - `e2e/admin-operations.spec.ts`: browser smoke for the admin operations hub and admin role guard.
 - `scripts/smoke-self-hosted-admin-operations.mjs`: self-hosted runtime smoke for auth, role, overview, access summaries and secret guards.
 - `docs/backend/self-hosted-admin-operations-smoke.md`: runtime smoke documentation.
+
+## Batch #100 Admin Command Center
+
+- `packages/contracts/src/admin-operations.ts`: expanded admin operations DTOs for audit summary, readiness and operator actions.
+- `apps/api/src/modules/admin-operations/service.ts`: command-center aggregation across runtime, access queue, grants and bounded audit sample.
+- `src/pages/admin/AdminOperations.tsx`: admin command-center UI with audit card, readiness checklist, operator actions and recent audit feed.
+- `src/pages/admin/AdminAuditEvents.tsx`: read-only admin audit events page at `/admin/audit`.
+- `src/lib/admin-audit-api.ts`: self-hosted admin audit frontend API client.
+- `src/lib/use-admin-audit-events.ts`: admin audit page hook with disabled/session/forbidden/loading/error/ready states.
+- `e2e/admin-audit-events.spec.ts`: API-backed browser smoke for `/admin/audit`.
+- `docs/backend/self-hosted-admin-audit-events-page.md`: admin audit page runbook and scale notes.
+- `docs/backend/production-scale-baseline.md`: Batch #100 10,000 concurrent users capacity review.
