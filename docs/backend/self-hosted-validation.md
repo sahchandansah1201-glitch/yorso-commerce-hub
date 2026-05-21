@@ -1115,3 +1115,31 @@ The validation checks:
 - CSV export points to `/v1/admin/audit-events/export?format=csv`;
 - the browser smoke keeps admin audit reads on the self-hosted API contract,
   not Supabase or another hosted BaaS.
+
+## Batch #101 Admin Incident Response Validation
+
+Batch #101 adds the following validation surface:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incidents
+npm run smoke:self-hosted-admin-operations
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/incidents` requires a valid self-hosted admin session;
+- `/v1/admin/incidents` returns bounded, sanitized incident lists and summary;
+- `/v1/admin/incidents/:incidentId` returns a single incident detail;
+- `/v1/admin/incidents/:incidentId/acknowledge` persists acknowledged/resolved
+  state without leaking emails, session ids or connection strings;
+- `/admin/incidents` renders disabled, session-required, forbidden, loading,
+  error and ready states;
+- `/admin` includes incident summary, incident readiness and incident operator
+  actions;
+- `0019_admin_incident_acknowledgements.sql` stores only durable admin state and
+  keeps derived incident reads bounded for the 10,000 concurrent users baseline.

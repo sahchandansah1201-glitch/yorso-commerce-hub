@@ -43,6 +43,7 @@ type OperationsCopy = {
   grantsBody: string;
   loading: string;
   noSecrets: string;
+  openIncidents: string;
   openRequests: string;
   operatorActions: string;
   overview: string;
@@ -51,6 +52,7 @@ type OperationsCopy = {
   readinessBody: string;
   readProfile: string;
   recentAudit: string;
+  recentIncidents: string;
   recentGrants: string;
   recentRequests: string;
   refresh: string;
@@ -88,6 +90,7 @@ const COPY: Record<Language, OperationsCopy> = {
     grantsBody: "Active grants are bounded to the first five rows. Use the grants console for filtering and revocation.",
     loading: "Loading operations overview...",
     noSecrets: "No session ids, emails or connection strings are rendered.",
+    openIncidents: "Open incidents",
     openRequests: "Open requests",
     operatorActions: "Operator actions",
     overview: "Operations overview",
@@ -96,6 +99,7 @@ const COPY: Record<Language, OperationsCopy> = {
     readinessBody: "Checklist derived from runtime diagnostics, audit activity, access queues and self-hosted policy.",
     readProfile: "Read profile",
     recentAudit: "Recent audit activity",
+    recentIncidents: "Recent incidents",
     recentGrants: "Recent grants",
     recentRequests: "Recent requests",
     refresh: "Refresh overview",
@@ -131,6 +135,7 @@ const COPY: Record<Language, OperationsCopy> = {
     grantsBody: "Активные доступы ограничены первыми пятью строками. Для фильтрации и отзыва используйте grants console.",
     loading: "Загружаем operations overview...",
     noSecrets: "Session id, emails и connection strings не отображаются.",
+    openIncidents: "Открытые инциденты",
     openRequests: "Открытые запросы",
     operatorActions: "Operator actions",
     overview: "Operations overview",
@@ -139,6 +144,7 @@ const COPY: Record<Language, OperationsCopy> = {
     readinessBody: "Checklist формируется из runtime diagnostics, audit activity, access queue и self-hosted policy.",
     readProfile: "Read profile",
     recentAudit: "Recent audit activity",
+    recentIncidents: "Recent incidents",
     recentGrants: "Последние доступы",
     recentRequests: "Последние запросы",
     refresh: "Обновить overview",
@@ -174,6 +180,7 @@ const COPY: Record<Language, OperationsCopy> = {
     grantsBody: "Los accesos activos están limitados a las primeras cinco filas. Usa grants console para filtrar y revocar.",
     loading: "Cargando operations overview...",
     noSecrets: "No se muestran session ids, emails ni connection strings.",
+    openIncidents: "Incidentes abiertos",
     openRequests: "Solicitudes abiertas",
     operatorActions: "Operator actions",
     overview: "Operations overview",
@@ -182,6 +189,7 @@ const COPY: Record<Language, OperationsCopy> = {
     readinessBody: "Checklist derivado de runtime diagnostics, audit activity, access queues y self-hosted policy.",
     readProfile: "Read profile",
     recentAudit: "Recent audit activity",
+    recentIncidents: "Incidentes recientes",
     recentGrants: "Accesos recientes",
     recentRequests: "Solicitudes recientes",
     refresh: "Actualizar overview",
@@ -300,7 +308,7 @@ export default function AdminOperations() {
 function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOperationsOverview }) {
   return (
     <div className="space-y-6" data-testid="admin-operations-overview">
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
         <MetricCard
           description={copy.requestsBody}
           icon={<ClipboardCheck className="h-5 w-5" />}
@@ -335,6 +343,13 @@ function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOp
           label={copy.auditFailures}
           testId="admin-operations-audit-card"
           value={data.audit.summary.failure + data.audit.summary.blocked}
+        />
+        <MetricCard
+          description={copy.readinessBody}
+          icon={<AlertTriangle className="h-5 w-5" />}
+          label={copy.openIncidents}
+          testId="admin-operations-incidents-card"
+          value={data.incidents.summary.open}
         />
       </section>
 
@@ -431,6 +446,35 @@ function OperationsContent({ copy, data }: { copy: OperationsCopy; data: AdminOp
           </CardContent>
         </Card>
       </section>
+
+      <Card data-testid="admin-operations-incident-feed">
+        <CardHeader>
+          <CardTitle>{copy.recentIncidents}</CardTitle>
+          <CardDescription>{copy.openIncidents}: {data.incidents.summary.open}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {data.incidents.recent.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{copy.openIncidents}: 0</p>
+          ) : data.incidents.recent.map((incident) => (
+            <div className="rounded-2xl border bg-background p-4" key={incident.id}>
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={incident.severity === "critical" ? "destructive" : incident.severity === "high" ? "secondary" : "outline"}>
+                      {incident.severity}
+                    </Badge>
+                    <p className="font-semibold text-foreground">{incident.title}</p>
+                  </div>
+                  <p className="mt-2 truncate text-sm text-muted-foreground">{incident.route ?? incident.source}</p>
+                </div>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/admin/incidents">Open</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card data-testid="admin-operations-audit-feed">
         <CardHeader>

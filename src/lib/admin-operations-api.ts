@@ -4,6 +4,7 @@ import {
   getConfiguredAccountApiBaseUrl,
 } from "@/lib/account-api";
 import type { AdminAuditEvent } from "@/lib/admin-audit-api";
+import type { AdminIncident, AdminIncidentSummary } from "@/lib/admin-incidents-api";
 import type { AdminAccessGrantItem, AdminAccessGrantSummary } from "@/lib/admin-access-grants-api";
 import type { AdminAccessReviewItem, AdminAccessReviewSummary } from "@/lib/admin-access-review-api";
 import type { AdminRuntimeDiagnostics, AdminRuntimeStatus } from "@/lib/admin-runtime-api";
@@ -12,7 +13,7 @@ import { buyerSession, type BuyerSession } from "@/lib/buyer-session";
 export interface AdminOperationsLink {
   description: string;
   href: string;
-  id: "overview" | "runtime" | "access_requests" | "access_grants" | "audit";
+  id: "overview" | "runtime" | "access_requests" | "access_grants" | "audit" | "incidents";
   label: string;
 }
 
@@ -30,7 +31,7 @@ export interface AdminOperationsCapacityPlan {
 export interface AdminOperationsAction {
   description: string;
   href: string;
-  id: "review_requests" | "inspect_grants" | "inspect_runtime" | "inspect_audit" | "export_audit" | "run_retention";
+  id: "review_requests" | "inspect_grants" | "inspect_runtime" | "inspect_incidents" | "inspect_audit" | "export_audit" | "run_retention";
   label: string;
   priority: "primary" | "secondary" | "danger";
 }
@@ -38,7 +39,7 @@ export interface AdminOperationsAction {
 export interface AdminOperationsReadinessItem {
   action: string;
   detail: string;
-  id: "runtime" | "audit" | "access_review" | "access_grants" | "scale_baseline" | "security";
+  id: "runtime" | "audit" | "access_review" | "access_grants" | "incidents" | "scale_baseline" | "security";
   label: string;
   route: string | null;
   status: "pass" | "warn" | "fail";
@@ -69,6 +70,10 @@ export interface AdminOperationsOverview {
   };
   capacityPlan: AdminOperationsCapacityPlan;
   generatedAt: string;
+  incidents: {
+    recent: AdminIncident[];
+    summary: AdminIncidentSummary;
+  };
   ok: true;
   operatorActions: AdminOperationsAction[];
   operatorLinks: AdminOperationsLink[];
@@ -195,7 +200,9 @@ function assertOverviewShape(response: AdminOperationsOverview) {
     typeof response.access?.review?.summary?.open !== "number" ||
     typeof response.access?.grants?.summary?.active !== "number" ||
     typeof response.audit?.summary?.sampleSize !== "number" ||
+    typeof response.incidents?.summary?.open !== "number" ||
     !Array.isArray(response.audit?.recent) ||
+    !Array.isArray(response.incidents?.recent) ||
     !Array.isArray(response.operatorActions) ||
     !Array.isArray(response.readiness?.items) ||
     !Array.isArray(response.operatorLinks)

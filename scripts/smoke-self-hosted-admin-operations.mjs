@@ -92,6 +92,7 @@ async function runSmoke(baseUrl) {
   console.log("admin_operations_audit_summary=ok");
   console.log("admin_operations_readiness=ok");
   console.log("admin_operations_operator_actions=ok");
+  console.log("admin_operations_incidents_summary=ok");
 
   await postJson(baseUrl, "/v1/access/suppliers/sup-no-001/request", buyerHeaders, {
     message: "Need exact weekly salmon price.",
@@ -144,10 +145,25 @@ function assertOverviewShape(value, label) {
   assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/access-requests", `${label} review link`);
   assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/access-grants", `${label} grants link`);
   assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/audit", `${label} audit link`);
+  assertContains(JSON.stringify(value.operatorLinks ?? []), "/admin/incidents", `${label} incidents link`);
   assertContains(JSON.stringify(value.operatorActions ?? []), "/admin/audit", `${label} audit action`);
+  assertContains(JSON.stringify(value.operatorActions ?? []), "/admin/incidents", `${label} incidents action`);
   assertContains(JSON.stringify(value.operatorActions ?? []), "/v1/admin/audit-events/export", `${label} audit export action`);
   assertContains(JSON.stringify(value.readiness?.items ?? []), "\"id\":\"audit\"", `${label} audit readiness`);
+  assertContains(JSON.stringify(value.readiness?.items ?? []), "\"id\":\"incidents\"", `${label} incident readiness`);
   assertContains(JSON.stringify(value.readiness?.items ?? []), "\"id\":\"scale_baseline\"", `${label} scale readiness`);
+  if (!Array.isArray(value.incidents?.recent)) {
+    throw new Error(`${label}: expected incidents.recent array`);
+  }
+  if (value.incidents.recent.length > 5) {
+    throw new Error(`${label}: expected incidents.recent to be capped at 5 rows, got ${value.incidents.recent.length}`);
+  }
+  if (typeof value.incidents?.summary?.open !== "number") {
+    throw new Error(`${label}: expected incidents.summary.open number`);
+  }
+  if (typeof value.incidents?.summary?.high !== "number") {
+    throw new Error(`${label}: expected incidents.summary.high number`);
+  }
   if (!Array.isArray(value.audit?.recent)) {
     throw new Error(`${label}: expected audit.recent array`);
   }

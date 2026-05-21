@@ -1,6 +1,7 @@
 export * from "./account-company.js";
 export * from "./account-session.js";
 export * from "./admin-audit.js";
+export * from "./admin-incidents.js";
 export * from "./admin-operations.js";
 export * from "./admin-runtime.js";
 export * from "./auth.js";

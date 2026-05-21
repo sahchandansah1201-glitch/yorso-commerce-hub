@@ -19,6 +19,29 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
       total: 6,
     },
   },
+  incidents: {
+    recent: [
+      {
+        acknowledgedAt: null,
+        acknowledgedByUserHash: null,
+        count: 3,
+        description: "Admin audit blocked requests require operator review.",
+        evidence: [{ label: "Audit events", value: "3 matching audit events" }],
+        firstSeenAt: "2026-05-20T09:50:00.000Z",
+        id: "audit:admin-blocked:v1-admin-audit-events",
+        lastSeenAt: "2026-05-20T10:00:00.000Z",
+        note: null,
+        recommendedActions: ["Review admin role assignments and blocked operator attempts."],
+        relatedAuditIds: ["aud_api_1"],
+        route: "/v1/admin/audit-events",
+        severity: "high",
+        source: "audit",
+        status: "open",
+        title: "Admin route blocked",
+      },
+    ],
+    summary: { acknowledged: 0, critical: 0, high: 1, open: 1, resolved: 0, total: 1 },
+  },
   audit: {
     recent: [
       {
@@ -63,6 +86,7 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
     { description: "Inspect grants", href: "/admin/access-grants", id: "inspect_grants", label: "Inspect active grants", priority: "primary" },
     { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
     { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "secondary" },
+    { description: "Triage incidents", href: "/admin/incidents", id: "inspect_incidents", label: "Triage incidents", priority: "primary" },
   ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
@@ -70,6 +94,7 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
     { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
+    { description: "Incidents", href: "/admin/incidents", id: "incidents", label: "Incidents" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -84,6 +109,14 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
   readiness: {
     fail: 0,
     items: [
+      {
+        action: "Triage open incidents.",
+        detail: "1 open incident.",
+        id: "incidents",
+        label: "Incident queue",
+        route: "/admin/incidents",
+        status: "warn",
+      },
       {
         action: "Open runtime diagnostics.",
         detail: "Runtime diagnostics report pass.",

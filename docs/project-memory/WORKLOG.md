@@ -88,3 +88,14 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:admin-operations` passed, 2 tests.
   - `npm run smoke:e2e:admin-audit-events` passed, 2 tests.
   - `npm run ci:core` passed.
+- Started Batch #101 locally on `codex/batch101-admin-incident-response`.
+- Added self-hosted admin incident response backend contracts, service, repository, routes and durable PostgreSQL acknowledgement migration.
+- Added `/admin/incidents` frontend page, API adapter, hook, admin nav integration, command-center incident summary, tests, smoke script, e2e spec, docs and guard-script updates.
+- Confirmed Batch #101 partial checks:
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npm run test:admin-incidents-frontend` passed, 10 tests.
+  - `npm run test:admin-operations-frontend` passed, 10 tests.
+  - targeted admin incident API tests and `apps/api/src/server.test.ts` passed, 64 tests.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run smoke:self-hosted-admin-operations:run` passed.

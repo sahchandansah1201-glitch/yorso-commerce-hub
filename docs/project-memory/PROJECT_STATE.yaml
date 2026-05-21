@@ -12,7 +12,7 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-21"
   dirty_worktree_before_project_memory: true
-  active_branch: "codex/batch100-admin-operations-command-center"
+  active_branch: "codex/batch101-admin-incident-response"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
@@ -34,31 +34,36 @@ active_workstream:
   id: "self_hosted_production_batches"
   summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
   current_batch:
-    id: 100
-    summary: "Admin operations command center that adds audit summary, readiness, operator actions and a dedicated /admin/audit browser page."
-    status: "validated_locally_pending_commit_pr_merge"
+    id: 101
+    summary: "Admin incident response console with backend incident derivation, durable acknowledgement state, /admin/incidents UI and command-center incident bridge."
+    status: "implemented_locally_validation_in_progress"
     confirmed_files:
       - "packages/contracts/src/admin-operations.ts"
       - "apps/api/src/modules/admin-operations/service.ts"
       - "apps/api/src/modules/admin-operations/routes.ts"
       - "src/pages/admin/AdminOperations.tsx"
-      - "src/pages/admin/AdminAuditEvents.tsx"
+      - "apps/api/src/modules/admin-incidents/service.ts"
+      - "apps/api/src/modules/admin-incidents/routes.ts"
+      - "packages/contracts/src/admin-incidents.ts"
+      - "packages/db/migrations/0019_admin_incident_acknowledgements.sql"
+      - "src/pages/admin/AdminIncidents.tsx"
       - "src/components/admin/AdminOperatorNav.tsx"
       - "src/lib/admin-operations-api.ts"
       - "src/lib/use-admin-operations-overview.ts"
-      - "src/lib/admin-audit-api.ts"
-      - "src/lib/use-admin-audit-events.ts"
+      - "src/lib/admin-incidents-api.ts"
+      - "src/lib/use-admin-incidents.ts"
       - "e2e/admin-operations.spec.ts"
-      - "e2e/admin-audit-events.spec.ts"
+      - "e2e/admin-incidents.spec.ts"
       - "scripts/smoke-self-hosted-admin-operations.mjs"
+      - "scripts/smoke-self-hosted-admin-incidents.mjs"
       - "docs/backend/self-hosted-admin-operations-smoke.md"
-      - "docs/backend/self-hosted-admin-audit-events-page.md"
+      - "docs/backend/self-hosted-admin-incidents-smoke.md"
       - "docs/backend/production-scale-baseline.md"
 
 next_actions:
-  - "Finish Batch #100 validation: lint, tsc, narrow tests, admin operations smoke, admin audit e2e, ci:core."
-  - "Commit, push, open PR `[codex] Batch #100 admin command center`, wait checks, merge after green."
-  - "Provide numbered Lovable Prompt #100 after merge to main."
+  - "Finish Batch #101 validation: check scripts, lint, tsc, focused tests, smokes, e2e and ci:core."
+  - "Commit, push, open PR `[codex] Batch #101 admin incident response`, wait checks, merge after green."
+  - "Provide numbered Lovable Prompt #101 after merge to main."
   - "Include Batch Size Report after each completed batch."
 
 last_confirmed_checks:
@@ -73,6 +78,7 @@ last_confirmed_checks:
   - "npm run smoke:e2e:admin-operations: passed, 2 tests."
   - "npm run smoke:e2e:admin-audit-events: passed, 2 tests."
   - "npm run ci:core: passed."
+  - "Batch #101 partial validation: contracts:build, api:build, test:admin-incidents-frontend, test:admin-operations-frontend, admin-incidents API tests, smoke:self-hosted-admin-incidents:run and smoke:self-hosted-admin-operations:run passed."
 
 quality_rules:
   - "Use repository files as source of truth."
@@ -93,4 +99,4 @@ critical_files:
   - "docs/project-memory/ARTIFACTS.md"
 
 open_questions:
-  - "GitHub Actions status for Batch #99 is not confirmed until PR is opened and checks complete."
+  - "GitHub Actions status for Batch #101 is not confirmed until PR is opened and checks complete."

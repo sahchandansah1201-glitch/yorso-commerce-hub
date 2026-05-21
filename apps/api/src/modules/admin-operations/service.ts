@@ -6,6 +6,7 @@ import {
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessService } from "../access/service.js";
 import type { AdminAuditService } from "../admin-audit/service.js";
+import type { AdminIncidentService } from "../admin-incidents/service.js";
 import type { AdminRuntimeService } from "../admin-runtime/service.js";
 
 export class AdminOperationsService {
@@ -13,12 +14,13 @@ export class AdminOperationsService {
     private readonly runtimeService: AdminRuntimeService,
     private readonly accessService: SupplierAccessService,
     private readonly auditService: AdminAuditService,
+    private readonly incidentService: AdminIncidentService,
   ) {}
 
   async getOverview(requestId: string): Promise<AdminOperationsOverview> {
     const status = this.runtimeService.getStatus(requestId);
     const diagnostics = this.runtimeService.getDiagnostics(requestId);
-    const [review, grants, auditPage] = await Promise.all([
+    const [review, grants, auditPage, incidents] = await Promise.all([
       this.accessService.listReviewRequests({
         rawQuery: { limit: "5", offset: "0", status: "open" },
         requestId,
@@ -28,11 +30,13 @@ export class AdminOperationsService {
         requestId,
       }),
       this.auditService.listAuditEvents({ limit: "25" }, requestId),
+      this.incidentService.listIncidents({ limit: "5", status: "open" }, requestId),
     ]);
     const readiness = buildReadiness({
       auditEvents: auditPage.events,
       diagnostics,
       grantsTotal: grants.total,
+      incidentSummary: incidents.summary,
       reviewOpen: review.summary.open,
       status,
     });
@@ -55,16 +59,20 @@ export class AdminOperationsService {
         summary: summarizeAuditEvents(auditPage.events),
       },
       capacityPlan: {
-        backpressureStrategy: "Use explicit refresh, bounded 5-row previews, bounded 25-row audit samples, existing request timeouts, admin auth guards and audit backpressure. Do not poll the hub by default.",
+        backpressureStrategy: "Use explicit refresh, bounded 5-row previews, bounded 25-row audit samples, bounded 5-row incident previews, existing request timeouts, admin auth guards and audit backpressure. Do not poll the hub by default.",
         cacheStrategy: "No browser auto-polling. Runtime facts are read on page load or manual refresh, and each downstream query remains paginated.",
-        databaseStrategy: "Use existing indexed admin access review, grant and audit queries. Any future total-count expansion must use indexed status filters, route filters or precomputed rollups.",
+        databaseStrategy: "Use existing indexed admin access review, grant, incident acknowledgement and audit queries. Any future total-count expansion must use indexed status filters, route filters or precomputed rollups.",
         failureMode: "If one protected dependency fails, return a normal HTTP error instead of fabricating operator data. Frontend keeps a visible error state and preserves manual refresh.",
-        loadTestPlan: "Include overview, audit page and access consoles as low-frequency operator paths during the 10,000 concurrent users load-test plan.",
+        loadTestPlan: "Include overview, incident response, audit page and access consoles as low-frequency operator paths during the 10,000 concurrent users load-test plan.",
         observabilityPlan: "Emit audit events for reads and rely on request, error, metrics and admin runtime diagnostics telemetry. Never include session ids, emails or connection strings.",
-        readProfile: "Low-frequency admin overview read path. One request fans out to runtime status, diagnostics, access review preview, grants preview and bounded audit activity.",
-        writeProfile: "No writes. Decisions and revocations stay in the dedicated access review and access grants endpoints.",
+        readProfile: "Low-frequency admin overview read path. One request fans out to runtime status, diagnostics, access review preview, grants preview, bounded incident preview and bounded audit activity.",
+        writeProfile: "No writes in the overview. Incident acknowledgements, access decisions and revocations stay in dedicated endpoints.",
       },
       generatedAt: new Date().toISOString(),
+      incidents: {
+        recent: incidents.incidents,
+        summary: incidents.summary,
+      },
       ok: true,
       operatorActions: [
         {
@@ -87,6 +95,13 @@ export class AdminOperationsService {
           id: "inspect_runtime",
           label: "Inspect runtime",
           priority: diagnostics.diagnostics.overallStatus === "fail" ? "danger" : "secondary",
+        },
+        {
+          description: "Triage open runtime, audit and security incidents from the self-hosted API.",
+          href: "/admin/incidents",
+          id: "inspect_incidents",
+          label: "Triage incidents",
+          priority: incidents.summary.open > 0 ? "danger" : "secondary",
         },
         {
           description: "Review recent operator actions, blocked access and backend errors.",
@@ -134,6 +149,12 @@ export class AdminOperationsService {
           id: "audit",
           label: "Audit trail",
         },
+        {
+          description: "Triage derived runtime, audit and security incidents with durable acknowledgement state.",
+          href: "/admin/incidents",
+          id: "incidents",
+          label: "Incident response",
+        },
       ],
       productionPolicy: status.productionPolicy,
       productionScaleBaseline: status.productionScaleBaseline,
@@ -178,6 +199,7 @@ function buildReadiness(input: {
   auditEvents: AdminAuditEvent[];
   diagnostics: ReturnType<AdminRuntimeService["getDiagnostics"]>;
   grantsTotal: number;
+  incidentSummary: { critical: number; high: number; open: number; total: number };
   reviewOpen: number;
   status: ReturnType<AdminRuntimeService["getStatus"]>;
 }) {
@@ -219,6 +241,14 @@ function buildReadiness(input: {
       label: "Grant hygiene",
       route: "/admin/access-grants",
       status: "pass",
+    },
+    {
+      action: "Triage open incidents.",
+      detail: `${input.incidentSummary.open} open incidents, ${input.incidentSummary.critical} critical and ${input.incidentSummary.high} high.`,
+      id: "incidents",
+      label: "Incident queue",
+      route: "/admin/incidents",
+      status: input.incidentSummary.critical > 0 ? "fail" : input.incidentSummary.high > 0 ? "warn" : "pass",
     },
     {
       action: "Keep production capacity policy visible.",

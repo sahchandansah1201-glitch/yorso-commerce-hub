@@ -88,3 +88,15 @@
 - `e2e/admin-audit-events.spec.ts`: API-backed browser smoke for `/admin/audit`.
 - `docs/backend/self-hosted-admin-audit-events-page.md`: admin audit page runbook and scale notes.
 - `docs/backend/production-scale-baseline.md`: Batch #100 10,000 concurrent users capacity review.
+
+## Batch #101 Admin Incident Response
+
+- `packages/contracts/src/admin-incidents.ts`: incident DTOs, query schema and acknowledge response schema.
+- `apps/api/src/modules/admin-incidents/`: backend incident repository, PostgreSQL adapter, service and admin-only routes.
+- `packages/db/migrations/0019_admin_incident_acknowledgements.sql`: durable acknowledgement/resolution state for derived incidents.
+- `src/lib/admin-incidents-api.ts`: frontend self-hosted admin incidents API client.
+- `src/lib/use-admin-incidents.ts`: frontend hook for disabled/session/forbidden/loading/error/ready states and acknowledge actions.
+- `src/pages/admin/AdminIncidents.tsx`: admin incident response console at `/admin/incidents`.
+- `e2e/admin-incidents.spec.ts`: API-backed browser smoke for incident list and acknowledge flow.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: self-hosted runtime smoke for auth guard, role guard, incident list/detail/acknowledge/resolve and secret guards.
+- `docs/backend/self-hosted-admin-incidents-smoke.md`: incident response smoke documentation and 10,000 concurrent users notes.

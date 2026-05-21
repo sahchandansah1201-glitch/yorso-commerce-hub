@@ -221,6 +221,17 @@
       "dependsOn": [
         "0017_supplier_access_review_queue"
       ]
+    },
+    {
+      "id": "0019_admin_incident_acknowledgements",
+      "file": "migrations/0019_admin_incident_acknowledgements.sql",
+      "description": "Create durable admin incident acknowledgement state for derived operator incidents.",
+      "ownedTables": [
+        "yorso_admin_incident_acknowledgements"
+      ],
+      "dependsOn": [
+        "0018_admin_access_grants_console"
+      ]
     }
   ]
 }

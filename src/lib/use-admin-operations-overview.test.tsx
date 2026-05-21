@@ -19,6 +19,29 @@ const overviewPayload = (): AdminOperationsOverview => ({
     grants: { recent: [], summary: { active: 1, expired: 0, total: 1 }, total: 1 },
     review: { recent: [], summary: { approved: 0, open: 1, pending: 0, rejected: 0, revoked: 0, sent: 1 }, total: 1 },
   },
+  incidents: {
+    recent: [
+      {
+        acknowledgedAt: null,
+        acknowledgedByUserHash: null,
+        count: 1,
+        description: "Readiness check reported a warning.",
+        evidence: [{ label: "Runtime check", value: "runtime warning" }],
+        firstSeenAt: "2026-05-20T10:00:00.000Z",
+        id: "runtime:readiness",
+        lastSeenAt: "2026-05-20T10:00:00.000Z",
+        note: null,
+        recommendedActions: ["Open runtime diagnostics."],
+        relatedAuditIds: [],
+        route: "/health/ready",
+        severity: "medium",
+        source: "runtime",
+        status: "open",
+        title: "Runtime readiness warning",
+      },
+    ],
+    summary: { acknowledged: 0, critical: 0, high: 0, open: 1, resolved: 0, total: 1 },
+  },
   audit: {
     recent: [],
     summary: { blocked: 0, failure: 0, sampleSize: 0, statusClasses: {}, success: 0 },
@@ -40,6 +63,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
     { description: "Inspect grants", href: "/admin/access-grants", id: "inspect_grants", label: "Inspect active grants", priority: "primary" },
     { description: "Inspect runtime", href: "/admin/runtime", id: "inspect_runtime", label: "Inspect runtime", priority: "secondary" },
     { description: "Inspect audit", href: "/admin/audit", id: "inspect_audit", label: "Inspect audit trail", priority: "secondary" },
+    { description: "Triage incidents", href: "/admin/incidents", id: "inspect_incidents", label: "Triage incidents", priority: "primary" },
   ],
   operatorLinks: [
     { description: "Overview", href: "/admin", id: "overview", label: "Operations" },
@@ -47,6 +71,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
     { description: "Requests", href: "/admin/access-requests", id: "access_requests", label: "Requests" },
     { description: "Grants", href: "/admin/access-grants", id: "access_grants", label: "Grants" },
     { description: "Audit", href: "/admin/audit", id: "audit", label: "Audit" },
+    { description: "Incidents", href: "/admin/incidents", id: "incidents", label: "Incidents" },
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
@@ -62,6 +87,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
       { action: "Inspect recent audit events.", detail: "Recent audit sample has no failed backend actions.", id: "audit", label: "Audit activity", route: "/admin/audit", status: "pass" },
       { action: "Process open access requests.", detail: "1 open supplier access request.", id: "access_review", label: "Access review queue", route: "/admin/access-requests", status: "pass" },
       { action: "Review active grants.", detail: "1 active grant.", id: "access_grants", label: "Grant hygiene", route: "/admin/access-grants", status: "pass" },
+      { action: "Triage open incidents.", detail: "1 open incident.", id: "incidents", label: "Incident queue", route: "/admin/incidents", status: "warn" },
     ],
     pass: 4,
     status: "pass",

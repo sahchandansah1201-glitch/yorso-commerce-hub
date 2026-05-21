@@ -18,6 +18,10 @@ import { createAdminAuditRepository } from "./modules/admin-audit/factory.js";
 import type { AdminAuditRepository } from "./modules/admin-audit/repository.js";
 import { handleAdminAuditRoute } from "./modules/admin-audit/routes.js";
 import { AdminAuditService } from "./modules/admin-audit/service.js";
+import { createAdminIncidentRepository } from "./modules/admin-incidents/factory.js";
+import type { AdminIncidentRepository } from "./modules/admin-incidents/repository.js";
+import { handleAdminIncidentRoute } from "./modules/admin-incidents/routes.js";
+import { AdminIncidentService } from "./modules/admin-incidents/service.js";
 import { handleAdminOperationsRoute } from "./modules/admin-operations/routes.js";
 import { AdminOperationsService } from "./modules/admin-operations/service.js";
 import { handleAdminRuntimeRoute } from "./modules/admin-runtime/routes.js";
@@ -57,6 +61,7 @@ import { createReadinessProbe, handleLive, handleReady, type ReadinessProbe } fr
 export interface ApiServerOptions {
   accountRepository?: AccountRepository;
   adminAuditRepository?: AdminAuditRepository;
+  adminIncidentRepository?: AdminIncidentRepository;
   auditSink?: AuditSink;
   authRepository?: AuthRepository;
   fileService?: FileService;
@@ -90,6 +95,11 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);
   const lifecycle = options.lifecycle ?? new ApiLifecycle();
   const adminRuntimeService = new AdminRuntimeService(config, lifecycle);
+  const adminIncidentService = new AdminIncidentService(
+    options.adminIncidentRepository ?? createAdminIncidentRepository(config),
+    adminRuntimeService,
+    adminAuditService,
+  );
   const fileService = options.fileService ?? createFileService(config);
   const supplierAccessRepository = options.supplierAccessRepository ?? createSupplierAccessRepository(config);
   const offerCatalogService = new OfferCatalogService(
@@ -97,7 +107,12 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     supplierAccessRepository,
   );
   const supplierAccessService = new SupplierAccessService(supplierAccessRepository);
-  const adminOperationsService = new AdminOperationsService(adminRuntimeService, supplierAccessService, adminAuditService);
+  const adminOperationsService = new AdminOperationsService(
+    adminRuntimeService,
+    supplierAccessService,
+    adminAuditService,
+    adminIncidentService,
+  );
   const supplierService = new SupplierDirectoryService(
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
@@ -166,6 +181,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       authService,
       accountService,
       adminAuditService,
+      adminIncidentService,
       adminOperationsService,
       adminRuntimeService,
       fileService,
@@ -242,6 +258,7 @@ async function routeRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminIncidentService: AdminIncidentService,
   adminOperationsService: AdminOperationsService,
   adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
@@ -311,6 +328,7 @@ async function routeRequest(
       authService,
       accountService,
       adminAuditService,
+      adminIncidentService,
       adminOperationsService,
       adminRuntimeService,
       fileService,
@@ -334,6 +352,7 @@ async function routeWorkRequest(
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
+  adminIncidentService: AdminIncidentService,
   adminOperationsService: AdminOperationsService,
   adminRuntimeService: AdminRuntimeService,
   fileService: FileService,
@@ -383,6 +402,16 @@ async function routeWorkRequest(
     url,
     auditSink,
     metricsRegistry,
+    jsonBodyOptions,
+  )) return;
+  if (await handleAdminIncidentRoute(
+    request,
+    response,
+    context,
+    adminIncidentService,
+    authService,
+    url,
+    auditSink,
     jsonBodyOptions,
   )) return;
   if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;

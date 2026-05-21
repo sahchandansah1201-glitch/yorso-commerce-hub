@@ -17,26 +17,27 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #100 is implemented locally on branch `codex/batch100-admin-operations-command-center`.
-- Batch #100 expands the self-hosted admin operations hub:
-  - `GET /v1/admin/operations/overview` now includes audit summary, readiness and operator actions;
-  - frontend `/admin` renders audit card, readiness checklist, operator actions and recent audit feed;
-  - frontend `/admin/audit` renders bounded admin audit events from the self-hosted API;
-  - admin audit API adapter, hook, page tests, API-backed browser smoke, docs and guard-script coverage were added.
-- Local validation passed: `test:admin-operations-frontend`, `test:admin-audit-frontend`, `api:build`, `check:self-hosted-api`, `check:production-scale-baseline`, `smoke:self-hosted-admin-operations:run`, `lint`, `tsc -b --noEmit`, `smoke:e2e:admin-operations`, `smoke:e2e:admin-audit-events` and `ci:core`.
-- Pending handoff steps: inspect diff/status, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
+- Batch #101 is implemented locally on branch `codex/batch101-admin-incident-response`.
+- Batch #101 adds the self-hosted admin incident response workflow:
+  - backend derives incidents from runtime diagnostics and bounded admin audit data;
+  - `GET /v1/admin/incidents`, `GET /v1/admin/incidents/:incidentId` and `POST /v1/admin/incidents/:incidentId/acknowledge` are admin-only;
+  - PostgreSQL stores durable acknowledgement/resolution state in `yorso_admin_incident_acknowledgements`;
+  - frontend `/admin/incidents` renders incident filters, summary, list, notes and acknowledge/resolve actions;
+  - `/admin` command center now includes incident summary, readiness and operator action links.
+- Partial local validation passed: `contracts:build`, `api:build`, `test:admin-incidents-frontend`, `test:admin-operations-frontend`, targeted admin incident API tests, `smoke:self-hosted-admin-incidents:run` and `smoke:self-hosted-admin-operations:run`.
+- Pending handoff steps: finish guard/docs checks, lint, tsc, e2e, ci:core, inspect diff/status, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #100 publication:
+Finish Batch #101 publication:
 1. run git diff --check and inspect git status -sb;
-2. commit and push branch codex/batch100-admin-operations-command-center;
-3. open PR [codex] Batch #100 admin command center;
+2. commit and push branch codex/batch101-admin-incident-response;
+3. open PR [codex] Batch #101 admin incident response;
 4. merge after checks pass;
-5. give Lovable Prompt #100 to sync latest GitHub main.
+5. give Lovable Prompt #101 to sync latest GitHub main.
 
-Then choose Batch #101 as another large connected production batch.
+Then choose Batch #102 as another larger connected production batch.
 ```
 
 ## Rules
