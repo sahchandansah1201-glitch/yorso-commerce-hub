@@ -1143,3 +1143,41 @@ The validation checks:
   actions;
 - `0019_admin_incident_acknowledgements.sql` stores only durable admin state and
   keeps derived incident reads bounded for the 10,000 concurrent users baseline.
+
+## Batch #102 Admin Incident Workflow Validation
+
+Batch #102 extends the same validation surface with assignment, escalation,
+operator comments, SLA state and timeline events:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incidents
+npm run test:db-contract
+npm run test:db-migrations
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/incidents/:incidentId/workflow` requires the same self-hosted admin
+  session and role boundary as incident reads;
+- `/v1/admin/incidents/workflow/bulk` applies the same validation and admin
+  session boundary to selected incidents and reports partial not-found rows;
+- `/v1/admin/incidents/export` returns sanitized JSON/CSV handoff data under
+  the same admin session and typed filter constraints;
+- assignment requires an explicit assignee id and returns only a hashed assignee
+  identifier to the browser;
+- escalation requires a non-`none` escalation level;
+- list filters support assignment state, escalation level and SLA state without
+  accepting arbitrary SQL sort/filter fields;
+- operator comments are stored as bounded timeline events;
+- runbook steps and workload summary counters are rendered from the typed
+  incident response contract, not generated in the browser;
+- invalid workflow requests return validation errors;
+- `0020_admin_incident_workflow.sql` stores only durable workflow state and
+  indexed timeline events, not raw audit payloads or secrets;
+- `/admin/incidents` renders SLA, due, assignment, escalation and timeline
+  state without exposing raw user ids.

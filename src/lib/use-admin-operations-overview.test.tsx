@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { AdminIncidentSummary } from "@/lib/admin-incidents-api";
 import type { AdminOperationsOverview } from "@/lib/admin-operations-api";
 import type { BuyerSession } from "@/lib/buyer-session";
 import { useAdminOperationsOverview } from "@/lib/use-admin-operations-overview";
@@ -14,6 +15,33 @@ const adminSession: BuyerSession = {
   userId: "00000000-0000-4000-8000-000000000099",
 };
 
+const incidentSummary = (patch: Partial<AdminIncidentSummary> = {}): AdminIncidentSummary => ({
+  acknowledged: 0,
+  access: 0,
+  assigned: 0,
+  assignmentCoveragePct: 0,
+  atRisk: 0,
+  audit: 0,
+  breachRatePct: 100,
+  breached: 1,
+  critical: 0,
+  engineeringEscalations: 0,
+  escalated: 0,
+  executiveEscalations: 0,
+  high: 0,
+  leadEscalations: 0,
+  open: 1,
+  openCritical: 0,
+  oldestOpenMinutes: 240,
+  policy: 0,
+  resolved: 0,
+  runtime: 1,
+  security: 0,
+  total: 1,
+  unassigned: 1,
+  ...patch,
+});
+
 const overviewPayload = (): AdminOperationsOverview => ({
   access: {
     grants: { recent: [], summary: { active: 1, expired: 0, total: 1 }, total: 1 },
@@ -24,8 +52,13 @@ const overviewPayload = (): AdminOperationsOverview => ({
       {
         acknowledgedAt: null,
         acknowledgedByUserHash: null,
+        assignedAt: null,
+        assignedToUserHash: null,
         count: 1,
         description: "Readiness check reported a warning.",
+        dueAt: "2026-05-20T14:00:00.000Z",
+        escalatedAt: null,
+        escalationLevel: "none",
         evidence: [{ label: "Runtime check", value: "runtime warning" }],
         firstSeenAt: "2026-05-20T10:00:00.000Z",
         id: "runtime:readiness",
@@ -34,13 +67,34 @@ const overviewPayload = (): AdminOperationsOverview => ({
         recommendedActions: ["Open runtime diagnostics."],
         relatedAuditIds: [],
         route: "/health/ready",
+        runbook: [
+          {
+            description: "Confirm runtime diagnostic scope.",
+            label: "Confirm scope",
+            ownerRole: "operator",
+            targetMinutes: 30,
+          },
+        ],
         severity: "medium",
+        slaStatus: "breached",
         source: "runtime",
         status: "open",
+        timelinePreview: [
+          {
+            actorUserHash: null,
+            assignedToUserHash: null,
+            escalationLevel: null,
+            eventId: "runtime:readiness:created",
+            note: null,
+            occurredAt: "2026-05-20T10:00:00.000Z",
+            status: "open",
+            type: "created",
+          },
+        ],
         title: "Runtime readiness warning",
       },
     ],
-    summary: { acknowledged: 0, critical: 0, high: 0, open: 1, resolved: 0, total: 1 },
+    summary: incidentSummary(),
   },
   audit: {
     recent: [],

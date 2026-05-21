@@ -99,3 +99,31 @@ Keep this file factual and append-only.
   - targeted admin incident API tests and `apps/api/src/server.test.ts` passed, 64 tests.
   - `npm run smoke:self-hosted-admin-incidents:run` passed.
   - `npm run smoke:self-hosted-admin-operations:run` passed.
+- Started Batch #102 locally on `codex/batch102-incident-workflow`.
+- Extended self-hosted admin incidents into an operator workflow with assignment, escalation, comments, SLA status, due state and timeline events.
+- Expanded Batch #102 after size review with bounded bulk workflow, sanitized JSON/CSV export, typed runbook steps and operator workload summary counters.
+- Added `0020_admin_incident_workflow.sql` for durable assignment/escalation state and indexed incident timeline events.
+- Updated admin incident contracts, repository, PostgreSQL adapter, service, routes, frontend API adapter, hook, `/admin/incidents` page, smoke script, browser e2e and DB migration tests.
+- Fixed process/code issues found during Batch #102:
+  - Playwright option selector was ambiguous between `Assigned only` and `Unassigned only`; fixed with `exact: true`.
+  - Guard expected literal bulk workflow browser coverage; added explicit e2e assertion for `admin-incidents-bulk-workflow`.
+  - Spanish incident copy briefly lost required `exportReady`; restored a single typed translation key and recorded the lesson.
+- Updated production-scale docs, self-hosted incident smoke docs, backend architecture docs, validation docs and project memory for Batch #102.
+- Confirmed Batch #102 validation:
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npx tsc -b --noEmit` passed.
+  - targeted admin incident API tests and `apps/api/src/server.test.ts` passed, 69 tests.
+  - `npm run test:admin-incidents-frontend` passed, 10 tests.
+  - `npm run test:admin-operations-frontend` passed, 10 tests.
+  - `npm run test:db-contract` passed, 25 tests.
+  - `npm run test:db-migrations` passed, 16 tests.
+  - `npm run check:self-hosted-db` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run check:engineering-lessons` passed.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run smoke:e2e:admin-incidents` passed, 2 browser tests.
+  - `npm run smoke:e2e:admin-operations` passed, 2 browser tests.
+  - `npm run ci:core` passed.
+  - `git diff --check` passed.

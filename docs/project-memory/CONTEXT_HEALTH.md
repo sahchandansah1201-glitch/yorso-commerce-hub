@@ -5,13 +5,13 @@
 ## Текущий статус
 
 ```yaml
-context_risk: "medium"
+context_risk: "low"
 last_checkpoint: "2026-05-21"
 last_handoff_ready: true
-recommended_action: "finish Batch #101 validation, commit, PR, GitHub checks and merge; then continue with a larger Batch #102"
+recommended_action: "commit, push, PR, GitHub checks and merge Batch #102; then continue only from repository evidence"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch101-admin-incident-response"
-current_batch: 101
+active_branch: "codex/batch102-incident-workflow"
+current_batch: 102
 ```
 
 ## Уровни риска

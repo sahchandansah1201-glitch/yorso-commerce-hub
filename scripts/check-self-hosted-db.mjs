@@ -31,6 +31,7 @@ const files = [
   "packages/db/migrations/0017_supplier_access_review_queue.sql",
   "packages/db/migrations/0018_admin_access_grants_console.sql",
   "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
+  "packages/db/migrations/0020_admin_incident_workflow.sql",
 ];
 
 const failures = [];
@@ -60,7 +61,8 @@ const adminAuditRetentionRuntimeSql = read("packages/db/migrations/0016_admin_au
 const supplierAccessReviewQueueSql = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
 const adminAccessGrantsConsoleSql = read("packages/db/migrations/0018_admin_access_grants_console.sql");
 const adminIncidentAcknowledgementsSql = read("packages/db/migrations/0019_admin_incident_acknowledgements.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}`;
+const adminIncidentWorkflowSql = read("packages/db/migrations/0020_admin_incident_workflow.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -338,6 +340,20 @@ for (const marker of [
   requireText("packages/db/migrations/0019_admin_incident_acknowledgements.sql", adminIncidentAcknowledgementsSql, marker);
 }
 
+for (const marker of [
+  "alter table yorso_admin_incident_acknowledgements",
+  "assigned_to_user_id uuid references yorso_users(id)",
+  "escalation_level text not null default 'none'",
+  "create table if not exists yorso_admin_incident_events",
+  "event_type text not null check",
+  "idx_yorso_admin_incident_events_incident_time",
+  "idx_yorso_admin_incident_events_actor_time",
+  "idx_yorso_admin_incident_ack_assignee_updated",
+  "10,000 concurrent-user",
+]) {
+  requireText("packages/db/migrations/0020_admin_incident_workflow.sql", adminIncidentWorkflowSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -404,6 +420,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0018_admin_acces
 if (!manifest.migrations?.some((migration) => migration.id === "0019_admin_incident_acknowledgements")) {
   failures.push("packages/db/migration-manifest.json: missing 0019_admin_incident_acknowledgements");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0020_admin_incident_workflow")) {
+  failures.push("packages/db/migration-manifest.json: missing 0020_admin_incident_workflow");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -463,6 +482,9 @@ if (!manifest.migrations?.[18]?.dependsOn?.includes("0017_supplier_access_review
 }
 if (!manifest.migrations?.[19]?.dependsOn?.includes("0018_admin_access_grants_console")) {
   failures.push("packages/db/migration-manifest.json: admin incident acknowledgements must depend on admin access grants console");
+}
+if (!manifest.migrations?.[20]?.dependsOn?.includes("0019_admin_incident_acknowledgements")) {
+  failures.push("packages/db/migration-manifest.json: admin incident workflow must depend on incident acknowledgements");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

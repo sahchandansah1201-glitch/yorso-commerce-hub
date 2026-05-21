@@ -8,12 +8,46 @@ import { buyerSession, type BuyerSession } from "@/lib/buyer-session";
 export type AdminIncidentSeverity = "critical" | "high" | "medium" | "low";
 export type AdminIncidentSource = "runtime" | "audit" | "access" | "security" | "policy";
 export type AdminIncidentStatus = "open" | "acknowledged" | "resolved";
+export type AdminIncidentAssignmentFilter = "assigned" | "unassigned";
+export type AdminIncidentEscalationLevel = "none" | "lead" | "engineering" | "executive";
+export type AdminIncidentExportFormat = "json" | "csv";
+export type AdminIncidentSlaStatus = "ok" | "at_risk" | "breached";
+export type AdminIncidentTimelineEventType =
+  | "created"
+  | "acknowledged"
+  | "assigned"
+  | "commented"
+  | "escalated"
+  | "resolved";
+
+export interface AdminIncidentTimelineEvent {
+  actorUserHash: string | null;
+  assignedToUserHash: string | null;
+  escalationLevel: AdminIncidentEscalationLevel | null;
+  eventId: string;
+  note: string | null;
+  occurredAt: string;
+  status: AdminIncidentStatus | null;
+  type: AdminIncidentTimelineEventType;
+}
+
+export interface AdminIncidentRunbookStep {
+  description: string;
+  label: string;
+  ownerRole: "operator" | "engineering" | "security" | "founder";
+  targetMinutes: number;
+}
 
 export interface AdminIncident {
   acknowledgedAt: string | null;
   acknowledgedByUserHash: string | null;
+  assignedAt: string | null;
+  assignedToUserHash: string | null;
   count: number;
   description: string;
+  dueAt: string;
+  escalatedAt: string | null;
+  escalationLevel: AdminIncidentEscalationLevel;
   evidence: Array<{ label: string; value: string }>;
   firstSeenAt: string;
   id: string;
@@ -22,19 +56,39 @@ export interface AdminIncident {
   recommendedActions: string[];
   relatedAuditIds: string[];
   route: string | null;
+  runbook: AdminIncidentRunbookStep[];
   severity: AdminIncidentSeverity;
+  slaStatus: AdminIncidentSlaStatus;
   source: AdminIncidentSource;
   status: AdminIncidentStatus;
+  timelinePreview: AdminIncidentTimelineEvent[];
   title: string;
 }
 
 export interface AdminIncidentSummary {
   acknowledged: number;
+  access: number;
+  assigned: number;
+  assignmentCoveragePct: number;
+  atRisk: number;
+  audit: number;
+  breachRatePct: number;
+  breached: number;
   critical: number;
+  engineeringEscalations: number;
+  escalated: number;
+  executiveEscalations: number;
   high: number;
+  leadEscalations: number;
   open: number;
+  openCritical: number;
+  oldestOpenMinutes: number;
+  policy: number;
   resolved: number;
+  runtime: number;
+  security: number;
   total: number;
+  unassigned: number;
 }
 
 export interface AdminIncidentListResponse {
@@ -47,11 +101,18 @@ export interface AdminIncidentListResponse {
 }
 
 export interface AdminIncidentQuery {
+  assigned?: AdminIncidentAssignmentFilter | "all";
+  escalationLevel?: AdminIncidentEscalationLevel | "all";
   limit?: number;
   offset?: number;
   severity?: AdminIncidentSeverity | "all";
+  slaStatus?: AdminIncidentSlaStatus | "all";
   source?: AdminIncidentSource | "all";
   status?: AdminIncidentStatus | "all";
+}
+
+export interface AdminIncidentExportQuery extends AdminIncidentQuery {
+  format?: AdminIncidentExportFormat;
 }
 
 export interface AdminIncidentAcknowledgeInput {
@@ -59,8 +120,38 @@ export interface AdminIncidentAcknowledgeInput {
   status?: Extract<AdminIncidentStatus, "acknowledged" | "resolved">;
 }
 
+export interface AdminIncidentWorkflowInput {
+  action: "assign" | "comment" | "escalate" | "resolve";
+  assignedToUserId?: string;
+  escalationLevel?: AdminIncidentEscalationLevel;
+  note?: string;
+}
+
+export interface AdminIncidentBulkWorkflowInput extends AdminIncidentWorkflowInput {
+  incidentIds: string[];
+}
+
 export interface AdminIncidentAcknowledgeResponse {
   incident: AdminIncident;
+  ok: true;
+  requestId: string;
+  timeline: AdminIncidentTimelineEvent[];
+}
+
+export type AdminIncidentWorkflowResponse = AdminIncidentAcknowledgeResponse;
+
+export interface AdminIncidentBulkWorkflowResponse {
+  failed: Array<{ code: "admin_incident_not_found"; incidentId: string }>;
+  incidents: AdminIncident[];
+  ok: true;
+  requestId: string;
+  succeeded: number;
+}
+
+export interface AdminIncidentExportResponse {
+  count: number;
+  generatedAt: string;
+  incidents: AdminIncident[];
   ok: true;
   requestId: string;
 }
@@ -94,11 +185,15 @@ export class AdminIncidentsApiError extends Error {
 
 const normalizeBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/, "") ?? "";
 
-const queryString = (query: AdminIncidentQuery = {}) => {
+const queryString = (query: AdminIncidentExportQuery = {}) => {
   const params = new URLSearchParams();
+  if (query.format) params.set("format", query.format);
   if (query.limit) params.set("limit", String(query.limit));
   if (query.offset) params.set("offset", String(query.offset));
+  if (query.assigned && query.assigned !== "all") params.set("assigned", query.assigned);
+  if (query.escalationLevel && query.escalationLevel !== "all") params.set("escalationLevel", query.escalationLevel);
   if (query.severity && query.severity !== "all") params.set("severity", query.severity);
+  if (query.slaStatus && query.slaStatus !== "all") params.set("slaStatus", query.slaStatus);
   if (query.source && query.source !== "all") params.set("source", query.source);
   if (query.status && query.status !== "all") params.set("status", query.status);
   const serialized = params.toString();
@@ -149,6 +244,28 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertAcknowledgeShape(body);
     },
+    async workflow(incidentId: string, input: AdminIncidentWorkflowInput) {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/workflow`, {
+        body: JSON.stringify(input),
+        headers: headers(true),
+        method: "POST",
+      });
+      const body = await readJson(response) as AdminIncidentWorkflowResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertAcknowledgeShape(body);
+    },
+    async bulkWorkflow(input: AdminIncidentBulkWorkflowInput) {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/workflow/bulk`, {
+        body: JSON.stringify(input),
+        headers: headers(true),
+        method: "POST",
+      });
+      const body = await readJson(response) as AdminIncidentBulkWorkflowResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertBulkWorkflowShape(body);
+    },
     async list(query: AdminIncidentQuery = {}): Promise<AdminIncidentListResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents${queryString(query)}`, {
@@ -158,6 +275,28 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       const body = await readJson(response) as AdminIncidentListResponse & { error?: { code?: string; message?: string } };
       if (!response.ok) throw mapError(body, response.status);
       return assertListShape(body);
+    },
+    async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentExportResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExportShape(body);
+    },
+    async exportCsv(query: AdminIncidentQuery = {}): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "csv" })}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
     },
   };
 }
@@ -198,7 +337,11 @@ function assertListShape(response: AdminIncidentListResponse) {
     typeof response.limit !== "number" ||
     typeof response.offset !== "number" ||
     typeof response.summary?.open !== "number" ||
-    typeof response.summary?.critical !== "number"
+    typeof response.summary?.critical !== "number" ||
+    typeof response.summary?.breached !== "number" ||
+    typeof response.summary?.assignmentCoveragePct !== "number" ||
+    typeof response.summary?.breachRatePct !== "number" ||
+    typeof response.summary?.oldestOpenMinutes !== "number"
   ) {
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
@@ -210,10 +353,41 @@ function assertListShape(response: AdminIncidentListResponse) {
 }
 
 function assertAcknowledgeShape(response: AdminIncidentAcknowledgeResponse) {
-  if (response?.ok !== true || !response.incident?.id || !response.incident?.acknowledgedAt) {
+  if (response?.ok !== true || !response.incident?.id || !Array.isArray(response.timeline)) {
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident acknowledgement response failed the self-hosted contract.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertBulkWorkflowShape(response: AdminIncidentBulkWorkflowResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.incidents) ||
+    !Array.isArray(response.failed) ||
+    typeof response.succeeded !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incidents bulk workflow response was invalid.",
+    );
+  }
+  return response;
+}
+
+function assertExportShape(response: AdminIncidentExportResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.incidents) ||
+    typeof response.count !== "number" ||
+    typeof response.generatedAt !== "string"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incidents export response was invalid.",
       200,
     );
   }

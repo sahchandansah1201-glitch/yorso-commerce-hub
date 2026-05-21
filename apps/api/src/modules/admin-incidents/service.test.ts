@@ -70,6 +70,7 @@ describe("admin incident service", () => {
     expect(response.summary.open).toBeGreaterThanOrEqual(2);
     expect(response.incidents.some((incident) => incident.id.startsWith("audit:admin-blocked"))).toBe(true);
     expect(response.incidents.some((incident) => incident.id.startsWith("audit:5xx"))).toBe(true);
+    expect(response.incidents.every((incident) => incident.runbook.length > 0)).toBe(true);
     expect(JSON.stringify(response)).not.toContain("admin@example.com");
   });
 
@@ -99,6 +100,179 @@ describe("admin incident service", () => {
 
     const resolvedList = await service.listIncidents({ limit: 25, status: "resolved" }, requestId);
     expect(resolvedList.incidents.map((incident) => incident.id)).toContain(incidentId);
+  });
+
+  it("assigns, escalates and comments on incident workflow timeline", async () => {
+    const service = createService([auditEvent({ auditId: "aud_incident_workflow" })]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const incidentId = list.incidents[0].id;
+
+    const assigned = await service.updateIncidentWorkflow(
+      incidentId,
+      {
+        action: "assign",
+        assignedToUserId: "00000000-0000-4000-8000-000000000091",
+        note: "Assigning incident commander.",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(assigned.incident.status).toBe("acknowledged");
+    expect(assigned.incident.assignedToUserHash).toMatch(/^sha256:[a-f0-9]{24}$/);
+    expect(assigned.timeline.some((event) => event.type === "assigned")).toBe(true);
+
+    const escalated = await service.updateIncidentWorkflow(
+      incidentId,
+      { action: "escalate", escalationLevel: "engineering", note: "Needs engineering review." },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(escalated.incident.escalationLevel).toBe("engineering");
+    expect(escalated.timeline.some((event) => event.type === "escalated")).toBe(true);
+
+    const commented = await service.updateIncidentWorkflow(
+      incidentId,
+      { action: "comment", note: "No raw session ids in this note." },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(commented.timeline.some((event) => event.type === "commented")).toBe(true);
+    expect(JSON.stringify(commented)).not.toContain("00000000-0000-4000-8000-000000000091");
+
+    const filtered = await service.listIncidents({
+      assigned: "assigned",
+      escalationLevel: "engineering",
+      limit: 25,
+      slaStatus: commented.incident.slaStatus,
+      status: "acknowledged",
+    }, requestId);
+    expect(filtered.incidents.map((incident) => incident.id)).toContain(incidentId);
+
+    const unassigned = await service.listIncidents({ assigned: "unassigned", limit: 25 }, requestId);
+    expect(unassigned.incidents.map((incident) => incident.id)).not.toContain(incidentId);
+  });
+
+  it("applies bulk workflow actions with bounded partial failures", async () => {
+    const service = createService([
+      auditEvent({ auditId: "aud_incident_bulk_1", route: "/v1/admin/audit-events" }),
+      auditEvent({
+        action: "admin.runtime.status.read",
+        auditId: "aud_incident_bulk_2",
+        occurredAt: "2026-05-20T10:03:00.000Z",
+        route: "/v1/admin/runtime/status",
+      }),
+    ]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const incidentIds = list.incidents.slice(0, 2).map((incident) => incident.id);
+
+    const assigned = await service.bulkUpdateIncidentWorkflow(
+      {
+        action: "assign",
+        assignedToUserId: "00000000-0000-4000-8000-000000000091",
+        incidentIds: [...incidentIds, "audit:missing"],
+        note: "Bulk assignment.",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+
+    expect(assigned.succeeded).toBe(incidentIds.length);
+    expect(assigned.failed).toEqual([{ code: "admin_incident_not_found", incidentId: "audit:missing" }]);
+    expect(assigned.incidents.every((incident) => incident.assignedToUserHash?.startsWith("sha256:"))).toBe(true);
+
+    const escalated = await service.bulkUpdateIncidentWorkflow(
+      {
+        action: "escalate",
+        escalationLevel: "engineering",
+        incidentIds,
+        note: "Bulk escalation.",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(escalated.incidents.every((incident) => incident.escalationLevel === "engineering")).toBe(true);
+
+    const resolved = await service.bulkUpdateIncidentWorkflow(
+      {
+        action: "resolve",
+        incidentIds,
+        note: "Bulk resolution.",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(resolved.incidents.every((incident) => incident.status === "resolved")).toBe(true);
+    expect(JSON.stringify(resolved)).not.toContain("00000000-0000-4000-8000-000000000091");
+  });
+
+  it("computes operator workload summary from derived incidents and durable workflow state", async () => {
+    const service = createService([
+      auditEvent({ auditId: "aud_incident_workload_1", route: "/v1/admin/audit-events" }),
+      auditEvent({
+        action: "admin.runtime.status.read",
+        auditId: "aud_incident_workload_2",
+        occurredAt: "2026-05-20T10:04:00.000Z",
+        route: "/v1/admin/runtime/status",
+        statusCode: 500,
+      }),
+      auditEvent({
+        action: "access.request.blocked",
+        auditId: "aud_incident_workload_3",
+        occurredAt: "2026-05-20T10:05:00.000Z",
+        reason: "rate_limit",
+        resourceType: "supplier_access_request",
+        route: "/v1/access/suppliers/sup-no-001/request",
+        statusCode: 429,
+      }),
+    ]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const [firstIncident, secondIncident] = list.incidents;
+    expect(firstIncident).toBeDefined();
+    expect(secondIncident).toBeDefined();
+
+    await service.updateIncidentWorkflow(
+      firstIncident.id,
+      {
+        action: "assign",
+        assignedToUserId: "00000000-0000-4000-8000-000000000091",
+        note: "Assign workload owner.",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    await service.updateIncidentWorkflow(
+      secondIncident.id,
+      { action: "escalate", escalationLevel: "lead", note: "Lead owns this queue." },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+
+    const summaryList = await service.listIncidents({ limit: 25 }, requestId);
+    expect(summaryList.summary.total).toBeGreaterThanOrEqual(3);
+    expect(summaryList.summary.assigned).toBeGreaterThanOrEqual(1);
+    expect(summaryList.summary.unassigned).toBeGreaterThanOrEqual(1);
+    expect(summaryList.summary.assignmentCoveragePct).toBeGreaterThan(0);
+    expect(summaryList.summary.breachRatePct).toBeGreaterThanOrEqual(0);
+    expect(summaryList.summary.oldestOpenMinutes).toBeGreaterThanOrEqual(0);
+    expect(summaryList.summary.leadEscalations).toBeGreaterThanOrEqual(1);
+    expect(summaryList.summary.audit).toBeGreaterThanOrEqual(1);
+    expect(summaryList.summary.runtime).toBeGreaterThanOrEqual(1);
+  });
+
+  it("exports sanitized JSON and CSV incident handoff data", async () => {
+    const service = createService([auditEvent({ auditId: "aud_incident_export" })]);
+
+    const jsonExport = await service.exportIncidents({ format: "json", limit: 25, status: "open" }, requestId);
+    expect(jsonExport.contentType).toContain("application/json");
+    expect(jsonExport.body).toContain("\"ok\":true");
+    expect(jsonExport.body).toContain("Blocked admin route access");
+    expect(jsonExport.body).not.toContain("admin@example.com");
+
+    const csvExport = await service.exportIncidents({ format: "csv", limit: 25, status: "open" }, requestId);
+    expect(csvExport.contentType).toContain("text/csv");
+    expect(csvExport.body).toContain("\"id\",\"status\",\"severity\"");
+    expect(csvExport.body).toContain("\"open\"");
+    expect(csvExport.body).not.toContain("admin@example.com");
   });
 
   it("returns not-found errors for unknown acknowledgement ids", async () => {

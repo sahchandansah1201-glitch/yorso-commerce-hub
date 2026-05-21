@@ -1,23 +1,40 @@
 import {
   adminIncidentAcknowledgeRequestSchema,
   adminIncidentAcknowledgeResponseSchema,
+  adminIncidentBulkWorkflowRequestSchema,
+  adminIncidentBulkWorkflowResponseSchema,
   adminIncidentDetailResponseSchema,
+  adminIncidentExportQuerySchema,
+  adminIncidentExportResponseSchema,
   adminIncidentListResponseSchema,
   adminIncidentQuerySchema,
+  adminIncidentWorkflowRequestSchema,
+  adminIncidentWorkflowResponseSchema,
   type AdminAuditEvent,
   type AdminIncident,
   type AdminIncidentAcknowledgeResponse,
   type AdminIncidentDetailResponse,
+  type AdminIncidentEscalationLevel,
   type AdminIncidentListResponse,
   type AdminIncidentQuery,
+  type AdminIncidentRunbookStep,
   type AdminIncidentSeverity,
+  type AdminIncidentSlaStatus,
   type AdminIncidentSource,
   type AdminIncidentStatus,
+  type AdminIncidentTimelineEvent,
+  type AdminIncidentTimelineEventType,
+  type AdminIncidentWorkflowRequest,
+  type AdminIncidentWorkflowResponse,
 } from "../../../../../packages/contracts/dist/index.js";
 import { auditHash } from "../../audit.js";
 import type { AdminAuditService } from "../admin-audit/service.js";
 import type { AdminRuntimeService } from "../admin-runtime/service.js";
-import type { AdminIncidentAcknowledgement, AdminIncidentRepository } from "./repository.js";
+import type {
+  AdminIncidentAcknowledgement,
+  AdminIncidentRepository,
+  AdminIncidentWorkflowEvent,
+} from "./repository.js";
 
 export class AdminIncidentError extends Error {
   constructor(
@@ -61,6 +78,7 @@ export class AdminIncidentService {
       incident,
       ok: true,
       requestId,
+      timeline: incident.timelinePreview,
     });
   }
 
@@ -79,12 +97,178 @@ export class AdminIncidentService {
       note: request.note,
       status: request.status,
     });
-    const incident = applyAcknowledgement(current, acknowledgement);
+    await this.repository.appendEvent({
+      actorUserId,
+      incidentId,
+      note: request.note,
+      status: request.status,
+      type: request.status === "resolved" ? "resolved" : "acknowledged",
+    });
+    const incident = await this.rehydrateIncident(current, acknowledgement);
     return adminIncidentAcknowledgeResponseSchema.parse({
       incident,
       ok: true,
       requestId,
+      timeline: incident.timelinePreview,
     });
+  }
+
+  async updateIncidentWorkflow(
+    incidentId: string,
+    payload: unknown,
+    actorUserId: string,
+    requestId: string,
+  ): Promise<AdminIncidentWorkflowResponse> {
+    const request = adminIncidentWorkflowRequestSchema.parse(payload);
+    const current = (await this.deriveIncidents(requestId)).find((item) => item.id === incidentId);
+    if (!current) throw new AdminIncidentError("admin_incident_not_found", "Admin incident was not found.");
+
+    const acknowledgement = await this.applyWorkflowRequest(current, request, actorUserId);
+
+    const incident = acknowledgement
+      ? await this.rehydrateIncident(current, acknowledgement)
+      : (await this.deriveIncidents(requestId)).find((item) => item.id === incidentId);
+    if (!incident) throw new AdminIncidentError("admin_incident_not_found", "Admin incident was not found.");
+
+    return adminIncidentWorkflowResponseSchema.parse({
+      incident,
+      ok: true,
+      requestId,
+      timeline: incident.timelinePreview,
+    });
+  }
+
+  async bulkUpdateIncidentWorkflow(
+    payload: unknown,
+    actorUserId: string,
+    requestId: string,
+  ) {
+    const request = adminIncidentBulkWorkflowRequestSchema.parse(payload);
+    const incidents = await this.deriveIncidents(requestId);
+    const incidentMap = new Map(incidents.map((incident) => [incident.id, incident]));
+    const uniqueIncidentIds = [...new Set(request.incidentIds)];
+    const failed: Array<{ code: "admin_incident_not_found"; incidentId: string }> = [];
+    const succeededIds: string[] = [];
+
+    for (const incidentId of uniqueIncidentIds) {
+      const current = incidentMap.get(incidentId);
+      if (!current) {
+        failed.push({ code: "admin_incident_not_found", incidentId });
+        continue;
+      }
+      await this.applyWorkflowRequest(current, request, actorUserId);
+      succeededIds.push(incidentId);
+    }
+
+    const refreshed = await this.deriveIncidents(requestId);
+    const refreshedMap = new Map(refreshed.map((incident) => [incident.id, incident]));
+    const updatedIncidents = succeededIds
+      .map((incidentId) => refreshedMap.get(incidentId))
+      .filter((incident): incident is AdminIncident => Boolean(incident));
+
+    return adminIncidentBulkWorkflowResponseSchema.parse({
+      failed,
+      incidents: updatedIncidents,
+      ok: true,
+      requestId,
+      succeeded: updatedIncidents.length,
+    });
+  }
+
+  async exportIncidents(payload: unknown, requestId: string) {
+    const query = adminIncidentExportQuerySchema.parse(payload);
+    const incidents = (await this.deriveIncidents(requestId))
+      .filter((incident) => matchesQuery(incident, query))
+      .slice(query.offset, query.offset + query.limit);
+    const json = adminIncidentExportResponseSchema.parse({
+      count: incidents.length,
+      generatedAt: new Date().toISOString(),
+      incidents,
+      ok: true,
+      requestId,
+    });
+    if (query.format === "csv") {
+      return {
+        body: formatIncidentsCsv(incidents),
+        contentType: "text/csv; charset=utf-8",
+        fileName: "yorso-admin-incidents.csv",
+      };
+    }
+    return {
+      body: JSON.stringify(json),
+      contentType: "application/json; charset=utf-8",
+      fileName: "yorso-admin-incidents.json",
+    };
+  }
+
+  private async applyWorkflowRequest(
+    current: AdminIncident,
+    request: AdminIncidentWorkflowRequest,
+    actorUserId: string,
+  ): Promise<AdminIncidentAcknowledgement | null> {
+    if (request.action === "assign") {
+      const acknowledgement = await this.repository.upsertWorkflowState({
+        acknowledgedByUserId: actorUserId,
+        assignedToUserId: request.assignedToUserId,
+        incidentId: current.id,
+        note: request.note,
+        status: current.status === "resolved" ? "resolved" : "acknowledged",
+      });
+      await this.repository.appendEvent({
+        actorUserId,
+        assignedToUserId: request.assignedToUserId,
+        incidentId: current.id,
+        note: request.note,
+        status: acknowledgement.status,
+        type: "assigned",
+      });
+      return acknowledgement;
+    }
+
+    if (request.action === "escalate") {
+      const acknowledgement = await this.repository.upsertWorkflowState({
+        acknowledgedByUserId: actorUserId,
+        escalationLevel: request.escalationLevel,
+        incidentId: current.id,
+        note: request.note,
+        status: current.status === "resolved" ? "resolved" : "acknowledged",
+      });
+      await this.repository.appendEvent({
+        actorUserId,
+        escalationLevel: request.escalationLevel,
+        incidentId: current.id,
+        note: request.note,
+        status: acknowledgement.status,
+        type: "escalated",
+      });
+      return acknowledgement;
+    }
+
+    if (request.action === "resolve") {
+      const acknowledgement = await this.repository.upsertWorkflowState({
+        acknowledgedByUserId: actorUserId,
+        incidentId: current.id,
+        note: request.note,
+        status: "resolved",
+      });
+      await this.repository.appendEvent({
+        actorUserId,
+        incidentId: current.id,
+        note: request.note,
+        status: "resolved",
+        type: "resolved",
+      });
+      return acknowledgement;
+    }
+
+    await this.repository.appendEvent({
+      actorUserId,
+      incidentId: current.id,
+      note: request.note,
+      status: current.status,
+      type: "commented",
+    });
+    return null;
   }
 
   private async deriveIncidents(requestId: string): Promise<AdminIncident[]> {
@@ -96,11 +280,24 @@ export class AdminIncidentService {
       ...diagnosticIncidents(diagnostics.generatedAt, diagnostics.diagnostics.checks),
       ...auditIncidents(auditPage.events),
     ].sort(compareIncidents);
-    const acknowledgements = await this.repository.listAcknowledgements(derived.map((incident) => incident.id));
+    const incidentIds = derived.map((incident) => incident.id);
+    const [acknowledgements, eventMap] = await Promise.all([
+      this.repository.listAcknowledgements(incidentIds),
+      this.repository.listEvents(incidentIds),
+    ]);
     return derived.map((incident) => {
       const acknowledgement = acknowledgements.get(incident.id);
-      return acknowledgement ? applyAcknowledgement(incident, acknowledgement) : incident;
+      const events = eventMap.get(incident.id) ?? [];
+      return applyWorkflow(acknowledgement ? applyAcknowledgement(incident, acknowledgement) : incident, events);
     });
+  }
+
+  private async rehydrateIncident(
+    current: AdminIncident,
+    acknowledgement: AdminIncidentAcknowledgement,
+  ): Promise<AdminIncident> {
+    const events = (await this.repository.listEvents([current.id])).get(current.id) ?? [];
+    return applyWorkflow(applyAcknowledgement(current, acknowledgement), events);
   }
 }
 
@@ -110,7 +307,7 @@ function diagnosticIncidents(
 ): AdminIncident[] {
   return checks
     .filter((check) => check.status !== "pass")
-    .map((check) => ({
+    .map((check) => baseIncident({
       acknowledgedAt: null,
       acknowledgedByUserHash: null,
       count: 1,
@@ -153,7 +350,7 @@ function auditIncidents(events: AdminAuditEvent[]): AdminIncident[] {
     const last = sorted[sorted.length - 1];
     const severity = auditSeverity(last);
     const source = auditSource(last);
-    return {
+    return baseIncident({
       acknowledgedAt: null,
       acknowledgedByUserHash: null,
       count: group.length,
@@ -175,7 +372,7 @@ function auditIncidents(events: AdminAuditEvent[]): AdminIncident[] {
       source,
       status: "open",
       title: auditTitle(last, severity),
-    } satisfies AdminIncident;
+    });
   });
 }
 
@@ -241,32 +438,236 @@ function auditActions(event: AdminAuditEvent) {
   ];
 }
 
+function baseIncident(input: Omit<
+  AdminIncident,
+  | "assignedAt"
+  | "assignedToUserHash"
+  | "dueAt"
+  | "escalatedAt"
+  | "escalationLevel"
+  | "runbook"
+  | "slaStatus"
+  | "timelinePreview"
+>): AdminIncident {
+  const dueAt = incidentDueAt(input.firstSeenAt, input.severity);
+  return {
+    ...input,
+    assignedAt: null,
+    assignedToUserHash: null,
+    dueAt,
+    escalatedAt: null,
+    escalationLevel: "none",
+    runbook: incidentRunbook(input.source, input.severity, input.route),
+    slaStatus: incidentSlaStatus(input.status, dueAt),
+    timelinePreview: [
+      {
+        actorUserHash: null,
+        assignedToUserHash: null,
+        escalationLevel: null,
+        eventId: `${input.id}:created`,
+        note: null,
+        occurredAt: input.firstSeenAt,
+        status: "open",
+        type: "created",
+      },
+    ],
+  };
+}
+
 function applyAcknowledgement(incident: AdminIncident, acknowledgement: AdminIncidentAcknowledgement): AdminIncident {
+  const dueAt = incident.dueAt;
   return {
     ...incident,
     acknowledgedAt: acknowledgement.acknowledgedAt,
     acknowledgedByUserHash: auditHash(acknowledgement.acknowledgedByUserId),
+    assignedAt: acknowledgement.assignedAt,
+    assignedToUserHash: acknowledgement.assignedToUserId ? auditHash(acknowledgement.assignedToUserId) : null,
+    escalatedAt: acknowledgement.escalatedAt,
+    escalationLevel: acknowledgement.escalationLevel,
     note: acknowledgement.note,
+    slaStatus: incidentSlaStatus(acknowledgement.status, dueAt),
     status: acknowledgement.status,
   };
 }
 
+function applyWorkflow(incident: AdminIncident, events: AdminIncidentWorkflowEvent[]): AdminIncident {
+  const timelinePreview = [
+    incident.timelinePreview[0],
+    ...events.map(toTimelineEvent),
+  ]
+    .filter((event): event is AdminIncidentTimelineEvent => Boolean(event))
+    .sort((left, right) => left.occurredAt.localeCompare(right.occurredAt) || left.eventId.localeCompare(right.eventId))
+    .slice(-6);
+
+  return {
+    ...incident,
+    timelinePreview,
+  };
+}
+
+function toTimelineEvent(event: AdminIncidentWorkflowEvent): AdminIncidentTimelineEvent {
+  return {
+    actorUserHash: auditHash(event.actorUserId),
+    assignedToUserHash: event.assignedToUserId ? auditHash(event.assignedToUserId) : null,
+    escalationLevel: event.escalationLevel,
+    eventId: event.eventId,
+    note: event.note,
+    occurredAt: event.occurredAt,
+    status: event.status,
+    type: event.type,
+  };
+}
+
+function incidentDueAt(firstSeenAt: string, severity: AdminIncidentSeverity) {
+  const minutes: Record<AdminIncidentSeverity, number> = {
+    critical: 15,
+    high: 60,
+    low: 24 * 60,
+    medium: 4 * 60,
+  };
+  return new Date(new Date(firstSeenAt).getTime() + minutes[severity] * 60_000).toISOString();
+}
+
+function incidentSlaStatus(status: AdminIncidentStatus, dueAt: string): AdminIncidentSlaStatus {
+  if (status === "resolved") return "ok";
+  const now = Date.now();
+  const due = new Date(dueAt).getTime();
+  if (now >= due) return "breached";
+  const remainingMs = due - now;
+  return remainingMs <= 15 * 60_000 ? "at_risk" : "ok";
+}
+
+function incidentRunbook(
+  source: AdminIncidentSource,
+  severity: AdminIncidentSeverity,
+  route: string | null,
+): AdminIncidentRunbookStep[] {
+  const firstTarget = severity === "critical" ? 5 : severity === "high" ? 15 : 30;
+  const routeHint = route ? `Route: ${route}.` : "No route is attached to this incident.";
+  const steps: AdminIncidentRunbookStep[] = [
+    {
+      description: `Confirm the signal source and operational scope. ${routeHint}`,
+      label: "Confirm scope",
+      ownerRole: "operator",
+      targetMinutes: firstTarget,
+    },
+    {
+      description: "Check recent request, error, audit and metrics telemetry before restarting services.",
+      label: "Inspect telemetry",
+      ownerRole: source === "security" ? "security" : "engineering",
+      targetMinutes: severity === "critical" ? 10 : 30,
+    },
+    {
+      description: "Write a short operator note without emails, session ids, credentials or connection strings.",
+      label: "Record safe note",
+      ownerRole: "operator",
+      targetMinutes: severity === "critical" ? 15 : 45,
+    },
+  ];
+  if (severity === "critical" || source === "policy") {
+    steps.push({
+      description: "Escalate to founder or engineering lead if customer-facing access, policy or data safety is affected.",
+      label: "Escalate owner",
+      ownerRole: source === "policy" ? "founder" : "engineering",
+      targetMinutes: severity === "critical" ? 15 : 60,
+    });
+  }
+  if (source === "access" || source === "security") {
+    steps.push({
+      description: "Verify account role, grant state and repeated blocked attempts before approving or revoking access.",
+      label: "Review access state",
+      ownerRole: "security",
+      targetMinutes: severity === "critical" ? 10 : 30,
+    });
+  }
+  return steps.slice(0, 6);
+}
+
 function matchesQuery(incident: AdminIncident, query: AdminIncidentQuery) {
+  if (query.assigned === "assigned" && !incident.assignedToUserHash) return false;
+  if (query.assigned === "unassigned" && incident.assignedToUserHash) return false;
+  if (query.escalationLevel && incident.escalationLevel !== query.escalationLevel) return false;
   if (query.severity && incident.severity !== query.severity) return false;
+  if (query.slaStatus && incident.slaStatus !== query.slaStatus) return false;
   if (query.source && incident.source !== query.source) return false;
   if (query.status && incident.status !== query.status) return false;
   return true;
 }
 
 function summarizeIncidents(incidents: AdminIncident[]) {
+  const total = incidents.length;
+  const assigned = incidents.filter((incident) => Boolean(incident.assignedToUserHash)).length;
+  const breached = incidents.filter((incident) => incident.slaStatus === "breached").length;
+  const openIncidents = incidents.filter((incident) => incident.status === "open");
+  const now = Date.now();
+  const oldestOpenMinutes = openIncidents.reduce((max, incident) => {
+    const firstSeenAt = Date.parse(incident.firstSeenAt);
+    if (Number.isNaN(firstSeenAt)) return max;
+    return Math.max(max, Math.max(0, Math.floor((now - firstSeenAt) / 60_000)));
+  }, 0);
+  const percent = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+
   return {
     acknowledged: incidents.filter((incident) => incident.status === "acknowledged").length,
+    access: incidents.filter((incident) => incident.source === "access").length,
+    assigned,
+    assignmentCoveragePct: percent(assigned),
+    atRisk: incidents.filter((incident) => incident.slaStatus === "at_risk").length,
+    audit: incidents.filter((incident) => incident.source === "audit").length,
+    breachRatePct: percent(breached),
+    breached,
     critical: incidents.filter((incident) => incident.severity === "critical").length,
+    engineeringEscalations: incidents.filter((incident) => incident.escalationLevel === "engineering").length,
+    escalated: incidents.filter((incident) => incident.escalationLevel !== "none").length,
+    executiveEscalations: incidents.filter((incident) => incident.escalationLevel === "executive").length,
     high: incidents.filter((incident) => incident.severity === "high").length,
+    leadEscalations: incidents.filter((incident) => incident.escalationLevel === "lead").length,
     open: incidents.filter((incident) => incident.status === "open").length,
+    openCritical: openIncidents.filter((incident) => incident.severity === "critical").length,
+    oldestOpenMinutes,
+    policy: incidents.filter((incident) => incident.source === "policy").length,
     resolved: incidents.filter((incident) => incident.status === "resolved").length,
-    total: incidents.length,
+    runtime: incidents.filter((incident) => incident.source === "runtime").length,
+    security: incidents.filter((incident) => incident.source === "security").length,
+    total,
+    unassigned: total - assigned,
   };
+}
+
+function formatIncidentsCsv(incidents: AdminIncident[]) {
+  const header = [
+    "id",
+    "status",
+    "severity",
+    "source",
+    "slaStatus",
+    "escalationLevel",
+    "assignedToUserHash",
+    "count",
+    "route",
+    "title",
+    "dueAt",
+    "lastSeenAt",
+  ];
+  const rows = incidents.map((incident) => [
+    incident.id,
+    incident.status,
+    incident.severity,
+    incident.source,
+    incident.slaStatus,
+    incident.escalationLevel,
+    incident.assignedToUserHash ?? "",
+    String(incident.count),
+    incident.route ?? "",
+    incident.title,
+    incident.dueAt,
+    incident.lastSeenAt,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function csvCell(value: string) {
+  return `"${value.replaceAll("\"", "\"\"")}"`;
 }
 
 const severityRank: Record<AdminIncidentSeverity, number> = {

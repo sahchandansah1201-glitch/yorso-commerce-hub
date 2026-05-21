@@ -26,6 +26,7 @@ const requiredFiles = [
   "packages/db/migrations/0017_supplier_access_review_queue.sql",
   "packages/db/migrations/0018_admin_access_grants_console.sql",
   "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
+  "packages/db/migrations/0020_admin_incident_workflow.sql",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -210,6 +211,7 @@ const adminAuditAccess = read("packages/db/migrations/0014_admin_audit_access.sq
 const adminAuditRetentionQueryHardening = read("packages/db/migrations/0015_admin_audit_retention_query_hardening.sql");
 const adminAuditRetentionRuntime = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
 const supplierAccessReviewQueue = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
+const adminIncidentWorkflowMigration = read("packages/db/migrations/0020_admin_incident_workflow.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -741,6 +743,26 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Batch #102",
+  "admin incident workflow",
+  "/v1/admin/incidents/:incidentId/workflow",
+  "/v1/admin/incidents/workflow/bulk",
+  "/v1/admin/incidents/export",
+  "yorso_admin_incident_events",
+  "admin_incidents_assign=ok",
+  "admin_incidents_escalate=ok",
+  "admin_incidents_comment=ok",
+  "admin_incidents_bulk_workflow=ok",
+  "admin_incidents_workload_summary=ok",
+  "admin_incidents_export_json=ok",
+  "admin_incidents_export_csv=ok",
+  "admin_incidents_workflow_validation_guard=ok",
+  "admin_incidents_bulk_workflow_validation_guard=ok",
+  "10,000 concurrent",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "Batch #101 Admin Incident Response",
   "/v1/admin/incidents",
   "yorso_admin_incident_acknowledgements",
@@ -749,9 +771,29 @@ for (const marker of [
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
 for (const marker of [
+  "Batch #102 Admin Incident Workflow",
+  "/v1/admin/incidents/:incidentId/workflow",
+  "/v1/admin/incidents/workflow/bulk",
+  "/v1/admin/incidents/export",
+  "yorso_admin_incident_events",
+  "no Supabase",
+]) {
+  requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
+}
+for (const marker of [
   "Batch #101 Admin Incident Response Validation",
   "npm run test:admin-incidents-frontend",
   "npm run smoke:self-hosted-admin-incidents",
+]) {
+  requireText("docs/backend/self-hosted-validation.md", validation, marker);
+}
+for (const marker of [
+  "Batch #102 Admin Incident Workflow Validation",
+  "/v1/admin/incidents/:incidentId/workflow",
+  "/v1/admin/incidents/workflow/bulk",
+  "/v1/admin/incidents/export",
+  "0020_admin_incident_workflow.sql",
+  "npm run test:db-migrations",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -1557,6 +1599,10 @@ for (const marker of [
   "adminIncidentSchema",
   "adminIncidentListResponseSchema",
   "adminIncidentAcknowledgeResponseSchema",
+  "adminIncidentWorkflowRequestSchema",
+  "adminIncidentTimelineEventSchema",
+  "adminIncidentAssignmentFilterSchema",
+  "adminIncidentSlaStatusSchema",
 ]) {
   requireText("packages/contracts/src/admin-incidents.ts", adminIncidentsContract, marker);
 }
@@ -1564,21 +1610,30 @@ for (const marker of [
   "AdminIncidentService",
   "runtimeService.getDiagnostics",
   "auditService.listAuditEvents",
+  "updateIncidentWorkflow",
+  "listEvents",
+  "upsertWorkflowState",
+  "query.assigned",
+  "query.escalationLevel",
+  "query.slaStatus",
   "10,000 concurrent users",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/service.ts", adminIncidentsService, marker);
 }
 for (const marker of [
   "/v1/admin/incidents",
+  "/workflow",
   "resolveAuthenticatedAccountSession",
   "admin_role_required",
   "admin.incidents.acknowledge",
+  "admin.incidents.workflow.update",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/routes.ts", adminIncidentsRoutes, marker);
 }
 for (const marker of [
   "createAdminIncidentsApiClient",
   "/v1/admin/incidents",
+  "workflow",
   "ACCOUNT_USER_ID_HEADER",
   "ACCOUNT_SESSION_ID_HEADER",
 ]) {
@@ -1587,6 +1642,10 @@ for (const marker of [
 for (const marker of [
   "loads incidents with filters and self-hosted session headers",
   "acknowledges incidents without leaking session data",
+  "assigned=assigned",
+  "escalationLevel=engineering",
+  "slaStatus=breached",
+  "/workflow",
 ]) {
   requireText("src/lib/admin-incidents-api.test.ts", adminIncidentsApiTest, marker);
 }
@@ -1594,11 +1653,16 @@ for (const marker of [
   "useAdminIncidents",
   "client.list",
   "client.acknowledge",
+  "client.workflow",
+  "assigned",
+  "escalationLevel",
+  "slaStatus",
 ]) {
   requireText("src/lib/use-admin-incidents.ts", useAdminIncidents, marker);
 }
 for (const marker of [
   "loads incidents and supports acknowledge refresh",
+  "workflow",
   "maps 403 responses to forbidden state",
 ]) {
   requireText("src/lib/use-admin-incidents.test.tsx", useAdminIncidentsTest, marker);
@@ -1606,21 +1670,44 @@ for (const marker of [
 for (const marker of [
   "admin-incidents-page",
   "admin-incidents-summary",
+  "admin-incidents-workload-summary",
+  "admin-incidents-escalation-load",
+  "admin-incidents-source-mix",
   "admin-incidents-list",
+  "admin-incidents-assigned-filter",
+  "admin-incidents-escalation-filter",
+  "admin-incidents-sla-filter",
+  "admin-incident-assignee",
+  "admin-incident-escalate",
+  "admin-incident-timeline",
   "AdminOperatorNav",
 ]) {
   requireText("src/pages/admin/AdminIncidents.tsx", adminIncidentsPage, marker);
 }
 for (const marker of [
   "renders incidents and acknowledges from the console",
+  "admin-incident-assign",
+  "admin-incident-escalate",
   "Нужна роль администратора",
 ]) {
   requireText("src/pages/admin/AdminIncidents.test.tsx", adminIncidentsPageTest, marker);
 }
 for (const marker of [
   "Batch #101 browser guard",
+  "Batch #102 browser guard",
   "/admin/incidents",
   "/v1/admin/incidents",
+  "/v1/admin/incidents/export",
+  "/workflow",
+  "/workflow/bulk",
+  "assigned=assigned",
+  "escalationLevel=engineering",
+  "admin-incidents-bulk-workflow",
+  "admin-incidents-workload-summary",
+  "admin-incidents-escalation-load",
+  "admin-incidents-source-mix",
+  "admin-incidents-export-json",
+  "slaStatus=breached",
   "admin-incidents-page",
 ]) {
   requireText("e2e/admin-incidents.spec.ts", adminIncidentsE2E, marker);
@@ -1628,10 +1715,29 @@ for (const marker of [
 for (const marker of [
   "admin_incidents_auth_guard=ok",
   "admin_incidents_acknowledge=ok",
+  "admin_incidents_assign=ok",
+  "admin_incidents_escalate=ok",
+  "admin_incidents_comment=ok",
+  "admin_incidents_bulk_workflow=ok",
+  "admin_incidents_workload_summary=ok",
+  "admin_incidents_export_json=ok",
+  "admin_incidents_export_csv=ok",
+  "admin_incidents_workflow_filters=ok",
+  "admin_incidents_workflow_validation_guard=ok",
+  "admin_incidents_bulk_workflow_validation_guard=ok",
   "admin_incidents_no_secrets=ok",
   "self_hosted_admin_incidents_smoke=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-admin-incidents.mjs", adminIncidentsSmoke, marker);
+}
+for (const marker of [
+  "alter table yorso_admin_incident_acknowledgements",
+  "create table if not exists yorso_admin_incident_events",
+  "idx_yorso_admin_incident_events_incident_time",
+  "idx_yorso_admin_incident_ack_assignee_updated",
+  "10,000 concurrent-user",
+]) {
+  requireText("packages/db/migrations/0020_admin_incident_workflow.sql", adminIncidentWorkflowMigration, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",

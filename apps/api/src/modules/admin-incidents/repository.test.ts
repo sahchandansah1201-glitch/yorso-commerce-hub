@@ -43,8 +43,13 @@ describe("admin incident repository", () => {
             {
               acknowledged_at: new Date("2026-05-20T10:00:00.000Z"),
               acknowledged_by_user_id: "00000000-0000-4000-8000-000000000090",
+              assigned_at: null,
+              assigned_to_user_id: null,
+              escalated_at: null,
+              escalation_level: "none",
               incident_id: "audit:admin-blocked:v1-admin-audit-events",
               note: "Checking incident.",
+              resolved_at: null,
               status: "acknowledged",
               updated_at: new Date("2026-05-20T10:01:00.000Z"),
             },
@@ -78,6 +83,59 @@ describe("admin incident repository", () => {
       "acknowledged",
       "Checking incident.",
       "00000000-0000-4000-8000-000000000090",
+      null,
+      "none",
     ]);
+  });
+
+  it("stores timeline events with parameterized PostgreSQL writes", async () => {
+    const queries: Array<{ sql: string; params: readonly unknown[] | undefined }> = [];
+    const client: AdminIncidentQueryClient = {
+      async query(sql, params) {
+        queries.push({ sql, params });
+        return {
+          rows: [
+            {
+              actor_user_id: "00000000-0000-4000-8000-000000000090",
+              assigned_to_user_id: "00000000-0000-4000-8000-000000000091",
+              escalation_level: null,
+              event_id: "00000000-0000-4000-8000-000000000777",
+              event_type: "assigned",
+              incident_id: "audit:admin-blocked:v1-admin-audit-events",
+              note: "Assigning incident.",
+              occurred_at: new Date("2026-05-20T10:02:00.000Z"),
+              status: "acknowledged",
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresAdminIncidentRepository(
+      { databaseUrl: "postgres://yorso_app:test@localhost:5432/yorso" },
+      { client },
+    );
+
+    await expect(repository.appendEvent({
+      actorUserId: "00000000-0000-4000-8000-000000000090",
+      assignedToUserId: "00000000-0000-4000-8000-000000000091",
+      incidentId: "audit:admin-blocked:v1-admin-audit-events",
+      note: "Assigning incident.",
+      status: "acknowledged",
+      type: "assigned",
+    })).resolves.toMatchObject({ type: "assigned" });
+    await expect(repository.listEvents(["audit:admin-blocked:v1-admin-audit-events"]))
+      .resolves.toBeInstanceOf(Map);
+
+    expect(queries[0].sql).toContain("insert into yorso_admin_incident_events");
+    expect(queries[0].params).toEqual([
+      "audit:admin-blocked:v1-admin-audit-events",
+      "assigned",
+      "00000000-0000-4000-8000-000000000090",
+      "00000000-0000-4000-8000-000000000091",
+      null,
+      "acknowledged",
+      "Assigning incident.",
+    ]);
+    expect(queries[1].sql).toContain("where incident_id = any($1::text[])");
   });
 });

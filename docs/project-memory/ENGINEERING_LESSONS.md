@@ -79,3 +79,47 @@ isolated output directory.
 
 Guard: `check:engineering-lessons` fails on parallel e2e script patterns such
 as `&`, `concurrently`, `npm-run-all --parallel` or `run-p`.
+
+## Batch #102: select option strictness in browser tests
+
+Symptom: the admin incidents e2e test failed in strict mode while selecting
+`Assigned only`.
+
+Root cause: Playwright `getByRole("option", { name: "Assigned only" })` also
+matched `Unassigned only`. The UI copy was correct, but the test selector was
+not precise enough for similar operator-filter labels.
+
+Fix: the e2e selector now uses `exact: true` for the assignment filter option.
+
+Guard: Batch #102 keeps the exact selector in
+`e2e/admin-incidents.spec.ts`, and `check:self-hosted-api` requires the
+assignment-filter e2e markers.
+
+## Batch #102: guard literal must exist in the actual browser spec
+
+Symptom: `check:self-hosted-api` failed after the bulk workflow UI was added.
+
+Root cause: the guard expected the literal `admin-incidents-bulk-workflow`, but
+the e2e test only exercised the flow indirectly. The feature existed in the UI,
+but the guard could not prove the browser spec covered it.
+
+Fix: the e2e spec now explicitly asserts the bulk workflow panel by test id.
+
+Guard: `check:self-hosted-api` and `check:production-scale-baseline` both
+require the bulk workflow, workload summary, escalation load and source mix
+browser identifiers.
+
+## Batch #102: localization edits must preserve required copy keys
+
+Symptom: TypeScript failed after removing a duplicate Spanish `exportReady`
+entry from the incident page copy map.
+
+Root cause: the duplicate-key cleanup removed both Spanish entries instead of
+leaving one required `IncidentsCopy.exportReady` value.
+
+Fix: the Spanish copy now has a single `exportReady` value and the page compiles
+against the full `IncidentsCopy` contract.
+
+Guard: `npx tsc -b --noEmit` is required before publication, and Batch #102
+keeps the incident copy object typed instead of using untyped translation
+records.

@@ -2,9 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AdminIncidentsApiError,
   createAdminIncidentsApiClient,
+  type AdminIncident,
   type AdminIncidentAcknowledgeInput,
+  type AdminIncidentBulkWorkflowInput,
   type AdminIncidentListResponse,
   type AdminIncidentQuery,
+  type AdminIncidentSummary,
+  type AdminIncidentWorkflowInput,
 } from "@/lib/admin-incidents-api";
 import type { BuyerSession } from "@/lib/buyer-session";
 
@@ -30,9 +34,12 @@ export function useAdminIncidents(session: BuyerSession | null, query: AdminInci
   });
 
   const queryKey = JSON.stringify({
+    assigned: query.assigned ?? "all",
+    escalationLevel: query.escalationLevel ?? "all",
     limit: query.limit ?? 25,
     offset: query.offset ?? 0,
     severity: query.severity ?? "all",
+    slaStatus: query.slaStatus ?? "all",
     source: query.source ?? "all",
     status: query.status ?? "open",
   });
@@ -47,32 +54,44 @@ export function useAdminIncidents(session: BuyerSession | null, query: AdminInci
       const result = await client.acknowledge(incidentId, input);
       setState((current) => {
         if (!current.data) return current;
-        return {
-          data: {
-            ...current.data,
-            incidents: current.data.incidents.map((incident) =>
-              incident.id === result.incident.id ? result.incident : incident,
-            ),
-            summary: {
-              ...current.data.summary,
-              acknowledged: input.status === "resolved"
-                ? current.data.summary.acknowledged
-                : current.data.summary.acknowledged + 1,
-              open: Math.max(0, current.data.summary.open - 1),
-              resolved: input.status === "resolved"
-                ? current.data.summary.resolved + 1
-                : current.data.summary.resolved,
-            },
-          },
-          error: null,
-          status: "ready",
-        };
+        return replaceIncidentState(current.data, result.incident);
       });
       return result;
     } finally {
       setMutatingId(null);
     }
   }, [client]);
+
+  const workflow = useCallback(async (incidentId: string, input: AdminIncidentWorkflowInput) => {
+    setMutatingId(incidentId);
+    try {
+      const result = await client.workflow(incidentId, input);
+      setState((current) => {
+        if (!current.data) return current;
+        return replaceIncidentState(current.data, result.incident);
+      });
+      return result;
+    } finally {
+      setMutatingId(null);
+    }
+  }, [client]);
+
+  const bulkWorkflow = useCallback(async (input: AdminIncidentBulkWorkflowInput) => {
+    setMutatingId("bulk");
+    try {
+      const result = await client.bulkWorkflow(input);
+      setState((current) => {
+        if (!current.data) return current;
+        return replaceIncidentStates(current.data, result.incidents);
+      });
+      return result;
+    } finally {
+      setMutatingId(null);
+    }
+  }, [client]);
+
+  const exportJson = useCallback(async () => client.exportJson(query), [client, query]);
+  const exportCsv = useCallback(async () => client.exportCsv(query), [client, query]);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,7 +147,73 @@ export function useAdminIncidents(session: BuyerSession | null, query: AdminInci
   return {
     ...state,
     acknowledge,
+    bulkWorkflow,
+    exportCsv,
+    exportJson,
     mutatingId,
     refresh,
+    workflow,
+  };
+}
+
+function replaceIncidentState(data: AdminIncidentListResponse, replacement: AdminIncident): AdminIncidentsState {
+  return replaceIncidentStates(data, [replacement]);
+}
+
+function replaceIncidentStates(data: AdminIncidentListResponse, replacements: AdminIncident[]): AdminIncidentsState {
+  const replacementMap = new Map(replacements.map((incident) => [incident.id, incident]));
+  const incidents = data.incidents.map((incident) => replacementMap.get(incident.id) ?? incident);
+  return {
+    data: {
+      ...data,
+      incidents,
+      summary: summarizeLocalIncidents(incidents, data.summary),
+    },
+    error: null,
+    status: "ready",
+  };
+}
+
+function summarizeLocalIncidents(
+  incidents: AdminIncident[],
+  previous: AdminIncidentSummary,
+): AdminIncidentSummary {
+  const total = incidents.length;
+  const assigned = incidents.filter((incident) => Boolean(incident.assignedToUserHash)).length;
+  const breached = incidents.filter((incident) => incident.slaStatus === "breached").length;
+  const openIncidents = incidents.filter((incident) => incident.status === "open");
+  const now = Date.now();
+  const oldestOpenMinutes = openIncidents.reduce((max, incident) => {
+    const firstSeenAt = Date.parse(incident.firstSeenAt);
+    if (Number.isNaN(firstSeenAt)) return max;
+    return Math.max(max, Math.max(0, Math.floor((now - firstSeenAt) / 60_000)));
+  }, 0);
+  const percent = (count: number) => total === 0 ? 0 : Math.round((count / total) * 100);
+
+  return {
+    ...previous,
+    acknowledged: incidents.filter((incident) => incident.status === "acknowledged").length,
+    access: incidents.filter((incident) => incident.source === "access").length,
+    assigned,
+    assignmentCoveragePct: percent(assigned),
+    atRisk: incidents.filter((incident) => incident.slaStatus === "at_risk").length,
+    audit: incidents.filter((incident) => incident.source === "audit").length,
+    breachRatePct: percent(breached),
+    breached,
+    critical: incidents.filter((incident) => incident.severity === "critical").length,
+    engineeringEscalations: incidents.filter((incident) => incident.escalationLevel === "engineering").length,
+    escalated: incidents.filter((incident) => incident.escalationLevel !== "none").length,
+    executiveEscalations: incidents.filter((incident) => incident.escalationLevel === "executive").length,
+    high: incidents.filter((incident) => incident.severity === "high").length,
+    leadEscalations: incidents.filter((incident) => incident.escalationLevel === "lead").length,
+    open: openIncidents.length,
+    openCritical: openIncidents.filter((incident) => incident.severity === "critical").length,
+    oldestOpenMinutes,
+    policy: incidents.filter((incident) => incident.source === "policy").length,
+    resolved: incidents.filter((incident) => incident.status === "resolved").length,
+    runtime: incidents.filter((incident) => incident.source === "runtime").length,
+    security: incidents.filter((incident) => incident.source === "security").length,
+    total,
+    unassigned: total - assigned,
   };
 }
