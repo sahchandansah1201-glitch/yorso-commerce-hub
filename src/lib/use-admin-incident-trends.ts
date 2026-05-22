@@ -3,6 +3,9 @@ import {
   AdminIncidentsApiError,
   createAdminIncidentsApiClient,
   type AdminIncidentTrendAnomaliesResponse,
+  type AdminIncidentTrendActionDecisionInput,
+  type AdminIncidentTrendActionDecisionResponse,
+  type AdminIncidentTrendActionsResponse,
   type AdminIncidentTrendBriefingResponse,
   type AdminIncidentTrendQuery,
   type AdminIncidentTrendResponse,
@@ -33,6 +36,11 @@ export function useAdminIncidentTrends(
   }>({ data: null, error: null, status: "idle" });
   const [briefing, setBriefing] = useState<{
     data: AdminIncidentTrendBriefingResponse | null;
+    error: Error | null;
+    status: "idle" | "loading" | "ready" | "error";
+  }>({ data: null, error: null, status: "idle" });
+  const [actions, setActions] = useState<{
+    data: AdminIncidentTrendActionsResponse | null;
     error: Error | null;
     status: "idle" | "loading" | "ready" | "error";
   }>({ data: null, error: null, status: "idle" });
@@ -84,6 +92,53 @@ export function useAdminIncidentTrends(
       throw nextError;
     }
   }, [client, query]);
+
+  const loadActions = useCallback(async () => {
+    setActions((current) => ({ data: current.data, error: null, status: "loading" }));
+    try {
+      const data = await client.trendActions(query);
+      setActions({ data, error: null, status: "ready" });
+      return data;
+    } catch (error) {
+      const nextError = error instanceof Error ? error : new Error(String(error));
+      setActions({ data: null, error: nextError, status: "error" });
+      throw nextError;
+    }
+  }, [client, query]);
+
+  const decideAction = useCallback(async (
+    actionId: string,
+    input: AdminIncidentTrendActionDecisionInput,
+  ): Promise<AdminIncidentTrendActionDecisionResponse> => {
+    const data = await client.decideTrendAction(actionId, input, query);
+    setActions((current) => {
+      if (!current.data) return current;
+      return {
+        data: {
+          ...current.data,
+          actions: current.data.actions.map((action) =>
+            action.actionId === data.action.actionId ? data.action : action,
+          ),
+          summary: {
+            ...current.data.summary,
+            accepted: current.data.actions.filter((action) =>
+              action.actionId === data.action.actionId ? data.action.status === "accepted" : action.status === "accepted"
+            ).length,
+            dismissed: current.data.actions.filter((action) =>
+              action.actionId === data.action.actionId ? data.action.status === "dismissed" : action.status === "dismissed"
+            ).length,
+            proposed: current.data.actions.filter((action) =>
+              action.actionId === data.action.actionId ? data.action.status === "proposed" : action.status === "proposed"
+            ).length,
+          },
+        },
+        error: null,
+        status: "ready",
+      };
+    });
+    refresh();
+    return data;
+  }, [client, query, refresh]);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,9 +195,12 @@ export function useAdminIncidentTrends(
     ...state,
     anomalies,
     briefing,
+    actions,
+    decideAction,
     exportCsv,
     exportJson,
     loadAnomalies,
+    loadActions,
     loadBriefing,
     refresh,
   };

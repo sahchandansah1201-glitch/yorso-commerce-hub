@@ -24,6 +24,9 @@ import {
   adminIncidentQuerySchema,
   adminIncidentRemediationPlanResponseSchema,
   adminIncidentTrendAnomaliesResponseSchema,
+  adminIncidentTrendActionDecisionRequestSchema,
+  adminIncidentTrendActionDecisionResponseSchema,
+  adminIncidentTrendActionsResponseSchema,
   adminIncidentTrendBriefingResponseSchema,
   adminIncidentTrendExportQuerySchema,
   adminIncidentTrendResponseSchema,
@@ -60,6 +63,7 @@ import {
   type AdminIncidentTimelineEventType,
   type AdminIncidentTrendAnomaly,
   type AdminIncidentTrendAnomalySeverity,
+  type AdminIncidentTrendAction,
   type AdminIncidentTrendBriefingResponse,
   type AdminIncidentTrendBucket,
   type AdminIncidentTrendDimension,
@@ -82,12 +86,16 @@ import type {
   AdminIncidentAcknowledgement,
   AdminIncidentExecutionRecord,
   AdminIncidentRepository,
+  AdminIncidentTrendActionDecisionRecord,
   AdminIncidentWorkflowEvent,
 } from "./repository.js";
 
 export class AdminIncidentError extends Error {
   constructor(
-    readonly code: "admin_incident_not_found" | "admin_incident_execution_item_not_found",
+    readonly code:
+      | "admin_incident_not_found"
+      | "admin_incident_execution_item_not_found"
+      | "admin_incident_trend_action_not_found",
     message: string,
   ) {
     super(message);
@@ -542,6 +550,72 @@ export class AdminIncidentService {
     });
   }
 
+  async getIncidentTrendActions(payload: unknown, requestId: string) {
+    const query = adminIncidentTrendExportQuerySchema.parse(payload);
+    const actions = await this.deriveTrendActions(query, requestId);
+    return adminIncidentTrendActionsResponseSchema.parse({
+      actions,
+      generatedAt: new Date().toISOString(),
+      ok: true,
+      requestId,
+      summary: summarizeTrendActions(actions),
+      window: query.window,
+    });
+  }
+
+  async decideIncidentTrendAction(
+    actionId: string,
+    queryPayload: unknown,
+    body: unknown,
+    actorUserId: string,
+    requestId: string,
+  ) {
+    const query = adminIncidentTrendExportQuerySchema.parse(queryPayload);
+    const request = adminIncidentTrendActionDecisionRequestSchema.parse(body);
+    const actions = await this.deriveTrendActions(query, requestId);
+    const action = actions.find((candidate) => candidate.actionId === actionId);
+    if (!action) {
+      throw new AdminIncidentError(
+        "admin_incident_trend_action_not_found",
+        "Admin incident trend action was not found for the current query window.",
+      );
+    }
+
+    const decision = await this.repository.upsertTrendActionDecision({
+      actionId: action.actionId,
+      decidedByUserId: actorUserId,
+      kind: action.kind,
+      loadScore: action.loadScore,
+      note: request.note,
+      ownerRole: action.ownerRole,
+      priority: action.priority,
+      relatedIncidentIds: action.relatedIncidentIds,
+      route: action.route,
+      signal: action.signal,
+      status: request.decision === "accept" ? "accepted" : "dismissed",
+      title: action.title,
+    });
+
+    let timelineEventsCreated = 0;
+    if (request.decision === "accept") {
+      timelineEventsCreated = await this.applyTrendActionToIncidents(action, actorUserId, request.note, requestId);
+    }
+
+    const refreshed = await this.deriveIncidents(requestId);
+    const affectedIncidents = action.relatedIncidentIds
+      .map((incidentId) => refreshed.find((incident) => incident.id === incidentId))
+      .filter((incident): incident is AdminIncident => Boolean(incident));
+
+    return adminIncidentTrendActionDecisionResponseSchema.parse({
+      action: mergeTrendActionDecision(action, decision),
+      affectedIncidents,
+      decision: request.decision,
+      ok: true,
+      requestId,
+      timelineEventsCreated,
+    });
+  }
+
   async bulkUpdateIncidentExecutionQueue(
     payload: unknown,
     actorUserId: string,
@@ -784,6 +858,64 @@ export class AdminIncidentService {
         return execution.items.map((item) => toExecutionQueueItem(incident, item));
       })
       .sort(compareExecutionQueueItems);
+  }
+
+  private async deriveTrendActions(
+    query: AdminIncidentTrendQuery,
+    requestId: string,
+  ): Promise<AdminIncidentTrendAction[]> {
+    const [incidents, trends, anomalies] = await Promise.all([
+      this.deriveIncidents(requestId),
+      this.getIncidentTrends(query, requestId),
+      this.getIncidentTrendAnomalies(query, requestId),
+    ]);
+    const scopedIncidents = selectTrendIncidents(
+      incidents.filter((incident) => matchesTrendQuery(incident, query)),
+      query,
+    );
+    const proposed = buildTrendActions(scopedIncidents, trends, anomalies.anomalies, query);
+    const decisions = await this.repository.listTrendActionDecisions(proposed.map((action) => action.actionId));
+    return proposed
+      .map((action) => mergeTrendActionDecision(action, decisions.get(action.actionId)))
+      .sort(compareTrendActions)
+      .slice(0, 25);
+  }
+
+  private async applyTrendActionToIncidents(
+    action: AdminIncidentTrendAction,
+    actorUserId: string,
+    note: string | undefined,
+    requestId: string,
+  ) {
+    const current = await this.deriveIncidents(requestId);
+    const related = action.relatedIncidentIds
+      .map((incidentId) => current.find((incident) => incident.id === incidentId))
+      .filter((incident): incident is AdminIncident => Boolean(incident));
+    let events = 0;
+
+    for (const incident of related) {
+      const escalationLevel = trendActionEscalationLevel(action);
+      const status = incident.status === "resolved" ? "resolved" : "acknowledged";
+      const decisionNote = trendActionDecisionNote(action, note);
+      const acknowledgement = await this.repository.upsertWorkflowState({
+        acknowledgedByUserId: actorUserId,
+        escalationLevel,
+        incidentId: incident.id,
+        note: decisionNote,
+        status,
+      });
+      await this.repository.appendEvent({
+        actorUserId,
+        escalationLevel,
+        incidentId: incident.id,
+        note: decisionNote,
+        status: acknowledgement.status,
+        type: escalationLevel === "none" ? "commented" : "escalated",
+      });
+      events += 1;
+    }
+
+    return events;
   }
 
   private async rehydrateIncident(
@@ -1559,6 +1691,213 @@ function trendBriefingCapacityReview(trends: AdminIncidentTrendResponse) {
     "The endpoint is admin-session protected and safe for the 10,000 concurrent-user marketplace baseline because it does not scan buyer hot-path tables.",
     `Current average load score is ${trends.summary.averageLoadScore}; peak score is ${trends.summary.peakBucketLoadScore}.`,
   ];
+}
+
+function buildTrendActions(
+  incidents: AdminIncident[],
+  trends: AdminIncidentTrendResponse,
+  anomalies: AdminIncidentTrendAnomaly[],
+  query: AdminIncidentTrendQuery,
+): AdminIncidentTrendAction[] {
+  const actions: AdminIncidentTrendAction[] = [];
+
+  if (trends.sla.breached > 0 || trends.sla.openCritical > 0) {
+    const related = incidents
+      .filter((incident) => incident.slaStatus === "breached" || incident.severity === "critical")
+      .sort(compareIncidents)
+      .slice(0, 10);
+    if (related.length > 0) {
+      actions.push(baseTrendAction({
+        description: "Escalate unresolved critical or breached incidents before accepting new operator work.",
+        evidence: [
+          { label: "breached", value: String(trends.sla.breached) },
+          { label: "openCritical", value: String(trends.sla.openCritical) },
+          { label: "oldestOpenMinutes", value: String(trends.sla.oldestOpenMinutes) },
+        ],
+        kind: "sla_recovery",
+        loadScore: trends.sla.breachRatePct + trends.sla.openCritical * 25,
+        ownerRole: "operator",
+        priority: trends.sla.openCritical > 0 ? "immediate" : "next",
+        recommendedAction: "Acknowledge, assign and escalate critical or breached incidents in the current window.",
+        relatedIncidentIds: related.map((incident) => incident.id),
+        route: null,
+        signal: "SLA recovery",
+        title: "Recover breached incident SLA",
+        window: query.window,
+      }));
+    }
+  }
+
+  if (trends.summary.trendDirection === "up" || trends.summary.averageLoadScore >= 60) {
+    const related = incidents
+      .filter((incident) => incident.status !== "resolved")
+      .sort(compareIncidents)
+      .slice(0, 12);
+    if (related.length > 0) {
+      actions.push(baseTrendAction({
+        description: "Rebalance active incident ownership while trend pressure is rising.",
+        evidence: [
+          { label: "trendDirection", value: trends.summary.trendDirection },
+          { label: "averageLoadScore", value: String(trends.summary.averageLoadScore) },
+          { label: "peakBucket", value: trends.summary.peakBucketKey ?? "none" },
+        ],
+        kind: "capacity_rebalance",
+        loadScore: trends.summary.averageLoadScore,
+        ownerRole: "engineering",
+        priority: trends.summary.averageLoadScore >= 100 ? "immediate" : "next",
+        recommendedAction: "Open workload view, pause low-risk changes and rebalance active owner queues.",
+        relatedIncidentIds: related.map((incident) => incident.id),
+        route: null,
+        signal: "Capacity pressure",
+        title: "Rebalance incident workload",
+        window: query.window,
+      }));
+    }
+  }
+
+  for (const risk of trends.routeRisks.slice(0, 6)) {
+    const related = incidents
+      .filter((incident) => incident.route === risk.route)
+      .sort(compareIncidents)
+      .slice(0, 10);
+    if (related.length === 0) continue;
+    actions.push(baseTrendAction({
+      description: `Review concentrated incident pressure on ${risk.route}.`,
+      evidence: [
+        { label: "route", value: risk.route },
+        { label: "loadScore", value: String(risk.loadScore) },
+        { label: "blocked", value: String(risk.blocked) },
+        { label: "critical", value: String(risk.critical) },
+      ],
+      kind: "route_risk_review",
+      loadScore: risk.loadScore,
+      ownerRole: risk.critical > 0 ? "engineering" : "operator",
+      priority: risk.loadScore >= 120 ? "immediate" : risk.loadScore >= 60 ? "next" : "follow_up",
+      recommendedAction: risk.recommendedAction,
+      relatedIncidentIds: related.map((incident) => incident.id),
+      route: risk.route,
+      signal: "Route risk concentration",
+      title: `Review route risk: ${risk.route}`.slice(0, 160),
+      window: query.window,
+    }));
+  }
+
+  for (const anomaly of anomalies.slice(0, 8)) {
+    const related = relatedIncidentsForAnomaly(incidents, anomaly).slice(0, 10);
+    if (related.length === 0) continue;
+    actions.push(baseTrendAction({
+      description: `Investigate anomaly "${anomaly.signal}" and record bounded operator evidence.`,
+      evidence: anomaly.evidence,
+      kind: "anomaly_follow_up",
+      loadScore: anomaly.current,
+      ownerRole: anomaly.signal.toLowerCase().includes("sla") ? "operator" : "engineering",
+      priority: anomaly.severity === "critical" ? "immediate" : anomaly.severity === "warning" ? "next" : "follow_up",
+      recommendedAction: anomaly.recommendedAction,
+      relatedIncidentIds: related.map((incident) => incident.id),
+      route: anomaly.evidence.find((item) => item.label === "route")?.value ?? null,
+      signal: anomaly.signal,
+      title: `Follow up anomaly: ${anomaly.signal}`.slice(0, 160),
+      window: query.window,
+    }));
+  }
+
+  return dedupeTrendActions(actions).sort(compareTrendActions).slice(0, 25);
+}
+
+function baseTrendAction(input: Omit<AdminIncidentTrendAction, "acceptedAt" | "actionId" | "decidedByUserHash" | "dismissedAt" | "note" | "status"> & {
+  window: AdminIncidentTrendQuery["window"];
+}): AdminIncidentTrendAction {
+  const actionId = trendActionId(input.kind, input.window, input.signal, input.route ?? input.title);
+  const { window: _window, ...action } = input;
+  return {
+    ...action,
+    acceptedAt: null,
+    actionId,
+    decidedByUserHash: null,
+    dismissedAt: null,
+    note: null,
+    status: "proposed",
+  };
+}
+
+function trendActionId(
+  kind: AdminIncidentTrendAction["kind"],
+  window: AdminIncidentTrendQuery["window"],
+  signal: string,
+  scope: string,
+) {
+  return `trend:${kind}:${window}:${safeFileSlug(`${signal}-${scope}`).slice(0, 90)}`;
+}
+
+function dedupeTrendActions(actions: AdminIncidentTrendAction[]) {
+  const output = new Map<string, AdminIncidentTrendAction>();
+  for (const action of actions) {
+    const existing = output.get(action.actionId);
+    if (!existing || action.loadScore > existing.loadScore) {
+      output.set(action.actionId, action);
+    }
+  }
+  return [...output.values()];
+}
+
+function relatedIncidentsForAnomaly(incidents: AdminIncident[], anomaly: AdminIncidentTrendAnomaly) {
+  const route = anomaly.evidence.find((item) => item.label === "route")?.value;
+  if (route) return incidents.filter((incident) => incident.route === route).sort(compareIncidents);
+  if (anomaly.signal.toLowerCase().includes("sla")) {
+    return incidents.filter((incident) => incident.slaStatus === "breached").sort(compareIncidents);
+  }
+  if (anomaly.signal.toLowerCase().includes("critical")) {
+    return incidents.filter((incident) => incident.severity === "critical").sort(compareIncidents);
+  }
+  return incidents.filter((incident) => incident.status !== "resolved").sort(compareIncidents);
+}
+
+function mergeTrendActionDecision(
+  action: AdminIncidentTrendAction,
+  decision: AdminIncidentTrendActionDecisionRecord | undefined,
+): AdminIncidentTrendAction {
+  if (!decision) return action;
+  return {
+    ...action,
+    acceptedAt: decision.acceptedAt,
+    decidedByUserHash: auditHash(decision.decidedByUserId),
+    dismissedAt: decision.dismissedAt,
+    note: decision.note,
+    status: decision.status,
+  };
+}
+
+function summarizeTrendActions(actions: AdminIncidentTrendAction[]) {
+  return {
+    accepted: actions.filter((action) => action.status === "accepted").length,
+    dismissed: actions.filter((action) => action.status === "dismissed").length,
+    immediate: actions.filter((action) => action.priority === "immediate").length,
+    proposed: actions.filter((action) => action.status === "proposed").length,
+    relatedIncidents: new Set(actions.flatMap((action) => action.relatedIncidentIds)).size,
+    total: actions.length,
+  };
+}
+
+function compareTrendActions(left: AdminIncidentTrendAction, right: AdminIncidentTrendAction) {
+  return trendActionStatusRank[left.status] - trendActionStatusRank[right.status] ||
+    executionPriorityRank[left.priority] - executionPriorityRank[right.priority] ||
+    right.loadScore - left.loadScore ||
+    left.actionId.localeCompare(right.actionId);
+}
+
+function trendActionEscalationLevel(action: AdminIncidentTrendAction): AdminIncidentEscalationLevel {
+  if (action.priority === "immediate") return action.ownerRole === "founder" ? "executive" : "engineering";
+  if (action.priority === "next") return "lead";
+  return "none";
+}
+
+function trendActionDecisionNote(action: AdminIncidentTrendAction, note: string | undefined) {
+  return [
+    `Trend action accepted: ${action.title}`,
+    `signal ${action.signal}`,
+    action.route ? `route ${action.route}` : null,
+    note ? `note ${note}` : null,
+  ].filter(Boolean).join(". ").slice(0, 500);
 }
 
 function workloadScore(items: AdminIncidentExecutionQueueItem[]) {
@@ -2676,6 +3015,12 @@ const executionPriorityRank: Record<AdminIncidentExecutionQueueItem["priority"],
   immediate: 0,
   next: 1,
   follow_up: 2,
+};
+
+const trendActionStatusRank: Record<AdminIncidentTrendAction["status"], number> = {
+  proposed: 0,
+  accepted: 1,
+  dismissed: 2,
 };
 
 const severityRank: Record<AdminIncidentSeverity, number> = {

@@ -1382,3 +1382,40 @@ Required runtime smoke markers:
 - `admin_incidents_trends_anomalies=ok`;
 - `admin_incidents_trends_briefing=ok`;
 - `smoke:e2e:admin-incident-trends`.
+
+## Batch #108 Admin Incident Trend Actions Validation
+
+Run:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run test:api
+npm run test:backend-contract
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-trends
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/incident-trends` renders the trend action panel.
+- The action panel loads `/v1/admin/incidents/trends/actions`.
+- Accept decisions call
+  `/v1/admin/incidents/trends/actions/:actionId/decision` and update action
+  state to `accepted`.
+- Dismiss decisions store durable decision state without creating timeline
+  events.
+- Unsafe notes are rejected by the existing note hygiene guard.
+- Sensitive values such as raw emails, raw UUIDs, session ids, tokens,
+  database URLs and Redis URLs stay out of API responses and browser DOM.
+- Migration `0024_admin_incident_trend_actions` exists and is guarded.
+
+Required runtime smoke markers:
+
+- `admin_incidents_trend_actions=ok`;
+- `admin_incidents_trend_action_accept=ok`;
+- `admin_incidents_trend_action_dismiss=ok`;
+- `admin_incidents_trend_action_validation_guard=ok`;
+- `smoke:e2e:admin-incident-trends`.

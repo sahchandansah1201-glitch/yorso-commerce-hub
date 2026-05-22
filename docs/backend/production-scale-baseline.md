@@ -1616,6 +1616,83 @@ Marker: admin_incidents_trends_briefing=ok.
 Marker: 0023_admin_incident_trend_analytics.
 Marker: 10,000 concurrent.
 
+## Batch #108 Admin Incident Trend Actions
+
+Batch #108 extends trend analytics with a bounded operator action loop.
+Trend buckets, route risk and anomalies remain read models; trend actions are
+derived proposals that require an explicit admin decision before durable state
+changes.
+
+Expected read/write profile:
+
+- `GET /v1/admin/incidents/trends/actions` is an admin control-plane read.
+- `POST /v1/admin/incidents/trends/actions/:actionId/decision` is an explicit
+  admin write.
+- Accepted decisions write one durable trend action row and update a bounded
+  set of related incident workflow records.
+- Dismissed decisions write one durable trend action row and do not mutate
+  incident workflow.
+
+Cache, queue and backpressure strategy:
+
+- No polling is introduced.
+- Action reads are bounded by trend query `window`, `granularity` and `limit`.
+- Action count is capped at 25.
+- Related incident IDs are capped at 25.
+- Existing request guardrails, admin auth, audit, error and metrics pipelines
+  apply to both action endpoints.
+
+Database indexing and pagination strategy:
+
+- Migration `0024_admin_incident_trend_actions` stores durable decisions in
+  `yorso_admin_incident_trend_actions`.
+- `idx_yorso_admin_trend_actions_status_updated` supports recent decision
+  review.
+- `idx_yorso_admin_trend_actions_kind_priority` supports action queue slicing.
+- `idx_yorso_admin_trend_actions_route` supports route-risk decisions.
+- `idx_yorso_admin_trend_actions_related_gin` supports incident drill-down.
+
+Failure mode and graceful degradation:
+
+- If action derivation fails, trend analytics still remains usable.
+- If a decision write fails, UI keeps the proposal state and exposes retry.
+- Decision notes use the existing hygiene guard and must not contain raw
+  emails, UUIDs, session IDs, tokens or secrets.
+- Dismiss decisions are safe no-op workflow changes.
+
+Observability and load-test plan:
+
+- Route actions are audited as `admin.incidents.trends.actions.read` and
+  `admin.incidents.trends.actions.decision`.
+- Load test should simulate 50 concurrent admin action reads and 20 concurrent
+  accept/dismiss decisions while public catalog and supplier directory traffic
+  stays at the 10,000 concurrent-user baseline.
+- Verify p95 action read latency, decision write contention, timeline event
+  creation and no regression on marketplace hot-path endpoints.
+
+Validation:
+
+- `test:admin-incidents-frontend`;
+- `test:api`;
+- `test:backend-contract`;
+- `check:self-hosted-db`;
+- `check:self-hosted-api`;
+- `smoke:self-hosted-admin-incidents`;
+- `smoke:e2e:admin-incident-trends`.
+
+Marker: Batch #108.
+Marker: admin incident trend actions.
+Marker: trend action loop.
+Marker: /v1/admin/incidents/trends/actions.
+Marker: /v1/admin/incidents/trends/actions/:actionId/decision.
+Marker: admin-incident-trends-actions.
+Marker: admin_incidents_trend_actions=ok.
+Marker: admin_incidents_trend_action_accept=ok.
+Marker: admin_incidents_trend_action_dismiss=ok.
+Marker: admin_incidents_trend_action_validation_guard=ok.
+Marker: 0024_admin_incident_trend_actions.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

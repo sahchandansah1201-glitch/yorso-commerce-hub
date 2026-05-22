@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AlertTriangle, AreaChart, Download, FileText, Filter, RefreshCw, Siren, TrendingUp } from "lucide-react";
+import { AlertTriangle, AreaChart, CheckCircle2, Download, FileText, Filter, RefreshCw, Siren, TrendingUp, XCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { AdminOperatorNav } from "@/components/admin/AdminOperatorNav";
@@ -15,6 +15,7 @@ import type { Language } from "@/i18n/translations";
 import type {
   AdminIncidentSource,
   AdminIncidentTrendAnomaly,
+  AdminIncidentTrendAction,
   AdminIncidentTrendBriefingResponse,
   AdminIncidentTrendBucket,
   AdminIncidentTrendDimension,
@@ -34,6 +35,11 @@ type TrendCopy = {
   allStatuses: string;
   anomalies: string;
   anomalyLoad: string;
+  actions: string;
+  actionsAccepted: string;
+  actionsDismissed: string;
+  actionsLoad: string;
+  actionsReady: string;
   briefing: string;
   briefingLoad: string;
   briefingReady: string;
@@ -52,6 +58,7 @@ type TrendCopy = {
   includeResolved: string;
   loading: string;
   noAnomalies: string;
+  noActions: string;
   noBuckets: string;
   routeRisks: string;
   sessionBody: string;
@@ -78,6 +85,11 @@ const COPY: Record<Language, TrendCopy> = {
     allStatuses: "All statuses",
     anomalies: "Trend anomalies",
     anomalyLoad: "Load anomalies",
+    actions: "Trend action loop",
+    actionsAccepted: "Accepted",
+    actionsDismissed: "Dismissed",
+    actionsLoad: "Load actions",
+    actionsReady: "Action updated",
     briefing: "Operator briefing",
     briefingLoad: "Generate briefing",
     briefingReady: "Briefing ready",
@@ -96,6 +108,7 @@ const COPY: Record<Language, TrendCopy> = {
     includeResolved: "Include resolved",
     loading: "Loading incident trends...",
     noAnomalies: "No anomalies for this trend window.",
+    noActions: "No trend actions for this window.",
     noBuckets: "No buckets were returned for this trend window.",
     routeRisks: "Route risk register",
     sessionBody: "Sign in through the self-hosted auth flow before opening incident trends.",
@@ -120,6 +133,11 @@ const COPY: Record<Language, TrendCopy> = {
     allStatuses: "Все статусы",
     anomalies: "Аномалии тренда",
     anomalyLoad: "Загрузить аномалии",
+    actions: "Trend action loop",
+    actionsAccepted: "Принято",
+    actionsDismissed: "Отклонено",
+    actionsLoad: "Загрузить actions",
+    actionsReady: "Action обновлен",
     briefing: "Operator briefing",
     briefingLoad: "Сформировать briefing",
     briefingReady: "Briefing готов",
@@ -138,6 +156,7 @@ const COPY: Record<Language, TrendCopy> = {
     includeResolved: "Включить resolved",
     loading: "Загружаем incident trends...",
     noAnomalies: "В этом окне аномалий нет.",
+    noActions: "В этом окне trend actions нет.",
     noBuckets: "Для этого окна buckets не вернулись.",
     routeRisks: "Route risk register",
     sessionBody: "Войдите через self-hosted auth flow, чтобы открыть incident trends.",
@@ -162,6 +181,11 @@ const COPY: Record<Language, TrendCopy> = {
     allStatuses: "Todos los estados",
     anomalies: "Anomalías de tendencia",
     anomalyLoad: "Cargar anomalías",
+    actions: "Trend action loop",
+    actionsAccepted: "Aceptada",
+    actionsDismissed: "Descartada",
+    actionsLoad: "Cargar actions",
+    actionsReady: "Action actualizada",
     briefing: "Operator briefing",
     briefingLoad: "Generar briefing",
     briefingReady: "Briefing listo",
@@ -180,6 +204,7 @@ const COPY: Record<Language, TrendCopy> = {
     includeResolved: "Incluir resolved",
     loading: "Cargando incident trends...",
     noAnomalies: "No hay anomalías para esta ventana.",
+    noActions: "No hay trend actions para esta ventana.",
     noBuckets: "No hay buckets para esta ventana.",
     routeRisks: "Route risk register",
     sessionBody: "Inicia sesión con self-hosted auth antes de abrir incident trends.",
@@ -349,6 +374,20 @@ export default function AdminIncidentTrends() {
               data={trends.briefing.data}
               onLoad={() => void trends.loadBriefing()}
               status={trends.briefing.status}
+            />
+            <TrendActionsPanel
+              actions={trends.actions.data?.actions ?? []}
+              copy={copy}
+              onAccept={(action) => void trends.decideAction(action.actionId, {
+                decision: "accept",
+                note: `Accepted from trend action loop: ${action.signal}`,
+              })}
+              onDismiss={(action) => void trends.decideAction(action.actionId, {
+                decision: "dismiss",
+                note: `Dismissed from trend action loop: ${action.signal}`,
+              })}
+              onLoad={() => void trends.loadActions()}
+              status={trends.actions.status}
             />
           </aside>
         </section>
@@ -657,6 +696,65 @@ function BriefingPanel({ copy, data, onLoad, status }: {
             </ul>
           </>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function TrendActionsPanel({ actions, copy, onAccept, onDismiss, onLoad, status }: {
+  actions: AdminIncidentTrendAction[];
+  copy: TrendCopy;
+  onAccept: (action: AdminIncidentTrendAction) => void;
+  onDismiss: (action: AdminIncidentTrendAction) => void;
+  onLoad: () => void;
+  status: "idle" | "loading" | "ready" | "error";
+}) {
+  return (
+    <Card data-testid="admin-incident-trends-actions">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+          {copy.actions}
+        </CardTitle>
+        <Button data-testid="admin-incident-trends-actions-load" onClick={onLoad} size="sm" variant="outline">
+          {copy.actionsLoad}
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {status === "loading" && <p className="text-sm text-muted-foreground">{copy.loading}</p>}
+        {status === "ready" && actions.length === 0 && <p className="text-sm text-muted-foreground">{copy.noActions}</p>}
+        {actions.map((action) => (
+          <article className="rounded-2xl border bg-background p-3" data-testid={`admin-incident-trend-action-${action.actionId}`} key={action.actionId}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-slate-950">{action.title}</div>
+                <p className="mt-1 text-xs text-muted-foreground">{action.recommendedAction}</p>
+              </div>
+              <Badge variant={action.priority === "immediate" ? "destructive" : "outline"}>{action.priority}</Badge>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+              <Metric label="Load" value={action.loadScore} />
+              <Metric label="Incidents" value={action.relatedIncidentIds.length} />
+              <Metric label="Owner" value={action.ownerRole} />
+            </div>
+            {action.status !== "proposed" ? (
+              <p className="mt-3 rounded-xl bg-muted/50 px-3 py-2 text-xs font-semibold text-muted-foreground">
+                {action.status === "accepted" ? copy.actionsAccepted : copy.actionsDismissed}
+              </p>
+            ) : (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Button data-testid={`admin-incident-trend-action-accept-${action.actionId}`} onClick={() => onAccept(action)} size="sm">
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  {copy.actionsAccepted}
+                </Button>
+                <Button data-testid={`admin-incident-trend-action-dismiss-${action.actionId}`} onClick={() => onDismiss(action)} size="sm" variant="outline">
+                  <XCircle className="mr-2 h-4 w-4" />
+                  {copy.actionsDismissed}
+                </Button>
+              </div>
+            )}
+          </article>
+        ))}
       </CardContent>
     </Card>
   );

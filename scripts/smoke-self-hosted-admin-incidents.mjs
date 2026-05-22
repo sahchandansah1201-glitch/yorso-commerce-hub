@@ -467,6 +467,75 @@ async function runSmoke(baseUrl) {
   assertNotContains(JSON.stringify(trendBriefing), "admin@example.com", "admin incident trend briefing no email");
   console.log("admin_incidents_trends_briefing=ok");
 
+  const trendActions = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends/actions?window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  assertEqual(trendActions.ok, true, "admin incident trend actions ok");
+  assertArray(trendActions.actions, "admin incident trend actions rows");
+  assertNumberAtLeast(trendActions.summary.total, 2, "admin incident trend actions total");
+  assertNumberAtLeast(trendActions.summary.relatedIncidents, 1, "admin incident trend actions related incidents");
+  assertNotContains(JSON.stringify(trendActions), "admin@example.com", "admin incident trend actions no email");
+  const firstTrendAction = trendActions.actions[0];
+  assertTruthy(firstTrendAction?.actionId, "admin incident trend first action id");
+  assertTruthy(firstTrendAction?.relatedIncidentIds?.[0], "admin incident trend first action incident");
+  console.log("admin_incidents_trend_actions=ok");
+
+  const acceptedTrendAction = await postJson(
+    baseUrl,
+    `/v1/admin/incidents/trends/actions/${encodeURIComponent(firstTrendAction.actionId)}/decision?window=7d&granularity=day&limit=30`,
+    adminHeaders,
+    {
+      decision: "accept",
+      note: "Accepting bounded trend action for smoke.",
+    },
+  );
+  assertEqual(acceptedTrendAction.ok, true, "admin incident trend action accept ok");
+  assertEqual(acceptedTrendAction.action.status, "accepted", "admin incident trend action accepted status");
+  assertContains(acceptedTrendAction.action.decidedByUserHash, "sha256:", "admin incident trend action decided hash");
+  assertNumberAtLeast(acceptedTrendAction.timelineEventsCreated, 1, "admin incident trend action timeline events");
+  assertNumberAtLeast(acceptedTrendAction.affectedIncidents.length, 1, "admin incident trend action affected incidents");
+  assertNotContains(JSON.stringify(acceptedTrendAction), "admin@example.com", "admin incident trend action accept no email");
+  console.log("admin_incidents_trend_action_accept=ok");
+
+  const refreshedTrendActions = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends/actions?window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  const acceptedTrendActionRow = refreshedTrendActions.actions.find((action) => action.actionId === firstTrendAction.actionId);
+  assertEqual(acceptedTrendActionRow?.status, "accepted", "admin incident trend action persists accepted status");
+  const dismissTrendAction = refreshedTrendActions.actions.find((action) =>
+    action.status === "proposed" && action.actionId !== firstTrendAction.actionId
+  );
+  assertTruthy(dismissTrendAction, "admin incident trend dismiss candidate");
+  const dismissedTrendAction = await postJson(
+    baseUrl,
+    `/v1/admin/incidents/trends/actions/${encodeURIComponent(dismissTrendAction.actionId)}/decision?window=7d&granularity=day&limit=30`,
+    adminHeaders,
+    {
+      decision: "dismiss",
+      note: "Dismissed as duplicate operator signal.",
+    },
+  );
+  assertEqual(dismissedTrendAction.ok, true, "admin incident trend action dismiss ok");
+  assertEqual(dismissedTrendAction.action.status, "dismissed", "admin incident trend action dismissed status");
+  assertEqual(dismissedTrendAction.timelineEventsCreated, 0, "admin incident trend dismiss no timeline events");
+  assertNotContains(JSON.stringify(dismissedTrendAction), "admin@example.com", "admin incident trend action dismiss no email");
+  console.log("admin_incidents_trend_action_dismiss=ok");
+
+  const invalidTrendActionDecision = await fetch(
+    `${baseUrl}/v1/admin/incidents/trends/actions/${encodeURIComponent(firstTrendAction.actionId)}/decision?window=7d&granularity=day&limit=30`,
+    {
+      body: JSON.stringify({ decision: "approve", note: "Invalid decision branch." }),
+      headers: adminHeaders,
+      method: "POST",
+    },
+  );
+  assertStatus(invalidTrendActionDecision, 400, "admin incident trend action validation guard");
+  console.log("admin_incidents_trend_action_validation_guard=ok");
+
   const unsafeQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
     body: JSON.stringify({
       evidenceNote: "Email admin@example.com",

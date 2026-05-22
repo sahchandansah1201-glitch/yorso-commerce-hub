@@ -4,6 +4,10 @@ import type {
   AdminIncidentEscalationLevel,
   AdminIncidentStatus,
   AdminIncidentTimelineEventType,
+  AdminIncidentTrendActionDecision,
+  AdminIncidentTrendActionKind,
+  AdminIncidentExecutionOwnerRole,
+  AdminIncidentExecutionPriority,
 } from "../../../../../packages/contracts/dist/index.js";
 
 export interface AdminIncidentAcknowledgement {
@@ -80,6 +84,39 @@ export interface AdminIncidentExecutionRecordInput {
   updatedByUserId: string;
 }
 
+export interface AdminIncidentTrendActionDecisionRecord {
+  acceptedAt: string | null;
+  actionId: string;
+  decidedByUserId: string;
+  dismissedAt: string | null;
+  kind: AdminIncidentTrendActionKind;
+  loadScore: number;
+  note: string | null;
+  ownerRole: AdminIncidentExecutionOwnerRole;
+  priority: AdminIncidentExecutionPriority;
+  relatedIncidentIds: string[];
+  route: string | null;
+  signal: string;
+  status: Extract<AdminIncidentTrendActionDecision, "accepted" | "dismissed">;
+  title: string;
+  updatedAt: string;
+}
+
+export interface AdminIncidentTrendActionDecisionInput {
+  actionId: string;
+  decidedByUserId: string;
+  kind: AdminIncidentTrendActionKind;
+  loadScore: number;
+  note?: string | null;
+  ownerRole: AdminIncidentExecutionOwnerRole;
+  priority: AdminIncidentExecutionPriority;
+  relatedIncidentIds: string[];
+  route?: string | null;
+  signal: string;
+  status: Extract<AdminIncidentTrendActionDecision, "accepted" | "dismissed">;
+  title: string;
+}
+
 export interface AdminIncidentRepository {
   appendEvent(input: AdminIncidentWorkflowEventInput): Promise<AdminIncidentWorkflowEvent>;
   getAcknowledgement(incidentId: string): Promise<AdminIncidentAcknowledgement | null>;
@@ -87,6 +124,8 @@ export interface AdminIncidentRepository {
   listAcknowledgements(incidentIds: string[]): Promise<Map<string, AdminIncidentAcknowledgement>>;
   listExecutionRecords(incidentIds: string[]): Promise<Map<string, AdminIncidentExecutionRecord[]>>;
   listEvents(incidentIds: string[]): Promise<Map<string, AdminIncidentWorkflowEvent[]>>;
+  listTrendActionDecisions(actionIds: string[]): Promise<Map<string, AdminIncidentTrendActionDecisionRecord>>;
+  upsertTrendActionDecision(input: AdminIncidentTrendActionDecisionInput): Promise<AdminIncidentTrendActionDecisionRecord>;
   upsertExecutionRecord(input: AdminIncidentExecutionRecordInput): Promise<AdminIncidentExecutionRecord>;
   upsertAcknowledgement(input: AdminIncidentAcknowledgementInput): Promise<AdminIncidentAcknowledgement>;
   upsertWorkflowState(input: AdminIncidentWorkflowStateInput): Promise<AdminIncidentAcknowledgement>;
@@ -96,6 +135,7 @@ export class MemoryAdminIncidentRepository implements AdminIncidentRepository {
   private readonly records = new Map<string, AdminIncidentAcknowledgement>();
   private readonly events = new Map<string, AdminIncidentWorkflowEvent[]>();
   private readonly executionItems = new Map<string, AdminIncidentExecutionRecord>();
+  private readonly trendActions = new Map<string, AdminIncidentTrendActionDecisionRecord>();
 
   async appendEvent(input: AdminIncidentWorkflowEventInput) {
     const event: AdminIncidentWorkflowEvent = {
@@ -155,6 +195,39 @@ export class MemoryAdminIncidentRepository implements AdminIncidentRepository {
       records.sort((a, b) => a.itemId.localeCompare(b.itemId));
     }
     return output;
+  }
+
+  async listTrendActionDecisions(actionIds: string[]) {
+    const output = new Map<string, AdminIncidentTrendActionDecisionRecord>();
+    for (const id of actionIds) {
+      const record = this.trendActions.get(id);
+      if (record) output.set(id, cloneTrendDecision(record));
+    }
+    return output;
+  }
+
+  async upsertTrendActionDecision(input: AdminIncidentTrendActionDecisionInput) {
+    const now = new Date().toISOString();
+    const existing = this.trendActions.get(input.actionId);
+    const record: AdminIncidentTrendActionDecisionRecord = {
+      acceptedAt: input.status === "accepted" ? existing?.acceptedAt ?? now : existing?.acceptedAt ?? null,
+      actionId: input.actionId,
+      decidedByUserId: input.decidedByUserId,
+      dismissedAt: input.status === "dismissed" ? existing?.dismissedAt ?? now : null,
+      kind: input.kind,
+      loadScore: input.loadScore,
+      note: input.note?.trim() || existing?.note || null,
+      ownerRole: input.ownerRole,
+      priority: input.priority,
+      relatedIncidentIds: [...input.relatedIncidentIds],
+      route: input.route ?? null,
+      signal: input.signal,
+      status: input.status,
+      title: input.title,
+      updatedAt: now,
+    };
+    this.trendActions.set(record.actionId, record);
+    return cloneTrendDecision(record);
   }
 
   async upsertExecutionRecord(input: AdminIncidentExecutionRecordInput) {
@@ -218,3 +291,10 @@ export class MemoryAdminIncidentRepository implements AdminIncidentRepository {
 }
 
 const executionKey = (incidentId: string, itemId: string) => `${incidentId}\u0000${itemId}`;
+
+function cloneTrendDecision(record: AdminIncidentTrendActionDecisionRecord): AdminIncidentTrendActionDecisionRecord {
+  return {
+    ...record,
+    relatedIncidentIds: [...record.relatedIncidentIds],
+  };
+}

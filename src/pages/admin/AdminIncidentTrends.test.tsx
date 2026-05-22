@@ -107,6 +107,51 @@ const briefingPayload = () => ({
   window: "7d",
 });
 
+const actionsPayload = (status: "proposed" | "accepted" | "dismissed" = "proposed") => ({
+  actions: [
+    {
+      acceptedAt: status === "accepted" ? "2026-05-22T10:09:00.000Z" : null,
+      actionId: "trend:route_risk_review:7d:v1-admin-audit-events",
+      decidedByUserHash: status === "proposed" ? null : "sha256:111111111111111111111111",
+      description: "Review concentrated admin audit route pressure.",
+      dismissedAt: status === "dismissed" ? "2026-05-22T10:09:00.000Z" : null,
+      evidence: [{ label: "route", value: "/v1/admin/audit-events" }],
+      kind: "route_risk_review",
+      loadScore: 144,
+      note: null,
+      ownerRole: "engineering",
+      priority: "immediate",
+      recommendedAction: "Assign owner and inspect blocked admin route.",
+      relatedIncidentIds: ["audit:admin-blocked:/v1/admin/audit-events"],
+      route: "/v1/admin/audit-events",
+      signal: "Route risk concentration",
+      status,
+      title: "Review route risk: /v1/admin/audit-events",
+    },
+  ],
+  generatedAt: "2026-05-22T10:08:00.000Z",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000914",
+  summary: {
+    accepted: status === "accepted" ? 1 : 0,
+    dismissed: status === "dismissed" ? 1 : 0,
+    immediate: 1,
+    proposed: status === "proposed" ? 1 : 0,
+    relatedIncidents: 1,
+    total: 1,
+  },
+  window: "7d",
+});
+
+const actionDecisionPayload = () => ({
+  action: actionsPayload("accepted").actions[0],
+  affectedIncidents: [],
+  decision: "accept",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000915",
+  timelineEventsCreated: 1,
+});
+
 const renderPage = () =>
   render(
     <MemoryRouter initialEntries={["/admin/incident-trends"]}>
@@ -161,7 +206,7 @@ describe("AdminIncidentTrends page", () => {
     expect(screen.getByText("Self-hosted session required")).toBeInTheDocument();
   });
 
-  it("renders trends, exports, anomalies and briefing without raw session data", async () => {
+  it("renders trends, exports, anomalies, briefing and trend actions without raw session data", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
     signInAdmin();
     const fetchImpl = vi.fn<typeof fetch>(async (input) => {
@@ -179,6 +224,12 @@ describe("AdminIncidentTrends page", () => {
       }
       if (url.includes("/trends/briefing")) {
         return new Response(JSON.stringify(briefingPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trends/actions/") && url.includes("/decision")) {
+        return new Response(JSON.stringify(actionDecisionPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trends/actions")) {
+        return new Response(JSON.stringify(actionsPayload()), { headers: { "content-type": "application/json" } });
       }
       return new Response(JSON.stringify(trendsPayload()), { headers: { "content-type": "application/json" } });
     });
@@ -203,5 +254,10 @@ describe("AdminIncidentTrends page", () => {
 
     fireEvent.click(screen.getByTestId("admin-incident-trends-briefing-load"));
     await waitFor(() => expect(screen.getByTestId("admin-incident-trends-briefing")).toHaveTextContent("Incident pressure is rising"));
+
+    fireEvent.click(screen.getByTestId("admin-incident-trends-actions-load"));
+    await waitFor(() => expect(screen.getByTestId("admin-incident-trends-actions")).toHaveTextContent("Review route risk"));
+    fireEvent.click(screen.getByTestId("admin-incident-trend-action-accept-trend:route_risk_review:7d:v1-admin-audit-events"));
+    await waitFor(() => expect(screen.getByTestId("admin-incident-trends-actions")).toHaveTextContent("Accepted"));
   });
 });

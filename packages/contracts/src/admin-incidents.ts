@@ -607,6 +607,13 @@ export const adminIncidentCorrelationResponseSchema = z.object({
 export const adminIncidentTrendWindowSchema = z.enum(["24h", "7d", "30d"]);
 export const adminIncidentTrendGranularitySchema = z.enum(["hour", "day"]);
 export const adminIncidentTrendAnomalySeveritySchema = z.enum(["watch", "warning", "critical"]);
+export const adminIncidentTrendActionKindSchema = z.enum([
+  "anomaly_follow_up",
+  "route_risk_review",
+  "sla_recovery",
+  "capacity_rebalance",
+]);
+export const adminIncidentTrendActionDecisionSchema = z.enum(["proposed", "accepted", "dismissed"]);
 
 export const adminIncidentTrendQuerySchema = z.object({
   granularity: adminIncidentTrendGranularitySchema.default("day"),
@@ -745,6 +752,56 @@ export const adminIncidentTrendBriefingResponseSchema = z.object({
   window: adminIncidentTrendWindowSchema,
 });
 
+export const adminIncidentTrendActionSchema = z.object({
+  acceptedAt: z.string().datetime().nullable(),
+  actionId: z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/),
+  decidedByUserHash: z.string().regex(/^sha256:[a-f0-9]{24}$/).nullable(),
+  description: z.string().min(1).max(420),
+  dismissedAt: z.string().datetime().nullable(),
+  evidence: z.array(adminIncidentEvidenceSchema).min(1).max(8),
+  kind: adminIncidentTrendActionKindSchema,
+  loadScore: z.number().int().min(0),
+  note: z.string().max(500).nullable(),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema,
+  priority: adminIncidentExecutionPrioritySchema,
+  recommendedAction: z.string().min(1).max(260),
+  relatedIncidentIds: z.array(z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/)).min(1).max(25),
+  route: z.string().min(1).max(260).nullable(),
+  signal: z.string().min(1).max(160),
+  status: adminIncidentTrendActionDecisionSchema,
+  title: z.string().min(1).max(160),
+});
+
+export const adminIncidentTrendActionsResponseSchema = z.object({
+  actions: z.array(adminIncidentTrendActionSchema).max(25),
+  generatedAt: z.string().datetime(),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  summary: z.object({
+    accepted: z.number().int().min(0),
+    dismissed: z.number().int().min(0),
+    immediate: z.number().int().min(0),
+    proposed: z.number().int().min(0),
+    relatedIncidents: z.number().int().min(0),
+    total: z.number().int().min(0),
+  }),
+  window: adminIncidentTrendWindowSchema,
+});
+
+export const adminIncidentTrendActionDecisionRequestSchema = z.object({
+  decision: z.enum(["accept", "dismiss"]),
+  note: adminIncidentSafeNoteSchema.optional(),
+});
+
+export const adminIncidentTrendActionDecisionResponseSchema = z.object({
+  action: adminIncidentTrendActionSchema,
+  affectedIncidents: z.array(adminIncidentSchema).max(25),
+  decision: z.enum(["accept", "dismiss"]),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  timelineEventsCreated: z.number().int().min(0).max(50),
+});
+
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
 export type AdminIncidentAcknowledgeRequest = z.infer<typeof adminIncidentAcknowledgeRequestSchema>;
 export type AdminIncidentAcknowledgeResponse = z.infer<typeof adminIncidentAcknowledgeResponseSchema>;
@@ -801,6 +858,12 @@ export type AdminIncidentWorkflowResponse = z.infer<typeof adminIncidentWorkflow
 export type AdminIncidentTrendAnomaliesResponse = z.infer<typeof adminIncidentTrendAnomaliesResponseSchema>;
 export type AdminIncidentTrendAnomaly = z.infer<typeof adminIncidentTrendAnomalySchema>;
 export type AdminIncidentTrendAnomalySeverity = z.infer<typeof adminIncidentTrendAnomalySeveritySchema>;
+export type AdminIncidentTrendAction = z.infer<typeof adminIncidentTrendActionSchema>;
+export type AdminIncidentTrendActionDecision = z.infer<typeof adminIncidentTrendActionDecisionSchema>;
+export type AdminIncidentTrendActionDecisionRequest = z.infer<typeof adminIncidentTrendActionDecisionRequestSchema>;
+export type AdminIncidentTrendActionDecisionResponse = z.infer<typeof adminIncidentTrendActionDecisionResponseSchema>;
+export type AdminIncidentTrendActionKind = z.infer<typeof adminIncidentTrendActionKindSchema>;
+export type AdminIncidentTrendActionsResponse = z.infer<typeof adminIncidentTrendActionsResponseSchema>;
 export type AdminIncidentTrendBriefingResponse = z.infer<typeof adminIncidentTrendBriefingResponseSchema>;
 export type AdminIncidentTrendBriefingSection = z.infer<typeof adminIncidentTrendBriefingSectionSchema>;
 export type AdminIncidentTrendBucket = z.infer<typeof adminIncidentTrendBucketSchema>;

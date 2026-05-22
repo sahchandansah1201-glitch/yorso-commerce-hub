@@ -500,6 +500,12 @@ export interface AdminIncidentCorrelationResponse {
 export type AdminIncidentTrendWindow = "24h" | "7d" | "30d";
 export type AdminIncidentTrendGranularity = "hour" | "day";
 export type AdminIncidentTrendAnomalySeverity = "watch" | "warning" | "critical";
+export type AdminIncidentTrendActionKind =
+  | "anomaly_follow_up"
+  | "route_risk_review"
+  | "sla_recovery"
+  | "capacity_rebalance";
+export type AdminIncidentTrendActionDecisionStatus = "proposed" | "accepted" | "dismissed";
 
 export interface AdminIncidentTrendQuery {
   granularity?: AdminIncidentTrendGranularity;
@@ -625,6 +631,56 @@ export interface AdminIncidentTrendBriefingResponse {
     trendDirection: "down" | "flat" | "up";
   };
   window: AdminIncidentTrendWindow;
+}
+
+export interface AdminIncidentTrendAction {
+  acceptedAt: string | null;
+  actionId: string;
+  decidedByUserHash: string | null;
+  description: string;
+  dismissedAt: string | null;
+  evidence: Array<{ label: string; value: string }>;
+  kind: AdminIncidentTrendActionKind;
+  loadScore: number;
+  note: string | null;
+  ownerRole: "operator" | "engineering" | "security" | "founder";
+  priority: AdminIncidentExecutionPriority;
+  recommendedAction: string;
+  relatedIncidentIds: string[];
+  route: string | null;
+  signal: string;
+  status: AdminIncidentTrendActionDecisionStatus;
+  title: string;
+}
+
+export interface AdminIncidentTrendActionsResponse {
+  actions: AdminIncidentTrendAction[];
+  generatedAt: string;
+  ok: true;
+  requestId: string;
+  summary: {
+    accepted: number;
+    dismissed: number;
+    immediate: number;
+    proposed: number;
+    relatedIncidents: number;
+    total: number;
+  };
+  window: AdminIncidentTrendWindow;
+}
+
+export interface AdminIncidentTrendActionDecisionInput {
+  decision: "accept" | "dismiss";
+  note?: string;
+}
+
+export interface AdminIncidentTrendActionDecisionResponse {
+  action: AdminIncidentTrendAction;
+  affectedIncidents: AdminIncident[];
+  decision: "accept" | "dismiss";
+  ok: true;
+  requestId: string;
+  timelineEventsCreated: number;
 }
 
 export interface AdminIncidentsApiClientOptions {
@@ -1121,6 +1177,34 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertTrendBriefingShape(body);
     },
+    async trendActions(query: AdminIncidentTrendQuery = {}): Promise<AdminIncidentTrendActionsResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/trends/actions${trendQueryString(query)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentTrendActionsResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendActionsShape(body);
+    },
+    async decideTrendAction(
+      actionId: string,
+      input: AdminIncidentTrendActionDecisionInput,
+      query: AdminIncidentTrendQuery = {},
+    ): Promise<AdminIncidentTrendActionDecisionResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trends/actions/${encodeURIComponent(actionId)}/decision${trendQueryString(query)}`,
+        {
+          body: JSON.stringify(input),
+          headers: headers(true),
+          method: "POST",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentTrendActionDecisionResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendActionDecisionShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -1477,6 +1561,39 @@ function assertTrendBriefingShape(response: AdminIncidentTrendBriefingResponse) 
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident trend briefing response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendActionsShape(response: AdminIncidentTrendActionsResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.actions) ||
+    typeof response.summary?.total !== "number" ||
+    typeof response.summary?.proposed !== "number" ||
+    typeof response.summary?.relatedIncidents !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend actions response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendActionDecisionShape(response: AdminIncidentTrendActionDecisionResponse) {
+  if (
+    response?.ok !== true ||
+    !response.action?.actionId ||
+    !Array.isArray(response.affectedIncidents) ||
+    typeof response.timelineEventsCreated !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend action decision response was invalid.",
       200,
     );
   }

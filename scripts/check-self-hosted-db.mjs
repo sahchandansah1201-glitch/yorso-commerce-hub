@@ -35,6 +35,7 @@ const files = [
   "packages/db/migrations/0021_admin_incident_execution.sql",
   "packages/db/migrations/0022_admin_incident_workload_correlation.sql",
   "packages/db/migrations/0023_admin_incident_trend_analytics.sql",
+  "packages/db/migrations/0024_admin_incident_trend_actions.sql",
 ];
 
 const failures = [];
@@ -68,7 +69,8 @@ const adminIncidentWorkflowSql = read("packages/db/migrations/0020_admin_inciden
 const adminIncidentExecutionSql = read("packages/db/migrations/0021_admin_incident_execution.sql");
 const adminIncidentWorkloadCorrelationSql = read("packages/db/migrations/0022_admin_incident_workload_correlation.sql");
 const adminIncidentTrendAnalyticsSql = read("packages/db/migrations/0023_admin_incident_trend_analytics.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}`;
+const adminIncidentTrendActionsSql = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}\n${adminIncidentTrendActionsSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -401,6 +403,21 @@ for (const marker of [
   requireText("packages/db/migrations/0023_admin_incident_trend_analytics.sql", adminIncidentTrendAnalyticsSql, marker);
 }
 
+for (const marker of [
+  "create table if not exists yorso_admin_incident_trend_actions",
+  "action_id text primary key",
+  "decided_by_user_id uuid not null references yorso_users(id)",
+  "related_incident_ids text[] not null",
+  "idx_yorso_admin_trend_actions_status_updated",
+  "idx_yorso_admin_trend_actions_kind_priority",
+  "idx_yorso_admin_trend_actions_route",
+  "idx_yorso_admin_trend_actions_related_gin",
+  "10,000 concurrent-user",
+  "Batch #108",
+]) {
+  requireText("packages/db/migrations/0024_admin_incident_trend_actions.sql", adminIncidentTrendActionsSql, marker);
+}
+
 forbidText("packages/db/migrations", allSql, "auth.users");
 forbidText("packages/db/migrations", allSql, "supabase");
 
@@ -479,6 +496,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0022_admin_incid
 if (!manifest.migrations?.some((migration) => migration.id === "0023_admin_incident_trend_analytics")) {
   failures.push("packages/db/migration-manifest.json: missing 0023_admin_incident_trend_analytics");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0024_admin_incident_trend_actions")) {
+  failures.push("packages/db/migration-manifest.json: missing 0024_admin_incident_trend_actions");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -550,6 +570,9 @@ if (!manifest.migrations?.[22]?.dependsOn?.includes("0021_admin_incident_executi
 }
 if (!manifest.migrations?.[23]?.dependsOn?.includes("0022_admin_incident_workload_correlation")) {
   failures.push("packages/db/migration-manifest.json: admin incident trend analytics must depend on incident workload correlation");
+}
+if (!manifest.migrations?.[24]?.dependsOn?.includes("0023_admin_incident_trend_analytics")) {
+  failures.push("packages/db/migration-manifest.json: admin incident trend actions must depend on incident trend analytics");
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
