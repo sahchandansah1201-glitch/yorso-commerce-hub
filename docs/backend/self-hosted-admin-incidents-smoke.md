@@ -174,10 +174,12 @@ Marker: Batch #103.
 Marker: Batch #104.
 Marker: Batch #105.
 Marker: Batch #107.
+Marker: Batch #108.
 Marker: admin incident response.
 Marker: admin incident workflow.
 Marker: admin incident detail handoff.
 Marker: admin incident execution.
+Marker: trend action loop.
 Marker: /v1/admin/incidents.
 Marker: /v1/admin/incidents/:incidentId/workflow.
 Marker: /v1/admin/incidents/:incidentId/handoff.
@@ -192,6 +194,8 @@ Marker: /v1/admin/incidents/trends.
 Marker: /v1/admin/incidents/trends/export.
 Marker: /v1/admin/incidents/trends/anomalies.
 Marker: /v1/admin/incidents/trends/briefing.
+Marker: /v1/admin/incidents/trends/actions.
+Marker: /v1/admin/incidents/trends/actions/:actionId/decision.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
@@ -240,6 +244,10 @@ Marker: admin_incidents_trends_export_json=ok.
 Marker: admin_incidents_trends_export_csv=ok.
 Marker: admin_incidents_trends_anomalies=ok.
 Marker: admin_incidents_trends_briefing=ok.
+Marker: admin_incidents_trend_actions=ok.
+Marker: admin_incidents_trend_action_accept=ok.
+Marker: admin_incidents_trend_action_dismiss=ok.
+Marker: admin_incidents_trend_action_validation_guard=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.

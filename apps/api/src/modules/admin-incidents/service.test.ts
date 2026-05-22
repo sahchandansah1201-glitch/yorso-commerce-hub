@@ -588,5 +588,52 @@ describe("admin incident service", () => {
     expect(briefing.operatorActions.length).toBeGreaterThanOrEqual(1);
     expect(briefing.capacityReview.join(" ")).toContain("10,000");
     expect(JSON.stringify(briefing)).not.toContain("admin@example.com");
+
+    const actions = await service.getIncidentTrendActions({ limit: 30, window: "7d" }, requestId);
+    expect(actions.ok).toBe(true);
+    expect(actions.actions.length).toBeGreaterThanOrEqual(1);
+    expect(actions.summary.total).toBe(actions.actions.length);
+    expect(actions.actions[0].status).toBe("proposed");
+    expect(actions.actions[0].relatedIncidentIds.length).toBeGreaterThanOrEqual(1);
+    expect(JSON.stringify(actions)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const accepted = await service.decideIncidentTrendAction(
+      actions.actions[0].actionId,
+      { limit: 30, window: "7d" },
+      { decision: "accept", note: "Accept bounded trend follow-up." },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(accepted.ok).toBe(true);
+    expect(accepted.action.status).toBe("accepted");
+    expect(accepted.timelineEventsCreated).toBeGreaterThanOrEqual(1);
+    expect(accepted.affectedIncidents.length).toBeGreaterThanOrEqual(1);
+    expect(JSON.stringify(accepted)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const afterAccept = await service.getIncidentTrendActions({ limit: 30, window: "7d" }, requestId);
+    expect(afterAccept.actions.find((action) => action.actionId === actions.actions[0].actionId)?.status).toBe("accepted");
+
+    const proposed = afterAccept.actions.find((action) => action.status === "proposed");
+    if (proposed) {
+      const dismissed = await service.decideIncidentTrendAction(
+        proposed.actionId,
+        { limit: 30, window: "7d" },
+        { decision: "dismiss", note: "Dismiss bounded duplicate trend follow-up." },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      );
+      expect(dismissed.action.status).toBe("dismissed");
+      expect(dismissed.timelineEventsCreated).toBe(0);
+    }
+
+    await expect(
+      service.decideIncidentTrendAction(
+        "trend:missing:7d:not-found",
+        { limit: 30, window: "7d" },
+        { decision: "accept", note: "Missing action." },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ code: "admin_incident_trend_action_not_found" });
   });
 });

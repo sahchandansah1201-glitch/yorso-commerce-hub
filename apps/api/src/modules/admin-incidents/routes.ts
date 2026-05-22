@@ -23,6 +23,9 @@ const trendsRoute = "/v1/admin/incidents/trends";
 const trendsExportRoute = "/v1/admin/incidents/trends/export";
 const trendsAnomaliesRoute = "/v1/admin/incidents/trends/anomalies";
 const trendsBriefingRoute = "/v1/admin/incidents/trends/briefing";
+const trendsActionsRoute = "/v1/admin/incidents/trends/actions";
+const trendsActionDecisionPrefix = "/v1/admin/incidents/trends/actions/";
+const trendsActionDecisionSuffix = "/decision";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
@@ -93,6 +96,14 @@ export async function handleAdminIncidentRoute(
   }
   if (match.kind === "trendsBriefing" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendsActions" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendsActionDecision" && request.method !== "POST") {
+    methodNotAllowed(response, context, "POST");
     return true;
   }
   if (match.kind === "detail" && request.method !== "GET") {
@@ -278,6 +289,15 @@ export async function handleAdminIncidentRoute(
       sendJson(response, 200, payload);
       return true;
     }
+    if (match.kind === "trendsActions") {
+      const payload = await service.getIncidentTrendActions(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
     if (match.kind === "handoff") {
       const payload = await service.exportIncidentHandoff(
         match.incidentId,
@@ -341,6 +361,14 @@ export async function handleAdminIncidentRoute(
       ? await service.bulkUpdateIncidentWorkflow(body, session.userId, context.requestId)
       : match.kind === "executionQueueBulk"
         ? await service.bulkUpdateIncidentExecutionQueue(body, session.userId, context.requestId)
+      : match.kind === "trendsActionDecision"
+        ? await service.decideIncidentTrendAction(
+          match.actionId,
+          Object.fromEntries(url.searchParams.entries()),
+          body,
+          session.userId,
+          context.requestId,
+        )
       : match.kind === "executionItem"
         ? await service.updateIncidentExecutionItem(match.incidentId, match.itemId, body, session.userId, context.requestId)
       : match.kind === "workflow"
@@ -382,6 +410,8 @@ type IncidentRouteMatch =
   | { kind: "trendsExport"; route: string }
   | { kind: "trendsAnomalies"; route: string }
   | { kind: "trendsBriefing"; route: string }
+  | { kind: "trendsActions"; route: string }
+  | { actionId: string; kind: "trendsActionDecision"; route: string }
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
@@ -407,6 +437,18 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
   if (pathname === trendsExportRoute) return { kind: "trendsExport", route: trendsExportRoute };
   if (pathname === trendsAnomaliesRoute) return { kind: "trendsAnomalies", route: trendsAnomaliesRoute };
   if (pathname === trendsBriefingRoute) return { kind: "trendsBriefing", route: trendsBriefingRoute };
+  if (pathname === trendsActionsRoute) return { kind: "trendsActions", route: trendsActionsRoute };
+  if (pathname.startsWith(trendsActionDecisionPrefix) && pathname.endsWith(trendsActionDecisionSuffix)) {
+    const actionId = decodeURIComponent(
+      pathname.slice(trendsActionDecisionPrefix.length, -trendsActionDecisionSuffix.length).replace(/\/$/, ""),
+    );
+    if (!actionId) return null;
+    return {
+      actionId,
+      kind: "trendsActionDecision",
+      route: `${trendsActionDecisionPrefix}:actionId${trendsActionDecisionSuffix}`,
+    };
+  }
   if (pathname === executionWorkloadRoute) return { kind: "executionWorkload", route: executionWorkloadRoute };
   if (pathname === executionWorkloadExportRoute) return { kind: "executionWorkloadExport", route: executionWorkloadExportRoute };
   if (pathname === bulkWorkflowRoute) return { kind: "bulkWorkflow", route: bulkWorkflowRoute };
@@ -506,6 +548,10 @@ function auditIncidentRoute(
         ? "admin.incidents.trends.anomalies"
       : match.kind === "trendsBriefing"
         ? "admin.incidents.trends.briefing"
+      : match.kind === "trendsActions"
+        ? "admin.incidents.trends.actions.read"
+      : match.kind === "trendsActionDecision"
+        ? "admin.incidents.trends.actions.decision"
       : match.kind === "bulkWorkflow"
         ? "admin.incidents.workflow.bulk"
       : match.kind === "workflow"

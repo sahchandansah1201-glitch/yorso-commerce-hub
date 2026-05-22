@@ -280,6 +280,17 @@
       "dependsOn": [
         "0022_admin_incident_workload_correlation"
       ]
+    },
+    {
+      "id": "0024_admin_incident_trend_actions",
+      "file": "migrations/0024_admin_incident_trend_actions.sql",
+      "description": "Add durable admin incident trend action decisions for bounded operator action loops.",
+      "ownedTables": [
+        "yorso_admin_incident_trend_actions"
+      ],
+      "dependsOn": [
+        "0023_admin_incident_trend_analytics"
+      ]
     }
   ]
 }

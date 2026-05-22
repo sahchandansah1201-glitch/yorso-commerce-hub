@@ -110,6 +110,49 @@ const briefingPayload = () => ({
   window: "7d",
 });
 
+const actionsPayload = () => ({
+  actions: [
+    {
+      acceptedAt: null,
+      actionId: "trend:route_risk_review:7d:v1-admin-audit-events",
+      decidedByUserHash: null,
+      description: "Review concentrated admin audit route pressure.",
+      dismissedAt: null,
+      evidence: [{ label: "route", value: "/v1/admin/audit-events" }],
+      kind: "route_risk_review",
+      loadScore: 144,
+      note: null,
+      ownerRole: "engineering",
+      priority: "immediate",
+      recommendedAction: "Assign owner and inspect blocked admin route.",
+      relatedIncidentIds: ["audit:admin-blocked:/v1/admin/audit-events"],
+      route: "/v1/admin/audit-events",
+      signal: "Route risk concentration",
+      status: "proposed",
+      title: "Review route risk: /v1/admin/audit-events",
+    },
+  ],
+  generatedAt: "2026-05-22T10:08:00.000Z",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000904",
+  summary: { accepted: 0, dismissed: 0, immediate: 1, proposed: 1, relatedIncidents: 1, total: 1 },
+  window: "7d",
+});
+
+const actionDecisionPayload = () => ({
+  action: {
+    ...actionsPayload().actions[0],
+    acceptedAt: "2026-05-22T10:09:00.000Z",
+    decidedByUserHash: "sha256:111111111111111111111111",
+    status: "accepted",
+  },
+  affectedIncidents: [],
+  decision: "accept",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000905",
+  timelineEventsCreated: 1,
+});
+
 describe("useAdminIncidentTrends", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -125,7 +168,7 @@ describe("useAdminIncidentTrends", () => {
     expect(result.current.status).toBe("disabled");
   });
 
-  it("loads trend filters, exports, anomalies and briefing without leaking session material", async () => {
+  it("loads trend filters, exports, anomalies, briefing and trend action proposals without leaking session material", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
     const fetchImpl = vi.fn(async (input) => {
       const url = String(input);
@@ -142,6 +185,12 @@ describe("useAdminIncidentTrends", () => {
       }
       if (url.includes("/trends/briefing")) {
         return new Response(JSON.stringify(briefingPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trends/actions/") && url.includes("/decision")) {
+        return new Response(JSON.stringify(actionDecisionPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trends/actions")) {
+        return new Response(JSON.stringify(actionsPayload()), { headers: { "content-type": "application/json" } });
       }
       return new Response(JSON.stringify(trendsPayload()), { headers: { "content-type": "application/json" } });
     });
@@ -180,6 +229,21 @@ describe("useAdminIncidentTrends", () => {
     });
     expect(result.current.briefing.status).toBe("ready");
     expect(result.current.briefing.data?.summary.headline).toContain("Incident pressure");
+
+    await act(async () => {
+      await result.current.loadActions();
+    });
+    expect(result.current.actions.status).toBe("ready");
+    expect(result.current.actions.data?.summary.proposed).toBe(1);
+
+    await act(async () => {
+      await result.current.decideAction(actionsPayload().actions[0].actionId, {
+        decision: "accept",
+        note: "Accept bounded trend action.",
+      });
+    });
+    expect(result.current.actions.data?.actions[0].status).toBe("accepted");
+    expect(result.current.actions.data?.summary.accepted).toBe(1);
 
     expect(JSON.stringify(result.current.data)).not.toContain(adminSession.identifier);
     expect(JSON.stringify(result.current.data)).not.toContain(adminSession.id);

@@ -6,6 +6,8 @@ import type {
   AdminIncidentExecutionRecord,
   AdminIncidentExecutionRecordInput,
   AdminIncidentRepository,
+  AdminIncidentTrendActionDecisionInput,
+  AdminIncidentTrendActionDecisionRecord,
   AdminIncidentWorkflowEvent,
   AdminIncidentWorkflowEventInput,
   AdminIncidentWorkflowStateInput,
@@ -57,6 +59,24 @@ interface AdminIncidentExecutionRow extends Record<string, unknown> {
   status: "open" | "in_progress" | "blocked" | "done" | "skipped";
   updated_at: Date | string;
   updated_by_user_id: string;
+}
+
+interface AdminIncidentTrendActionRow extends Record<string, unknown> {
+  accepted_at: Date | string | null;
+  action_id: string;
+  decided_by_user_id: string;
+  dismissed_at: Date | string | null;
+  kind: "anomaly_follow_up" | "route_risk_review" | "sla_recovery" | "capacity_rebalance";
+  load_score: number;
+  note: string | null;
+  owner_role: "operator" | "engineering" | "security" | "founder";
+  priority: "immediate" | "next" | "follow_up";
+  related_incident_ids: string[];
+  route: string | null;
+  signal: string;
+  status: "accepted" | "dismissed";
+  title: string;
+  updated_at: Date | string;
 }
 
 export class PostgresAdminIncidentRepository implements AdminIncidentRepository {
@@ -278,6 +298,126 @@ export class PostgresAdminIncidentRepository implements AdminIncidentRepository 
     return mapExecutionRecord(result.rows[0]);
   }
 
+  async listTrendActionDecisions(actionIds: string[]) {
+    if (actionIds.length === 0) return new Map();
+    const result = await this.client.query<AdminIncidentTrendActionRow>(
+      `
+        select
+          action_id,
+          kind,
+          status,
+          title,
+          signal,
+          route,
+          priority,
+          owner_role,
+          load_score,
+          related_incident_ids,
+          note,
+          decided_by_user_id,
+          accepted_at,
+          dismissed_at,
+          updated_at
+        from yorso_admin_incident_trend_actions
+        where action_id = any($1::text[])
+      `,
+      [actionIds],
+    );
+    return new Map(result.rows.map((row) => [row.action_id, mapTrendActionDecision(row)]));
+  }
+
+  async upsertTrendActionDecision(input: AdminIncidentTrendActionDecisionInput) {
+    const result = await this.client.query<AdminIncidentTrendActionRow>(
+      `
+        insert into yorso_admin_incident_trend_actions (
+          action_id,
+          kind,
+          status,
+          title,
+          signal,
+          route,
+          priority,
+          owner_role,
+          load_score,
+          related_incident_ids,
+          note,
+          decided_by_user_id,
+          accepted_at,
+          dismissed_at
+        )
+        values (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7,
+          $8,
+          $9,
+          $10,
+          $11,
+          $12,
+          case when $3::text = 'accepted' then now() else null end,
+          case when $3::text = 'dismissed' then now() else null end
+        )
+        on conflict (action_id) do update
+        set
+          kind = excluded.kind,
+          status = excluded.status,
+          title = excluded.title,
+          signal = excluded.signal,
+          route = excluded.route,
+          priority = excluded.priority,
+          owner_role = excluded.owner_role,
+          load_score = excluded.load_score,
+          related_incident_ids = excluded.related_incident_ids,
+          note = coalesce(excluded.note, yorso_admin_incident_trend_actions.note),
+          decided_by_user_id = excluded.decided_by_user_id,
+          accepted_at = case
+            when excluded.status = 'accepted' then coalesce(yorso_admin_incident_trend_actions.accepted_at, now())
+            else yorso_admin_incident_trend_actions.accepted_at
+          end,
+          dismissed_at = case
+            when excluded.status = 'dismissed' then coalesce(yorso_admin_incident_trend_actions.dismissed_at, now())
+            else null
+          end,
+          updated_at = now()
+        returning
+          action_id,
+          kind,
+          status,
+          title,
+          signal,
+          route,
+          priority,
+          owner_role,
+          load_score,
+          related_incident_ids,
+          note,
+          decided_by_user_id,
+          accepted_at,
+          dismissed_at,
+          updated_at
+      `,
+      [
+        input.actionId,
+        input.kind,
+        input.status,
+        input.title,
+        input.signal,
+        input.route ?? null,
+        input.priority,
+        input.ownerRole,
+        input.loadScore,
+        input.relatedIncidentIds,
+        input.note?.trim() || null,
+        input.decidedByUserId,
+      ],
+    );
+    return mapTrendActionDecision(result.rows[0]);
+  }
+
   async upsertAcknowledgement(input: AdminIncidentAcknowledgementInput) {
     return this.upsertWorkflowState(input);
   }
@@ -436,5 +576,25 @@ function mapExecutionRecord(row: AdminIncidentExecutionRow): AdminIncidentExecut
     status: row.status,
     updatedAt: iso(row.updated_at),
     updatedByUserId: row.updated_by_user_id,
+  };
+}
+
+function mapTrendActionDecision(row: AdminIncidentTrendActionRow): AdminIncidentTrendActionDecisionRecord {
+  return {
+    acceptedAt: nullableIso(row.accepted_at),
+    actionId: row.action_id,
+    decidedByUserId: row.decided_by_user_id,
+    dismissedAt: nullableIso(row.dismissed_at),
+    kind: row.kind,
+    loadScore: Number(row.load_score),
+    note: row.note,
+    ownerRole: row.owner_role,
+    priority: row.priority,
+    relatedIncidentIds: [...row.related_incident_ids],
+    route: row.route,
+    signal: row.signal,
+    status: row.status,
+    title: row.title,
+    updatedAt: iso(row.updated_at),
   };
 }

@@ -30,6 +30,10 @@ const requiredFiles = [
   "packages/db/migrations/0021_admin_incident_execution.sql",
   "packages/db/migrations/0022_admin_incident_workload_correlation.sql",
   "packages/db/migrations/0023_admin_incident_trend_analytics.sql",
+  "packages/db/migrations/0024_admin_incident_trend_actions.sql",
+  "docs/backend/admin-incident-trend-actions.md",
+  "docs/backend/admin-incident-trend-actions-api-contract.md",
+  "docs/backend/admin-incident-trend-actions-indexing.md",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -238,6 +242,7 @@ const adminIncidentWorkflowMigration = read("packages/db/migrations/0020_admin_i
 const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_incident_execution.sql");
 const adminIncidentWorkloadCorrelationMigration = read("packages/db/migrations/0022_admin_incident_workload_correlation.sql");
 const adminIncidentTrendAnalyticsMigration = read("packages/db/migrations/0023_admin_incident_trend_analytics.sql");
+const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -903,6 +908,22 @@ for (const marker of [
   "admin_incidents_trends_briefing=ok",
   "0023_admin_incident_trend_analytics",
   "10,000 concurrent",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
+  "Batch #108",
+  "admin incident trend actions",
+  "trend action loop",
+  "/v1/admin/incidents/trends/actions",
+  "/v1/admin/incidents/trends/actions/:actionId/decision",
+  "admin-incident-trends-actions",
+  "admin_incidents_trend_actions=ok",
+  "admin_incidents_trend_action_accept=ok",
+  "admin_incidents_trend_action_dismiss=ok",
+  "admin_incidents_trend_action_validation_guard=ok",
+  "0024_admin_incident_trend_actions",
+  "10,000 concurrent users",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -1965,12 +1986,15 @@ for (const marker of [
   "client.trendsExportJson",
   "client.trendAnomalies",
   "client.trendBriefing",
+  "client.trendActions",
+  "client.decideTrendAction",
   "status: \"forbidden\"",
 ]) {
   requireText("src/lib/use-admin-incident-trends.ts", useAdminIncidentTrends, marker);
 }
 for (const marker of [
-  "loads trend filters, exports, anomalies and briefing",
+  "loads trend filters, exports",
+  "trend action proposals",
   "returns disabled without a configured self-hosted API",
 ]) {
   requireText("src/lib/use-admin-incident-trends.test.tsx", useAdminIncidentTrendsTest, marker);
@@ -2043,6 +2067,8 @@ for (const marker of [
   "admin-incident-trends-sla",
   "admin-incident-trends-anomalies",
   "admin-incident-trends-briefing",
+  "admin-incident-trends-actions",
+  "admin-incident-trends-actions-load",
   "admin-incident-trends-export-json",
   "admin-incident-trends-export-csv",
   "AdminOperatorNav",
@@ -2050,7 +2076,9 @@ for (const marker of [
   requireText("src/pages/admin/AdminIncidentTrends.tsx", adminIncidentTrendsPage, marker);
 }
 for (const marker of [
-  "renders trends, exports, anomalies and briefing",
+  "renders trends, exports",
+  "trend actions",
+  "admin-incident-trends-actions-load",
   "admin-incident-trends-export-status",
 ]) {
   requireText("src/pages/admin/AdminIncidentTrends.test.tsx", adminIncidentTrendsPageTest, marker);
@@ -2103,15 +2131,19 @@ for (const marker of [
 }
 for (const marker of [
   "Batch #107 browser guard",
+  "Batch #108 browser guard",
   "/admin/incident-trends",
   "/v1/admin/incidents/trends",
   "/trends/export",
   "/trends/anomalies",
   "/trends/briefing",
+  "/trends/actions",
   "x-yorso-user-id",
   "x-yorso-session-id",
   "admin-incident-trends-page",
   "admin-incident-trends-briefing",
+  "admin-incident-trends-actions",
+  "admin-incident-trend-action-accept-",
 ]) {
   requireText("e2e/admin-incident-trends.spec.ts", adminIncidentTrendsE2E, marker);
 }
@@ -2148,6 +2180,10 @@ for (const marker of [
   "admin_incidents_trends_export_csv=ok",
   "admin_incidents_trends_anomalies=ok",
   "admin_incidents_trends_briefing=ok",
+  "admin_incidents_trend_actions=ok",
+  "admin_incidents_trend_action_accept=ok",
+  "admin_incidents_trend_action_dismiss=ok",
+  "admin_incidents_trend_action_validation_guard=ok",
   "admin_incidents_correlation=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
@@ -2194,6 +2230,16 @@ for (const marker of [
   "Batch #107",
 ]) {
   requireText("packages/db/migrations/0023_admin_incident_trend_analytics.sql", adminIncidentTrendAnalyticsMigration, marker);
+}
+for (const marker of [
+  "create table if not exists yorso_admin_incident_trend_actions",
+  "idx_yorso_admin_trend_actions_status_updated",
+  "idx_yorso_admin_trend_actions_kind_priority",
+  "idx_yorso_admin_trend_actions_related_gin",
+  "10,000 concurrent-user",
+  "Batch #108",
+]) {
+  requireText("packages/db/migrations/0024_admin_incident_trend_actions.sql", adminIncidentTrendActionsMigration, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",

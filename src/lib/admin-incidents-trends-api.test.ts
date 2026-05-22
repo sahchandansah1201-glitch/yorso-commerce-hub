@@ -109,6 +109,49 @@ const briefingPayload = () => ({
   window: "7d",
 });
 
+const actionsPayload = () => ({
+  actions: [
+    {
+      acceptedAt: null,
+      actionId: "trend:route_risk_review:7d:v1-admin-audit-events",
+      decidedByUserHash: null,
+      description: "Review concentrated admin audit route pressure.",
+      dismissedAt: null,
+      evidence: [{ label: "route", value: "/v1/admin/audit-events" }],
+      kind: "route_risk_review",
+      loadScore: 144,
+      note: null,
+      ownerRole: "engineering",
+      priority: "immediate",
+      recommendedAction: "Assign owner and inspect blocked admin route.",
+      relatedIncidentIds: ["audit:admin-blocked:/v1/admin/audit-events"],
+      route: "/v1/admin/audit-events",
+      signal: "Route risk concentration",
+      status: "proposed",
+      title: "Review route risk: /v1/admin/audit-events",
+    },
+  ],
+  generatedAt: "2026-05-22T10:08:00.000Z",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000944",
+  summary: { accepted: 0, dismissed: 0, immediate: 1, proposed: 1, relatedIncidents: 1, total: 1 },
+  window: "7d",
+});
+
+const actionDecisionPayload = () => ({
+  action: {
+    ...actionsPayload().actions[0],
+    acceptedAt: "2026-05-22T10:09:00.000Z",
+    decidedByUserHash: "sha256:111111111111111111111111",
+    status: "accepted",
+  },
+  affectedIncidents: [],
+  decision: "accept",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000945",
+  timelineEventsCreated: 1,
+});
+
 describe("admin incident trend API client", () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -131,6 +174,12 @@ describe("admin incident trend API client", () => {
       if (url.includes("/trends/briefing")) {
         return new Response(JSON.stringify(briefingPayload()), { headers: { "content-type": "application/json" } });
       }
+      if (url.includes("/trends/actions/") && url.includes("/decision")) {
+        return new Response(JSON.stringify(actionDecisionPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trends/actions")) {
+        return new Response(JSON.stringify(actionsPayload()), { headers: { "content-type": "application/json" } });
+      }
       return new Response(JSON.stringify(trendsPayload()), { headers: { "content-type": "application/json" } });
     });
     const client = createAdminIncidentsApiClient({
@@ -152,6 +201,12 @@ describe("admin incident trend API client", () => {
     await expect(client.trendsExportCsv({ window: "7d" })).resolves.toContain("\"key\",\"loadScore\"");
     await expect(client.trendAnomalies({ window: "7d" })).resolves.toMatchObject({ summary: { highestSeverity: "warning" } });
     await expect(client.trendBriefing({ window: "7d" })).resolves.toMatchObject({ summary: { totalIncidents: 3 } });
+    await expect(client.trendActions({ window: "7d" })).resolves.toMatchObject({ summary: { proposed: 1 } });
+    await expect(client.decideTrendAction(
+      actionsPayload().actions[0].actionId,
+      { decision: "accept", note: "Accept bounded trend action." },
+      { window: "7d" },
+    )).resolves.toMatchObject({ action: { status: "accepted" }, timelineEventsCreated: 1 });
 
     const urls = fetchImpl.mock.calls.map((call) => String(call[0]));
     expect(urls[0]).toContain("/v1/admin/incidents/trends?");
@@ -161,6 +216,8 @@ describe("admin incident trend API client", () => {
     expect(urls.some((url) => url.includes("/trends/export") && url.includes("format=csv"))).toBe(true);
     expect(urls.some((url) => url.includes("/trends/anomalies"))).toBe(true);
     expect(urls.some((url) => url.includes("/trends/briefing"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trends/actions?"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trends/actions/trend%3Aroute_risk_review"))).toBe(true);
     const headers = fetchImpl.mock.calls[0][1]?.headers as Headers;
     expect(headers.get("x-yorso-user-id")).toBe(adminSession.userId);
     expect(headers.get("x-yorso-session-id")).toBe(adminSession.id);

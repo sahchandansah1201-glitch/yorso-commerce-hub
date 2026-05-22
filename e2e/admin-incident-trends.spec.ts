@@ -6,6 +6,11 @@
  * - export JSON/CSV, anomalies and briefing use dedicated backend endpoints;
  * - requests carry x-yorso-user-id and x-yorso-session-id;
  * - raw admin email, session id and connection strings are not rendered.
+ *
+ * Batch #108 browser guard:
+ * - trend action proposals load from /v1/admin/incidents/trends/actions;
+ * - accept/dismiss decisions use the bounded action decision endpoint;
+ * - accepted actions update the operator panel without exposing raw admin identity.
  */
 import { expect, test, type Page, type Route } from "@playwright/test";
 
@@ -109,6 +114,73 @@ const briefingPayload = () => ({
   window: "7d",
 });
 
+const trendActionsPayload = (status: "proposed" | "accepted" | "dismissed" = "proposed") => ({
+  actions: [
+    {
+      acceptedAt: status === "accepted" ? "2026-05-22T10:08:00.000Z" : null,
+      actionId: "trend:route_risk_review:7d:v1-admin-audit-events",
+      decidedByUserHash: status === "proposed" ? null : "sha256:0123456789abcdef01234567",
+      description: "Review concentrated incident pressure on /v1/admin/audit-events.",
+      dismissedAt: status === "dismissed" ? "2026-05-22T10:08:00.000Z" : null,
+      evidence: [
+        { label: "route", value: "/v1/admin/audit-events" },
+        { label: "loadScore", value: "144" },
+      ],
+      kind: "route_risk_review",
+      loadScore: 144,
+      note: status === "proposed" ? null : "Accepted from browser smoke.",
+      ownerRole: "engineering",
+      priority: "immediate",
+      recommendedAction: "Assign an owner and inspect blocked admin audit route pressure.",
+      relatedIncidentIds: ["audit:admin-audit-events:critical"],
+      route: "/v1/admin/audit-events",
+      signal: "Route risk concentration",
+      status,
+      title: "Review route risk: /v1/admin/audit-events",
+    },
+    {
+      acceptedAt: null,
+      actionId: "trend:sla_recovery:7d:sla-recovery",
+      decidedByUserHash: null,
+      description: "Escalate unresolved critical or breached incidents.",
+      dismissedAt: null,
+      evidence: [{ label: "breached", value: "1" }],
+      kind: "sla_recovery",
+      loadScore: 58,
+      note: null,
+      ownerRole: "operator",
+      priority: "next",
+      recommendedAction: "Acknowledge, assign and escalate breached incidents.",
+      relatedIncidentIds: ["audit:admin-audit-events:critical"],
+      route: null,
+      signal: "SLA recovery",
+      status: "proposed",
+      title: "Recover breached incident SLA",
+    },
+  ],
+  generatedAt: "2026-05-22T10:08:00.000Z",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000954",
+  summary: {
+    accepted: status === "accepted" ? 1 : 0,
+    dismissed: status === "dismissed" ? 1 : 0,
+    immediate: 1,
+    proposed: status === "proposed" ? 2 : 1,
+    relatedIncidents: 1,
+    total: 2,
+  },
+  window: "7d",
+});
+
+const trendActionDecisionPayload = () => ({
+  action: trendActionsPayload("accepted").actions[0],
+  affectedIncidents: [],
+  decision: "accept",
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000955",
+  timelineEventsCreated: 1,
+});
+
 const json = async (route: Route, body: unknown, status = 200) => {
   await route.fulfill({
     body: JSON.stringify(body),
@@ -144,6 +216,14 @@ test.describe("Admin incident trends", () => {
       const url = route.request().url();
       requestUrls.push(url);
       requestHeaders.push(route.request().headers());
+      if (url.includes("/trends/actions/") && url.includes("/decision")) {
+        await json(route, trendActionDecisionPayload());
+        return;
+      }
+      if (url.includes("/trends/actions")) {
+        await json(route, trendActionsPayload());
+        return;
+      }
       if (url.includes("/export") && url.includes("format=csv")) {
         await route.fulfill({
           body: "\"key\",\"loadScore\"\n\"2026-05-22\",\"144\"",
@@ -183,6 +263,10 @@ test.describe("Admin incident trends", () => {
     await expect(page.getByTestId("admin-incident-trends-anomalies")).toContainText("route_pressure");
     await page.getByTestId("admin-incident-trends-briefing-load").click();
     await expect(page.getByTestId("admin-incident-trends-briefing")).toContainText("Incident pressure is rising");
+    await page.getByTestId("admin-incident-trends-actions-load").click();
+    await expect(page.getByTestId("admin-incident-trends-actions")).toContainText("Review route risk");
+    await page.getByTestId("admin-incident-trend-action-accept-trend:route_risk_review:7d:v1-admin-audit-events").click();
+    await expect(page.getByTestId("admin-incident-trends-actions")).toContainText("Accepted");
 
     expect(requestHeaders[0]["x-yorso-user-id"]).toBe(USER_ID);
     expect(requestHeaders[0]["x-yorso-session-id"]).toBe(SESSION_ID);
@@ -191,6 +275,8 @@ test.describe("Admin incident trends", () => {
     expect(requestUrls.some((url) => url.includes("/trends/export") && url.includes("format=csv"))).toBe(true);
     expect(requestUrls.some((url) => url.includes("/trends/anomalies"))).toBe(true);
     expect(requestUrls.some((url) => url.includes("/trends/briefing"))).toBe(true);
+    expect(requestUrls.some((url) => url.includes("/trends/actions?"))).toBe(true);
+    expect(requestUrls.some((url) => url.includes("/trends/actions/trend%3Aroute_risk_review"))).toBe(true);
     const body = await page.locator("body").textContent();
     expect(body).not.toContain("admin@yorso.test");
     expect(body).not.toContain(SESSION_ID);

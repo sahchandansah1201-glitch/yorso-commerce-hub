@@ -33,6 +33,8 @@ const adminIncidentWorkloadCorrelationSql = () =>
   readFileSync("packages/db/migrations/0022_admin_incident_workload_correlation.sql", "utf8");
 const adminIncidentTrendAnalyticsSql = () =>
   readFileSync("packages/db/migrations/0023_admin_incident_trend_analytics.sql", "utf8");
+const adminIncidentTrendActionsSql = () =>
+  readFileSync("packages/db/migrations/0024_admin_incident_trend_actions.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -315,8 +317,21 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("Batch #106");
   });
 
+  it("declares admin incident trend action decision state", () => {
+    const text = adminIncidentTrendActionsSql();
+
+    expect(text).toContain("create table if not exists yorso_admin_incident_trend_actions");
+    expect(text).toContain("action_id text primary key");
+    expect(text).toContain("decided_by_user_id uuid not null references yorso_users(id)");
+    expect(text).toContain("related_incident_ids text[] not null");
+    expect(text).toContain("idx_yorso_admin_trend_actions_status_updated");
+    expect(text).toContain("idx_yorso_admin_trend_actions_kind_priority");
+    expect(text).toContain("idx_yorso_admin_trend_actions_related_gin");
+    expect(text).toContain("Batch #108");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -396,7 +411,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -435,6 +450,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0021_admin_incident_execution",
       "0022_admin_incident_workload_correlation",
       "0023_admin_incident_trend_analytics",
+      "0024_admin_incident_trend_actions",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -573,6 +589,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
             "yorso_admin_incident_events",
           ],
           dependsOn: ["0022_admin_incident_workload_correlation"],
+        }),
+        expect.objectContaining({
+          id: "0024_admin_incident_trend_actions",
+          ownedTables: ["yorso_admin_incident_trend_actions"],
+          dependsOn: ["0023_admin_incident_trend_analytics"],
         }),
       ]),
     );

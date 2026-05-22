@@ -1176,3 +1176,32 @@ Marker: /v1/admin/incidents/trends/briefing.
 Marker: /admin/incident-trends.
 Marker: 0023_admin_incident_trend_analytics.
 Marker: no Supabase.
+
+## Batch #108 Admin Incident Trend Actions
+
+Batch #108 adds the action loop on top of Batch #107 trend analytics. The
+frontend keeps the route `/admin/incident-trends`, but the page now exposes an
+action panel where operators can load trend-derived proposals, accept an action
+or dismiss it.
+
+The backend routes are:
+
+- `GET /v1/admin/incidents/trends/actions`;
+- `POST /v1/admin/incidents/trends/actions/:actionId/decision`.
+
+Accepted trend actions update a bounded set of related incident workflow rows
+and append sanitized timeline events. Dismissed actions persist the decision
+only. Both paths remain admin-session guarded and audit-covered.
+
+The storage support is migration `0024_admin_incident_trend_actions`, which
+adds durable decision records and indexes by status, kind/priority, route and
+related incident IDs. The feature remains self-hosted PostgreSQL plus the
+YORSO Node API. It has no Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted
+BaaS production dependency.
+
+Marker: Batch #108 Admin Incident Trend Actions.
+Marker: /v1/admin/incidents/trends/actions.
+Marker: /v1/admin/incidents/trends/actions/:actionId/decision.
+Marker: /admin/incident-trends.
+Marker: 0024_admin_incident_trend_actions.
+Marker: no Supabase.
