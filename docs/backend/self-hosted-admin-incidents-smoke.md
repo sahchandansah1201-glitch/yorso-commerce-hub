@@ -17,6 +17,9 @@ The smoke validates:
 - `POST /v1/admin/incidents/:incidentId/workflow`;
 - `POST /v1/admin/incidents/workflow/bulk`;
 - `GET /v1/admin/incidents/export`;
+- `GET /v1/admin/incidents/execution-queue`;
+- `GET /v1/admin/incidents/execution-queue/export`;
+- `POST /v1/admin/incidents/execution-queue/bulk`;
 - admin-only access boundaries;
 - durable acknowledgement and resolution state;
 - durable assignment, escalation and timeline state;
@@ -44,6 +47,12 @@ through `/v1/admin/incidents/:incidentId/execution/export?format=json|csv`, and
 update a single execution item through
 `/v1/admin/incidents/:incidentId/execution/:itemId` without exposing raw operator
 identifiers or secrets.
+Batch #105 adds an execution queue across incidents. Operators can list bounded
+execution items through `/v1/admin/incidents/execution-queue`, filter by status,
+priority, owner, assignment, incident severity/SLA and overdue state, export the
+queue through `/v1/admin/incidents/execution-queue/export?format=json|csv`, and
+bulk update selected execution items through
+`/v1/admin/incidents/execution-queue/bulk`.
 
 ## Command
 
@@ -80,6 +89,12 @@ The script must print:
 - `admin_incidents_execution_blocked=ok`;
 - `admin_incidents_execution_note_hygiene_guard=ok`;
 - `admin_incidents_execution_missing_item_guard=ok`;
+- `admin_incidents_execution_queue=ok`;
+- `admin_incidents_execution_queue_filters=ok`;
+- `admin_incidents_execution_queue_export_json=ok`;
+- `admin_incidents_execution_queue_export_csv=ok`;
+- `admin_incidents_execution_queue_bulk=ok`;
+- `admin_incidents_execution_queue_note_hygiene_guard=ok`;
 - `admin_incidents_note_hygiene_guard=ok`;
 - `admin_incidents_acknowledge=ok`;
 - `admin_incidents_assign=ok`;
@@ -108,6 +123,8 @@ sanitized JSON/CSV export use small indexed tables keyed by incident id.
 Handoff, remediation plan and postmortem reads are bounded by a single incident id.
 Execution tracker reads are also bounded by a single incident id. Execution
 updates are single item upserts keyed by `(incident_id, item_id)`.
+Execution queue writes are bounded bulk updates capped by the API contract and
+operate on explicit `(incidentId, itemId)` pairs only.
 
 Cache/backpressure: no browser polling. Operators refresh explicitly. API
 request guardrails, admin role checks and audit backpressure remain active.
@@ -132,6 +149,7 @@ Marker: Batch #101.
 Marker: Batch #102.
 Marker: Batch #103.
 Marker: Batch #104.
+Marker: Batch #105.
 Marker: admin incident response.
 Marker: admin incident workflow.
 Marker: admin incident detail handoff.
@@ -143,13 +161,18 @@ Marker: /v1/admin/incidents/:incidentId/remediation.
 Marker: /v1/admin/incidents/:incidentId/postmortem.
 Marker: /v1/admin/incidents/:incidentId/execution.
 Marker: /v1/admin/incidents/:incidentId/execution/export.
+Marker: /v1/admin/incidents/execution-queue.
+Marker: /v1/admin/incidents/execution-queue/export.
+Marker: /v1/admin/incidents/execution-queue/bulk.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
 Marker: /admin/incidents/:incidentId.
+Marker: /admin/incident-execution.
 Marker: smoke:self-hosted-admin-incidents.
 Marker: smoke:e2e:admin-incidents.
 Marker: smoke:e2e:admin-incident-detail.
+Marker: smoke:e2e:admin-incident-execution-queue.
 Marker: admin_incidents_acknowledge=ok.
 Marker: admin_incidents_assign=ok.
 Marker: admin_incidents_escalate=ok.
@@ -170,6 +193,12 @@ Marker: admin_incidents_execution_done=ok.
 Marker: admin_incidents_execution_blocked=ok.
 Marker: admin_incidents_execution_note_hygiene_guard=ok.
 Marker: admin_incidents_execution_missing_item_guard=ok.
+Marker: admin_incidents_execution_queue=ok.
+Marker: admin_incidents_execution_queue_filters=ok.
+Marker: admin_incidents_execution_queue_export_json=ok.
+Marker: admin_incidents_execution_queue_export_csv=ok.
+Marker: admin_incidents_execution_queue_bulk=ok.
+Marker: admin_incidents_execution_queue_note_hygiene_guard=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.

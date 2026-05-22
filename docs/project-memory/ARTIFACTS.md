@@ -143,3 +143,20 @@
 - `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime markers for execution plan/export/start/done/blocked/hygiene/missing-item guards.
 - `docs/backend/self-hosted-admin-incidents-smoke.md`: Batch #104 incident execution smoke documentation.
 - `docs/backend/production-scale-baseline.md`: Batch #104 10,000 concurrent users capacity review.
+
+## Batch #105 Admin Incident Execution Queue
+
+- `packages/contracts/src/admin-incidents.ts`: execution queue query/export/response/bulk-update DTOs.
+- `apps/api/src/modules/admin-incidents/service.ts`: cross-incident execution queue derivation, filters, bounded JSON/CSV queue export and bulk update orchestration.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected `/v1/admin/incidents/execution-queue`, `/export` and `/bulk` routes.
+- `apps/api/src/modules/admin-incidents/service.test.ts`: service coverage for queue filters, export, bulk partial failure and note hygiene.
+- `src/lib/admin-incidents-api.ts`: frontend queue, queue export and bulk-update client methods.
+- `src/lib/use-admin-incident-execution-queue.ts`: frontend hook for disabled/session/forbidden/loading/error/ready states and queue mutation.
+- `src/pages/admin/AdminIncidentExecutionQueue.tsx`: `/admin/incident-execution` page with filters, summary, export and bulk controls.
+- `src/components/admin/AdminOperatorNav.tsx`: admin navigation link for execution queue.
+- `e2e/admin-incident-execution-queue.spec.ts`: API-backed browser smoke for filters, JSON/CSV export, bulk update and session headers.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime markers for execution queue read/filter/export/bulk/hygiene guards.
+- `docs/backend/self-hosted-admin-incidents-smoke.md`: Batch #105 incident execution queue smoke documentation.
+- `docs/backend/self-hosted-backend-architecture.md`: Batch #105 self-hosted architecture note.
+- `docs/backend/self-hosted-validation.md`: Batch #105 validation contract.
+- `docs/backend/production-scale-baseline.md`: Batch #105 10,000 concurrent users capacity review.

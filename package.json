@@ -85,6 +85,7 @@
     "smoke:e2e:admin-audit-events": "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run",
     "smoke:e2e:admin-incidents": "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incidents:run",
     "smoke:e2e:admin-incident-detail": "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-detail:run",
+    "smoke:e2e:admin-incident-execution-queue": "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-execution-queue:run",
     "smoke:e2e:frontend-no-supabase-env:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/frontend-no-supabase-env.spec.ts --project=chromium",
     "smoke:e2e:self-hosted-access-runtime:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/self-hosted-access-runtime.spec.ts --project=chromium",
     "smoke:e2e:account-company": "npm run build && npm run smoke:e2e:account-company:run",
@@ -129,6 +130,7 @@
     "smoke:e2e:admin-audit-events:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-audit-events.spec.ts --project=chromium",
     "smoke:e2e:admin-incidents:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incidents.spec.ts --project=chromium",
     "smoke:e2e:admin-incident-detail:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incident-detail.spec.ts --project=chromium",
+    "smoke:e2e:admin-incident-execution-queue:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incident-execution-queue.spec.ts --project=chromium",
     "smoke:e2e:api-backed-access-flows:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/supplier-directory-profile-api-flow.spec.ts e2e/offer-catalog-detail-api-flow.spec.ts e2e/supplier-access-notification-center-api-flow.spec.ts --project=chromium",
     "smoke:e2e:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/smoke-core.spec.ts e2e/offer-detail-access.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-catalog-detail-flow.spec.ts e2e/offers-catalog-paging.spec.ts e2e/suppliers-directory-paging.spec.ts e2e/supplier-profile-detail.spec.ts e2e/supplier-directory-profile-flow.spec.ts e2e/profile-legacy-redirects.spec.ts e2e/account-personal-save-enter-focus.spec.ts e2e/account-personal-autosave-no-focus-steal.spec.ts e2e/account-personal-validation-focus.spec.ts e2e/account-workspace-sections.spec.ts e2e/account-company-edit-contract.spec.ts e2e/account-branches-crud.spec.ts e2e/account-products-crud.spec.ts e2e/account-meta-regions-crud.spec.ts e2e/account-notifications-editing.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-locked-i18n.spec.ts e2e/suppliers-no-horizontal-overflow.spec.ts e2e/blog-mobile-locale-390.spec.ts --project=chromium",
     "account:reports:run": "npm run smoke:e2e:account-company:report:run && node scripts/copy-account-report-pack.mjs account-company-save-flow && npm run smoke:e2e:account-products:report:run && node scripts/copy-account-report-pack.mjs account-products-save-flow",
@@ -136,7 +138,7 @@
     "smoke:e2e:account-reports": "npm run build && npm run account:reports:run && npm run account:reports:verify-suite && npm run account:reports:summary -- --company-root account-report-packs/account-company-save-flow --products-root account-report-packs/account-products-save-flow",
     "test:tooling": "vitest run src/test/account-report-artifact-tooling.test.ts",
     "test:engineering-lessons": "vitest run src/test/engineering-lessons-guard.test.ts",
-    "ci:full": "npm run ci:core && npm run smoke:e2e:frontend-no-supabase-env && npm run smoke:e2e:self-hosted-access-runtime && npm run smoke:e2e:self-hosted-auth-frontend && npm run smoke:e2e:admin-runtime-status && npm run smoke:e2e:admin-access-review && npm run smoke:e2e:admin-access-grants && npm run smoke:e2e:admin-operations && npm run smoke:e2e:admin-audit-events && npm run smoke:e2e:admin-incidents && npm run smoke:e2e:admin-incident-detail && npm run smoke:e2e && npm run smoke:e2e:account-reports",
+    "ci:full": "npm run ci:core && npm run smoke:e2e:frontend-no-supabase-env && npm run smoke:e2e:self-hosted-access-runtime && npm run smoke:e2e:self-hosted-auth-frontend && npm run smoke:e2e:admin-runtime-status && npm run smoke:e2e:admin-access-review && npm run smoke:e2e:admin-access-grants && npm run smoke:e2e:admin-operations && npm run smoke:e2e:admin-audit-events && npm run smoke:e2e:admin-incidents && npm run smoke:e2e:admin-incident-detail && npm run smoke:e2e:admin-incident-execution-queue && npm run smoke:e2e && npm run smoke:e2e:account-reports",
     "check:backend-policy": "node scripts/check-self-hosted-backend-policy.mjs",
     "check:supabase-boundary": "node scripts/check-supabase-production-boundary.mjs",
     "check:self-hosted-infra": "node scripts/check-self-hosted-infra.mjs",
@@ -156,7 +158,7 @@
     "test:admin-access-grants-frontend": "vitest run src/lib/admin-access-grants-api.test.ts src/lib/use-admin-access-grants.test.tsx src/pages/admin/AdminAccessGrants.test.tsx",
     "test:admin-operations-frontend": "vitest run src/lib/admin-operations-api.test.ts src/lib/use-admin-operations-overview.test.tsx src/pages/admin/AdminOperations.test.tsx",
     "test:admin-audit-frontend": "vitest run src/lib/admin-audit-api.test.ts src/lib/use-admin-audit-events.test.tsx src/pages/admin/AdminAuditEvents.test.tsx",
-    "test:admin-incidents-frontend": "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx"
+    "test:admin-incidents-frontend": "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

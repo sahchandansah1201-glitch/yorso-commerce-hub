@@ -12,7 +12,7 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-22"
   dirty_worktree_before_project_memory: true
-  active_branch: "codex/batch104-incident-remediation-execution"
+  active_branch: "codex/batch105-incident-execution-queue"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
@@ -34,27 +34,27 @@ active_workstream:
   id: "self_hosted_production_batches"
   summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
   current_batch:
-    id: 104
-    summary: "Admin incident execution tracker with durable execution item state, self-hosted admin execution endpoints, JSON/CSV execution export, explicit start/done/blocked/skipped workflow, note hygiene, frontend execution tracker on incident detail, API hook/client updates, e2e coverage, runtime smoke markers, DB migration coverage, docs and production-scale guards."
+    id: 105
+    summary: "Admin incident execution queue across incidents with bounded queue filters, JSON/CSV queue export, bulk execution updates, admin-session guarded API routes, frontend API/hook/page, browser smoke, runtime smoke markers, docs and production-scale guards."
     status: "implemented_locally_validation_passed_ready_for_pr"
     confirmed_files:
       - "apps/api/src/modules/admin-incidents/service.ts"
       - "apps/api/src/modules/admin-incidents/routes.ts"
-      - "apps/api/src/modules/admin-incidents/repository.ts"
-      - "apps/api/src/modules/admin-incidents/postgres-repository.ts"
+      - "apps/api/src/modules/admin-incidents/service.test.ts"
       - "packages/contracts/src/admin-incidents.ts"
-      - "packages/db/migrations/0021_admin_incident_execution.sql"
       - "src/lib/admin-incidents-api.ts"
-      - "src/lib/use-admin-incident-detail.ts"
-      - "src/pages/admin/AdminIncidentDetail.tsx"
-      - "e2e/admin-incident-detail.spec.ts"
+      - "src/lib/use-admin-incident-execution-queue.ts"
+      - "src/pages/admin/AdminIncidentExecutionQueue.tsx"
+      - "e2e/admin-incident-execution-queue.spec.ts"
       - "scripts/smoke-self-hosted-admin-incidents.mjs"
       - "docs/backend/self-hosted-admin-incidents-smoke.md"
+      - "docs/backend/self-hosted-backend-architecture.md"
+      - "docs/backend/self-hosted-validation.md"
       - "docs/backend/production-scale-baseline.md"
 
 next_actions:
-  - "Commit, push, open PR `[codex] Batch #104 admin incident execution`, wait checks, merge after green."
-  - "Provide numbered Lovable Prompt #104 after merge to main."
+  - "Commit, push, open PR `[codex] Batch #105 admin incident execution queue`, wait checks, merge after green."
+  - "Provide numbered Lovable Prompt #105 after merge to main."
   - "Include Batch Size Report after each completed batch."
 
 last_confirmed_checks:
@@ -73,6 +73,7 @@ last_confirmed_checks:
   - "Batch #102 validation passed: contracts:build, api:build, tsc -b --noEmit, focused admin incidents API tests (69), test:admin-incidents-frontend (10), test:admin-operations-frontend (10), test:db-contract (25), test:db-migrations (16), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, check:engineering-lessons, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incidents (2), smoke:e2e:admin-operations (2), ci:core and git diff --check."
   - "Batch #103 validation passed after remediation expansion: lint, contracts:build, api:build, tsc -b --noEmit, focused admin incident API tests (70), test:admin-incidents-frontend (15), test:admin-operations-frontend (10), check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-detail (1), smoke:e2e:admin-incidents (2), ci:core."
   - "Batch #104 validation passed after execution export expansion: contracts:build, api:build, focused admin incidents API tests (71), test:admin-incidents-frontend (15), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-detail (1), lint, tsc -b --noEmit and ci:core."
+  - "Batch #105 validation passed: contracts:build, api:build, tsc -b --noEmit, test:api (135), test:admin-incidents-frontend (19), check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-execution-queue (1), lint and ci:core."
 
 quality_rules:
   - "Use repository files as source of truth."
@@ -93,4 +94,4 @@ critical_files:
   - "docs/project-memory/ARTIFACTS.md"
 
 open_questions:
-  - "GitHub Actions status for Batch #104 is not confirmed until PR is opened and checks complete."
+  - "GitHub Actions status for Batch #105 is not confirmed until PR is opened and checks complete."

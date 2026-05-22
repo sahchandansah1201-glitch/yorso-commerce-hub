@@ -400,6 +400,60 @@ describe("admin incident service", () => {
       ),
     ).rejects.toMatchObject({ code: "admin_incident_execution_item_not_found" });
 
+    const queue = await service.listIncidentExecutionQueue({
+      limit: 50,
+      priority: "immediate",
+      status: "done",
+    }, requestId);
+    expect(queue.ok).toBe(true);
+    expect(queue.summary.total).toBeGreaterThanOrEqual(1);
+    expect(queue.summary.done).toBeGreaterThanOrEqual(1);
+    expect(queue.items[0].incidentId).toBe(incidentId);
+    expect(queue.items[0].targetDueAt).toBeTruthy();
+    expect(JSON.stringify(queue)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const queueJson = await service.exportIncidentExecutionQueue({ format: "json", status: "done" }, requestId);
+    expect(queueJson.contentType).toContain("application/json");
+    expect(queueJson.fileName).toContain("execution-queue.json");
+    expect(queueJson.body).toContain("\"items\"");
+    expect(queueJson.body).not.toContain("admin@example.com");
+
+    const queueCsv = await service.exportIncidentExecutionQueue({ format: "csv", status: "done" }, requestId);
+    expect(queueCsv.contentType).toContain("text/csv");
+    expect(queueCsv.fileName).toContain("execution-queue.csv");
+    expect(queueCsv.body).toContain("\"incidentId\",\"itemId\"");
+    expect(queueCsv.body).not.toContain("admin@example.com");
+
+    const nextOpen = (await service.listIncidentExecutionQueue({ limit: 50, status: "open" }, requestId)).items[0];
+    expect(nextOpen).toBeDefined();
+    const bulk = await service.bulkUpdateIncidentExecutionQueue(
+      {
+        items: [
+          { incidentId: nextOpen.incidentId, itemId: nextOpen.itemId },
+          { incidentId: "audit:missing", itemId: "missing:item" },
+        ],
+        note: "Bulk execution queue start.",
+        status: "in_progress",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(bulk.succeeded).toBe(1);
+    expect(bulk.failed).toEqual([{ code: "admin_incident_not_found", incidentId: "audit:missing", itemId: "missing:item" }]);
+    expect(bulk.updatedItems[0].status).toBe("in_progress");
+
+    await expect(
+      service.bulkUpdateIncidentExecutionQueue(
+        {
+          evidenceNote: "Email admin@example.com",
+          items: [{ incidentId: nextOpen.incidentId, itemId: nextOpen.itemId }],
+          status: "done",
+        },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ issues: expect.any(Array) });
+
     const postmortemJson = await service.exportIncidentPostmortem(incidentId, { format: "json" }, requestId);
     expect(postmortemJson.contentType).toContain("application/json");
     expect(postmortemJson.fileName).toContain("postmortem.json");

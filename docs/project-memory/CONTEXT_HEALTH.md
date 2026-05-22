@@ -8,10 +8,10 @@
 context_risk: "low"
 last_checkpoint: "2026-05-22"
 last_handoff_ready: true
-recommended_action: "commit, push, PR, GitHub checks and merge Batch #104; then continue only from repository evidence"
+recommended_action: "commit, push, PR, GitHub checks and merge Batch #105; then continue only from repository evidence"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch104-incident-remediation-execution"
-current_batch: 104
+active_branch: "codex/batch105-incident-execution-queue"
+current_batch: 105
 ```
 
 ## Уровни риска

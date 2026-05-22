@@ -349,13 +349,18 @@ export const adminIncidentExecutionResponseSchema = z.object({
   summary: adminIncidentExecutionSummarySchema,
 });
 
-export const adminIncidentExecutionUpdateRequestSchema = z.object({
+const adminIncidentExecutionUpdateRequestBaseSchema = z.object({
   assignedToUserId: z.string().uuid().optional(),
   blockedReason: adminIncidentSafeNoteSchema.optional(),
   evidenceNote: adminIncidentSafeNoteSchema.optional(),
   note: adminIncidentSafeNoteSchema.optional(),
   status: adminIncidentExecutionStatusSchema,
-}).superRefine((value, context) => {
+});
+
+const refineAdminIncidentExecutionUpdate = (
+  value: z.infer<typeof adminIncidentExecutionUpdateRequestBaseSchema>,
+  context: z.RefinementCtx,
+) => {
   if (value.status === "blocked" && !value.blockedReason) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
@@ -370,10 +375,81 @@ export const adminIncidentExecutionUpdateRequestSchema = z.object({
       path: ["evidenceNote"],
     });
   }
-});
+};
+
+export const adminIncidentExecutionUpdateRequestSchema =
+  adminIncidentExecutionUpdateRequestBaseSchema.superRefine(refineAdminIncidentExecutionUpdate);
 
 export const adminIncidentExecutionUpdateResponseSchema = adminIncidentExecutionResponseSchema.extend({
   updatedItem: adminIncidentExecutionItemSchema,
+});
+
+export const adminIncidentExecutionAssignmentFilterSchema = z.enum(["assigned", "unassigned"]);
+export const adminIncidentExecutionOwnerRoleSchema = z.enum(["operator", "engineering", "security", "founder"]);
+
+export const adminIncidentExecutionQueueQuerySchema = z.object({
+  assigned: adminIncidentExecutionAssignmentFilterSchema.optional(),
+  incidentSeverity: adminIncidentSeveritySchema.optional(),
+  incidentSlaStatus: adminIncidentSlaStatusSchema.optional(),
+  incidentStatus: adminIncidentStatusSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+  overdueOnly: z.coerce.boolean().optional(),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema.optional(),
+  priority: adminIncidentExecutionPrioritySchema.optional(),
+  source: adminIncidentExecutionSourceSchema.optional(),
+  status: adminIncidentExecutionStatusSchema.optional(),
+});
+
+export const adminIncidentExecutionQueueExportQuerySchema = adminIncidentExecutionQueueQuerySchema.extend({
+  format: adminIncidentExportFormatSchema.default("json"),
+});
+
+export const adminIncidentExecutionQueueItemSchema = adminIncidentExecutionItemSchema.extend({
+  incidentDueAt: z.string().datetime(),
+  incidentId: z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/),
+  incidentSeverity: adminIncidentSeveritySchema,
+  incidentSlaStatus: adminIncidentSlaStatusSchema,
+  incidentSource: adminIncidentSourceSchema,
+  incidentStatus: adminIncidentStatusSchema,
+  incidentTitle: z.string().min(1).max(180),
+  overdue: z.boolean(),
+  targetDueAt: z.string().datetime(),
+});
+
+export const adminIncidentExecutionQueueSummarySchema = adminIncidentExecutionSummarySchema.extend({
+  assigned: z.number().int().min(0),
+  overdue: z.number().int().min(0),
+  unassigned: z.number().int().min(0),
+});
+
+export const adminIncidentExecutionQueueResponseSchema = z.object({
+  generatedAt: z.string().datetime(),
+  items: z.array(adminIncidentExecutionQueueItemSchema).max(100),
+  limit: z.number().int().min(1).max(100),
+  ok: z.literal(true),
+  offset: z.number().int().min(0),
+  requestId: z.string().uuid(),
+  summary: adminIncidentExecutionQueueSummarySchema,
+});
+
+export const adminIncidentExecutionQueueBulkUpdateRequestSchema = adminIncidentExecutionUpdateRequestBaseSchema.extend({
+  items: z.array(z.object({
+    incidentId: z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/),
+    itemId: z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/),
+  })).min(1).max(50),
+}).superRefine(refineAdminIncidentExecutionUpdate);
+
+export const adminIncidentExecutionQueueBulkUpdateResponseSchema = z.object({
+  failed: z.array(z.object({
+    code: z.enum(["admin_incident_not_found", "admin_incident_execution_item_not_found"]),
+    incidentId: z.string().min(1).max(180),
+    itemId: z.string().min(1).max(180),
+  })).max(50),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  succeeded: z.number().int().min(0).max(50),
+  updatedItems: z.array(adminIncidentExecutionQueueItemSchema).max(50),
 });
 
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
@@ -387,8 +463,17 @@ export type AdminIncidentEscalationLevel = z.infer<typeof adminIncidentEscalatio
 export type AdminIncidentExportFormat = z.infer<typeof adminIncidentExportFormatSchema>;
 export type AdminIncidentExportResponse = z.infer<typeof adminIncidentExportResponseSchema>;
 export type AdminIncidentExecutionItem = z.infer<typeof adminIncidentExecutionItemSchema>;
+export type AdminIncidentExecutionAssignmentFilter = z.infer<typeof adminIncidentExecutionAssignmentFilterSchema>;
 export type AdminIncidentExecutionExportQuery = z.infer<typeof adminIncidentExecutionExportQuerySchema>;
+export type AdminIncidentExecutionOwnerRole = z.infer<typeof adminIncidentExecutionOwnerRoleSchema>;
 export type AdminIncidentExecutionPriority = z.infer<typeof adminIncidentExecutionPrioritySchema>;
+export type AdminIncidentExecutionQueueBulkUpdateRequest = z.infer<typeof adminIncidentExecutionQueueBulkUpdateRequestSchema>;
+export type AdminIncidentExecutionQueueBulkUpdateResponse = z.infer<typeof adminIncidentExecutionQueueBulkUpdateResponseSchema>;
+export type AdminIncidentExecutionQueueExportQuery = z.infer<typeof adminIncidentExecutionQueueExportQuerySchema>;
+export type AdminIncidentExecutionQueueItem = z.infer<typeof adminIncidentExecutionQueueItemSchema>;
+export type AdminIncidentExecutionQueueQuery = z.infer<typeof adminIncidentExecutionQueueQuerySchema>;
+export type AdminIncidentExecutionQueueResponse = z.infer<typeof adminIncidentExecutionQueueResponseSchema>;
+export type AdminIncidentExecutionQueueSummary = z.infer<typeof adminIncidentExecutionQueueSummarySchema>;
 export type AdminIncidentExecutionResponse = z.infer<typeof adminIncidentExecutionResponseSchema>;
 export type AdminIncidentExecutionSource = z.infer<typeof adminIncidentExecutionSourceSchema>;
 export type AdminIncidentExecutionStatus = z.infer<typeof adminIncidentExecutionStatusSchema>;

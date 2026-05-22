@@ -173,6 +173,9 @@ jobs:
       - name: Run admin incident detail browser smoke
         run: npm run smoke:e2e:admin-incident-detail
 
+      - name: Run admin incident execution queue browser smoke
+        run: npm run smoke:e2e:admin-incident-execution-queue
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

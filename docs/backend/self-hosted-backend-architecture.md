@@ -1082,3 +1082,30 @@ for shift handoff and offline review.
 
 This remains a self-hosted admin control-plane workflow. It has no Supabase,
 Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production dependency.
+
+## Batch #105 Admin Incident Execution Queue
+
+Batch #105 adds an operator-level execution queue for the durable execution
+items introduced in Batch #104. The API adds:
+
+- `GET /v1/admin/incidents/execution-queue`;
+- `GET /v1/admin/incidents/execution-queue/export?format=json|csv`;
+- `POST /v1/admin/incidents/execution-queue/bulk`.
+
+The queue derives bounded execution items from the existing incident response
+plans and merges durable progress from `yorso_admin_incident_execution_items`.
+It does not add a new hot-path table. Reads are capped with typed filters,
+`limit <= 100` and `offset <= 10,000`; bulk writes are capped at 50 selected
+`(incidentId, itemId)` refs.
+
+The frontend adds `/admin/incident-execution`, a control-plane queue for
+filtering execution work by item status, priority, source, owner role,
+assignment, incident status, incident severity, incident SLA and overdue state.
+Operators can export the current bounded page as JSON/CSV and bulk-start,
+bulk-complete or bulk-block selected execution items. Notes, evidence and
+blocked reasons reuse the same hygiene guard that rejects raw emails, UUIDs,
+session ids and token-like secrets.
+
+This remains an admin control-plane feature, not a buyer/supplier hot path. It
+has no Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production
+dependency.

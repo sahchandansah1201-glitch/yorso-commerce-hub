@@ -200,3 +200,43 @@ Keep this file factual and append-only.
   - `npm run lint` passed.
   - `npx tsc -b --noEmit` passed.
   - `npm run ci:core` passed.
+
+- Started Batch #105 locally on `codex/batch105-incident-execution-queue`.
+- Added a cross-incident admin incident execution queue:
+  - `GET /v1/admin/incidents/execution-queue`;
+  - `GET /v1/admin/incidents/execution-queue/export?format=json|csv`;
+  - `POST /v1/admin/incidents/execution-queue/bulk`;
+  - frontend route `/admin/incident-execution`.
+- Added bounded queue filters for execution status, priority, source, owner role,
+  assignment, incident status, incident severity, incident SLA and overdue state.
+- Added bulk update support capped at 50 `(incidentId, itemId)` refs with partial
+  failure reporting and existing note/evidence hygiene rules.
+- Added frontend API methods, queue hook, queue page, admin nav link, page tests,
+  hook tests and API-backed browser e2e.
+- Extended self-hosted admin incident smoke with queue read/filter/export/bulk
+  markers and queue note hygiene guard.
+- Updated production-scale docs, self-hosted incident smoke docs, backend
+  architecture docs, validation docs, guard scripts and CI e2e wiring for Batch
+  #105.
+- Fixed process/code issues found during Batch #105:
+  - Zod `.extend()` was attempted on a refined schema; factored the execution
+    update base schema and reused the same refinement for single-item and bulk
+    updates.
+  - Page copy used `language` from `useLanguage`, but the context exposes
+    `lang`; corrected the page and kept the test.
+  - Queue tests initially matched export URLs and incident title text too
+    narrowly; changed them to robust route/query and regex assertions.
+  - Service test initially combined an open queue item's `itemId` with a stale
+    `incidentId`; corrected it to use the pair from the selected queue item.
+- Confirmed Batch #105 validation:
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run test:api` passed, 135 tests.
+  - `npm run test:admin-incidents-frontend` passed, 19 tests.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run smoke:e2e:admin-incident-execution-queue` passed, 1 browser test.
+  - `npm run lint` passed.
+  - `npm run ci:core` passed.
