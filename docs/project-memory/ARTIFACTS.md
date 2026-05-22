@@ -181,3 +181,27 @@
 - `docs/backend/self-hosted-backend-architecture.md`: Batch #106 architecture note.
 - `docs/backend/self-hosted-validation.md`: Batch #106 validation contract.
 - `docs/backend/production-scale-baseline.md`: Batch #106 10,000 concurrent users capacity review.
+
+## Batch #107 Admin Incident Trend Analytics
+
+- `packages/contracts/src/admin-incidents.ts`: trend query/export/response/anomaly/briefing DTOs.
+- `apps/api/src/modules/admin-incidents/service.ts`: bounded trend aggregation, route risk, SLA posture, anomaly and briefing generation.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected `/trends`, `/trends/export`, `/trends/anomalies` and `/trends/briefing` routes.
+- `apps/api/src/modules/admin-incidents/service.test.ts`: service coverage for trend analytics and sanitized output.
+- `packages/db/migrations/0023_admin_incident_trend_analytics.sql`: trend analytics indexes for events, acknowledgements and execution items.
+- `packages/db/migration-manifest.json`: manifest entry for `0023_admin_incident_trend_analytics`.
+- `src/lib/admin-incidents-api.ts`: frontend trend, export, anomaly and briefing client methods.
+- `src/lib/use-admin-incident-trends.ts`: frontend hook for disabled, session-required, forbidden, loading, error and ready states.
+- `src/pages/admin/AdminIncidentTrends.tsx`: `/admin/incident-trends` page with filters, buckets, route risks, SLA, anomalies, briefing and exports.
+- `src/components/admin/AdminOperatorNav.tsx`: admin navigation link for trends.
+- `e2e/admin-incident-trends.spec.ts`: API-backed browser smoke for filters, export, anomalies, briefing and identity hygiene.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime markers for trend read/filter/export/anomalies/briefing.
+- `docs/backend/admin-incident-trend-analytics.md`: operator and implementation guide.
+- `docs/backend/admin-incident-trend-api-contract.md`: route and contract guide.
+- `docs/backend/admin-incident-trend-load-test-plan.md`: load-test plan for the 10,000 concurrent users baseline.
+- `docs/backend/admin-incident-trend-security-model.md`: access and export security model.
+- `docs/backend/admin-incident-trends-data-dictionary.md`: trend field dictionary.
+- `docs/backend/admin-incident-trends-indexing.md`: indexing note for migration 0023.
+- `docs/testing/admin-incident-trends-e2e.md`: browser smoke documentation.
+- `docs/testing/admin-incident-trends-contract-tests.md`: contract test documentation.
+- `docs/testing/admin-incident-trends-smoke.md`: runtime smoke documentation.

@@ -53,6 +53,13 @@ priority, owner, assignment, incident severity/SLA and overdue state, export the
 queue through `/v1/admin/incidents/execution-queue/export?format=json|csv`, and
 bulk update selected execution items through
 `/v1/admin/incidents/execution-queue/bulk`.
+Batch #106 adds workload and correlation reads for bounded owner load,
+capacity forecast and incident signal drill-down.
+Batch #107 adds trend analytics. Operators can list bucketed trend pressure
+through `/v1/admin/incidents/trends`, export the same bounded shape through
+`/v1/admin/incidents/trends/export?format=json|csv`, review anomalies through
+`/v1/admin/incidents/trends/anomalies`, and load an operator briefing through
+`/v1/admin/incidents/trends/briefing`.
 
 ## Command
 
@@ -95,6 +102,18 @@ The script must print:
 - `admin_incidents_execution_queue_export_csv=ok`;
 - `admin_incidents_execution_queue_bulk=ok`;
 - `admin_incidents_execution_queue_note_hygiene_guard=ok`;
+- `admin_incidents_workload=ok`;
+- `admin_incidents_workload_filters=ok`;
+- `admin_incidents_workload_export_json=ok`;
+- `admin_incidents_workload_export_csv=ok`;
+- `admin_incidents_workload_forecast=ok`;
+- `admin_incidents_correlation=ok`;
+- `admin_incidents_trends=ok`;
+- `admin_incidents_trends_filters=ok`;
+- `admin_incidents_trends_export_json=ok`;
+- `admin_incidents_trends_export_csv=ok`;
+- `admin_incidents_trends_anomalies=ok`;
+- `admin_incidents_trends_briefing=ok`;
 - `admin_incidents_note_hygiene_guard=ok`;
 - `admin_incidents_acknowledge=ok`;
 - `admin_incidents_assign=ok`;
@@ -136,6 +155,10 @@ indexes for bounded timeline reads. Incident derivation remains bounded by
 query limits and typed filters.
 `yorso_admin_incident_execution_items` has incident/status, assignee/status and
 source/status indexes for bounded execution reads and operator work queues.
+`0022_admin_incident_workload_correlation` adds workload and correlation
+indexes. `0023_admin_incident_trend_analytics` adds event bucket, event
+drill-down, acknowledgement status/escalation, execution status/source,
+incident execution and open-priority indexes for trend analytics.
 
 Failure mode: missing API, missing session, forbidden role and backend errors
 render explicit UI states. The frontend does not fabricate incidents.
@@ -150,6 +173,7 @@ Marker: Batch #102.
 Marker: Batch #103.
 Marker: Batch #104.
 Marker: Batch #105.
+Marker: Batch #107.
 Marker: admin incident response.
 Marker: admin incident workflow.
 Marker: admin incident detail handoff.
@@ -164,11 +188,16 @@ Marker: /v1/admin/incidents/:incidentId/execution/export.
 Marker: /v1/admin/incidents/execution-queue.
 Marker: /v1/admin/incidents/execution-queue/export.
 Marker: /v1/admin/incidents/execution-queue/bulk.
+Marker: /v1/admin/incidents/trends.
+Marker: /v1/admin/incidents/trends/export.
+Marker: /v1/admin/incidents/trends/anomalies.
+Marker: /v1/admin/incidents/trends/briefing.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
 Marker: /admin/incidents/:incidentId.
 Marker: /admin/incident-execution.
+Marker: /admin/incident-trends.
 Marker: smoke:self-hosted-admin-incidents.
 Marker: smoke:e2e:admin-incidents.
 Marker: smoke:e2e:admin-incident-detail.
@@ -205,7 +234,14 @@ Marker: admin_incidents_workload_export_json=ok.
 Marker: admin_incidents_workload_export_csv=ok.
 Marker: admin_incidents_workload_forecast=ok.
 Marker: admin_incidents_correlation=ok.
+Marker: admin_incidents_trends=ok.
+Marker: admin_incidents_trends_filters=ok.
+Marker: admin_incidents_trends_export_json=ok.
+Marker: admin_incidents_trends_export_csv=ok.
+Marker: admin_incidents_trends_anomalies=ok.
+Marker: admin_incidents_trends_briefing=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.
 Marker: admin_incidents_bulk_workflow_validation_guard=ok.
+Marker: 10,000 concurrent users.

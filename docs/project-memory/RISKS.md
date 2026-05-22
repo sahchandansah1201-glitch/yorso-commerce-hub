@@ -54,6 +54,19 @@
   Impact: Unbounded reads or raw audit/session identifiers could slow operator response and leak sensitive operational context.
   Mitigation: Batch #106 keeps workload and correlation routes behind self-hosted admin session and role guards, caps workload/correlation result sizes, exports only bounded JSON/CSV payloads, uses hashed identities, adds PostgreSQL indexes for status/source/owner/timeline reads, and verifies identity hygiene through runtime smoke plus browser e2e.
 
+## Batch #107 Trend Analytics Export Drift
+
+- Risk: trend analytics, anomaly review and operator briefing could drift into a
+  broad incident export or accidentally expose raw operator identifiers in CSV
+  or browser DOM.
+- Impact: admin control-plane export could leak internal user/session data or
+  become too heavy under the 10,000 concurrent users production baseline.
+- Mitigation: Batch #107 keeps trend routes admin-session protected, uses
+  aggregate-first contracts, caps query limits, adds CSV/JSON export smoke,
+  adds browser negative checks for email/session/database/Redis strings, adds
+  migration `0023_admin_incident_trend_analytics`, and documents load-test and
+  security boundaries.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.

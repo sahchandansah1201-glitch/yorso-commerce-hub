@@ -497,6 +497,136 @@ export interface AdminIncidentCorrelationResponse {
   timeline: AdminIncidentTimelineEvent[];
 }
 
+export type AdminIncidentTrendWindow = "24h" | "7d" | "30d";
+export type AdminIncidentTrendGranularity = "hour" | "day";
+export type AdminIncidentTrendAnomalySeverity = "watch" | "warning" | "critical";
+
+export interface AdminIncidentTrendQuery {
+  granularity?: AdminIncidentTrendGranularity;
+  includeResolved?: boolean;
+  limit?: number;
+  severity?: AdminIncidentSeverity | "all";
+  source?: AdminIncidentSource | "all";
+  status?: AdminIncidentStatus | "all";
+  window?: AdminIncidentTrendWindow;
+}
+
+export interface AdminIncidentTrendBucket {
+  acknowledged: number;
+  access: number;
+  atRisk: number;
+  audit: number;
+  breached: number;
+  critical: number;
+  endAt: string;
+  executionBlocked: number;
+  executionDone: number;
+  executionOpen: number;
+  high: number;
+  key: string;
+  loadScore: number;
+  open: number;
+  policy: number;
+  resolved: number;
+  runtime: number;
+  security: number;
+  startAt: string;
+  total: number;
+}
+
+export interface AdminIncidentTrendDimension {
+  breached: number;
+  critical: number;
+  key: string;
+  label: string;
+  loadScore: number;
+  open: number;
+  sharePct: number;
+  total: number;
+}
+
+export interface AdminIncidentTrendRouteRisk {
+  blocked: number;
+  breached: number;
+  critical: number;
+  loadScore: number;
+  recommendedAction: string;
+  route: string;
+  total: number;
+}
+
+export interface AdminIncidentTrendResponse {
+  buckets: AdminIncidentTrendBucket[];
+  generatedAt: string;
+  granularity: AdminIncidentTrendGranularity;
+  limit: number;
+  ok: true;
+  requestId: string;
+  routeRisks: AdminIncidentTrendRouteRisk[];
+  severityMix: AdminIncidentTrendDimension[];
+  sla: {
+    acknowledgedPct: number;
+    breachRatePct: number;
+    breached: number;
+    openCritical: number;
+    oldestOpenMinutes: number;
+    unresolved: number;
+  };
+  sourceMix: AdminIncidentTrendDimension[];
+  statusMix: AdminIncidentTrendDimension[];
+  summary: {
+    averageLoadScore: number;
+    breached: number;
+    critical: number;
+    peakBucketKey: string | null;
+    peakBucketLoadScore: number;
+    total: number;
+    trendDirection: "down" | "flat" | "up";
+  };
+  window: AdminIncidentTrendWindow;
+}
+
+export interface AdminIncidentTrendAnomaly {
+  baseline: number;
+  current: number;
+  deltaPct: number;
+  evidence: Array<{ label: string; value: string }>;
+  recommendedAction: string;
+  severity: AdminIncidentTrendAnomalySeverity;
+  signal: string;
+}
+
+export interface AdminIncidentTrendAnomaliesResponse {
+  anomalies: AdminIncidentTrendAnomaly[];
+  generatedAt: string;
+  ok: true;
+  requestId: string;
+  summary: {
+    critical: number;
+    highestSeverity: AdminIncidentTrendAnomalySeverity | null;
+    warning: number;
+    watch: number;
+  };
+  window: AdminIncidentTrendWindow;
+}
+
+export interface AdminIncidentTrendBriefingResponse {
+  capacityReview: string[];
+  generatedAt: string;
+  ok: true;
+  operatorActions: string[];
+  requestId: string;
+  riskRegister: AdminIncidentTrendRouteRisk[];
+  sections: Array<{ body: string[]; title: string }>;
+  summary: {
+    headline: string;
+    highestAnomalySeverity: AdminIncidentTrendAnomalySeverity | null;
+    totalIncidents: number;
+    trendDirection: "down" | "flat" | "up";
+  };
+  window: AdminIncidentTrendWindow;
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -575,6 +705,20 @@ const workloadQueryString = (
   if (query.priority && query.priority !== "all") params.set("priority", query.priority);
   if (query.source && query.source !== "all") params.set("source", query.source);
   if (query.status && query.status !== "all") params.set("status", query.status);
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+};
+
+const trendQueryString = (query: AdminIncidentTrendQuery & { format?: AdminIncidentExportFormat } = {}) => {
+  const params = new URLSearchParams();
+  if (query.format) params.set("format", query.format);
+  if (query.granularity) params.set("granularity", query.granularity);
+  if (query.includeResolved) params.set("includeResolved", "true");
+  if (query.limit) params.set("limit", String(query.limit));
+  if (query.severity && query.severity !== "all") params.set("severity", query.severity);
+  if (query.source && query.source !== "all") params.set("source", query.source);
+  if (query.status && query.status !== "all") params.set("status", query.status);
+  if (query.window) params.set("window", query.window);
   const serialized = params.toString();
   return serialized ? `?${serialized}` : "";
 };
@@ -919,6 +1063,64 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertCorrelationShape(body);
     },
+    async trends(query: AdminIncidentTrendQuery = {}): Promise<AdminIncidentTrendResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/trends${trendQueryString(query)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentTrendResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendsShape(body);
+    },
+    async trendsExportJson(query: AdminIncidentTrendQuery = {}): Promise<AdminIncidentTrendResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trends/export${trendQueryString({ ...query, format: "json" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentTrendResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendsShape(body);
+    },
+    async trendsExportCsv(query: AdminIncidentTrendQuery = {}): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trends/export${trendQueryString({ ...query, format: "csv" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async trendAnomalies(query: AdminIncidentTrendQuery = {}): Promise<AdminIncidentTrendAnomaliesResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/trends/anomalies${trendQueryString(query)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentTrendAnomaliesResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendAnomaliesShape(body);
+    },
+    async trendBriefing(query: AdminIncidentTrendQuery = {}): Promise<AdminIncidentTrendBriefingResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/trends/briefing${trendQueryString(query)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentTrendBriefingResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendBriefingShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -1220,6 +1422,61 @@ function assertCorrelationShape(response: AdminIncidentCorrelationResponse) {
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident correlation response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendsShape(response: AdminIncidentTrendResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.buckets) ||
+    !Array.isArray(response.routeRisks) ||
+    !Array.isArray(response.sourceMix) ||
+    !Array.isArray(response.statusMix) ||
+    !Array.isArray(response.severityMix) ||
+    typeof response.summary?.total !== "number" ||
+    typeof response.summary?.trendDirection !== "string" ||
+    typeof response.sla?.breachRatePct !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trends response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendAnomaliesShape(response: AdminIncidentTrendAnomaliesResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.anomalies) ||
+    typeof response.summary?.critical !== "number" ||
+    typeof response.summary?.watch !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend anomalies response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendBriefingShape(response: AdminIncidentTrendBriefingResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.sections) ||
+    !Array.isArray(response.operatorActions) ||
+    !Array.isArray(response.capacityReview) ||
+    !Array.isArray(response.riskRegister) ||
+    typeof response.summary?.headline !== "string"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend briefing response was invalid.",
       200,
     );
   }

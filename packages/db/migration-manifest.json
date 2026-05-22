@@ -267,6 +267,19 @@
       "dependsOn": [
         "0021_admin_incident_execution"
       ]
+    },
+    {
+      "id": "0023_admin_incident_trend_analytics",
+      "file": "migrations/0023_admin_incident_trend_analytics.sql",
+      "description": "Add admin incident trend analytics indexes for bounded buckets, route risk and operator briefing reads.",
+      "ownedTables": [
+        "yorso_admin_incident_acknowledgements",
+        "yorso_admin_incident_execution_items",
+        "yorso_admin_incident_events"
+      ],
+      "dependsOn": [
+        "0022_admin_incident_workload_correlation"
+      ]
     }
   ]
 }

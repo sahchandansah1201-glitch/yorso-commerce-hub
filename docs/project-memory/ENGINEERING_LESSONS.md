@@ -367,3 +367,85 @@ then checks the existing summary fields separately.
 
 Guard: keep smoke assertions aligned with `packages/contracts/src/admin-incidents.ts`
 before adding new markers.
+
+## Batch #107: batch-size instructions must become numeric gates before coding
+
+Symptom: the user explicitly required Batch #107 to be 20 percent larger than
+Batch #106, and earlier repeated instructions about increasing batch size had
+not consistently changed execution behavior.
+
+Root cause: "larger batch" was treated as an intent instead of a measurable
+engineering constraint.
+
+Fix: Batch #107 measured Batch #106 from git (`39 files, 3872 insertions`) and
+converted the requirement into a publication gate: at least `47 files` and
+`4647 insertions`, measured with untracked files included.
+
+Guard: before publishing a production batch with an explicit size instruction,
+record the baseline, target and final size report. If the batch is below target,
+add real connected scope or state the blocker before commit.
+
+## Batch #107: service tests must use backend contract values, not UI sentinel values
+
+Symptom: `npm run test:api` failed because the trend service test passed
+`severity: "all"`, `source: "all"` and `status: "all"` directly into
+`adminIncidentTrendExportQuerySchema`.
+
+Root cause: the frontend API client accepts the UI sentinel `"all"` and strips
+it from query strings, but the backend service contract intentionally accepts
+only real enum values or absence of a filter.
+
+Fix: the service test now omits all-filter fields when testing unfiltered trend
+analytics.
+
+Follow-up: the runtime smoke had the same mistake in its trend URL and now also
+omits all-filter query params.
+
+Guard: backend service tests must use contract-native payloads. UI sentinel
+normalization belongs in frontend API tests or route parsing tests, not direct
+service fixtures.
+
+## Batch #107: Zod strips unknown object keys unless strict mode is explicit
+
+Symptom: a trend contract test expected `adminIncidentTrendResponseSchema` to
+throw when a fixture contained stale UI-only aliases such as `overdue` and
+`trendDirection` inside a bucket.
+
+Root cause: Zod object schemas strip unknown keys by default. The contract did
+not use `.strict()`, so the test assertion was testing the wrong behavior.
+
+Fix: the test now asserts that stale aliases are stripped from parsed output
+instead of expecting a thrown error.
+
+Guard: when checking stale fixture fields, verify the schema mode first. Use
+`toThrow` only for invalid known fields or strict schemas.
+
+## Batch #107: aggregate DB contract tests must include the new migration text
+
+Symptom: `test:backend-contract` failed because the shared DB index test looked
+for Batch #107 indexes in an aggregate string that ended at migration `0022`.
+
+Root cause: the test added Batch #107 expectations without appending
+`adminIncidentTrendAnalyticsSql()` to that aggregate.
+
+Fix: the aggregate now includes migration `0023_admin_incident_trend_analytics`
+before checking Batch #107 index names.
+
+Guard: whenever a DB contract test adds markers from a new migration, update
+both the reader function and every aggregate SQL string that asserts those
+markers.
+
+## Batch #107: UI dimension panels must not reuse workload field names
+
+Symptom: `npx tsc -b --noEmit` failed because the trend dimension panel rendered
+`item.overdue`, a field from earlier workload rows, while
+`AdminIncidentTrendDimension` exposes `breached`, `critical`, `open`,
+`loadScore`, `sharePct` and `total`.
+
+Root cause: the trend UI copied a metric label pattern from workload UI without
+checking the new DTO.
+
+Fix: the dimension panel now renders `Breached` from `item.breached`.
+
+Guard: for new admin surfaces, render directly from the exported TypeScript
+interface and run `npx tsc -b --noEmit` before publication.

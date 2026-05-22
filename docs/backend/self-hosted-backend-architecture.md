@@ -1139,3 +1139,40 @@ Marker: /v1/admin/incidents/execution-workload/forecast.
 Marker: /v1/admin/incidents/:incidentId/correlation.
 Marker: /admin/incident-workload.
 Marker: no Supabase.
+
+## Batch #107 Admin Incident Trend Analytics
+
+Batch #107 adds trend analytics for the self-hosted admin incident runtime. It
+continues the same operator control-plane line as the incident list, detail,
+execution, queue and workload screens. The frontend route is
+`/admin/incident-trends`.
+
+The backend routes are:
+
+- `GET /v1/admin/incidents/trends`;
+- `GET /v1/admin/incidents/trends/export?format=json|csv`;
+- `GET /v1/admin/incidents/trends/anomalies`;
+- `GET /v1/admin/incidents/trends/briefing`.
+
+The trend surface is aggregate-first. It returns bucketed incident pressure,
+source/status/severity mix, route-risk rows, SLA posture, anomalies and shift
+briefing sections. It does not return raw operator emails, raw session ids,
+private credentials or database URLs.
+
+The storage support is migration `0023_admin_incident_trend_analytics`. The
+migration adds PostgreSQL indexes for incident event buckets, incident event
+drill-down, acknowledgement status/escalation, execution status/source,
+incident execution trend reads and open execution priority review.
+
+The feature remains a self-hosted PostgreSQL and Node API implementation. It has
+no Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production
+dependency.
+
+Marker: Batch #107 Admin Incident Trend Analytics.
+Marker: /v1/admin/incidents/trends.
+Marker: /v1/admin/incidents/trends/export.
+Marker: /v1/admin/incidents/trends/anomalies.
+Marker: /v1/admin/incidents/trends/briefing.
+Marker: /admin/incident-trends.
+Marker: 0023_admin_incident_trend_analytics.
+Marker: no Supabase.

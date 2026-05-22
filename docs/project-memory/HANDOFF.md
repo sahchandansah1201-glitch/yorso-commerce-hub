@@ -17,27 +17,29 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #106 is implemented locally on branch `codex/batch106-incident-workload-correlation`.
-- Batch #106 extends self-hosted admin incidents with a workload and correlation center:
-  - `GET /v1/admin/incidents/execution-workload` lists bounded owner load, hot incidents, source mix and status mix;
-  - `GET /v1/admin/incidents/execution-workload/export?format=json|csv` exports the same bounded workload shape;
-  - `GET /v1/admin/incidents/execution-workload/forecast?horizonHours=24` projects bounded near-term capacity risk by owner role;
-  - `GET /v1/admin/incidents/:incidentId/correlation` returns bounded audit, timeline and execution signals for one incident;
-  - frontend `/admin/incident-workload` renders `admin-incident-workload-page`, filters, summary cards, export controls, owner load, capacity forecast and correlation drill-down;
-  - browser/runtime payloads keep raw emails, session ids and unhashed user ids out of UI and exports;
+- Batch #107 is in progress locally on branch `codex/batch107-incident-trend-analytics`.
+- Batch #107 extends self-hosted admin incidents with trend analytics:
+  - `GET /v1/admin/incidents/trends` returns bucketed incident pressure, source/status/severity mix, route risks and SLA posture;
+  - `GET /v1/admin/incidents/trends/export?format=json|csv` exports the same bounded aggregate trend shape;
+  - `GET /v1/admin/incidents/trends/anomalies` returns bounded anomaly rows;
+  - `GET /v1/admin/incidents/trends/briefing` returns shift briefing sections, operator actions, capacity review and risk register;
+  - frontend `/admin/incident-trends` renders `admin-incident-trends-page`, filters, summary, buckets, route risks, SLA, anomalies, briefing and export controls;
+  - browser/runtime payloads keep raw emails, session ids, database URLs and Redis URLs out of UI and exports;
   - routes remain behind self-hosted admin session and role guards.
-- Local validation passed: `ci:core`, `contracts:build`, `api:build`, `tsc -b --noEmit`, `test:api`, `test:admin-incidents-frontend`, `test:backend-contract`, `check:self-hosted-db`, `check:self-hosted-api`, `check:production-scale-baseline`, `test:db-migrations`, `test:db-contract`, `smoke:self-hosted-admin-incidents:run`, `check:engineering-lessons`, `test:engineering-lessons`, `smoke:e2e:admin-incident-workload` and `lint`.
-- Pending handoff steps: `git diff --check`, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
+- Size contract for Batch #107: Batch #106 was `39 files / 3872 insertions`; Batch #107 target is at least `47 files / 4647 insertions`.
+- Pending handoff steps: size re-measure, validation, `git diff --check`, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #106 publication:
-1. run final `git diff --check` and size report;
-2. commit and push branch codex/batch106-incident-workload-correlation;
-3. open PR [codex] Batch #106 admin incident workload correlation;
-3. merge after checks pass;
-4. give Lovable Prompt #106 to sync latest GitHub main.
+Finish Batch #107 publication:
+1. run final untracked-aware size report and confirm >= 47 files and >= 4647 insertions;
+2. run validation listed in RUNS/2026-05-22-batch107-validation-plan.md;
+3. run `git diff --check`;
+4. commit and push branch codex/batch107-incident-trend-analytics;
+5. open PR [codex] Batch #107 admin incident trend analytics;
+6. merge after checks pass;
+7. give numbered Lovable Prompt #107 to sync latest GitHub main.
 ```
 
 ## Rules

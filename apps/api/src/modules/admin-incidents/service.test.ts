@@ -521,4 +521,72 @@ describe("admin incident service", () => {
       ),
     ).rejects.toMatchObject({ code: "admin_incident_not_found" });
   });
+
+  it("builds trend analytics, anomalies, briefing and exports without raw identities", async () => {
+    const service = createService([
+      auditEvent({ auditId: "aud_incident_trend_1", route: "/v1/admin/audit-events" }),
+      auditEvent({
+        action: "admin.runtime.status.read",
+        auditId: "aud_incident_trend_2",
+        occurredAt: "2026-05-20T10:03:00.000Z",
+        route: "/v1/admin/runtime/status",
+        statusCode: 500,
+      }),
+      auditEvent({
+        action: "access.request.blocked",
+        auditId: "aud_incident_trend_3",
+        occurredAt: "2026-05-20T10:05:00.000Z",
+        reason: "rate_limit",
+        resourceType: "supplier_access_request",
+        route: "/v1/access/suppliers/sup-no-001/request",
+        statusCode: 429,
+      }),
+    ]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const incidentId = list.incidents[0].id;
+    await service.updateIncidentExecutionItem(
+      incidentId,
+      list.incidents[0].runbook[0]?.label ? `${incidentId}:runbook:0` : "missing",
+      { blockedReason: "Needs role-owner review.", note: "Blocked for trend test.", status: "blocked" },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    ).catch(() => undefined);
+
+    const trends = await service.getIncidentTrends({
+      granularity: "day",
+      limit: 30,
+      window: "7d",
+    }, requestId);
+    expect(trends.ok).toBe(true);
+    expect(trends.buckets.length).toBeGreaterThanOrEqual(1);
+    expect(trends.summary.total).toBeGreaterThanOrEqual(1);
+    expect(trends.sourceMix.length).toBeGreaterThanOrEqual(1);
+    expect(trends.routeRisks.length).toBeGreaterThanOrEqual(1);
+    expect(trends.sla.breachRatePct).toBeGreaterThanOrEqual(0);
+    expect(JSON.stringify(trends)).not.toContain("admin@example.com");
+
+    const jsonExport = await service.exportIncidentTrends({ format: "json", limit: 30, window: "7d" }, requestId);
+    expect(jsonExport.contentType).toContain("application/json");
+    expect(jsonExport.fileName).toContain("incident-trends.json");
+    expect(jsonExport.body).toContain("\"buckets\"");
+    expect(jsonExport.body).not.toContain("admin@example.com");
+
+    const csvExport = await service.exportIncidentTrends({ format: "csv", limit: 30, window: "7d" }, requestId);
+    expect(csvExport.contentType).toContain("text/csv");
+    expect(csvExport.fileName).toContain("incident-trends.csv");
+    expect(csvExport.body).toContain("\"key\",\"startAt\"");
+    expect(csvExport.body).not.toContain("admin@example.com");
+
+    const anomalies = await service.getIncidentTrendAnomalies({ limit: 30, window: "7d" }, requestId);
+    expect(anomalies.ok).toBe(true);
+    expect(anomalies.summary.watch + anomalies.summary.warning + anomalies.summary.critical).toBe(anomalies.anomalies.length);
+    expect(JSON.stringify(anomalies)).not.toContain("admin@example.com");
+
+    const briefing = await service.getIncidentTrendBriefing({ limit: 30, window: "7d" }, requestId);
+    expect(briefing.ok).toBe(true);
+    expect(briefing.sections.length).toBeGreaterThanOrEqual(3);
+    expect(briefing.operatorActions.length).toBeGreaterThanOrEqual(1);
+    expect(briefing.capacityReview.join(" ")).toContain("10,000");
+    expect(JSON.stringify(briefing)).not.toContain("admin@example.com");
+  });
 });
