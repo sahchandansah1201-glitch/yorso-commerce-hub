@@ -91,9 +91,14 @@ const requiredFiles = [
   "src/lib/admin-incidents-api.test.ts",
   "src/lib/use-admin-incidents.ts",
   "src/lib/use-admin-incidents.test.tsx",
+  "src/lib/use-admin-incident-detail.ts",
+  "src/lib/use-admin-incident-detail.test.tsx",
   "src/pages/admin/AdminIncidents.tsx",
   "src/pages/admin/AdminIncidents.test.tsx",
+  "src/pages/admin/AdminIncidentDetail.tsx",
+  "src/pages/admin/AdminIncidentDetail.test.tsx",
   "e2e/admin-incidents.spec.ts",
+  "e2e/admin-incident-detail.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -763,6 +768,27 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Batch #103",
+  "admin incident detail",
+  "/v1/admin/incidents/:incidentId/handoff",
+  "/v1/admin/incidents/:incidentId/remediation",
+  "/v1/admin/incidents/:incidentId/postmortem",
+  "/admin/incidents/:incidentId",
+  "operator readiness",
+  "admin_incidents_handoff_json=ok",
+  "admin_incidents_handoff_markdown=ok",
+  "admin_incidents_remediation_plan=ok",
+  "admin_incidents_postmortem_json=ok",
+  "admin_incidents_postmortem_markdown=ok",
+  "admin_incidents_note_hygiene_guard=ok",
+  "admin-incident-detail-readiness",
+  "admin-incident-readiness-owner",
+  "smoke:e2e:admin-incident-detail",
+  "10,000 concurrent",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "Batch #101 Admin Incident Response",
   "/v1/admin/incidents",
   "yorso_admin_incident_acknowledgements",
@@ -781,6 +807,16 @@ for (const marker of [
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
 for (const marker of [
+  "Batch #103 Admin Incident Detail Handoff",
+  "/v1/admin/incidents/:incidentId/handoff",
+  "/v1/admin/incidents/:incidentId/remediation",
+  "/v1/admin/incidents/:incidentId/postmortem",
+  "/admin/incidents/:incidentId",
+  "no Supabase",
+]) {
+  requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
+}
+for (const marker of [
   "Batch #101 Admin Incident Response Validation",
   "npm run test:admin-incidents-frontend",
   "npm run smoke:self-hosted-admin-incidents",
@@ -794,6 +830,16 @@ for (const marker of [
   "/v1/admin/incidents/export",
   "0020_admin_incident_workflow.sql",
   "npm run test:db-migrations",
+]) {
+  requireText("docs/backend/self-hosted-validation.md", validation, marker);
+}
+for (const marker of [
+  "Batch #103 Admin Incident Detail Handoff Validation",
+  "npm run test:admin-incidents-frontend",
+  "npm run smoke:self-hosted-admin-incidents",
+  "npm run smoke:e2e:admin-incident-detail",
+  "admin_incidents_postmortem_json=ok",
+  "admin_incidents_note_hygiene_guard=ok",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -1814,7 +1860,7 @@ if (pkg.scripts["smoke:self-hosted-admin-incidents"] !== "npm run api:build && n
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-incidents:run")) {
   failures.push("package.json: ci:core must include the admin incidents self-hosted smoke");
 }
-if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/pages/admin/AdminIncidents.test.tsx") {
+if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx") {
   failures.push("package.json: test:admin-incidents-frontend must cover admin incidents adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {
@@ -1842,6 +1888,14 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incidents")) {
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incidents browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incidents");
+if (pkg.scripts["smoke:e2e:admin-incident-detail"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-detail:run") {
+  failures.push("package.json: smoke:e2e:admin-incident-detail must build with the self-hosted admin incident detail adapter enabled");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-detail")) {
+  failures.push("package.json: ci:full must include admin incident detail browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident detail browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-detail");
 if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
   failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
 }

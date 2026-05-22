@@ -2,9 +2,9 @@
 
 ## Active Risks
 
-- Risk: Batch #102 is implemented locally but not yet merged to `main`.
+- Risk: Batch #103 is implemented locally but not yet merged to `main`.
   Impact: Lovable will not see the admin incident workflow until the PR is merged and synced.
-  Mitigation: Local validation has passed; commit, push, PR, wait for GitHub checks and merge before starting Batch #103.
+  Mitigation: Local validation has passed; commit, push, PR, wait for GitHub checks and merge before starting Batch #104.
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
   Impact: Work may be applied in the wrong repository.
@@ -41,6 +41,10 @@
 - Risk: Incident workflow can expose raw operator identities or become a high-write control-plane path during outages.
   Impact: Browser pages could leak user ids, or operator updates could add pressure while the service is degraded.
   Mitigation: Batch #102 accepts raw assignee ids only in admin requests, returns hashed identifiers to the browser, stores bounded timeline events in `yorso_admin_incident_events`, limits bulk workflow to selected incident ids, sanitizes export, avoids polling and keeps the workflow behind self-hosted admin session and role guards.
+
+- Risk: Incident detail, handoff export and remediation plan can become an unbounded incident-data dump.
+  Impact: Large handoff payloads could slow operator response and expose sensitive evidence in browser-visible downloads.
+  Mitigation: Batch #103 exports bounded JSON/Markdown sections and bounded remediation steps from the admin incident detail contract, keeps handoff/remediation behind self-hosted admin session and role guards, uses hashed operator identifiers in browser responses and adds runtime smoke markers for JSON/Markdown handoff plus remediation plan.
 
 ## Resolved Risks
 

@@ -127,3 +127,35 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:admin-operations` passed, 2 browser tests.
   - `npm run ci:core` passed.
   - `git diff --check` passed.
+
+## 2026-05-22
+
+- Started Batch #103 locally on `codex/batch103-incident-detail-handoff`.
+- Added a dedicated self-hosted admin incident detail page at `/admin/incidents/:incidentId`.
+- Added bounded admin handoff export via `GET /v1/admin/incidents/:incidentId/handoff?format=json|markdown`.
+- Added bounded remediation plan via `GET /v1/admin/incidents/:incidentId/remediation`.
+- Added bounded postmortem export via `GET /v1/admin/incidents/:incidentId/postmortem?format=json|markdown`.
+- Added admin incident workflow note hygiene guard for raw emails, UUIDs and token-like secret assignments.
+- Added frontend detail hook, detail page, list-to-detail navigation, handoff export controls, remediation controls, postmortem controls, detail tests and browser e2e.
+- Extended self-hosted admin incidents smoke with `admin_incidents_handoff_json=ok`, `admin_incidents_handoff_markdown=ok`, `admin_incidents_remediation_plan=ok`, `admin_incidents_postmortem_json=ok`, `admin_incidents_postmortem_markdown=ok` and `admin_incidents_note_hygiene_guard=ok`.
+- Updated production-scale docs, self-hosted incident smoke docs, backend architecture docs, validation docs, guard scripts and CI e2e wiring for Batch #103.
+- Fixed process/code issues found during Batch #103:
+  - Detail page initially did not surface the assigned operator hash after workflow assignment; added the assigned hash to the snapshot panel and preserved the test.
+  - A direct `vitest` shell command failed because the project does not expose a bare `vitest` binary in PATH; reran the focused API tests through `npx vitest`.
+  - Vitest array partial matching was too strict for nested handoff/remediation arrays; changed assertions to extract labels/titles before matching.
+  - Runtime smoke asserted capitalized `Control-plane` while the product copy is lowercase `control-plane`; changed the smoke assertion to the exact emitted copy.
+  - Initial Batch #103 size was still smaller than Batch #102; expanded scope with postmortem export instead of committing a smaller batch.
+- Confirmed Batch #103 validation:
+  - `npm run lint` passed.
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npx tsc -b --noEmit` passed.
+  - focused admin incident API tests passed, 70 tests.
+  - `npm run test:admin-incidents-frontend` passed, 15 tests.
+  - `npm run test:admin-operations-frontend` passed, 10 tests.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run smoke:e2e:admin-incident-detail` passed, 1 browser test.
+  - `npm run smoke:e2e:admin-incidents` passed, 2 browser tests.
+  - `npm run ci:core` passed.

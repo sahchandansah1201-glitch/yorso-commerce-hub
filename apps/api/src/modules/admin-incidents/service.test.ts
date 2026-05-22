@@ -152,6 +152,30 @@ describe("admin incident service", () => {
     expect(unassigned.incidents.map((incident) => incident.id)).not.toContain(incidentId);
   });
 
+  it("rejects workflow notes with raw emails, UUIDs or token-like secrets", async () => {
+    const service = createService([auditEvent({ auditId: "aud_incident_note_hygiene" })]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const incidentId = list.incidents[0].id;
+
+    await expect(
+      service.updateIncidentWorkflow(
+        incidentId,
+        { action: "comment", note: "Ask admin@example.com to inspect this." },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ issues: expect.any(Array) });
+
+    await expect(
+      service.acknowledgeIncident(
+        incidentId,
+        { note: "session=abc123456789", status: "acknowledged" },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ issues: expect.any(Array) });
+  });
+
   it("applies bulk workflow actions with bounded partial failures", async () => {
     const service = createService([
       auditEvent({ auditId: "aud_incident_bulk_1", route: "/v1/admin/audit-events" }),
@@ -273,6 +297,56 @@ describe("admin incident service", () => {
     expect(csvExport.body).toContain("\"id\",\"status\",\"severity\"");
     expect(csvExport.body).toContain("\"open\"");
     expect(csvExport.body).not.toContain("admin@example.com");
+  });
+
+  it("exports a bounded per-incident JSON and Markdown operator handoff", async () => {
+    const service = createService([auditEvent({ auditId: "aud_incident_handoff" })]);
+    const list = await service.listIncidents({ limit: 25, status: "open" }, requestId);
+    const incidentId = list.incidents[0].id;
+
+    const jsonHandoff = await service.exportIncidentHandoff(incidentId, { format: "json" }, requestId);
+    expect(jsonHandoff.contentType).toContain("application/json");
+    expect(jsonHandoff.fileName).toContain("handoff.json");
+    expect(jsonHandoff.body).toContain("\"handoffId\"");
+    expect(jsonHandoff.body).toContain("\"checklist\"");
+    expect(jsonHandoff.body).toContain("Incident snapshot");
+    expect(jsonHandoff.body).not.toContain("admin@example.com");
+    expect(jsonHandoff.body).not.toContain("Password1");
+
+    const markdownHandoff = await service.exportIncidentHandoff(incidentId, { format: "markdown" }, requestId);
+    expect(markdownHandoff.contentType).toContain("text/markdown");
+    expect(markdownHandoff.fileName).toContain("handoff.md");
+    expect(markdownHandoff.body).toContain("# Incident handoff");
+    expect(markdownHandoff.body).toContain("## Handoff checklist");
+    expect(markdownHandoff.body).toContain("## Runbook");
+    expect(markdownHandoff.body).not.toContain("admin@example.com");
+    expect(markdownHandoff.body).not.toContain("Password1");
+
+    const remediation = await service.getIncidentRemediationPlan(incidentId, requestId);
+    expect(remediation.ok).toBe(true);
+    expect(remediation.steps.length).toBeGreaterThanOrEqual(3);
+    expect(remediation.verificationChecks.join(" ")).toContain("hashed actor identifiers");
+    expect(remediation.rollbackPlan.length).toBeGreaterThanOrEqual(2);
+    expect(remediation.capacityNotes.join(" ")).toContain("control-plane");
+    expect(JSON.stringify(remediation)).not.toContain("admin@example.com");
+
+    const postmortemJson = await service.exportIncidentPostmortem(incidentId, { format: "json" }, requestId);
+    expect(postmortemJson.contentType).toContain("application/json");
+    expect(postmortemJson.fileName).toContain("postmortem.json");
+    expect(postmortemJson.body).toContain("\"postmortemId\"");
+    expect(postmortemJson.body).toContain("\"executiveSummary\"");
+    expect(postmortemJson.body).toContain("Add regression guard");
+    expect(postmortemJson.body).not.toContain("admin@example.com");
+    expect(postmortemJson.body).not.toContain("Password1");
+
+    const postmortemMarkdown = await service.exportIncidentPostmortem(incidentId, { format: "markdown" }, requestId);
+    expect(postmortemMarkdown.contentType).toContain("text/markdown");
+    expect(postmortemMarkdown.fileName).toContain("postmortem.md");
+    expect(postmortemMarkdown.body).toContain("# Incident postmortem draft");
+    expect(postmortemMarkdown.body).toContain("## Root-cause hypotheses");
+    expect(postmortemMarkdown.body).toContain("## Capacity review");
+    expect(postmortemMarkdown.body).not.toContain("admin@example.com");
+    expect(postmortemMarkdown.body).not.toContain("Password1");
   });
 
   it("returns not-found errors for unknown acknowledgement ids", async () => {

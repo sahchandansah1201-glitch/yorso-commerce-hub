@@ -108,6 +108,86 @@ async function runSmoke(baseUrl) {
   assertEqual(detail.incident.id, incident.id, "admin incident detail id");
   console.log("admin_incidents_detail=ok");
 
+  const handoffJson = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/handoff?format=json`,
+    adminHeaders,
+  );
+  assertEqual(handoffJson.ok, true, "admin incident JSON handoff ok");
+  assertEqual(handoffJson.incident.id, incident.id, "admin incident JSON handoff id");
+  assertArray(handoffJson.checklist, "admin incident JSON handoff checklist");
+  assertContains(JSON.stringify(handoffJson), "Incident snapshot", "admin incident JSON handoff snapshot");
+  assertNotContains(JSON.stringify(handoffJson), "admin@example.com", "admin incident JSON handoff no email");
+  assertNotContains(JSON.stringify(handoffJson), "Password1", "admin incident JSON handoff no password");
+  console.log("admin_incidents_handoff_json=ok");
+
+  const handoffMarkdown = await fetch(
+    `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/handoff?format=markdown`,
+    { headers: adminHeaders },
+  );
+  assertStatus(handoffMarkdown, 200, "admin incident Markdown handoff");
+  const handoffMarkdownBody = await handoffMarkdown.text();
+  assertContains(handoffMarkdownBody, "# Incident handoff", "admin incident Markdown handoff heading");
+  assertContains(handoffMarkdownBody, "## Handoff checklist", "admin incident Markdown handoff checklist");
+  assertContains(handoffMarkdownBody, "## Runbook", "admin incident Markdown handoff runbook");
+  assertNotContains(handoffMarkdownBody, "admin@example.com", "admin incident Markdown handoff no email");
+  assertNotContains(handoffMarkdownBody, "Password1", "admin incident Markdown handoff no password");
+  console.log("admin_incidents_handoff_markdown=ok");
+
+  const remediation = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/remediation`,
+    adminHeaders,
+  );
+  assertEqual(remediation.ok, true, "admin incident remediation ok");
+  assertEqual(remediation.incident.id, incident.id, "admin incident remediation id");
+  assertArray(remediation.steps, "admin incident remediation steps");
+  assertArray(remediation.verificationChecks, "admin incident remediation verification checks");
+  assertArray(remediation.rollbackPlan, "admin incident remediation rollback plan");
+  assertArray(remediation.capacityNotes, "admin incident remediation capacity notes");
+  assertContains(JSON.stringify(remediation), "control-plane", "admin incident remediation capacity context");
+  assertNotContains(JSON.stringify(remediation), "admin@example.com", "admin incident remediation no email");
+  assertNotContains(JSON.stringify(remediation), "Password1", "admin incident remediation no password");
+  console.log("admin_incidents_remediation_plan=ok");
+
+  const postmortemJson = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/postmortem?format=json`,
+    adminHeaders,
+  );
+  assertEqual(postmortemJson.ok, true, "admin incident JSON postmortem ok");
+  assertEqual(postmortemJson.incident.id, incident.id, "admin incident JSON postmortem id");
+  assertArray(postmortemJson.impactSummary, "admin incident postmortem impact");
+  assertArray(postmortemJson.rootCauseHypotheses, "admin incident postmortem hypotheses");
+  assertArray(postmortemJson.actionItems, "admin incident postmortem action items");
+  assertArray(postmortemJson.preventionChecks, "admin incident postmortem prevention");
+  assertArray(postmortemJson.capacityReview, "admin incident postmortem capacity");
+  assertContains(JSON.stringify(postmortemJson), "Add regression guard", "admin incident postmortem regression guard");
+  assertNotContains(JSON.stringify(postmortemJson), "admin@example.com", "admin incident JSON postmortem no email");
+  assertNotContains(JSON.stringify(postmortemJson), "Password1", "admin incident JSON postmortem no password");
+  console.log("admin_incidents_postmortem_json=ok");
+
+  const postmortemMarkdown = await fetch(
+    `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/postmortem?format=markdown`,
+    { headers: adminHeaders },
+  );
+  assertStatus(postmortemMarkdown, 200, "admin incident Markdown postmortem");
+  const postmortemMarkdownBody = await postmortemMarkdown.text();
+  assertContains(postmortemMarkdownBody, "# Incident postmortem draft", "admin incident Markdown postmortem heading");
+  assertContains(postmortemMarkdownBody, "## Root-cause hypotheses", "admin incident Markdown postmortem hypotheses");
+  assertContains(postmortemMarkdownBody, "## Capacity review", "admin incident Markdown postmortem capacity");
+  assertNotContains(postmortemMarkdownBody, "admin@example.com", "admin incident Markdown postmortem no email");
+  assertNotContains(postmortemMarkdownBody, "Password1", "admin incident Markdown postmortem no password");
+  console.log("admin_incidents_postmortem_markdown=ok");
+
+  const unsafeNote = await fetch(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, {
+    body: JSON.stringify({ action: "comment", note: "Email admin@example.com" }),
+    headers: adminHeaders,
+    method: "POST",
+  });
+  assertStatus(unsafeNote, 400, "admin incidents note hygiene guard");
+  console.log("admin_incidents_note_hygiene_guard=ok");
+
   const acknowledged = await postJson(baseUrl, `/v1/admin/incidents/${encodeURIComponent(incident.id)}/acknowledge`, adminHeaders, {
     note: "Operator triage started without secrets.",
     status: "acknowledged",

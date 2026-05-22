@@ -1029,3 +1029,31 @@ endpoints.
 
 The workflow remains self-hosted only. It has no Supabase, Firebase, Appwrite,
 Clerk, Auth0 or hosted BaaS production dependency.
+
+## Batch #103 Admin Incident Detail Handoff
+
+Batch #103 adds a single-incident operator detail route, handoff export, postmortem export and
+remediation plan on top of the Batch #102 workflow state. The API adds
+`GET /v1/admin/incidents/:incidentId/handoff` with JSON and Markdown formats
+and `GET /v1/admin/incidents/:incidentId/remediation` for bounded operator
+next steps. It also adds `GET /v1/admin/incidents/:incidentId/postmortem` for
+bounded JSON/Markdown after-action review drafts. The frontend adds
+`/admin/incidents/:incidentId`, a detail page
+with incident snapshot, evidence, runbook, full sanitized timeline preview,
+single-incident workflow actions, handoff export controls and remediation
+plan/postmortem controls plus a derived operator readiness checklist.
+
+The detail route is an admin control-plane path, not a buyer/supplier hot path.
+It does not introduce a new table because it reuses the existing incident
+acknowledgement and timeline indexes. It renders hashed actors only and must not
+render raw user ids, session ids, emails, passwords, connection strings or
+storage endpoints. Workflow notes are validated at the contract boundary to
+reject raw emails, UUIDs and token-like secret assignments before they become
+timeline evidence.
+
+The readiness checklist checks evidence, runbook coverage, owner assignment,
+SLA review and capacity review from the existing incident payload. It is not a
+new backend truth source; it only makes weak handoff conditions visible before
+the operator exports a shift handoff or postmortem draft.
+
+No Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS is introduced.

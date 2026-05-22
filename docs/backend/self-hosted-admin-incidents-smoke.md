@@ -10,6 +10,9 @@ The smoke validates:
 
 - `GET /v1/admin/incidents`;
 - `GET /v1/admin/incidents/:incidentId`;
+- `GET /v1/admin/incidents/:incidentId/handoff`;
+- `GET /v1/admin/incidents/:incidentId/remediation`;
+- `GET /v1/admin/incidents/:incidentId/postmortem`;
 - `POST /v1/admin/incidents/:incidentId/acknowledge`;
 - `POST /v1/admin/incidents/:incidentId/workflow`;
 - `POST /v1/admin/incidents/workflow/bulk`;
@@ -19,6 +22,8 @@ The smoke validates:
 - durable assignment, escalation and timeline state;
 - bounded bulk workflow updates with partial not-found reporting;
 - secret-safe incident payloads.
+- operator note hygiene rejection for raw emails, UUIDs and token-like secret
+  assignments.
 
 Incidents are derived from runtime diagnostics and admin audit events. The
 backend stores only operator acknowledgement state in PostgreSQL through
@@ -27,6 +32,11 @@ backend stores only operator acknowledgement state in PostgreSQL through
 acknowledgement state with assignment and escalation fields. The API response
 also includes operator runbook steps and workload summary counters for
 assignment coverage, SLA risk, escalation load and source mix.
+Batch #103 adds a dedicated incident detail handoff, remediation and postmortem path. It
+exports bounded JSON and Markdown shift handoff payloads from the same
+sanitized incident contract, generates a bounded remediation plan, exports a
+bounded JSON/Markdown postmortem draft, and adds a browser detail route at
+`/admin/incidents/:incidentId`.
 
 ## Command
 
@@ -50,6 +60,12 @@ The script must print:
 - `admin_incidents_summary=ok`;
 - `admin_incidents_workload_summary=ok`;
 - `admin_incidents_detail=ok`;
+- `admin_incidents_handoff_json=ok`;
+- `admin_incidents_handoff_markdown=ok`;
+- `admin_incidents_remediation_plan=ok`;
+- `admin_incidents_postmortem_json=ok`;
+- `admin_incidents_postmortem_markdown=ok`;
+- `admin_incidents_note_hygiene_guard=ok`;
 - `admin_incidents_acknowledge=ok`;
 - `admin_incidents_assign=ok`;
 - `admin_incidents_escalate=ok`;
@@ -74,6 +90,7 @@ from runtime diagnostics plus audit summaries, not from unbounded scans.
 Write profile: sparse admin workflow writes. Incident acknowledgement,
 assignment, escalation, comments, resolution, bounded bulk workflow updates and
 sanitized JSON/CSV export use small indexed tables keyed by incident id.
+Handoff, remediation plan and postmortem reads are bounded by a single incident id.
 
 Cache/backpressure: no browser polling. Operators refresh explicitly. API
 request guardrails, admin role checks and audit backpressure remain active.
@@ -86,6 +103,7 @@ query limits and typed filters.
 
 Failure mode: missing API, missing session, forbidden role and backend errors
 render explicit UI states. The frontend does not fabricate incidents.
+Workflow notes reject raw emails, UUIDs and token-like secret assignments.
 
 Observability: incident reads and acknowledgements emit admin audit events and
 use existing request, error and metrics telemetry. Payloads must not include
@@ -93,15 +111,22 @@ emails, session ids, passwords, connection strings or storage endpoints.
 
 Marker: Batch #101.
 Marker: Batch #102.
+Marker: Batch #103.
 Marker: admin incident response.
 Marker: admin incident workflow.
+Marker: admin incident detail handoff.
 Marker: /v1/admin/incidents.
 Marker: /v1/admin/incidents/:incidentId/workflow.
+Marker: /v1/admin/incidents/:incidentId/handoff.
+Marker: /v1/admin/incidents/:incidentId/remediation.
+Marker: /v1/admin/incidents/:incidentId/postmortem.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
+Marker: /admin/incidents/:incidentId.
 Marker: smoke:self-hosted-admin-incidents.
 Marker: smoke:e2e:admin-incidents.
+Marker: smoke:e2e:admin-incident-detail.
 Marker: admin_incidents_acknowledge=ok.
 Marker: admin_incidents_assign=ok.
 Marker: admin_incidents_escalate=ok.
@@ -109,6 +134,12 @@ Marker: admin_incidents_comment=ok.
 Marker: admin_incidents_bulk_workflow=ok.
 Marker: admin_incidents_export_json=ok.
 Marker: admin_incidents_export_csv=ok.
+Marker: admin_incidents_handoff_json=ok.
+Marker: admin_incidents_handoff_markdown=ok.
+Marker: admin_incidents_remediation_plan=ok.
+Marker: admin_incidents_postmortem_json=ok.
+Marker: admin_incidents_postmortem_markdown=ok.
+Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.
 Marker: admin_incidents_bulk_workflow_validation_guard=ok.

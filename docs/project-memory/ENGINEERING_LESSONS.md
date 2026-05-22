@@ -123,3 +123,94 @@ against the full `IncidentsCopy` contract.
 Guard: `npx tsc -b --noEmit` is required before publication, and Batch #102
 keeps the incident copy object typed instead of using untyped translation
 records.
+
+## Batch #103: detail-page tests must prove the user-visible workflow result
+
+Symptom: the incident detail page test failed after assigning an operator
+because the page updated internal state but did not show the assigned operator
+hash in the visible detail surface.
+
+Root cause: the implementation connected the workflow mutation but the detail
+UI did not expose the mutated assignment in a stable, scannable snapshot item.
+
+Fix: the detail page now renders the assigned operator hash in the snapshot
+panel, and the page test asserts that value after assignment.
+
+Guard: `test:admin-incidents-frontend` includes
+`src/pages/admin/AdminIncidentDetail.test.tsx`, which covers assignment and
+handoff UI behavior.
+
+## Batch #103: use package-resolved test binaries for focused runs
+
+Symptom: a focused API test command failed with `zsh:1: command not found:
+vitest`.
+
+Root cause: the command used a bare `vitest` binary instead of the project
+package resolution path.
+
+Fix: focused runs use `npx vitest ...` or npm scripts.
+
+Guard: publication validation still requires `ci:core`, and Batch #103
+recorded the failed command so future agents do not treat it as a product
+failure.
+
+## Batch #103: nested array assertions must not pretend partial matching is enough
+
+Symptom: remediation and handoff API tests failed even though the response had
+the expected labels and titles.
+
+Root cause: `toMatchObject` on arrays still expects matching array element
+shape more strictly than a plain object subset. The test encoded partial array
+items and produced noisy diffs.
+
+Fix: the tests now extract stable labels/titles from the arrays and assert
+membership directly.
+
+Guard: Batch #103 keeps these assertions in
+`src/lib/admin-incidents-api.test.ts` and `src/lib/use-admin-incident-detail.test.tsx`.
+
+## Batch #103: smoke assertions must match emitted runtime copy exactly
+
+Symptom: self-hosted admin incidents smoke failed on `Control-plane` while the
+runtime emitted `control-plane`.
+
+Root cause: the smoke marker asserted human copy with the wrong case instead
+of matching the actual bounded remediation payload.
+
+Fix: the smoke assertion now matches the emitted lowercase `control-plane`
+phrase.
+
+Guard: `smoke:self-hosted-admin-incidents:run` prints
+`admin_incidents_remediation_plan=ok` only after the remediation payload,
+rollback plan, verification checks and capacity notes are present and secret
+safe.
+
+## Batch #103: batch-size contract must be measured before commit
+
+Symptom: the first staged Batch #103 size was `32 files changed, 2691 insertions, 54 deletions`,
+which was still smaller than the Batch #102 baseline stored in project memory.
+
+Root cause: the work had more connected product scope than earlier small
+batches, but it did not actually satisfy the user's repeated "increase batch
+size" instruction when measured against the prior batch.
+
+Fix: Batch #103 was expanded before commit with bounded incident postmortem
+JSON/Markdown exports, frontend postmortem controls, smoke markers, docs and
+guards.
+
+Guard: before future batch publication, compare `git diff --cached --shortstat`
+against the previous batch baseline and either expand scope or explicitly
+report that the batch is intentionally smaller with the reason.
+
+## Batch #103: preview panels must expose the decisive payload field
+
+Symptom: the postmortem page test failed because the preview rendered summary,
+hypotheses and prevention checks, but not the action item titles.
+
+Root cause: the UI showed the new endpoint status and metadata but omitted the
+field operators need to scan first: the remediation/action queue.
+
+Fix: the postmortem preview now renders action item titles in the detail panel.
+
+Guard: `src/pages/admin/AdminIncidentDetail.test.tsx` asserts that `Add
+regression guard` is visible after loading the postmortem JSON payload.

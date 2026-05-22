@@ -1248,6 +1248,74 @@ Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.
 Marker: admin_incidents_bulk_workflow_validation_guard=ok.
 
+## Batch #103 Admin Incident Detail Handoff
+
+Batch #103 adds a dedicated admin incident detail, handoff, remediation and postmortem
+layer on top of the Batch #101 and Batch #102 incident console. The operator
+can open `/admin/incidents/:incidentId`, review the complete sanitized detail
+shape, run single-incident workflow actions, export a bounded JSON or Markdown
+handoff via `/v1/admin/incidents/:incidentId/handoff` and load a bounded
+remediation plan via `/v1/admin/incidents/:incidentId/remediation`. It also
+exports a bounded JSON or Markdown postmortem draft via
+`/v1/admin/incidents/:incidentId/postmortem` for after-action review. The
+detail UI also includes an operator readiness checklist for evidence, runbook,
+owner assignment, SLA review and capacity review before shift handoff.
+
+Read profile: low-frequency admin detail reads. Detail, handoff export and
+remediation/postmortem plan exports are operator control-plane paths, not buyer
+hot paths. Reads remain explicit, bounded by one incident id and derived from
+the already bounded runtime diagnostics plus audit event sample.
+
+Write profile: no new write table is introduced. Batch #103 reuses the
+Batch #102 workflow endpoints for assignment, escalation, comments and
+resolution. Handoff export and remediation plan are read-only operations.
+Postmortem export is also read-only.
+
+Cache, queue and backpressure strategy: the browser detail page does not poll.
+Operators refresh explicitly. API request guardrails, admin session checks,
+role checks, audit logging and existing request/error/metrics observability
+remain active. No background queue is required for this control-plane path.
+
+Database indexing and pagination strategy: no new migration is required.
+Incident detail and handoff use one incident id and the existing
+`yorso_admin_incident_acknowledgements` and `yorso_admin_incident_events`
+indexes from Batch #102. List pagination remains in the list endpoint.
+
+Failure mode and graceful degradation: disabled API, missing session,
+forbidden role, loading and error states are explicit. The frontend does not
+fabricate incident details. Handoff, remediation and postmortem payloads contain hashed
+actors only and must not contain raw emails, session ids, passwords, connection
+strings or storage endpoints. Operator notes are rejected when they include
+raw emails, UUIDs or token-like secret assignments.
+The readiness checklist is local derived state, not a new backend source of
+truth, so it cannot fabricate a safe handoff when the API detail is missing.
+
+Observability and load-test plan: Batch #103 is covered by
+`test:admin-incidents-frontend`, `smoke:self-hosted-admin-incidents`,
+`smoke:e2e:admin-incident-detail`, `check:self-hosted-api` and
+`check:production-scale-baseline`. Load testing should keep this path in the
+admin control-plane profile while buyer catalog/access tests provide the
+10,000 concurrent user hot-path pressure.
+
+Marker: Batch #103.
+Marker: admin incident detail.
+Marker: admin incident detail handoff.
+Marker: /v1/admin/incidents/:incidentId/handoff.
+Marker: /v1/admin/incidents/:incidentId/remediation.
+Marker: /v1/admin/incidents/:incidentId/postmortem.
+Marker: /admin/incidents/:incidentId.
+Marker: operator readiness.
+Marker: admin-incident-detail-readiness.
+Marker: admin-incident-readiness-owner.
+Marker: smoke:e2e:admin-incident-detail.
+Marker: admin_incidents_handoff_json=ok.
+Marker: admin_incidents_handoff_markdown=ok.
+Marker: admin_incidents_remediation_plan=ok.
+Marker: admin_incidents_postmortem_json=ok.
+Marker: admin_incidents_postmortem_markdown=ok.
+Marker: admin_incidents_note_hygiene_guard=ok.
+Marker: 10,000 concurrent.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -1181,3 +1181,50 @@ The validation checks:
   indexed timeline events, not raw audit payloads or secrets;
 - `/admin/incidents` renders SLA, due, assignment, escalation and timeline
   state without exposing raw user ids.
+
+## Batch #103 Admin Incident Detail Handoff Validation
+
+Batch #103 extends incident validation with a dedicated detail page,
+per-incident handoff export, per-incident remediation plan and per-incident
+postmortem draft:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-detail
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/incidents/:incidentId/handoff` requires the same self-hosted admin
+  session and role boundary as incident reads;
+- `/v1/admin/incidents/:incidentId/remediation` returns bounded operator steps,
+  verification checks, rollback plan and capacity notes;
+- `/v1/admin/incidents/:incidentId/postmortem` returns bounded JSON/Markdown
+  executive summary, impact, hypotheses, action items, prevention checks and
+  capacity review;
+- JSON and Markdown handoffs are generated from the typed incident contract and
+  do not include raw emails, session ids, passwords, connection strings or
+  storage endpoints;
+- workflow notes reject raw emails, UUIDs and token-like secret assignments
+  before they reach the incident timeline;
+- `/admin/incidents/:incidentId` renders incident snapshot, evidence, runbook,
+  timeline, workflow controls, handoff controls, remediation controls and
+  postmortem controls;
+- `/admin/incidents/:incidentId` renders `admin-incident-detail-readiness`
+  with evidence, runbook, owner, SLA and capacity handoff checks;
+- `/admin/incidents` links each row to the detail route;
+- the browser detail smoke is API-backed and not added to generic `smoke:e2e`;
+- no new database migration is required because Batch #103 reuses the indexed
+  Batch #102 acknowledgement and event tables.
+
+Required runtime smoke markers:
+
+- `admin_incidents_handoff_json=ok`;
+- `admin_incidents_handoff_markdown=ok`;
+- `admin_incidents_remediation_plan=ok`;
+- `admin_incidents_postmortem_json=ok`;
+- `admin_incidents_postmortem_markdown=ok`;
+- `admin_incidents_note_hygiene_guard=ok`.

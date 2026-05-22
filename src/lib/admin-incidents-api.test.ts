@@ -134,6 +134,111 @@ describe("admin-incidents-api", () => {
           headers: { "content-type": "text/csv" },
         });
       }
+      if (url.endsWith("/handoff?format=json")) {
+        return new Response(JSON.stringify({
+          checklist: [
+            { detail: "Owner missing.", label: "Owner assigned", status: "needs_attention" },
+            { detail: "Escalation reviewed.", label: "Escalation reviewed", status: "ready" },
+            { detail: "Evidence bounded.", label: "Evidence bounded", status: "ready" },
+          ],
+          generatedAt: "2026-05-20T10:09:00.000Z",
+          handoffId: "handoff:audit:admin-blocked:v1-admin-audit-events",
+          incident: incidentPayload().incidents[0],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000515",
+          sections: [
+            { body: ["Status: open"], title: "Incident snapshot" },
+            { body: ["Confirm admin role."], title: "Recommended next actions" },
+            { body: ["Confirm scope."], title: "Runbook" },
+          ],
+          timeline: incidentPayload().incidents[0].timelinePreview,
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/handoff?format=markdown")) {
+        return new Response("# Incident handoff\n\n- Status: open\n", {
+          headers: { "content-type": "text/markdown" },
+        });
+      }
+      if (url.endsWith("/remediation")) {
+        return new Response(JSON.stringify({
+          capacityNotes: ["Control-plane route.", "No polling."],
+          generatedAt: "2026-05-20T10:10:00.000Z",
+          incident: incidentPayload().incidents[0],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000516",
+          rollbackPlan: ["Keep audit evidence.", "Rollback latest runtime change."],
+          steps: [
+            {
+              description: "Confirm admin role and review attempts.",
+              evidenceRequired: "Audit route evidence.",
+              ownerRole: "operator",
+              priority: "immediate",
+              targetMinutes: 15,
+              title: "Confirm scope",
+            },
+            {
+              description: "Review metrics.",
+              evidenceRequired: "Metrics snapshot.",
+              ownerRole: "engineering",
+              priority: "next",
+              targetMinutes: 20,
+              title: "Validate runtime",
+            },
+            {
+              description: "Write final note.",
+              evidenceRequired: "Timeline note.",
+              ownerRole: "operator",
+              priority: "follow_up",
+              targetMinutes: 60,
+              title: "Close loop",
+            },
+          ],
+          verificationChecks: ["No raw identifiers.", "Route still blocked."],
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/postmortem?format=json")) {
+        return new Response(JSON.stringify({
+          actionItems: [
+            {
+              evidenceRequired: "Timeline note.",
+              ownerRole: "operator",
+              priority: "immediate",
+              targetHours: 1,
+              title: "Close incident narrative",
+            },
+            {
+              evidenceRequired: "Regression guard.",
+              ownerRole: "engineering",
+              priority: "next",
+              targetHours: 48,
+              title: "Add regression guard",
+            },
+            {
+              evidenceRequired: "Capacity note.",
+              ownerRole: "engineering",
+              priority: "follow_up",
+              targetHours: 72,
+              title: "Update capacity review",
+            },
+          ],
+          capacityReview: ["Explicit operator action.", "Bounded payload.", "No customer hot-path scan."],
+          executiveSummary: "Blocked admin route access was derived from audit signals.",
+          generatedAt: "2026-05-20T10:11:00.000Z",
+          impactSummary: ["Source: audit.", "Status: open."],
+          incident: incidentPayload().incidents[0],
+          ok: true,
+          postmortemId: "postmortem:audit:admin-blocked:v1-admin-audit-events",
+          preventionChecks: ["No raw identifiers.", "Route guard remains active.", "No polling added."],
+          requestId: "00000000-0000-4000-8000-000000000517",
+          rootCauseHypotheses: ["Role mismatch.", "Expected admin guard."],
+          timeline: incidentPayload().incidents[0].timelinePreview,
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/postmortem?format=markdown")) {
+        return new Response("# Incident postmortem draft\n\n- Source: audit\n", {
+          headers: { "content-type": "text/markdown" },
+        });
+      }
       if (url.endsWith("/workflow/bulk")) {
         return new Response(JSON.stringify({
           failed: [],
@@ -189,6 +294,14 @@ describe("admin-incidents-api", () => {
           ],
         }), { headers: { "content-type": "application/json" } });
       }
+      if (url.endsWith("/v1/admin/incidents/audit%3Aadmin-blocked%3Av1-admin-audit-events")) {
+        return new Response(JSON.stringify({
+          incident: incidentPayload().incidents[0],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000511",
+          timeline: incidentPayload().incidents[0].timelinePreview,
+        }), { headers: { "content-type": "application/json" } });
+      }
       return new Response(JSON.stringify(incidentPayload()), {
         headers: { "content-type": "application/json" },
       });
@@ -229,12 +342,27 @@ describe("admin-incidents-api", () => {
       incidents: [{ escalationLevel: "engineering" }],
       succeeded: 1,
     });
+    await expect(client.detail("audit:admin-blocked:v1-admin-audit-events"))
+      .resolves.toMatchObject({ incident: { id: "audit:admin-blocked:v1-admin-audit-events" } });
     await expect(client.exportJson({
       assigned: "assigned",
       limit: 25,
       status: "acknowledged",
     })).resolves.toMatchObject({ count: 1, incidents: [{ id: "audit:admin-blocked:v1-admin-audit-events" }] });
     await expect(client.exportCsv({ status: "acknowledged" })).resolves.toContain("audit:admin-blocked");
+    const handoffJson = await client.handoffJson("audit:admin-blocked:v1-admin-audit-events");
+    expect(handoffJson.handoffId).toBe("handoff:audit:admin-blocked:v1-admin-audit-events");
+    expect(handoffJson.checklist.map((item) => item.label)).toContain("Owner assigned");
+    await expect(client.handoffMarkdown("audit:admin-blocked:v1-admin-audit-events")).resolves.toContain("# Incident handoff");
+    const remediation = await client.remediation("audit:admin-blocked:v1-admin-audit-events");
+    expect(remediation.capacityNotes).toEqual(["Control-plane route.", "No polling."]);
+    expect(remediation.steps.map((step) => step.title)).toContain("Confirm scope");
+    const postmortemJson = await client.postmortemJson("audit:admin-blocked:v1-admin-audit-events");
+    expect(postmortemJson.postmortemId).toBe("postmortem:audit:admin-blocked:v1-admin-audit-events");
+    expect(postmortemJson.actionItems.map((item) => item.title)).toContain("Add regression guard");
+    expect(postmortemJson.preventionChecks).toContain("No raw identifiers.");
+    await expect(client.postmortemMarkdown("audit:admin-blocked:v1-admin-audit-events"))
+      .resolves.toContain("# Incident postmortem draft");
 
     const firstCall = fetchImpl.mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
     expect(String(firstCall[0])).toBe(
@@ -246,8 +374,14 @@ describe("admin-incidents-api", () => {
     expect(String(fetchImpl.mock.calls[1][0])).toContain("/acknowledge");
     expect(String(fetchImpl.mock.calls[2][0])).toContain("/workflow");
     expect(String(fetchImpl.mock.calls[3][0])).toContain("/workflow/bulk");
-    expect(String(fetchImpl.mock.calls[4][0])).toContain("/export?format=json");
-    expect(String(fetchImpl.mock.calls[5][0])).toContain("/export?format=csv");
+    expect(String(fetchImpl.mock.calls[4][0])).toContain("/v1/admin/incidents/audit%3Aadmin-blocked%3Av1-admin-audit-events");
+    expect(String(fetchImpl.mock.calls[5][0])).toContain("/export?format=json");
+    expect(String(fetchImpl.mock.calls[6][0])).toContain("/export?format=csv");
+    expect(String(fetchImpl.mock.calls[7][0])).toContain("/handoff?format=json");
+    expect(String(fetchImpl.mock.calls[8][0])).toContain("/handoff?format=markdown");
+    expect(String(fetchImpl.mock.calls[9][0])).toContain("/remediation");
+    expect(String(fetchImpl.mock.calls[10][0])).toContain("/postmortem?format=json");
+    expect(String(fetchImpl.mock.calls[11][0])).toContain("/postmortem?format=markdown");
   });
 
   it("maps admin role and invalid response failures", async () => {

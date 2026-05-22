@@ -6,6 +6,8 @@ export const adminIncidentStatusSchema = z.enum(["open", "acknowledged", "resolv
 export const adminIncidentAssignmentFilterSchema = z.enum(["assigned", "unassigned"]);
 export const adminIncidentEscalationLevelSchema = z.enum(["none", "lead", "engineering", "executive"]);
 export const adminIncidentExportFormatSchema = z.enum(["json", "csv"]);
+export const adminIncidentHandoffFormatSchema = z.enum(["json", "markdown"]);
+export const adminIncidentPostmortemFormatSchema = z.enum(["json", "markdown"]);
 export const adminIncidentSlaStatusSchema = z.enum(["ok", "at_risk", "breached"]);
 export const adminIncidentTimelineEventTypeSchema = z.enum([
   "created",
@@ -81,8 +83,29 @@ export const adminIncidentExportQuerySchema = adminIncidentQuerySchema.extend({
   format: adminIncidentExportFormatSchema.default("json"),
 });
 
+export const adminIncidentHandoffQuerySchema = z.object({
+  format: adminIncidentHandoffFormatSchema.default("json"),
+});
+
+export const adminIncidentPostmortemQuerySchema = z.object({
+  format: adminIncidentPostmortemFormatSchema.default("json"),
+});
+
+export const adminIncidentSafeNoteSchema = z.string()
+  .trim()
+  .max(500)
+  .refine((value) => !/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(value), {
+    message: "note must not contain raw email addresses",
+  })
+  .refine((value) => !/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(value), {
+    message: "note must not contain raw UUID identifiers",
+  })
+  .refine((value) => !/\b(session|token|secret|password)\s*[:=]\s*\S+/i.test(value), {
+    message: "note must not contain raw secrets or session tokens",
+  });
+
 export const adminIncidentAcknowledgeRequestSchema = z.object({
-  note: z.string().trim().max(500).optional(),
+  note: adminIncidentSafeNoteSchema.optional(),
   status: z.enum(["acknowledged", "resolved"]).default("acknowledged"),
 });
 
@@ -92,7 +115,7 @@ const adminIncidentWorkflowRequestBaseSchema = z.object({
   action: adminIncidentWorkflowActionSchema,
   assignedToUserId: z.string().uuid().optional(),
   escalationLevel: adminIncidentEscalationLevelSchema.optional(),
-  note: z.string().trim().max(500).optional(),
+  note: adminIncidentSafeNoteSchema.optional(),
 });
 
 const validateWorkflowRequest = (
@@ -201,6 +224,71 @@ export const adminIncidentExportResponseSchema = z.object({
   requestId: z.string().uuid(),
 });
 
+export const adminIncidentHandoffSectionSchema = z.object({
+  body: z.array(z.string().min(1).max(500)).min(1).max(12),
+  title: z.string().min(1).max(120),
+});
+
+export const adminIncidentHandoffChecklistItemSchema = z.object({
+  detail: z.string().min(1).max(240),
+  label: z.string().min(1).max(120),
+  status: z.enum(["ready", "needs_attention"]),
+});
+
+export const adminIncidentHandoffResponseSchema = z.object({
+  checklist: z.array(adminIncidentHandoffChecklistItemSchema).min(3).max(8),
+  generatedAt: z.string().datetime(),
+  handoffId: z.string().min(8).max(180),
+  incident: adminIncidentSchema,
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  sections: z.array(adminIncidentHandoffSectionSchema).min(3).max(8),
+  timeline: z.array(adminIncidentTimelineEventSchema).max(100),
+});
+
+export const adminIncidentRemediationPlanStepSchema = z.object({
+  description: z.string().min(1).max(320),
+  evidenceRequired: z.string().min(1).max(220),
+  ownerRole: z.enum(["operator", "engineering", "security", "founder"]),
+  priority: z.enum(["immediate", "next", "follow_up"]),
+  targetMinutes: z.number().int().min(1).max(2880),
+  title: z.string().min(1).max(120),
+});
+
+export const adminIncidentRemediationPlanResponseSchema = z.object({
+  capacityNotes: z.array(z.string().min(1).max(320)).min(2).max(6),
+  generatedAt: z.string().datetime(),
+  incident: adminIncidentSchema,
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  rollbackPlan: z.array(z.string().min(1).max(260)).min(2).max(6),
+  steps: z.array(adminIncidentRemediationPlanStepSchema).min(3).max(8),
+  verificationChecks: z.array(z.string().min(1).max(260)).min(2).max(8),
+});
+
+export const adminIncidentPostmortemActionItemSchema = z.object({
+  evidenceRequired: z.string().min(1).max(260),
+  ownerRole: z.enum(["operator", "engineering", "security", "founder"]),
+  priority: z.enum(["immediate", "next", "follow_up"]),
+  targetHours: z.number().int().min(1).max(720),
+  title: z.string().min(1).max(140),
+});
+
+export const adminIncidentPostmortemResponseSchema = z.object({
+  actionItems: z.array(adminIncidentPostmortemActionItemSchema).min(3).max(10),
+  capacityReview: z.array(z.string().min(1).max(320)).min(3).max(8),
+  executiveSummary: z.string().min(1).max(700),
+  generatedAt: z.string().datetime(),
+  impactSummary: z.array(z.string().min(1).max(320)).min(2).max(8),
+  incident: adminIncidentSchema,
+  ok: z.literal(true),
+  postmortemId: z.string().min(8).max(180),
+  preventionChecks: z.array(z.string().min(1).max(300)).min(3).max(8),
+  requestId: z.string().uuid(),
+  rootCauseHypotheses: z.array(z.string().min(1).max(320)).min(2).max(6),
+  timeline: z.array(adminIncidentTimelineEventSchema).max(100),
+});
+
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
 export type AdminIncidentAcknowledgeRequest = z.infer<typeof adminIncidentAcknowledgeRequestSchema>;
 export type AdminIncidentAcknowledgeResponse = z.infer<typeof adminIncidentAcknowledgeResponseSchema>;
@@ -211,9 +299,19 @@ export type AdminIncidentDetailResponse = z.infer<typeof adminIncidentDetailResp
 export type AdminIncidentEscalationLevel = z.infer<typeof adminIncidentEscalationLevelSchema>;
 export type AdminIncidentExportFormat = z.infer<typeof adminIncidentExportFormatSchema>;
 export type AdminIncidentExportResponse = z.infer<typeof adminIncidentExportResponseSchema>;
+export type AdminIncidentHandoffFormat = z.infer<typeof adminIncidentHandoffFormatSchema>;
+export type AdminIncidentHandoffChecklistItem = z.infer<typeof adminIncidentHandoffChecklistItemSchema>;
+export type AdminIncidentHandoffResponse = z.infer<typeof adminIncidentHandoffResponseSchema>;
+export type AdminIncidentHandoffSection = z.infer<typeof adminIncidentHandoffSectionSchema>;
 export type AdminIncidentListResponse = z.infer<typeof adminIncidentListResponseSchema>;
+export type AdminIncidentPostmortemActionItem = z.infer<typeof adminIncidentPostmortemActionItemSchema>;
+export type AdminIncidentPostmortemFormat = z.infer<typeof adminIncidentPostmortemFormatSchema>;
+export type AdminIncidentPostmortemResponse = z.infer<typeof adminIncidentPostmortemResponseSchema>;
 export type AdminIncidentQuery = z.infer<typeof adminIncidentQuerySchema>;
+export type AdminIncidentRemediationPlanResponse = z.infer<typeof adminIncidentRemediationPlanResponseSchema>;
+export type AdminIncidentRemediationPlanStep = z.infer<typeof adminIncidentRemediationPlanStepSchema>;
 export type AdminIncidentRunbookStep = z.infer<typeof adminIncidentRunbookStepSchema>;
+export type AdminIncidentSafeNote = z.infer<typeof adminIncidentSafeNoteSchema>;
 export type AdminIncidentSeverity = z.infer<typeof adminIncidentSeveritySchema>;
 export type AdminIncidentSlaStatus = z.infer<typeof adminIncidentSlaStatusSchema>;
 export type AdminIncidentSource = z.infer<typeof adminIncidentSourceSchema>;

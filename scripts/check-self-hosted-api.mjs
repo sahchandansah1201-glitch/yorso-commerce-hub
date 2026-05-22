@@ -62,9 +62,14 @@ const requiredFiles = [
   "src/lib/admin-incidents-api.test.ts",
   "src/lib/use-admin-incidents.ts",
   "src/lib/use-admin-incidents.test.tsx",
+  "src/lib/use-admin-incident-detail.ts",
+  "src/lib/use-admin-incident-detail.test.tsx",
   "src/pages/admin/AdminIncidents.tsx",
   "src/pages/admin/AdminIncidents.test.tsx",
+  "src/pages/admin/AdminIncidentDetail.tsx",
+  "src/pages/admin/AdminIncidentDetail.test.tsx",
   "e2e/admin-incidents.spec.ts",
+  "e2e/admin-incident-detail.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -304,9 +309,14 @@ const adminIncidentsApi = read("src/lib/admin-incidents-api.ts");
 const adminIncidentsApiTest = read("src/lib/admin-incidents-api.test.ts");
 const useAdminIncidents = read("src/lib/use-admin-incidents.ts");
 const useAdminIncidentsTest = read("src/lib/use-admin-incidents.test.tsx");
+const useAdminIncidentDetail = read("src/lib/use-admin-incident-detail.ts");
+const useAdminIncidentDetailTest = read("src/lib/use-admin-incident-detail.test.tsx");
 const adminIncidentsPage = read("src/pages/admin/AdminIncidents.tsx");
 const adminIncidentsPageTest = read("src/pages/admin/AdminIncidents.test.tsx");
+const adminIncidentDetailPage = read("src/pages/admin/AdminIncidentDetail.tsx");
+const adminIncidentDetailPageTest = read("src/pages/admin/AdminIncidentDetail.test.tsx");
 const adminIncidentsE2E = read("e2e/admin-incidents.spec.ts");
+const adminIncidentDetailE2E = read("e2e/admin-incident-detail.spec.ts");
 const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
 const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
 const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
@@ -664,7 +674,7 @@ if (pkg.scripts["test:admin-operations-frontend"] !== "vitest run src/lib/admin-
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-operations-frontend")) {
   failures.push("package.json: ci:core must run the admin operations frontend tests");
 }
-if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/pages/admin/AdminIncidents.test.tsx") {
+if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx") {
   failures.push("package.json: test:admin-incidents-frontend must cover the admin incidents adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {
@@ -728,6 +738,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incidents")) {
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incidents browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incidents");
+if (pkg.scripts["smoke:e2e:admin-incident-detail"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-detail:run") {
+  failures.push("package.json: smoke:e2e:admin-incident-detail must build with the self-hosted admin incident detail adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-incident-detail:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incident-detail.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-incident-detail:run must execute e2e/admin-incident-detail.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-detail")) {
+  failures.push("package.json: ci:full must include the admin incident detail browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident detail browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-detail");
 if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
   failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
 }
@@ -1728,6 +1749,73 @@ for (const marker of [
   requireText("src/pages/admin/AdminIncidents.tsx", adminIncidentsPage, marker);
 }
 for (const marker of [
+  "admin-incident-open-detail",
+  "/admin/incidents/",
+]) {
+  requireText("src/pages/admin/AdminIncidents.tsx", adminIncidentsPage, marker);
+}
+for (const marker of [
+  "useAdminIncidentDetail",
+  "client.detail",
+  "client.handoffJson",
+  "client.handoffMarkdown",
+  "client.remediation",
+  "client.postmortemJson",
+  "client.postmortemMarkdown",
+  "handoffStatus",
+  "remediationStatus",
+  "postmortemStatus",
+  "admin_incidents_session_required",
+]) {
+  requireText("src/lib/use-admin-incident-detail.ts", useAdminIncidentDetail, marker);
+}
+for (const marker of [
+  "loads detail, updates workflow and exports sanitized handoff",
+  "handoffId",
+  "loadRemediationPlan",
+  "remediationPlan",
+  "exportPostmortemJson",
+  "postmortemJson",
+  "admin@yorso.test",
+]) {
+  requireText("src/lib/use-admin-incident-detail.test.tsx", useAdminIncidentDetailTest, marker);
+}
+for (const marker of [
+  "admin-incident-detail-page",
+  "admin-incident-detail-hero",
+  "admin-incident-detail-readiness",
+  "admin-incident-readiness-",
+  "admin-incident-detail-workflow",
+  "admin-incident-detail-handoff",
+  "admin-incident-detail-handoff-json",
+  "admin-incident-detail-handoff-markdown",
+  "admin-incident-detail-remediation",
+  "admin-incident-detail-remediation-load",
+  "admin-incident-detail-remediation-plan",
+  "admin-incident-detail-note-unsafe",
+  "admin-incident-detail-postmortem",
+  "admin-incident-detail-postmortem-json",
+  "admin-incident-detail-postmortem-markdown",
+  "AdminOperatorNav",
+  "useAdminIncidentDetail",
+]) {
+  requireText("src/pages/admin/AdminIncidentDetail.tsx", adminIncidentDetailPage, marker);
+}
+for (const marker of [
+  "renders detail, workflow and handoff without leaking raw identifiers",
+  "admin-incident-detail-handoff-preview",
+  "admin-incident-detail-handoff-markdown-preview",
+  "admin-incident-detail-remediation-plan",
+  "admin-incident-detail-postmortem-preview",
+  "admin-incident-detail-postmortem-markdown-preview",
+  "Owner assigned",
+  "3/5",
+  "4/5",
+  "admin@yorso.test",
+]) {
+  requireText("src/pages/admin/AdminIncidentDetail.test.tsx", adminIncidentDetailPageTest, marker);
+}
+for (const marker of [
   "shows disabled and session-required states explicitly",
   "renders incidents and acknowledges from the console",
   "admin-incident-assign",
@@ -1742,6 +1830,7 @@ for (const marker of [
 for (const marker of [
   "Batch #101 browser guard",
   "Batch #102 browser guard",
+  "admin-incident-open-detail",
   "/admin/incidents",
   "/v1/admin/incidents",
   "/v1/admin/incidents/export",
@@ -1763,6 +1852,27 @@ for (const marker of [
   "admin-incidents-forbidden",
 ]) {
   requireText("e2e/admin-incidents.spec.ts", adminIncidentsE2E, marker);
+}
+for (const marker of [
+  "Batch #103 browser guard",
+  "/admin/incidents/:incidentId",
+  "/handoff",
+  "/remediation",
+  "/postmortem",
+  "admin-incident-detail-page",
+  "admin-incident-detail-readiness",
+  "admin-incident-detail-handoff-json",
+  "admin-incident-detail-handoff-markdown",
+  "admin-incident-detail-remediation-load",
+  "admin-incident-detail-remediation-plan",
+  "admin-incident-detail-postmortem-json",
+  "admin-incident-detail-postmortem-markdown",
+  "admin@yorso.test",
+  "session_admin_incident_detail_e2e_103",
+  "Owner assigned",
+  "4/5",
+]) {
+  requireText("e2e/admin-incident-detail.spec.ts", adminIncidentDetailE2E, marker);
 }
 for (const marker of [
   "adminOperationsOverviewSchema",
@@ -1927,6 +2037,9 @@ for (const marker of [
   "Batch #102",
   "/v1/admin/incidents",
   "/v1/admin/incidents/export",
+  "/v1/admin/incidents/:incidentId/handoff",
+  "/v1/admin/incidents/:incidentId/remediation",
+  "/v1/admin/incidents/:incidentId/postmortem",
   "/v1/admin/incidents/:incidentId/workflow",
   "/v1/admin/incidents/workflow/bulk",
   "runbook",
@@ -1939,6 +2052,12 @@ for (const marker of [
   "admin_incidents_workload_summary=ok",
   "admin_incidents_export_json=ok",
   "admin_incidents_export_csv=ok",
+  "admin_incidents_handoff_json=ok",
+  "admin_incidents_handoff_markdown=ok",
+  "admin_incidents_remediation_plan=ok",
+  "admin_incidents_postmortem_json=ok",
+  "admin_incidents_postmortem_markdown=ok",
+  "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
   "admin_incidents_bulk_workflow_validation_guard=ok",
@@ -1956,6 +2075,12 @@ for (const marker of [
   "admin_incidents_workload_summary=ok",
   "admin_incidents_export_json=ok",
   "admin_incidents_export_csv=ok",
+  "admin_incidents_handoff_json=ok",
+  "admin_incidents_handoff_markdown=ok",
+  "admin_incidents_remediation_plan=ok",
+  "admin_incidents_postmortem_json=ok",
+  "admin_incidents_postmortem_markdown=ok",
+  "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
   "admin_incidents_bulk_workflow_validation_guard=ok",
