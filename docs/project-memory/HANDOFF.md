@@ -17,27 +17,27 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #105 is implemented locally on branch `codex/batch105-incident-execution-queue`.
-- Batch #105 extends self-hosted admin incidents with a cross-incident execution queue:
-  - `GET /v1/admin/incidents/execution-queue` lists bounded execution items across incidents;
-  - `GET /v1/admin/incidents/execution-queue/export?format=json|csv` exports the current bounded queue page;
-  - `POST /v1/admin/incidents/execution-queue/bulk` bulk-updates at most 50 selected `(incidentId, itemId)` refs;
-  - frontend `/admin/incident-execution` renders `admin-incident-execution-queue-page`, filters, summary cards, export controls and bulk action panel;
-  - notes, evidence and blocked reasons reuse hygiene guards against raw emails, UUIDs, session ids and token-like secrets;
+- Batch #106 is implemented locally on branch `codex/batch106-incident-workload-correlation`.
+- Batch #106 extends self-hosted admin incidents with a workload and correlation center:
+  - `GET /v1/admin/incidents/execution-workload` lists bounded owner load, hot incidents, source mix and status mix;
+  - `GET /v1/admin/incidents/execution-workload/export?format=json|csv` exports the same bounded workload shape;
+  - `GET /v1/admin/incidents/execution-workload/forecast?horizonHours=24` projects bounded near-term capacity risk by owner role;
+  - `GET /v1/admin/incidents/:incidentId/correlation` returns bounded audit, timeline and execution signals for one incident;
+  - frontend `/admin/incident-workload` renders `admin-incident-workload-page`, filters, summary cards, export controls, owner load, capacity forecast and correlation drill-down;
+  - browser/runtime payloads keep raw emails, session ids and unhashed user ids out of UI and exports;
   - routes remain behind self-hosted admin session and role guards.
-- Local validation passed: `contracts:build`, `api:build`, `tsc -b --noEmit`, `test:api`, `test:admin-incidents-frontend`, `check:self-hosted-api`, `check:production-scale-baseline`, `smoke:self-hosted-admin-incidents:run`, `smoke:e2e:admin-incident-execution-queue`, `lint` and `ci:core`.
-- Pending handoff steps: commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
+- Local validation passed: `ci:core`, `contracts:build`, `api:build`, `tsc -b --noEmit`, `test:api`, `test:admin-incidents-frontend`, `test:backend-contract`, `check:self-hosted-db`, `check:self-hosted-api`, `check:production-scale-baseline`, `test:db-migrations`, `test:db-contract`, `smoke:self-hosted-admin-incidents:run`, `check:engineering-lessons`, `test:engineering-lessons`, `smoke:e2e:admin-incident-workload` and `lint`.
+- Pending handoff steps: `git diff --check`, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #105 publication:
-1. commit and push branch codex/batch105-incident-execution-queue;
-2. open PR [codex] Batch #105 admin incident execution queue;
+Finish Batch #106 publication:
+1. run final `git diff --check` and size report;
+2. commit and push branch codex/batch106-incident-workload-correlation;
+3. open PR [codex] Batch #106 admin incident workload correlation;
 3. merge after checks pass;
-4. give Lovable Prompt #105 to sync latest GitHub main.
-
-Then choose Batch #106 as another larger connected production batch.
+4. give Lovable Prompt #106 to sync latest GitHub main.
 ```
 
 ## Rules

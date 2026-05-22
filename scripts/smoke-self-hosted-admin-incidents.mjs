@@ -343,6 +343,67 @@ async function runSmoke(baseUrl) {
   assertEqual(executionQueueBulk.updatedItems[0]?.status, "in_progress", "admin incident execution queue bulk status");
   console.log("admin_incidents_execution_queue_bulk=ok");
 
+  const executionWorkload = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/execution-workload?status=in_progress&priority=immediate&limit=20",
+    adminHeaders,
+  );
+  assertEqual(executionWorkload.ok, true, "admin incident execution workload ok");
+  assertArray(executionWorkload.owners, "admin incident execution workload owners");
+  assertArray(executionWorkload.hotIncidents, "admin incident execution workload hot incidents");
+  assertArray(executionWorkload.sourceMix, "admin incident execution workload source mix");
+  assertNumberAtLeast(executionWorkload.summary.total, 1, "admin incident execution workload total");
+  assertNumberAtLeast(executionWorkload.summary.loadScore, 1, "admin incident execution workload load score");
+  assertNotContains(JSON.stringify(executionWorkload), "admin@example.com", "admin incident execution workload no email");
+  console.log("admin_incidents_workload=ok");
+  console.log("admin_incidents_workload_filters=ok");
+
+  const executionWorkloadExportJson = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/execution-workload/export?format=json&status=in_progress&limit=20",
+    adminHeaders,
+  );
+  assertEqual(executionWorkloadExportJson.ok, true, "admin incident execution workload JSON export ok");
+  assertArray(executionWorkloadExportJson.hotIncidents, "admin incident execution workload JSON export hot incidents");
+  assertNotContains(JSON.stringify(executionWorkloadExportJson), "admin@example.com", "admin incident execution workload JSON no email");
+  console.log("admin_incidents_workload_export_json=ok");
+
+  const executionWorkloadExportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/execution-workload/export?format=csv&status=in_progress&limit=20`,
+    { headers: adminHeaders },
+  );
+  assertStatus(executionWorkloadExportCsv, 200, "admin incident execution workload CSV export");
+  const executionWorkloadExportCsvBody = await executionWorkloadExportCsv.text();
+  assertContains(executionWorkloadExportCsvBody, "\"incidentId\",\"loadScore\"", "admin incident execution workload CSV header");
+  assertContains(executionWorkloadExportCsvBody, "\"nextTargetDueAt\",\"title\"", "admin incident execution workload CSV title column");
+  assertNotContains(executionWorkloadExportCsvBody, "admin@example.com", "admin incident execution workload CSV no email");
+  console.log("admin_incidents_workload_export_csv=ok");
+
+  const executionWorkloadForecast = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/execution-workload/forecast?horizonHours=24&limit=20",
+    adminHeaders,
+  );
+  assertEqual(executionWorkloadForecast.ok, true, "admin incident execution workload forecast ok");
+  assertArray(executionWorkloadForecast.owners, "admin incident execution workload forecast owners");
+  assertNumberAtLeast(executionWorkloadForecast.summary.projectedOpen, 0, "admin incident execution workload forecast projected open");
+  assertNotContains(JSON.stringify(executionWorkloadForecast), "admin@example.com", "admin incident execution workload forecast no email");
+  console.log("admin_incidents_workload_forecast=ok");
+
+  const executionCorrelation = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/correlation?limit=25`,
+    adminHeaders,
+  );
+  assertEqual(executionCorrelation.ok, true, "admin incident correlation ok");
+  assertEqual(executionCorrelation.incident.id, incident.id, "admin incident correlation id");
+  assertArray(executionCorrelation.executionItems, "admin incident correlation execution items");
+  assertArray(executionCorrelation.signals, "admin incident correlation signals");
+  assertArray(executionCorrelation.recommendedNextSteps, "admin incident correlation next steps");
+  assertNumberAtLeast(executionCorrelation.executionItems.length, 1, "admin incident correlation execution item count");
+  assertNotContains(JSON.stringify(executionCorrelation), "admin@example.com", "admin incident correlation no email");
+  console.log("admin_incidents_correlation=ok");
+
   const unsafeQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
     body: JSON.stringify({
       evidenceNote: "Email admin@example.com",

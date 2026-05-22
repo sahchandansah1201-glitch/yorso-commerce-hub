@@ -158,6 +158,38 @@ Keep this file factual and append-only.
   - `npm run smoke:self-hosted-admin-incidents:run` passed.
   - `npm run smoke:e2e:admin-incident-detail` passed, 1 browser test.
   - `npm run smoke:e2e:admin-incidents` passed, 2 browser tests.
+
+- Continued Batch #106 locally on `codex/batch106-incident-workload-correlation`.
+- Added admin incident workload and correlation center:
+  - bounded workload aggregation and hot incident scoring;
+  - bounded workload JSON/CSV export;
+  - bounded workload capacity forecast by owner role and near-term risk;
+  - incident correlation across audit events, timeline events and execution items;
+  - `/admin/incident-workload` frontend page with filters, owner load, hot incidents, forecast and correlation drill-down;
+  - `0022_admin_incident_workload_correlation.sql` indexes;
+  - runtime smoke markers, browser e2e, docs and production-scale guard updates.
+- Fixed Batch #106 issues found during validation:
+  - e2e fixture fields were aligned with the exported Zod contracts instead of UI-inferred shapes;
+  - `replaceAll` was replaced with `split/join` for the current TypeScript target;
+  - runtime smoke now asserts the top-level `executionItems` correlation array instead of non-existent `summary.executionItems`.
+- Confirmed Batch #106 validation so far:
+  - `npm run ci:core` passed.
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npm run test:api` passed, 135 tests.
+  - `npm run test:admin-incidents-frontend` passed, 23 tests.
+  - `npm run check:self-hosted-db` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run test:db-migrations` passed, 16 tests.
+  - `npm run test:db-contract` passed, 27 tests.
+  - `npm run test:backend-contract` passed, 110 tests.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run check:engineering-lessons` passed.
+  - `npm run test:engineering-lessons` passed, 4 tests.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run lint` passed.
+  - `npm run smoke:e2e:admin-incident-workload` passed, 1 browser test.
   - `npm run ci:core` passed.
 
 - Started Batch #104 locally on `codex/batch104-incident-remediation-execution`.

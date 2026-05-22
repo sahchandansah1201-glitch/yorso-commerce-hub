@@ -3,8 +3,11 @@ import {
   AdminIncidentsApiError,
   createAdminIncidentsApiClient,
   isAdminIncidentsApiConfigured,
+  type AdminIncidentCorrelationResponse,
   type AdminIncidentSummary,
   type AdminIncidentListResponse,
+  type AdminIncidentWorkloadForecastResponse,
+  type AdminIncidentWorkloadResponse,
 } from "@/lib/admin-incidents-api";
 
 const incidentSummary = (patch: Partial<AdminIncidentSummary> = {}): AdminIncidentSummary => ({
@@ -87,6 +90,126 @@ const incidentPayload = (patch: Partial<AdminIncidentListResponse> = {}): AdminI
   requestId: "00000000-0000-4000-8000-000000000501",
   summary: incidentSummary(),
   ...patch,
+});
+
+const workloadPayload = (): AdminIncidentWorkloadResponse => ({
+  generatedAt: "2026-05-20T10:16:00.000Z",
+  hotIncidents: [
+    {
+      blockedItems: 0,
+      dueAt: "2026-05-20T11:00:00.000Z",
+      immediateItems: 1,
+      incidentId: "audit:admin-blocked:v1-admin-audit-events",
+      loadScore: 24,
+      nextTargetDueAt: "2026-05-20T10:15:00.000Z",
+      openItems: 1,
+      overdueItems: 1,
+      severity: "high",
+      slaStatus: "breached",
+      source: "audit",
+      status: "open",
+      title: "Blocked admin route access",
+      topOwnerRole: "operator",
+      unassignedItems: 1,
+    },
+  ],
+  limit: 20,
+  offset: 0,
+  ok: true,
+  owners: [
+    { assigned: 0, blocked: 0, breachedIncidents: 1, done: 0, immediate: 1, inProgress: 0, loadScore: 24, oldestTargetMinutes: 1, open: 1, overdue: 1, ownerRole: "operator", skipped: 0, total: 1, unassigned: 1 },
+    { assigned: 0, blocked: 0, breachedIncidents: 0, done: 0, immediate: 0, inProgress: 0, loadScore: 0, oldestTargetMinutes: 0, open: 0, overdue: 0, ownerRole: "engineering", skipped: 0, total: 0, unassigned: 0 },
+    { assigned: 0, blocked: 0, breachedIncidents: 0, done: 0, immediate: 0, inProgress: 0, loadScore: 0, oldestTargetMinutes: 0, open: 0, overdue: 0, ownerRole: "security", skipped: 0, total: 0, unassigned: 0 },
+    { assigned: 0, blocked: 0, breachedIncidents: 0, done: 0, immediate: 0, inProgress: 0, loadScore: 0, oldestTargetMinutes: 0, open: 0, overdue: 0, ownerRole: "founder", skipped: 0, total: 0, unassigned: 0 },
+  ],
+  requestId: "00000000-0000-4000-8000-000000000524",
+  sourceMix: [{ blocked: 0, done: 0, inProgress: 0, key: "audit", open: 1, overdue: 1, total: 1 }],
+  statusMix: [{ blocked: 0, done: 0, inProgress: 0, key: "open", open: 1, overdue: 1, total: 1 }],
+  summary: { assigned: 0, blocked: 0, done: 0, hotIncidentCount: 1, inProgress: 0, loadScore: 24, open: 1, overdue: 1, total: 1, unassigned: 1 },
+});
+
+const workloadForecastPayload = (): AdminIncidentWorkloadForecastResponse => ({
+  assumptions: [
+    "Forecast window: 24 hour(s).",
+    "Projection uses current bounded execution items only.",
+  ],
+  generatedAt: "2026-05-20T10:18:00.000Z",
+  horizonHours: 24,
+  ok: true,
+  owners: [
+    { capacityRisk: "moderate", currentOpen: 1, currentOverdue: 1, currentScore: 24, ownerRole: "operator", projectedOpen: 2, projectedOverdue: 2, recommendedAction: "Keep operator queue under review." },
+    { capacityRisk: "low", currentOpen: 0, currentOverdue: 0, currentScore: 0, ownerRole: "engineering", projectedOpen: 0, projectedOverdue: 0, recommendedAction: "No extra engineering action required." },
+    { capacityRisk: "low", currentOpen: 0, currentOverdue: 0, currentScore: 0, ownerRole: "security", projectedOpen: 0, projectedOverdue: 0, recommendedAction: "No extra security action required." },
+    { capacityRisk: "low", currentOpen: 0, currentOverdue: 0, currentScore: 0, ownerRole: "founder", projectedOpen: 0, projectedOverdue: 0, recommendedAction: "No extra founder action required." },
+  ],
+  requestId: "00000000-0000-4000-8000-000000000525",
+  summary: {
+    capacityRisk: "moderate",
+    highestRiskOwnerRole: "operator",
+    projectedOpen: 2,
+    projectedOverdue: 2,
+    recommendedAction: "Moderate capacity risk: monitor operator workload and assign unowned work.",
+  },
+});
+
+const correlationPayload = (): AdminIncidentCorrelationResponse => ({
+  auditEvents: [
+    {
+      action: "admin.audit_events.read",
+      actorUserHash: "sha256:111111111111111111111111",
+      auditId: "aud_1",
+      correlationId: "corr-incident-1",
+      httpMethod: "GET",
+      occurredAt: "2026-05-20T10:00:00.000Z",
+      outcome: "blocked",
+      reason: "admin_role_required",
+      requestId: "req-incident-1",
+      resourceHash: null,
+      resourceType: "api_audit_events",
+      route: "/v1/admin/audit-events",
+      sessionHash: "sha256:222222222222222222222222",
+      statusCode: 403,
+    },
+  ],
+  executionItems: [
+    {
+      assignedToUserHash: null,
+      blockedReason: null,
+      completedAt: null,
+      description: "Confirm admin role and review attempts.",
+      evidenceNote: null,
+      evidenceRequired: "Audit route evidence.",
+      itemId: "remediation:01:confirm-scope",
+      note: null,
+      ownerRole: "operator",
+      priority: "immediate",
+      source: "remediation_step",
+      status: "open",
+      targetMinutes: 15,
+      title: "Confirm scope",
+      updatedAt: null,
+      updatedByUserHash: null,
+    },
+  ],
+  generatedAt: "2026-05-20T10:17:00.000Z",
+  incident: incidentPayload().incidents[0],
+  ok: true,
+  recommendedNextSteps: ["Compare audit and execution state.", "Record sanitized operator note."],
+  requestId: "00000000-0000-4000-8000-000000000525",
+  signals: [
+    {
+      actorUserHash: "sha256:111111111111111111111111",
+      evidence: [{ label: "action", value: "admin.audit_events.read" }],
+      label: "Audit blocked: admin.audit_events.read",
+      occurredAt: "2026-05-20T10:00:00.000Z",
+      priority: "next",
+      route: "/v1/admin/audit-events",
+      source: "audit_event",
+      status: "admin_role_required",
+    },
+  ],
+  summary: { auditEvents: 1, blockedItems: 0, doneItems: 0, openItems: 1, timelineEvents: 1 },
+  timeline: incidentPayload().incidents[0].timelinePreview,
 });
 
 describe("admin-incidents-api", () => {
@@ -177,6 +300,23 @@ describe("admin-incidents-api", () => {
         return new Response("\"incidentId\",\"itemId\"\n\"audit:admin-blocked:v1-admin-audit-events\",\"remediation:01:confirm-scope\"", {
           headers: { "content-type": "text/csv" },
         });
+      }
+      if (url.includes("/v1/admin/incidents/execution-workload/export?format=json")) {
+        return new Response(JSON.stringify(workloadPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/v1/admin/incidents/execution-workload/export?format=csv")) {
+        return new Response("\"incidentId\",\"loadScore\"\n\"audit:admin-blocked:v1-admin-audit-events\",\"24\"", {
+          headers: { "content-type": "text/csv" },
+        });
+      }
+      if (url.includes("/v1/admin/incidents/execution-workload/forecast?")) {
+        return new Response(JSON.stringify(workloadForecastPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/v1/admin/incidents/execution-workload?")) {
+        return new Response(JSON.stringify(workloadPayload()), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/correlation?limit=25")) {
+        return new Response(JSON.stringify(correlationPayload()), { headers: { "content-type": "application/json" } });
       }
       if (url.endsWith("/v1/admin/incidents/execution-queue/bulk")) {
         return new Response(JSON.stringify({
@@ -626,6 +766,34 @@ describe("admin-incidents-api", () => {
       succeeded: 1,
       updatedItems: [{ status: "in_progress" }],
     });
+    await expect(client.executionWorkload({ limit: 20, overdueOnly: true, ownerRole: "operator" }))
+      .resolves.toMatchObject({
+        hotIncidents: expect.arrayContaining([
+          expect.objectContaining({ incidentId: "audit:admin-blocked:v1-admin-audit-events" }),
+        ]),
+        owners: expect.arrayContaining([
+          expect.objectContaining({ ownerRole: "operator" }),
+        ]),
+        summary: { loadScore: 24, overdue: 1 },
+      });
+    await expect(client.executionWorkloadExportJson({ limit: 20 }))
+      .resolves.toMatchObject({
+        hotIncidents: expect.arrayContaining([expect.objectContaining({ loadScore: 24 })]),
+        summary: { total: 1 },
+      });
+    await expect(client.executionWorkloadExportCsv({ limit: 20 }))
+      .resolves.toContain("\"incidentId\",\"loadScore\"");
+    await expect(client.executionWorkloadForecast({ horizonHours: 24, limit: 20 }))
+      .resolves.toMatchObject({
+        owners: expect.arrayContaining([expect.objectContaining({ ownerRole: "operator" })]),
+        summary: { capacityRisk: "moderate", highestRiskOwnerRole: "operator" },
+      });
+    await expect(client.correlation("audit:admin-blocked:v1-admin-audit-events"))
+      .resolves.toMatchObject({
+        incident: { id: "audit:admin-blocked:v1-admin-audit-events" },
+        signals: expect.arrayContaining([expect.objectContaining({ source: "audit_event" })]),
+        summary: { auditEvents: 1, openItems: 1 },
+      });
 
     const firstCall = fetchImpl.mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
     expect(String(firstCall[0])).toBe(
@@ -654,6 +822,14 @@ describe("admin-incidents-api", () => {
     expect(String(fetchImpl.mock.calls[17][0])).toContain("/execution-queue/export?format=json");
     expect(String(fetchImpl.mock.calls[18][0])).toContain("/execution-queue/export?format=csv");
     expect(String(fetchImpl.mock.calls[19][0])).toContain("/execution-queue/bulk");
+    expect(String(fetchImpl.mock.calls[20][0])).toContain("/execution-workload?limit=20");
+    expect(String(fetchImpl.mock.calls[20][0])).toContain("overdueOnly=true");
+    expect(String(fetchImpl.mock.calls[21][0])).toContain("/execution-workload/export?format=json");
+    expect(String(fetchImpl.mock.calls[22][0])).toContain("/execution-workload/export?format=csv");
+    expect(String(fetchImpl.mock.calls[23][0])).toContain("/execution-workload/forecast?");
+    expect(String(fetchImpl.mock.calls[23][0])).toContain("limit=20");
+    expect(String(fetchImpl.mock.calls[23][0])).toContain("horizonHours=24");
+    expect(String(fetchImpl.mock.calls[24][0])).toContain("/correlation?limit=25");
   });
 
   it("maps admin role and invalid response failures", async () => {

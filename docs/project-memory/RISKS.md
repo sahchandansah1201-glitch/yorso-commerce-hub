@@ -50,6 +50,10 @@
   Impact: Repeated execution updates could add database pressure, leak raw operator notes or create unclear incident state.
   Mitigation: Batch #104 stores bounded execution rows keyed by incident/item, indexes status/source/assignee reads, limits notes/evidence/blocked reason length, exports only the same bounded JSON/CSV item set, keeps updates behind self-hosted admin session and role guards, and reuses note hygiene guards against emails, UUIDs and token-like secret assignments.
 
+- Risk: Incident workload and correlation pages can become broad admin analytics endpoints during outages.
+  Impact: Unbounded reads or raw audit/session identifiers could slow operator response and leak sensitive operational context.
+  Mitigation: Batch #106 keeps workload and correlation routes behind self-hosted admin session and role guards, caps workload/correlation result sizes, exports only bounded JSON/CSV payloads, uses hashed identities, adds PostgreSQL indexes for status/source/owner/timeline reads, and verifies identity hygiene through runtime smoke plus browser e2e.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.

@@ -14,6 +14,8 @@ import {
   adminIncidentExecutionResponseSchema,
   adminIncidentExecutionUpdateRequestSchema,
   adminIncidentExecutionUpdateResponseSchema,
+  adminIncidentCorrelationQuerySchema,
+  adminIncidentCorrelationResponseSchema,
   adminIncidentHandoffQuerySchema,
   adminIncidentHandoffResponseSchema,
   adminIncidentListResponseSchema,
@@ -21,6 +23,10 @@ import {
   adminIncidentPostmortemResponseSchema,
   adminIncidentQuerySchema,
   adminIncidentRemediationPlanResponseSchema,
+  adminIncidentWorkloadExportQuerySchema,
+  adminIncidentWorkloadForecastQuerySchema,
+  adminIncidentWorkloadForecastResponseSchema,
+  adminIncidentWorkloadResponseSchema,
   adminIncidentWorkflowRequestSchema,
   adminIncidentWorkflowResponseSchema,
   type AdminAuditEvent,
@@ -35,6 +41,7 @@ import {
   type AdminIncidentExecutionStatus,
   type AdminIncidentExecutionQueueQuery,
   type AdminIncidentExecutionUpdateResponse,
+  type AdminIncidentCorrelationResponse,
   type AdminIncidentHandoffResponse,
   type AdminIncidentListResponse,
   type AdminIncidentPostmortemResponse,
@@ -47,6 +54,12 @@ import {
   type AdminIncidentStatus,
   type AdminIncidentTimelineEvent,
   type AdminIncidentTimelineEventType,
+  type AdminIncidentWorkloadCapacityRisk,
+  type AdminIncidentWorkloadForecastOwner,
+  type AdminIncidentWorkloadForecastResponse,
+  type AdminIncidentWorkloadOwner,
+  type AdminIncidentWorkloadQuery,
+  type AdminIncidentWorkloadResponse,
   type AdminIncidentWorkflowRequest,
   type AdminIncidentWorkflowResponse,
 } from "../../../../../packages/contracts/dist/index.js";
@@ -312,6 +325,122 @@ export class AdminIncidentService {
       contentType: "application/json; charset=utf-8",
       fileName: "yorso-admin-incident-execution-queue.json",
     };
+  }
+
+  async getIncidentExecutionWorkload(
+    payload: unknown,
+    requestId: string,
+  ): Promise<AdminIncidentWorkloadResponse> {
+    const query = adminIncidentWorkloadExportQuerySchema.parse(payload);
+    const items = await this.deriveExecutionQueueItems(requestId);
+    const filtered = items.filter((item) => matchesWorkloadQuery(item, query));
+    const hotIncidents = buildWorkloadHotIncidents(filtered).slice(query.offset, query.offset + query.limit);
+
+    return adminIncidentWorkloadResponseSchema.parse({
+      generatedAt: new Date().toISOString(),
+      hotIncidents,
+      limit: query.limit,
+      offset: query.offset,
+      ok: true,
+      owners: buildWorkloadOwners(filtered),
+      requestId,
+      sourceMix: buildWorkloadMix(filtered, "incidentSource"),
+      statusMix: buildWorkloadMix(filtered, "status"),
+      summary: summarizeWorkloadItems(filtered),
+    });
+  }
+
+  async exportIncidentExecutionWorkload(payload: unknown, requestId: string) {
+    const query = adminIncidentWorkloadExportQuerySchema.parse(payload);
+    const response = await this.getIncidentExecutionWorkload(payload, requestId);
+    if (query.format === "csv") {
+      return {
+        body: formatIncidentExecutionWorkloadCsv(response),
+        contentType: "text/csv; charset=utf-8",
+        fileName: "yorso-admin-incident-execution-workload.csv",
+      };
+    }
+    return {
+      body: JSON.stringify(response),
+      contentType: "application/json; charset=utf-8",
+      fileName: "yorso-admin-incident-execution-workload.json",
+    };
+  }
+
+  async getIncidentExecutionWorkloadForecast(
+    payload: unknown,
+    requestId: string,
+  ): Promise<AdminIncidentWorkloadForecastResponse> {
+    const query = adminIncidentWorkloadForecastQuerySchema.parse(payload);
+    const items = await this.deriveExecutionQueueItems(requestId);
+    const filtered = items.filter((item) => matchesWorkloadQuery(item, query));
+    const owners = buildWorkloadOwners(filtered);
+    const forecastOwners = buildWorkloadForecastOwners(owners, query.horizonHours);
+    const highestRisk = forecastOwners
+      .slice()
+      .sort((a, b) => capacityRiskWeight(b.capacityRisk) - capacityRiskWeight(a.capacityRisk)
+        || b.projectedOverdue - a.projectedOverdue
+        || b.projectedOpen - a.projectedOpen)[0] ?? null;
+
+    return adminIncidentWorkloadForecastResponseSchema.parse({
+      assumptions: workloadForecastAssumptions(query.horizonHours),
+      generatedAt: new Date().toISOString(),
+      horizonHours: query.horizonHours,
+      ok: true,
+      owners: forecastOwners,
+      requestId,
+      summary: {
+        capacityRisk: highestRisk?.capacityRisk ?? "low",
+        highestRiskOwnerRole: highestRisk?.ownerRole ?? null,
+        projectedOpen: forecastOwners.reduce((total, owner) => total + owner.projectedOpen, 0),
+        projectedOverdue: forecastOwners.reduce((total, owner) => total + owner.projectedOverdue, 0),
+        recommendedAction: workloadForecastSummaryAction(highestRisk),
+      },
+    });
+  }
+
+  async getIncidentCorrelation(
+    incidentId: string,
+    payload: unknown,
+    requestId: string,
+  ): Promise<AdminIncidentCorrelationResponse> {
+    const query = adminIncidentCorrelationQuerySchema.parse(payload);
+    const detail = await this.getIncident(incidentId, requestId);
+    const execution = await this.getIncidentExecution(incidentId, requestId);
+    const auditPage = await this.auditService.listAuditEvents({ limit: "100" }, requestId);
+    const auditEvents = auditPage.events
+      .filter((event) => matchesIncidentAuditSignal(detail.incident, event))
+      .slice(0, query.limit);
+
+    const signals = [
+      ...auditEvents.map((event) => auditCorrelationSignal(event)),
+      ...detail.timeline.slice(-query.limit).map((event) => timelineCorrelationSignal(event)),
+      ...execution.items
+        .filter((item) => item.status !== "done" && item.status !== "skipped")
+        .slice(0, query.limit)
+        .map((item) => executionCorrelationSignal(item)),
+    ]
+      .sort(compareCorrelationSignals)
+      .slice(0, query.limit);
+
+    return adminIncidentCorrelationResponseSchema.parse({
+      auditEvents,
+      executionItems: execution.items,
+      generatedAt: new Date().toISOString(),
+      incident: detail.incident,
+      ok: true,
+      recommendedNextSteps: incidentCorrelationNextSteps(detail.incident, execution.items, auditEvents),
+      requestId,
+      signals,
+      summary: {
+        auditEvents: auditEvents.length,
+        blockedItems: execution.items.filter((item) => item.status === "blocked").length,
+        doneItems: execution.items.filter((item) => item.status === "done").length,
+        openItems: execution.items.filter((item) => item.status === "open" || item.status === "in_progress").length,
+        timelineEvents: detail.timeline.length,
+      },
+      timeline: detail.timeline,
+    });
   }
 
   async bulkUpdateIncidentExecutionQueue(
@@ -739,6 +868,226 @@ function compareExecutionQueueItems(left: AdminIncidentExecutionQueueItem, right
     left.targetDueAt.localeCompare(right.targetDueAt) ||
     left.incidentId.localeCompare(right.incidentId) ||
     left.itemId.localeCompare(right.itemId);
+}
+
+function matchesWorkloadQuery(
+  item: AdminIncidentExecutionQueueItem,
+  query: AdminIncidentWorkloadQuery,
+) {
+  if (!query.includeResolved && item.incidentStatus === "resolved") return false;
+  if (query.overdueOnly && !item.overdue) return false;
+  if (query.ownerRole && item.ownerRole !== query.ownerRole) return false;
+  if (query.priority && item.priority !== query.priority) return false;
+  if (query.source && item.incidentSource !== query.source) return false;
+  if (query.status && item.status !== query.status) return false;
+  return true;
+}
+
+function buildWorkloadOwners(items: AdminIncidentExecutionQueueItem[]) {
+  return (["operator", "engineering", "security", "founder"] as const).map((ownerRole) => {
+    const ownerItems = items.filter((item) => item.ownerRole === ownerRole);
+    return {
+      assigned: ownerItems.filter((item) => Boolean(item.assignedToUserHash)).length,
+      blocked: ownerItems.filter((item) => item.status === "blocked").length,
+      breachedIncidents: new Set(ownerItems.filter((item) => item.incidentSlaStatus === "breached").map((item) => item.incidentId)).size,
+      done: ownerItems.filter((item) => item.status === "done").length,
+      immediate: ownerItems.filter((item) => item.priority === "immediate").length,
+      inProgress: ownerItems.filter((item) => item.status === "in_progress").length,
+      loadScore: workloadScore(ownerItems),
+      oldestTargetMinutes: oldestTargetMinutes(ownerItems),
+      open: ownerItems.filter((item) => item.status === "open").length,
+      overdue: ownerItems.filter((item) => item.overdue).length,
+      ownerRole,
+      skipped: ownerItems.filter((item) => item.status === "skipped").length,
+      total: ownerItems.length,
+      unassigned: ownerItems.filter((item) => !item.assignedToUserHash).length,
+    };
+  });
+}
+
+function buildWorkloadHotIncidents(items: AdminIncidentExecutionQueueItem[]) {
+  const grouped = new Map<string, AdminIncidentExecutionQueueItem[]>();
+  for (const item of items) {
+    const current = grouped.get(item.incidentId) ?? [];
+    current.push(item);
+    grouped.set(item.incidentId, current);
+  }
+
+  return [...grouped.values()]
+    .map((group) => {
+      const first = group[0];
+      const ownerCounts = (["operator", "engineering", "security", "founder"] as const)
+        .map((ownerRole) => ({
+          ownerRole,
+          total: group.filter((item) => item.ownerRole === ownerRole).length,
+        }))
+        .sort((left, right) => right.total - left.total || left.ownerRole.localeCompare(right.ownerRole));
+      const dueDates = group
+        .filter((item) => item.status !== "done" && item.status !== "skipped")
+        .map((item) => item.targetDueAt)
+        .sort();
+      return {
+        blockedItems: group.filter((item) => item.status === "blocked").length,
+        dueAt: first.incidentDueAt,
+        immediateItems: group.filter((item) => item.priority === "immediate").length,
+        incidentId: first.incidentId,
+        loadScore: workloadScore(group),
+        nextTargetDueAt: dueDates[0] ?? null,
+        openItems: group.filter((item) => item.status === "open" || item.status === "in_progress").length,
+        overdueItems: group.filter((item) => item.overdue).length,
+        severity: first.incidentSeverity,
+        slaStatus: first.incidentSlaStatus,
+        source: first.incidentSource,
+        status: first.incidentStatus,
+        title: first.incidentTitle,
+        topOwnerRole: ownerCounts[0]?.total ? ownerCounts[0].ownerRole : null,
+        unassignedItems: group.filter((item) => !item.assignedToUserHash).length,
+      };
+    })
+    .sort((left, right) =>
+      right.loadScore - left.loadScore ||
+      severityRank[left.severity] - severityRank[right.severity] ||
+      (left.nextTargetDueAt ?? left.dueAt).localeCompare(right.nextTargetDueAt ?? right.dueAt) ||
+      left.incidentId.localeCompare(right.incidentId),
+    );
+}
+
+function buildWorkloadMix(
+  items: AdminIncidentExecutionQueueItem[],
+  key: "incidentSource" | "status",
+) {
+  const grouped = new Map<string, AdminIncidentExecutionQueueItem[]>();
+  for (const item of items) {
+    const groupKey = String(item[key]);
+    const current = grouped.get(groupKey) ?? [];
+    current.push(item);
+    grouped.set(groupKey, current);
+  }
+  return [...grouped.entries()]
+    .map(([groupKey, groupItems]) => ({
+      blocked: groupItems.filter((item) => item.status === "blocked").length,
+      done: groupItems.filter((item) => item.status === "done").length,
+      inProgress: groupItems.filter((item) => item.status === "in_progress").length,
+      key: groupKey,
+      open: groupItems.filter((item) => item.status === "open").length,
+      overdue: groupItems.filter((item) => item.overdue).length,
+      total: groupItems.length,
+    }))
+    .sort((left, right) => right.total - left.total || left.key.localeCompare(right.key));
+}
+
+function summarizeWorkloadItems(items: AdminIncidentExecutionQueueItem[]) {
+  return {
+    assigned: items.filter((item) => Boolean(item.assignedToUserHash)).length,
+    blocked: items.filter((item) => item.status === "blocked").length,
+    done: items.filter((item) => item.status === "done").length,
+    hotIncidentCount: new Set(items.map((item) => item.incidentId)).size,
+    inProgress: items.filter((item) => item.status === "in_progress").length,
+    loadScore: workloadScore(items),
+    open: items.filter((item) => item.status === "open").length,
+    overdue: items.filter((item) => item.overdue).length,
+    total: items.length,
+    unassigned: items.filter((item) => !item.assignedToUserHash).length,
+  };
+}
+
+function buildWorkloadForecastOwners(
+  owners: AdminIncidentWorkloadOwner[],
+  horizonHours: number,
+): AdminIncidentWorkloadForecastOwner[] {
+  const horizonMultiplier = Math.max(1, Math.ceil(horizonHours / 24));
+  return owners.map((owner) => {
+    const projectedOpen = owner.open + owner.inProgress + Math.ceil(owner.immediate * horizonMultiplier * 0.5);
+    const projectedOverdue = owner.overdue + owner.breachedIncidents + Math.ceil(owner.blocked * 0.5);
+    const risk = capacityRiskFor(owner.loadScore, projectedOpen, projectedOverdue);
+    return {
+      capacityRisk: risk,
+      currentOpen: owner.open + owner.inProgress,
+      currentOverdue: owner.overdue,
+      currentScore: owner.loadScore,
+      ownerRole: owner.ownerRole,
+      projectedOpen,
+      projectedOverdue,
+      recommendedAction: workloadForecastOwnerAction(owner.ownerRole, risk, projectedOverdue),
+    };
+  });
+}
+
+function capacityRiskFor(
+  score: number,
+  projectedOpen: number,
+  projectedOverdue: number,
+): AdminIncidentWorkloadCapacityRisk {
+  if (score >= 140 || projectedOverdue >= 5 || projectedOpen >= 12) return "critical";
+  if (score >= 80 || projectedOverdue >= 3 || projectedOpen >= 8) return "high";
+  if (score >= 35 || projectedOverdue >= 1 || projectedOpen >= 4) return "moderate";
+  return "low";
+}
+
+function capacityRiskWeight(risk: AdminIncidentWorkloadCapacityRisk) {
+  return risk === "critical" ? 4 : risk === "high" ? 3 : risk === "moderate" ? 2 : 1;
+}
+
+function workloadForecastOwnerAction(
+  ownerRole: AdminIncidentWorkloadOwner["ownerRole"],
+  risk: AdminIncidentWorkloadCapacityRisk,
+  projectedOverdue: number,
+) {
+  if (risk === "critical") {
+    return `Move a second ${ownerRole} to the queue and resolve ${projectedOverdue} overdue item(s) before new intake.`;
+  }
+  if (risk === "high") {
+    return `Protect ${ownerRole} focus time and clear overdue or blocked items before widening scope.`;
+  }
+  if (risk === "moderate") {
+    return `Keep ${ownerRole} queue under review and assign unowned immediate work.`;
+  }
+  return `No extra ${ownerRole} capacity action is required within the forecast window.`;
+}
+
+function workloadForecastSummaryAction(owner: AdminIncidentWorkloadForecastOwner | null) {
+  if (!owner) return "No incident execution capacity action is required.";
+  if (owner.capacityRisk === "critical") {
+    return `Critical capacity risk: rebalance ${owner.ownerRole} workload before accepting more incident work.`;
+  }
+  if (owner.capacityRisk === "high") {
+    return `High capacity risk: clear ${owner.ownerRole} overdue work before starting new remediation items.`;
+  }
+  if (owner.capacityRisk === "moderate") {
+    return `Moderate capacity risk: monitor ${owner.ownerRole} workload and assign unowned work.`;
+  }
+  return "Current execution workload is within the bounded admin capacity envelope.";
+}
+
+function workloadForecastAssumptions(horizonHours: number) {
+  return [
+    `Forecast window: ${horizonHours} hour(s).`,
+    "Projection uses current bounded execution items only; it does not scan unbounded logs.",
+    "Overdue, blocked, immediate and breached-SLA work increase capacity risk.",
+    "Resolved and skipped execution items are excluded from pressure scoring.",
+  ];
+}
+
+function workloadScore(items: AdminIncidentExecutionQueueItem[]) {
+  return items.reduce((score, item) => {
+    if (item.status === "done" || item.status === "skipped") return score;
+    return score +
+      (item.overdue ? 8 : 0) +
+      (item.priority === "immediate" ? 5 : item.priority === "next" ? 2 : 1) +
+      (item.status === "blocked" ? 4 : item.status === "in_progress" ? 2 : 1) +
+      (item.incidentSlaStatus === "breached" ? 6 : item.incidentSlaStatus === "at_risk" ? 3 : 0) +
+      (item.assignedToUserHash ? 0 : 2);
+  }, 0);
+}
+
+function oldestTargetMinutes(items: AdminIncidentExecutionQueueItem[]) {
+  const now = Date.now();
+  return items.reduce((oldest, item) => {
+    if (item.status === "done" || item.status === "skipped") return oldest;
+    const target = Date.parse(item.targetDueAt);
+    if (Number.isNaN(target)) return oldest;
+    return Math.max(oldest, Math.max(0, Math.floor((now - target) / 60_000)));
+  }, 0);
 }
 
 function dedupeExecutionRefs(items: Array<{ incidentId: string; itemId: string }>) {
@@ -1557,6 +1906,103 @@ function summarizeIncidents(incidents: AdminIncident[]) {
   };
 }
 
+function matchesIncidentAuditSignal(incident: AdminIncident, event: AdminAuditEvent) {
+  if (incident.relatedAuditIds.includes(event.auditId)) return true;
+  if (incident.route && event.route === incident.route) return true;
+  if (event.resourceType === "admin_incident" && event.resourceHash) return true;
+  if (incident.source === "security" && event.action.includes("auth")) return true;
+  if (incident.source === "access" && event.route?.startsWith("/v1/access")) return true;
+  return false;
+}
+
+function auditCorrelationSignal(event: AdminAuditEvent) {
+  return {
+    actorUserHash: event.actorUserHash,
+    evidence: [
+      { label: "action", value: event.action },
+      { label: "outcome", value: event.outcome },
+      { label: "status", value: String(event.statusCode ?? "none") },
+    ],
+    label: `Audit ${event.outcome}: ${event.action}`,
+    occurredAt: event.occurredAt,
+    priority: event.statusCode && event.statusCode >= 500 ? "immediate" as const : "next" as const,
+    route: event.route,
+    source: "audit_event" as const,
+    status: event.reason ?? event.outcome,
+  };
+}
+
+function timelineCorrelationSignal(event: AdminIncidentTimelineEvent) {
+  return {
+    actorUserHash: event.actorUserHash,
+    evidence: [
+      { label: "type", value: event.type },
+      { label: "status", value: event.status ?? "none" },
+      { label: "escalation", value: event.escalationLevel ?? "none" },
+    ],
+    label: `Timeline ${event.type}`,
+    occurredAt: event.occurredAt,
+    priority: event.type === "escalated" ? "immediate" as const : "next" as const,
+    route: null,
+    source: "timeline_event" as const,
+    status: event.status,
+  };
+}
+
+function executionCorrelationSignal(item: AdminIncidentExecutionItem) {
+  return {
+    actorUserHash: item.updatedByUserHash,
+    evidence: [
+      { label: "owner", value: item.ownerRole },
+      { label: "source", value: item.source },
+      { label: "required", value: item.evidenceRequired },
+    ],
+    label: `Execution ${item.status}: ${item.title}`,
+    occurredAt: item.updatedAt,
+    priority: item.priority,
+    route: null,
+    source: "execution_item" as const,
+    status: item.status,
+  };
+}
+
+type CorrelationSignalDraft =
+  | ReturnType<typeof auditCorrelationSignal>
+  | ReturnType<typeof timelineCorrelationSignal>
+  | ReturnType<typeof executionCorrelationSignal>;
+
+function compareCorrelationSignals(left: CorrelationSignalDraft, right: CorrelationSignalDraft) {
+  const leftTime = left.occurredAt ?? "";
+  const rightTime = right.occurredAt ?? "";
+  return rightTime.localeCompare(leftTime) ||
+    (left.priority ? executionPriorityRank[left.priority] : 9) - (right.priority ? executionPriorityRank[right.priority] : 9) ||
+    left.label.localeCompare(right.label);
+}
+
+function incidentCorrelationNextSteps(
+  incident: AdminIncident,
+  executionItems: AdminIncidentExecutionItem[],
+  auditEvents: AdminAuditEvent[],
+) {
+  const steps = [
+    "Compare the latest audit event with the current execution blocker before changing runtime state.",
+    "Record a sanitized operator note before resolving or escalating this incident.",
+  ];
+  if (executionItems.some((item) => item.status === "blocked")) {
+    steps.push("Resolve or reassign blocked execution items before closing the incident.");
+  }
+  if (auditEvents.some((event) => event.statusCode && event.statusCode >= 500)) {
+    steps.push("Check readiness and metrics before restarting or scaling workers.");
+  }
+  if (!incident.assignedToUserHash) {
+    steps.push("Assign an owner hash so the incident is not stranded during handoff.");
+  }
+  if (incident.slaStatus === "breached") {
+    steps.push("Add an explicit SLA breach note and escalation owner.");
+  }
+  return steps.slice(0, 8);
+}
+
 function formatIncidentsCsv(incidents: AdminIncident[]) {
   const header = [
     "id",
@@ -1585,6 +2031,40 @@ function formatIncidentsCsv(incidents: AdminIncident[]) {
     incident.title,
     incident.dueAt,
     incident.lastSeenAt,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function formatIncidentExecutionWorkloadCsv(response: AdminIncidentWorkloadResponse) {
+  const header = [
+    "incidentId",
+    "loadScore",
+    "severity",
+    "source",
+    "status",
+    "slaStatus",
+    "topOwnerRole",
+    "openItems",
+    "blockedItems",
+    "overdueItems",
+    "unassignedItems",
+    "nextTargetDueAt",
+    "title",
+  ];
+  const rows = response.hotIncidents.map((incident) => [
+    incident.incidentId,
+    String(incident.loadScore),
+    incident.severity,
+    incident.source,
+    incident.status,
+    incident.slaStatus,
+    incident.topOwnerRole ?? "",
+    String(incident.openItems),
+    String(incident.blockedItems),
+    String(incident.overdueItems),
+    String(incident.unassignedItems),
+    incident.nextTargetDueAt ?? "",
+    incident.title,
   ]);
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }

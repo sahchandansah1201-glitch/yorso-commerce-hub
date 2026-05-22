@@ -16,6 +16,9 @@ const exportRoute = "/v1/admin/incidents/export";
 const executionQueueRoute = "/v1/admin/incidents/execution-queue";
 const executionQueueExportRoute = "/v1/admin/incidents/execution-queue/export";
 const executionQueueBulkRoute = "/v1/admin/incidents/execution-queue/bulk";
+const executionWorkloadRoute = "/v1/admin/incidents/execution-workload";
+const executionWorkloadExportRoute = "/v1/admin/incidents/execution-workload/export";
+const executionWorkloadForecastRoute = "/v1/admin/incidents/execution-workload/forecast";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
@@ -24,6 +27,7 @@ const executionExportSuffix = "/execution/export";
 const handoffSuffix = "/handoff";
 const postmortemSuffix = "/postmortem";
 const remediationSuffix = "/remediation";
+const correlationSuffix = "/correlation";
 const workflowSuffix = "/workflow";
 
 export async function handleAdminIncidentRoute(
@@ -59,7 +63,23 @@ export async function handleAdminIncidentRoute(
     methodNotAllowed(response, context, "POST");
     return true;
   }
+  if (match.kind === "executionWorkload" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionWorkloadExport" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionWorkloadForecast" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
   if (match.kind === "detail" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "correlation" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
     return true;
   }
@@ -151,6 +171,48 @@ export async function handleAdminIncidentRoute(
     }
     if (match.kind === "detail") {
       const payload = await service.getIncident(match.incidentId, context.requestId);
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "executionWorkload") {
+      const payload = await service.getIncidentExecutionWorkload(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "executionWorkloadExport") {
+      const payload = await service.exportIncidentExecutionWorkload(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
+    if (match.kind === "executionWorkloadForecast") {
+      const payload = await service.getIncidentExecutionWorkloadForecast(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "correlation") {
+      const payload = await service.getIncidentCorrelation(
+        match.incidentId,
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
       auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
       sendJson(response, 200, payload);
       return true;
@@ -252,9 +314,13 @@ type IncidentRouteMatch =
   | { kind: "executionQueue"; route: string }
   | { kind: "executionQueueExport"; route: string }
   | { kind: "executionQueueBulk"; route: string }
+  | { kind: "executionWorkload"; route: string }
+  | { kind: "executionWorkloadExport"; route: string }
+  | { kind: "executionWorkloadForecast"; route: string }
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
+  | { incidentId: string; kind: "correlation"; route: string }
   | { incidentId: string; kind: "handoff"; route: string }
   | { incidentId: string; kind: "postmortem"; route: string }
   | { incidentId: string; kind: "remediation"; route: string }
@@ -269,6 +335,11 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
   if (pathname === executionQueueRoute) return { kind: "executionQueue", route: executionQueueRoute };
   if (pathname === executionQueueExportRoute) return { kind: "executionQueueExport", route: executionQueueExportRoute };
   if (pathname === executionQueueBulkRoute) return { kind: "executionQueueBulk", route: executionQueueBulkRoute };
+  if (pathname === executionWorkloadForecastRoute) {
+    return { kind: "executionWorkloadForecast", route: executionWorkloadForecastRoute };
+  }
+  if (pathname === executionWorkloadRoute) return { kind: "executionWorkload", route: executionWorkloadRoute };
+  if (pathname === executionWorkloadExportRoute) return { kind: "executionWorkloadExport", route: executionWorkloadExportRoute };
   if (pathname === bulkWorkflowRoute) return { kind: "bulkWorkflow", route: bulkWorkflowRoute };
   if (!pathname.startsWith(detailPrefix)) return null;
   const rest = pathname.slice(detailPrefix.length);
@@ -282,6 +353,11 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
     const incidentId = decodeURIComponent(rest.slice(0, -handoffSuffix.length).replace(/\/$/, ""));
     if (!incidentId) return null;
     return { incidentId, kind: "handoff", route: `${detailPrefix}:incidentId${handoffSuffix}` };
+  }
+  if (rest.endsWith(correlationSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -correlationSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "correlation", route: `${detailPrefix}:incidentId${correlationSuffix}` };
   }
   if (rest.endsWith(remediationSuffix)) {
     const incidentId = decodeURIComponent(rest.slice(0, -remediationSuffix.length).replace(/\/$/, ""));
@@ -347,6 +423,12 @@ function auditIncidentRoute(
         ? "admin.incidents.execution_queue.export"
       : match.kind === "executionQueueBulk"
         ? "admin.incidents.execution_queue.bulk_update"
+      : match.kind === "executionWorkload"
+        ? "admin.incidents.execution_workload.read"
+      : match.kind === "executionWorkloadExport"
+        ? "admin.incidents.execution_workload.export"
+      : match.kind === "executionWorkloadForecast"
+        ? "admin.incidents.execution_workload.forecast"
       : match.kind === "bulkWorkflow"
         ? "admin.incidents.workflow.bulk"
       : match.kind === "workflow"
@@ -361,6 +443,8 @@ function auditIncidentRoute(
         ? "admin.incidents.execution.update"
       : match.kind === "handoff"
         ? "admin.incidents.handoff.export"
+      : match.kind === "correlation"
+        ? "admin.incidents.correlation.read"
       : match.kind === "postmortem"
         ? "admin.incidents.postmortem.export"
       : match.kind === "remediation"

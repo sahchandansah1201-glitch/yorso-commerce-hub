@@ -1446,6 +1446,91 @@ Marker: admin_incidents_execution_queue_bulk=ok.
 Marker: admin_incidents_execution_queue_note_hygiene_guard=ok.
 Marker: 10,000 concurrent.
 
+## Batch #106 Admin Incident Workload And Correlation
+
+Batch #106 adds the admin incident workload and correlation center for the
+self-hosted operator console. It connects `/admin/incident-workload` to
+`/v1/admin/incidents/execution-workload`,
+`/v1/admin/incidents/execution-workload/export`, and
+`/v1/admin/incidents/execution-workload/forecast`, and
+`/v1/admin/incidents/:incidentId/correlation`. Operators can see overload,
+overdue pressure, blocked execution items, near-term capacity risk and
+audit/timeline signals without opening every incident detail page.
+
+Expected read/write profile:
+
+- Read-heavy admin control-plane path.
+- One explicit page load or refresh per operator action; no automatic polling.
+- No new writes. Mutations stay in existing incident workflow and execution
+  item endpoints.
+- JSON and CSV exports use the same bounded workload query schema.
+- Forecast reads are explicit operator actions and use bounded `horizonHours`
+  and `limit` values.
+
+Cache, queue and backpressure strategy:
+
+- No browser polling and no unbounded export job.
+- API responses are derived from existing bounded incident/execution records.
+- If this becomes a high-frequency NOC dashboard, the next production step is a
+  Redis-backed short TTL snapshot keyed by filter hash.
+
+Database indexing and pagination strategy:
+
+- Migration `0022_admin_incident_workload_correlation` adds execution status,
+  owner, source and incident/source/status indexes.
+- The same migration adds recent incident event indexes for timeline
+  correlation.
+- Workload keeps `limit` and `offset`; correlation keeps bounded `limit`.
+- Forecast uses the same bounded workload inputs plus `horizonHours`, capped by
+  the contract, and does not scan marketplace traffic tables.
+
+Failure mode and graceful degradation:
+
+- Missing self-hosted API URL renders disabled state.
+- Missing session renders session-required state.
+- Non-admin session renders forbidden state.
+- API errors show bounded page-level errors, not raw server internals.
+
+Observability and load-test plan:
+
+- Route actions are audited as `admin.incidents.execution_workload.read`,
+  `admin.incidents.execution_workload.export`, and
+  `admin.incidents.correlation.read`.
+- Capacity forecasts are audited as
+  `admin.incidents.execution_workload.forecast`.
+- Existing request, error and Prometheus metrics cover route and status class.
+- Load test should simulate 100 operators over 10,000 concurrent marketplace
+  users: 1 workload refresh per 30 seconds, 1 correlation read per minute, and
+  1 bounded export per 10 minutes.
+
+Validation:
+
+- `test:admin-incidents-frontend`;
+- `smoke:self-hosted-admin-incidents`;
+- `smoke:e2e:admin-incident-workload`;
+- `check:self-hosted-api`;
+- `check:self-hosted-db`;
+- `check:production-scale-baseline`.
+
+Marker: Batch #106.
+Marker: admin incident workload.
+Marker: /admin/incident-workload.
+Marker: /v1/admin/incidents/execution-workload.
+Marker: /v1/admin/incidents/execution-workload/export.
+Marker: /v1/admin/incidents/execution-workload/forecast.
+Marker: /v1/admin/incidents/:incidentId/correlation.
+Marker: admin-incident-workload-page.
+Marker: admin-incident-workload-correlation.
+Marker: admin-incident-workload-forecast-summary.
+Marker: smoke:e2e:admin-incident-workload.
+Marker: admin_incidents_workload=ok.
+Marker: admin_incidents_workload_export_json=ok.
+Marker: admin_incidents_workload_export_csv=ok.
+Marker: admin_incidents_workload_forecast=ok.
+Marker: admin_incidents_correlation=ok.
+Marker: 0022_admin_incident_workload_correlation.
+Marker: 10,000 concurrent.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
