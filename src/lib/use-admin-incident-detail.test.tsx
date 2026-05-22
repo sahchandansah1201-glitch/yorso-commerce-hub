@@ -230,6 +230,116 @@ describe("useAdminIncidentDetail", () => {
           headers: { "content-type": "text/markdown" },
         });
       }
+      if (url.endsWith("/execution")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:07:00.000Z",
+          incident: detailPayload().incident,
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000707",
+          summary: { blocked: 0, done: 0, inProgress: 0, open: 1, skipped: 0, total: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/execution/export?format=json")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:07:30.000Z",
+          incident: detailPayload().incident,
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000709",
+          summary: { blocked: 0, done: 0, inProgress: 0, open: 1, skipped: 0, total: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/execution/export?format=csv")) {
+        return new Response("\"itemId\",\"status\"\n\"remediation:01:confirm-scope\",\"open\"", {
+          headers: { "content-type": "text/csv" },
+        });
+      }
+      if (url.endsWith("/execution/remediation%3A01%3Aconfirm-scope")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:08:00.000Z",
+          incident: detailPayload().incident,
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: "2026-05-20T10:08:00.000Z",
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: "Audit route verified.",
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: "Done.",
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "done",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: "2026-05-20T10:08:00.000Z",
+              updatedByUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000708",
+          summary: { blocked: 0, done: 1, inProgress: 0, open: 0, skipped: 0, total: 1 },
+          updatedItem: {
+            assignedToUserHash: null,
+            blockedReason: null,
+            completedAt: "2026-05-20T10:08:00.000Z",
+            description: "Confirm admin role and review attempts.",
+            evidenceNote: "Audit route verified.",
+            evidenceRequired: "Audit route evidence.",
+            itemId: "remediation:01:confirm-scope",
+            note: "Done.",
+            ownerRole: "operator",
+            priority: "immediate",
+            source: "remediation_step",
+            status: "done",
+            targetMinutes: 15,
+            title: "Confirm scope",
+            updatedAt: "2026-05-20T10:08:00.000Z",
+            updatedByUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+          },
+        }), { headers: { "content-type": "application/json" } });
+      }
       if (url.endsWith("/workflow")) {
         return new Response(JSON.stringify({
           incident: {
@@ -284,6 +394,9 @@ describe("useAdminIncidentDetail", () => {
       await result.current.loadRemediationPlan();
       await result.current.exportPostmortemJson();
       await result.current.exportPostmortemMarkdown();
+      await result.current.loadExecution();
+      await result.current.exportExecutionJson();
+      await result.current.exportExecutionCsv();
     });
     expect(result.current.handoffJson?.sections.map((section) => section.title)).toContain("Runbook");
     expect(result.current.handoffMarkdown).toContain("# Incident handoff");
@@ -293,6 +406,21 @@ describe("useAdminIncidentDetail", () => {
     expect(result.current.postmortemJson?.actionItems.map((item) => item.title)).toContain("Add regression guard");
     expect(result.current.postmortemMarkdown).toContain("# Incident postmortem draft");
     expect(result.current.postmortemStatus).toContain("Markdown");
+    expect(result.current.execution?.items[0].itemId).toBe("remediation:01:confirm-scope");
+    expect(result.current.executionStatus).toBe("0/1 done");
+    expect(result.current.executionExportJson?.summary.total).toBe(1);
+    expect(result.current.executionCsv).toContain("\"itemId\",\"status\"");
+    expect(result.current.executionExportStatus).toContain("CSV");
+    await act(async () => {
+      await result.current.updateExecutionItem("remediation:01:confirm-scope", {
+        evidenceNote: "Audit route verified.",
+        note: "Done.",
+        status: "done",
+      });
+    });
+    expect(result.current.execution?.summary.done).toBe(1);
+    expect(result.current.execution?.items[0].evidenceNote).toBe("Audit route verified.");
+    expect(result.current.executionStatus).toBe("1/1 done");
     expect(JSON.stringify(result.current.handoffJson)).not.toContain("admin@yorso.test");
     expect(JSON.stringify(result.current.postmortemJson)).not.toContain("admin@yorso.test");
     expect(summary().total).toBe(1);

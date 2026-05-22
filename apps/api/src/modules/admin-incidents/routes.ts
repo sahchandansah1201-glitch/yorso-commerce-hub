@@ -16,6 +16,8 @@ const exportRoute = "/v1/admin/incidents/export";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
+const executionSuffix = "/execution";
+const executionExportSuffix = "/execution/export";
 const handoffSuffix = "/handoff";
 const postmortemSuffix = "/postmortem";
 const remediationSuffix = "/remediation";
@@ -56,6 +58,18 @@ export async function handleAdminIncidentRoute(
   }
   if (match.kind === "postmortem" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "execution" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionExport" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionItem" && request.method !== "POST") {
+    methodNotAllowed(response, context, "POST");
     return true;
   }
   if (match.kind === "acknowledge" && request.method !== "POST") {
@@ -139,10 +153,33 @@ export async function handleAdminIncidentRoute(
       response.end(payload.body);
       return true;
     }
+    if (match.kind === "execution") {
+      const payload = await service.getIncidentExecution(match.incidentId, context.requestId);
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "executionExport") {
+      const payload = await service.exportIncidentExecution(
+        match.incidentId,
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
 
     const body = await readJsonBody(request, jsonBodyOptions);
     const payload = match.kind === "bulkWorkflow"
       ? await service.bulkUpdateIncidentWorkflow(body, session.userId, context.requestId)
+      : match.kind === "executionItem"
+        ? await service.updateIncidentExecutionItem(match.incidentId, match.itemId, body, session.userId, context.requestId)
       : match.kind === "workflow"
         ? await service.updateIncidentWorkflow(match.incidentId, body, session.userId, context.requestId)
         : await service.acknowledgeIncident(match.incidentId, body, session.userId, context.requestId);
@@ -178,6 +215,9 @@ type IncidentRouteMatch =
   | { incidentId: string; kind: "handoff"; route: string }
   | { incidentId: string; kind: "postmortem"; route: string }
   | { incidentId: string; kind: "remediation"; route: string }
+  | { incidentId: string; kind: "execution"; route: string }
+  | { incidentId: string; kind: "executionExport"; route: string }
+  | { incidentId: string; itemId: string; kind: "executionItem"; route: string }
   | { incidentId: string; kind: "workflow"; route: string };
 
 function routeMatch(pathname: string): IncidentRouteMatch | null {
@@ -206,6 +246,29 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
     const incidentId = decodeURIComponent(rest.slice(0, -postmortemSuffix.length).replace(/\/$/, ""));
     if (!incidentId) return null;
     return { incidentId, kind: "postmortem", route: `${detailPrefix}:incidentId${postmortemSuffix}` };
+  }
+  if (rest.endsWith(executionSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -executionSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "execution", route: `${detailPrefix}:incidentId${executionSuffix}` };
+  }
+  if (rest.endsWith(executionExportSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -executionExportSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "executionExport", route: `${detailPrefix}:incidentId${executionExportSuffix}` };
+  }
+  const executionItemMarker = `${executionSuffix}/`;
+  if (rest.includes(executionItemMarker)) {
+    const [incidentPart, itemPart] = rest.split(executionItemMarker);
+    const incidentId = decodeURIComponent(incidentPart.replace(/\/$/, ""));
+    const itemId = decodeURIComponent(itemPart ?? "");
+    if (!incidentId || !itemId) return null;
+    return {
+      incidentId,
+      itemId,
+      kind: "executionItem",
+      route: `${detailPrefix}:incidentId${executionSuffix}/:itemId`,
+    };
   }
   if (rest.endsWith(workflowSuffix)) {
     const incidentId = decodeURIComponent(rest.slice(0, -workflowSuffix.length).replace(/\/$/, ""));
@@ -238,6 +301,12 @@ function auditIncidentRoute(
         ? "admin.incidents.workflow.update"
       : match.kind === "export"
         ? "admin.incidents.export"
+      : match.kind === "execution"
+        ? "admin.incidents.execution.read"
+      : match.kind === "executionExport"
+        ? "admin.incidents.execution.export"
+      : match.kind === "executionItem"
+        ? "admin.incidents.execution.update"
       : match.kind === "handoff"
         ? "admin.incidents.handoff.export"
       : match.kind === "postmortem"

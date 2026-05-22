@@ -159,3 +159,44 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:admin-incident-detail` passed, 1 browser test.
   - `npm run smoke:e2e:admin-incidents` passed, 2 browser tests.
   - `npm run ci:core` passed.
+
+- Started Batch #104 locally on `codex/batch104-incident-remediation-execution`.
+- Added a durable admin incident execution tracker:
+  - `packages/db/migrations/0021_admin_incident_execution.sql` creates `yorso_admin_incident_execution_items`;
+  - execution items are keyed by `(incident_id, item_id)` and indexed for incident/status, assignee/status and source/status reads;
+  - execution states are `open`, `in_progress`, `done`, `blocked` and `skipped`.
+- Added self-hosted admin execution APIs:
+  - `GET /v1/admin/incidents/:incidentId/execution`;
+  - `GET /v1/admin/incidents/:incidentId/execution/export?format=json|csv`;
+  - `POST /v1/admin/incidents/:incidentId/execution/:itemId`;
+  - both routes stay behind admin session and role guards.
+- Added execution item contracts, memory repository support, PostgreSQL repository support, service orchestration and audit actions.
+- Added frontend execution support:
+  - `src/lib/admin-incidents-api.ts` execution client methods;
+  - `src/lib/use-admin-incident-detail.ts` execution loading and updates;
+  - `src/pages/admin/AdminIncidentDetail.tsx` execution tracker with plan/status, JSON/CSV export, note/evidence/blocked reason controls and item actions.
+- Extended Batch #104 tests and guards:
+  - admin incident frontend tests;
+  - focused admin incident API tests;
+  - DB contract and migration tests;
+  - self-hosted incident smoke markers;
+  - admin incident detail e2e;
+  - `check:self-hosted-db`, `check:self-hosted-api`, `check:production-scale-baseline`.
+- Fixed process/code issues found during Batch #104:
+  - API update validator initially erased the `updatedItem` narrowing; changed it to validate the base response and then assert the update-specific field.
+  - DB guard marker initially did not match the exact `updated_by_user_id` DDL; aligned the guard with the migration text.
+  - Adding migration `0021` required updates to all migration contract tests, not just guard scripts; updated `self-hosted-db-contract`, `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`.
+  - Execution export route expansion exposed a mock-ordering bug: `/execution/export?format=json` was initially caught by the generic `/incidents/export?format=json` mock. Tightened the mock to the exact route namespace.
+- Confirmed Batch #104 validation:
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - focused admin incident API tests passed, 71 tests.
+  - `npm run test:admin-incidents-frontend` passed, 15 tests.
+  - `npm run check:self-hosted-db` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npm run smoke:e2e:admin-incident-detail` passed, 1 browser test.
+  - `npm run lint` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run ci:core` passed.

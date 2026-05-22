@@ -3,6 +3,8 @@ import {
   AdminIncidentsApiError,
   createAdminIncidentsApiClient,
   type AdminIncidentDetailResponse,
+  type AdminIncidentExecutionResponse,
+  type AdminIncidentExecutionUpdateInput,
   type AdminIncidentHandoffResponse,
   type AdminIncidentPostmortemResponse,
   type AdminIncidentRemediationPlanResponse,
@@ -33,6 +35,11 @@ export function useAdminIncidentDetail(session: BuyerSession | null, incidentId:
   const [postmortemJson, setPostmortemJson] = useState<AdminIncidentPostmortemResponse | null>(null);
   const [postmortemMarkdown, setPostmortemMarkdown] = useState<string | null>(null);
   const [postmortemStatus, setPostmortemStatus] = useState<string | null>(null);
+  const [execution, setExecution] = useState<AdminIncidentExecutionResponse | null>(null);
+  const [executionCsv, setExecutionCsv] = useState<string | null>(null);
+  const [executionExportJson, setExecutionExportJson] = useState<AdminIncidentExecutionResponse | null>(null);
+  const [executionExportStatus, setExecutionExportStatus] = useState<string | null>(null);
+  const [executionStatus, setExecutionStatus] = useState<string | null>(null);
   const [state, setState] = useState<AdminIncidentDetailState>(() => {
     if (!client.enabled) return disabledState;
     if (!session?.id || !session.userId) return sessionRequiredState;
@@ -125,6 +132,43 @@ export function useAdminIncidentDetail(session: BuyerSession | null, incidentId:
     return result;
   }, [client, incidentId]);
 
+  const loadExecution = useCallback(async () => {
+    if (!incidentId) return null;
+    const result = await client.execution(incidentId);
+    setExecution(result);
+    setExecutionStatus(`${result.summary.done}/${result.summary.total} done`);
+    return result;
+  }, [client, incidentId]);
+
+  const exportExecutionJson = useCallback(async () => {
+    if (!incidentId) return null;
+    const result = await client.executionExportJson(incidentId);
+    setExecutionExportJson(result);
+    setExecutionExportStatus(`JSON ${result.items.length}`);
+    return result;
+  }, [client, incidentId]);
+
+  const exportExecutionCsv = useCallback(async () => {
+    if (!incidentId) return null;
+    const result = await client.executionExportCsv(incidentId);
+    setExecutionCsv(result);
+    setExecutionExportStatus(`CSV ${result.split("\n").filter(Boolean).length}`);
+    return result;
+  }, [client, incidentId]);
+
+  const updateExecutionItem = useCallback(async (itemId: string, input: AdminIncidentExecutionUpdateInput) => {
+    if (!incidentId) return null;
+    setMutating(true);
+    try {
+      const result = await client.updateExecutionItem(incidentId, itemId, input);
+      setExecution(result);
+      setExecutionStatus(`${result.summary.done}/${result.summary.total} done`);
+      return result;
+    } finally {
+      setMutating(false);
+    }
+  }, [client, incidentId]);
+
   useEffect(() => {
     let cancelled = false;
     if (!client.enabled) {
@@ -190,6 +234,14 @@ export function useAdminIncidentDetail(session: BuyerSession | null, incidentId:
     handoffJson,
     handoffMarkdown,
     handoffStatus,
+    execution,
+    executionCsv,
+    executionExportJson,
+    executionExportStatus,
+    executionStatus,
+    exportExecutionCsv,
+    exportExecutionJson,
+    loadExecution,
     loadRemediationPlan,
     mutating,
     postmortemJson,
@@ -198,6 +250,7 @@ export function useAdminIncidentDetail(session: BuyerSession | null, incidentId:
     refresh,
     remediationPlan,
     remediationStatus,
+    updateExecutionItem,
     workflow,
   };
 }

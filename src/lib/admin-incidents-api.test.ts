@@ -120,7 +120,7 @@ describe("admin-incidents-api", () => {
   it("loads incidents with filters and self-hosted session headers, then acknowledges incidents without leaking session data", async () => {
     const fetchImpl = vi.fn<typeof fetch>(async (input) => {
       const url = String(input);
-      if (url.includes("/export?format=json")) {
+      if (url.includes("/v1/admin/incidents/export?format=json")) {
         return new Response(JSON.stringify({
           count: 1,
           generatedAt: "2026-05-20T10:06:00.000Z",
@@ -129,7 +129,7 @@ describe("admin-incidents-api", () => {
           requestId: "00000000-0000-4000-8000-000000000514",
         }), { headers: { "content-type": "application/json" } });
       }
-      if (url.includes("/export?format=csv")) {
+      if (url.includes("/v1/admin/incidents/export?format=csv")) {
         return new Response("\"id\",\"status\"\n\"audit:admin-blocked:v1-admin-audit-events\",\"open\"", {
           headers: { "content-type": "text/csv" },
         });
@@ -238,6 +238,116 @@ describe("admin-incidents-api", () => {
         return new Response("# Incident postmortem draft\n\n- Source: audit\n", {
           headers: { "content-type": "text/markdown" },
         });
+      }
+      if (url.endsWith("/execution/export?format=json")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:12:30.000Z",
+          incident: incidentPayload().incidents[0],
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000520",
+          summary: { blocked: 0, done: 0, inProgress: 0, open: 1, skipped: 0, total: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/execution/export?format=csv")) {
+        return new Response("\"itemId\",\"status\"\n\"remediation:01:confirm-scope\",\"open\"", {
+          headers: { "content-type": "text/csv" },
+        });
+      }
+      if (url.endsWith("/execution")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:12:00.000Z",
+          incident: incidentPayload().incidents[0],
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000518",
+          summary: { blocked: 0, done: 0, inProgress: 0, open: 1, skipped: 0, total: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.endsWith("/execution/remediation%3A01%3Aconfirm-scope")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:13:00.000Z",
+          incident: incidentPayload().incidents[0],
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: "2026-05-20T10:13:00.000Z",
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: "Audit route verified.",
+              evidenceRequired: "Audit route evidence.",
+              itemId: "remediation:01:confirm-scope",
+              note: "Done.",
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "done",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: "2026-05-20T10:13:00.000Z",
+              updatedByUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+            },
+          ],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000519",
+          summary: { blocked: 0, done: 1, inProgress: 0, open: 0, skipped: 0, total: 1 },
+          updatedItem: {
+            assignedToUserHash: null,
+            blockedReason: null,
+            completedAt: "2026-05-20T10:13:00.000Z",
+            description: "Confirm admin role and review attempts.",
+            evidenceNote: "Audit route verified.",
+            evidenceRequired: "Audit route evidence.",
+            itemId: "remediation:01:confirm-scope",
+            note: "Done.",
+            ownerRole: "operator",
+            priority: "immediate",
+            source: "remediation_step",
+            status: "done",
+            targetMinutes: 15,
+            title: "Confirm scope",
+            updatedAt: "2026-05-20T10:13:00.000Z",
+            updatedByUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+          },
+        }), { headers: { "content-type": "application/json" } });
       }
       if (url.endsWith("/workflow/bulk")) {
         return new Response(JSON.stringify({
@@ -363,6 +473,25 @@ describe("admin-incidents-api", () => {
     expect(postmortemJson.preventionChecks).toContain("No raw identifiers.");
     await expect(client.postmortemMarkdown("audit:admin-blocked:v1-admin-audit-events"))
       .resolves.toContain("# Incident postmortem draft");
+    const execution = await client.execution("audit:admin-blocked:v1-admin-audit-events");
+    expect(execution.summary.total).toBe(1);
+    expect(execution.items[0].itemId).toBe("remediation:01:confirm-scope");
+    await expect(client.executionExportJson("audit:admin-blocked:v1-admin-audit-events"))
+      .resolves.toMatchObject({ summary: { total: 1 }, items: [{ itemId: "remediation:01:confirm-scope" }] });
+    await expect(client.executionExportCsv("audit:admin-blocked:v1-admin-audit-events"))
+      .resolves.toContain("\"itemId\",\"status\"");
+    await expect(client.updateExecutionItem(
+      "audit:admin-blocked:v1-admin-audit-events",
+      "remediation:01:confirm-scope",
+      {
+        evidenceNote: "Audit route verified.",
+        note: "Done.",
+        status: "done",
+      },
+    )).resolves.toMatchObject({
+      summary: { done: 1 },
+      updatedItem: { status: "done", evidenceNote: "Audit route verified." },
+    });
 
     const firstCall = fetchImpl.mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
     expect(String(firstCall[0])).toBe(
@@ -382,6 +511,10 @@ describe("admin-incidents-api", () => {
     expect(String(fetchImpl.mock.calls[9][0])).toContain("/remediation");
     expect(String(fetchImpl.mock.calls[10][0])).toContain("/postmortem?format=json");
     expect(String(fetchImpl.mock.calls[11][0])).toContain("/postmortem?format=markdown");
+    expect(String(fetchImpl.mock.calls[12][0])).toContain("/execution");
+    expect(String(fetchImpl.mock.calls[13][0])).toContain("/execution/export?format=json");
+    expect(String(fetchImpl.mock.calls[14][0])).toContain("/execution/export?format=csv");
+    expect(String(fetchImpl.mock.calls[15][0])).toContain("/execution/remediation%3A01%3Aconfirm-scope");
   });
 
   it("maps admin role and invalid response failures", async () => {

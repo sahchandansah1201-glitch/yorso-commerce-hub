@@ -7,6 +7,7 @@
  * - JSON and Markdown handoff exports are requested from /handoff with admin session headers;
  * - remediation plan is requested from /remediation and shown as bounded operator steps;
  * - JSON and Markdown postmortem drafts are requested from /postmortem without leaking secrets;
+ * - Batch #104 execution tracker requests /execution, exports JSON/CSV and posts bounded item status evidence;
  * - the list page links to the detail route.
  */
 import { expect, test, type Page, type Route } from "@playwright/test";
@@ -14,6 +15,7 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 const USER_ID = "00000000-0000-4000-8000-000000000099";
 const SESSION_ID = "session_admin_incident_detail_e2e_103";
 const INCIDENT_ID = "audit:admin-blocked:v1-admin-audit-events";
+const EXECUTION_ITEM_ID = "remediation:01:confirm-scope";
 
 const timeline = [
   {
@@ -104,6 +106,46 @@ const detailPayload = (patch = {}) => ({
   ok: true,
   requestId: "00000000-0000-4000-8000-000000000722",
   timeline,
+});
+
+const executionPayload = (status: "open" | "in_progress" | "blocked" | "done" | "skipped" = "open") => ({
+  generatedAt: "2026-05-20T10:07:00.000Z",
+  incident: incident(),
+  items: [
+    {
+      assignedToUserHash: null,
+      blockedReason: status === "blocked" ? "Waiting for audit owner." : null,
+      completedAt: status === "done" ? "2026-05-20T10:08:00.000Z" : null,
+      description: "Confirm admin role and review attempts.",
+      evidenceNote: status === "done" ? "Audit route evidence captured." : null,
+      evidenceRequired: "Audit route evidence.",
+      itemId: EXECUTION_ITEM_ID,
+      note: status === "in_progress" ? "Starting execution." : null,
+      ownerRole: "operator",
+      priority: "immediate",
+      source: "remediation_step",
+      status,
+      targetMinutes: 15,
+      title: "Confirm scope",
+      updatedAt: status === "open" ? null : "2026-05-20T10:08:00.000Z",
+      updatedByUserHash: status === "open" ? null : "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+    },
+  ],
+  ok: true,
+  requestId: "00000000-0000-4000-8000-000000000728",
+  summary: {
+    blocked: status === "blocked" ? 1 : 0,
+    done: status === "done" ? 1 : 0,
+    inProgress: status === "in_progress" ? 1 : 0,
+    open: status === "open" ? 1 : 0,
+    skipped: status === "skipped" ? 1 : 0,
+    total: 1,
+  },
+});
+
+const executionUpdatePayload = () => ({
+  ...executionPayload("done"),
+  updatedItem: executionPayload("done").items[0],
 });
 
 const json = async (route: Route, body: unknown, status = 200) => {
@@ -272,6 +314,31 @@ test.describe("Admin incident detail", () => {
         status: 200,
       });
     });
+    await page.route("**/__e2e-api/v1/admin/incidents/*/execution/export?format=json", async (route) => {
+      requestHeaders.push(route.request().headers());
+      requestedUrls.push(route.request().url());
+      await json(route, executionPayload());
+    });
+    await page.route("**/__e2e-api/v1/admin/incidents/*/execution/export?format=csv", async (route) => {
+      requestHeaders.push(route.request().headers());
+      requestedUrls.push(route.request().url());
+      await route.fulfill({
+        body: "\"itemId\",\"status\"\n\"remediation:01:confirm-scope\",\"open\"",
+        contentType: "text/csv",
+        status: 200,
+      });
+    });
+    await page.route(`**/__e2e-api/v1/admin/incidents/*/execution/${encodeURIComponent(EXECUTION_ITEM_ID)}`, async (route) => {
+      postedBodies.push(route.request().postDataJSON());
+      requestHeaders.push(route.request().headers());
+      requestedUrls.push(route.request().url());
+      await json(route, executionUpdatePayload());
+    });
+    await page.route("**/__e2e-api/v1/admin/incidents/*/execution", async (route) => {
+      requestHeaders.push(route.request().headers());
+      requestedUrls.push(route.request().url());
+      await json(route, executionPayload());
+    });
     await page.route("**/__e2e-api/v1/admin/incidents/*/workflow", async (route) => {
       postedBodies.push(route.request().postDataJSON());
       await json(route, {
@@ -341,6 +408,21 @@ test.describe("Admin incident detail", () => {
     await expect(page.getByTestId("admin-incident-detail-postmortem-preview")).toContainText("Add regression guard");
     await page.getByTestId("admin-incident-detail-postmortem-markdown").click();
     await expect(page.getByTestId("admin-incident-detail-postmortem-markdown-preview")).toContainText("Incident postmortem draft");
+    await page.getByTestId("admin-incident-detail-execution-load").click();
+    await expect(page.getByTestId("admin-incident-detail-execution-plan")).toContainText("Confirm scope");
+    await expect(page.getByTestId("admin-incident-detail-execution-status")).toContainText("0/1 done");
+    await page.getByTestId("admin-incident-detail-execution-json").click();
+    await expect(page.getByTestId("admin-incident-detail-execution-export-preview")).toContainText("Confirm scope");
+    await page.getByTestId("admin-incident-detail-execution-csv").click();
+    await expect(page.getByTestId("admin-incident-detail-execution-csv-preview")).toContainText("\"itemId\",\"status\"");
+    await page.getByTestId("admin-incident-detail-execution-note").fill("Email admin@yorso.test");
+    await expect(page.getByTestId("admin-incident-detail-execution-note-unsafe")).toContainText("Remove raw emails");
+    await expect(page.getByTestId(`admin-incident-execution-start-${EXECUTION_ITEM_ID}`)).toBeDisabled();
+    await page.getByTestId("admin-incident-detail-execution-note").fill("Execution started.");
+    await page.getByTestId("admin-incident-detail-execution-evidence").fill("Audit route evidence captured.");
+    await page.getByTestId(`admin-incident-execution-done-${EXECUTION_ITEM_ID}`).click();
+    await expect(page.getByTestId("admin-incident-detail-execution-status")).toContainText("1/1 done");
+    await expect(page.getByTestId(`admin-incident-execution-item-${EXECUTION_ITEM_ID}`)).toContainText("Audit route evidence captured.");
 
     expect(requestHeaders[0]["x-yorso-user-id"]).toBe(USER_ID);
     expect(requestHeaders[0]["x-yorso-session-id"]).toBe(SESSION_ID);
@@ -349,6 +431,14 @@ test.describe("Admin incident detail", () => {
     expect(requestedUrls.some((url) => url.includes("/remediation"))).toBe(true);
     expect(requestedUrls.some((url) => url.includes("/postmortem?format=json"))).toBe(true);
     expect(requestedUrls.some((url) => url.includes("/postmortem?format=markdown"))).toBe(true);
+    expect(requestedUrls.some((url) => url.includes("/execution"))).toBe(true);
+    expect(requestedUrls.some((url) => url.includes("/execution/export?format=json"))).toBe(true);
+    expect(requestedUrls.some((url) => url.includes("/execution/export?format=csv"))).toBe(true);
+    expect(postedBodies).toContainEqual({
+      evidenceNote: "Audit route evidence captured.",
+      note: "Execution started.",
+      status: "done",
+    });
     await expect(page.getByTestId("admin-incident-detail-page")).not.toContainText("admin@yorso.test");
     await expect(page.getByTestId("admin-incident-detail-page")).not.toContainText(SESSION_ID);
   });

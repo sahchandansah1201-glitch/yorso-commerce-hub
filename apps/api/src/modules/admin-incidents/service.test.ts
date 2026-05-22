@@ -330,6 +330,76 @@ describe("admin incident service", () => {
     expect(remediation.capacityNotes.join(" ")).toContain("control-plane");
     expect(JSON.stringify(remediation)).not.toContain("admin@example.com");
 
+    const execution = await service.getIncidentExecution(incidentId, requestId);
+    expect(execution.ok).toBe(true);
+    expect(execution.summary.total).toBeGreaterThanOrEqual(6);
+    expect(execution.items.some((item) => item.source === "remediation_step")).toBe(true);
+    expect(execution.items.some((item) => item.source === "postmortem_action")).toBe(true);
+    expect(JSON.stringify(execution)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const executionJson = await service.exportIncidentExecution(incidentId, { format: "json" }, requestId);
+    expect(executionJson.contentType).toContain("application/json");
+    expect(executionJson.fileName).toContain("execution.json");
+    expect(executionJson.body).toContain("\"summary\"");
+    expect(executionJson.body).toContain("\"items\"");
+    expect(executionJson.body).not.toContain("admin@example.com");
+
+    const executionCsv = await service.exportIncidentExecution(incidentId, { format: "csv" }, requestId);
+    expect(executionCsv.contentType).toContain("text/csv");
+    expect(executionCsv.fileName).toContain("execution.csv");
+    expect(executionCsv.body).toContain("\"itemId\",\"status\"");
+    expect(executionCsv.body).toContain("remediation");
+    expect(executionCsv.body).not.toContain("admin@example.com");
+
+    const firstItem = execution.items.find((item) => item.source === "remediation_step");
+    expect(firstItem).toBeDefined();
+    const inProgress = await service.updateIncidentExecutionItem(
+      incidentId,
+      firstItem!.itemId,
+      { note: "Started execution item.", status: "in_progress" },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(inProgress.updatedItem.status).toBe("in_progress");
+    expect(inProgress.summary.inProgress).toBeGreaterThanOrEqual(1);
+    expect(inProgress.updatedItem.updatedByUserHash).toMatch(/^sha256:[a-f0-9]{24}$/);
+
+    const done = await service.updateIncidentExecutionItem(
+      incidentId,
+      firstItem!.itemId,
+      {
+        evidenceNote: "Audit route verified with bounded evidence.",
+        note: "Execution item complete.",
+        status: "done",
+      },
+      "00000000-0000-4000-8000-000000000090",
+      requestId,
+    );
+    expect(done.updatedItem.status).toBe("done");
+    expect(done.updatedItem.evidenceNote).toBe("Audit route verified with bounded evidence.");
+    expect(done.updatedItem.completedAt).toBeTruthy();
+    expect(done.summary.done).toBeGreaterThanOrEqual(1);
+
+    await expect(
+      service.updateIncidentExecutionItem(
+        incidentId,
+        firstItem!.itemId,
+        { evidenceNote: "Email admin@example.com", status: "done" },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ issues: expect.any(Array) });
+
+    await expect(
+      service.updateIncidentExecutionItem(
+        incidentId,
+        "missing:item",
+        { evidenceNote: "Verified missing item guard.", status: "done" },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      ),
+    ).rejects.toMatchObject({ code: "admin_incident_execution_item_not_found" });
+
     const postmortemJson = await service.exportIncidentPostmortem(incidentId, { format: "json" }, requestId);
     expect(postmortemJson.contentType).toContain("application/json");
     expect(postmortemJson.fileName).toContain("postmortem.json");

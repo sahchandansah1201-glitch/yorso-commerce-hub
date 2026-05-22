@@ -244,6 +244,17 @@
       "dependsOn": [
         "0019_admin_incident_acknowledgements"
       ]
+    },
+    {
+      "id": "0021_admin_incident_execution",
+      "file": "migrations/0021_admin_incident_execution.sql",
+      "description": "Add durable admin incident remediation and postmortem execution item state.",
+      "ownedTables": [
+        "yorso_admin_incident_execution_items"
+      ],
+      "dependsOn": [
+        "0020_admin_incident_workflow"
+      ]
     }
   ]
 }

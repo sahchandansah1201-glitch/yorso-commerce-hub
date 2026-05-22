@@ -235,6 +235,7 @@ const requiredFiles = [
   "packages/db/migrations/0018_admin_access_grants_console.sql",
   "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
   "packages/db/migrations/0020_admin_incident_workflow.sql",
+  "packages/db/migrations/0021_admin_incident_execution.sql",
   "scripts/admin-audit-retention.mjs",
 ];
 
@@ -384,6 +385,7 @@ const adminAuditRetentionQueryHardeningMigration = read("packages/db/migrations/
 const adminAuditRetentionRuntimeMigration = read("packages/db/migrations/0016_admin_audit_retention_runtime.sql");
 const adminIncidentAcknowledgementsMigration = read("packages/db/migrations/0019_admin_incident_acknowledgements.sql");
 const adminIncidentWorkflowMigration = read("packages/db/migrations/0020_admin_incident_workflow.sql");
+const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_incident_execution.sql");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -1631,6 +1633,10 @@ for (const marker of [
   "adminIncidentListResponseSchema",
   "adminIncidentAcknowledgeResponseSchema",
   "adminIncidentWorkflowRequestSchema",
+  "adminIncidentExecutionResponseSchema",
+  "adminIncidentExecutionExportQuerySchema",
+  "adminIncidentExecutionUpdateRequestSchema",
+  "adminIncidentExecutionUpdateResponseSchema",
   "adminIncidentTimelineEventSchema",
   "adminIncidentAssignmentFilterSchema",
   "adminIncidentSlaStatusSchema",
@@ -1648,6 +1654,9 @@ for (const marker of [
   "listEvents",
   "appendEvent",
   "upsertWorkflowState",
+  "getExecutionRecord",
+  "listExecutionRecords",
+  "upsertExecutionRecord",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/repository.ts", adminIncidentsRepository, marker);
 }
@@ -1655,7 +1664,9 @@ for (const marker of [
   "PostgresAdminIncidentRepository",
   "yorso_admin_incident_acknowledgements",
   "yorso_admin_incident_events",
+  "yorso_admin_incident_execution_items",
   "on conflict (incident_id) do update",
+  "on conflict (incident_id, item_id) do update",
   "max: 5",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/postgres-repository.ts", adminIncidentsPostgresRepository, marker);
@@ -1671,6 +1682,11 @@ for (const marker of [
   "query.assigned",
   "query.escalationLevel",
   "query.slaStatus",
+  "getIncidentExecution",
+  "exportIncidentExecution",
+  "updateIncidentExecutionItem",
+  "buildIncidentExecution",
+  "admin_incident_execution_item_not_found",
   "10,000 concurrent users",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/service.ts", adminIncidentsService, marker);
@@ -1683,6 +1699,9 @@ for (const marker of [
   "admin.incidents.list",
   "admin.incidents.acknowledge",
   "admin.incidents.workflow.update",
+  "admin.incidents.execution.read",
+  "admin.incidents.execution.export",
+  "admin.incidents.execution.update",
   "sendAccountSessionError",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/routes.ts", adminIncidentsRoutes, marker);
@@ -1691,6 +1710,10 @@ for (const marker of [
   "createAdminIncidentsApiClient",
   "/v1/admin/incidents",
   "workflow",
+  "execution",
+  "executionExportJson",
+  "executionExportCsv",
+  "updateExecutionItem",
   "ACCOUNT_USER_ID_HEADER",
   "ACCOUNT_SESSION_ID_HEADER",
   "admin_incidents_api_disabled",
@@ -1707,6 +1730,10 @@ for (const marker of [
   "escalationLevel=engineering",
   "slaStatus=breached",
   "/workflow",
+  "/execution",
+  "/execution/export?format=json",
+  "/execution/export?format=csv",
+  "updateExecutionItem",
 ]) {
   requireText("src/lib/admin-incidents-api.test.ts", adminIncidentsApiTest, marker);
 }
@@ -1765,6 +1792,12 @@ for (const marker of [
   "handoffStatus",
   "remediationStatus",
   "postmortemStatus",
+  "executionStatus",
+  "executionExportStatus",
+  "exportExecutionJson",
+  "exportExecutionCsv",
+  "loadExecution",
+  "updateExecutionItem",
   "admin_incidents_session_required",
 ]) {
   requireText("src/lib/use-admin-incident-detail.ts", useAdminIncidentDetail, marker);
@@ -1776,6 +1809,8 @@ for (const marker of [
   "remediationPlan",
   "exportPostmortemJson",
   "postmortemJson",
+  "loadExecution",
+  "updateExecutionItem",
   "admin@yorso.test",
 ]) {
   requireText("src/lib/use-admin-incident-detail.test.tsx", useAdminIncidentDetailTest, marker);
@@ -1796,6 +1831,14 @@ for (const marker of [
   "admin-incident-detail-postmortem",
   "admin-incident-detail-postmortem-json",
   "admin-incident-detail-postmortem-markdown",
+  "admin-incident-detail-execution",
+  "admin-incident-detail-execution-load",
+  "admin-incident-detail-execution-json",
+  "admin-incident-detail-execution-csv",
+  "admin-incident-detail-execution-export-preview",
+  "admin-incident-detail-execution-csv-preview",
+  "admin-incident-detail-execution-plan",
+  "admin-incident-detail-execution-note-unsafe",
   "AdminOperatorNav",
   "useAdminIncidentDetail",
 ]) {
@@ -1808,6 +1851,11 @@ for (const marker of [
   "admin-incident-detail-remediation-plan",
   "admin-incident-detail-postmortem-preview",
   "admin-incident-detail-postmortem-markdown-preview",
+  "admin-incident-detail-execution-plan",
+  "admin-incident-detail-execution-status",
+  "admin-incident-detail-execution-export-preview",
+  "admin-incident-detail-execution-csv-preview",
+  "admin-incident-execution-done",
   "Owner assigned",
   "3/5",
   "4/5",
@@ -1859,6 +1907,9 @@ for (const marker of [
   "/handoff",
   "/remediation",
   "/postmortem",
+  "/execution",
+  "/execution/export?format=json",
+  "/execution/export?format=csv",
   "admin-incident-detail-page",
   "admin-incident-detail-readiness",
   "admin-incident-detail-handoff-json",
@@ -1867,6 +1918,10 @@ for (const marker of [
   "admin-incident-detail-remediation-plan",
   "admin-incident-detail-postmortem-json",
   "admin-incident-detail-postmortem-markdown",
+  "admin-incident-detail-execution-load",
+  "admin-incident-detail-execution-json",
+  "admin-incident-detail-execution-csv",
+  "admin-incident-detail-execution-plan",
   "admin@yorso.test",
   "session_admin_incident_detail_e2e_103",
   "Owner assigned",
@@ -2035,11 +2090,14 @@ for (const marker of [
 for (const marker of [
   "Batch #101",
   "Batch #102",
+  "Batch #103",
+  "Batch #104",
   "/v1/admin/incidents",
   "/v1/admin/incidents/export",
   "/v1/admin/incidents/:incidentId/handoff",
   "/v1/admin/incidents/:incidentId/remediation",
   "/v1/admin/incidents/:incidentId/postmortem",
+  "/v1/admin/incidents/:incidentId/execution",
   "/v1/admin/incidents/:incidentId/workflow",
   "/v1/admin/incidents/workflow/bulk",
   "runbook",
@@ -2057,6 +2115,14 @@ for (const marker of [
   "admin_incidents_remediation_plan=ok",
   "admin_incidents_postmortem_json=ok",
   "admin_incidents_postmortem_markdown=ok",
+  "admin_incidents_execution_plan=ok",
+  "admin_incidents_execution_export_json=ok",
+  "admin_incidents_execution_export_csv=ok",
+  "admin_incidents_execution_start=ok",
+  "admin_incidents_execution_done=ok",
+  "admin_incidents_execution_blocked=ok",
+  "admin_incidents_execution_note_hygiene_guard=ok",
+  "admin_incidents_execution_missing_item_guard=ok",
   "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
@@ -2080,6 +2146,14 @@ for (const marker of [
   "admin_incidents_remediation_plan=ok",
   "admin_incidents_postmortem_json=ok",
   "admin_incidents_postmortem_markdown=ok",
+  "admin_incidents_execution_plan=ok",
+  "admin_incidents_execution_export_json=ok",
+  "admin_incidents_execution_export_csv=ok",
+  "admin_incidents_execution_start=ok",
+  "admin_incidents_execution_done=ok",
+  "admin_incidents_execution_blocked=ok",
+  "admin_incidents_execution_note_hygiene_guard=ok",
+  "admin_incidents_execution_missing_item_guard=ok",
   "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
@@ -2096,6 +2170,16 @@ for (const marker of [
   "10,000 concurrent-user",
 ]) {
   requireText("packages/db/migrations/0020_admin_incident_workflow.sql", adminIncidentWorkflowMigration, marker);
+}
+for (const marker of [
+  "create table if not exists yorso_admin_incident_execution_items",
+  "primary key (incident_id, item_id)",
+  "idx_yorso_admin_incident_execution_incident_status",
+  "idx_yorso_admin_incident_execution_assignee_status",
+  "idx_yorso_admin_incident_execution_source_status",
+  "10,000 concurrent-user",
+]) {
+  requireText("packages/db/migrations/0021_admin_incident_execution.sql", adminIncidentExecutionMigration, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",

@@ -17,28 +17,28 @@ Continue self-hosted production backend/frontend batches for Yorso with large co
 
 ## Current Status
 
-- Batch #103 is implemented locally on branch `codex/batch103-incident-detail-handoff`.
-- Batch #103 extends self-hosted admin incidents with a dedicated detail, handoff, remediation and postmortem surface:
-  - `GET /v1/admin/incidents/:incidentId/handoff?format=json|markdown` exports a bounded, sanitized operator handoff;
-  - `GET /v1/admin/incidents/:incidentId/remediation` returns bounded operator steps, verification checks, rollback plan and capacity notes;
-  - `GET /v1/admin/incidents/:incidentId/postmortem?format=json|markdown` exports a bounded, sanitized postmortem draft;
-  - frontend `/admin/incidents/:incidentId` renders snapshot, evidence, runbook, timeline, workflow actions, handoff controls, remediation controls and postmortem controls;
-  - `/admin/incidents` links each incident row to its detail page;
-  - workflow notes reject raw emails, UUIDs and token-like secret assignments;
-  - browser-visible operator identifiers remain hashed, and admin-only routes stay behind self-hosted admin session and role guards.
-- Local validation passed after remediation expansion: `lint`, `contracts:build`, `api:build`, `tsc -b --noEmit`, focused admin incident API tests, `test:admin-incidents-frontend`, `test:admin-operations-frontend`, `check:self-hosted-api`, `check:production-scale-baseline`, `smoke:self-hosted-admin-incidents:run`, `smoke:e2e:admin-incident-detail`, `smoke:e2e:admin-incidents`, and `ci:core`.
+- Batch #104 is implemented locally on branch `codex/batch104-incident-remediation-execution`.
+- Batch #104 extends self-hosted admin incidents with an execution tracker and export:
+  - `GET /v1/admin/incidents/:incidentId/execution` returns bounded execution items derived from remediation/postmortem data;
+  - `GET /v1/admin/incidents/:incidentId/execution/export?format=json|csv` exports the bounded execution plan for handoff/offline review;
+  - `POST /v1/admin/incidents/:incidentId/execution/:itemId` updates one execution item to `open`, `in_progress`, `done`, `blocked` or `skipped`;
+  - `packages/db/migrations/0021_admin_incident_execution.sql` stores execution state in `yorso_admin_incident_execution_items` with indexed status/source/assignee reads;
+  - frontend `/admin/incidents/:incidentId` renders `admin-incident-detail-execution`, explicit load controls, execution plan/status and item actions;
+  - note hygiene rejects raw emails, UUIDs and token-like secret assignments before execution updates;
+  - routes remain behind self-hosted admin session and role guards.
+- Local validation passed after execution export expansion: `contracts:build`, `api:build`, focused admin incident API tests, `test:admin-incidents-frontend`, `check:self-hosted-db`, `check:self-hosted-api`, `check:production-scale-baseline`, `smoke:self-hosted-admin-incidents:run`, `smoke:e2e:admin-incident-detail`, `lint`, `tsc -b --noEmit` and `ci:core`.
 - Pending handoff steps: commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
 
 ## Next Action
 
 ```text
-Finish Batch #103 publication:
-1. commit and push branch codex/batch103-incident-detail-handoff;
-2. open PR [codex] Batch #103 admin incident detail handoff;
+Finish Batch #104 publication:
+1. commit and push branch codex/batch104-incident-remediation-execution;
+2. open PR [codex] Batch #104 admin incident execution;
 3. merge after checks pass;
-4. give Lovable Prompt #103 to sync latest GitHub main.
+4. give Lovable Prompt #104 to sync latest GitHub main.
 
-Then choose Batch #104 as another larger connected production batch.
+Then choose Batch #105 as another larger connected production batch.
 ```
 
 ## Rules

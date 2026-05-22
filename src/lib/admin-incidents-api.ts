@@ -14,6 +14,15 @@ export type AdminIncidentExportFormat = "json" | "csv";
 export type AdminIncidentHandoffFormat = "json" | "markdown";
 export type AdminIncidentPostmortemFormat = "json" | "markdown";
 export type AdminIncidentSlaStatus = "ok" | "at_risk" | "breached";
+export type AdminIncidentExecutionSource =
+  | "remediation_step"
+  | "verification_check"
+  | "rollback_step"
+  | "capacity_note"
+  | "postmortem_action"
+  | "prevention_check";
+export type AdminIncidentExecutionStatus = "open" | "in_progress" | "blocked" | "done" | "skipped";
+export type AdminIncidentExecutionPriority = "immediate" | "next" | "follow_up";
 export type AdminIncidentTimelineEventType =
   | "created"
   | "acknowledged"
@@ -224,6 +233,55 @@ export interface AdminIncidentPostmortemResponse {
   timeline: AdminIncidentTimelineEvent[];
 }
 
+export interface AdminIncidentExecutionItem {
+  assignedToUserHash: string | null;
+  blockedReason: string | null;
+  completedAt: string | null;
+  description: string;
+  evidenceNote: string | null;
+  evidenceRequired: string;
+  itemId: string;
+  note: string | null;
+  ownerRole: "operator" | "engineering" | "security" | "founder";
+  priority: AdminIncidentExecutionPriority;
+  source: AdminIncidentExecutionSource;
+  status: AdminIncidentExecutionStatus;
+  targetMinutes: number;
+  title: string;
+  updatedAt: string | null;
+  updatedByUserHash: string | null;
+}
+
+export interface AdminIncidentExecutionSummary {
+  blocked: number;
+  done: number;
+  inProgress: number;
+  open: number;
+  skipped: number;
+  total: number;
+}
+
+export interface AdminIncidentExecutionResponse {
+  generatedAt: string;
+  incident: AdminIncident;
+  items: AdminIncidentExecutionItem[];
+  ok: true;
+  requestId: string;
+  summary: AdminIncidentExecutionSummary;
+}
+
+export interface AdminIncidentExecutionUpdateInput {
+  assignedToUserId?: string;
+  blockedReason?: string;
+  evidenceNote?: string;
+  note?: string;
+  status: AdminIncidentExecutionStatus;
+}
+
+export interface AdminIncidentExecutionUpdateResponse extends AdminIncidentExecutionResponse {
+  updatedItem: AdminIncidentExecutionItem;
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -423,6 +481,65 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       }
       return response.text();
     },
+    async execution(incidentId: string): Promise<AdminIncidentExecutionResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/execution`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentExecutionResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionShape(body);
+    },
+    async executionExportJson(incidentId: string): Promise<AdminIncidentExecutionResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/execution/export?format=json`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentExecutionResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionShape(body);
+    },
+    async executionExportCsv(incidentId: string): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/execution/export?format=csv`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async updateExecutionItem(
+      incidentId: string,
+      itemId: string,
+      input: AdminIncidentExecutionUpdateInput,
+    ): Promise<AdminIncidentExecutionUpdateResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/execution/${encodeURIComponent(itemId)}`,
+        {
+          body: JSON.stringify(input),
+          headers: headers(true),
+          method: "POST",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentExecutionUpdateResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionUpdateShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -603,6 +720,36 @@ function assertPostmortemShape(response: AdminIncidentPostmortemResponse) {
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident postmortem response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertExecutionShape(response: AdminIncidentExecutionResponse) {
+  if (
+    response?.ok !== true ||
+    !response.incident?.id ||
+    !Array.isArray(response.items) ||
+    typeof response.summary?.total !== "number" ||
+    typeof response.summary?.open !== "number" ||
+    typeof response.summary?.done !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident execution response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertExecutionUpdateShape(response: AdminIncidentExecutionUpdateResponse) {
+  assertExecutionShape(response);
+  if (!response.updatedItem?.itemId) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident execution update response was invalid.",
       200,
     );
   }

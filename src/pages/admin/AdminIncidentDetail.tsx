@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   FileDown,
+  ListChecks,
   Lock,
   MessageSquare,
   RefreshCw,
@@ -28,6 +29,8 @@ import type { Language } from "@/i18n/translations";
 import type {
   AdminIncident,
   AdminIncidentEscalationLevel,
+  AdminIncidentExecutionItem,
+  AdminIncidentExecutionStatus,
   AdminIncidentSeverity,
   AdminIncidentTimelineEvent,
 } from "@/lib/admin-incidents-api";
@@ -46,6 +49,20 @@ type DetailCopy = {
   due: string;
   errorTitle: string;
   evidence: string;
+  execution: string;
+  executionBlock: string;
+  executionBlockedReasonPlaceholder: string;
+  executionDescription: string;
+  executionDone: string;
+  executionEvidencePlaceholder: string;
+  executionExportCsv: string;
+  executionExportJson: string;
+  executionExportReady: string;
+  executionLoad: string;
+  executionNotePlaceholder: string;
+  executionReady: string;
+  executionSkip: string;
+  executionStart: string;
   escalation: string;
   exportJson: string;
   exportMarkdown: string;
@@ -108,6 +125,20 @@ const COPY: Record<Language, DetailCopy> = {
     due: "Due",
     errorTitle: "Incident detail could not be loaded",
     evidence: "Evidence",
+    execution: "Execution tracker",
+    executionBlock: "Block",
+    executionBlockedReasonPlaceholder: "Reason if a step is blocked",
+    executionDescription: "Turn remediation and postmortem actions into tracked operator work.",
+    executionDone: "Mark done",
+    executionEvidencePlaceholder: "Evidence note required before marking done",
+    executionExportCsv: "Export CSV execution",
+    executionExportJson: "Export JSON execution",
+    executionExportReady: "Execution export ready",
+    executionLoad: "Load execution tracker",
+    executionNotePlaceholder: "Optional execution note",
+    executionReady: "Execution tracker ready",
+    executionSkip: "Skip",
+    executionStart: "Start",
     escalation: "Escalation",
     exportJson: "Export JSON handoff",
     exportMarkdown: "Export Markdown handoff",
@@ -168,6 +199,20 @@ const COPY: Record<Language, DetailCopy> = {
     due: "Срок",
     errorTitle: "Detail инцидента не загрузился",
     evidence: "Evidence",
+    execution: "Execution tracker",
+    executionBlock: "Заблокировать",
+    executionBlockedReasonPlaceholder: "Причина, если шаг заблокирован",
+    executionDescription: "Превращает remediation и postmortem actions в отслеживаемую работу оператора.",
+    executionDone: "Отметить готовым",
+    executionEvidencePlaceholder: "Evidence note обязателен перед done",
+    executionExportCsv: "Экспорт CSV execution",
+    executionExportJson: "Экспорт JSON execution",
+    executionExportReady: "Execution export готов",
+    executionLoad: "Загрузить execution tracker",
+    executionNotePlaceholder: "Опциональная execution note",
+    executionReady: "Execution tracker готов",
+    executionSkip: "Пропустить",
+    executionStart: "Начать",
     escalation: "Эскалация",
     exportJson: "Экспорт JSON handoff",
     exportMarkdown: "Экспорт Markdown handoff",
@@ -228,6 +273,20 @@ const COPY: Record<Language, DetailCopy> = {
     due: "Vence",
     errorTitle: "No se pudo cargar el detalle del incidente",
     evidence: "Evidencia",
+    execution: "Execution tracker",
+    executionBlock: "Bloquear",
+    executionBlockedReasonPlaceholder: "Razón si un paso está bloqueado",
+    executionDescription: "Convierte remediation y postmortem actions en trabajo operativo rastreable.",
+    executionDone: "Marcar listo",
+    executionEvidencePlaceholder: "Evidence note requerida antes de done",
+    executionExportCsv: "Exportar execution CSV",
+    executionExportJson: "Exportar execution JSON",
+    executionExportReady: "Execution export listo",
+    executionLoad: "Cargar execution tracker",
+    executionNotePlaceholder: "Execution note opcional",
+    executionReady: "Execution tracker listo",
+    executionSkip: "Omitir",
+    executionStart: "Iniciar",
     escalation: "Escalación",
     exportJson: "Exportar handoff JSON",
     exportMarkdown: "Exportar handoff Markdown",
@@ -287,10 +346,16 @@ export default function AdminIncidentDetail() {
   const [note, setNote] = useState("");
   const [assignee, setAssignee] = useState("");
   const [escalation, setEscalation] = useState<AdminIncidentEscalationLevel>("engineering");
+  const [executionNote, setExecutionNote] = useState("");
+  const [executionEvidence, setExecutionEvidence] = useState("");
+  const [executionBlockedReason, setExecutionBlockedReason] = useState("");
 
   const incident = detail.data?.incident ?? null;
   const timeline = detail.data?.timeline ?? [];
   const noteUnsafe = hasUnsafeOperatorNote(note);
+  const executionNoteUnsafe = hasUnsafeOperatorNote(
+    [executionNote, executionEvidence, executionBlockedReason].filter(Boolean).join(" "),
+  );
 
   const assign = async () => {
     await detail.workflow({ action: "assign", assignedToUserId: assignee, note });
@@ -516,6 +581,34 @@ export default function AdminIncidentDetail() {
                 </CardContent>
               </Card>
 
+              <IncidentExecutionTracker
+                blockedReason={executionBlockedReason}
+                copy={copy}
+                evidence={executionEvidence}
+                note={executionNote}
+                noteUnsafe={executionNoteUnsafe}
+                onBlockedReasonChange={setExecutionBlockedReason}
+                onEvidenceChange={setExecutionEvidence}
+                onExportCsv={() => detail.exportExecutionCsv()}
+                onExportJson={() => detail.exportExecutionJson()}
+                onLoad={() => detail.loadExecution()}
+                onNoteChange={setExecutionNote}
+                onUpdate={(item, status) =>
+                  detail.updateExecutionItem(item.itemId, {
+                    blockedReason: status === "blocked" ? executionBlockedReason : undefined,
+                    evidenceNote: status === "done" ? executionEvidence : undefined,
+                    note: executionNote || undefined,
+                    status,
+                  })
+                }
+                response={detail.execution}
+                exportCsv={detail.executionCsv}
+                exportJson={detail.executionExportJson}
+                exportStatus={detail.executionExportStatus}
+                status={detail.executionStatus}
+                updating={detail.mutating}
+              />
+
               <Card data-testid="admin-incident-detail-postmortem">
                 <CardHeader>
                   <CardTitle>{copy.postmortem}</CardTitle>
@@ -565,6 +658,196 @@ type ReadinessItem = {
   label: string;
   status: "ready" | "needs_attention";
 };
+
+function IncidentExecutionTracker({
+  blockedReason,
+  copy,
+  evidence,
+  note,
+  noteUnsafe,
+  onBlockedReasonChange,
+  onEvidenceChange,
+  onExportCsv,
+  onExportJson,
+  onLoad,
+  onNoteChange,
+  onUpdate,
+  response,
+  exportCsv,
+  exportJson,
+  exportStatus,
+  status,
+  updating,
+}: {
+  blockedReason: string;
+  copy: DetailCopy;
+  evidence: string;
+  note: string;
+  noteUnsafe: boolean;
+  onBlockedReasonChange: (value: string) => void;
+  onEvidenceChange: (value: string) => void;
+  onExportCsv: () => Promise<unknown>;
+  onExportJson: () => Promise<unknown>;
+  onLoad: () => Promise<unknown>;
+  onNoteChange: (value: string) => void;
+  onUpdate: (item: AdminIncidentExecutionItem, status: AdminIncidentExecutionStatus) => Promise<unknown>;
+  response: ReturnType<typeof useAdminIncidentDetail>["execution"];
+  exportCsv: ReturnType<typeof useAdminIncidentDetail>["executionCsv"];
+  exportJson: ReturnType<typeof useAdminIncidentDetail>["executionExportJson"];
+  exportStatus: ReturnType<typeof useAdminIncidentDetail>["executionExportStatus"];
+  status: string | null;
+  updating: boolean;
+}) {
+  const topItems = response?.items.slice(0, 10) ?? [];
+
+  return (
+    <Card data-testid="admin-incident-detail-execution">
+      <CardHeader>
+        <CardTitle>{copy.execution}</CardTitle>
+        <CardDescription>{copy.executionDescription}</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        <Button data-testid="admin-incident-detail-execution-load" onClick={() => void onLoad()} variant="outline">
+          <ListChecks className="mr-2 h-4 w-4" />
+          {copy.executionLoad}
+        </Button>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button data-testid="admin-incident-detail-execution-json" onClick={() => void onExportJson()} variant="outline">
+            <FileDown className="mr-2 h-4 w-4" />
+            {copy.executionExportJson}
+          </Button>
+          <Button data-testid="admin-incident-detail-execution-csv" onClick={() => void onExportCsv()} variant="outline">
+            <FileDown className="mr-2 h-4 w-4" />
+            {copy.executionExportCsv}
+          </Button>
+        </div>
+        {status && (
+          <p className="text-sm text-muted-foreground" data-testid="admin-incident-detail-execution-status">
+            {copy.executionReady}: {status}
+          </p>
+        )}
+        {exportStatus && (
+          <p className="text-sm text-muted-foreground" data-testid="admin-incident-detail-execution-export-status">
+            {copy.executionExportReady}: {exportStatus}
+          </p>
+        )}
+        {exportJson && (
+          <div className="rounded-2xl border bg-muted/30 p-3 text-sm" data-testid="admin-incident-detail-execution-export-preview">
+            <p className="font-semibold">{exportJson.summary.done}/{exportJson.summary.total} done</p>
+            <p className="mt-1 text-muted-foreground">{exportJson.items.slice(0, 3).map((item) => item.title).join(", ")}</p>
+          </div>
+        )}
+        {exportCsv && (
+          <pre className="max-h-32 overflow-auto rounded-2xl border bg-muted/30 p-3 text-xs" data-testid="admin-incident-detail-execution-csv-preview">
+            {exportCsv}
+          </pre>
+        )}
+        {response && (
+          <div className="grid gap-3" data-testid="admin-incident-detail-execution-plan">
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <ExecutionStat label="Open" value={response.summary.open} />
+              <ExecutionStat label="Doing" value={response.summary.inProgress} />
+              <ExecutionStat label="Done" value={response.summary.done} />
+              <ExecutionStat label="Blocked" value={response.summary.blocked} />
+              <ExecutionStat label="Skipped" value={response.summary.skipped} />
+              <ExecutionStat label="Total" value={response.summary.total} />
+            </div>
+            <Textarea
+              data-testid="admin-incident-detail-execution-note"
+              maxLength={500}
+              onChange={(event) => onNoteChange(event.target.value)}
+              placeholder={copy.executionNotePlaceholder}
+              value={note}
+            />
+            <Textarea
+              data-testid="admin-incident-detail-execution-evidence"
+              maxLength={500}
+              onChange={(event) => onEvidenceChange(event.target.value)}
+              placeholder={copy.executionEvidencePlaceholder}
+              value={evidence}
+            />
+            <Textarea
+              data-testid="admin-incident-detail-execution-blocked-reason"
+              maxLength={500}
+              onChange={(event) => onBlockedReasonChange(event.target.value)}
+              placeholder={copy.executionBlockedReasonPlaceholder}
+              value={blockedReason}
+            />
+            {noteUnsafe && (
+              <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" data-testid="admin-incident-detail-execution-note-unsafe">
+                {copy.noteUnsafe}
+              </p>
+            )}
+            <div className="grid gap-3">
+              {topItems.map((item) => (
+                <div className="rounded-2xl border bg-background p-3 text-sm" data-testid={`admin-incident-execution-item-${item.itemId}`} key={item.itemId}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={item.status === "blocked" ? "destructive" : item.status === "done" ? "secondary" : "outline"}>
+                      {item.status}
+                    </Badge>
+                    <Badge variant="outline">{item.source}</Badge>
+                    <span className="text-xs text-muted-foreground">{item.ownerRole} · {item.targetMinutes} min</span>
+                  </div>
+                  <p className="mt-2 font-semibold">{item.title}</p>
+                  <p className="mt-1 text-muted-foreground">{item.description}</p>
+                  {item.evidenceNote && <p className="mt-2 text-xs text-emerald-700">{item.evidenceNote}</p>}
+                  {item.blockedReason && <p className="mt-2 text-xs text-destructive">{item.blockedReason}</p>}
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <Button
+                      data-testid={`admin-incident-execution-start-${item.itemId}`}
+                      disabled={updating || noteUnsafe || item.status === "done"}
+                      onClick={() => void onUpdate(item, "in_progress")}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {copy.executionStart}
+                    </Button>
+                    <Button
+                      data-testid={`admin-incident-execution-done-${item.itemId}`}
+                      disabled={updating || noteUnsafe || !evidence.trim() || item.status === "done"}
+                      onClick={() => void onUpdate(item, "done")}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {copy.executionDone}
+                    </Button>
+                    <Button
+                      data-testid={`admin-incident-execution-block-${item.itemId}`}
+                      disabled={updating || noteUnsafe || !blockedReason.trim() || item.status === "done"}
+                      onClick={() => void onUpdate(item, "blocked")}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {copy.executionBlock}
+                    </Button>
+                    <Button
+                      data-testid={`admin-incident-execution-skip-${item.itemId}`}
+                      disabled={updating || noteUnsafe || item.status === "done"}
+                      onClick={() => void onUpdate(item, "skipped")}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      {copy.executionSkip}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExecutionStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border bg-muted/30 px-2 py-2">
+      <p className="font-semibold">{value}</p>
+      <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+    </div>
+  );
+}
 
 function IncidentReadiness({
   copy,

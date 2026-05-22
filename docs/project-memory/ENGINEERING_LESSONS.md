@@ -214,3 +214,64 @@ Fix: the postmortem preview now renders action item titles in the detail panel.
 
 Guard: `src/pages/admin/AdminIncidentDetail.test.tsx` asserts that `Add
 regression guard` is visible after loading the postmortem JSON payload.
+
+## Batch #104: update validators must preserve update-specific fields
+
+Symptom: TypeScript failed because the execution update validator returned the
+base execution response type, then code tried to read `updatedItem` from that
+base type.
+
+Root cause: the validator reused the broad response assertion as the returned
+value, erasing the update-specific field narrowing.
+
+Fix: the update validator now validates the base response for common shape and
+then asserts `response.updatedItem` on the original parsed update response.
+
+Guard: `npx tsc -b --noEmit` and `ci:core` must pass before publication.
+
+## Batch #104: DB guard markers must match migration DDL exactly
+
+Symptom: `check:self-hosted-db` failed after adding the execution migration
+because the guard expected a shortened `updated_by_user_id` marker that did not
+match the migration text.
+
+Root cause: the guard marker was written semantically instead of matching the
+actual DDL string used by the migration.
+
+Fix: the guard now checks the exact `updated_by_user_id uuid not null
+references yorso_users(id)` migration text.
+
+Guard: `check:self-hosted-db` is required before publication.
+
+## Batch #104: new migrations must update every migration contract test
+
+Symptom: `ci:core` failed after the new migration passed guard checks because
+`self-hosted-db-contract`, `packages/db/src/migrator.test.ts` and
+`packages/db/src/cli.test.ts` still expected the previous migration set and
+pending count.
+
+Root cause: adding a migration was treated as a guard-script change only, but
+the repository has separate contract tests for manifest order, migration
+planning and CLI pending output.
+
+Fix: all migration contract tests now include
+`0021_admin_incident_execution`; the CLI pending-count assertion was updated
+from 21 to 22.
+
+Guard: `ci:core` catches missing migration-test updates before publication.
+
+## Batch #104: route mocks must not use broad suffixes for nested exports
+
+Symptom: the admin incidents API test failed after adding execution export
+because `/execution/export?format=json` was served by the generic
+`/incidents/export?format=json` mock and returned the wrong response shape.
+
+Root cause: the mock matched only the suffix `/export?format=json`, but the new
+route has a nested export endpoint under the same suffix.
+
+Fix: the generic incident export mock now matches the exact
+`/v1/admin/incidents/export?format=...` namespace, leaving
+`/execution/export?format=...` to its own mock.
+
+Guard: `test:admin-incidents-frontend` covers both generic incident export and
+execution export client calls.
