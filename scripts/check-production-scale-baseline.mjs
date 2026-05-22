@@ -28,6 +28,7 @@ const requiredFiles = [
   "packages/db/migrations/0019_admin_incident_acknowledgements.sql",
   "packages/db/migrations/0020_admin_incident_workflow.sql",
   "packages/db/migrations/0021_admin_incident_execution.sql",
+  "packages/db/migrations/0022_admin_incident_workload_correlation.sql",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -96,15 +97,20 @@ const requiredFiles = [
   "src/lib/use-admin-incident-detail.test.tsx",
   "src/lib/use-admin-incident-execution-queue.ts",
   "src/lib/use-admin-incident-execution-queue.test.tsx",
+  "src/lib/use-admin-incident-workload.ts",
+  "src/lib/use-admin-incident-workload.test.tsx",
   "src/pages/admin/AdminIncidents.tsx",
   "src/pages/admin/AdminIncidents.test.tsx",
   "src/pages/admin/AdminIncidentDetail.tsx",
   "src/pages/admin/AdminIncidentDetail.test.tsx",
   "src/pages/admin/AdminIncidentExecutionQueue.tsx",
   "src/pages/admin/AdminIncidentExecutionQueue.test.tsx",
+  "src/pages/admin/AdminIncidentWorkload.tsx",
+  "src/pages/admin/AdminIncidentWorkload.test.tsx",
   "e2e/admin-incidents.spec.ts",
   "e2e/admin-incident-detail.spec.ts",
   "e2e/admin-incident-execution-queue.spec.ts",
+  "e2e/admin-incident-workload.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -224,6 +230,7 @@ const adminAuditRetentionRuntime = read("packages/db/migrations/0016_admin_audit
 const supplierAccessReviewQueue = read("packages/db/migrations/0017_supplier_access_review_queue.sql");
 const adminIncidentWorkflowMigration = read("packages/db/migrations/0020_admin_incident_workflow.sql");
 const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_incident_execution.sql");
+const adminIncidentWorkloadCorrelationMigration = read("packages/db/migrations/0022_admin_incident_workload_correlation.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -286,12 +293,17 @@ const useAdminIncidents = read("src/lib/use-admin-incidents.ts");
 const useAdminIncidentsTest = read("src/lib/use-admin-incidents.test.tsx");
 const useAdminIncidentExecutionQueue = read("src/lib/use-admin-incident-execution-queue.ts");
 const useAdminIncidentExecutionQueueTest = read("src/lib/use-admin-incident-execution-queue.test.tsx");
+const useAdminIncidentWorkload = read("src/lib/use-admin-incident-workload.ts");
+const useAdminIncidentWorkloadTest = read("src/lib/use-admin-incident-workload.test.tsx");
 const adminIncidentsPage = read("src/pages/admin/AdminIncidents.tsx");
 const adminIncidentsPageTest = read("src/pages/admin/AdminIncidents.test.tsx");
 const adminIncidentExecutionQueuePage = read("src/pages/admin/AdminIncidentExecutionQueue.tsx");
 const adminIncidentExecutionQueuePageTest = read("src/pages/admin/AdminIncidentExecutionQueue.test.tsx");
+const adminIncidentWorkloadPage = read("src/pages/admin/AdminIncidentWorkload.tsx");
+const adminIncidentWorkloadPageTest = read("src/pages/admin/AdminIncidentWorkload.test.tsx");
 const adminIncidentsE2E = read("e2e/admin-incidents.spec.ts");
 const adminIncidentExecutionQueueE2E = read("e2e/admin-incident-execution-queue.spec.ts");
+const adminIncidentWorkloadE2E = read("e2e/admin-incident-workload.spec.ts");
 const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
 const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
 const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
@@ -843,6 +855,25 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Batch #106",
+  "admin incident workload",
+  "/admin/incident-workload",
+  "/v1/admin/incidents/execution-workload",
+  "/v1/admin/incidents/execution-workload/export",
+  "/v1/admin/incidents/:incidentId/correlation",
+  "admin-incident-workload-page",
+  "admin-incident-workload-correlation",
+  "smoke:e2e:admin-incident-workload",
+  "admin_incidents_workload=ok",
+  "admin_incidents_workload_export_json=ok",
+  "admin_incidents_workload_export_csv=ok",
+  "admin_incidents_correlation=ok",
+  "0022_admin_incident_workload_correlation",
+  "10,000 concurrent",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "Batch #101 Admin Incident Response",
   "/v1/admin/incidents",
   "yorso_admin_incident_acknowledgements",
@@ -884,6 +915,16 @@ for (const marker of [
   "/v1/admin/incidents/execution-queue/export",
   "/v1/admin/incidents/execution-queue/bulk",
   "/admin/incident-execution",
+  "no Supabase",
+]) {
+  requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
+}
+for (const marker of [
+  "Batch #106 Admin Incident Workload And Correlation",
+  "/v1/admin/incidents/execution-workload",
+  "/v1/admin/incidents/execution-workload/export",
+  "/v1/admin/incidents/:incidentId/correlation",
+  "/admin/incident-workload",
   "no Supabase",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
@@ -1746,6 +1787,8 @@ for (const marker of [
   "adminIncidentExecutionUpdateResponseSchema",
   "adminIncidentExecutionQueueResponseSchema",
   "adminIncidentExecutionQueueBulkUpdateRequestSchema",
+  "adminIncidentWorkloadResponseSchema",
+  "adminIncidentCorrelationResponseSchema",
   "adminIncidentTimelineEventSchema",
   "adminIncidentAssignmentFilterSchema",
   "adminIncidentSlaStatusSchema",
@@ -1766,6 +1809,9 @@ for (const marker of [
   "updateIncidentExecutionItem",
   "listIncidentExecutionQueue",
   "bulkUpdateIncidentExecutionQueue",
+  "getIncidentExecutionWorkload",
+  "getIncidentExecutionWorkloadForecast",
+  "getIncidentCorrelation",
   "buildIncidentExecution",
   "10,000 concurrent users",
 ]) {
@@ -1776,6 +1822,9 @@ for (const marker of [
   "/workflow",
   "/execution",
   "/execution-queue",
+  "/execution-workload",
+  "/execution-workload/forecast",
+  "/correlation",
   "resolveAuthenticatedAccountSession",
   "admin_role_required",
   "admin.incidents.acknowledge",
@@ -1792,6 +1841,9 @@ for (const marker of [
   "execution",
   "executionQueue",
   "bulkUpdateExecutionQueue",
+  "executionWorkload",
+  "executionWorkloadForecast",
+  "correlation",
   "updateExecutionItem",
   "ACCOUNT_USER_ID_HEADER",
   "ACCOUNT_SESSION_ID_HEADER",
@@ -1843,6 +1895,22 @@ for (const marker of [
   requireText("src/lib/use-admin-incident-execution-queue.test.tsx", useAdminIncidentExecutionQueueTest, marker);
 }
 for (const marker of [
+  "useAdminIncidentWorkload",
+  "client.executionWorkload",
+  "client.executionWorkloadExportJson",
+  "client.executionWorkloadForecast",
+  "client.correlation",
+  "status: \"forbidden\"",
+]) {
+  requireText("src/lib/use-admin-incident-workload.ts", useAdminIncidentWorkload, marker);
+}
+for (const marker of [
+  "loads workload filters, exports and correlation drill-down",
+  "returns disabled without a configured self-hosted API",
+]) {
+  requireText("src/lib/use-admin-incident-workload.test.tsx", useAdminIncidentWorkloadTest, marker);
+}
+for (const marker of [
   "admin-incidents-page",
   "admin-incidents-summary",
   "admin-incidents-workload-summary",
@@ -1885,6 +1953,24 @@ for (const marker of [
   requireText("src/pages/admin/AdminIncidentExecutionQueue.test.tsx", adminIncidentExecutionQueuePageTest, marker);
 }
 for (const marker of [
+  "admin-incident-workload-page",
+  "admin-incident-workload-summary",
+  "admin-incident-workload-hot-incidents",
+  "admin-incident-workload-owner-load",
+  "admin-incident-workload-correlation",
+  "admin-incident-workload-export-json",
+  "admin-incident-workload-export-csv",
+  "AdminOperatorNav",
+]) {
+  requireText("src/pages/admin/AdminIncidentWorkload.tsx", adminIncidentWorkloadPage, marker);
+}
+for (const marker of [
+  "renders workload, exports and correlation drill-down",
+  "admin-incident-workload-export-status",
+]) {
+  requireText("src/pages/admin/AdminIncidentWorkload.test.tsx", adminIncidentWorkloadPageTest, marker);
+}
+for (const marker of [
   "Batch #101 browser guard",
   "Batch #102 browser guard",
   "/admin/incidents",
@@ -1918,6 +2004,19 @@ for (const marker of [
   requireText("e2e/admin-incident-execution-queue.spec.ts", adminIncidentExecutionQueueE2E, marker);
 }
 for (const marker of [
+  "Batch #106 browser guard",
+  "/admin/incident-workload",
+  "/v1/admin/incidents/execution-workload",
+  "/execution-workload/export",
+  "/execution-workload/forecast",
+  "/correlation",
+  "admin-incident-workload-page",
+  "admin-incident-workload-forecast-summary",
+  "admin-incident-workload-correlation-signals",
+]) {
+  requireText("e2e/admin-incident-workload.spec.ts", adminIncidentWorkloadE2E, marker);
+}
+for (const marker of [
   "admin_incidents_auth_guard=ok",
   "admin_incidents_acknowledge=ok",
   "admin_incidents_assign=ok",
@@ -1941,6 +2040,11 @@ for (const marker of [
   "admin_incidents_execution_queue_export_csv=ok",
   "admin_incidents_execution_queue_bulk=ok",
   "admin_incidents_execution_queue_note_hygiene_guard=ok",
+  "admin_incidents_workload=ok",
+  "admin_incidents_workload_export_json=ok",
+  "admin_incidents_workload_export_csv=ok",
+  "admin_incidents_workload_forecast=ok",
+  "admin_incidents_correlation=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
   "admin_incidents_bulk_workflow_validation_guard=ok",
@@ -1967,6 +2071,14 @@ for (const marker of [
   "10,000 concurrent-user",
 ]) {
   requireText("packages/db/migrations/0021_admin_incident_execution.sql", adminIncidentExecutionMigration, marker);
+}
+for (const marker of [
+  "idx_yorso_admin_incident_execution_status_updated",
+  "idx_yorso_admin_incident_execution_owner_status_due",
+  "idx_yorso_admin_incident_events_incident_recent",
+  "10,000 concurrent-user",
+]) {
+  requireText("packages/db/migrations/0022_admin_incident_workload_correlation.sql", adminIncidentWorkloadCorrelationMigration, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",
@@ -2043,7 +2155,7 @@ if (pkg.scripts["smoke:self-hosted-admin-incidents"] !== "npm run api:build && n
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-incidents:run")) {
   failures.push("package.json: ci:core must include the admin incidents self-hosted smoke");
 }
-if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx") {
+if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/lib/use-admin-incident-workload.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx src/pages/admin/AdminIncidentWorkload.test.tsx") {
   failures.push("package.json: test:admin-incidents-frontend must cover admin incidents adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {

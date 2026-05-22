@@ -424,6 +424,42 @@ describe("admin incident service", () => {
     expect(queueCsv.body).toContain("\"incidentId\",\"itemId\"");
     expect(queueCsv.body).not.toContain("admin@example.com");
 
+    const workload = await service.getIncidentExecutionWorkload({ limit: 20 }, requestId);
+    expect(workload.ok).toBe(true);
+    expect(workload.summary.total).toBeGreaterThanOrEqual(queue.summary.total);
+    expect(workload.summary.loadScore).toBeGreaterThanOrEqual(1);
+    expect(workload.owners.map((owner) => owner.ownerRole)).toEqual(["operator", "engineering", "security", "founder"]);
+    expect(workload.hotIncidents[0].incidentId).toBeTruthy();
+    expect(workload.sourceMix.length).toBeGreaterThanOrEqual(1);
+    expect(JSON.stringify(workload)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const workloadJson = await service.exportIncidentExecutionWorkload({ format: "json", limit: 20 }, requestId);
+    expect(workloadJson.contentType).toContain("application/json");
+    expect(workloadJson.fileName).toContain("execution-workload.json");
+    expect(workloadJson.body).toContain("\"hotIncidents\"");
+
+    const workloadCsv = await service.exportIncidentExecutionWorkload({ format: "csv", limit: 20 }, requestId);
+    expect(workloadCsv.contentType).toContain("text/csv");
+    expect(workloadCsv.fileName).toContain("execution-workload.csv");
+    expect(workloadCsv.body).toContain("\"incidentId\",\"loadScore\"");
+    expect(workloadCsv.body).not.toContain("admin@example.com");
+
+    const forecast = await service.getIncidentExecutionWorkloadForecast({ horizonHours: 24, limit: 20 }, requestId);
+    expect(forecast.ok).toBe(true);
+    expect(forecast.horizonHours).toBe(24);
+    expect(forecast.owners.map((owner) => owner.ownerRole)).toEqual(["operator", "engineering", "security", "founder"]);
+    expect(forecast.summary.projectedOpen).toBeGreaterThanOrEqual(0);
+    expect(forecast.assumptions.join(" ")).toContain("bounded execution items");
+    expect(JSON.stringify(forecast)).not.toContain("admin@example.com");
+
+    const correlation = await service.getIncidentCorrelation(incidentId, { limit: 25 }, requestId);
+    expect(correlation.ok).toBe(true);
+    expect(correlation.incident.id).toBe(incidentId);
+    expect(correlation.executionItems.length).toBeGreaterThanOrEqual(1);
+    expect(correlation.signals.length).toBeGreaterThanOrEqual(1);
+    expect(correlation.recommendedNextSteps.length).toBeGreaterThanOrEqual(2);
+    expect(JSON.stringify(correlation)).not.toContain("00000000-0000-4000-8000-000000000090");
+
     const nextOpen = (await service.listIncidentExecutionQueue({ limit: 50, status: "open" }, requestId)).items[0];
     expect(nextOpen).toBeDefined();
     const bulk = await service.bulkUpdateIncidentExecutionQueue(

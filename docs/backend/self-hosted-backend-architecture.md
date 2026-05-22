@@ -1109,3 +1109,33 @@ session ids and token-like secrets.
 This remains an admin control-plane feature, not a buyer/supplier hot path. It
 has no Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production
 dependency.
+
+## Batch #106 Admin Incident Workload And Correlation
+
+Batch #106 adds the workload and correlation console for admin incident
+operators. The frontend route is `/admin/incident-workload`; the backend routes
+are `GET /v1/admin/incidents/execution-workload`,
+`GET /v1/admin/incidents/execution-workload/export?format=json|csv`, and
+`GET /v1/admin/incidents/execution-workload/forecast`, and
+`GET /v1/admin/incidents/:incidentId/correlation`.
+
+The workload view is a bounded admin control-plane read surface. It summarizes
+execution items by owner role, source, status, blocked pressure, overdue
+pressure and hot incident score. The capacity forecast projects near-term open
+and overdue pressure by owner role from the same bounded workload inputs. The
+correlation view joins sanitized audit, timeline and execution signals for a
+single incident. It does not render raw user ids, emails, session ids or
+secrets.
+
+The storage support is migration `0022_admin_incident_workload_correlation`,
+which adds indexes for execution status, owner, source, incident/source/status
+and recent incident events. This remains self-hosted PostgreSQL and has no
+Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production dependency.
+
+Marker: Batch #106 Admin Incident Workload And Correlation.
+Marker: /v1/admin/incidents/execution-workload.
+Marker: /v1/admin/incidents/execution-workload/export.
+Marker: /v1/admin/incidents/execution-workload/forecast.
+Marker: /v1/admin/incidents/:incidentId/correlation.
+Marker: /admin/incident-workload.
+Marker: no Supabase.

@@ -2,23 +2,30 @@
 
 ## Current Next Action
 
-1. Finish Batch #105 publication:
+1. Finish Batch #106 publication:
    - run `git diff --check` and inspect `git status -sb`;
-   - commit branch `codex/batch105-incident-execution-queue`;
+   - commit branch `codex/batch106-incident-workload-correlation`;
    - push the branch;
-   - open PR `[codex] Batch #105 admin incident execution queue`;
+   - open PR `[codex] Batch #106 admin incident workload correlation`;
    - wait for GitHub checks and merge after green;
-   - provide Lovable Prompt #105 for sync-only confirmation.
-2. Start Batch #106 only under the Engineer Agent Action Contract:
+   - provide Lovable Prompt #106 for sync-only confirmation.
+2. Start Batch #107 only under the Engineer Agent Action Contract:
    - make it a large connected production batch, not a single-marker PR;
    - include runtime/backend or frontend feature work, integration, tests, smoke/e2e or runtime validation, docs, guard scripts, and CI wiring;
    - include a Batch Size Report in the final result.
-3. Candidate Batch #106:
-   - continue admin operator flow with execution ownership, incident-to-audit correlation drill-down or operator workload dashboard;
+3. Candidate Batch #107:
+   - continue admin operator flow with remediation execution analytics, incident trend aggregation, or operator SLA forecasting;
    - keep routes admin-session protected;
    - include self-hosted API, UI, browser e2e, smoke markers, docs and production-scale guard coverage.
-4. Use Batch #105 size and validation output as the next baseline for whether the following batch is actually larger, not as a vague intent.
+4. Use Batch #106 size and validation output as the next baseline for whether the following batch is actually larger, not as a vague intent.
 5. If the next batch is smaller for a technical reason, state the blocker before implementation and record it in `WORKLOG.md`.
+
+## Completed for Batch #106
+
+1. Batch #106 implementation and local validation completed:
+   - admin incident workload/correlation/forecast backend, frontend, DB migration, docs, guards and browser smoke added;
+   - `ci:core`, `contracts:build`, `api:build`, `test:api`, `test:admin-incidents-frontend`, `test:backend-contract`, DB checks, production-scale guards, runtime smoke, browser smoke, engineering lessons, lint and TypeScript checks passed;
+   - final publication steps remain open.
 
 ## Completed for Batch #105
 

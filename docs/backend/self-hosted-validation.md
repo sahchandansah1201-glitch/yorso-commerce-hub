@@ -1312,3 +1312,37 @@ Required runtime smoke markers:
 - `admin_incidents_execution_queue_export_csv=ok`;
 - `admin_incidents_execution_queue_bulk=ok`;
 - `admin_incidents_execution_queue_note_hygiene_guard=ok`.
+
+## Batch #106 Admin Incident Workload Validation
+
+Run:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-workload
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/incident-workload` renders disabled, session-required, forbidden and
+  ready states.
+- Workload filters call `/v1/admin/incidents/execution-workload`.
+- JSON and CSV exports call `/v1/admin/incidents/execution-workload/export`.
+- Capacity forecast calls `/v1/admin/incidents/execution-workload/forecast`.
+- Correlation drill-down calls `/v1/admin/incidents/:incidentId/correlation`.
+- Sensitive values such as raw emails and session IDs stay out of the DOM.
+- Migration `0022_admin_incident_workload_correlation` exists and is guarded.
+
+Required runtime smoke markers:
+
+- `admin_incidents_workload=ok`;
+- `admin_incidents_workload_filters=ok`;
+- `admin_incidents_workload_export_json=ok`;
+- `admin_incidents_workload_export_csv=ok`;
+- `admin_incidents_workload_forecast=ok`;
+- `admin_incidents_correlation=ok`;
+- `smoke:e2e:admin-incident-workload`.

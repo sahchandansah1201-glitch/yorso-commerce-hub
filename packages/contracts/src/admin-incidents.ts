@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { adminAuditEventSchema } from "./admin-audit.js";
 
 export const adminIncidentSeveritySchema = z.enum(["critical", "high", "medium", "low"]);
 export const adminIncidentSourceSchema = z.enum(["runtime", "audit", "access", "security", "policy"]);
@@ -452,6 +453,157 @@ export const adminIncidentExecutionQueueBulkUpdateResponseSchema = z.object({
   updatedItems: z.array(adminIncidentExecutionQueueItemSchema).max(50),
 });
 
+export const adminIncidentWorkloadQuerySchema = z.object({
+  includeResolved: z.coerce.boolean().default(false),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+  overdueOnly: z.coerce.boolean().optional(),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema.optional(),
+  priority: adminIncidentExecutionPrioritySchema.optional(),
+  source: adminIncidentSourceSchema.optional(),
+  status: adminIncidentExecutionStatusSchema.optional(),
+});
+
+export const adminIncidentWorkloadExportQuerySchema = adminIncidentWorkloadQuerySchema.extend({
+  format: adminIncidentExportFormatSchema.default("json"),
+});
+
+export const adminIncidentWorkloadOwnerSchema = z.object({
+  assigned: z.number().int().min(0),
+  blocked: z.number().int().min(0),
+  breachedIncidents: z.number().int().min(0),
+  done: z.number().int().min(0),
+  immediate: z.number().int().min(0),
+  inProgress: z.number().int().min(0),
+  loadScore: z.number().int().min(0),
+  oldestTargetMinutes: z.number().int().min(0),
+  open: z.number().int().min(0),
+  overdue: z.number().int().min(0),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema,
+  skipped: z.number().int().min(0),
+  total: z.number().int().min(0),
+  unassigned: z.number().int().min(0),
+});
+
+export const adminIncidentWorkloadHotIncidentSchema = z.object({
+  blockedItems: z.number().int().min(0),
+  dueAt: z.string().datetime(),
+  immediateItems: z.number().int().min(0),
+  incidentId: z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/),
+  loadScore: z.number().int().min(0),
+  nextTargetDueAt: z.string().datetime().nullable(),
+  openItems: z.number().int().min(0),
+  overdueItems: z.number().int().min(0),
+  severity: adminIncidentSeveritySchema,
+  slaStatus: adminIncidentSlaStatusSchema,
+  source: adminIncidentSourceSchema,
+  status: adminIncidentStatusSchema,
+  title: z.string().min(1).max(180),
+  topOwnerRole: adminIncidentExecutionOwnerRoleSchema.nullable(),
+  unassignedItems: z.number().int().min(0),
+});
+
+export const adminIncidentWorkloadMixSchema = z.object({
+  blocked: z.number().int().min(0),
+  done: z.number().int().min(0),
+  inProgress: z.number().int().min(0),
+  key: z.string().min(1).max(80),
+  open: z.number().int().min(0),
+  overdue: z.number().int().min(0),
+  total: z.number().int().min(0),
+});
+
+export const adminIncidentWorkloadResponseSchema = z.object({
+  generatedAt: z.string().datetime(),
+  hotIncidents: z.array(adminIncidentWorkloadHotIncidentSchema).max(50),
+  limit: z.number().int().min(1).max(50),
+  offset: z.number().int().min(0),
+  ok: z.literal(true),
+  owners: z.array(adminIncidentWorkloadOwnerSchema).min(4).max(4),
+  requestId: z.string().uuid(),
+  sourceMix: z.array(adminIncidentWorkloadMixSchema).max(10),
+  statusMix: z.array(adminIncidentWorkloadMixSchema).max(8),
+  summary: z.object({
+    assigned: z.number().int().min(0),
+    blocked: z.number().int().min(0),
+    done: z.number().int().min(0),
+    hotIncidentCount: z.number().int().min(0),
+    inProgress: z.number().int().min(0),
+    loadScore: z.number().int().min(0),
+    open: z.number().int().min(0),
+    overdue: z.number().int().min(0),
+    total: z.number().int().min(0),
+    unassigned: z.number().int().min(0),
+  }),
+});
+
+export const adminIncidentWorkloadForecastQuerySchema = adminIncidentWorkloadQuerySchema.extend({
+  horizonHours: z.coerce.number().int().min(1).max(168).default(24),
+});
+
+export const adminIncidentWorkloadCapacityRiskSchema = z.enum(["low", "moderate", "high", "critical"]);
+
+export const adminIncidentWorkloadForecastOwnerSchema = z.object({
+  capacityRisk: adminIncidentWorkloadCapacityRiskSchema,
+  currentOpen: z.number().int().min(0),
+  currentOverdue: z.number().int().min(0),
+  currentScore: z.number().int().min(0),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema,
+  projectedOpen: z.number().int().min(0),
+  projectedOverdue: z.number().int().min(0),
+  recommendedAction: z.string().min(1).max(240),
+});
+
+export const adminIncidentWorkloadForecastResponseSchema = z.object({
+  assumptions: z.array(z.string().min(1).max(260)).min(2).max(8),
+  generatedAt: z.string().datetime(),
+  horizonHours: z.number().int().min(1).max(168),
+  ok: z.literal(true),
+  owners: z.array(adminIncidentWorkloadForecastOwnerSchema).min(4).max(4),
+  requestId: z.string().uuid(),
+  summary: z.object({
+    capacityRisk: adminIncidentWorkloadCapacityRiskSchema,
+    highestRiskOwnerRole: adminIncidentExecutionOwnerRoleSchema.nullable(),
+    projectedOpen: z.number().int().min(0),
+    projectedOverdue: z.number().int().min(0),
+    recommendedAction: z.string().min(1).max(260),
+  }),
+});
+
+export const adminIncidentCorrelationQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(25),
+});
+
+export const adminIncidentCorrelationSignalSchema = z.object({
+  actorUserHash: z.string().regex(/^sha256:[a-f0-9]{24}$/).nullable(),
+  evidence: z.array(adminIncidentEvidenceSchema).max(6),
+  label: z.string().min(1).max(180),
+  occurredAt: z.string().datetime().nullable(),
+  priority: adminIncidentExecutionPrioritySchema.nullable(),
+  route: z.string().min(1).max(260).nullable(),
+  source: z.enum(["audit_event", "timeline_event", "execution_item"]),
+  status: z.string().min(1).max(80).nullable(),
+});
+
+export const adminIncidentCorrelationResponseSchema = z.object({
+  auditEvents: z.array(adminAuditEventSchema).max(50),
+  executionItems: z.array(adminIncidentExecutionItemSchema).max(40),
+  generatedAt: z.string().datetime(),
+  incident: adminIncidentSchema,
+  ok: z.literal(true),
+  recommendedNextSteps: z.array(z.string().min(1).max(260)).min(2).max(8),
+  requestId: z.string().uuid(),
+  signals: z.array(adminIncidentCorrelationSignalSchema).max(50),
+  summary: z.object({
+    auditEvents: z.number().int().min(0),
+    blockedItems: z.number().int().min(0),
+    doneItems: z.number().int().min(0),
+    openItems: z.number().int().min(0),
+    timelineEvents: z.number().int().min(0),
+  }),
+  timeline: z.array(adminIncidentTimelineEventSchema).max(100),
+});
+
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
 export type AdminIncidentAcknowledgeRequest = z.infer<typeof adminIncidentAcknowledgeRequestSchema>;
 export type AdminIncidentAcknowledgeResponse = z.infer<typeof adminIncidentAcknowledgeResponseSchema>;
@@ -474,6 +626,9 @@ export type AdminIncidentExecutionQueueItem = z.infer<typeof adminIncidentExecut
 export type AdminIncidentExecutionQueueQuery = z.infer<typeof adminIncidentExecutionQueueQuerySchema>;
 export type AdminIncidentExecutionQueueResponse = z.infer<typeof adminIncidentExecutionQueueResponseSchema>;
 export type AdminIncidentExecutionQueueSummary = z.infer<typeof adminIncidentExecutionQueueSummarySchema>;
+export type AdminIncidentCorrelationQuery = z.infer<typeof adminIncidentCorrelationQuerySchema>;
+export type AdminIncidentCorrelationResponse = z.infer<typeof adminIncidentCorrelationResponseSchema>;
+export type AdminIncidentCorrelationSignal = z.infer<typeof adminIncidentCorrelationSignalSchema>;
 export type AdminIncidentExecutionResponse = z.infer<typeof adminIncidentExecutionResponseSchema>;
 export type AdminIncidentExecutionSource = z.infer<typeof adminIncidentExecutionSourceSchema>;
 export type AdminIncidentExecutionStatus = z.infer<typeof adminIncidentExecutionStatusSchema>;
@@ -502,3 +657,13 @@ export type AdminIncidentTimelineEventType = z.infer<typeof adminIncidentTimelin
 export type AdminIncidentWorkflowAction = z.infer<typeof adminIncidentWorkflowActionSchema>;
 export type AdminIncidentWorkflowRequest = z.infer<typeof adminIncidentWorkflowRequestSchema>;
 export type AdminIncidentWorkflowResponse = z.infer<typeof adminIncidentWorkflowResponseSchema>;
+export type AdminIncidentWorkloadExportQuery = z.infer<typeof adminIncidentWorkloadExportQuerySchema>;
+export type AdminIncidentWorkloadCapacityRisk = z.infer<typeof adminIncidentWorkloadCapacityRiskSchema>;
+export type AdminIncidentWorkloadForecastOwner = z.infer<typeof adminIncidentWorkloadForecastOwnerSchema>;
+export type AdminIncidentWorkloadForecastQuery = z.infer<typeof adminIncidentWorkloadForecastQuerySchema>;
+export type AdminIncidentWorkloadForecastResponse = z.infer<typeof adminIncidentWorkloadForecastResponseSchema>;
+export type AdminIncidentWorkloadHotIncident = z.infer<typeof adminIncidentWorkloadHotIncidentSchema>;
+export type AdminIncidentWorkloadMix = z.infer<typeof adminIncidentWorkloadMixSchema>;
+export type AdminIncidentWorkloadOwner = z.infer<typeof adminIncidentWorkloadOwnerSchema>;
+export type AdminIncidentWorkloadQuery = z.infer<typeof adminIncidentWorkloadQuerySchema>;
+export type AdminIncidentWorkloadResponse = z.infer<typeof adminIncidentWorkloadResponseSchema>;

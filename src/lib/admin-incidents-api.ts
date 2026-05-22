@@ -343,6 +343,160 @@ export interface AdminIncidentExecutionQueueBulkUpdateResponse {
   updatedItems: AdminIncidentExecutionQueueItem[];
 }
 
+export interface AdminIncidentWorkloadQuery {
+  includeResolved?: boolean;
+  limit?: number;
+  offset?: number;
+  overdueOnly?: boolean;
+  ownerRole?: AdminIncidentExecutionOwnerRole | "all";
+  priority?: AdminIncidentExecutionPriority | "all";
+  source?: AdminIncidentSource | "all";
+  status?: AdminIncidentExecutionStatus | "all";
+}
+
+export interface AdminIncidentWorkloadOwner {
+  assigned: number;
+  blocked: number;
+  breachedIncidents: number;
+  done: number;
+  immediate: number;
+  inProgress: number;
+  loadScore: number;
+  oldestTargetMinutes: number;
+  open: number;
+  overdue: number;
+  ownerRole: AdminIncidentExecutionOwnerRole;
+  skipped: number;
+  total: number;
+  unassigned: number;
+}
+
+export interface AdminIncidentWorkloadHotIncident {
+  blockedItems: number;
+  dueAt: string;
+  immediateItems: number;
+  incidentId: string;
+  loadScore: number;
+  nextTargetDueAt: string | null;
+  openItems: number;
+  overdueItems: number;
+  severity: AdminIncidentSeverity;
+  slaStatus: AdminIncidentSlaStatus;
+  source: AdminIncidentSource;
+  status: AdminIncidentStatus;
+  title: string;
+  topOwnerRole: AdminIncidentExecutionOwnerRole | null;
+  unassignedItems: number;
+}
+
+export interface AdminIncidentWorkloadMix {
+  blocked: number;
+  done: number;
+  inProgress: number;
+  key: string;
+  open: number;
+  overdue: number;
+  total: number;
+}
+
+export interface AdminIncidentWorkloadResponse {
+  generatedAt: string;
+  hotIncidents: AdminIncidentWorkloadHotIncident[];
+  limit: number;
+  offset: number;
+  ok: true;
+  owners: AdminIncidentWorkloadOwner[];
+  requestId: string;
+  sourceMix: AdminIncidentWorkloadMix[];
+  statusMix: AdminIncidentWorkloadMix[];
+  summary: {
+    assigned: number;
+    blocked: number;
+    done: number;
+    hotIncidentCount: number;
+    inProgress: number;
+    loadScore: number;
+    open: number;
+    overdue: number;
+    total: number;
+    unassigned: number;
+  };
+}
+
+export type AdminIncidentWorkloadCapacityRisk = "low" | "moderate" | "high" | "critical";
+
+export interface AdminIncidentWorkloadForecastOwner {
+  capacityRisk: AdminIncidentWorkloadCapacityRisk;
+  currentOpen: number;
+  currentOverdue: number;
+  currentScore: number;
+  ownerRole: AdminIncidentExecutionOwnerRole;
+  projectedOpen: number;
+  projectedOverdue: number;
+  recommendedAction: string;
+}
+
+export interface AdminIncidentWorkloadForecastResponse {
+  assumptions: string[];
+  generatedAt: string;
+  horizonHours: number;
+  ok: true;
+  owners: AdminIncidentWorkloadForecastOwner[];
+  requestId: string;
+  summary: {
+    capacityRisk: AdminIncidentWorkloadCapacityRisk;
+    highestRiskOwnerRole: AdminIncidentExecutionOwnerRole | null;
+    projectedOpen: number;
+    projectedOverdue: number;
+    recommendedAction: string;
+  };
+}
+
+export interface AdminIncidentCorrelationSignal {
+  actorUserHash: string | null;
+  evidence: Array<{ label: string; value: string }>;
+  label: string;
+  occurredAt: string | null;
+  priority: AdminIncidentExecutionPriority | null;
+  route: string | null;
+  source: "audit_event" | "timeline_event" | "execution_item";
+  status: string | null;
+}
+
+export interface AdminIncidentCorrelationResponse {
+  auditEvents: Array<{
+    action: string;
+    actorUserHash: string | null;
+    auditId: string;
+    correlationId: string;
+    httpMethod: string | null;
+    occurredAt: string;
+    outcome: "success" | "failure" | "blocked";
+    reason: string | null;
+    requestId: string;
+    resourceHash: string | null;
+    resourceType: string | null;
+    route: string | null;
+    sessionHash: string | null;
+    statusCode: number | null;
+  }>;
+  executionItems: AdminIncidentExecutionItem[];
+  generatedAt: string;
+  incident: AdminIncident;
+  ok: true;
+  recommendedNextSteps: string[];
+  requestId: string;
+  signals: AdminIncidentCorrelationSignal[];
+  summary: {
+    auditEvents: number;
+    blockedItems: number;
+    doneItems: number;
+    openItems: number;
+    timelineEvents: number;
+  };
+  timeline: AdminIncidentTimelineEvent[];
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -398,6 +552,24 @@ const executionQueueQueryString = (
   if (query.incidentSeverity && query.incidentSeverity !== "all") params.set("incidentSeverity", query.incidentSeverity);
   if (query.incidentSlaStatus && query.incidentSlaStatus !== "all") params.set("incidentSlaStatus", query.incidentSlaStatus);
   if (query.incidentStatus && query.incidentStatus !== "all") params.set("incidentStatus", query.incidentStatus);
+  if (query.overdueOnly) params.set("overdueOnly", "true");
+  if (query.ownerRole && query.ownerRole !== "all") params.set("ownerRole", query.ownerRole);
+  if (query.priority && query.priority !== "all") params.set("priority", query.priority);
+  if (query.source && query.source !== "all") params.set("source", query.source);
+  if (query.status && query.status !== "all") params.set("status", query.status);
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+};
+
+const workloadQueryString = (
+  query: AdminIncidentWorkloadQuery & { format?: AdminIncidentExportFormat; horizonHours?: number } = {},
+) => {
+  const params = new URLSearchParams();
+  if (query.format) params.set("format", query.format);
+  if (query.horizonHours) params.set("horizonHours", String(query.horizonHours));
+  if (query.includeResolved) params.set("includeResolved", "true");
+  if (query.limit) params.set("limit", String(query.limit));
+  if (query.offset) params.set("offset", String(query.offset));
   if (query.overdueOnly) params.set("overdueOnly", "true");
   if (query.ownerRole && query.ownerRole !== "all") params.set("ownerRole", query.ownerRole);
   if (query.priority && query.priority !== "all") params.set("priority", query.priority);
@@ -677,6 +849,76 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertExecutionQueueBulkShape(body);
     },
+    async executionWorkload(query: AdminIncidentWorkloadQuery = {}): Promise<AdminIncidentWorkloadResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-workload${workloadQueryString(query)}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentWorkloadResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertWorkloadShape(body);
+    },
+    async executionWorkloadExportJson(query: AdminIncidentWorkloadQuery = {}): Promise<AdminIncidentWorkloadResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-workload/export${workloadQueryString({ ...query, format: "json" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentWorkloadResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertWorkloadShape(body);
+    },
+    async executionWorkloadExportCsv(query: AdminIncidentWorkloadQuery = {}): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-workload/export${workloadQueryString({ ...query, format: "csv" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async executionWorkloadForecast(
+      query: AdminIncidentWorkloadQuery & { horizonHours?: number } = {},
+    ): Promise<AdminIncidentWorkloadForecastResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-workload/forecast${workloadQueryString(query)}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentWorkloadForecastResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertWorkloadForecastShape(body);
+    },
+    async correlation(incidentId: string, limit = 25): Promise<AdminIncidentCorrelationResponse> {
+      assertSession();
+      const params = new URLSearchParams({ limit: String(limit) });
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/correlation?${params.toString()}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentCorrelationResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertCorrelationShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -922,6 +1164,62 @@ function assertExecutionQueueBulkShape(response: AdminIncidentExecutionQueueBulk
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident execution queue bulk response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertWorkloadShape(response: AdminIncidentWorkloadResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.owners) ||
+    !Array.isArray(response.hotIncidents) ||
+    !Array.isArray(response.sourceMix) ||
+    !Array.isArray(response.statusMix) ||
+    typeof response.summary?.loadScore !== "number" ||
+    typeof response.generatedAt !== "string"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident workload response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertWorkloadForecastShape(response: AdminIncidentWorkloadForecastResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.owners) ||
+    !Array.isArray(response.assumptions) ||
+    typeof response.horizonHours !== "number" ||
+    typeof response.summary?.capacityRisk !== "string" ||
+    typeof response.summary?.projectedOpen !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident workload forecast response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertCorrelationShape(response: AdminIncidentCorrelationResponse) {
+  if (
+    response?.ok !== true ||
+    !response.incident?.id ||
+    !Array.isArray(response.auditEvents) ||
+    !Array.isArray(response.executionItems) ||
+    !Array.isArray(response.signals) ||
+    !Array.isArray(response.recommendedNextSteps) ||
+    typeof response.summary?.openItems !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident correlation response was invalid.",
       200,
     );
   }

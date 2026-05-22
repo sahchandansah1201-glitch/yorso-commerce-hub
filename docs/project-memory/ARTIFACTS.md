@@ -160,3 +160,24 @@
 - `docs/backend/self-hosted-backend-architecture.md`: Batch #105 self-hosted architecture note.
 - `docs/backend/self-hosted-validation.md`: Batch #105 validation contract.
 - `docs/backend/production-scale-baseline.md`: Batch #105 10,000 concurrent users capacity review.
+
+## Batch #106 Admin Incident Workload and Correlation
+
+- `packages/contracts/src/admin-incidents.ts`: workload query/export/forecast/response DTOs and incident correlation response DTOs.
+- `apps/api/src/modules/admin-incidents/service.ts`: bounded workload aggregation, owner load, hot incident scoring, capacity forecast, JSON/CSV export and correlation signal derivation.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected `/execution-workload`, `/execution-workload/export`, `/execution-workload/forecast` and `/:incidentId/correlation` routes.
+- `apps/api/src/modules/admin-incidents/service.test.ts`: service coverage for workload aggregation, export and correlation.
+- `packages/db/migrations/0022_admin_incident_workload_correlation.sql`: workload/correlation indexes for incident execution and timeline lookups.
+- `packages/db/migration-manifest.json`: manifest entry for `0022_admin_incident_workload_correlation`.
+- `src/lib/admin-incidents-api.ts`: frontend workload export, forecast and correlation client methods.
+- `src/lib/use-admin-incident-workload.ts`: frontend hook for disabled/session/forbidden/loading/error/ready states, export, forecast and correlation drill-down.
+- `src/pages/admin/AdminIncidentWorkload.tsx`: `/admin/incident-workload` page with filters, summary cards, owner load, hot incidents, capacity forecast and correlation panel.
+- `src/components/admin/AdminOperatorNav.tsx`: admin navigation link for workload.
+- `e2e/admin-incident-workload.spec.ts`: API-backed browser smoke for filters, export, forecast, correlation and identity hygiene.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime markers for workload read/filter/export/forecast/correlation.
+- `docs/backend/admin-incident-workload-correlation.md`: operator and implementation guide for the workload/correlation surface.
+- `docs/testing/admin-incident-workload-e2e.md`: browser smoke documentation.
+- `docs/backend/self-hosted-admin-incidents-smoke.md`: Batch #106 runtime smoke documentation.
+- `docs/backend/self-hosted-backend-architecture.md`: Batch #106 architecture note.
+- `docs/backend/self-hosted-validation.md`: Batch #106 validation contract.
+- `docs/backend/production-scale-baseline.md`: Batch #106 10,000 concurrent users capacity review.

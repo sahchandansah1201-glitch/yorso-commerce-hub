@@ -319,3 +319,51 @@ incident title with a regex instead of exact text.
 
 Guard: prefer namespace-aware URL matching for nested admin routes and avoid
 exact text assertions when UI intentionally combines identifiers and labels.
+
+## Batch #106: test fixtures must satisfy the exported contract schema
+
+Symptom: the admin incident workload browser fixture used stale fields such as
+`lastUpdatedAt`, `oldestTargetMinutes` and `source` where the new contract
+requires `dueAt`, `immediateItems`, `nextTargetDueAt`, `status` and `key`.
+
+Root cause: the browser fixture was drafted from the UI shape instead of the
+Zod contract in `packages/contracts/src/admin-incidents.ts`.
+
+Fix: the e2e fixture now mirrors `adminIncidentWorkloadResponseSchema` and
+`adminIncidentCorrelationResponseSchema`, including `auditEvents`,
+`executionItems`, `timeline`, `statusMix`, hashed actors and evidence fields.
+
+Guard: `smoke:e2e:admin-incident-workload`, `test:admin-incidents-frontend`
+and the self-hosted API/production-scale guards all require the workload and
+correlation contract markers.
+
+## Batch #106: UI code must stay compatible with the repository TypeScript target
+
+Symptom: `tsc -b --noEmit` failed because the workload page used
+`String.prototype.replaceAll`, which is not available under the current target
+library.
+
+Root cause: a small UI helper used a newer runtime API without checking the
+project tsconfig target.
+
+Fix: the helper now uses `split("_").join(" ")`, which is compatible with the
+existing target.
+
+Guard: run `npx tsc -b --noEmit` before publication for every frontend batch.
+
+## Batch #106: smoke assertions must read the actual response contract
+
+Symptom: `smoke:self-hosted-admin-incidents:run` failed while checking incident
+correlation because it asserted `summary.executionItems`, a field that does not
+exist in the correlation response schema.
+
+Root cause: the smoke assertion was written from an inferred summary shape
+instead of the explicit contract. The contract exposes `executionItems` as a
+top-level bounded array and only item counts for open/done/blocked state in
+`summary`.
+
+Fix: the smoke now asserts the top-level `executionItems` array and its length,
+then checks the existing summary fields separately.
+
+Guard: keep smoke assertions aligned with `packages/contracts/src/admin-incidents.ts`
+before adding new markers.

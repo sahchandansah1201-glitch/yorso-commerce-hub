@@ -255,6 +255,18 @@
       "dependsOn": [
         "0020_admin_incident_workflow"
       ]
+    },
+    {
+      "id": "0022_admin_incident_workload_correlation",
+      "file": "migrations/0022_admin_incident_workload_correlation.sql",
+      "description": "Add admin incident workload and correlation indexes for bounded operator drill-downs.",
+      "ownedTables": [
+        "yorso_admin_incident_execution_items",
+        "yorso_admin_incident_events"
+      ],
+      "dependsOn": [
+        "0021_admin_incident_execution"
+      ]
     }
   ]
 }
