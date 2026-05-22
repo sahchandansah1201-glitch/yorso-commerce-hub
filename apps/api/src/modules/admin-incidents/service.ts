@@ -6,6 +6,10 @@ import {
   adminIncidentDetailResponseSchema,
   adminIncidentExportQuerySchema,
   adminIncidentExportResponseSchema,
+  adminIncidentExecutionExportQuerySchema,
+  adminIncidentExecutionResponseSchema,
+  adminIncidentExecutionUpdateRequestSchema,
+  adminIncidentExecutionUpdateResponseSchema,
   adminIncidentHandoffQuerySchema,
   adminIncidentHandoffResponseSchema,
   adminIncidentListResponseSchema,
@@ -20,6 +24,11 @@ import {
   type AdminIncidentAcknowledgeResponse,
   type AdminIncidentDetailResponse,
   type AdminIncidentEscalationLevel,
+  type AdminIncidentExecutionItem,
+  type AdminIncidentExecutionResponse,
+  type AdminIncidentExecutionSource,
+  type AdminIncidentExecutionStatus,
+  type AdminIncidentExecutionUpdateResponse,
   type AdminIncidentHandoffResponse,
   type AdminIncidentListResponse,
   type AdminIncidentPostmortemResponse,
@@ -40,13 +49,14 @@ import type { AdminAuditService } from "../admin-audit/service.js";
 import type { AdminRuntimeService } from "../admin-runtime/service.js";
 import type {
   AdminIncidentAcknowledgement,
+  AdminIncidentExecutionRecord,
   AdminIncidentRepository,
   AdminIncidentWorkflowEvent,
 } from "./repository.js";
 
 export class AdminIncidentError extends Error {
   constructor(
-    readonly code: "admin_incident_not_found",
+    readonly code: "admin_incident_not_found" | "admin_incident_execution_item_not_found",
     message: string,
   ) {
     super(message);
@@ -233,6 +243,84 @@ export class AdminIncidentService {
   ): Promise<AdminIncidentRemediationPlanResponse> {
     const detail = await this.getIncident(incidentId, requestId);
     return buildIncidentRemediationPlan(detail.incident, requestId);
+  }
+
+  async getIncidentExecution(
+    incidentId: string,
+    requestId: string,
+  ): Promise<AdminIncidentExecutionResponse> {
+    const detail = await this.getIncident(incidentId, requestId);
+    const records = (await this.repository.listExecutionRecords([incidentId])).get(incidentId) ?? [];
+    return buildIncidentExecution(detail.incident, detail.timeline, records, requestId);
+  }
+
+  async exportIncidentExecution(incidentId: string, payload: unknown, requestId: string) {
+    const query = adminIncidentExecutionExportQuerySchema.parse(payload);
+    const execution = await this.getIncidentExecution(incidentId, requestId);
+    if (query.format === "csv") {
+      return {
+        body: formatIncidentExecutionCsv(execution.items),
+        contentType: "text/csv; charset=utf-8",
+        fileName: `${safeFileSlug(incidentId)}-execution.csv`,
+      };
+    }
+    return {
+      body: JSON.stringify(execution),
+      contentType: "application/json; charset=utf-8",
+      fileName: `${safeFileSlug(incidentId)}-execution.json`,
+    };
+  }
+
+  async updateIncidentExecutionItem(
+    incidentId: string,
+    itemId: string,
+    payload: unknown,
+    actorUserId: string,
+    requestId: string,
+  ): Promise<AdminIncidentExecutionUpdateResponse> {
+    const request = adminIncidentExecutionUpdateRequestSchema.parse(payload);
+    const detail = await this.getIncident(incidentId, requestId);
+    const currentRecords = (await this.repository.listExecutionRecords([incidentId])).get(incidentId) ?? [];
+    const currentExecution = buildIncidentExecution(detail.incident, detail.timeline, currentRecords, requestId);
+    const currentItem = currentExecution.items.find((item) => item.itemId === itemId);
+    if (!currentItem) {
+      throw new AdminIncidentError(
+        "admin_incident_execution_item_not_found",
+        "Admin incident execution item was not found.",
+      );
+    }
+
+    const record = await this.repository.upsertExecutionRecord({
+      assignedToUserId: request.assignedToUserId,
+      blockedReason: request.blockedReason,
+      evidenceNote: request.evidenceNote,
+      incidentId,
+      itemId,
+      note: request.note,
+      source: currentItem.source,
+      status: request.status,
+      updatedByUserId: actorUserId,
+    });
+    await this.repository.appendEvent({
+      actorUserId,
+      incidentId,
+      note: executionTimelineNote(currentItem, request.status, request.note, request.evidenceNote, request.blockedReason),
+      status: detail.incident.status,
+      type: "commented",
+    });
+    const refreshedRecords = upsertExecutionRecord(currentRecords, record);
+    const refreshed = buildIncidentExecution(detail.incident, detail.timeline, refreshedRecords, requestId);
+    const updatedItem = refreshed.items.find((item) => item.itemId === itemId);
+    if (!updatedItem) {
+      throw new AdminIncidentError(
+        "admin_incident_execution_item_not_found",
+        "Admin incident execution item was not found after update.",
+      );
+    }
+    return adminIncidentExecutionUpdateResponseSchema.parse({
+      ...refreshed,
+      updatedItem,
+    });
   }
 
   async exportIncidentPostmortem(incidentId: string, payload: unknown, requestId: string) {
@@ -446,6 +534,191 @@ function buildIncidentPostmortem(
     rootCauseHypotheses: incidentPostmortemRootCauseHypotheses(incident),
     timeline,
   });
+}
+
+function buildIncidentExecution(
+  incident: AdminIncident,
+  timeline: AdminIncidentTimelineEvent[],
+  records: AdminIncidentExecutionRecord[],
+  requestId: string,
+): AdminIncidentExecutionResponse {
+  const recordMap = new Map(records.map((record) => [record.itemId, record]));
+  const items = executionBaseItems(incident, timeline).map((item) => mergeExecutionRecord(item, recordMap.get(item.itemId)));
+  return adminIncidentExecutionResponseSchema.parse({
+    generatedAt: new Date().toISOString(),
+    incident,
+    items,
+    ok: true,
+    requestId,
+    summary: summarizeExecutionItems(items),
+  });
+}
+
+function executionBaseItems(
+  incident: AdminIncident,
+  timeline: AdminIncidentTimelineEvent[],
+): AdminIncidentExecutionItem[] {
+  const remediation = buildIncidentRemediationPlan(incident, "00000000-0000-4000-8000-000000000104");
+  const postmortem = buildIncidentPostmortem(incident, timeline, "00000000-0000-4000-8000-000000000104");
+  const remediationItems = remediation.steps.map((step, index) => ({
+    assignedToUserHash: null,
+    blockedReason: null,
+    completedAt: null,
+    description: step.description,
+    evidenceNote: null,
+    evidenceRequired: step.evidenceRequired,
+    itemId: executionItemId("remediation", index, step.title),
+    note: null,
+    ownerRole: step.ownerRole,
+    priority: step.priority,
+    source: "remediation_step" as const,
+    status: "open" as const,
+    targetMinutes: step.targetMinutes,
+    title: step.title,
+    updatedAt: null,
+    updatedByUserHash: null,
+  }));
+  const verificationItems = remediation.verificationChecks.slice(0, 6).map((check, index) => ({
+    assignedToUserHash: null,
+    blockedReason: null,
+    completedAt: null,
+    description: check,
+    evidenceNote: null,
+    evidenceRequired: "Record the verification result before resolving the incident.",
+    itemId: executionItemId("verify", index, check),
+    note: null,
+    ownerRole: "operator" as const,
+    priority: "next" as const,
+    source: "verification_check" as const,
+    status: "open" as const,
+    targetMinutes: 20,
+    title: check.slice(0, 120),
+    updatedAt: null,
+    updatedByUserHash: null,
+  }));
+  const rollbackItems = remediation.rollbackPlan.slice(0, 4).map((step, index) => ({
+    assignedToUserHash: null,
+    blockedReason: null,
+    completedAt: null,
+    description: step,
+    evidenceNote: null,
+    evidenceRequired: "If rollback is needed, record the triggering metric and final state.",
+    itemId: executionItemId("rollback", index, step),
+    note: null,
+    ownerRole: "engineering" as const,
+    priority: "follow_up" as const,
+    source: "rollback_step" as const,
+    status: "open" as const,
+    targetMinutes: 45,
+    title: step.slice(0, 120),
+    updatedAt: null,
+    updatedByUserHash: null,
+  }));
+  const postmortemItems = postmortem.actionItems.map((item, index) => ({
+    assignedToUserHash: null,
+    blockedReason: null,
+    completedAt: null,
+    description: item.evidenceRequired,
+    evidenceNote: null,
+    evidenceRequired: item.evidenceRequired,
+    itemId: executionItemId("postmortem", index, item.title),
+    note: null,
+    ownerRole: item.ownerRole,
+    priority: item.priority,
+    source: "postmortem_action" as const,
+    status: "open" as const,
+    targetMinutes: item.targetHours * 60,
+    title: item.title,
+    updatedAt: null,
+    updatedByUserHash: null,
+  }));
+  const preventionItems = postmortem.preventionChecks.slice(0, 4).map((check, index) => ({
+    assignedToUserHash: null,
+    blockedReason: null,
+    completedAt: null,
+    description: check,
+    evidenceNote: null,
+    evidenceRequired: "Link the guard, metric, smoke or documented operational check.",
+    itemId: executionItemId("prevent", index, check),
+    note: null,
+    ownerRole: "engineering" as const,
+    priority: "follow_up" as const,
+    source: "prevention_check" as const,
+    status: "open" as const,
+    targetMinutes: 120,
+    title: check.slice(0, 120),
+    updatedAt: null,
+    updatedByUserHash: null,
+  }));
+  return [
+    ...remediationItems,
+    ...verificationItems,
+    ...rollbackItems,
+    ...postmortemItems,
+    ...preventionItems,
+  ].slice(0, 32);
+}
+
+function mergeExecutionRecord(
+  item: AdminIncidentExecutionItem,
+  record: AdminIncidentExecutionRecord | undefined,
+): AdminIncidentExecutionItem {
+  if (!record) return item;
+  return {
+    ...item,
+    assignedToUserHash: record.assignedToUserId ? auditHash(record.assignedToUserId) : null,
+    blockedReason: record.blockedReason,
+    completedAt: record.completedAt,
+    evidenceNote: record.evidenceNote,
+    note: record.note,
+    status: record.status,
+    updatedAt: record.updatedAt,
+    updatedByUserHash: auditHash(record.updatedByUserId),
+  };
+}
+
+function summarizeExecutionItems(items: AdminIncidentExecutionItem[]) {
+  return items.reduce(
+    (summary, item) => {
+      summary.total += 1;
+      if (item.status === "open") summary.open += 1;
+      if (item.status === "in_progress") summary.inProgress += 1;
+      if (item.status === "blocked") summary.blocked += 1;
+      if (item.status === "done") summary.done += 1;
+      if (item.status === "skipped") summary.skipped += 1;
+      return summary;
+    },
+    { blocked: 0, done: 0, inProgress: 0, open: 0, skipped: 0, total: 0 },
+  );
+}
+
+function upsertExecutionRecord(
+  records: AdminIncidentExecutionRecord[],
+  next: AdminIncidentExecutionRecord,
+) {
+  const output = records.filter((record) => record.itemId !== next.itemId);
+  output.push(next);
+  return output;
+}
+
+function executionTimelineNote(
+  item: AdminIncidentExecutionItem,
+  status: AdminIncidentExecutionStatus,
+  note?: string,
+  evidenceNote?: string,
+  blockedReason?: string,
+) {
+  const details = [
+    `Execution ${status}: ${item.title}`,
+    note ? `note ${note}` : null,
+    evidenceNote ? `evidence ${evidenceNote}` : null,
+    blockedReason ? `blocked ${blockedReason}` : null,
+  ].filter(Boolean);
+  return details.join(". ").slice(0, 500);
+}
+
+function executionItemId(prefix: string, index: number, title: string) {
+  return `${prefix}:${String(index + 1).padStart(2, "0")}:${safeFileSlug(title).slice(0, 72)}`;
 }
 
 function incidentHandoffChecklist(
@@ -1115,6 +1388,38 @@ function formatIncidentsCsv(incidents: AdminIncident[]) {
     incident.title,
     incident.dueAt,
     incident.lastSeenAt,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function formatIncidentExecutionCsv(items: AdminIncidentExecutionItem[]) {
+  const header = [
+    "itemId",
+    "status",
+    "source",
+    "priority",
+    "ownerRole",
+    "targetMinutes",
+    "updatedByUserHash",
+    "completedAt",
+    "title",
+    "evidenceRequired",
+    "evidenceNote",
+    "blockedReason",
+  ];
+  const rows = items.map((item) => [
+    item.itemId,
+    item.status,
+    item.source,
+    item.priority,
+    item.ownerRole,
+    String(item.targetMinutes),
+    item.updatedByUserHash ?? "",
+    item.completedAt ?? "",
+    item.title,
+    item.evidenceRequired,
+    item.evidenceNote ?? "",
+    item.blockedReason ?? "",
   ]);
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }

@@ -1228,3 +1228,47 @@ Required runtime smoke markers:
 - `admin_incidents_postmortem_json=ok`;
 - `admin_incidents_postmortem_markdown=ok`;
 - `admin_incidents_note_hygiene_guard=ok`.
+
+## Batch #104 Admin Incident Execution Tracker Validation
+
+Batch #104 extends the admin incident detail flow with durable remediation and
+postmortem execution items:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-detail
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/incidents/:incidentId/execution` requires the same self-hosted
+  admin session and role boundary as incident detail reads;
+- `/v1/admin/incidents/:incidentId/execution/export?format=json|csv` returns the
+  same bounded execution item set for operator handoff and offline review;
+- `/v1/admin/incidents/:incidentId/execution/:itemId` accepts only typed status
+  updates and rejects unknown execution item ids;
+- `status=done` requires bounded evidence and `status=blocked` requires a
+  bounded blocked reason;
+- execution notes reject raw emails, UUIDs and token-like secret assignments;
+- `0021_admin_incident_execution.sql` stores per-incident execution state keyed
+  by `(incident_id, item_id)` with incident/status, assignee/status and
+  source/status indexes;
+- `/admin/incidents/:incidentId` renders `admin-incident-detail-execution`, the
+  explicit load control and the bounded execution plan without browser polling;
+- the browser detail smoke exercises load, unsafe-note guard and mark-done
+  workflow against API-backed route mocks.
+
+Required runtime smoke markers:
+
+- `admin_incidents_execution_plan=ok`;
+- `admin_incidents_execution_export_json=ok`;
+- `admin_incidents_execution_export_csv=ok`;
+- `admin_incidents_execution_start=ok`;
+- `admin_incidents_execution_done=ok`;
+- `admin_incidents_execution_blocked=ok`;
+- `admin_incidents_execution_note_hygiene_guard=ok`;
+- `admin_incidents_execution_missing_item_guard=ok`.

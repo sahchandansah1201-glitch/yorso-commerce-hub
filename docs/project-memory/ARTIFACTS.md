@@ -126,3 +126,20 @@
 - `e2e/admin-incident-detail.spec.ts`: browser smoke for incident detail, handoff, remediation and postmortem controls.
 - `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime smoke markers for `admin_incidents_handoff_json=ok`, `admin_incidents_handoff_markdown=ok`, `admin_incidents_remediation_plan=ok`, `admin_incidents_postmortem_json=ok`, `admin_incidents_postmortem_markdown=ok` and `admin_incidents_note_hygiene_guard=ok`.
 - `docs/backend/production-scale-baseline.md`: Batch #103 10,000 concurrent users capacity review.
+
+## Batch #104 Admin Incident Execution Tracker
+
+- `packages/contracts/src/admin-incidents.ts`: execution source/status/priority DTOs, execution response schema and execution update schema.
+- `packages/db/migrations/0021_admin_incident_execution.sql`: durable `yorso_admin_incident_execution_items` state table and execution indexes.
+- `packages/db/migration-manifest.json`: manifest entry for `0021_admin_incident_execution`.
+- `apps/api/src/modules/admin-incidents/repository.ts`: memory repository execution record support.
+- `apps/api/src/modules/admin-incidents/postgres-repository.ts`: PostgreSQL execution read/upsert support.
+- `apps/api/src/modules/admin-incidents/service.ts`: execution plan derivation and execution item updates.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected execution read/update/export endpoints.
+- `src/lib/admin-incidents-api.ts`: frontend execution API client methods, JSON/CSV export methods and validators.
+- `src/lib/use-admin-incident-detail.ts`: detail hook execution loading, export and update actions.
+- `src/pages/admin/AdminIncidentDetail.tsx`: execution tracker UI on `/admin/incidents/:incidentId`.
+- `e2e/admin-incident-detail.spec.ts`: browser smoke for execution plan loading and item completion.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime markers for execution plan/export/start/done/blocked/hygiene/missing-item guards.
+- `docs/backend/self-hosted-admin-incidents-smoke.md`: Batch #104 incident execution smoke documentation.
+- `docs/backend/production-scale-baseline.md`: Batch #104 10,000 concurrent users capacity review.

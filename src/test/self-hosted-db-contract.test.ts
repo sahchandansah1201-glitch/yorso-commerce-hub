@@ -27,6 +27,8 @@ const adminIncidentAcknowledgementsSql = () =>
   readFileSync("packages/db/migrations/0019_admin_incident_acknowledgements.sql", "utf8");
 const adminIncidentWorkflowSql = () =>
   readFileSync("packages/db/migrations/0020_admin_incident_workflow.sql", "utf8");
+const adminIncidentExecutionSql = () =>
+  readFileSync("packages/db/migrations/0021_admin_incident_execution.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -282,8 +284,22 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("10,000 concurrent-user");
   });
 
+  it("declares admin incident execution item state", () => {
+    const text = adminIncidentExecutionSql();
+
+    expect(text).toContain("create table if not exists yorso_admin_incident_execution_items");
+    expect(text).toContain("primary key (incident_id, item_id)");
+    expect(text).toContain("source text not null check");
+    expect(text).toContain("status text not null default 'open' check");
+    expect(text).toContain("updated_by_user_id uuid not null references yorso_users(id)");
+    expect(text).toContain("idx_yorso_admin_incident_execution_incident_status");
+    expect(text).toContain("idx_yorso_admin_incident_execution_assignee_status");
+    expect(text).toContain("idx_yorso_admin_incident_execution_source_status");
+    expect(text).toContain("10,000 concurrent-user");
+  });
+
   it("matches account/company DTO enum boundaries", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}`;
 
     expect(text).toContain("create type yorso_account_role as enum ('buyer', 'supplier', 'both')");
     expect(text).toContain("create type yorso_company_publication_status as enum ('draft', 'review', 'published', 'blocked')");
@@ -307,7 +323,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("contains constraints and indexes for account workspace reads", () => {
-    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}`;
+    const text = `${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}`;
 
     expect(text).toContain("char_length(legal_name) between 2 and 180");
     expect(text).toContain("array_length(product_focus, 1) <= 20");
@@ -348,13 +364,15 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_user_roles_role_user");
     expect(text).toContain("idx_yorso_admin_incident_events_incident_time");
     expect(text).toContain("idx_yorso_admin_incident_ack_assignee_updated");
+    expect(text).toContain("idx_yorso_admin_incident_execution_incident_status");
+    expect(text).toContain("idx_yorso_admin_incident_execution_assignee_status");
     expect(text).toContain("public_search_text text generated always");
     expect(text).toContain("private_search_text text generated always");
     expect(text).toContain("gin_trgm_ops");
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -390,6 +408,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0018_admin_access_grants_console",
       "0019_admin_incident_acknowledgements",
       "0020_admin_incident_workflow",
+      "0021_admin_incident_execution",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -509,6 +528,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0020_admin_incident_workflow",
           ownedTables: ["yorso_admin_incident_acknowledgements", "yorso_admin_incident_events"],
           dependsOn: ["0019_admin_incident_acknowledgements"],
+        }),
+        expect.objectContaining({
+          id: "0021_admin_incident_execution",
+          ownedTables: ["yorso_admin_incident_execution_items"],
+          dependsOn: ["0020_admin_incident_workflow"],
         }),
       ]),
     );

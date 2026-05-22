@@ -1316,6 +1316,74 @@ Marker: admin_incidents_postmortem_markdown=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: 10,000 concurrent.
 
+## Batch #104 Admin Incident Execution Tracker
+
+Batch #104 turns the Batch #103 remediation and postmortem plans into durable,
+auditable execution items. Operators can load `/v1/admin/incidents/:incidentId/execution`
+from `/admin/incidents/:incidentId`, export the bounded plan through
+`/v1/admin/incidents/:incidentId/execution/export?format=json|csv`, start an
+item, mark it done with bounded evidence, block it with a bounded reason, or
+skip it. The API writes only
+per-incident execution state to PostgreSQL through
+`yorso_admin_incident_execution_items`; it does not write buyer/supplier hot-path
+data and it does not call hosted BaaS services.
+
+Read profile: low-frequency admin control-plane reads. Execution reads are
+bounded by one incident id and return at most the derived remediation,
+verification, rollback, capacity, postmortem and prevention checklist items for
+that incident. JSON and CSV exports reuse the same bounded item set. There is no
+browser polling.
+
+Write profile: sparse operator writes. Each execution update is a single
+`(incident_id, item_id)` upsert plus one bounded incident timeline event. The
+write path requires the self-hosted account session, admin role and typed
+contract validation.
+
+Cache, queue and backpressure strategy: no queue is required for this
+operator workflow. Operators refresh explicitly. Request timeout, body-size
+guardrails, admin audit events, error observability, request observability and
+Prometheus metrics remain the backpressure and diagnostics layer.
+
+Database indexing and pagination strategy: `0021_admin_incident_execution.sql`
+adds a primary key on `(incident_id, item_id)` and indexes by incident/status,
+assignee/status and source/status. This keeps execution dashboards and
+single-incident refreshes bounded under the 10,000 concurrent-user production
+baseline because marketplace reads never touch the incident execution table.
+
+Failure mode and graceful degradation: missing API, missing session, forbidden
+role, unsafe notes and invalid item ids return typed errors. The UI keeps the
+execution tracker behind an explicit load action and disables status changes
+when evidence or blocked reason is required. Notes reject raw emails, UUIDs and
+token-like secrets before they can become execution evidence.
+
+Observability and load-test plan: Batch #104 is covered by
+`test:admin-incidents-frontend`, `smoke:self-hosted-admin-incidents`,
+`smoke:e2e:admin-incident-detail`, `check:self-hosted-db`,
+`check:self-hosted-api` and `check:production-scale-baseline`. Load testing
+should model execution as a low-rate admin workflow while buyer catalog,
+supplier directory and access-flow tests carry the 10,000 concurrent-user
+hot-path load.
+
+Marker: Batch #104.
+Marker: admin incident execution.
+Marker: /v1/admin/incidents/:incidentId/execution.
+Marker: /v1/admin/incidents/:incidentId/execution/export.
+Marker: yorso_admin_incident_execution_items.
+Marker: admin-incident-detail-execution.
+Marker: admin-incident-detail-execution-load.
+Marker: admin-incident-detail-execution-json.
+Marker: admin-incident-detail-execution-csv.
+Marker: admin-incident-detail-execution-plan.
+Marker: admin_incidents_execution_plan=ok.
+Marker: admin_incidents_execution_export_json=ok.
+Marker: admin_incidents_execution_export_csv=ok.
+Marker: admin_incidents_execution_start=ok.
+Marker: admin_incidents_execution_done=ok.
+Marker: admin_incidents_execution_blocked=ok.
+Marker: admin_incidents_execution_note_hygiene_guard=ok.
+Marker: admin_incidents_execution_missing_item_guard=ok.
+Marker: 10,000 concurrent.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -32,6 +32,7 @@ describe("self-hosted DB migration planner", () => {
       "0018_admin_access_grants_console",
       "0019_admin_incident_acknowledgements",
       "0020_admin_incident_workflow",
+      "0021_admin_incident_execution",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -55,6 +56,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0018_admin_access_grants_console.sql",
       "migrations/0019_admin_incident_acknowledgements.sql",
       "migrations/0020_admin_incident_workflow.sql",
+      "migrations/0021_admin_incident_execution.sql",
     ]);
   });
 
@@ -90,6 +92,7 @@ describe("self-hosted DB migration planner", () => {
     const adminAccessGrantsConsole = plan.migrations[18];
     const adminIncidentAcknowledgements = plan.migrations[19];
     const adminIncidentWorkflow = plan.migrations[20];
+    const adminIncidentExecution = plan.migrations[21];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -135,6 +138,8 @@ describe("self-hosted DB migration planner", () => {
     expect(adminIncidentAcknowledgements.sql).toContain("create table if not exists yorso_admin_incident_acknowledgements");
     expect(adminIncidentWorkflow.dependsOn).toEqual(["0019_admin_incident_acknowledgements"]);
     expect(adminIncidentWorkflow.sql).toContain("create table if not exists yorso_admin_incident_events");
+    expect(adminIncidentExecution.dependsOn).toEqual(["0020_admin_incident_workflow"]);
+    expect(adminIncidentExecution.sql).toContain("create table if not exists yorso_admin_incident_execution_items");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

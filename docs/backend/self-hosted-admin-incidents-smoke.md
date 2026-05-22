@@ -37,6 +37,13 @@ exports bounded JSON and Markdown shift handoff payloads from the same
 sanitized incident contract, generates a bounded remediation plan, exports a
 bounded JSON/Markdown postmortem draft, and adds a browser detail route at
 `/admin/incidents/:incidentId`.
+Batch #104 adds durable incident execution state for remediation, verification,
+rollback, capacity, postmortem and prevention items. Operators can load
+`/v1/admin/incidents/:incidentId/execution`, export the bounded execution plan
+through `/v1/admin/incidents/:incidentId/execution/export?format=json|csv`, and
+update a single execution item through
+`/v1/admin/incidents/:incidentId/execution/:itemId` without exposing raw operator
+identifiers or secrets.
 
 ## Command
 
@@ -65,6 +72,14 @@ The script must print:
 - `admin_incidents_remediation_plan=ok`;
 - `admin_incidents_postmortem_json=ok`;
 - `admin_incidents_postmortem_markdown=ok`;
+- `admin_incidents_execution_plan=ok`;
+- `admin_incidents_execution_export_json=ok`;
+- `admin_incidents_execution_export_csv=ok`;
+- `admin_incidents_execution_start=ok`;
+- `admin_incidents_execution_done=ok`;
+- `admin_incidents_execution_blocked=ok`;
+- `admin_incidents_execution_note_hygiene_guard=ok`;
+- `admin_incidents_execution_missing_item_guard=ok`;
 - `admin_incidents_note_hygiene_guard=ok`;
 - `admin_incidents_acknowledge=ok`;
 - `admin_incidents_assign=ok`;
@@ -91,6 +106,8 @@ Write profile: sparse admin workflow writes. Incident acknowledgement,
 assignment, escalation, comments, resolution, bounded bulk workflow updates and
 sanitized JSON/CSV export use small indexed tables keyed by incident id.
 Handoff, remediation plan and postmortem reads are bounded by a single incident id.
+Execution tracker reads are also bounded by a single incident id. Execution
+updates are single item upserts keyed by `(incident_id, item_id)`.
 
 Cache/backpressure: no browser polling. Operators refresh explicitly. API
 request guardrails, admin role checks and audit backpressure remain active.
@@ -100,6 +117,8 @@ assignee and escalation indexes for durable admin state.
 `yorso_admin_incident_events` has incident/time, actor/time and type/time
 indexes for bounded timeline reads. Incident derivation remains bounded by
 query limits and typed filters.
+`yorso_admin_incident_execution_items` has incident/status, assignee/status and
+source/status indexes for bounded execution reads and operator work queues.
 
 Failure mode: missing API, missing session, forbidden role and backend errors
 render explicit UI states. The frontend does not fabricate incidents.
@@ -112,14 +131,18 @@ emails, session ids, passwords, connection strings or storage endpoints.
 Marker: Batch #101.
 Marker: Batch #102.
 Marker: Batch #103.
+Marker: Batch #104.
 Marker: admin incident response.
 Marker: admin incident workflow.
 Marker: admin incident detail handoff.
+Marker: admin incident execution.
 Marker: /v1/admin/incidents.
 Marker: /v1/admin/incidents/:incidentId/workflow.
 Marker: /v1/admin/incidents/:incidentId/handoff.
 Marker: /v1/admin/incidents/:incidentId/remediation.
 Marker: /v1/admin/incidents/:incidentId/postmortem.
+Marker: /v1/admin/incidents/:incidentId/execution.
+Marker: /v1/admin/incidents/:incidentId/execution/export.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
@@ -139,6 +162,14 @@ Marker: admin_incidents_handoff_markdown=ok.
 Marker: admin_incidents_remediation_plan=ok.
 Marker: admin_incidents_postmortem_json=ok.
 Marker: admin_incidents_postmortem_markdown=ok.
+Marker: admin_incidents_execution_plan=ok.
+Marker: admin_incidents_execution_export_json=ok.
+Marker: admin_incidents_execution_export_csv=ok.
+Marker: admin_incidents_execution_start=ok.
+Marker: admin_incidents_execution_done=ok.
+Marker: admin_incidents_execution_blocked=ok.
+Marker: admin_incidents_execution_note_hygiene_guard=ok.
+Marker: admin_incidents_execution_missing_item_guard=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.

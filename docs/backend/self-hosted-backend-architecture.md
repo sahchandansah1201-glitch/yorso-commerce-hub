@@ -1057,3 +1057,28 @@ new backend truth source; it only makes weak handoff conditions visible before
 the operator exports a shift handoff or postmortem draft.
 
 No Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS is introduced.
+
+## Batch #104 Admin Incident Execution Tracker
+
+Batch #104 adds durable execution state for the existing admin incident
+remediation and postmortem workflow. The API adds:
+
+- `GET /v1/admin/incidents/:incidentId/execution`;
+- `GET /v1/admin/incidents/:incidentId/execution/export?format=json|csv`;
+- `POST /v1/admin/incidents/:incidentId/execution/:itemId`.
+
+The route derives the expected execution items from the typed remediation,
+verification, rollback, capacity, postmortem and prevention plan for the
+incident, then merges durable operator progress from PostgreSQL. The durable
+table is `yorso_admin_incident_execution_items`, keyed by `(incident_id,
+item_id)` and indexed by incident/status, assignee/status and source/status.
+
+The frontend `/admin/incidents/:incidentId` page renders an explicit execution
+tracker. Operators can load the tracker, start an item, mark it done with
+evidence, block it with a reason or skip it. Notes, evidence and blocked reasons
+are bounded and screened with the same operator-note hygiene rules used by the
+incident workflow. JSON and CSV execution exports reuse the same bounded item set
+for shift handoff and offline review.
+
+This remains a self-hosted admin control-plane workflow. It has no Supabase,
+Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production dependency.

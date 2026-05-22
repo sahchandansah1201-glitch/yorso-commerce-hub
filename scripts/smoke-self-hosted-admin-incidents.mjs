@@ -180,6 +180,113 @@ async function runSmoke(baseUrl) {
   assertNotContains(postmortemMarkdownBody, "Password1", "admin incident Markdown postmortem no password");
   console.log("admin_incidents_postmortem_markdown=ok");
 
+  const execution = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution`,
+    adminHeaders,
+  );
+  assertEqual(execution.ok, true, "admin incident execution ok");
+  assertEqual(execution.incident.id, incident.id, "admin incident execution id");
+  assertArray(execution.items, "admin incident execution items");
+  assertNumberAtLeast(execution.summary.total, 3, "admin incident execution total");
+  assertNumberAtLeast(execution.summary.open, 1, "admin incident execution open");
+  const executionItem = execution.items.find((item) => item.source === "remediation_step") ?? execution.items[0];
+  assertTruthy(executionItem.itemId, "admin incident execution item id");
+  assertNotContains(JSON.stringify(execution), "admin@example.com", "admin incident execution no email");
+  assertNotContains(JSON.stringify(execution), "Password1", "admin incident execution no password");
+  console.log("admin_incidents_execution_plan=ok");
+
+  const executionExportJson = await jsonRequest(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/export?format=json`,
+    adminHeaders,
+  );
+  assertEqual(executionExportJson.ok, true, "admin incident execution JSON export ok");
+  assertEqual(executionExportJson.incident.id, incident.id, "admin incident execution JSON export id");
+  assertArray(executionExportJson.items, "admin incident execution JSON export items");
+  assertNumberAtLeast(executionExportJson.summary.total, 3, "admin incident execution JSON export total");
+  assertNotContains(JSON.stringify(executionExportJson), "admin@example.com", "admin incident execution JSON export no email");
+  console.log("admin_incidents_execution_export_json=ok");
+
+  const executionExportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/export?format=csv`,
+    { headers: adminHeaders },
+  );
+  assertStatus(executionExportCsv, 200, "admin incident execution CSV export");
+  const executionExportCsvBody = await executionExportCsv.text();
+  assertContains(executionExportCsvBody, "\"itemId\",\"status\"", "admin incident execution CSV export header");
+  assertContains(executionExportCsvBody, "remediation", "admin incident execution CSV export remediation row");
+  assertNotContains(executionExportCsvBody, "admin@example.com", "admin incident execution CSV export no email");
+  console.log("admin_incidents_execution_export_csv=ok");
+
+  const executionStarted = await postJson(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/${encodeURIComponent(executionItem.itemId)}`,
+    adminHeaders,
+    {
+      note: "Operator started execution step.",
+      status: "in_progress",
+    },
+  );
+  assertEqual(executionStarted.ok, true, "admin incident execution start ok");
+  assertEqual(executionStarted.updatedItem.status, "in_progress", "admin incident execution start status");
+  assertNumberAtLeast(executionStarted.summary.inProgress, 1, "admin incident execution in progress summary");
+  console.log("admin_incidents_execution_start=ok");
+
+  const executionDone = await postJson(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/${encodeURIComponent(executionItem.itemId)}`,
+    adminHeaders,
+    {
+      evidenceNote: "Audit route verified with bounded evidence.",
+      note: "Execution item complete.",
+      status: "done",
+    },
+  );
+  assertEqual(executionDone.ok, true, "admin incident execution done ok");
+  assertEqual(executionDone.updatedItem.status, "done", "admin incident execution done status");
+  assertEqual(executionDone.updatedItem.evidenceNote, "Audit route verified with bounded evidence.", "admin incident execution evidence note");
+  assertContains(executionDone.updatedItem.updatedByUserHash, "sha256:", "admin incident execution updated hash");
+  assertNumberAtLeast(executionDone.summary.done, 1, "admin incident execution done summary");
+  console.log("admin_incidents_execution_done=ok");
+
+  const blockedItem = execution.items.find((item) => item.itemId !== executionItem.itemId) ?? execution.items[0];
+  const executionBlocked = await postJson(
+    baseUrl,
+    `/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/${encodeURIComponent(blockedItem.itemId)}`,
+    adminHeaders,
+    {
+      blockedReason: "Needs engineering owner confirmation.",
+      note: "Blocked without secrets.",
+      status: "blocked",
+    },
+  );
+  assertEqual(executionBlocked.updatedItem.status, "blocked", "admin incident execution blocked status");
+  assertEqual(executionBlocked.updatedItem.blockedReason, "Needs engineering owner confirmation.", "admin incident execution blocked reason");
+  console.log("admin_incidents_execution_blocked=ok");
+
+  const unsafeExecution = await fetch(
+    `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/${encodeURIComponent(executionItem.itemId)}`,
+    {
+      body: JSON.stringify({ evidenceNote: "Email admin@example.com", status: "done" }),
+      headers: adminHeaders,
+      method: "POST",
+    },
+  );
+  assertStatus(unsafeExecution, 400, "admin incident execution note hygiene guard");
+  console.log("admin_incidents_execution_note_hygiene_guard=ok");
+
+  const missingExecution = await fetch(
+    `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/execution/${encodeURIComponent("missing:item")}`,
+    {
+      body: JSON.stringify({ evidenceNote: "Verified missing item guard.", status: "done" }),
+      headers: adminHeaders,
+      method: "POST",
+    },
+  );
+  assertStatus(missingExecution, 404, "admin incident execution missing item guard");
+  console.log("admin_incidents_execution_missing_item_guard=ok");
+
   const unsafeNote = await fetch(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, {
     body: JSON.stringify({ action: "comment", note: "Email admin@example.com" }),
     headers: adminHeaders,
