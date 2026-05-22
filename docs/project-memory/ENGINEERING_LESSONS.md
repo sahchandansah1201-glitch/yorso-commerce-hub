@@ -275,3 +275,47 @@ Fix: the generic incident export mock now matches the exact
 
 Guard: `test:admin-incidents-frontend` covers both generic incident export and
 execution export client calls.
+
+## Batch #105: refined Zod schemas cannot be extended directly
+
+Symptom: `contracts:build` failed because `adminIncidentExecutionUpdateRequestSchema`
+had `.superRefine(...)`, making it a `ZodEffects`; `.extend(...)` is not
+available on that wrapper.
+
+Root cause: the bulk update request tried to extend the already-refined single
+item update schema instead of extending the base object schema.
+
+Fix: the execution update object is now factored into a base schema plus a
+shared refinement function. Single-item and bulk update schemas both extend the
+base and reuse the same refinement.
+
+Guard: `npm run contracts:build`, `npm run api:build` and `ci:core`.
+
+## Batch #105: queue item refs must stay paired across incidents
+
+Symptom: `ci:core` failed in admin incident service tests. The test selected
+the first open queue item but sent the stale `incidentId` from a previous
+single-incident flow, so bulk update reported zero successes.
+
+Root cause: cross-incident queues require `(incidentId, itemId)` pairs to move
+together. Reusing only `itemId` is unsafe because item ids repeat across
+derived execution plans.
+
+Fix: the service test now sends `nextOpen.incidentId` with `nextOpen.itemId`.
+
+Guard: queue bulk tests must select refs from the same queue item object and
+runtime smoke must keep `admin_incidents_execution_queue_bulk=ok`.
+
+## Batch #105: browser and unit mocks must match route namespace plus query
+
+Symptom: the execution queue page tests were brittle around export URLs and
+incident title matching.
+
+Root cause: queue exports add query parameters after `format`, and the incident
+title is rendered together with an incident id in the same text node.
+
+Fix: tests now match export routes by namespace plus `format=...`, and match
+incident title with a regex instead of exact text.
+
+Guard: prefer namespace-aware URL matching for nested admin routes and avoid
+exact text assertions when UI intentionally combines identifiers and labels.

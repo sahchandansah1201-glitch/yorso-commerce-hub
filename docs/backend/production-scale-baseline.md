@@ -1384,6 +1384,68 @@ Marker: admin_incidents_execution_note_hygiene_guard=ok.
 Marker: admin_incidents_execution_missing_item_guard=ok.
 Marker: 10,000 concurrent.
 
+## Batch #105 Admin Incident Execution Queue
+
+Batch #105 promotes Batch #104 per-incident execution tracking into an
+operator-level execution queue. Operators can inspect execution work across
+incidents at `/admin/incident-execution`, call
+`GET /v1/admin/incidents/execution-queue`, export the same bounded queue through
+`/v1/admin/incidents/execution-queue/export?format=json|csv`, and bulk update
+selected execution items through `/v1/admin/incidents/execution-queue/bulk`.
+The queue remains a self-hosted PostgreSQL control-plane path and does not add
+Supabase, Firebase, Appwrite, Clerk, Auth0 or other hosted BaaS production
+dependencies.
+
+Read profile: low-frequency admin reads. The queue is bounded by typed filters,
+`limit <= 100`, `offset <= 10,000`, and returns derived execution items from
+bounded incident data plus durable execution records. There is no browser
+polling.
+
+Write profile: sparse operator bulk writes. Bulk updates are capped by the
+contract at 50 `(incidentId, itemId)` refs, require a self-hosted admin session,
+and reuse the same note/evidence hygiene rules as single-item execution updates.
+
+Cache, queue and backpressure strategy: no queue worker is required for the
+operator UI. Request guardrails, admin role checks, bounded body parsing,
+audit events and metrics remain the defensive layer. Operators refresh the queue
+explicitly.
+
+Database indexing and pagination strategy: Batch #105 reuses
+`yorso_admin_incident_execution_items` indexes from Batch #104:
+incident/status, assignee/status and source/status. API pagination prevents
+large admin responses, and exports are limited to the current filtered page.
+
+Failure mode and graceful degradation: missing API, missing self-hosted session,
+forbidden admin role, unsafe notes and invalid execution refs return typed
+errors. The frontend shows disabled/session/forbidden/error states and does not
+fabricate execution data.
+
+Observability and load-test plan: Batch #105 is covered by
+`test:admin-incidents-frontend`, `smoke:self-hosted-admin-incidents`,
+`smoke:e2e:admin-incident-execution-queue`, `check:self-hosted-api` and
+`check:production-scale-baseline`. Load testing should keep this as an admin
+control-plane workload while catalog, supplier directory and access runtime
+flows carry the 10,000 concurrent-user hot path.
+
+Marker: Batch #105.
+Marker: admin incident execution queue.
+Marker: /admin/incident-execution.
+Marker: /v1/admin/incidents/execution-queue.
+Marker: /v1/admin/incidents/execution-queue/export.
+Marker: /v1/admin/incidents/execution-queue/bulk.
+Marker: admin-incident-execution-queue-page.
+Marker: admin-incident-execution-filters.
+Marker: admin-incident-execution-summary.
+Marker: admin-incident-execution-bulk.
+Marker: smoke:e2e:admin-incident-execution-queue.
+Marker: admin_incidents_execution_queue=ok.
+Marker: admin_incidents_execution_queue_filters=ok.
+Marker: admin_incidents_execution_queue_export_json=ok.
+Marker: admin_incidents_execution_queue_export_csv=ok.
+Marker: admin_incidents_execution_queue_bulk=ok.
+Marker: admin_incidents_execution_queue_note_hygiene_guard=ok.
+Marker: 10,000 concurrent.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

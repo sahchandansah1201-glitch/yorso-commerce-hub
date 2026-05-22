@@ -287,6 +287,74 @@ async function runSmoke(baseUrl) {
   assertStatus(missingExecution, 404, "admin incident execution missing item guard");
   console.log("admin_incidents_execution_missing_item_guard=ok");
 
+  const executionQueue = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/execution-queue?status=open&priority=immediate&limit=50",
+    adminHeaders,
+  );
+  assertEqual(executionQueue.ok, true, "admin incident execution queue ok");
+  assertArray(executionQueue.items, "admin incident execution queue items");
+  assertNumberAtLeast(executionQueue.summary.total, 1, "admin incident execution queue total");
+  assertNumberAtLeast(executionQueue.summary.unassigned, 1, "admin incident execution queue unassigned");
+  assertTruthy(executionQueue.items[0]?.incidentId, "admin incident execution queue incident id");
+  assertTruthy(executionQueue.items[0]?.targetDueAt, "admin incident execution queue target due");
+  assertNotContains(JSON.stringify(executionQueue), "admin@example.com", "admin incident execution queue no email");
+  console.log("admin_incidents_execution_queue=ok");
+  console.log("admin_incidents_execution_queue_filters=ok");
+
+  const executionQueueExportJson = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/execution-queue/export?format=json&status=open&limit=50",
+    adminHeaders,
+  );
+  assertEqual(executionQueueExportJson.ok, true, "admin incident execution queue JSON export ok");
+  assertArray(executionQueueExportJson.items, "admin incident execution queue JSON export items");
+  assertNumberAtLeast(executionQueueExportJson.summary.total, 1, "admin incident execution queue JSON export total");
+  assertNotContains(JSON.stringify(executionQueueExportJson), "admin@example.com", "admin incident execution queue JSON no email");
+  console.log("admin_incidents_execution_queue_export_json=ok");
+
+  const executionQueueExportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/execution-queue/export?format=csv&status=open&limit=50`,
+    { headers: adminHeaders },
+  );
+  assertStatus(executionQueueExportCsv, 200, "admin incident execution queue CSV export");
+  const executionQueueExportCsvBody = await executionQueueExportCsv.text();
+  assertContains(executionQueueExportCsvBody, "\"incidentId\",\"itemId\"", "admin incident execution queue CSV header");
+  assertNotContains(executionQueueExportCsvBody, "admin@example.com", "admin incident execution queue CSV no email");
+  console.log("admin_incidents_execution_queue_export_csv=ok");
+
+  const queueBulkItem = executionQueue.items[0];
+  const executionQueueBulk = await postJson(
+    baseUrl,
+    "/v1/admin/incidents/execution-queue/bulk",
+    adminHeaders,
+    {
+      items: [
+        { incidentId: queueBulkItem.incidentId, itemId: queueBulkItem.itemId },
+        { incidentId: "audit:missing", itemId: "missing:item" },
+      ],
+      note: "Bulk execution queue update.",
+      status: "in_progress",
+    },
+  );
+  assertEqual(executionQueueBulk.ok, true, "admin incident execution queue bulk ok");
+  assertEqual(executionQueueBulk.succeeded, 1, "admin incident execution queue bulk success count");
+  assertEqual(executionQueueBulk.failed[0]?.code, "admin_incident_not_found", "admin incident execution queue bulk partial failure");
+  assertEqual(executionQueueBulk.updatedItems[0]?.status, "in_progress", "admin incident execution queue bulk status");
+  console.log("admin_incidents_execution_queue_bulk=ok");
+
+  const unsafeQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
+    body: JSON.stringify({
+      evidenceNote: "Email admin@example.com",
+      items: [{ incidentId: queueBulkItem.incidentId, itemId: queueBulkItem.itemId }],
+      status: "done",
+    }),
+    headers: adminHeaders,
+    method: "POST",
+  });
+  assertStatus(unsafeQueueBulk, 400, "admin incident execution queue note hygiene guard");
+  console.log("admin_incidents_execution_queue_note_hygiene_guard=ok");
+
   const unsafeNote = await fetch(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incident.id)}/workflow`, {
     body: JSON.stringify({ action: "comment", note: "Email admin@example.com" }),
     headers: adminHeaders,

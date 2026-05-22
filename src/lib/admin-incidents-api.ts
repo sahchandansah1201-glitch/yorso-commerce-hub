@@ -282,6 +282,67 @@ export interface AdminIncidentExecutionUpdateResponse extends AdminIncidentExecu
   updatedItem: AdminIncidentExecutionItem;
 }
 
+export type AdminIncidentExecutionAssignmentFilter = "assigned" | "unassigned";
+export type AdminIncidentExecutionOwnerRole = "operator" | "engineering" | "security" | "founder";
+
+export interface AdminIncidentExecutionQueueItem extends AdminIncidentExecutionItem {
+  incidentDueAt: string;
+  incidentId: string;
+  incidentSeverity: AdminIncidentSeverity;
+  incidentSlaStatus: AdminIncidentSlaStatus;
+  incidentSource: AdminIncidentSource;
+  incidentStatus: AdminIncidentStatus;
+  incidentTitle: string;
+  overdue: boolean;
+  targetDueAt: string;
+}
+
+export interface AdminIncidentExecutionQueueSummary extends AdminIncidentExecutionSummary {
+  assigned: number;
+  overdue: number;
+  unassigned: number;
+}
+
+export interface AdminIncidentExecutionQueueQuery {
+  assigned?: AdminIncidentExecutionAssignmentFilter | "all";
+  incidentSeverity?: AdminIncidentSeverity | "all";
+  incidentSlaStatus?: AdminIncidentSlaStatus | "all";
+  incidentStatus?: AdminIncidentStatus | "all";
+  limit?: number;
+  offset?: number;
+  overdueOnly?: boolean;
+  ownerRole?: AdminIncidentExecutionOwnerRole | "all";
+  priority?: AdminIncidentExecutionPriority | "all";
+  source?: AdminIncidentExecutionSource | "all";
+  status?: AdminIncidentExecutionStatus | "all";
+}
+
+export interface AdminIncidentExecutionQueueResponse {
+  generatedAt: string;
+  items: AdminIncidentExecutionQueueItem[];
+  limit: number;
+  offset: number;
+  ok: true;
+  requestId: string;
+  summary: AdminIncidentExecutionQueueSummary;
+}
+
+export interface AdminIncidentExecutionQueueBulkUpdateInput extends AdminIncidentExecutionUpdateInput {
+  items: Array<{ incidentId: string; itemId: string }>;
+}
+
+export interface AdminIncidentExecutionQueueBulkUpdateResponse {
+  failed: Array<{
+    code: "admin_incident_not_found" | "admin_incident_execution_item_not_found";
+    incidentId: string;
+    itemId: string;
+  }>;
+  ok: true;
+  requestId: string;
+  succeeded: number;
+  updatedItems: AdminIncidentExecutionQueueItem[];
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -320,6 +381,26 @@ const queryString = (query: AdminIncidentExportQuery = {}) => {
   if (query.escalationLevel && query.escalationLevel !== "all") params.set("escalationLevel", query.escalationLevel);
   if (query.severity && query.severity !== "all") params.set("severity", query.severity);
   if (query.slaStatus && query.slaStatus !== "all") params.set("slaStatus", query.slaStatus);
+  if (query.source && query.source !== "all") params.set("source", query.source);
+  if (query.status && query.status !== "all") params.set("status", query.status);
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+};
+
+const executionQueueQueryString = (
+  query: AdminIncidentExecutionQueueQuery & { format?: AdminIncidentExportFormat } = {},
+) => {
+  const params = new URLSearchParams();
+  if (query.format) params.set("format", query.format);
+  if (query.limit) params.set("limit", String(query.limit));
+  if (query.offset) params.set("offset", String(query.offset));
+  if (query.assigned && query.assigned !== "all") params.set("assigned", query.assigned);
+  if (query.incidentSeverity && query.incidentSeverity !== "all") params.set("incidentSeverity", query.incidentSeverity);
+  if (query.incidentSlaStatus && query.incidentSlaStatus !== "all") params.set("incidentSlaStatus", query.incidentSlaStatus);
+  if (query.incidentStatus && query.incidentStatus !== "all") params.set("incidentStatus", query.incidentStatus);
+  if (query.overdueOnly) params.set("overdueOnly", "true");
+  if (query.ownerRole && query.ownerRole !== "all") params.set("ownerRole", query.ownerRole);
+  if (query.priority && query.priority !== "all") params.set("priority", query.priority);
   if (query.source && query.source !== "all") params.set("source", query.source);
   if (query.status && query.status !== "all") params.set("status", query.status);
   const serialized = params.toString();
@@ -540,6 +621,62 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertExecutionUpdateShape(body);
     },
+    async executionQueue(query: AdminIncidentExecutionQueueQuery = {}): Promise<AdminIncidentExecutionQueueResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-queue${executionQueueQueryString(query)}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentExecutionQueueResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionQueueShape(body);
+    },
+    async executionQueueExportJson(
+      query: AdminIncidentExecutionQueueQuery = {},
+    ): Promise<AdminIncidentExecutionQueueResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-queue/export${executionQueueQueryString({ ...query, format: "json" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentExecutionQueueResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionQueueShape(body);
+    },
+    async executionQueueExportCsv(query: AdminIncidentExecutionQueueQuery = {}): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/execution-queue/export${executionQueueQueryString({ ...query, format: "csv" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async bulkUpdateExecutionQueue(
+      input: AdminIncidentExecutionQueueBulkUpdateInput,
+    ): Promise<AdminIncidentExecutionQueueBulkUpdateResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
+        body: JSON.stringify(input),
+        headers: headers(true),
+        method: "POST",
+      });
+      const body = await readJson(response) as AdminIncidentExecutionQueueBulkUpdateResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertExecutionQueueBulkShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -750,6 +887,41 @@ function assertExecutionUpdateShape(response: AdminIncidentExecutionUpdateRespon
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident execution update response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertExecutionQueueShape(response: AdminIncidentExecutionQueueResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.items) ||
+    typeof response.limit !== "number" ||
+    typeof response.offset !== "number" ||
+    typeof response.generatedAt !== "string" ||
+    typeof response.summary?.total !== "number" ||
+    typeof response.summary?.overdue !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident execution queue response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertExecutionQueueBulkShape(response: AdminIncidentExecutionQueueBulkUpdateResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.updatedItems) ||
+    !Array.isArray(response.failed) ||
+    typeof response.succeeded !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident execution queue bulk response was invalid.",
       200,
     );
   }

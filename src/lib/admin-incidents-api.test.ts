@@ -134,6 +134,126 @@ describe("admin-incidents-api", () => {
           headers: { "content-type": "text/csv" },
         });
       }
+      if (url.includes("/v1/admin/incidents/execution-queue/export?format=json")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:14:00.000Z",
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              incidentDueAt: "2026-05-20T11:00:00.000Z",
+              incidentId: "audit:admin-blocked:v1-admin-audit-events",
+              incidentSeverity: "high",
+              incidentSlaStatus: "breached",
+              incidentSource: "audit",
+              incidentStatus: "open",
+              incidentTitle: "Blocked admin route access",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              overdue: true,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetDueAt: "2026-05-20T10:15:00.000Z",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          limit: 50,
+          offset: 0,
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000522",
+          summary: { assigned: 0, blocked: 0, done: 0, inProgress: 0, open: 1, overdue: 1, skipped: 0, total: 1, unassigned: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/v1/admin/incidents/execution-queue/export?format=csv")) {
+        return new Response("\"incidentId\",\"itemId\"\n\"audit:admin-blocked:v1-admin-audit-events\",\"remediation:01:confirm-scope\"", {
+          headers: { "content-type": "text/csv" },
+        });
+      }
+      if (url.endsWith("/v1/admin/incidents/execution-queue/bulk")) {
+        return new Response(JSON.stringify({
+          failed: [],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000523",
+          succeeded: 1,
+          updatedItems: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              incidentDueAt: "2026-05-20T11:00:00.000Z",
+              incidentId: "audit:admin-blocked:v1-admin-audit-events",
+              incidentSeverity: "high",
+              incidentSlaStatus: "breached",
+              incidentSource: "audit",
+              incidentStatus: "open",
+              incidentTitle: "Blocked admin route access",
+              itemId: "remediation:01:confirm-scope",
+              note: "Started.",
+              overdue: true,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "in_progress",
+              targetDueAt: "2026-05-20T10:15:00.000Z",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: "2026-05-20T10:14:00.000Z",
+              updatedByUserHash: "sha256:aaaaaaaaaaaaaaaaaaaaaaaa",
+            },
+          ],
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/v1/admin/incidents/execution-queue?")) {
+        return new Response(JSON.stringify({
+          generatedAt: "2026-05-20T10:14:00.000Z",
+          items: [
+            {
+              assignedToUserHash: null,
+              blockedReason: null,
+              completedAt: null,
+              description: "Confirm admin role and review attempts.",
+              evidenceNote: null,
+              evidenceRequired: "Audit route evidence.",
+              incidentDueAt: "2026-05-20T11:00:00.000Z",
+              incidentId: "audit:admin-blocked:v1-admin-audit-events",
+              incidentSeverity: "high",
+              incidentSlaStatus: "breached",
+              incidentSource: "audit",
+              incidentStatus: "open",
+              incidentTitle: "Blocked admin route access",
+              itemId: "remediation:01:confirm-scope",
+              note: null,
+              overdue: true,
+              ownerRole: "operator",
+              priority: "immediate",
+              source: "remediation_step",
+              status: "open",
+              targetDueAt: "2026-05-20T10:15:00.000Z",
+              targetMinutes: 15,
+              title: "Confirm scope",
+              updatedAt: null,
+              updatedByUserHash: null,
+            },
+          ],
+          limit: 50,
+          offset: 0,
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000521",
+          summary: { assigned: 0, blocked: 0, done: 0, inProgress: 0, open: 1, overdue: 1, skipped: 0, total: 1, unassigned: 1 },
+        }), { headers: { "content-type": "application/json" } });
+      }
       if (url.endsWith("/handoff?format=json")) {
         return new Response(JSON.stringify({
           checklist: [
@@ -492,6 +612,20 @@ describe("admin-incidents-api", () => {
       summary: { done: 1 },
       updatedItem: { status: "done", evidenceNote: "Audit route verified." },
     });
+    await expect(client.executionQueue({ limit: 50, overdueOnly: true, priority: "immediate", status: "open" }))
+      .resolves.toMatchObject({ items: [{ incidentId: "audit:admin-blocked:v1-admin-audit-events" }], summary: { overdue: 1 } });
+    await expect(client.executionQueueExportJson({ status: "open" }))
+      .resolves.toMatchObject({ items: [{ itemId: "remediation:01:confirm-scope" }], summary: { total: 1 } });
+    await expect(client.executionQueueExportCsv({ status: "open" }))
+      .resolves.toContain("\"incidentId\",\"itemId\"");
+    await expect(client.bulkUpdateExecutionQueue({
+      items: [{ incidentId: "audit:admin-blocked:v1-admin-audit-events", itemId: "remediation:01:confirm-scope" }],
+      note: "Started.",
+      status: "in_progress",
+    })).resolves.toMatchObject({
+      succeeded: 1,
+      updatedItems: [{ status: "in_progress" }],
+    });
 
     const firstCall = fetchImpl.mock.calls[0] as [RequestInfo | URL, RequestInit | undefined];
     expect(String(firstCall[0])).toBe(
@@ -515,6 +649,11 @@ describe("admin-incidents-api", () => {
     expect(String(fetchImpl.mock.calls[13][0])).toContain("/execution/export?format=json");
     expect(String(fetchImpl.mock.calls[14][0])).toContain("/execution/export?format=csv");
     expect(String(fetchImpl.mock.calls[15][0])).toContain("/execution/remediation%3A01%3Aconfirm-scope");
+    expect(String(fetchImpl.mock.calls[16][0])).toContain("/execution-queue?limit=50");
+    expect(String(fetchImpl.mock.calls[16][0])).toContain("overdueOnly=true");
+    expect(String(fetchImpl.mock.calls[17][0])).toContain("/execution-queue/export?format=json");
+    expect(String(fetchImpl.mock.calls[18][0])).toContain("/execution-queue/export?format=csv");
+    expect(String(fetchImpl.mock.calls[19][0])).toContain("/execution-queue/bulk");
   });
 
   it("maps admin role and invalid response failures", async () => {

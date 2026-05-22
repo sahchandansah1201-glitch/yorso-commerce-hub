@@ -48,6 +48,7 @@ import AdminOperations from "./pages/admin/AdminOperations.tsx";
 import AdminAuditEvents from "./pages/admin/AdminAuditEvents.tsx";
 import AdminIncidents from "./pages/admin/AdminIncidents.tsx";
 import AdminIncidentDetail from "./pages/admin/AdminIncidentDetail.tsx";
+import AdminIncidentExecutionQueue from "./pages/admin/AdminIncidentExecutionQueue.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
@@ -110,6 +111,7 @@ const App = () => (
                 <Route path="/admin/audit" element={<AdminAuditEvents />} />
                 <Route path="/admin/incidents" element={<AdminIncidents />} />
                 <Route path="/admin/incidents/:incidentId" element={<AdminIncidentDetail />} />
+                <Route path="/admin/incident-execution" element={<AdminIncidentExecutionQueue />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
                 {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                 {legacyRedirects.flatMap(({ from, to }) => [

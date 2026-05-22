@@ -7,6 +7,10 @@ import {
   adminIncidentExportQuerySchema,
   adminIncidentExportResponseSchema,
   adminIncidentExecutionExportQuerySchema,
+  adminIncidentExecutionQueueBulkUpdateRequestSchema,
+  adminIncidentExecutionQueueBulkUpdateResponseSchema,
+  adminIncidentExecutionQueueExportQuerySchema,
+  adminIncidentExecutionQueueResponseSchema,
   adminIncidentExecutionResponseSchema,
   adminIncidentExecutionUpdateRequestSchema,
   adminIncidentExecutionUpdateResponseSchema,
@@ -25,9 +29,11 @@ import {
   type AdminIncidentDetailResponse,
   type AdminIncidentEscalationLevel,
   type AdminIncidentExecutionItem,
+  type AdminIncidentExecutionQueueItem,
   type AdminIncidentExecutionResponse,
   type AdminIncidentExecutionSource,
   type AdminIncidentExecutionStatus,
+  type AdminIncidentExecutionQueueQuery,
   type AdminIncidentExecutionUpdateResponse,
   type AdminIncidentHandoffResponse,
   type AdminIncidentListResponse,
@@ -271,6 +277,109 @@ export class AdminIncidentService {
     };
   }
 
+  async listIncidentExecutionQueue(
+    payload: unknown,
+    requestId: string,
+  ) {
+    const query = adminIncidentExecutionQueueExportQuerySchema.parse(payload);
+    const items = await this.deriveExecutionQueueItems(requestId);
+    const filtered = items.filter((item) => matchesExecutionQueueQuery(item, query));
+    const page = filtered.slice(query.offset, query.offset + query.limit);
+
+    return adminIncidentExecutionQueueResponseSchema.parse({
+      generatedAt: new Date().toISOString(),
+      items: page,
+      limit: query.limit,
+      ok: true,
+      offset: query.offset,
+      requestId,
+      summary: summarizeExecutionQueueItems(filtered),
+    });
+  }
+
+  async exportIncidentExecutionQueue(payload: unknown, requestId: string) {
+    const query = adminIncidentExecutionQueueExportQuerySchema.parse(payload);
+    const response = await this.listIncidentExecutionQueue(payload, requestId);
+    if (query.format === "csv") {
+      return {
+        body: formatIncidentExecutionQueueCsv(response.items),
+        contentType: "text/csv; charset=utf-8",
+        fileName: "yorso-admin-incident-execution-queue.csv",
+      };
+    }
+    return {
+      body: JSON.stringify(response),
+      contentType: "application/json; charset=utf-8",
+      fileName: "yorso-admin-incident-execution-queue.json",
+    };
+  }
+
+  async bulkUpdateIncidentExecutionQueue(
+    payload: unknown,
+    actorUserId: string,
+    requestId: string,
+  ) {
+    const request = adminIncidentExecutionQueueBulkUpdateRequestSchema.parse(payload);
+    const incidents = await this.deriveIncidents(requestId);
+    const incidentMap = new Map(incidents.map((incident) => [incident.id, incident]));
+    const requested = dedupeExecutionRefs(request.items);
+    const failed: Array<{
+      code: "admin_incident_not_found" | "admin_incident_execution_item_not_found";
+      incidentId: string;
+      itemId: string;
+    }> = [];
+
+    for (const ref of requested) {
+      const incident = incidentMap.get(ref.incidentId);
+      if (!incident) {
+        failed.push({ code: "admin_incident_not_found", incidentId: ref.incidentId, itemId: ref.itemId });
+        continue;
+      }
+      const records = (await this.repository.listExecutionRecords([ref.incidentId])).get(ref.incidentId) ?? [];
+      const execution = buildIncidentExecution(incident, incident.timelinePreview, records, requestId);
+      const item = execution.items.find((candidate) => candidate.itemId === ref.itemId);
+      if (!item) {
+        failed.push({
+          code: "admin_incident_execution_item_not_found",
+          incidentId: ref.incidentId,
+          itemId: ref.itemId,
+        });
+        continue;
+      }
+      await this.repository.upsertExecutionRecord({
+        assignedToUserId: request.assignedToUserId,
+        blockedReason: request.blockedReason,
+        evidenceNote: request.evidenceNote,
+        incidentId: ref.incidentId,
+        itemId: ref.itemId,
+        note: request.note,
+        source: item.source,
+        status: request.status,
+        updatedByUserId: actorUserId,
+      });
+      await this.repository.appendEvent({
+        actorUserId,
+        incidentId: ref.incidentId,
+        note: executionTimelineNote(item, request.status, request.note, request.evidenceNote, request.blockedReason),
+        status: incident.status,
+        type: "commented",
+      });
+    }
+
+    const refreshed = await this.deriveExecutionQueueItems(requestId);
+    const updatedItems = requested
+      .map((ref) => refreshed.find((item) => item.incidentId === ref.incidentId && item.itemId === ref.itemId))
+      .filter((item): item is AdminIncidentExecutionQueueItem => Boolean(item));
+
+    return adminIncidentExecutionQueueBulkUpdateResponseSchema.parse({
+      failed,
+      ok: true as const,
+      requestId,
+      succeeded: Math.max(0, requested.length - failed.length),
+      updatedItems,
+    });
+  }
+
   async updateIncidentExecutionItem(
     incidentId: string,
     itemId: string,
@@ -432,6 +541,23 @@ export class AdminIncidentService {
     });
   }
 
+  private async deriveExecutionQueueItems(requestId: string): Promise<AdminIncidentExecutionQueueItem[]> {
+    const incidents = await this.deriveIncidents(requestId);
+    const incidentIds = incidents.map((incident) => incident.id);
+    const records = await this.repository.listExecutionRecords(incidentIds);
+    return incidents
+      .flatMap((incident) => {
+        const execution = buildIncidentExecution(
+          incident,
+          incident.timelinePreview,
+          records.get(incident.id) ?? [],
+          requestId,
+        );
+        return execution.items.map((item) => toExecutionQueueItem(incident, item));
+      })
+      .sort(compareExecutionQueueItems);
+  }
+
   private async rehydrateIncident(
     current: AdminIncident,
     acknowledgement: AdminIncidentAcknowledgement,
@@ -551,6 +677,77 @@ function buildIncidentExecution(
     ok: true,
     requestId,
     summary: summarizeExecutionItems(items),
+  });
+}
+
+function toExecutionQueueItem(
+  incident: AdminIncident,
+  item: AdminIncidentExecutionItem,
+): AdminIncidentExecutionQueueItem {
+  const targetDueAt = executionTargetDueAt(incident, item);
+  const terminal = item.status === "done" || item.status === "skipped";
+  return {
+    ...item,
+    incidentDueAt: incident.dueAt,
+    incidentId: incident.id,
+    incidentSeverity: incident.severity,
+    incidentSlaStatus: incident.slaStatus,
+    incidentSource: incident.source,
+    incidentStatus: incident.status,
+    incidentTitle: incident.title,
+    overdue: !terminal && Date.now() > Date.parse(targetDueAt),
+    targetDueAt,
+  };
+}
+
+function executionTargetDueAt(incident: AdminIncident, item: AdminIncidentExecutionItem) {
+  const firstSeen = Date.parse(incident.firstSeenAt);
+  const base = Number.isNaN(firstSeen) ? Date.parse(incident.dueAt) : firstSeen;
+  return new Date(base + item.targetMinutes * 60_000).toISOString();
+}
+
+function matchesExecutionQueueQuery(
+  item: AdminIncidentExecutionQueueItem,
+  query: AdminIncidentExecutionQueueQuery,
+) {
+  if (query.assigned === "assigned" && !item.assignedToUserHash) return false;
+  if (query.assigned === "unassigned" && item.assignedToUserHash) return false;
+  if (query.incidentSeverity && item.incidentSeverity !== query.incidentSeverity) return false;
+  if (query.incidentSlaStatus && item.incidentSlaStatus !== query.incidentSlaStatus) return false;
+  if (query.incidentStatus && item.incidentStatus !== query.incidentStatus) return false;
+  if (query.overdueOnly && !item.overdue) return false;
+  if (query.ownerRole && item.ownerRole !== query.ownerRole) return false;
+  if (query.priority && item.priority !== query.priority) return false;
+  if (query.source && item.source !== query.source) return false;
+  if (query.status && item.status !== query.status) return false;
+  return true;
+}
+
+function summarizeExecutionQueueItems(items: AdminIncidentExecutionQueueItem[]) {
+  return {
+    ...summarizeExecutionItems(items),
+    assigned: items.filter((item) => Boolean(item.assignedToUserHash)).length,
+    overdue: items.filter((item) => item.overdue).length,
+    unassigned: items.filter((item) => !item.assignedToUserHash).length,
+  };
+}
+
+function compareExecutionQueueItems(left: AdminIncidentExecutionQueueItem, right: AdminIncidentExecutionQueueItem) {
+  return Number(right.overdue) - Number(left.overdue) ||
+    executionPriorityRank[left.priority] - executionPriorityRank[right.priority] ||
+    severityRank[left.incidentSeverity] - severityRank[right.incidentSeverity] ||
+    left.targetDueAt.localeCompare(right.targetDueAt) ||
+    left.incidentId.localeCompare(right.incidentId) ||
+    left.itemId.localeCompare(right.itemId);
+}
+
+function dedupeExecutionRefs(items: Array<{ incidentId: string; itemId: string }>) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = `${item.incidentId}\n${item.itemId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
 
@@ -1424,9 +1621,51 @@ function formatIncidentExecutionCsv(items: AdminIncidentExecutionItem[]) {
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
+function formatIncidentExecutionQueueCsv(items: AdminIncidentExecutionQueueItem[]) {
+  const header = [
+    "incidentId",
+    "itemId",
+    "status",
+    "priority",
+    "source",
+    "ownerRole",
+    "overdue",
+    "targetDueAt",
+    "incidentSeverity",
+    "incidentSlaStatus",
+    "assignedToUserHash",
+    "updatedByUserHash",
+    "title",
+    "incidentTitle",
+  ];
+  const rows = items.map((item) => [
+    item.incidentId,
+    item.itemId,
+    item.status,
+    item.priority,
+    item.source,
+    item.ownerRole,
+    item.overdue ? "true" : "false",
+    item.targetDueAt,
+    item.incidentSeverity,
+    item.incidentSlaStatus,
+    item.assignedToUserHash ?? "",
+    item.updatedByUserHash ?? "",
+    item.title,
+    item.incidentTitle,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
 function csvCell(value: string) {
   return `"${value.replaceAll("\"", "\"\"")}"`;
 }
+
+const executionPriorityRank: Record<AdminIncidentExecutionQueueItem["priority"], number> = {
+  immediate: 0,
+  next: 1,
+  follow_up: 2,
+};
 
 const severityRank: Record<AdminIncidentSeverity, number> = {
   critical: 0,

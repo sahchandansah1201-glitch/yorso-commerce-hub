@@ -1272,3 +1272,43 @@ Required runtime smoke markers:
 - `admin_incidents_execution_blocked=ok`;
 - `admin_incidents_execution_note_hygiene_guard=ok`;
 - `admin_incidents_execution_missing_item_guard=ok`.
+
+## Batch #105 Admin Incident Execution Queue Validation
+
+Batch #105 extends incident execution from a single incident detail view into a
+bounded cross-incident operator queue:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-execution-queue
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+The validation checks:
+
+- `/v1/admin/incidents/execution-queue` requires the same self-hosted admin
+  session and role boundary as incident detail and execution routes;
+- queue filters are typed and bounded: execution status, priority, source,
+  owner role, assignment, incident status, incident severity, incident SLA and
+  overdue state;
+- `/v1/admin/incidents/execution-queue/export?format=json|csv` exports only the
+  current bounded queue page;
+- `/v1/admin/incidents/execution-queue/bulk` accepts at most 50 selected
+  `(incidentId, itemId)` refs and returns partial success/failure results;
+- bulk notes, evidence and blocked reasons reject raw emails, UUIDs, session ids
+  and token-like secrets before they reach durable execution state;
+- `/admin/incident-execution` renders disabled, session-required, forbidden,
+  loading, error and ready states without fabricating execution data;
+- the browser smoke exercises filters, JSON/CSV exports, bulk update and header
+  propagation against the API-backed route mock.
+
+Required runtime smoke markers:
+
+- `admin_incidents_execution_queue=ok`;
+- `admin_incidents_execution_queue_filters=ok`;
+- `admin_incidents_execution_queue_export_json=ok`;
+- `admin_incidents_execution_queue_export_csv=ok`;
+- `admin_incidents_execution_queue_bulk=ok`;
+- `admin_incidents_execution_queue_note_hygiene_guard=ok`.

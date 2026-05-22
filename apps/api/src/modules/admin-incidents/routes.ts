@@ -13,6 +13,9 @@ import { AdminIncidentError, type AdminIncidentService } from "./service.js";
 
 const listRoute = "/v1/admin/incidents";
 const exportRoute = "/v1/admin/incidents/export";
+const executionQueueRoute = "/v1/admin/incidents/execution-queue";
+const executionQueueExportRoute = "/v1/admin/incidents/execution-queue/export";
+const executionQueueBulkRoute = "/v1/admin/incidents/execution-queue/bulk";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
@@ -42,6 +45,18 @@ export async function handleAdminIncidentRoute(
   }
   if (match.kind === "export" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionQueue" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionQueueExport" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "executionQueueBulk" && request.method !== "POST") {
+    methodNotAllowed(response, context, "POST");
     return true;
   }
   if (match.kind === "detail" && request.method !== "GET") {
@@ -102,6 +117,29 @@ export async function handleAdminIncidentRoute(
     }
     if (match.kind === "export") {
       const payload = await service.exportIncidents(Object.fromEntries(url.searchParams.entries()), context.requestId);
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
+    if (match.kind === "executionQueue") {
+      const payload = await service.listIncidentExecutionQueue(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "executionQueueExport") {
+      const payload = await service.exportIncidentExecutionQueue(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
       auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
       response.writeHead(200, {
         "cache-control": "no-store",
@@ -178,6 +216,8 @@ export async function handleAdminIncidentRoute(
     const body = await readJsonBody(request, jsonBodyOptions);
     const payload = match.kind === "bulkWorkflow"
       ? await service.bulkUpdateIncidentWorkflow(body, session.userId, context.requestId)
+      : match.kind === "executionQueueBulk"
+        ? await service.bulkUpdateIncidentExecutionQueue(body, session.userId, context.requestId)
       : match.kind === "executionItem"
         ? await service.updateIncidentExecutionItem(match.incidentId, match.itemId, body, session.userId, context.requestId)
       : match.kind === "workflow"
@@ -209,6 +249,9 @@ export async function handleAdminIncidentRoute(
 type IncidentRouteMatch =
   | { kind: "list"; route: string }
   | { kind: "export"; route: string }
+  | { kind: "executionQueue"; route: string }
+  | { kind: "executionQueueExport"; route: string }
+  | { kind: "executionQueueBulk"; route: string }
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
@@ -223,6 +266,9 @@ type IncidentRouteMatch =
 function routeMatch(pathname: string): IncidentRouteMatch | null {
   if (pathname === listRoute) return { kind: "list", route: listRoute };
   if (pathname === exportRoute) return { kind: "export", route: exportRoute };
+  if (pathname === executionQueueRoute) return { kind: "executionQueue", route: executionQueueRoute };
+  if (pathname === executionQueueExportRoute) return { kind: "executionQueueExport", route: executionQueueExportRoute };
+  if (pathname === executionQueueBulkRoute) return { kind: "executionQueueBulk", route: executionQueueBulkRoute };
   if (pathname === bulkWorkflowRoute) return { kind: "bulkWorkflow", route: bulkWorkflowRoute };
   if (!pathname.startsWith(detailPrefix)) return null;
   const rest = pathname.slice(detailPrefix.length);
@@ -295,6 +341,12 @@ function auditIncidentRoute(
   auditFromRequest(auditSink, context, request, {
     action: match.kind === "acknowledge"
       ? "admin.incidents.acknowledge"
+      : match.kind === "executionQueue"
+        ? "admin.incidents.execution_queue.read"
+      : match.kind === "executionQueueExport"
+        ? "admin.incidents.execution_queue.export"
+      : match.kind === "executionQueueBulk"
+        ? "admin.incidents.execution_queue.bulk_update"
       : match.kind === "bulkWorkflow"
         ? "admin.incidents.workflow.bulk"
       : match.kind === "workflow"

@@ -64,12 +64,17 @@ const requiredFiles = [
   "src/lib/use-admin-incidents.test.tsx",
   "src/lib/use-admin-incident-detail.ts",
   "src/lib/use-admin-incident-detail.test.tsx",
+  "src/lib/use-admin-incident-execution-queue.ts",
+  "src/lib/use-admin-incident-execution-queue.test.tsx",
   "src/pages/admin/AdminIncidents.tsx",
   "src/pages/admin/AdminIncidents.test.tsx",
   "src/pages/admin/AdminIncidentDetail.tsx",
   "src/pages/admin/AdminIncidentDetail.test.tsx",
+  "src/pages/admin/AdminIncidentExecutionQueue.tsx",
+  "src/pages/admin/AdminIncidentExecutionQueue.test.tsx",
   "e2e/admin-incidents.spec.ts",
   "e2e/admin-incident-detail.spec.ts",
+  "e2e/admin-incident-execution-queue.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -312,12 +317,17 @@ const useAdminIncidents = read("src/lib/use-admin-incidents.ts");
 const useAdminIncidentsTest = read("src/lib/use-admin-incidents.test.tsx");
 const useAdminIncidentDetail = read("src/lib/use-admin-incident-detail.ts");
 const useAdminIncidentDetailTest = read("src/lib/use-admin-incident-detail.test.tsx");
+const useAdminIncidentExecutionQueue = read("src/lib/use-admin-incident-execution-queue.ts");
+const useAdminIncidentExecutionQueueTest = read("src/lib/use-admin-incident-execution-queue.test.tsx");
 const adminIncidentsPage = read("src/pages/admin/AdminIncidents.tsx");
 const adminIncidentsPageTest = read("src/pages/admin/AdminIncidents.test.tsx");
 const adminIncidentDetailPage = read("src/pages/admin/AdminIncidentDetail.tsx");
 const adminIncidentDetailPageTest = read("src/pages/admin/AdminIncidentDetail.test.tsx");
+const adminIncidentExecutionQueuePage = read("src/pages/admin/AdminIncidentExecutionQueue.tsx");
+const adminIncidentExecutionQueuePageTest = read("src/pages/admin/AdminIncidentExecutionQueue.test.tsx");
 const adminIncidentsE2E = read("e2e/admin-incidents.spec.ts");
 const adminIncidentDetailE2E = read("e2e/admin-incident-detail.spec.ts");
+const adminIncidentExecutionQueueE2E = read("e2e/admin-incident-execution-queue.spec.ts");
 const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
 const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
 const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
@@ -676,7 +686,7 @@ if (pkg.scripts["test:admin-operations-frontend"] !== "vitest run src/lib/admin-
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-operations-frontend")) {
   failures.push("package.json: ci:core must run the admin operations frontend tests");
 }
-if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx") {
+if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx") {
   failures.push("package.json: test:admin-incidents-frontend must cover the admin incidents adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {
@@ -751,6 +761,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-detail")
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident detail browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-detail");
+if (pkg.scripts["smoke:e2e:admin-incident-execution-queue"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-execution-queue:run") {
+  failures.push("package.json: smoke:e2e:admin-incident-execution-queue must build with the self-hosted admin incident execution queue adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-incident-execution-queue:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incident-execution-queue.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-incident-execution-queue:run must execute e2e/admin-incident-execution-queue.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-execution-queue")) {
+  failures.push("package.json: ci:full must include the admin incident execution queue browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident execution queue browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-execution-queue");
 if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
   failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
 }
@@ -1685,6 +1706,12 @@ for (const marker of [
   "getIncidentExecution",
   "exportIncidentExecution",
   "updateIncidentExecutionItem",
+  "listIncidentExecutionQueue",
+  "exportIncidentExecutionQueue",
+  "bulkUpdateIncidentExecutionQueue",
+  "buildIncidentExecution",
+  "toExecutionQueueItem",
+  "formatIncidentExecutionQueueCsv",
   "buildIncidentExecution",
   "admin_incident_execution_item_not_found",
   "10,000 concurrent users",
@@ -1702,6 +1729,10 @@ for (const marker of [
   "admin.incidents.execution.read",
   "admin.incidents.execution.export",
   "admin.incidents.execution.update",
+  "admin.incidents.execution_queue.read",
+  "admin.incidents.execution_queue.export",
+  "admin.incidents.execution_queue.bulk_update",
+  "/v1/admin/incidents/execution-queue",
   "sendAccountSessionError",
 ]) {
   requireText("apps/api/src/modules/admin-incidents/routes.ts", adminIncidentsRoutes, marker);
@@ -1714,6 +1745,11 @@ for (const marker of [
   "executionExportJson",
   "executionExportCsv",
   "updateExecutionItem",
+  "executionQueue",
+  "executionQueueExportJson",
+  "executionQueueExportCsv",
+  "bulkUpdateExecutionQueue",
+  "/v1/admin/incidents/execution-queue",
   "ACCOUNT_USER_ID_HEADER",
   "ACCOUNT_SESSION_ID_HEADER",
   "admin_incidents_api_disabled",
@@ -1734,6 +1770,10 @@ for (const marker of [
   "/execution/export?format=json",
   "/execution/export?format=csv",
   "updateExecutionItem",
+  "/execution-queue?limit=50",
+  "/execution-queue/export?format=json",
+  "/execution-queue/export?format=csv",
+  "/execution-queue/bulk",
 ]) {
   requireText("src/lib/admin-incidents-api.test.ts", adminIncidentsApiTest, marker);
 }
@@ -1816,6 +1856,25 @@ for (const marker of [
   requireText("src/lib/use-admin-incident-detail.test.tsx", useAdminIncidentDetailTest, marker);
 }
 for (const marker of [
+  "useAdminIncidentExecutionQueue",
+  "client.executionQueue",
+  "client.executionQueueExportJson",
+  "client.executionQueueExportCsv",
+  "client.bulkUpdateExecutionQueue",
+  "status: \"disabled\"",
+  "admin_incidents_session_required",
+]) {
+  requireText("src/lib/use-admin-incident-execution-queue.ts", useAdminIncidentExecutionQueue, marker);
+}
+for (const marker of [
+  "returns disabled without a configured self-hosted API",
+  "loads queue filters and replaces items after bulk update",
+  "overdueOnly=true",
+  "remediation:01:confirm-scope",
+]) {
+  requireText("src/lib/use-admin-incident-execution-queue.test.tsx", useAdminIncidentExecutionQueueTest, marker);
+}
+for (const marker of [
   "admin-incident-detail-page",
   "admin-incident-detail-hero",
   "admin-incident-detail-readiness",
@@ -1862,6 +1921,29 @@ for (const marker of [
   "admin@yorso.test",
 ]) {
   requireText("src/pages/admin/AdminIncidentDetail.test.tsx", adminIncidentDetailPageTest, marker);
+}
+for (const marker of [
+  "admin-incident-execution-queue-page",
+  "admin-incident-execution-filters",
+  "admin-incident-execution-summary",
+  "admin-incident-execution-items",
+  "admin-incident-execution-bulk",
+  "admin-incident-execution-export-json",
+  "admin-incident-execution-export-csv",
+  "admin-incident-execution-bulk-start",
+  "AdminOperatorNav",
+  "useAdminIncidentExecutionQueue",
+]) {
+  requireText("src/pages/admin/AdminIncidentExecutionQueue.tsx", adminIncidentExecutionQueuePage, marker);
+}
+for (const marker of [
+  "shows disabled and session-required states explicitly",
+  "renders execution queue, exports and bulk updates selected items",
+  "admin-incident-execution-export-status",
+  "admin-incident-execution-bulk-start",
+  "admin@yorso.test",
+]) {
+  requireText("src/pages/admin/AdminIncidentExecutionQueue.test.tsx", adminIncidentExecutionQueuePageTest, marker);
 }
 for (const marker of [
   "shows disabled and session-required states explicitly",
@@ -1928,6 +2010,21 @@ for (const marker of [
   "4/5",
 ]) {
   requireText("e2e/admin-incident-detail.spec.ts", adminIncidentDetailE2E, marker);
+}
+for (const marker of [
+  "Batch #105 browser guard",
+  "/admin/incident-execution",
+  "/v1/admin/incidents/execution-queue",
+  "/execution-queue/export",
+  "/execution-queue/bulk",
+  "admin-incident-execution-queue-page",
+  "admin-incident-execution-status-filter",
+  "admin-incident-execution-overdue-filter",
+  "admin-incident-execution-bulk-start",
+  "admin@yorso.test",
+  "session_admin_incident_execution_queue_e2e_105",
+]) {
+  requireText("e2e/admin-incident-execution-queue.spec.ts", adminIncidentExecutionQueueE2E, marker);
 }
 for (const marker of [
   "adminOperationsOverviewSchema",
@@ -2092,8 +2189,12 @@ for (const marker of [
   "Batch #102",
   "Batch #103",
   "Batch #104",
+  "Batch #105",
   "/v1/admin/incidents",
   "/v1/admin/incidents/export",
+  "/v1/admin/incidents/execution-queue",
+  "/v1/admin/incidents/execution-queue/export",
+  "/v1/admin/incidents/execution-queue/bulk",
   "/v1/admin/incidents/:incidentId/handoff",
   "/v1/admin/incidents/:incidentId/remediation",
   "/v1/admin/incidents/:incidentId/postmortem",
@@ -2123,6 +2224,12 @@ for (const marker of [
   "admin_incidents_execution_blocked=ok",
   "admin_incidents_execution_note_hygiene_guard=ok",
   "admin_incidents_execution_missing_item_guard=ok",
+  "admin_incidents_execution_queue=ok",
+  "admin_incidents_execution_queue_filters=ok",
+  "admin_incidents_execution_queue_export_json=ok",
+  "admin_incidents_execution_queue_export_csv=ok",
+  "admin_incidents_execution_queue_bulk=ok",
+  "admin_incidents_execution_queue_note_hygiene_guard=ok",
   "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
@@ -2154,6 +2261,12 @@ for (const marker of [
   "admin_incidents_execution_blocked=ok",
   "admin_incidents_execution_note_hygiene_guard=ok",
   "admin_incidents_execution_missing_item_guard=ok",
+  "admin_incidents_execution_queue=ok",
+  "admin_incidents_execution_queue_filters=ok",
+  "admin_incidents_execution_queue_export_json=ok",
+  "admin_incidents_execution_queue_export_csv=ok",
+  "admin_incidents_execution_queue_bulk=ok",
+  "admin_incidents_execution_queue_note_hygiene_guard=ok",
   "admin_incidents_note_hygiene_guard=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
