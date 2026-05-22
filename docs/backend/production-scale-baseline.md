@@ -1531,6 +1531,91 @@ Marker: admin_incidents_correlation=ok.
 Marker: 0022_admin_incident_workload_correlation.
 Marker: 10,000 concurrent.
 
+## Batch #107 Admin Incident Trend Analytics
+
+Batch #107 adds the admin incident trend analytics surface for the self-hosted
+operator console. It connects `/admin/incident-trends` to
+`/v1/admin/incidents/trends`, `/v1/admin/incidents/trends/export`,
+`/v1/admin/incidents/trends/anomalies`, and
+`/v1/admin/incidents/trends/briefing`. Operators can review bucketed trend
+pressure, source/status/severity mix, route risk, SLA posture, anomaly signals,
+and a shift briefing without opening every incident individually.
+
+Expected read/write profile:
+
+- Read-heavy admin control-plane path.
+- One explicit refresh per operator action; no browser polling.
+- JSON and CSV exports are explicit, bounded and audit-covered.
+- Anomaly and briefing reads are explicit operator actions.
+- No new writes in the trend path. Mutations remain in incident workflow,
+  execution, queue and acknowledgement routes.
+
+Cache, queue and backpressure strategy:
+
+- No automatic polling in Batch #107.
+- Query shape is bounded by window, granularity and limit.
+- CSV export is a bounded bucket export, not a raw table dump.
+- If this becomes a live dashboard, add Redis TTL snapshots by sanitized query
+  hash before increasing refresh frequency.
+- Existing request guardrails and admin auth boundaries remain active.
+
+Database indexing and pagination strategy:
+
+- Migration `0023_admin_incident_trend_analytics` adds incident event time/type,
+  incident event drill-down, acknowledgement status/escalation, execution
+  status/source and execution priority indexes.
+- Bucket count is bounded by contract.
+- Route risk rows are bounded by contract.
+- Trend export uses the same bounded source as the page response.
+
+Failure mode and graceful degradation:
+
+- Missing self-hosted API URL renders disabled state.
+- Missing session renders session-required state.
+- Non-admin session renders forbidden state.
+- API errors render a bounded page error.
+- Export errors render bounded export status.
+- Operators can still use incident list, detail, execution, queue and workload
+  views if trend analytics is unavailable.
+
+Observability and load-test plan:
+
+- Route actions are audited as `admin.incidents.trends.read`,
+  `admin.incidents.trends.export`, `admin.incidents.trends.anomalies`, and
+  `admin.incidents.trends.briefing`.
+- Existing request, error and Prometheus metrics cover route and status class.
+- Load test should simulate 100 operators over 10,000 concurrent marketplace
+  users: one trend refresh per 30 seconds, one anomaly read per two minutes,
+  one briefing read per five minutes, and one bounded export per 10 minutes.
+
+Validation:
+
+- `test:admin-incidents-frontend`;
+- `test:backend-contract`;
+- `smoke:self-hosted-admin-incidents`;
+- `smoke:e2e:admin-incident-trends`;
+- `check:self-hosted-api`;
+- `check:self-hosted-db`;
+- `check:production-scale-baseline`.
+
+Marker: Batch #107.
+Marker: admin incident trend analytics.
+Marker: /admin/incident-trends.
+Marker: /v1/admin/incidents/trends.
+Marker: /v1/admin/incidents/trends/export.
+Marker: /v1/admin/incidents/trends/anomalies.
+Marker: /v1/admin/incidents/trends/briefing.
+Marker: admin-incident-trends-page.
+Marker: admin-incident-trends-buckets.
+Marker: smoke:e2e:admin-incident-trends.
+Marker: admin_incidents_trends=ok.
+Marker: admin_incidents_trends_export_json=ok.
+Marker: admin_incidents_trends_export_csv=ok.
+Marker: admin_incidents_trends_anomalies=ok.
+Marker: admin_incidents_trends_briefing=ok.
+Marker: 0023_admin_incident_trend_analytics.
+Marker: 10,000 concurrent.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

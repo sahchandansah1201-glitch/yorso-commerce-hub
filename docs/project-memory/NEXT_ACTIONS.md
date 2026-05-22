@@ -2,23 +2,23 @@
 
 ## Current Next Action
 
-1. Finish Batch #106 publication:
-   - run `git diff --check` and inspect `git status -sb`;
-   - commit branch `codex/batch106-incident-workload-correlation`;
+1. Finish Batch #107 implementation and publication:
+   - keep the batch at least 20 percent larger than Batch #106;
+   - minimum size gate: 47 changed files and 4647 insertions;
+   - run the validation plan in `docs/project-memory/RUNS/2026-05-22-batch107-validation-plan.md`;
+   - run `git diff --check`;
+   - commit branch `codex/batch107-incident-trend-analytics`;
    - push the branch;
-   - open PR `[codex] Batch #106 admin incident workload correlation`;
+   - open PR `[codex] Batch #107 admin incident trend analytics`;
    - wait for GitHub checks and merge after green;
-   - provide Lovable Prompt #106 for sync-only confirmation.
-2. Start Batch #107 only under the Engineer Agent Action Contract:
-   - make it a large connected production batch, not a single-marker PR;
-   - include runtime/backend or frontend feature work, integration, tests, smoke/e2e or runtime validation, docs, guard scripts, and CI wiring;
-   - include a Batch Size Report in the final result.
-3. Candidate Batch #107:
-   - continue admin operator flow with remediation execution analytics, incident trend aggregation, or operator SLA forecasting;
-   - keep routes admin-session protected;
-   - include self-hosted API, UI, browser e2e, smoke markers, docs and production-scale guard coverage.
-4. Use Batch #106 size and validation output as the next baseline for whether the following batch is actually larger, not as a vague intent.
-5. If the next batch is smaller for a technical reason, state the blocker before implementation and record it in `WORKLOG.md`.
+   - provide numbered Lovable Prompt #107 for sync-only confirmation.
+2. If validation exposes a process or code mistake:
+   - fix it before publication;
+   - record symptom, root cause, fix and guard in `ENGINEERING_LESSONS.md`;
+   - update project-memory before final handoff.
+3. After Batch #107:
+   - continue self-hosted production admin/operator flow;
+   - prefer a still larger connected Batch #108 unless a blocker is stated before implementation.
 
 ## Completed for Batch #106
 

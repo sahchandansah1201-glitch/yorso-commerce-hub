@@ -604,6 +604,147 @@ export const adminIncidentCorrelationResponseSchema = z.object({
   timeline: z.array(adminIncidentTimelineEventSchema).max(100),
 });
 
+export const adminIncidentTrendWindowSchema = z.enum(["24h", "7d", "30d"]);
+export const adminIncidentTrendGranularitySchema = z.enum(["hour", "day"]);
+export const adminIncidentTrendAnomalySeveritySchema = z.enum(["watch", "warning", "critical"]);
+
+export const adminIncidentTrendQuerySchema = z.object({
+  granularity: adminIncidentTrendGranularitySchema.default("day"),
+  includeResolved: z.coerce.boolean().default(false),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+  severity: adminIncidentSeveritySchema.optional(),
+  source: adminIncidentSourceSchema.optional(),
+  status: adminIncidentStatusSchema.optional(),
+  window: adminIncidentTrendWindowSchema.default("7d"),
+});
+
+export const adminIncidentTrendExportQuerySchema = adminIncidentTrendQuerySchema.extend({
+  format: adminIncidentExportFormatSchema.default("json"),
+});
+
+export const adminIncidentTrendBucketSchema = z.object({
+  acknowledged: z.number().int().min(0),
+  access: z.number().int().min(0),
+  atRisk: z.number().int().min(0),
+  audit: z.number().int().min(0),
+  breached: z.number().int().min(0),
+  critical: z.number().int().min(0),
+  endAt: z.string().datetime(),
+  executionBlocked: z.number().int().min(0),
+  executionDone: z.number().int().min(0),
+  executionOpen: z.number().int().min(0),
+  high: z.number().int().min(0),
+  key: z.string().min(1).max(80),
+  loadScore: z.number().int().min(0),
+  open: z.number().int().min(0),
+  policy: z.number().int().min(0),
+  resolved: z.number().int().min(0),
+  runtime: z.number().int().min(0),
+  security: z.number().int().min(0),
+  startAt: z.string().datetime(),
+  total: z.number().int().min(0),
+});
+
+export const adminIncidentTrendDimensionSchema = z.object({
+  breached: z.number().int().min(0),
+  critical: z.number().int().min(0),
+  key: z.string().min(1).max(120),
+  label: z.string().min(1).max(160),
+  loadScore: z.number().int().min(0),
+  open: z.number().int().min(0),
+  sharePct: z.number().int().min(0).max(100),
+  total: z.number().int().min(0),
+});
+
+export const adminIncidentTrendRouteRiskSchema = z.object({
+  blocked: z.number().int().min(0),
+  breached: z.number().int().min(0),
+  critical: z.number().int().min(0),
+  loadScore: z.number().int().min(0),
+  recommendedAction: z.string().min(1).max(260),
+  route: z.string().min(1).max(260),
+  total: z.number().int().min(0),
+});
+
+export const adminIncidentTrendSlaSchema = z.object({
+  acknowledgedPct: z.number().int().min(0).max(100),
+  breachRatePct: z.number().int().min(0).max(100),
+  breached: z.number().int().min(0),
+  openCritical: z.number().int().min(0),
+  oldestOpenMinutes: z.number().int().min(0),
+  unresolved: z.number().int().min(0),
+});
+
+export const adminIncidentTrendResponseSchema = z.object({
+  buckets: z.array(adminIncidentTrendBucketSchema).min(1).max(60),
+  generatedAt: z.string().datetime(),
+  granularity: adminIncidentTrendGranularitySchema,
+  limit: z.number().int().min(1).max(50),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  routeRisks: z.array(adminIncidentTrendRouteRiskSchema).max(50),
+  severityMix: z.array(adminIncidentTrendDimensionSchema).max(8),
+  sla: adminIncidentTrendSlaSchema,
+  sourceMix: z.array(adminIncidentTrendDimensionSchema).max(10),
+  statusMix: z.array(adminIncidentTrendDimensionSchema).max(8),
+  summary: z.object({
+    averageLoadScore: z.number().int().min(0),
+    breached: z.number().int().min(0),
+    critical: z.number().int().min(0),
+    peakBucketKey: z.string().min(1).max(80).nullable(),
+    peakBucketLoadScore: z.number().int().min(0),
+    total: z.number().int().min(0),
+    trendDirection: z.enum(["down", "flat", "up"]),
+  }),
+  window: adminIncidentTrendWindowSchema,
+});
+
+export const adminIncidentTrendAnomalySchema = z.object({
+  baseline: z.number().int().min(0),
+  current: z.number().int().min(0),
+  deltaPct: z.number().int().min(-100).max(10_000),
+  evidence: z.array(adminIncidentEvidenceSchema).min(1).max(6),
+  recommendedAction: z.string().min(1).max(260),
+  severity: adminIncidentTrendAnomalySeveritySchema,
+  signal: z.string().min(1).max(160),
+});
+
+export const adminIncidentTrendAnomaliesResponseSchema = z.object({
+  anomalies: z.array(adminIncidentTrendAnomalySchema).max(12),
+  generatedAt: z.string().datetime(),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  summary: z.object({
+    critical: z.number().int().min(0),
+    highestSeverity: adminIncidentTrendAnomalySeveritySchema.nullable(),
+    warning: z.number().int().min(0),
+    watch: z.number().int().min(0),
+  }),
+  window: adminIncidentTrendWindowSchema,
+});
+
+export const adminIncidentTrendBriefingSectionSchema = z.object({
+  body: z.array(z.string().min(1).max(420)).min(1).max(8),
+  title: z.string().min(1).max(120),
+});
+
+export const adminIncidentTrendBriefingResponseSchema = z.object({
+  capacityReview: z.array(z.string().min(1).max(320)).min(3).max(8),
+  generatedAt: z.string().datetime(),
+  ok: z.literal(true),
+  operatorActions: z.array(z.string().min(1).max(260)).min(3).max(8),
+  requestId: z.string().uuid(),
+  riskRegister: z.array(adminIncidentTrendRouteRiskSchema).max(10),
+  sections: z.array(adminIncidentTrendBriefingSectionSchema).min(3).max(8),
+  summary: z.object({
+    headline: z.string().min(1).max(260),
+    highestAnomalySeverity: adminIncidentTrendAnomalySeveritySchema.nullable(),
+    totalIncidents: z.number().int().min(0),
+    trendDirection: z.enum(["down", "flat", "up"]),
+  }),
+  window: adminIncidentTrendWindowSchema,
+});
+
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
 export type AdminIncidentAcknowledgeRequest = z.infer<typeof adminIncidentAcknowledgeRequestSchema>;
 export type AdminIncidentAcknowledgeResponse = z.infer<typeof adminIncidentAcknowledgeResponseSchema>;
@@ -657,6 +798,20 @@ export type AdminIncidentTimelineEventType = z.infer<typeof adminIncidentTimelin
 export type AdminIncidentWorkflowAction = z.infer<typeof adminIncidentWorkflowActionSchema>;
 export type AdminIncidentWorkflowRequest = z.infer<typeof adminIncidentWorkflowRequestSchema>;
 export type AdminIncidentWorkflowResponse = z.infer<typeof adminIncidentWorkflowResponseSchema>;
+export type AdminIncidentTrendAnomaliesResponse = z.infer<typeof adminIncidentTrendAnomaliesResponseSchema>;
+export type AdminIncidentTrendAnomaly = z.infer<typeof adminIncidentTrendAnomalySchema>;
+export type AdminIncidentTrendAnomalySeverity = z.infer<typeof adminIncidentTrendAnomalySeveritySchema>;
+export type AdminIncidentTrendBriefingResponse = z.infer<typeof adminIncidentTrendBriefingResponseSchema>;
+export type AdminIncidentTrendBriefingSection = z.infer<typeof adminIncidentTrendBriefingSectionSchema>;
+export type AdminIncidentTrendBucket = z.infer<typeof adminIncidentTrendBucketSchema>;
+export type AdminIncidentTrendDimension = z.infer<typeof adminIncidentTrendDimensionSchema>;
+export type AdminIncidentTrendExportQuery = z.infer<typeof adminIncidentTrendExportQuerySchema>;
+export type AdminIncidentTrendGranularity = z.infer<typeof adminIncidentTrendGranularitySchema>;
+export type AdminIncidentTrendQuery = z.infer<typeof adminIncidentTrendQuerySchema>;
+export type AdminIncidentTrendResponse = z.infer<typeof adminIncidentTrendResponseSchema>;
+export type AdminIncidentTrendRouteRisk = z.infer<typeof adminIncidentTrendRouteRiskSchema>;
+export type AdminIncidentTrendSla = z.infer<typeof adminIncidentTrendSlaSchema>;
+export type AdminIncidentTrendWindow = z.infer<typeof adminIncidentTrendWindowSchema>;
 export type AdminIncidentWorkloadExportQuery = z.infer<typeof adminIncidentWorkloadExportQuerySchema>;
 export type AdminIncidentWorkloadCapacityRisk = z.infer<typeof adminIncidentWorkloadCapacityRiskSchema>;
 export type AdminIncidentWorkloadForecastOwner = z.infer<typeof adminIncidentWorkloadForecastOwnerSchema>;

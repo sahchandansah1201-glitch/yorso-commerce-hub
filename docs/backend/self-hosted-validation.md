@@ -1346,3 +1346,39 @@ Required runtime smoke markers:
 - `admin_incidents_workload_forecast=ok`;
 - `admin_incidents_correlation=ok`;
 - `smoke:e2e:admin-incident-workload`.
+
+## Batch #107 Admin Incident Trend Analytics Validation
+
+Run:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run test:backend-contract
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-trends
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/incident-trends` renders disabled, session-required, forbidden,
+  loading, error and ready states.
+- Trend filters call `/v1/admin/incidents/trends`.
+- JSON and CSV exports call `/v1/admin/incidents/trends/export`.
+- Anomaly review calls `/v1/admin/incidents/trends/anomalies`.
+- Operator briefing calls `/v1/admin/incidents/trends/briefing`.
+- Sensitive values such as raw emails, session ids, database URLs and Redis
+  URLs stay out of the browser DOM and export payloads.
+- Migration `0023_admin_incident_trend_analytics` exists and is guarded.
+
+Required runtime smoke markers:
+
+- `admin_incidents_trends=ok`;
+- `admin_incidents_trends_filters=ok`;
+- `admin_incidents_trends_export_json=ok`;
+- `admin_incidents_trends_export_csv=ok`;
+- `admin_incidents_trends_anomalies=ok`;
+- `admin_incidents_trends_briefing=ok`;
+- `smoke:e2e:admin-incident-trends`.

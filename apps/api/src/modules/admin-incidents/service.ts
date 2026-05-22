@@ -23,6 +23,10 @@ import {
   adminIncidentPostmortemResponseSchema,
   adminIncidentQuerySchema,
   adminIncidentRemediationPlanResponseSchema,
+  adminIncidentTrendAnomaliesResponseSchema,
+  adminIncidentTrendBriefingResponseSchema,
+  adminIncidentTrendExportQuerySchema,
+  adminIncidentTrendResponseSchema,
   adminIncidentWorkloadExportQuerySchema,
   adminIncidentWorkloadForecastQuerySchema,
   adminIncidentWorkloadForecastResponseSchema,
@@ -54,6 +58,14 @@ import {
   type AdminIncidentStatus,
   type AdminIncidentTimelineEvent,
   type AdminIncidentTimelineEventType,
+  type AdminIncidentTrendAnomaly,
+  type AdminIncidentTrendAnomalySeverity,
+  type AdminIncidentTrendBriefingResponse,
+  type AdminIncidentTrendBucket,
+  type AdminIncidentTrendDimension,
+  type AdminIncidentTrendQuery,
+  type AdminIncidentTrendResponse,
+  type AdminIncidentTrendRouteRisk,
   type AdminIncidentWorkloadCapacityRisk,
   type AdminIncidentWorkloadForecastOwner,
   type AdminIncidentWorkloadForecastResponse,
@@ -440,6 +452,93 @@ export class AdminIncidentService {
         timelineEvents: detail.timeline.length,
       },
       timeline: detail.timeline,
+    });
+  }
+
+  async getIncidentTrends(
+    payload: unknown,
+    requestId: string,
+  ): Promise<AdminIncidentTrendResponse> {
+    const query = adminIncidentTrendExportQuerySchema.parse(payload);
+    const incidents = await this.deriveIncidents(requestId);
+    const executionItems = await this.deriveExecutionQueueItems(requestId);
+    const trendIncidents = selectTrendIncidents(incidents.filter((incident) => matchesTrendQuery(incident, query)), query);
+    const scopedExecution = executionItems.filter((item) =>
+      trendIncidents.some((incident) => incident.id === item.incidentId),
+    );
+    const buckets = buildTrendBuckets(trendIncidents, scopedExecution, query);
+    const routeRisks = buildTrendRouteRisks(trendIncidents, scopedExecution).slice(0, query.limit);
+
+    return adminIncidentTrendResponseSchema.parse({
+      buckets,
+      generatedAt: new Date().toISOString(),
+      granularity: query.granularity,
+      limit: query.limit,
+      ok: true,
+      requestId,
+      routeRisks,
+      severityMix: buildTrendDimensions(trendIncidents, scopedExecution, "severity"),
+      sla: buildTrendSla(trendIncidents),
+      sourceMix: buildTrendDimensions(trendIncidents, scopedExecution, "source"),
+      statusMix: buildTrendDimensions(trendIncidents, scopedExecution, "status"),
+      summary: buildTrendSummary(buckets, trendIncidents),
+      window: query.window,
+    });
+  }
+
+  async exportIncidentTrends(payload: unknown, requestId: string) {
+    const query = adminIncidentTrendExportQuerySchema.parse(payload);
+    const response = await this.getIncidentTrends(payload, requestId);
+    if (query.format === "csv") {
+      return {
+        body: formatIncidentTrendsCsv(response),
+        contentType: "text/csv; charset=utf-8",
+        fileName: "yorso-admin-incident-trends.csv",
+      };
+    }
+    return {
+      body: JSON.stringify(response),
+      contentType: "application/json; charset=utf-8",
+      fileName: "yorso-admin-incident-trends.json",
+    };
+  }
+
+  async getIncidentTrendAnomalies(payload: unknown, requestId: string) {
+    const query = adminIncidentTrendExportQuerySchema.parse(payload);
+    const trends = await this.getIncidentTrends(payload, requestId);
+    const anomalies = buildTrendAnomalies(trends, query);
+    return adminIncidentTrendAnomaliesResponseSchema.parse({
+      anomalies,
+      generatedAt: new Date().toISOString(),
+      ok: true,
+      requestId,
+      summary: summarizeTrendAnomalies(anomalies),
+      window: query.window,
+    });
+  }
+
+  async getIncidentTrendBriefing(
+    payload: unknown,
+    requestId: string,
+  ): Promise<AdminIncidentTrendBriefingResponse> {
+    const query = adminIncidentTrendExportQuerySchema.parse(payload);
+    const trends = await this.getIncidentTrends(payload, requestId);
+    const anomalies = await this.getIncidentTrendAnomalies(payload, requestId);
+    return adminIncidentTrendBriefingResponseSchema.parse({
+      capacityReview: trendBriefingCapacityReview(trends),
+      generatedAt: new Date().toISOString(),
+      ok: true,
+      operatorActions: trendBriefingOperatorActions(trends, anomalies.anomalies),
+      requestId,
+      riskRegister: trends.routeRisks.slice(0, 10),
+      sections: trendBriefingSections(trends, anomalies.anomalies),
+      summary: {
+        headline: trendBriefingHeadline(trends, anomalies.anomalies),
+        highestAnomalySeverity: anomalies.summary.highestSeverity,
+        totalIncidents: trends.summary.total,
+        trendDirection: trends.summary.trendDirection,
+      },
+      window: query.window,
     });
   }
 
@@ -1065,6 +1164,400 @@ function workloadForecastAssumptions(horizonHours: number) {
     "Projection uses current bounded execution items only; it does not scan unbounded logs.",
     "Overdue, blocked, immediate and breached-SLA work increase capacity risk.",
     "Resolved and skipped execution items are excluded from pressure scoring.",
+  ];
+}
+
+function matchesTrendQuery(incident: AdminIncident, query: AdminIncidentTrendQuery) {
+  if (!query.includeResolved && incident.status === "resolved") return false;
+  if (query.severity && incident.severity !== query.severity) return false;
+  if (query.source && incident.source !== query.source) return false;
+  if (query.status && incident.status !== query.status) return false;
+  return true;
+}
+
+function selectTrendIncidents(incidents: AdminIncident[], query: AdminIncidentTrendQuery) {
+  const start = trendWindowStart(query.window).getTime();
+  const scoped = incidents.filter((incident) => Date.parse(incident.lastSeenAt) >= start || Date.parse(incident.firstSeenAt) >= start);
+  return scoped.length > 0 ? scoped : incidents;
+}
+
+function trendWindowStart(window: AdminIncidentTrendQuery["window"]) {
+  const now = Date.now();
+  const hours = window === "24h" ? 24 : window === "30d" ? 24 * 30 : 24 * 7;
+  return new Date(now - hours * 60 * 60 * 1000);
+}
+
+function trendBucketKey(value: string, granularity: AdminIncidentTrendQuery["granularity"]) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return granularity === "hour" ? "unknown-hour" : "unknown-day";
+  if (granularity === "hour") {
+    parsed.setUTCMinutes(0, 0, 0);
+    return parsed.toISOString();
+  }
+  parsed.setUTCHours(0, 0, 0, 0);
+  return parsed.toISOString();
+}
+
+function trendBucketEnd(startAt: string, granularity: AdminIncidentTrendQuery["granularity"]) {
+  const parsed = new Date(startAt);
+  if (Number.isNaN(parsed.getTime())) return new Date().toISOString();
+  parsed.setTime(parsed.getTime() + (granularity === "hour" ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000));
+  return parsed.toISOString();
+}
+
+function buildTrendBuckets(
+  incidents: AdminIncident[],
+  executionItems: AdminIncidentExecutionQueueItem[],
+  query: AdminIncidentTrendQuery,
+): AdminIncidentTrendBucket[] {
+  const grouped = new Map<string, AdminIncident[]>();
+  for (const incident of incidents) {
+    const key = trendBucketKey(incident.lastSeenAt, query.granularity);
+    grouped.set(key, [...(grouped.get(key) ?? []), incident]);
+  }
+  if (grouped.size === 0) {
+    const key = trendBucketKey(new Date().toISOString(), query.granularity);
+    grouped.set(key, []);
+  }
+  return [...grouped.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .slice(-60)
+    .map(([key, bucketIncidents]) => {
+      const ids = new Set(bucketIncidents.map((incident) => incident.id));
+      const bucketExecution = executionItems.filter((item) => ids.has(item.incidentId));
+      return {
+        acknowledged: bucketIncidents.filter((incident) => incident.status === "acknowledged").length,
+        access: bucketIncidents.filter((incident) => incident.source === "access").length,
+        atRisk: bucketIncidents.filter((incident) => incident.slaStatus === "at_risk").length,
+        audit: bucketIncidents.filter((incident) => incident.source === "audit").length,
+        breached: bucketIncidents.filter((incident) => incident.slaStatus === "breached").length,
+        critical: bucketIncidents.filter((incident) => incident.severity === "critical").length,
+        endAt: trendBucketEnd(key, query.granularity),
+        executionBlocked: bucketExecution.filter((item) => item.status === "blocked").length,
+        executionDone: bucketExecution.filter((item) => item.status === "done").length,
+        executionOpen: bucketExecution.filter((item) => item.status === "open" || item.status === "in_progress").length,
+        high: bucketIncidents.filter((incident) => incident.severity === "high").length,
+        key,
+        loadScore: trendLoadScore(bucketIncidents, bucketExecution),
+        open: bucketIncidents.filter((incident) => incident.status === "open").length,
+        policy: bucketIncidents.filter((incident) => incident.source === "policy").length,
+        resolved: bucketIncidents.filter((incident) => incident.status === "resolved").length,
+        runtime: bucketIncidents.filter((incident) => incident.source === "runtime").length,
+        security: bucketIncidents.filter((incident) => incident.source === "security").length,
+        startAt: key.startsWith("unknown") ? new Date().toISOString() : key,
+        total: bucketIncidents.length,
+      };
+    });
+}
+
+function trendLoadScore(incidents: AdminIncident[], executionItems: AdminIncidentExecutionQueueItem[]) {
+  const incidentScore = incidents.reduce((score, incident) => {
+    if (incident.status === "resolved") return score;
+    return score +
+      (incident.severity === "critical" ? 20 : incident.severity === "high" ? 12 : incident.severity === "medium" ? 6 : 3) +
+      (incident.slaStatus === "breached" ? 16 : incident.slaStatus === "at_risk" ? 8 : 0) +
+      (incident.escalationLevel === "executive" ? 12 : incident.escalationLevel === "engineering" ? 8 : incident.escalationLevel === "lead" ? 4 : 0) +
+      (incident.assignedToUserHash ? 0 : 4);
+  }, 0);
+  return incidentScore + workloadScore(executionItems);
+}
+
+function buildTrendDimensions(
+  incidents: AdminIncident[],
+  executionItems: AdminIncidentExecutionQueueItem[],
+  key: "severity" | "source" | "status",
+): AdminIncidentTrendDimension[] {
+  const grouped = new Map<string, AdminIncident[]>();
+  for (const incident of incidents) {
+    const groupKey = String(incident[key]);
+    grouped.set(groupKey, [...(grouped.get(groupKey) ?? []), incident]);
+  }
+  const total = incidents.length || 1;
+  return [...grouped.entries()]
+    .map(([groupKey, group]) => {
+      const ids = new Set(group.map((incident) => incident.id));
+      const groupExecution = executionItems.filter((item) => ids.has(item.incidentId));
+      return {
+        breached: group.filter((incident) => incident.slaStatus === "breached").length,
+        critical: group.filter((incident) => incident.severity === "critical").length,
+        key: groupKey,
+        label: trendDimensionLabel(key, groupKey),
+        loadScore: trendLoadScore(group, groupExecution),
+        open: group.filter((incident) => incident.status !== "resolved").length,
+        sharePct: Math.round((group.length / total) * 100),
+        total: group.length,
+      };
+    })
+    .sort((left, right) => right.loadScore - left.loadScore || right.total - left.total || left.key.localeCompare(right.key));
+}
+
+function trendDimensionLabel(key: "severity" | "source" | "status", value: string) {
+  const label = value.split("_").join(" ");
+  return `${key}: ${label}`;
+}
+
+function buildTrendRouteRisks(
+  incidents: AdminIncident[],
+  executionItems: AdminIncidentExecutionQueueItem[],
+): AdminIncidentTrendRouteRisk[] {
+  const grouped = new Map<string, AdminIncident[]>();
+  for (const incident of incidents) {
+    const route = incident.route ?? "no route";
+    grouped.set(route, [...(grouped.get(route) ?? []), incident]);
+  }
+  return [...grouped.entries()]
+    .map(([route, group]) => {
+      const ids = new Set(group.map((incident) => incident.id));
+      const routeExecution = executionItems.filter((item) => ids.has(item.incidentId));
+      const loadScore = trendLoadScore(group, routeExecution);
+      return {
+        blocked: routeExecution.filter((item) => item.status === "blocked").length,
+        breached: group.filter((incident) => incident.slaStatus === "breached").length,
+        critical: group.filter((incident) => incident.severity === "critical").length,
+        loadScore,
+        recommendedAction: routeRiskAction(route, loadScore, group),
+        route,
+        total: group.length,
+      };
+    })
+    .sort((left, right) => right.loadScore - left.loadScore || right.total - left.total || left.route.localeCompare(right.route));
+}
+
+function routeRiskAction(route: string, loadScore: number, incidents: AdminIncident[]) {
+  if (loadScore >= 120) return `Freeze non-critical changes touching ${route} until critical and breached incidents are closed.`;
+  if (incidents.some((incident) => incident.slaStatus === "breached")) {
+    return `Assign an owner for ${route} and close breached SLA incidents before new work starts.`;
+  }
+  if (incidents.some((incident) => incident.severity === "critical")) {
+    return `Review ${route} runtime and audit evidence before lowering severity.`;
+  }
+  return `Keep ${route} on the watch list and recheck trend direction after the next operator refresh.`;
+}
+
+function buildTrendSla(incidents: AdminIncident[]) {
+  const total = incidents.length || 1;
+  const acknowledged = incidents.filter((incident) => incident.status === "acknowledged" || incident.status === "resolved").length;
+  return {
+    acknowledgedPct: Math.round((acknowledged / total) * 100),
+    breachRatePct: Math.round((incidents.filter((incident) => incident.slaStatus === "breached").length / total) * 100),
+    breached: incidents.filter((incident) => incident.slaStatus === "breached").length,
+    openCritical: incidents.filter((incident) => incident.status !== "resolved" && incident.severity === "critical").length,
+    oldestOpenMinutes: oldestIncidentMinutes(incidents),
+    unresolved: incidents.filter((incident) => incident.status !== "resolved").length,
+  };
+}
+
+function oldestIncidentMinutes(incidents: AdminIncident[]) {
+  const now = Date.now();
+  return incidents.reduce((oldest, incident) => {
+    if (incident.status === "resolved") return oldest;
+    const firstSeen = Date.parse(incident.firstSeenAt);
+    if (Number.isNaN(firstSeen)) return oldest;
+    return Math.max(oldest, Math.max(0, Math.floor((now - firstSeen) / 60_000)));
+  }, 0);
+}
+
+function buildTrendSummary(buckets: AdminIncidentTrendBucket[], incidents: AdminIncident[]) {
+  const loads = buckets.map((bucket) => bucket.loadScore);
+  const peak = buckets.slice().sort((left, right) => right.loadScore - left.loadScore)[0] ?? null;
+  return {
+    averageLoadScore: loads.length ? Math.round(loads.reduce((total, value) => total + value, 0) / loads.length) : 0,
+    breached: incidents.filter((incident) => incident.slaStatus === "breached").length,
+    critical: incidents.filter((incident) => incident.severity === "critical").length,
+    peakBucketKey: peak?.key ?? null,
+    peakBucketLoadScore: peak?.loadScore ?? 0,
+    total: incidents.length,
+    trendDirection: trendDirection(buckets),
+  };
+}
+
+function trendDirection(buckets: AdminIncidentTrendBucket[]): "down" | "flat" | "up" {
+  if (buckets.length < 2) return "flat";
+  const split = Math.max(1, Math.floor(buckets.length / 2));
+  const previous = buckets.slice(0, split);
+  const current = buckets.slice(split);
+  const previousAvg = average(previous.map((bucket) => bucket.loadScore));
+  const currentAvg = average(current.map((bucket) => bucket.loadScore));
+  if (currentAvg > previousAvg * 1.15) return "up";
+  if (currentAvg < previousAvg * 0.85) return "down";
+  return "flat";
+}
+
+function average(values: number[]) {
+  return values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0;
+}
+
+function buildTrendAnomalies(
+  trends: AdminIncidentTrendResponse,
+  query: AdminIncidentTrendQuery,
+): AdminIncidentTrendAnomaly[] {
+  const latest = trends.buckets[trends.buckets.length - 1];
+  const previous = trends.buckets.slice(0, -1);
+  const baselineLoad = Math.round(average(previous.map((bucket) => bucket.loadScore)));
+  const baselineBreached = Math.round(average(previous.map((bucket) => bucket.breached)));
+  const anomalies: AdminIncidentTrendAnomaly[] = [];
+
+  if (latest && latest.loadScore > Math.max(20, baselineLoad * 1.4)) {
+    anomalies.push({
+      baseline: baselineLoad,
+      current: latest.loadScore,
+      deltaPct: deltaPct(latest.loadScore, baselineLoad),
+      evidence: [
+        { label: "bucket", value: latest.key },
+        { label: "window", value: query.window },
+        { label: "loadScore", value: String(latest.loadScore) },
+      ],
+      recommendedAction: "Open workload view, rebalance owner queues and pause non-critical incident intake.",
+      severity: latest.loadScore >= 120 ? "critical" : "warning",
+      signal: "Load score spike",
+    });
+  }
+
+  if (latest && latest.breached > Math.max(0, baselineBreached)) {
+    anomalies.push({
+      baseline: baselineBreached,
+      current: latest.breached,
+      deltaPct: deltaPct(latest.breached, baselineBreached),
+      evidence: [
+        { label: "bucket", value: latest.key },
+        { label: "breached", value: String(latest.breached) },
+      ],
+      recommendedAction: "Assign breach owners and record escalation notes before resolving incidents.",
+      severity: latest.breached >= 3 ? "critical" : "warning",
+      signal: "SLA breach growth",
+    });
+  }
+
+  const route = trends.routeRisks[0];
+  if (route && route.loadScore >= 60) {
+    anomalies.push({
+      baseline: Math.max(0, trends.summary.averageLoadScore),
+      current: route.loadScore,
+      deltaPct: deltaPct(route.loadScore, trends.summary.averageLoadScore),
+      evidence: [
+        { label: "route", value: route.route },
+        { label: "incidents", value: String(route.total) },
+        { label: "blocked", value: String(route.blocked) },
+      ],
+      recommendedAction: route.recommendedAction,
+      severity: route.loadScore >= 120 ? "critical" : "watch",
+      signal: "Route risk concentration",
+    });
+  }
+
+  if (trends.sla.openCritical > 0) {
+    anomalies.push({
+      baseline: 0,
+      current: trends.sla.openCritical,
+      deltaPct: 100,
+      evidence: [
+        { label: "openCritical", value: String(trends.sla.openCritical) },
+        { label: "oldestOpenMinutes", value: String(trends.sla.oldestOpenMinutes) },
+      ],
+      recommendedAction: "Escalate open critical incidents and attach bounded evidence before handoff.",
+      severity: "critical",
+      signal: "Open critical incident exposure",
+    });
+  }
+
+  return anomalies
+    .sort((left, right) => anomalySeverityWeight(right.severity) - anomalySeverityWeight(left.severity) || right.current - left.current)
+    .slice(0, 12);
+}
+
+function deltaPct(current: number, baseline: number) {
+  if (baseline <= 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - baseline) / baseline) * 100);
+}
+
+function anomalySeverityWeight(severity: AdminIncidentTrendAnomalySeverity) {
+  return severity === "critical" ? 3 : severity === "warning" ? 2 : 1;
+}
+
+function summarizeTrendAnomalies(anomalies: AdminIncidentTrendAnomaly[]) {
+  const highest = anomalies.slice().sort((left, right) =>
+    anomalySeverityWeight(right.severity) - anomalySeverityWeight(left.severity),
+  )[0]?.severity ?? null;
+  return {
+    critical: anomalies.filter((item) => item.severity === "critical").length,
+    highestSeverity: highest,
+    warning: anomalies.filter((item) => item.severity === "warning").length,
+    watch: anomalies.filter((item) => item.severity === "watch").length,
+  };
+}
+
+function trendBriefingHeadline(
+  trends: AdminIncidentTrendResponse,
+  anomalies: AdminIncidentTrendAnomaly[],
+) {
+  const highest = anomalies[0]?.severity ?? "watch";
+  if (highest === "critical") {
+    return `Critical incident trend risk: ${trends.summary.total} incidents and ${trends.sla.openCritical} open critical item(s).`;
+  }
+  if (trends.summary.trendDirection === "up") {
+    return `Incident pressure is rising across ${trends.summary.total} incident(s).`;
+  }
+  return `Incident trend is ${trends.summary.trendDirection} with ${trends.summary.total} bounded incident(s).`;
+}
+
+function trendBriefingSections(
+  trends: AdminIncidentTrendResponse,
+  anomalies: AdminIncidentTrendAnomaly[],
+) {
+  return [
+    {
+      body: [
+        `Trend direction: ${trends.summary.trendDirection}.`,
+        `Peak bucket: ${trends.summary.peakBucketKey ?? "none"} with score ${trends.summary.peakBucketLoadScore}.`,
+        `Average load score: ${trends.summary.averageLoadScore}.`,
+      ],
+      title: "Trend summary",
+    },
+    {
+      body: [
+        `Breach rate: ${trends.sla.breachRatePct}%.`,
+        `Acknowledged: ${trends.sla.acknowledgedPct}%.`,
+        `Oldest open incident: ${trends.sla.oldestOpenMinutes} minute(s).`,
+      ],
+      title: "SLA posture",
+    },
+    {
+      body: anomalies.length
+        ? anomalies.map((item) => `${item.severity}: ${item.signal}. ${item.recommendedAction}`)
+        : ["No critical anomaly detected in the selected window."],
+      title: "Anomaly readout",
+    },
+    {
+      body: trends.routeRisks.slice(0, 4).map((item) => `${item.route}: score ${item.loadScore}. ${item.recommendedAction}`),
+      title: "Route risk register",
+    },
+  ];
+}
+
+function trendBriefingOperatorActions(
+  trends: AdminIncidentTrendResponse,
+  anomalies: AdminIncidentTrendAnomaly[],
+) {
+  const actions = [
+    "Refresh workload view before changing incident owner assignments.",
+    "Resolve or escalate breached incidents before accepting new incident work.",
+    "Keep exports bounded and do not copy raw emails, session IDs or tokens into incident notes.",
+  ];
+  if (trends.summary.trendDirection === "up") {
+    actions.unshift("Treat the selected trend as rising pressure and pause non-critical admin changes.");
+  }
+  if (anomalies.some((item) => item.severity === "critical")) {
+    actions.unshift("Open the highest critical anomaly and attach bounded evidence before handoff.");
+  }
+  return actions.slice(0, 8);
+}
+
+function trendBriefingCapacityReview(trends: AdminIncidentTrendResponse) {
+  return [
+    "Trend analytics is an explicit admin control-plane read and does not run as a polling loop.",
+    "Trend buckets, route risk and anomalies are derived from bounded incident, audit and execution summaries.",
+    "The endpoint is admin-session protected and safe for the 10,000 concurrent-user marketplace baseline because it does not scan buyer hot-path tables.",
+    `Current average load score is ${trends.summary.averageLoadScore}; peak score is ${trends.summary.peakBucketLoadScore}.`,
   ];
 }
 
@@ -2065,6 +2558,44 @@ function formatIncidentExecutionWorkloadCsv(response: AdminIncidentWorkloadRespo
     String(incident.unassignedItems),
     incident.nextTargetDueAt ?? "",
     incident.title,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function formatIncidentTrendsCsv(response: AdminIncidentTrendResponse) {
+  const header = [
+    "key",
+    "startAt",
+    "endAt",
+    "total",
+    "open",
+    "acknowledged",
+    "resolved",
+    "critical",
+    "high",
+    "breached",
+    "atRisk",
+    "executionOpen",
+    "executionBlocked",
+    "executionDone",
+    "loadScore",
+  ];
+  const rows = response.buckets.map((bucket) => [
+    bucket.key,
+    bucket.startAt,
+    bucket.endAt,
+    String(bucket.total),
+    String(bucket.open),
+    String(bucket.acknowledged),
+    String(bucket.resolved),
+    String(bucket.critical),
+    String(bucket.high),
+    String(bucket.breached),
+    String(bucket.atRisk),
+    String(bucket.executionOpen),
+    String(bucket.executionBlocked),
+    String(bucket.executionDone),
+    String(bucket.loadScore),
   ]);
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }

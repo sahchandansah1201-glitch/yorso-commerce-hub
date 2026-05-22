@@ -19,6 +19,10 @@ const executionQueueBulkRoute = "/v1/admin/incidents/execution-queue/bulk";
 const executionWorkloadRoute = "/v1/admin/incidents/execution-workload";
 const executionWorkloadExportRoute = "/v1/admin/incidents/execution-workload/export";
 const executionWorkloadForecastRoute = "/v1/admin/incidents/execution-workload/forecast";
+const trendsRoute = "/v1/admin/incidents/trends";
+const trendsExportRoute = "/v1/admin/incidents/trends/export";
+const trendsAnomaliesRoute = "/v1/admin/incidents/trends/anomalies";
+const trendsBriefingRoute = "/v1/admin/incidents/trends/briefing";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
@@ -72,6 +76,22 @@ export async function handleAdminIncidentRoute(
     return true;
   }
   if (match.kind === "executionWorkloadForecast" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trends" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendsExport" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendsAnomalies" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendsBriefing" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
     return true;
   }
@@ -217,6 +237,47 @@ export async function handleAdminIncidentRoute(
       sendJson(response, 200, payload);
       return true;
     }
+    if (match.kind === "trends") {
+      const payload = await service.getIncidentTrends(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "trendsExport") {
+      const payload = await service.exportIncidentTrends(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
+    if (match.kind === "trendsAnomalies") {
+      const payload = await service.getIncidentTrendAnomalies(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "trendsBriefing") {
+      const payload = await service.getIncidentTrendBriefing(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
     if (match.kind === "handoff") {
       const payload = await service.exportIncidentHandoff(
         match.incidentId,
@@ -317,6 +378,10 @@ type IncidentRouteMatch =
   | { kind: "executionWorkload"; route: string }
   | { kind: "executionWorkloadExport"; route: string }
   | { kind: "executionWorkloadForecast"; route: string }
+  | { kind: "trends"; route: string }
+  | { kind: "trendsExport"; route: string }
+  | { kind: "trendsAnomalies"; route: string }
+  | { kind: "trendsBriefing"; route: string }
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
@@ -338,6 +403,10 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
   if (pathname === executionWorkloadForecastRoute) {
     return { kind: "executionWorkloadForecast", route: executionWorkloadForecastRoute };
   }
+  if (pathname === trendsRoute) return { kind: "trends", route: trendsRoute };
+  if (pathname === trendsExportRoute) return { kind: "trendsExport", route: trendsExportRoute };
+  if (pathname === trendsAnomaliesRoute) return { kind: "trendsAnomalies", route: trendsAnomaliesRoute };
+  if (pathname === trendsBriefingRoute) return { kind: "trendsBriefing", route: trendsBriefingRoute };
   if (pathname === executionWorkloadRoute) return { kind: "executionWorkload", route: executionWorkloadRoute };
   if (pathname === executionWorkloadExportRoute) return { kind: "executionWorkloadExport", route: executionWorkloadExportRoute };
   if (pathname === bulkWorkflowRoute) return { kind: "bulkWorkflow", route: bulkWorkflowRoute };
@@ -429,6 +498,14 @@ function auditIncidentRoute(
         ? "admin.incidents.execution_workload.export"
       : match.kind === "executionWorkloadForecast"
         ? "admin.incidents.execution_workload.forecast"
+      : match.kind === "trends"
+        ? "admin.incidents.trends.read"
+      : match.kind === "trendsExport"
+        ? "admin.incidents.trends.export"
+      : match.kind === "trendsAnomalies"
+        ? "admin.incidents.trends.anomalies"
+      : match.kind === "trendsBriefing"
+        ? "admin.incidents.trends.briefing"
       : match.kind === "bulkWorkflow"
         ? "admin.incidents.workflow.bulk"
       : match.kind === "workflow"

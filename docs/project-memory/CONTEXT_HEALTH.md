@@ -8,10 +8,11 @@
 context_risk: "low"
 last_checkpoint: "2026-05-22"
 last_handoff_ready: true
-recommended_action: "finish validation, commit, push, PR, GitHub checks and merge Batch #106; then continue only from repository evidence"
+recommended_action: "finish Batch #107 size gate, validation, commit, push, PR, GitHub checks and merge; then provide numbered Lovable Prompt #107"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch106-incident-workload-correlation"
-current_batch: 106
+active_branch: "codex/batch107-incident-trend-analytics"
+current_batch: 107
+batch_107_size_gate: "passed: 53 files, 4823 insertions, +35.9% files and +24.6% insertions versus Batch #106"
 ```
 
 ## Уровни риска

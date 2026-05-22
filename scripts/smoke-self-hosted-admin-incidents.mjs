@@ -404,6 +404,69 @@ async function runSmoke(baseUrl) {
   assertNotContains(JSON.stringify(executionCorrelation), "admin@example.com", "admin incident correlation no email");
   console.log("admin_incidents_correlation=ok");
 
+  const trendAnalytics = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends?window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  assertEqual(trendAnalytics.ok, true, "admin incident trend analytics ok");
+  assertArray(trendAnalytics.buckets, "admin incident trend buckets");
+  assertArray(trendAnalytics.routeRisks, "admin incident trend route risks");
+  assertArray(trendAnalytics.sourceMix, "admin incident trend source mix");
+  assertArray(trendAnalytics.severityMix, "admin incident trend severity mix");
+  assertArray(trendAnalytics.statusMix, "admin incident trend status mix");
+  assertNumberAtLeast(trendAnalytics.summary.total, 1, "admin incident trend total");
+  assertNumberAtLeast(trendAnalytics.summary.averageLoadScore, 0, "admin incident trend average load score");
+  assertNumberAtLeast(trendAnalytics.sla.breachRatePct, 0, "admin incident trend breach rate");
+  assertNotContains(JSON.stringify(trendAnalytics), "admin@example.com", "admin incident trend analytics no email");
+  console.log("admin_incidents_trends=ok");
+  console.log("admin_incidents_trends_filters=ok");
+
+  const trendAnalyticsExportJson = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends/export?format=json&window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  assertEqual(trendAnalyticsExportJson.ok, true, "admin incident trend JSON export ok");
+  assertArray(trendAnalyticsExportJson.buckets, "admin incident trend JSON export buckets");
+  assertNotContains(JSON.stringify(trendAnalyticsExportJson), "admin@example.com", "admin incident trend JSON export no email");
+  console.log("admin_incidents_trends_export_json=ok");
+
+  const trendAnalyticsExportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/trends/export?format=csv&window=7d&granularity=day&limit=30`,
+    { headers: adminHeaders },
+  );
+  assertStatus(trendAnalyticsExportCsv, 200, "admin incident trend CSV export");
+  const trendAnalyticsExportCsvBody = await trendAnalyticsExportCsv.text();
+  assertContains(trendAnalyticsExportCsvBody, "\"key\",\"startAt\"", "admin incident trend CSV header");
+  assertContains(trendAnalyticsExportCsvBody, "\"loadScore\"", "admin incident trend CSV load score column");
+  assertNotContains(trendAnalyticsExportCsvBody, "admin@example.com", "admin incident trend CSV export no email");
+  console.log("admin_incidents_trends_export_csv=ok");
+
+  const trendAnomalies = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends/anomalies?window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  assertEqual(trendAnomalies.ok, true, "admin incident trend anomalies ok");
+  assertArray(trendAnomalies.anomalies, "admin incident trend anomalies rows");
+  assertNumberAtLeast(trendAnomalies.summary.watch, 0, "admin incident trend anomaly watch count");
+  assertNotContains(JSON.stringify(trendAnomalies), "admin@example.com", "admin incident trend anomalies no email");
+  console.log("admin_incidents_trends_anomalies=ok");
+
+  const trendBriefing = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trends/briefing?window=7d&granularity=day&limit=30",
+    adminHeaders,
+  );
+  assertEqual(trendBriefing.ok, true, "admin incident trend briefing ok");
+  assertArray(trendBriefing.sections, "admin incident trend briefing sections");
+  assertArray(trendBriefing.operatorActions, "admin incident trend briefing actions");
+  assertArray(trendBriefing.capacityReview, "admin incident trend briefing capacity");
+  assertContains(JSON.stringify(trendBriefing), "10,000", "admin incident trend briefing capacity baseline");
+  assertNotContains(JSON.stringify(trendBriefing), "admin@example.com", "admin incident trend briefing no email");
+  console.log("admin_incidents_trends_briefing=ok");
+
   const unsafeQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
     body: JSON.stringify({
       evidenceNote: "Email admin@example.com",

@@ -192,6 +192,63 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:admin-incident-workload` passed, 1 browser test.
   - `npm run ci:core` passed.
 
+## Batch #107 Admin Incident Trend Analytics
+
+- Started Batch #107 locally on `codex/batch107-incident-trend-analytics`.
+- Measured Batch #106 baseline from git:
+  - `39 files changed`;
+  - `3872 insertions(+)`;
+  - `48 deletions(-)`.
+- Promoted the user's `+20%` batch-size requirement into a numeric gate:
+  - minimum 47 changed files;
+  - minimum 4647 insertions.
+- Initial untracked-aware Batch #107 measurement was below target:
+  - 23 files;
+  - 3146 insertions;
+  - 11 deletions.
+- Expanded Batch #107 into a larger connected production batch:
+  - admin incident trend API routes;
+  - trend contracts;
+  - service aggregation, anomaly and briefing logic;
+  - frontend API client, hook and page;
+  - admin navigation;
+  - browser e2e;
+  - runtime smoke markers;
+  - PostgreSQL trend indexes;
+  - DB manifest and DB guards;
+  - production-scale guards;
+  - backend/API docs;
+  - testing docs;
+  - project-memory decision, run and Lovable prompt files.
+- Fixed Batch #107 issues found during validation:
+  - service test and runtime smoke now omit UI sentinel filter values (`all`) before hitting backend trend contracts;
+  - trend contract test now asserts Zod strips unknown aliases instead of expecting a throw;
+  - DB contract aggregate now includes migration `0023_admin_incident_trend_analytics`;
+  - trend UI dimension panel now renders `breached` instead of non-existent `overdue`.
+- Confirmed Batch #107 validation:
+  - `npm run contracts:build` passed.
+  - `npm run api:build` passed.
+  - `npm run test:admin-incidents-frontend` passed, 28 tests.
+  - `npm run test:api` passed, 136 tests.
+  - `npm run test:backend-contract` passed, 120 tests.
+  - `npm run check:self-hosted-db` passed.
+  - `npm run check:self-hosted-api` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run test:db-migrations` passed, 16 tests.
+  - `npm run test:db-contract` passed, 27 tests.
+  - `npm run smoke:self-hosted-admin-incidents:run` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run lint` passed.
+  - `npm run smoke:e2e:admin-incident-trends` passed, 2 browser tests.
+  - `npm run ci:core` passed.
+  - `git diff --check` passed.
+- Final Batch #107 size gate:
+  - 53 changed files;
+  - 4823 insertions;
+  - 56 deletions;
+  - +35.9% changed files vs Batch #106;
+  - +24.6% insertions vs Batch #106.
+
 - Started Batch #104 locally on `codex/batch104-incident-remediation-execution`.
 - Added a durable admin incident execution tracker:
   - `packages/db/migrations/0021_admin_incident_execution.sql` creates `yorso_admin_incident_execution_items`;
