@@ -76,6 +76,7 @@ type IncidentsCopy = {
   evidence: string;
   forbiddenBody: string;
   forbiddenTitle: string;
+  openDetail: string;
   highSignal: string;
   loading: string;
   noIncidents: string;
@@ -148,6 +149,7 @@ const COPY: Record<Language, IncidentsCopy> = {
     evidence: "Evidence",
     forbiddenBody: "The backend rejected this session because it does not have the admin role.",
     forbiddenTitle: "Admin role required",
+    openDetail: "Open detail",
     highSignal: "Derived from runtime diagnostics and sanitized audit events",
     loading: "Loading incidents...",
     noIncidents: "No incidents match these filters.",
@@ -218,6 +220,7 @@ const COPY: Record<Language, IncidentsCopy> = {
     evidence: "Evidence",
     forbiddenBody: "Backend отклонил сессию, потому что у нее нет роли администратора.",
     forbiddenTitle: "Нужна роль администратора",
+    openDetail: "Открыть detail",
     highSignal: "Формируется из runtime diagnostics и очищенных audit events",
     loading: "Загружаем инциденты...",
     noIncidents: "По этим фильтрам инцидентов нет.",
@@ -288,6 +291,7 @@ const COPY: Record<Language, IncidentsCopy> = {
     evidence: "Evidencia",
     forbiddenBody: "El backend rechazó esta sesión porque no tiene el rol admin.",
     forbiddenTitle: "Se requiere rol admin",
+    openDetail: "Abrir detalle",
     highSignal: "Derivado de runtime diagnostics y audit events sanitizados",
     loading: "Cargando incidentes...",
     noIncidents: "No hay incidentes para estos filtros.",
@@ -992,6 +996,9 @@ function IncidentCard({
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>{new Date(incident.lastSeenAt).toLocaleString()}</span>
+            <Button asChild size="sm" variant="outline" data-testid={`admin-incident-open-detail-${incident.id}`}>
+              <Link to={`/admin/incidents/${encodeURIComponent(incident.id)}`}>{copy.openDetail}</Link>
+            </Button>
           </div>
         </div>
       </CardHeader>

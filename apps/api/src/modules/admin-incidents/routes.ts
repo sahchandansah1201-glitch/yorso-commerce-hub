@@ -16,6 +16,9 @@ const exportRoute = "/v1/admin/incidents/export";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
+const handoffSuffix = "/handoff";
+const postmortemSuffix = "/postmortem";
+const remediationSuffix = "/remediation";
 const workflowSuffix = "/workflow";
 
 export async function handleAdminIncidentRoute(
@@ -40,6 +43,18 @@ export async function handleAdminIncidentRoute(
     return true;
   }
   if (match.kind === "detail" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "handoff" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "remediation" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "postmortem" && request.method !== "GET") {
     methodNotAllowed(response, context, "GET");
     return true;
   }
@@ -88,6 +103,42 @@ export async function handleAdminIncidentRoute(
       sendJson(response, 200, payload);
       return true;
     }
+    if (match.kind === "handoff") {
+      const payload = await service.exportIncidentHandoff(
+        match.incidentId,
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
+    if (match.kind === "remediation") {
+      const payload = await service.getIncidentRemediationPlan(match.incidentId, context.requestId);
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "postmortem") {
+      const payload = await service.exportIncidentPostmortem(
+        match.incidentId,
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
 
     const body = await readJsonBody(request, jsonBodyOptions);
     const payload = match.kind === "bulkWorkflow"
@@ -124,6 +175,9 @@ type IncidentRouteMatch =
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
+  | { incidentId: string; kind: "handoff"; route: string }
+  | { incidentId: string; kind: "postmortem"; route: string }
+  | { incidentId: string; kind: "remediation"; route: string }
   | { incidentId: string; kind: "workflow"; route: string };
 
 function routeMatch(pathname: string): IncidentRouteMatch | null {
@@ -137,6 +191,21 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
     const incidentId = decodeURIComponent(rest.slice(0, -ackSuffix.length).replace(/\/$/, ""));
     if (!incidentId) return null;
     return { incidentId, kind: "acknowledge", route: `${detailPrefix}:incidentId${ackSuffix}` };
+  }
+  if (rest.endsWith(handoffSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -handoffSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "handoff", route: `${detailPrefix}:incidentId${handoffSuffix}` };
+  }
+  if (rest.endsWith(remediationSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -remediationSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "remediation", route: `${detailPrefix}:incidentId${remediationSuffix}` };
+  }
+  if (rest.endsWith(postmortemSuffix)) {
+    const incidentId = decodeURIComponent(rest.slice(0, -postmortemSuffix.length).replace(/\/$/, ""));
+    if (!incidentId) return null;
+    return { incidentId, kind: "postmortem", route: `${detailPrefix}:incidentId${postmortemSuffix}` };
   }
   if (rest.endsWith(workflowSuffix)) {
     const incidentId = decodeURIComponent(rest.slice(0, -workflowSuffix.length).replace(/\/$/, ""));
@@ -169,6 +238,12 @@ function auditIncidentRoute(
         ? "admin.incidents.workflow.update"
       : match.kind === "export"
         ? "admin.incidents.export"
+      : match.kind === "handoff"
+        ? "admin.incidents.handoff.export"
+      : match.kind === "postmortem"
+        ? "admin.incidents.postmortem.export"
+      : match.kind === "remediation"
+        ? "admin.incidents.remediation.read"
       : match.kind === "detail"
         ? "admin.incidents.detail.read"
         : "admin.incidents.list.read",

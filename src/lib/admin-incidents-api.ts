@@ -11,6 +11,8 @@ export type AdminIncidentStatus = "open" | "acknowledged" | "resolved";
 export type AdminIncidentAssignmentFilter = "assigned" | "unassigned";
 export type AdminIncidentEscalationLevel = "none" | "lead" | "engineering" | "executive";
 export type AdminIncidentExportFormat = "json" | "csv";
+export type AdminIncidentHandoffFormat = "json" | "markdown";
+export type AdminIncidentPostmortemFormat = "json" | "markdown";
 export type AdminIncidentSlaStatus = "ok" | "at_risk" | "breached";
 export type AdminIncidentTimelineEventType =
   | "created"
@@ -156,6 +158,72 @@ export interface AdminIncidentExportResponse {
   requestId: string;
 }
 
+export interface AdminIncidentDetailResponse {
+  incident: AdminIncident;
+  ok: true;
+  requestId: string;
+  timeline: AdminIncidentTimelineEvent[];
+}
+
+export interface AdminIncidentHandoffSection {
+  body: string[];
+  title: string;
+}
+
+export interface AdminIncidentHandoffResponse {
+  checklist: Array<{ detail: string; label: string; status: "ready" | "needs_attention" }>;
+  generatedAt: string;
+  handoffId: string;
+  incident: AdminIncident;
+  ok: true;
+  requestId: string;
+  sections: AdminIncidentHandoffSection[];
+  timeline: AdminIncidentTimelineEvent[];
+}
+
+export interface AdminIncidentRemediationPlanStep {
+  description: string;
+  evidenceRequired: string;
+  ownerRole: "operator" | "engineering" | "security" | "founder";
+  priority: "immediate" | "next" | "follow_up";
+  targetMinutes: number;
+  title: string;
+}
+
+export interface AdminIncidentRemediationPlanResponse {
+  capacityNotes: string[];
+  generatedAt: string;
+  incident: AdminIncident;
+  ok: true;
+  requestId: string;
+  rollbackPlan: string[];
+  steps: AdminIncidentRemediationPlanStep[];
+  verificationChecks: string[];
+}
+
+export interface AdminIncidentPostmortemActionItem {
+  evidenceRequired: string;
+  ownerRole: "operator" | "engineering" | "security" | "founder";
+  priority: "immediate" | "next" | "follow_up";
+  targetHours: number;
+  title: string;
+}
+
+export interface AdminIncidentPostmortemResponse {
+  actionItems: AdminIncidentPostmortemActionItem[];
+  capacityReview: string[];
+  executiveSummary: string;
+  generatedAt: string;
+  impactSummary: string[];
+  incident: AdminIncident;
+  ok: true;
+  postmortemId: string;
+  preventionChecks: string[];
+  requestId: string;
+  rootCauseHypotheses: string[];
+  timeline: AdminIncidentTimelineEvent[];
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -266,6 +334,16 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertBulkWorkflowShape(body);
     },
+    async detail(incidentId: string): Promise<AdminIncidentDetailResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentDetailResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertDetailShape(body);
+    },
     async list(query: AdminIncidentQuery = {}): Promise<AdminIncidentListResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents${queryString(query)}`, {
@@ -275,6 +353,75 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       const body = await readJson(response) as AdminIncidentListResponse & { error?: { code?: string; message?: string } };
       if (!response.ok) throw mapError(body, response.status);
       return assertListShape(body);
+    },
+    async handoffJson(incidentId: string): Promise<AdminIncidentHandoffResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/handoff?format=json`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentHandoffResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertHandoffShape(body);
+    },
+    async handoffMarkdown(incidentId: string): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/handoff?format=markdown`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async remediation(incidentId: string): Promise<AdminIncidentRemediationPlanResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/remediation`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentRemediationPlanResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertRemediationShape(body);
+    },
+    async postmortemJson(incidentId: string): Promise<AdminIncidentPostmortemResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/postmortem?format=json`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentPostmortemResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertPostmortemShape(body);
+    },
+    async postmortemMarkdown(incidentId: string): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/${encodeURIComponent(incidentId)}/postmortem?format=markdown`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
     },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
@@ -363,6 +510,17 @@ function assertAcknowledgeShape(response: AdminIncidentAcknowledgeResponse) {
   return response;
 }
 
+function assertDetailShape(response: AdminIncidentDetailResponse) {
+  if (response?.ok !== true || !response.incident?.id || !Array.isArray(response.timeline)) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident detail response failed the self-hosted contract.",
+      200,
+    );
+  }
+  return response;
+}
+
 function assertBulkWorkflowShape(response: AdminIncidentBulkWorkflowResponse) {
   if (
     response?.ok !== true ||
@@ -388,6 +546,63 @@ function assertExportShape(response: AdminIncidentExportResponse) {
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incidents export response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertHandoffShape(response: AdminIncidentHandoffResponse) {
+  if (
+    response?.ok !== true ||
+    !response.incident?.id ||
+    !Array.isArray(response.checklist) ||
+    typeof response.generatedAt !== "string" ||
+    !Array.isArray(response.sections) ||
+    !Array.isArray(response.timeline)
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident handoff response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertRemediationShape(response: AdminIncidentRemediationPlanResponse) {
+  if (
+    response?.ok !== true ||
+    !response.incident?.id ||
+    !Array.isArray(response.steps) ||
+    !Array.isArray(response.verificationChecks) ||
+    !Array.isArray(response.rollbackPlan) ||
+    !Array.isArray(response.capacityNotes)
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident remediation response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertPostmortemShape(response: AdminIncidentPostmortemResponse) {
+  if (
+    response?.ok !== true ||
+    !response.incident?.id ||
+    typeof response.executiveSummary !== "string" ||
+    !Array.isArray(response.impactSummary) ||
+    !Array.isArray(response.rootCauseHypotheses) ||
+    !Array.isArray(response.actionItems) ||
+    !Array.isArray(response.preventionChecks) ||
+    !Array.isArray(response.capacityReview) ||
+    !Array.isArray(response.timeline)
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident postmortem response was invalid.",
       200,
     );
   }

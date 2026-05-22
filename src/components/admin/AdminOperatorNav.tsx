@@ -58,7 +58,9 @@ export function AdminOperatorNav() {
     >
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
         {links.map((item) => {
-          const active = location.pathname === item.href;
+          const active = item.href === "/admin"
+            ? location.pathname === item.href
+            : location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           return (
             <Link

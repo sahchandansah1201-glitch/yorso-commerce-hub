@@ -113,3 +113,16 @@
 - `e2e/admin-incidents.spec.ts`: API-backed browser smoke for assignment/escalation workflow, bulk workflow, export and workload summary rendering.
 - `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime smoke markers for assign, escalate, comment, bulk workflow, export, workload summary, workflow filters and workflow validation.
 - `docs/backend/production-scale-baseline.md`: Batch #102 10,000 concurrent users capacity review.
+
+## Batch #103 Admin Incident Detail Handoff and Remediation
+
+- `packages/contracts/src/admin-incidents.ts`: handoff, remediation and postmortem DTOs, Markdown/JSON format contracts, note hygiene schema and bounded remediation/postmortem contracts.
+- `apps/api/src/modules/admin-incidents/service.ts`: bounded incident handoff JSON/Markdown formatting, remediation plan generation and postmortem draft generation.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected `GET /v1/admin/incidents/:incidentId/handoff`, `GET /v1/admin/incidents/:incidentId/remediation` and `GET /v1/admin/incidents/:incidentId/postmortem`.
+- `src/lib/admin-incidents-api.ts`: frontend client methods for incident detail, handoff exports, remediation plan and postmortem exports.
+- `src/lib/use-admin-incident-detail.ts`: detail-page hook for disabled/session/forbidden/loading/error/ready states, workflow, handoff, remediation and postmortem actions.
+- `src/pages/admin/AdminIncidentDetail.tsx`: `/admin/incidents/:incidentId` page with snapshot, evidence, runbook, timeline, workflow, handoff, remediation and postmortem panels.
+- `src/pages/admin/AdminIncidents.tsx`: list-to-detail navigation.
+- `e2e/admin-incident-detail.spec.ts`: browser smoke for incident detail, handoff, remediation and postmortem controls.
+- `scripts/smoke-self-hosted-admin-incidents.mjs`: runtime smoke markers for `admin_incidents_handoff_json=ok`, `admin_incidents_handoff_markdown=ok`, `admin_incidents_remediation_plan=ok`, `admin_incidents_postmortem_json=ok`, `admin_incidents_postmortem_markdown=ok` and `admin_incidents_note_hygiene_guard=ok`.
+- `docs/backend/production-scale-baseline.md`: Batch #103 10,000 concurrent users capacity review.

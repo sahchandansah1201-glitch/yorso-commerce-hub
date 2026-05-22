@@ -220,6 +220,10 @@ test.describe("Admin incidents", () => {
     await expect(page.getByTestId("admin-incidents-page")).toBeVisible();
     await expect(page.getByTestId("admin-incidents-list")).toContainText("Blocked admin route access");
     await expect(page.getByTestId("admin-incidents-list")).toContainText("Confirm scope");
+    await expect(page.getByTestId(`admin-incident-open-detail-${INCIDENT_ID}`)).toHaveAttribute(
+      "href",
+      `/admin/incidents/${encodeURIComponent(INCIDENT_ID)}`,
+    );
     await expect(page.getByTestId("admin-incidents-bulk-workflow")).toBeVisible();
     await expect(page.getByTestId("admin-incidents-workload-summary")).toContainText("Assignment coverage");
     await expect(page.getByTestId("admin-incidents-escalation-load")).toContainText("lead: 0");
