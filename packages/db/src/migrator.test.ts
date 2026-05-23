@@ -36,6 +36,7 @@ describe("self-hosted DB migration planner", () => {
       "0022_admin_incident_workload_correlation",
       "0023_admin_incident_trend_analytics",
       "0024_admin_incident_trend_actions",
+      "0025_admin_incident_trend_action_queue",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -63,6 +64,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0022_admin_incident_workload_correlation.sql",
       "migrations/0023_admin_incident_trend_analytics.sql",
       "migrations/0024_admin_incident_trend_actions.sql",
+      "migrations/0025_admin_incident_trend_action_queue.sql",
     ]);
   });
 
@@ -102,6 +104,7 @@ describe("self-hosted DB migration planner", () => {
     const adminIncidentWorkloadCorrelation = plan.migrations[22];
     const adminIncidentTrendAnalytics = plan.migrations[23];
     const adminIncidentTrendActions = plan.migrations[24];
+    const adminIncidentTrendActionQueue = plan.migrations[25];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -158,6 +161,9 @@ describe("self-hosted DB migration planner", () => {
     expect(adminIncidentTrendActions.dependsOn).toEqual(["0023_admin_incident_trend_analytics"]);
     expect(adminIncidentTrendActions.sql).toContain("create table if not exists yorso_admin_incident_trend_actions");
     expect(adminIncidentTrendActions.sql).toContain("idx_yorso_admin_trend_actions_related_gin");
+    expect(adminIncidentTrendActionQueue.dependsOn).toEqual(["0024_admin_incident_trend_actions"]);
+    expect(adminIncidentTrendActionQueue.sql).toContain("idx_yorso_admin_trend_actions_owner_priority");
+    expect(adminIncidentTrendActionQueue.sql).toContain("idx_yorso_admin_trend_actions_status_kind_priority");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

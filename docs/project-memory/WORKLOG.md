@@ -395,3 +395,10 @@ Keep this file factual and append-only.
   - failing check: `Core Type And Build Gate`;
   - root cause: `check:engineering-lessons` required the risk markers `API-backed browser specs can fail in generic smoke` and `Parallel Vite builds can race on shared dist`;
   - fix: restored those process-risk entries in `docs/project-memory/RISKS.md`.
+- Investigated the next PR #161 CI failure after the engineering-lessons fix:
+  - failing check: `Core Type And Build Gate`;
+  - root cause: DB migration CLI/planner tests still expected 25 migrations and stopped at `0024_admin_incident_trend_actions`, while Batch #109 added `0025_admin_incident_trend_action_queue`;
+  - fix: updated `packages/db/src/cli.test.ts` and `packages/db/src/migrator.test.ts` to include the `0025` migration and 26 pending migrations.
+- Confirmed validation after the PR #161 migration-test fixture fix:
+  - `npm run test:db-migrations` passed, 16 tests;
+  - `npm run ci:core` passed with the known non-blocking warnings for Supabase type drift, stale Browserslist data and large production chunk.

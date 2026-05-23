@@ -4,7 +4,8 @@
 
 1. Watch Draft PR #161 for Batch #110:
    - URL: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`;
-   - wait for GitHub checks;
+   - push the local CI migration-test fix for Batch #109 migration `0025`;
+   - recheck GitHub checks;
    - address review feedback if any;
    - merge after green;
    - provide Lovable sync prompt for Batch #110 after merge.
@@ -23,6 +24,7 @@
 - Project-memory has been corrected from the stale Batch #107 checkpoint.
 - Public UX/UI patch is locally validated. Playwright mobile audit at 390px reports zero overflow and zero interactive targets below 44px on `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
 - Draft PR #161 is open for Batch #110 public UX mobile scan.
+- Local CI fix for PR #161 updates DB migration tests to include `0025_admin_incident_trend_action_queue`; `npm run test:db-migrations` and `npm run ci:core` pass locally.
 
 ## Blockers
 

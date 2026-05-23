@@ -12,12 +12,12 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
   active_branch: "codex/batch110-public-ux-mobile-scan"
-  head_commit: "dc6eec1"
-  head_summary: "[codex] Batch #109 admin incident trend action queue (#160)"
+  head_commit: "e1653cb before local CI migration-test fix"
+  head_summary: "[codex] Restore engineering lesson risk markers"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Current UX/UI patch updates public metadata, README, mobile overflow containment and touch target sizing."
-    - "Project-memory checkpoint files are being updated after the UX/UI audit."
+    - "PR #161 CI migration tests are being updated to include Batch #109 migration 0025."
+    - "Project-memory checkpoint files are being updated after the CI fix and local ci:core pass."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -40,7 +40,7 @@ project_identity:
 active_workstream:
   id: "batch110_public_ux_trust_mobile_scan"
   summary: "Batch #110 public UX/UI remediation for Yorso public surfaces, with buyer-first trust, scanability, metadata hygiene, valid CTA semantics and mobile touch targets as priorities."
-  status: "draft_pr_open"
+  status: "draft_pr_open_ci_fix_local_passed_pending_push"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
   confirmed_scope:
     - "Replace Lovable default title, description and social metadata in index.html."
@@ -74,6 +74,8 @@ active_workstream:
     - "src/components/how-it-works/ProcurementDecisionProof.tsx"
     - "src/components/how-it-works/AccessLevels.tsx"
     - "src/components/how-it-works/FinalCTA.tsx"
+    - "packages/db/src/cli.test.ts"
+    - "packages/db/src/migrator.test.ts"
 
 latest_merged_batches:
   - id: 109
@@ -145,7 +147,7 @@ current_ux_audit_status:
     - "The page metadata baseline is now fixed, but route-level metadata and schema structure remain a future task."
 
 next_actions:
-  - "Watch PR #161 checks and review feedback for Batch #110."
+  - "Push the PR #161 CI migration-test fix and recheck GitHub checks."
   - "Merge PR #161 after checks and review pass, then provide Lovable sync prompt for Batch #110."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
@@ -158,6 +160,8 @@ last_confirmed_checks:
   - "2026-05-23: npm run build passed; known warnings remain for Supabase generated type drift, stale Browserslist data and a large main chunk."
   - "2026-05-23: Playwright mobile overflow check at 390px passed for /, /how-it-works and /suppliers after current UX patch."
   - "2026-05-23: User confirmed Lovable sync for Batch #109 is clean with no conflicts."
+  - "2026-05-23: npm run test:db-migrations passed after updating expectations for migration 0025."
+  - "2026-05-23: npm run ci:core passed after the PR #161 migration-test fixture fix."
   - "2026-05-23: Playwright mobile audit at 390px passed with zero horizontal overflow and zero <44px interactive targets for /, /how-it-works, /suppliers, /offers and /for-suppliers."
   - "2026-05-23: npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx passed, 8 tests."
   - "2026-05-23: Draft PR #161 opened for Batch #110 public UX mobile scan."
