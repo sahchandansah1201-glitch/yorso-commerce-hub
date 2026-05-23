@@ -1419,3 +1419,39 @@ Required runtime smoke markers:
 - `admin_incidents_trend_action_dismiss=ok`;
 - `admin_incidents_trend_action_validation_guard=ok`;
 - `smoke:e2e:admin-incident-trends`.
+
+## Batch #109 Admin Incident Trend Action Queue Validation
+
+Run:
+
+```bash
+npm run test:admin-incidents-frontend
+npm run test:api
+npm run smoke:self-hosted-admin-incidents
+npm run smoke:e2e:admin-incident-trend-actions
+npm run check:self-hosted-db
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/incident-trend-actions` renders disabled, session-required,
+  forbidden, loading, error and ready states.
+- The page calls `/v1/admin/incidents/trend-action-queue`.
+- JSON and CSV exports call
+  `/v1/admin/incidents/trend-action-queue/export`.
+- Bulk accept/dismiss calls `/v1/admin/incidents/trend-action-queue/bulk`.
+- Sensitive values such as raw emails, raw UUIDs, session ids, tokens,
+  database URLs and Redis URLs stay out of API responses and browser DOM.
+- Migration `0025_admin_incident_trend_action_queue` exists and is guarded.
+
+Required runtime smoke markers:
+
+- `admin_incidents_trend_action_queue=ok`;
+- `admin_incidents_trend_action_queue_filters=ok`;
+- `admin_incidents_trend_action_queue_export_json=ok`;
+- `admin_incidents_trend_action_queue_export_csv=ok`;
+- `admin_incidents_trend_action_queue_bulk=ok`;
+- `admin_incidents_trend_action_queue_note_hygiene_guard=ok`;
+- `smoke:e2e:admin-incident-trend-actions`.

@@ -291,6 +291,17 @@
       "dependsOn": [
         "0023_admin_incident_trend_analytics"
       ]
+    },
+    {
+      "id": "0025_admin_incident_trend_action_queue",
+      "file": "migrations/0025_admin_incident_trend_action_queue.sql",
+      "description": "Add admin incident trend action queue indexes for bounded operator filtering and exports.",
+      "ownedTables": [
+        "yorso_admin_incident_trend_actions"
+      ],
+      "dependsOn": [
+        "0024_admin_incident_trend_actions"
+      ]
     }
   ]
 }

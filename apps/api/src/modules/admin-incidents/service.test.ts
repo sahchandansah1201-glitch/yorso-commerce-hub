@@ -613,6 +613,27 @@ describe("admin incident service", () => {
     const afterAccept = await service.getIncidentTrendActions({ limit: 30, window: "7d" }, requestId);
     expect(afterAccept.actions.find((action) => action.actionId === actions.actions[0].actionId)?.status).toBe("accepted");
 
+    const queue = await service.listIncidentTrendActionQueue({
+      decision: "accepted",
+      limit: 50,
+      priority: actions.actions[0].priority,
+      window: "7d",
+    }, requestId);
+    expect(queue.ok).toBe(true);
+    expect(queue.actions.map((action) => action.actionId)).toContain(actions.actions[0].actionId);
+    expect(queue.summary.accepted).toBeGreaterThanOrEqual(1);
+    expect(JSON.stringify(queue)).not.toContain("00000000-0000-4000-8000-000000000090");
+
+    const queueJson = await service.exportIncidentTrendActionQueue({ format: "json", limit: 50, window: "7d" }, requestId);
+    expect(queueJson.contentType).toContain("application/json");
+    expect(queueJson.fileName).toContain("trend-actions-7d.json");
+    expect(queueJson.body).toContain("\"actions\"");
+
+    const queueCsv = await service.exportIncidentTrendActionQueue({ format: "csv", limit: 50, window: "7d" }, requestId);
+    expect(queueCsv.contentType).toContain("text/csv");
+    expect(queueCsv.fileName).toContain("trend-actions-7d.csv");
+    expect(queueCsv.body).toContain("\"actionId\",\"status\"");
+
     const proposed = afterAccept.actions.find((action) => action.status === "proposed");
     if (proposed) {
       const dismissed = await service.decideIncidentTrendAction(
@@ -624,6 +645,21 @@ describe("admin incident service", () => {
       );
       expect(dismissed.action.status).toBe("dismissed");
       expect(dismissed.timelineEventsCreated).toBe(0);
+
+      const bulk = await service.bulkDecideIncidentTrendActions(
+        { limit: 30, window: "7d" },
+        {
+          actionIds: [proposed.actionId, "trend:missing:7d:not-found"],
+          decision: "dismiss",
+          note: "Bulk trend queue dismissal.",
+        },
+        "00000000-0000-4000-8000-000000000090",
+        requestId,
+      );
+      expect(bulk.ok).toBe(true);
+      expect(bulk.succeeded).toBe(1);
+      expect(bulk.failed[0]?.code).toBe("admin_incident_trend_action_not_found");
+      expect(bulk.updatedActions[0]?.status).toBe("dismissed");
     }
 
     await expect(

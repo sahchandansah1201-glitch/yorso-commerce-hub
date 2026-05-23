@@ -1205,3 +1205,31 @@ Marker: /v1/admin/incidents/trends/actions/:actionId/decision.
 Marker: /admin/incident-trends.
 Marker: 0024_admin_incident_trend_actions.
 Marker: no Supabase.
+
+## Batch #109 Admin Incident Trend Action Queue
+
+Batch #109 adds a dedicated trend action queue on top of Batch #108 decisions.
+The frontend route is `/admin/incident-trend-actions`. The route is intended
+for operators who need to review trend-derived actions across windows, filter
+by decision, kind, priority and owner role, export the queue and apply bounded
+bulk decisions.
+
+The backend routes are:
+
+- `GET /v1/admin/incidents/trend-action-queue`;
+- `GET /v1/admin/incidents/trend-action-queue/export?format=json|csv`;
+- `POST /v1/admin/incidents/trend-action-queue/bulk`.
+
+The storage support is migration `0025_admin_incident_trend_action_queue`,
+which adds queue-oriented indexes on `yorso_admin_incident_trend_actions`.
+The feature remains self-hosted PostgreSQL plus the YORSO Node API. It has no
+Supabase, Firebase, Appwrite, Clerk, Auth0 or hosted BaaS production
+dependency.
+
+Marker: Batch #109 Admin Incident Trend Action Queue.
+Marker: /v1/admin/incidents/trend-action-queue.
+Marker: /v1/admin/incidents/trend-action-queue/export.
+Marker: /v1/admin/incidents/trend-action-queue/bulk.
+Marker: /admin/incident-trend-actions.
+Marker: 0025_admin_incident_trend_action_queue.
+Marker: no Supabase.

@@ -31,9 +31,13 @@ const requiredFiles = [
   "packages/db/migrations/0022_admin_incident_workload_correlation.sql",
   "packages/db/migrations/0023_admin_incident_trend_analytics.sql",
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
+  "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
   "docs/backend/admin-incident-trend-actions-indexing.md",
+  "docs/backend/admin-incident-trend-action-queue.md",
+  "docs/backend/admin-incident-trend-action-queue-api-contract.md",
+  "docs/backend/admin-incident-trend-action-queue-indexing.md",
   "scripts/admin-audit-retention.mjs",
   "packages/db/migration-manifest.json",
   "package.json",
@@ -106,6 +110,8 @@ const requiredFiles = [
   "src/lib/use-admin-incident-workload.test.tsx",
   "src/lib/use-admin-incident-trends.ts",
   "src/lib/use-admin-incident-trends.test.tsx",
+  "src/lib/use-admin-incident-trend-action-queue.ts",
+  "src/lib/use-admin-incident-trend-action-queue.test.tsx",
   "src/pages/admin/AdminIncidents.tsx",
   "src/pages/admin/AdminIncidents.test.tsx",
   "src/pages/admin/AdminIncidentDetail.tsx",
@@ -116,11 +122,14 @@ const requiredFiles = [
   "src/pages/admin/AdminIncidentWorkload.test.tsx",
   "src/pages/admin/AdminIncidentTrends.tsx",
   "src/pages/admin/AdminIncidentTrends.test.tsx",
+  "src/pages/admin/AdminIncidentTrendActions.tsx",
+  "src/pages/admin/AdminIncidentTrendActions.test.tsx",
   "e2e/admin-incidents.spec.ts",
   "e2e/admin-incident-detail.spec.ts",
   "e2e/admin-incident-execution-queue.spec.ts",
   "e2e/admin-incident-workload.spec.ts",
   "e2e/admin-incident-trends.spec.ts",
+  "e2e/admin-incident-trend-actions.spec.ts",
   "src/lib/admin-audit-api.ts",
   "src/lib/admin-audit-api.test.ts",
   "src/lib/use-admin-audit-events.ts",
@@ -243,6 +252,7 @@ const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_
 const adminIncidentWorkloadCorrelationMigration = read("packages/db/migrations/0022_admin_incident_workload_correlation.sql");
 const adminIncidentTrendAnalyticsMigration = read("packages/db/migrations/0023_admin_incident_trend_analytics.sql");
 const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
+const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -309,6 +319,8 @@ const useAdminIncidentWorkload = read("src/lib/use-admin-incident-workload.ts");
 const useAdminIncidentWorkloadTest = read("src/lib/use-admin-incident-workload.test.tsx");
 const useAdminIncidentTrends = read("src/lib/use-admin-incident-trends.ts");
 const useAdminIncidentTrendsTest = read("src/lib/use-admin-incident-trends.test.tsx");
+const useAdminIncidentTrendActionQueue = read("src/lib/use-admin-incident-trend-action-queue.ts");
+const useAdminIncidentTrendActionQueueTest = read("src/lib/use-admin-incident-trend-action-queue.test.tsx");
 const adminIncidentsPage = read("src/pages/admin/AdminIncidents.tsx");
 const adminIncidentsPageTest = read("src/pages/admin/AdminIncidents.test.tsx");
 const adminIncidentExecutionQueuePage = read("src/pages/admin/AdminIncidentExecutionQueue.tsx");
@@ -317,10 +329,13 @@ const adminIncidentWorkloadPage = read("src/pages/admin/AdminIncidentWorkload.ts
 const adminIncidentWorkloadPageTest = read("src/pages/admin/AdminIncidentWorkload.test.tsx");
 const adminIncidentTrendsPage = read("src/pages/admin/AdminIncidentTrends.tsx");
 const adminIncidentTrendsPageTest = read("src/pages/admin/AdminIncidentTrends.test.tsx");
+const adminIncidentTrendActionsPage = read("src/pages/admin/AdminIncidentTrendActions.tsx");
+const adminIncidentTrendActionsPageTest = read("src/pages/admin/AdminIncidentTrendActions.test.tsx");
 const adminIncidentsE2E = read("e2e/admin-incidents.spec.ts");
 const adminIncidentExecutionQueueE2E = read("e2e/admin-incident-execution-queue.spec.ts");
 const adminIncidentWorkloadE2E = read("e2e/admin-incident-workload.spec.ts");
 const adminIncidentTrendsE2E = read("e2e/admin-incident-trends.spec.ts");
+const adminIncidentTrendActionsE2E = read("e2e/admin-incident-trend-actions.spec.ts");
 const adminAuditFrontendApi = read("src/lib/admin-audit-api.ts");
 const adminAuditFrontendApiTest = read("src/lib/admin-audit-api.test.ts");
 const useAdminAuditEvents = read("src/lib/use-admin-audit-events.ts");
@@ -2084,6 +2099,42 @@ for (const marker of [
   requireText("src/pages/admin/AdminIncidentTrends.test.tsx", adminIncidentTrendsPageTest, marker);
 }
 for (const marker of [
+  "useAdminIncidentTrendActionQueue",
+  "client.trendActionQueue",
+  "client.trendActionQueueExportJson",
+  "client.trendActionQueueExportCsv",
+  "client.bulkDecideTrendActions",
+  "status: \"disabled\"",
+]) {
+  requireText("src/lib/use-admin-incident-trend-action-queue.ts", useAdminIncidentTrendActionQueue, marker);
+}
+for (const marker of [
+  "loads queue filters, exports and bulk decisions",
+  "/trend-action-queue/bulk",
+  "admin@yorso.test",
+]) {
+  requireText("src/lib/use-admin-incident-trend-action-queue.test.tsx", useAdminIncidentTrendActionQueueTest, marker);
+}
+for (const marker of [
+  "admin-incident-trend-actions-page",
+  "admin-incident-trend-actions-summary",
+  "admin-incident-trend-actions-filters",
+  "admin-incident-trend-actions-list",
+  "admin-incident-trend-actions-bulk",
+  "admin-incident-trend-actions-export-json",
+  "admin-incident-trend-actions-export-csv",
+  "AdminOperatorNav",
+]) {
+  requireText("src/pages/admin/AdminIncidentTrendActions.tsx", adminIncidentTrendActionsPage, marker);
+}
+for (const marker of [
+  "renders queue, exports and bulk decisions",
+  "admin-incident-trend-actions-export-status",
+  "admin-incident-trend-actions-bulk-dismiss",
+]) {
+  requireText("src/pages/admin/AdminIncidentTrendActions.test.tsx", adminIncidentTrendActionsPageTest, marker);
+}
+for (const marker of [
   "Batch #101 browser guard",
   "Batch #102 browser guard",
   "/admin/incidents",
@@ -2148,6 +2199,19 @@ for (const marker of [
   requireText("e2e/admin-incident-trends.spec.ts", adminIncidentTrendsE2E, marker);
 }
 for (const marker of [
+  "Batch #109 browser guard",
+  "/admin/incident-trend-actions",
+  "/v1/admin/incidents/trend-action-queue",
+  "/trend-action-queue/export",
+  "/trend-action-queue/bulk",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-incident-trend-actions-page",
+  "admin-incident-trend-actions-bulk-dismiss",
+]) {
+  requireText("e2e/admin-incident-trend-actions.spec.ts", adminIncidentTrendActionsE2E, marker);
+}
+for (const marker of [
   "admin_incidents_auth_guard=ok",
   "admin_incidents_acknowledge=ok",
   "admin_incidents_assign=ok",
@@ -2184,6 +2248,12 @@ for (const marker of [
   "admin_incidents_trend_action_accept=ok",
   "admin_incidents_trend_action_dismiss=ok",
   "admin_incidents_trend_action_validation_guard=ok",
+  "admin_incidents_trend_action_queue=ok",
+  "admin_incidents_trend_action_queue_filters=ok",
+  "admin_incidents_trend_action_queue_export_json=ok",
+  "admin_incidents_trend_action_queue_export_csv=ok",
+  "admin_incidents_trend_action_queue_bulk=ok",
+  "admin_incidents_trend_action_queue_note_hygiene_guard=ok",
   "admin_incidents_correlation=ok",
   "admin_incidents_workflow_filters=ok",
   "admin_incidents_workflow_validation_guard=ok",
@@ -2240,6 +2310,14 @@ for (const marker of [
   "Batch #108",
 ]) {
   requireText("packages/db/migrations/0024_admin_incident_trend_actions.sql", adminIncidentTrendActionsMigration, marker);
+}
+for (const marker of [
+  "idx_yorso_admin_trend_actions_owner_priority",
+  "idx_yorso_admin_trend_actions_status_kind_priority",
+  "idx_yorso_admin_trend_actions_decider_updated",
+  "Batch #109",
+]) {
+  requireText("packages/db/migrations/0025_admin_incident_trend_action_queue.sql", adminIncidentTrendActionQueueMigration, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",
@@ -2316,7 +2394,7 @@ if (pkg.scripts["smoke:self-hosted-admin-incidents"] !== "npm run api:build && n
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-admin-incidents:run")) {
   failures.push("package.json: ci:core must include the admin incidents self-hosted smoke");
 }
-if (pkg.scripts["test:admin-incidents-frontend"] !== "vitest run src/lib/admin-incidents-api.test.ts src/lib/admin-incidents-trends-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/lib/use-admin-incident-workload.test.tsx src/lib/use-admin-incident-trends.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx src/pages/admin/AdminIncidentWorkload.test.tsx src/pages/admin/AdminIncidentTrends.test.tsx") {
+if (pkg.scripts["test:admin-incidents-frontend"] !== "NODE_OPTIONS=--max-old-space-size=8192 vitest run src/lib/admin-incidents-api.test.ts src/lib/admin-incidents-trends-api.test.ts src/lib/use-admin-incidents.test.tsx src/lib/use-admin-incident-detail.test.tsx src/lib/use-admin-incident-execution-queue.test.tsx src/lib/use-admin-incident-workload.test.tsx src/lib/use-admin-incident-trends.test.tsx src/lib/use-admin-incident-trend-action-queue.test.tsx src/pages/admin/AdminIncidents.test.tsx src/pages/admin/AdminIncidentDetail.test.tsx src/pages/admin/AdminIncidentExecutionQueue.test.tsx src/pages/admin/AdminIncidentWorkload.test.tsx src/pages/admin/AdminIncidentTrends.test.tsx src/pages/admin/AdminIncidentTrendActions.test.tsx") {
   failures.push("package.json: test:admin-incidents-frontend must cover admin incidents adapter, hook and page");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-incidents-frontend")) {
@@ -2363,6 +2441,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-executio
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident execution queue browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-execution-queue");
+if (pkg.scripts["smoke:e2e:admin-incident-trend-actions"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-incident-trend-actions:run") {
+  failures.push("package.json: smoke:e2e:admin-incident-trend-actions must build with the self-hosted admin incident trend actions adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-incident-trend-actions:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-incident-trend-actions.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-incident-trend-actions:run must execute e2e/admin-incident-trend-actions.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-incident-trend-actions")) {
+  failures.push("package.json: ci:full must include admin incident trend actions browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin incident trend actions browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-incident-trend-actions");
 if (pkg.scripts["smoke:e2e:admin-audit-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-audit-events:run") {
   failures.push("package.json: smoke:e2e:admin-audit-events must build with the self-hosted admin audit adapter enabled");
 }

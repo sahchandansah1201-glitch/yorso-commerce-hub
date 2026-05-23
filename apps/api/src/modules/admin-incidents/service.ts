@@ -26,6 +26,10 @@ import {
   adminIncidentTrendAnomaliesResponseSchema,
   adminIncidentTrendActionDecisionRequestSchema,
   adminIncidentTrendActionDecisionResponseSchema,
+  adminIncidentTrendActionQueueBulkDecisionRequestSchema,
+  adminIncidentTrendActionQueueBulkDecisionResponseSchema,
+  adminIncidentTrendActionQueueExportQuerySchema,
+  adminIncidentTrendActionQueueResponseSchema,
   adminIncidentTrendActionsResponseSchema,
   adminIncidentTrendBriefingResponseSchema,
   adminIncidentTrendExportQuerySchema,
@@ -64,6 +68,7 @@ import {
   type AdminIncidentTrendAnomaly,
   type AdminIncidentTrendAnomalySeverity,
   type AdminIncidentTrendAction,
+  type AdminIncidentTrendActionQueueQuery,
   type AdminIncidentTrendBriefingResponse,
   type AdminIncidentTrendBucket,
   type AdminIncidentTrendDimension,
@@ -613,6 +618,90 @@ export class AdminIncidentService {
       ok: true,
       requestId,
       timelineEventsCreated,
+    });
+  }
+
+  async listIncidentTrendActionQueue(payload: unknown, requestId: string) {
+    const query = adminIncidentTrendActionQueueExportQuerySchema.parse(payload);
+    const actions = await this.deriveTrendActions(query, requestId);
+    const filtered = actions.filter((action) => matchesTrendActionQueue(action, query));
+    const page = filtered.slice(query.offset, query.offset + query.limit);
+    return adminIncidentTrendActionQueueResponseSchema.parse({
+      actions: page,
+      generatedAt: new Date().toISOString(),
+      limit: query.limit,
+      ok: true,
+      offset: query.offset,
+      requestId,
+      summary: summarizeTrendActions(filtered),
+      window: query.window,
+    });
+  }
+
+  async exportIncidentTrendActionQueue(payload: unknown, requestId: string) {
+    const query = adminIncidentTrendActionQueueExportQuerySchema.parse(payload);
+    const queue = await this.listIncidentTrendActionQueue(query, requestId);
+    if (query.format === "csv") {
+      return {
+        body: formatTrendActionQueueCsv(queue.actions),
+        contentType: "text/csv; charset=utf-8",
+        fileName: `admin-incident-trend-actions-${query.window}.csv`,
+      };
+    }
+    return {
+      body: JSON.stringify(queue),
+      contentType: "application/json; charset=utf-8",
+      fileName: `admin-incident-trend-actions-${query.window}.json`,
+    };
+  }
+
+  async bulkDecideIncidentTrendActions(
+    queryPayload: unknown,
+    body: unknown,
+    actorUserId: string,
+    requestId: string,
+  ) {
+    const query = adminIncidentTrendActionQueueExportQuerySchema.parse(queryPayload);
+    const request = adminIncidentTrendActionQueueBulkDecisionRequestSchema.parse(body);
+    const actions = await this.deriveTrendActions(query, requestId);
+    const actionMap = new Map(actions.map((action) => [action.actionId, action]));
+    const failed: Array<{ actionId: string; code: "admin_incident_trend_action_not_found" }> = [];
+    const updatedActions: AdminIncidentTrendAction[] = [];
+    let timelineEventsCreated = 0;
+
+    for (const actionId of dedupeStrings(request.actionIds)) {
+      const action = actionMap.get(actionId);
+      if (!action) {
+        failed.push({ actionId, code: "admin_incident_trend_action_not_found" });
+        continue;
+      }
+      const decision = await this.repository.upsertTrendActionDecision({
+        actionId: action.actionId,
+        decidedByUserId: actorUserId,
+        kind: action.kind,
+        loadScore: action.loadScore,
+        note: request.note,
+        ownerRole: action.ownerRole,
+        priority: action.priority,
+        relatedIncidentIds: action.relatedIncidentIds,
+        route: action.route,
+        signal: action.signal,
+        status: request.decision === "accept" ? "accepted" : "dismissed",
+        title: action.title,
+      });
+      if (request.decision === "accept") {
+        timelineEventsCreated += await this.applyTrendActionToIncidents(action, actorUserId, request.note, requestId);
+      }
+      updatedActions.push(mergeTrendActionDecision(action, decision));
+    }
+
+    return adminIncidentTrendActionQueueBulkDecisionResponseSchema.parse({
+      failed,
+      ok: true,
+      requestId,
+      succeeded: updatedActions.length,
+      timelineEventsCreated,
+      updatedActions,
     });
   }
 
@@ -1878,6 +1967,14 @@ function summarizeTrendActions(actions: AdminIncidentTrendAction[]) {
   };
 }
 
+function matchesTrendActionQueue(action: AdminIncidentTrendAction, query: AdminIncidentTrendActionQueueQuery) {
+  if (query.decision && action.status !== query.decision) return false;
+  if (query.kind && action.kind !== query.kind) return false;
+  if (query.ownerRole && action.ownerRole !== query.ownerRole) return false;
+  if (query.priority && action.priority !== query.priority) return false;
+  return true;
+}
+
 function compareTrendActions(left: AdminIncidentTrendAction, right: AdminIncidentTrendAction) {
   return trendActionStatusRank[left.status] - trendActionStatusRank[right.status] ||
     executionPriorityRank[left.priority] - executionPriorityRank[right.priority] ||
@@ -1898,6 +1995,38 @@ function trendActionDecisionNote(action: AdminIncidentTrendAction, note: string 
     action.route ? `route ${action.route}` : null,
     note ? `note ${note}` : null,
   ].filter(Boolean).join(". ").slice(0, 500);
+}
+
+function dedupeStrings(values: string[]) {
+  return [...new Set(values)];
+}
+
+function formatTrendActionQueueCsv(actions: AdminIncidentTrendAction[]) {
+  const header = [
+    "actionId",
+    "status",
+    "kind",
+    "priority",
+    "ownerRole",
+    "loadScore",
+    "route",
+    "relatedIncidents",
+    "title",
+    "signal",
+  ];
+  const rows = actions.map((action) => [
+    action.actionId,
+    action.status,
+    action.kind,
+    action.priority,
+    action.ownerRole,
+    String(action.loadScore),
+    action.route ?? "",
+    String(action.relatedIncidentIds.length),
+    action.title,
+    action.signal,
+  ]);
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
 function workloadScore(items: AdminIncidentExecutionQueueItem[]) {

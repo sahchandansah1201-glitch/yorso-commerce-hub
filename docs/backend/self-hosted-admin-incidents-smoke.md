@@ -60,6 +60,11 @@ through `/v1/admin/incidents/trends`, export the same bounded shape through
 `/v1/admin/incidents/trends/export?format=json|csv`, review anomalies through
 `/v1/admin/incidents/trends/anomalies`, and load an operator briefing through
 `/v1/admin/incidents/trends/briefing`.
+Batch #108 adds trend action decisions through
+`/v1/admin/incidents/trends/actions`. Batch #109 adds a dedicated trend action
+queue through `/v1/admin/incidents/trend-action-queue`, bounded export through
+`/v1/admin/incidents/trend-action-queue/export?format=json|csv`, and bulk
+accept/dismiss through `/v1/admin/incidents/trend-action-queue/bulk`.
 
 ## Command
 
@@ -175,6 +180,7 @@ Marker: Batch #104.
 Marker: Batch #105.
 Marker: Batch #107.
 Marker: Batch #108.
+Marker: Batch #109.
 Marker: admin incident response.
 Marker: admin incident workflow.
 Marker: admin incident detail handoff.
@@ -196,12 +202,16 @@ Marker: /v1/admin/incidents/trends/anomalies.
 Marker: /v1/admin/incidents/trends/briefing.
 Marker: /v1/admin/incidents/trends/actions.
 Marker: /v1/admin/incidents/trends/actions/:actionId/decision.
+Marker: /v1/admin/incidents/trend-action-queue.
+Marker: /v1/admin/incidents/trend-action-queue/export.
+Marker: /v1/admin/incidents/trend-action-queue/bulk.
 Marker: /v1/admin/incidents/workflow/bulk.
 Marker: /v1/admin/incidents/export.
 Marker: /admin/incidents.
 Marker: /admin/incidents/:incidentId.
 Marker: /admin/incident-execution.
 Marker: /admin/incident-trends.
+Marker: /admin/incident-trend-actions.
 Marker: smoke:self-hosted-admin-incidents.
 Marker: smoke:e2e:admin-incidents.
 Marker: smoke:e2e:admin-incident-detail.
@@ -248,6 +258,12 @@ Marker: admin_incidents_trend_actions=ok.
 Marker: admin_incidents_trend_action_accept=ok.
 Marker: admin_incidents_trend_action_dismiss=ok.
 Marker: admin_incidents_trend_action_validation_guard=ok.
+Marker: admin_incidents_trend_action_queue=ok.
+Marker: admin_incidents_trend_action_queue_filters=ok.
+Marker: admin_incidents_trend_action_queue_export_json=ok.
+Marker: admin_incidents_trend_action_queue_export_csv=ok.
+Marker: admin_incidents_trend_action_queue_bulk=ok.
+Marker: admin_incidents_trend_action_queue_note_hygiene_guard=ok.
 Marker: admin_incidents_note_hygiene_guard=ok.
 Marker: admin_incidents_workflow_filters=ok.
 Marker: admin_incidents_workflow_validation_guard=ok.

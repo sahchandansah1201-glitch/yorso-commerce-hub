@@ -517,6 +517,14 @@ export interface AdminIncidentTrendQuery {
   window?: AdminIncidentTrendWindow;
 }
 
+export interface AdminIncidentTrendActionQueueQuery extends AdminIncidentTrendQuery {
+  decision?: AdminIncidentTrendActionDecisionStatus | "all";
+  kind?: AdminIncidentTrendActionKind | "all";
+  offset?: number;
+  ownerRole?: AdminIncidentExecutionItem["ownerRole"] | "all";
+  priority?: AdminIncidentExecutionPriority | "all";
+}
+
 export interface AdminIncidentTrendBucket {
   acknowledged: number;
   access: number;
@@ -683,6 +691,26 @@ export interface AdminIncidentTrendActionDecisionResponse {
   timelineEventsCreated: number;
 }
 
+export interface AdminIncidentTrendActionQueueResponse extends AdminIncidentTrendActionsResponse {
+  limit: number;
+  offset: number;
+}
+
+export interface AdminIncidentTrendActionQueueBulkDecisionInput {
+  actionIds: string[];
+  decision: "accept" | "dismiss";
+  note?: string;
+}
+
+export interface AdminIncidentTrendActionQueueBulkDecisionResponse {
+  failed: Array<{ actionId: string; code: "admin_incident_trend_action_not_found" }>;
+  ok: true;
+  requestId: string;
+  succeeded: number;
+  timelineEventsCreated: number;
+  updatedActions: AdminIncidentTrendAction[];
+}
+
 export interface AdminIncidentsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -775,6 +803,19 @@ const trendQueryString = (query: AdminIncidentTrendQuery & { format?: AdminIncid
   if (query.source && query.source !== "all") params.set("source", query.source);
   if (query.status && query.status !== "all") params.set("status", query.status);
   if (query.window) params.set("window", query.window);
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+};
+
+const trendActionQueueQueryString = (
+  query: AdminIncidentTrendActionQueueQuery & { format?: AdminIncidentExportFormat } = {},
+) => {
+  const params = new URLSearchParams(trendQueryString(query).replace(/^\?/, ""));
+  if (query.decision && query.decision !== "all") params.set("decision", query.decision);
+  if (query.kind && query.kind !== "all") params.set("kind", query.kind);
+  if (query.offset) params.set("offset", String(query.offset));
+  if (query.ownerRole && query.ownerRole !== "all") params.set("ownerRole", query.ownerRole);
+  if (query.priority && query.priority !== "all") params.set("priority", query.priority);
   const serialized = params.toString();
   return serialized ? `?${serialized}` : "";
 };
@@ -1205,6 +1246,61 @@ export function createAdminIncidentsApiClient(options: AdminIncidentsApiClientOp
       if (!response.ok) throw mapError(body, response.status);
       return assertTrendActionDecisionShape(body);
     },
+    async trendActionQueue(query: AdminIncidentTrendActionQueueQuery = {}): Promise<AdminIncidentTrendActionQueueResponse> {
+      assertSession();
+      const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/trend-action-queue${trendActionQueueQueryString(query)}`, {
+        headers: headers(),
+        method: "GET",
+      });
+      const body = await readJson(response) as AdminIncidentTrendActionQueueResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendActionQueueShape(body);
+    },
+    async trendActionQueueExportJson(query: AdminIncidentTrendActionQueueQuery = {}): Promise<AdminIncidentTrendActionQueueResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trend-action-queue/export${trendActionQueueQueryString({ ...query, format: "json" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentTrendActionQueueResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendActionQueueShape(body);
+    },
+    async trendActionQueueExportCsv(query: AdminIncidentTrendActionQueueQuery = {}): Promise<string> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trend-action-queue/export${trendActionQueueQueryString({ ...query, format: "csv" })}`,
+        {
+          headers: headers(),
+          method: "GET",
+        },
+      );
+      if (!response.ok) {
+        const body = await readJson(response) as { error?: { code?: string; message?: string } };
+        throw mapError(body, response.status);
+      }
+      return response.text();
+    },
+    async bulkDecideTrendActions(
+      input: AdminIncidentTrendActionQueueBulkDecisionInput,
+      query: AdminIncidentTrendActionQueueQuery = {},
+    ): Promise<AdminIncidentTrendActionQueueBulkDecisionResponse> {
+      assertSession();
+      const response = await fetchImpl(
+        `${baseUrl}/v1/admin/incidents/trend-action-queue/bulk${trendActionQueueQueryString(query)}`,
+        {
+          body: JSON.stringify(input),
+          headers: headers(true),
+          method: "POST",
+        },
+      );
+      const body = await readJson(response) as AdminIncidentTrendActionQueueBulkDecisionResponse & { error?: { code?: string; message?: string } };
+      if (!response.ok) throw mapError(body, response.status);
+      return assertTrendActionQueueBulkDecisionShape(body);
+    },
     async exportJson(query: AdminIncidentQuery = {}): Promise<AdminIncidentExportResponse> {
       assertSession();
       const response = await fetchImpl(`${baseUrl}/v1/admin/incidents/export${queryString({ ...query, format: "json" })}`, {
@@ -1594,6 +1690,41 @@ function assertTrendActionDecisionShape(response: AdminIncidentTrendActionDecisi
     throw new AdminIncidentsApiError(
       "admin_incidents_invalid_response",
       "Admin incident trend action decision response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendActionQueueShape(response: AdminIncidentTrendActionQueueResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.actions) ||
+    typeof response.limit !== "number" ||
+    typeof response.offset !== "number" ||
+    typeof response.summary?.total !== "number" ||
+    typeof response.summary?.proposed !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend action queue response was invalid.",
+      200,
+    );
+  }
+  return response;
+}
+
+function assertTrendActionQueueBulkDecisionShape(response: AdminIncidentTrendActionQueueBulkDecisionResponse) {
+  if (
+    response?.ok !== true ||
+    !Array.isArray(response.updatedActions) ||
+    !Array.isArray(response.failed) ||
+    typeof response.succeeded !== "number" ||
+    typeof response.timelineEventsCreated !== "number"
+  ) {
+    throw new AdminIncidentsApiError(
+      "admin_incidents_invalid_response",
+      "Admin incident trend action queue bulk response was invalid.",
       200,
     );
   }

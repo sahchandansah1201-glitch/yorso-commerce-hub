@@ -50,6 +50,7 @@ import AdminIncidents from "./pages/admin/AdminIncidents.tsx";
 import AdminIncidentDetail from "./pages/admin/AdminIncidentDetail.tsx";
 import AdminIncidentExecutionQueue from "./pages/admin/AdminIncidentExecutionQueue.tsx";
 import AdminIncidentWorkload from "./pages/admin/AdminIncidentWorkload.tsx";
+import AdminIncidentTrendActions from "./pages/admin/AdminIncidentTrendActions.tsx";
 import AdminIncidentTrends from "./pages/admin/AdminIncidentTrends.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
@@ -116,6 +117,7 @@ const App = () => (
                 <Route path="/admin/incident-execution" element={<AdminIncidentExecutionQueue />} />
                 <Route path="/admin/incident-workload" element={<AdminIncidentWorkload />} />
                 <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
+                <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
                 <Route path="/dev/typography" element={<TypographyAudit />} />
                 {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                 {legacyRedirects.flatMap(({ from, to }) => [
