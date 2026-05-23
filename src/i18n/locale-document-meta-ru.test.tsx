@@ -6,8 +6,9 @@
  *   - <meta name="description"> === translations.ru.meta_siteDescription
  *   - английский meta_siteTitle/Description не должен попадать в документ.
  *
- * Маршруты: главная, регистрационные шаги, signin, offers и все info-страницы
- * из роутера. Между переходами лангметаданные не должны переключаться на en.
+ * Маршруты: главная, регистрационные шаги, signin и info-страницы
+ * без собственного route SEO. Между переходами лангметаданные не должны
+ * переключаться на en.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, screen, act, cleanup } from "@testing-library/react";
@@ -80,11 +81,10 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
     </MemoryRouter>,
   );
 
-const PUBLIC_ROUTES = [
+const GLOBAL_META_ROUTES = [
   "/",
   "/register",
   "/signin",
-  "/offers",
   "/about",
   "/contact",
   "/terms",
@@ -146,13 +146,13 @@ describe("Public-страницы: метаданные документа на 
     expect(getMetaDescription()).not.toBe(translations.en.meta_siteDescription);
   });
 
-  it("На каждом public-маршруте после setLang('ru') ru-метаданные сохраняются и не сбрасываются на en", () => {
+  it("На каждом public-маршруте без route SEO после setLang('ru') ru-метаданные сохраняются и не сбрасываются на en", () => {
     let api!: Api;
     renderApp((a) => (api = a), "/");
 
     act(() => api.setLang("ru"));
 
-    for (const path of PUBLIC_ROUTES) {
+    for (const path of GLOBAL_META_ROUTES) {
       act(() => api.navigateTo(path));
 
       expect(screen.getByTestId("lang").textContent, `lang сбросился на ${path}`).toBe("ru");

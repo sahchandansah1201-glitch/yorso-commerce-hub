@@ -11,13 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
-  active_branch: "main"
-  head_commit: "2e8fb7b"
-  head_summary: "[codex] Batch #110 public UX mobile scan"
+  active_branch: "codex/batch111-public-route-seo"
+  head_commit: "0d9319d"
+  head_summary: "[codex] Batch #111 public route SEO"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Project-memory checkpoint files are being updated after PR #161 merge."
-    - "Batch #110 Lovable sync prompt is being added."
+    - "Project-memory checkpoint files are being updated after opening Draft PR #162."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,51 +37,46 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch110_lovable_sync"
-  summary: "Sync Lovable after Batch #110 public UX/UI remediation, then choose the next buyer-first UX batch."
-  status: "batch110_merged_lovable_prompt_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
+  id: "batch111_public_route_seo"
+  summary: "Route-owned SEO, social metadata and structured data for public buyer-first pages."
+  status: "draft_pr_open"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
   confirmed_scope:
-    - "Replace Lovable default title, description and social metadata in index.html."
-    - "Replace generic Lovable README content with a repository-specific YORSO Commerce Hub README."
-    - "Contain mobile horizontal overflow on the landing page and how-it-works page."
-    - "Increase key mobile touch targets for the public header and supplier quick filter chips."
-    - "Harden public mobile touch targets across /, /offers, /suppliers, /how-it-works and /for-suppliers."
-    - "Remove invalid Link > Button nesting in public CTA blocks by using Button asChild."
+    - "Add route-owned SEO marker coverage to /, /offers, /suppliers, /how-it-works and /for-suppliers."
+    - "Add canonical, Open Graph, Twitter and JSON-LD coverage for the public buyer-first routes."
+    - "Keep supplier directory SEO from leaking exact supplier company names in locked states."
+    - "Localize route metadata across EN/RU/ES where the page already has localized copy."
+    - "Refresh global meta descriptions with buyer-first procurement language."
+    - "Fix homepage H1 text boundary for readable textContent without changing the visual design."
     - "Keep existing visual language and shadcn/Tailwind component patterns."
   confirmed_files:
-    - "index.html"
-    - "README.md"
-    - "src/components/ui/button.tsx"
-    - "src/components/CertificationBadges.tsx"
-    - "src/components/catalog/CatalogRecoveryCard.tsx"
-    - "src/components/catalog/MobileFilterPills.tsx"
-    - "src/components/catalog/MobileOfferCard.tsx"
-    - "src/components/landing/Footer.tsx"
     - "src/components/landing/Hero.tsx"
-    - "src/components/landing/FinalCTA.tsx"
-    - "src/components/landing/LiveOffers.tsx"
-    - "src/components/landing/SupplierVerification.tsx"
-    - "src/components/landing/ValueSplit.tsx"
+    - "src/i18n/translations.ts"
+    - "src/i18n/locale-document-meta-ru.test.tsx"
+    - "src/lib/seo.ts"
+    - "src/lib/public-route-seo.ts"
     - "src/pages/Index.tsx"
     - "src/pages/Offers.tsx"
     - "src/pages/HowItWorks.tsx"
     - "src/pages/ForSuppliers.tsx"
     - "src/pages/Suppliers.tsx"
-    - "src/components/suppliers/SupplierRow.tsx"
-    - "src/components/landing/Header.tsx"
-    - "src/components/how-it-works/ProcurementDecisionProof.tsx"
-    - "src/components/how-it-works/AccessLevels.tsx"
-    - "src/components/how-it-works/FinalCTA.tsx"
-    - "packages/db/src/cli.test.ts"
-    - "packages/db/src/migrator.test.ts"
+    - "src/pages/PublicRouteSeo.test.tsx"
 
 latest_merged_batches:
   - id: 110
     summary: "Public UX mobile scan, metadata cleanup, valid CTA semantics and DB migration-test fixture follow-up."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "2e8fb7b"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
+    lovable_sync:
+      confirmed_at: "2026-05-23"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to ff989407, including Batch #110 commit 2e8fb7b."
+        - "index.html, README.md and public routes /, /how-it-works, /suppliers, /offers and /for-suppliers were checked."
+        - "packages/db/migration-manifest.json contains 26 migrations including 0025_admin_incident_trend_action_queue."
+        - "No conflicts were found and the worktree was clean."
+        - "Known warnings remain: Supabase generated types drift, stale Browserslist data and large main JS chunk."
     confirmed_files:
       - "index.html"
       - "README.md"
@@ -161,26 +155,33 @@ current_ux_audit_status:
     - "The supplier side mainly supports supply and trust mechanisms instead of replacing the buyer story."
     - "Admin/operator surfaces have explicit self-hosted API contracts, smoke tests, e2e coverage and production-scale guardrails."
   weak:
-    - "Before the current patch, index.html and README still exposed Lovable default metadata."
+    - "Before Batch #111, route-level metadata was inconsistent across public routes outside the blog."
     - "The public bundle remains very large and needs route-level code splitting."
     - "Google Fonts are loaded through CSS @import, which can block visual checks and slow first render."
   conversion_risks:
-    - "Generic metadata weakens search snippets and shared-link trust."
-    - "Mobile horizontal overflow on long pages weakens perceived quality."
     - "Large first-load JavaScript may delay buyer exploration."
+    - "Mobile horizontal overflow on long pages weakens perceived quality."
   trust_risks:
     - "Supabase generated types are still out of sync with backend access migrations in non-strict build mode."
-    - "Old project-memory state pointed to Batch #107 and could mislead a new chat."
+    - "Public SEO must keep locked supplier identity rules: no exact supplier company names in supplier-directory metadata before access."
   seo_structure_risks:
-    - "The page metadata baseline is now fixed, but route-level metadata and schema structure remain a future task."
+    - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-110-lovable-sync.md in Lovable and confirm sync status."
+  - "Monitor Draft PR #162 checks for Batch #111 public route SEO."
+  - "After checks pass, mark PR #162 ready and merge if no review changes are required."
+  - "Prepare a Batch #111 Lovable sync prompt after merge."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
-  - "Add route-level SEO metadata and structured copy review for public buyer pages."
 
 last_confirmed_checks:
+  - "2026-05-23: Batch #111 focused Vitest route SEO/i18n tests passed, 53 tests across 6 files."
+  - "2026-05-23: Batch #111 npx vitest run src/pages/PublicRouteSeo.test.tsx passed, 9 tests."
+  - "2026-05-23: Batch #111 npm run lint passed."
+  - "2026-05-23: Batch #111 npx tsc -b --noEmit passed."
+  - "2026-05-23: Batch #111 npm run build passed; known warnings remain for Supabase generated type drift, stale Browserslist data and a large main chunk."
+  - "2026-05-23: Batch #111 Playwright head/mobile check at 390px passed for /, /offers, /suppliers, /how-it-works and /for-suppliers: marker, canonical, OG/Twitter, JSON-LD and no horizontal overflow."
+  - "2026-05-23: User confirmed Lovable sync for Batch #110 is clean with no conflicts at ff989407."
   - "2026-05-23: npm run lint passed."
   - "2026-05-23: npx tsc -b --noEmit passed."
   - "2026-05-23: npm run check:production-scale-baseline passed."
@@ -221,5 +222,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #110 is pending."
-  - "Whether to prioritize performance/code splitting, font loading or route-level SEO next should be decided from the next product goal."
+  - "Batch #111 PR #162 still needs GitHub checks and merge."
+  - "After Batch #111, choose whether the next UX batch should address performance/code splitting or font loading."

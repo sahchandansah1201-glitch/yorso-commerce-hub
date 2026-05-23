@@ -2,26 +2,34 @@
 
 ## Current Next Action
 
-1. Run the Batch #110 Lovable sync prompt:
-   - file: `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`;
-   - expected source commit: `2e8fb7b` or newer on GitHub `main`;
-   - record whether Lovable sync is clean or has conflicts.
+1. Finish Batch #111 public route SEO:
+   - branch: `codex/batch111-public-route-seo`;
+   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`;
+   - status: Draft PR open after local validation passed;
+   - next steps: monitor GitHub checks, mark ready and merge if clean.
 
-2. Plan the next production-quality UX batch:
-   - route-level SEO metadata and structured snippets for public buyer pages;
+2. After Batch #111 merge, prepare the Lovable sync prompt and record whether Lovable sync is clean or has conflicts.
+
+3. Plan the next production-quality UX batch:
    - performance/code splitting for admin and account routes;
    - font-loading cleanup to remove blocking CSS `@import`;
    - route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
 ## Latest Confirmed Main State
 
-- `main` is at `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
+- local branch is `codex/batch111-public-route-seo` at Batch #111 commit `0d9319d`, `[codex] Batch #111 public route SEO`.
+- Draft PR #162 is open for Batch #111: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
+- `main` includes Batch #110 commit `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`, plus the Batch #110 Lovable sync prompt commit.
 - Batch #108, Batch #109 and Batch #110 are merged to `main`.
-- Lovable sync for Batch #109 is confirmed clean with no conflicts.
+- Lovable sync for Batch #109 and Batch #110 is confirmed clean with no conflicts.
 - Project-memory has been corrected from the stale Batch #107 checkpoint.
 - Public UX/UI patch is locally validated. Playwright mobile audit at 390px reports zero overflow and zero interactive targets below 44px on `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
 - PR #161 is merged for Batch #110 public UX mobile scan.
 - CI fix for PR #161 updates DB migration tests to include `0025_admin_incident_trend_action_queue`; `npm run test:db-migrations`, local `npm run ci:core` and GitHub `Core Type And Build Gate` pass.
+- Batch #111 local validation passed:
+  - route-owned SEO marker, canonical, OG/Twitter and JSON-LD on `/`, `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`;
+  - `npx vitest run src/pages/PublicRouteSeo.test.tsx` passed, 9 tests;
+  - `npm run lint`, `npx tsc -b --noEmit` and `npm run build` passed with known warnings.
 
 ## Blockers
 

@@ -409,3 +409,26 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access browser suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #161 ready and merged it to `main` as `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
 - Added `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md` for Batch #110 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #110 is clean with no conflicts:
+  - GitHub commit synced to `ff989407`, including Batch #110 commit `2e8fb7b`;
+  - `index.html`, `README.md`, public routes `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`, and the migration manifest were checked;
+  - no conflicts were found and the worktree was clean;
+  - known warnings remain: Supabase generated types drift, stale Browserslist data and large main JS chunk.
+- Started Batch #111 on branch `codex/batch111-public-route-seo`.
+- Implemented Batch #111 public route SEO:
+  - extended `src/lib/seo.ts` for route-owned social metadata and global SEO restoration;
+  - added `src/lib/public-route-seo.ts` for shared public route OG image, locale and title helpers;
+  - added route-owned SEO marker/canonical/OG/Twitter/JSON-LD coverage to `/`, `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`;
+  - refreshed global meta descriptions in EN/RU/ES with buyer-first procurement language;
+  - kept supplier directory SEO from exposing exact supplier company names in locked states;
+  - fixed homepage H1 text boundary so screen-reader/textContent output reads `Prices. Full` instead of a glued sentence.
+- Confirmed Batch #111 validation:
+  - `npx vitest run src/pages/PublicRouteSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx src/pages/Blog.seoHardening.test.tsx src/pages/ForSuppliers.test.tsx src/pages/Suppliers.test.tsx src/pages/Offers.catalogPaging.test.tsx` passed, 53 tests;
+  - `npx vitest run src/pages/PublicRouteSeo.test.tsx` passed, 9 tests after the H1 and canonical-cleanup follow-up;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run build` passed with known warnings for Supabase type drift, stale Browserslist data and large main chunk;
+  - Playwright head/mobile check at 390px confirmed marker, canonical, OG/Twitter, JSON-LD and no horizontal overflow on `/`, `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+- Committed Batch #111 as `0d9319d`, `[codex] Batch #111 public route SEO`.
+- Pushed branch `codex/batch111-public-route-seo` to `origin`.
+- Opened Draft PR #162: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.

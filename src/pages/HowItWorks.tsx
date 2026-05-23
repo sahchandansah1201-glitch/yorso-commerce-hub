@@ -35,6 +35,8 @@ import ProofByNumbers from "@/components/how-it-works/ProofByNumbers";
 import FinalCTA from "@/components/how-it-works/FinalCTA";
 import { useHowItWorks } from "@/i18n/how-it-works";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { restoreCanonical, restoreGlobalSeo, setRouteSeoMarker } from "@/lib/seo";
+import { ogLocaleByLang } from "@/lib/public-route-seo";
 
 const workflowIcons = [Search, KeyRound, ShieldCheck, FileText, Truck, RefreshCw];
 const systemIcons = [Database, GitBranch, BadgeCheck, LineChart, PackageCheck, MessagesSquare];
@@ -65,22 +67,25 @@ const HowItWorks = () => {
   const { lang, t: tCommon } = useLanguage();
 
   useEffect(() => {
-    const prevTitle = document.title;
-    const prevDescription =
-      document.head.querySelector<HTMLMetaElement>('meta[name="description"]')?.getAttribute("content") ?? "";
     const prevCanonical =
       document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? "";
 
+    setRouteSeoMarker();
     document.title = t.seo_title;
+    const canonical =
+      typeof window !== "undefined" ? `${window.location.origin}/how-it-works` : "/how-it-works";
 
     upsertMeta('meta[name="description"]', { name: "description", content: t.seo_description });
     upsertMeta('meta[property="og:title"]', { property: "og:title", content: t.seo_title });
     upsertMeta('meta[property="og:description"]', { property: "og:description", content: t.seo_description });
     upsertMeta('meta[property="og:type"]', { property: "og:type", content: "website" });
+    upsertMeta('meta[property="og:url"]', { property: "og:url", content: canonical });
+    upsertMeta('meta[property="og:site_name"]', { property: "og:site_name", content: "YORSO" });
+    upsertMeta('meta[property="og:locale"]', { property: "og:locale", content: ogLocaleByLang[lang] });
     upsertMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
+    upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: t.seo_title });
+    upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: t.seo_description });
 
-    const canonical =
-      typeof window !== "undefined" ? `${window.location.origin}/how-it-works` : "/how-it-works";
     upsertLink("canonical", canonical);
 
     const ld = document.createElement("script");
@@ -118,16 +123,25 @@ const HowItWorks = () => {
     document.head.appendChild(ld);
 
     return () => {
-      document.title = prevTitle;
-      if (prevDescription) {
-        upsertMeta('meta[name="description"]', { name: "description", content: prevDescription });
-        upsertMeta('meta[property="og:description"]', { property: "og:description", content: prevDescription });
-      }
-      upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
-      if (prevCanonical) upsertLink("canonical", prevCanonical);
+      restoreGlobalSeo({
+        title: tCommon.meta_siteTitle,
+        description: tCommon.meta_siteDescription,
+      });
+      upsertMeta('meta[property="og:title"]', { property: "og:title", content: tCommon.meta_siteTitle });
+      upsertMeta('meta[property="og:description"]', { property: "og:description", content: tCommon.meta_siteDescription });
+      upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: tCommon.meta_siteTitle });
+      upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: tCommon.meta_siteDescription });
+      restoreCanonical(prevCanonical);
       document.getElementById("ld-how-it-works")?.remove();
     };
-  }, [t, lang, tCommon.catalog_breadcrumbHome, tCommon.nav_howItWorks]);
+  }, [
+    t,
+    lang,
+    tCommon.catalog_breadcrumbHome,
+    tCommon.meta_siteDescription,
+    tCommon.meta_siteTitle,
+    tCommon.nav_howItWorks,
+  ]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">

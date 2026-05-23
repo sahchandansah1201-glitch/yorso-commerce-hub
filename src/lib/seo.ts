@@ -32,6 +32,18 @@ export const upsertLink = (rel: string, href: string): void => {
   el.setAttribute("href", href);
 };
 
+export const removeLink = (rel: string): void => {
+  document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)?.remove();
+};
+
+export const restoreCanonical = (href: string | null): void => {
+  if (href) {
+    upsertLink("canonical", href);
+  } else {
+    removeLink("canonical");
+  }
+};
+
 export const upsertJsonLd = (id: string, data: unknown): void => {
   let el = document.head.querySelector<HTMLScriptElement>(
     `script[data-jsonld="${id}"]`,
@@ -66,6 +78,19 @@ export const clearRouteSeoMarker = (): void => {
   document.head.querySelector(`meta[name="${MARKER_NAME}"]`)?.remove();
 };
 
+export const restoreGlobalSeo = (opts: {
+  title: string;
+  description: string;
+}): void => {
+  if (typeof document === "undefined") return;
+  clearRouteSeoMarker();
+  document.title = opts.title;
+  upsertMeta('meta[name="description"]', {
+    name: "description",
+    content: opts.description,
+  });
+};
+
 export const isRouteSeoOwned = (): boolean =>
   typeof document !== "undefined" &&
   document.head.querySelector(`meta[name="${MARKER_NAME}"]`) !== null;
@@ -90,8 +115,18 @@ export const applyRouteSeo = (opts: {
     title?: string;
     description?: string;
     image?: string;
+    imageAlt?: string;
+    locale?: string;
+    siteName?: string;
     url?: string;
     type?: string;
+  };
+  twitter?: {
+    card?: string;
+    title?: string;
+    description?: string;
+    image?: string;
+    imageAlt?: string;
   };
 }): void => {
   if (typeof document === "undefined") return;
@@ -127,6 +162,47 @@ export const applyRouteSeo = (opts: {
       upsertMeta('meta[property="og:image"]', {
         property: "og:image",
         content: opts.og.image,
+      });
+    if (opts.og.imageAlt)
+      upsertMeta('meta[property="og:image:alt"]', {
+        property: "og:image:alt",
+        content: opts.og.imageAlt,
+      });
+    if (opts.og.locale)
+      upsertMeta('meta[property="og:locale"]', {
+        property: "og:locale",
+        content: opts.og.locale,
+      });
+    if (opts.og.siteName)
+      upsertMeta('meta[property="og:site_name"]', {
+        property: "og:site_name",
+        content: opts.og.siteName,
+      });
+  }
+  if (opts.twitter) {
+    upsertMeta('meta[name="twitter:card"]', {
+      name: "twitter:card",
+      content: opts.twitter.card ?? "summary_large_image",
+    });
+    if (opts.twitter.title)
+      upsertMeta('meta[name="twitter:title"]', {
+        name: "twitter:title",
+        content: opts.twitter.title,
+      });
+    if (opts.twitter.description)
+      upsertMeta('meta[name="twitter:description"]', {
+        name: "twitter:description",
+        content: opts.twitter.description,
+      });
+    if (opts.twitter.image)
+      upsertMeta('meta[name="twitter:image"]', {
+        name: "twitter:image",
+        content: opts.twitter.image,
+      });
+    if (opts.twitter.imageAlt)
+      upsertMeta('meta[name="twitter:image:alt"]', {
+        name: "twitter:image:alt",
+        content: opts.twitter.imageAlt,
       });
   }
 };
