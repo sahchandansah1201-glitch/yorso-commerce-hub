@@ -20,9 +20,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `codex/batch111-public-route-seo`.
-- Current Batch #111 commit is `0d9319d`, `[codex] Batch #111 public route SEO`.
-- Draft PR #162 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
+- The repository is on branch `main`.
+- Current merged Batch #111 commit is `17fc484`, `[codex] Batch #111 public route SEO`.
+- PR #162 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - Current merged Batch #110 commit is `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
 - PR #161 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
 - Lovable sync for Batch #110 was confirmed clean by the user on 2026-05-23:
@@ -46,12 +46,14 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - how-it-works comparison matrices were constrained for narrow screens;
   - mobile header, footer, breadcrumbs, supplier quick filters, supplier rows, offer filters, certification chips and public CTA controls were hardened for 44px mobile touch targets;
   - invalid `Link > Button` nesting in public CTA blocks was replaced with `Button asChild`.
-- Batch #111 public route SEO patch is implemented locally:
+- Batch #111 public route SEO patch is merged:
   - `/`, `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers` now set route-owned SEO markers;
   - those routes set canonical, Open Graph, Twitter and JSON-LD metadata;
   - global EN/RU/ES meta descriptions now use concrete buyer-first procurement language;
   - `/suppliers` metadata is covered against exact supplier company-name leakage before access;
   - homepage H1 textContent now has a readable boundary between stacked title lines.
+- Batch #111 Lovable sync prompt is ready:
+  - `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`.
 
 ## Confirmed Checks In This UX Pass
 
@@ -75,15 +77,15 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npx tsc -b --noEmit` passed;
   - `npm run build` passed with known warnings;
   - Playwright head/mobile check at 390px confirmed marker, canonical, OG/Twitter, JSON-LD and no horizontal overflow on the five public routes.
+- GitHub `Core Type And Build Gate` passed on PR #162, including core CI, account reports, browser smoke, API-backed access suite, self-hosted auth/access smoke and admin smoke steps.
 
 ## Next Action
 
 ```text
-Finish Batch #111:
-1. monitor PR #162 checks;
-2. mark ready and merge if checks pass and no review changes are required;
-3. after merge, add a Batch #111 Lovable sync prompt;
-4. next likely UX batches are performance/code splitting or font-loading cleanup.
+Run `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md` in Lovable and record whether sync is clean. After that choose the next batch:
+1. performance/code splitting for large chunks;
+2. font-loading cleanup;
+3. route-level proof, metrics and trust signal review.
 ```
 
 ## Rules

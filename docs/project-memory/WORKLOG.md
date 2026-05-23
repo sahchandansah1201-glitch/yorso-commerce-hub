@@ -432,3 +432,10 @@ Keep this file factual and append-only.
 - Committed Batch #111 as `0d9319d`, `[codex] Batch #111 public route SEO`.
 - Pushed branch `codex/batch111-public-route-seo` to `origin`.
 - Opened Draft PR #162: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
+- Pushed project-memory follow-up commit `8b04f71`, `[codex] Update Batch 111 project memory`.
+- Confirmed GitHub PR #162 `Core Type And Build Gate` passed:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #162 ready and merged it to `main` as `17fc484`, `[codex] Batch #111 public route SEO`.
+- Added `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md` for Batch #111 Lovable sync confirmation.

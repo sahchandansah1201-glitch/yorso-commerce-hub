@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
-  active_branch: "codex/batch111-public-route-seo"
-  head_commit: "0d9319d"
+  active_branch: "main"
+  head_commit: "17fc484"
   head_summary: "[codex] Batch #111 public route SEO"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Project-memory checkpoint files are being updated after opening Draft PR #162."
+    - "Batch #111 Lovable sync prompt is being added after PR #162 merge."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch111_public_route_seo"
-  summary: "Route-owned SEO, social metadata and structured data for public buyer-first pages."
-  status: "draft_pr_open"
+  id: "post_batch111_lovable_sync"
+  summary: "Sync Lovable after Batch #111 public route SEO, then choose the next buyer-first UX batch."
+  status: "batch111_merged_lovable_prompt_ready"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
   confirmed_scope:
     - "Add route-owned SEO marker coverage to /, /offers, /suppliers, /how-it-works and /for-suppliers."
@@ -63,6 +63,22 @@ active_workstream:
     - "src/pages/PublicRouteSeo.test.tsx"
 
 latest_merged_batches:
+  - id: 111
+    summary: "Public route-owned SEO, social metadata and structured data for buyer-first pages."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "17fc484"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
+    confirmed_files:
+      - "src/lib/seo.ts"
+      - "src/lib/public-route-seo.ts"
+      - "src/pages/Index.tsx"
+      - "src/pages/Offers.tsx"
+      - "src/pages/Suppliers.tsx"
+      - "src/pages/HowItWorks.tsx"
+      - "src/pages/ForSuppliers.tsx"
+      - "src/i18n/translations.ts"
+      - "src/components/landing/Hero.tsx"
+      - "src/pages/PublicRouteSeo.test.tsx"
   - id: 110
     summary: "Public UX mobile scan, metadata cleanup, valid CTA semantics and DB migration-test fixture follow-up."
     status: "merged_to_main_lovable_sync_clean"
@@ -168,13 +184,13 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Monitor Draft PR #162 checks for Batch #111 public route SEO."
-  - "After checks pass, mark PR #162 ready and merge if no review changes are required."
-  - "Prepare a Batch #111 Lovable sync prompt after merge."
+  - "Run docs/project-memory/PROMPTS/prompt-111-lovable-sync.md in Lovable and confirm sync status."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
 
 last_confirmed_checks:
+  - "2026-05-23: PR #162 Core Type And Build Gate passed on GitHub, including browser smoke, API-backed access suite, self-hosted auth/access and admin smoke steps."
+  - "2026-05-23: PR #162 merged to main as 17fc484."
   - "2026-05-23: Batch #111 focused Vitest route SEO/i18n tests passed, 53 tests across 6 files."
   - "2026-05-23: Batch #111 npx vitest run src/pages/PublicRouteSeo.test.tsx passed, 9 tests."
   - "2026-05-23: Batch #111 npm run lint passed."
@@ -222,5 +238,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Batch #111 PR #162 still needs GitHub checks and merge."
-  - "After Batch #111, choose whether the next UX batch should address performance/code splitting or font loading."
+  - "Lovable sync confirmation for Batch #111 is pending."
+  - "After Batch #111 sync, choose whether the next UX batch should address performance/code splitting or font loading."

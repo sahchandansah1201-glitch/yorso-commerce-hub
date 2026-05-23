@@ -36,6 +36,7 @@
 - `src/i18n/translations.ts`: buyer-first global meta descriptions in EN/RU/ES.
 - `src/components/landing/Hero.tsx`: homepage H1 text boundary fix for readable textContent.
 - `src/pages/PublicRouteSeo.test.tsx`: regression coverage for public route SEO, localization and supplier-name leak prevention.
+- `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`: Lovable sync prompt for Batch #111.
 
 ## Batch #96 Supplier Access Review Console
 
