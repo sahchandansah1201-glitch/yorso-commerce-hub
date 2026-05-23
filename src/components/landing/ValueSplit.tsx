@@ -39,12 +39,12 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Link to="/register" onClick={() => { analytics.track("value_register_buyer_click"); saveRegistrationSource("value_split_buyer"); }}>
-              <Button className="mt-8 w-full gap-2 font-semibold">
+            <Button asChild className="mt-8 w-full gap-2 font-semibold">
+              <Link to="/register" onClick={() => { analytics.track("value_register_buyer_click"); saveRegistrationSource("value_split_buyer"); }}>
                 {t.value_registerBuyer}
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-6 md:p-8">
@@ -66,12 +66,12 @@ const ValueSplit = () => {
                 );
               })}
             </div>
-            <Link to="/register" onClick={() => { analytics.track("value_register_supplier_click"); saveRegistrationSource("value_split_supplier"); }}>
-              <Button variant="outline" className="mt-8 w-full gap-2 font-semibold">
+            <Button asChild variant="outline" className="mt-8 w-full gap-2 font-semibold">
+              <Link to="/register" onClick={() => { analytics.track("value_register_supplier_click"); saveRegistrationSource("value_split_supplier"); }}>
                 {t.value_registerSupplier}
                 <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

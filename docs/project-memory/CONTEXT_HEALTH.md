@@ -1,38 +1,53 @@
 # Context Health
 
-Обновлено: 2026-05-22
+Updated: 2026-05-23
 
-## Текущий статус
+## Current Status
 
 ```yaml
-context_risk: "low"
-last_checkpoint: "2026-05-22"
+context_risk: "medium"
+last_checkpoint: "2026-05-23"
 last_handoff_ready: true
-recommended_action: "finish Batch #107 size gate, validation, commit, push, PR, GitHub checks and merge; then provide numbered Lovable Prompt #107"
+recommended_action: "push the PR #161 CI migration-test fix, recheck GitHub checks, then merge after green"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch107-incident-trend-analytics"
-current_batch: 107
-batch_107_size_gate: "passed: 53 files, 4823 insertions, +35.9% files and +24.6% insertions versus Batch #106"
+active_branch: "codex/batch110-public-ux-mobile-scan"
+head_commit: "e1653cb before local CI migration-test fix"
+latest_merged_batch: 109
+active_workstream: "batch110_public_ux_trust_mobile_scan"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
+why_medium: "Project memory was stale on Batch #107 while main already includes Batch #109; PR #161 also needed a CI migration-test fixture fix after Batch #109 added migration 0025."
 ```
 
-## Уровни риска
+## Risk Levels
 
-`low`: короткий чат, локальная задача, project memory обновлена недавно.
+`low`: short chat, local task, project memory was updated recently and matches git state.
 
-`medium`: длинный чат, несколько задач, есть большие outputs или следующий этап будет крупным.
+`medium`: long chat, several tasks, dirty worktree, or project memory was stale and has just been corrected.
 
-`high`: ошибка compact/stream disconnected, чат путает проекты, `PROJECT_STATE.yaml` устарел или следующий шаг не записан.
+`high`: compact or stream failure, assistant mixes projects, `PROJECT_STATE.yaml` is stale, or the next step is not written down.
 
-## Когда обновлять checkpoint
+## When To Update Checkpoint
 
-- перед началом большой новой задачи;
-- после завершения крупного этапа;
-- перед переходом в новый чат;
-- если чат начал путать проект, агента или источник контекста;
-- если возникла ошибка compact, stream disconnected или похожий сбой.
+- before a large new task;
+- after a completed feature or audit;
+- before moving to a new chat;
+- if the assistant starts mixing `yorso-commerce-hub` with `yorso_new`;
+- after a compact, stream disconnect or similar failure;
+- after any meaningful production, frontend, backend, persistence or runtime change.
 
-## Команда для пользователя
+## Recovery Prompt
 
 ```text
-Сделай context checkpoint: обнови CONTEXT_HEALTH, PROJECT_STATE, HANDOFF, NEXT_ACTIONS, WORKLOG и дай готовый prompt для нового чата.
+Continue the Yorso commerce hub project from repository files, not from old chat memory.
+
+Read first:
+1. AGENTS.md
+2. docs/project-memory/CONTEXT_HEALTH.md
+3. docs/project-memory/PROJECT_STATE.yaml
+4. docs/project-memory/HANDOFF.md
+5. docs/project-memory/NEXT_ACTIONS.md
+6. docs/project-memory/WORKLOG.md
+
+Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
+Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 ```

@@ -22,9 +22,9 @@ const FinalCTA = () => {
           <p className="mt-3 text-muted-foreground">{t.fc_subtitle}</p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-5">
+        <div className="mt-12 grid min-w-0 gap-5 lg:grid-cols-5">
           {/* Buyer — primary, dominant */}
-          <article className="flex flex-col rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/[0.04] to-card p-7 shadow-lg md:p-10 lg:col-span-3">
+          <article className="flex min-w-0 max-w-full flex-col rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/[0.04] to-card p-7 shadow-lg md:p-10 lg:col-span-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
               {t.fc_buyer_eyebrow}
             </p>
@@ -60,7 +60,7 @@ const FinalCTA = () => {
           </article>
 
           {/* Supplier — secondary, quieter */}
-          <article className="flex flex-col rounded-2xl border border-border bg-card/70 p-6 md:p-7 lg:col-span-2">
+          <article className="flex min-w-0 max-w-full flex-col rounded-2xl border border-border bg-card/70 p-6 md:p-7 lg:col-span-2">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               {t.fc_supplier_eyebrow}
             </p>

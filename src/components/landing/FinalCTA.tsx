@@ -18,12 +18,12 @@ const FinalCTA = () => {
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-accent-foreground/70">{t.cta_subtitle}</p>
 
-          <Link to="/register" onClick={() => { analytics.track("register_cta_final_click"); saveRegistrationSource("final_cta"); }}>
-            <Button size="lg" className="mt-8 gap-2 px-10 text-base font-semibold">
+          <Button asChild size="lg" className="mt-8 gap-2 px-10 text-base font-semibold">
+            <Link to="/register" onClick={() => { analytics.track("register_cta_final_click"); saveRegistrationSource("final_cta"); }}>
               {t.cta_registerFree}
               <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
 
           <p className="mt-4 text-xs text-accent-foreground/50">{t.cta_freeNote}</p>
 

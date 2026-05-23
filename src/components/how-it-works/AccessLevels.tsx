@@ -50,7 +50,7 @@ const AccessLevels = () => {
   };
 
   return (
-    <section id="access-levels" aria-label={t.al_eyebrow} className="border-b border-border bg-background py-16 md:py-24">
+    <section id="access-levels" aria-label={t.al_eyebrow} className="overflow-hidden border-b border-border bg-background py-16 md:py-24">
       <div className="container max-w-6xl">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
@@ -82,7 +82,7 @@ const AccessLevels = () => {
             <h3 className="font-heading text-sm font-bold text-foreground">{t.al_matrix_title}</h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left text-xs">
+            <table className="w-full min-w-full table-fixed text-left text-[11px] md:min-w-[560px] md:table-auto md:text-xs">
               <thead>
                 <tr className="border-b border-border bg-background/40 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <th className="px-4 py-3">{t.al_th_capability}</th>

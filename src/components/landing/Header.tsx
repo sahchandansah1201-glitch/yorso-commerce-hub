@@ -76,24 +76,24 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex min-h-11 items-center gap-2">
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link to="/offers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_liveOffers}</Link>
-          <a href="/#categories" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_categories}</a>
-          <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_howItWorks}</Link>
-          <Link to="/for-suppliers" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_forSuppliers}</Link>
-          <Link to="/blog" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_blog}</Link>
-          <a href="/#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{t.nav_faq}</a>
+          <Link to="/offers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_liveOffers}</Link>
+          <a href="/#categories" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_categories}</a>
+          <Link to="/how-it-works" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_howItWorks}</Link>
+          <Link to="/for-suppliers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_forSuppliers}</Link>
+          <Link to="/blog" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_blog}</Link>
+          <a href="/#faq" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_faq}</a>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+              className="flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:min-h-0 sm:py-1.5"
             >
               <Globe className="h-4 w-4" />
               <span>{languageFlags[lang]} {lang.toUpperCase()}</span>
@@ -122,7 +122,7 @@ const Header = () => {
               aria-label={t.alerts_bell_aria}
               aria-expanded={alertsOpen}
               data-testid="header-alerts-bell"
-              className="relative flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="relative flex min-h-11 min-w-[44px] items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:h-9 sm:w-9 sm:min-h-0 sm:min-w-0"
             >
               <Bell className="h-4 w-4" aria-hidden />
               {unreadCount > 0 && (
@@ -151,7 +151,7 @@ const Header = () => {
                 aria-expanded={accountOpen}
                 aria-label={session?.displayName || session?.identifier || ""}
                 data-testid="header-account-chip"
-                className="flex items-center gap-2 rounded-full border border-border bg-card pl-1 pr-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex min-h-11 items-center gap-2 rounded-full border border-border bg-card py-2 pl-1 pr-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-0 sm:py-1"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
                   {initial}
@@ -200,7 +200,11 @@ const Header = () => {
           )}
         </div>
 
-        <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t.aria_toggleMenu}>
+        <button
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground md:hidden"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={t.aria_toggleMenu}
+        >
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
@@ -208,19 +212,19 @@ const Header = () => {
       {mobileOpen && (
         <div className="border-t border-border bg-background px-4 pb-6 pt-4 md:hidden">
           <nav className="flex flex-col gap-4">
-            <Link to="/offers" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</Link>
-            <a href="/#categories" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
-            <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</Link>
-            <Link to="/for-suppliers" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_forSuppliers}</Link>
-            <Link to="/blog" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_blog}</Link>
-            <a href="/#faq" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
+            <Link to="/offers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</Link>
+            <a href="/#categories" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
+            <Link to="/how-it-works" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</Link>
+            <Link to="/for-suppliers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_forSuppliers}</Link>
+            <Link to="/blog" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_blog}</Link>
+            <a href="/#faq" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
           </nav>
           <div className="mt-4 flex gap-2">
             {langs.map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
-                className={`flex items-center gap-1 rounded-md px-3 py-1.5 text-xs transition-colors ${lang === l ? "bg-primary text-primary-foreground font-semibold" : "bg-muted text-muted-foreground"}`}
+                className={`flex min-h-11 items-center gap-1 rounded-md px-3 py-2 text-xs transition-colors ${lang === l ? "bg-primary font-semibold text-primary-foreground" : "bg-muted text-muted-foreground"}`}
               >
                 {languageFlags[l]} {l.toUpperCase()}
               </button>

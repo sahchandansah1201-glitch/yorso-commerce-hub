@@ -321,7 +321,7 @@ const Suppliers = () => {
               aria-label="Breadcrumb"
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <Link to="/" className="hover:text-foreground">
+              <Link to="/" className="-mx-2 inline-flex min-h-11 items-center px-2 hover:text-foreground sm:min-h-0">
                 {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
@@ -422,7 +422,7 @@ const Suppliers = () => {
                     }}
                     aria-pressed={active}
                     className={cn(
-                      "rounded-full border px-3 py-1 text-xs font-medium transition",
+                      "min-h-11 rounded-full border px-3 py-2 text-xs font-medium transition sm:min-h-9 sm:py-1",
                       active
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-foreground/80 hover:border-foreground/30",
@@ -445,7 +445,7 @@ const Suppliers = () => {
                       setSortBy(event.target.value as SupplierSortKey);
                       setPage(1);
                     }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                    className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
                   >
                     <option value="updated_at">{t.suppliersPage_sortUpdated}</option>
                     <option value="country">{t.suppliersPage_sortCountry}</option>
@@ -462,7 +462,7 @@ const Suppliers = () => {
                       setSortDirection(event.target.value as SupplierSortDirection);
                       setPage(1);
                     }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                    className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
                   >
                     <option value="desc">{t.suppliersPage_directionDesc}</option>
                     <option value="asc">{t.suppliersPage_directionAsc}</option>
@@ -477,7 +477,7 @@ const Suppliers = () => {
                       setPageSize(Number(event.target.value) as SupplierPageSize);
                       setPage(1);
                     }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                    className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
                   >
                     {SUPPLIER_PAGE_SIZES.map((size) => (
                       <option key={size} value={size}>

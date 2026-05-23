@@ -40,7 +40,7 @@ const ProcurementDecisionProof = () => {
   const riskLabel = (level: "low" | "medium" | "stable") => level === "low" ? t.pdp_risk_low : level === "stable" ? t.pdp_risk_stable : t.pdp_risk_medium;
 
   return (
-    <section aria-label={t.pdp_eyebrow} className="border-b border-border bg-[hsl(var(--cool-gray))] py-16 md:py-24">
+    <section aria-label={t.pdp_eyebrow} className="overflow-hidden border-b border-border bg-[hsl(var(--cool-gray))] py-16 md:py-24">
       <div className="container max-w-6xl">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
@@ -134,7 +134,7 @@ const ProcurementDecisionProof = () => {
             <article className="min-w-0 bg-card p-5 md:p-6 lg:col-span-2">
               <header className="flex items-center gap-2"><GitCompare className="h-4 w-4 text-primary" /><h4 className="font-heading text-sm font-bold uppercase tracking-wider text-foreground">{t.pdp_offerComparison}</h4></header>
               <div className="mt-3 w-full overflow-x-auto rounded-md border border-border/60">
-                <table className="w-full min-w-[640px] text-left text-xs">
+                <table className="w-full min-w-full table-fixed text-left text-[11px] md:min-w-[640px] md:table-auto md:text-xs">
                   <thead>
                     <tr className="border-b border-border bg-background/60 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       <th className="px-2.5 py-2">{t.pdp_th.supplier}</th>

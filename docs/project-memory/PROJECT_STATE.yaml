@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-22"
+updated_at: "2026-05-23"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,83 +10,166 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-22"
+  git_status_confirmed_at: "2026-05-23"
+  active_branch: "codex/batch110-public-ux-mobile-scan"
+  head_commit: "e1653cb before local CI migration-test fix"
+  head_summary: "[codex] Restore engineering lesson risk markers"
   dirty_worktree_before_project_memory: true
-  active_branch: "codex/batch107-incident-trend-analytics"
+  dirty_worktree_reason:
+    - "PR #161 CI migration tests are being updated to include Batch #109 migration 0025."
+    - "Project-memory checkpoint files are being updated after the CI fix and local ci:core pass."
 
 project_identity:
-  summary: "Yorso frontend/backend prototype and Lovable-generated commerce hub."
+  summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
   confirmed_from:
     - "README.md"
     - "package.json"
-    - "repository structure"
+    - "src/App.tsx"
+    - "docs/backend/"
+    - "docs/project-memory/"
   package_name: "vite_react_shadcn_ts"
   main_areas:
     - "src/"
-    - "apps/"
-    - "packages/"
-    - "infra/"
+    - "apps/api/"
+    - "packages/contracts/"
+    - "packages/db/"
     - "supabase/"
     - "e2e/"
     - "docs/"
 
 active_workstream:
-  id: "self_hosted_production_batches"
-  summary: "Continue Yorso self-hosted backend/frontend development with larger connected production batches."
-  current_batch:
-    id: 107
-    summary: "Admin incident trend analytics with bucketed incident pressure, route-risk review, SLA posture, anomaly review, operator briefing, JSON/CSV export, admin-session guarded API routes, frontend API/hook/page, browser smoke, runtime smoke markers, PostgreSQL indexes, docs, project-memory and production-scale guards."
-    status: "implemented_locally_validation_in_progress"
+  id: "batch110_public_ux_trust_mobile_scan"
+  summary: "Batch #110 public UX/UI remediation for Yorso public surfaces, with buyer-first trust, scanability, metadata hygiene, valid CTA semantics and mobile touch targets as priorities."
+  status: "draft_pr_open_ci_fix_local_passed_pending_push"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
+  confirmed_scope:
+    - "Replace Lovable default title, description and social metadata in index.html."
+    - "Replace generic Lovable README content with a repository-specific YORSO Commerce Hub README."
+    - "Contain mobile horizontal overflow on the landing page and how-it-works page."
+    - "Increase key mobile touch targets for the public header and supplier quick filter chips."
+    - "Harden public mobile touch targets across /, /offers, /suppliers, /how-it-works and /for-suppliers."
+    - "Remove invalid Link > Button nesting in public CTA blocks by using Button asChild."
+    - "Keep existing visual language and shadcn/Tailwind component patterns."
+  confirmed_files:
+    - "index.html"
+    - "README.md"
+    - "src/components/ui/button.tsx"
+    - "src/components/CertificationBadges.tsx"
+    - "src/components/catalog/CatalogRecoveryCard.tsx"
+    - "src/components/catalog/MobileFilterPills.tsx"
+    - "src/components/catalog/MobileOfferCard.tsx"
+    - "src/components/landing/Footer.tsx"
+    - "src/components/landing/Hero.tsx"
+    - "src/components/landing/FinalCTA.tsx"
+    - "src/components/landing/LiveOffers.tsx"
+    - "src/components/landing/SupplierVerification.tsx"
+    - "src/components/landing/ValueSplit.tsx"
+    - "src/pages/Index.tsx"
+    - "src/pages/Offers.tsx"
+    - "src/pages/HowItWorks.tsx"
+    - "src/pages/ForSuppliers.tsx"
+    - "src/pages/Suppliers.tsx"
+    - "src/components/suppliers/SupplierRow.tsx"
+    - "src/components/landing/Header.tsx"
+    - "src/components/how-it-works/ProcurementDecisionProof.tsx"
+    - "src/components/how-it-works/AccessLevels.tsx"
+    - "src/components/how-it-works/FinalCTA.tsx"
+    - "packages/db/src/cli.test.ts"
+    - "packages/db/src/migrator.test.ts"
+
+latest_merged_batches:
+  - id: 109
+    summary: "Admin incident trend action queue on top of Batch #108 trend action decisions."
+    status: "merged_to_main_lovable_sync_clean"
+    commit: "dc6eec1"
+    lovable_sync:
+      confirmed_at: "2026-05-23"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "HEAD is dc6eec10, [codex] Batch #109 admin incident trend action queue (#160)."
+        - "/admin/incident-trend-actions maps to AdminIncidentTrendActions in src/App.tsx."
+        - "Migration 0025_admin_incident_trend_action_queue.sql exists and is in the manifest."
+        - "Self-hosted API routes /v1/admin/incidents/trend-action-queue, /export and /bulk are connected."
+        - "e2e/admin-incident-trend-actions.spec.ts and smoke:e2e:admin-incident-trend-actions are present."
     confirmed_files:
-      - "apps/api/src/modules/admin-incidents/service.ts"
-      - "apps/api/src/modules/admin-incidents/routes.ts"
-      - "apps/api/src/modules/admin-incidents/service.test.ts"
-      - "packages/contracts/src/admin-incidents.ts"
+      - "src/pages/admin/AdminIncidentTrendActions.tsx"
+      - "src/lib/use-admin-incident-trend-action-queue.ts"
       - "src/lib/admin-incidents-api.ts"
-      - "src/lib/use-admin-incident-trends.ts"
+      - "apps/api/src/modules/admin-incidents/routes.ts"
+      - "apps/api/src/modules/admin-incidents/service.ts"
+      - "packages/contracts/src/admin-incidents.ts"
+      - "packages/db/migrations/0025_admin_incident_trend_action_queue.sql"
+      - "e2e/admin-incident-trend-actions.spec.ts"
+      - "docs/backend/admin-incident-trend-action-queue.md"
+      - "docs/backend/admin-incident-trend-action-queue-api-contract.md"
+      - "docs/backend/admin-incident-trend-action-queue-indexing.md"
+      - "docs/backend/production-scale-baseline.md"
+  - id: 108
+    summary: "Admin incident trend actions and bounded operator action loop."
+    status: "merged_to_main"
+    commit: "6e8994d"
+    confirmed_files:
+      - "packages/db/migrations/0024_admin_incident_trend_actions.sql"
+      - "docs/backend/admin-incident-trend-actions.md"
+      - "docs/backend/admin-incident-trend-actions-api-contract.md"
+      - "docs/backend/admin-incident-trend-actions-indexing.md"
       - "src/pages/admin/AdminIncidentTrends.tsx"
       - "e2e/admin-incident-trends.spec.ts"
-      - "packages/db/migrations/0023_admin_incident_trend_analytics.sql"
-      - "scripts/smoke-self-hosted-admin-incidents.mjs"
-      - "docs/backend/admin-incident-trend-analytics.md"
-      - "docs/backend/self-hosted-admin-incidents-smoke.md"
-      - "docs/backend/self-hosted-backend-architecture.md"
-      - "docs/backend/self-hosted-validation.md"
-      - "docs/backend/production-scale-baseline.md"
 
-  previous_batch:
-    id: 106
-    summary: "Admin incident workload and correlation center with bounded workload aggregation, JSON/CSV workload export, incident correlation drill-down, admin-session guarded API routes, frontend API/hook/page, browser smoke, runtime smoke markers, PostgreSQL indexes, docs and production-scale guards."
-    status: "merged_to_main_before_batch_107"
+public_routes_confirmed_from_app:
+  - "/"
+  - "/offers"
+  - "/offers/:id"
+  - "/suppliers"
+  - "/suppliers/:supplierId"
+  - "/how-it-works"
+  - "/for-suppliers"
+  - "/account/*"
+  - "/admin/*"
+
+current_ux_audit_status:
+  strong:
+    - "The public marketplace narrative is buyer-first: offer comparison, supplier evidence, access requests and procurement workflows are visible in the implemented routes."
+    - "The supplier side mainly supports supply and trust mechanisms instead of replacing the buyer story."
+    - "Admin/operator surfaces have explicit self-hosted API contracts, smoke tests, e2e coverage and production-scale guardrails."
+  weak:
+    - "Before the current patch, index.html and README still exposed Lovable default metadata."
+    - "The public bundle remains very large and needs route-level code splitting."
+    - "Google Fonts are loaded through CSS @import, which can block visual checks and slow first render."
+  conversion_risks:
+    - "Generic metadata weakens search snippets and shared-link trust."
+    - "Mobile horizontal overflow on long pages weakens perceived quality."
+    - "Large first-load JavaScript may delay buyer exploration."
+  trust_risks:
+    - "Supabase generated types are still out of sync with backend access migrations in non-strict build mode."
+    - "Old project-memory state pointed to Batch #107 and could mislead a new chat."
+  seo_structure_risks:
+    - "The page metadata baseline is now fixed, but route-level metadata and schema structure remain a future task."
 
 next_actions:
-  - "Finish Batch #107 size gate: at least 47 changed files and 4647 insertions, measured with untracked files included."
-  - "Run Batch #107 validation: contracts:build, api:build, test:api, test:admin-incidents-frontend, test:backend-contract, check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, test:db-migrations, test:db-contract, smoke:self-hosted-admin-incidents:run, tsc, lint, smoke:e2e:admin-incident-trends, ci:core and git diff --check."
-  - "Commit and push branch `codex/batch107-incident-trend-analytics`."
-  - "Open PR `[codex] Batch #107 admin incident trend analytics`."
-  - "Provide numbered Lovable Prompt #107 after merge to main."
-  - "Include Batch Size Report after each completed batch."
+  - "Push the PR #161 CI migration-test fix and recheck GitHub checks."
+  - "Merge PR #161 after checks and review pass, then provide Lovable sync prompt for Batch #110."
+  - "Plan a performance batch for route-level code splitting, especially admin/account routes."
+  - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
+  - "Add route-level SEO metadata and structured copy review for public buyer pages."
 
 last_confirmed_checks:
-  - "npm run test:admin-operations-frontend: passed, 10 tests."
-  - "npm run test:admin-audit-frontend: passed, 10 tests."
-  - "npm run api:build: passed."
-  - "npm run check:self-hosted-api: passed."
-  - "npm run check:production-scale-baseline: passed."
-  - "npm run smoke:self-hosted-admin-operations:run: passed after api build, 2026-05-21."
-  - "npm run lint: passed."
-  - "npx tsc -b --noEmit: passed."
-  - "npm run smoke:e2e:admin-operations: passed, 2 tests."
-  - "npm run smoke:e2e:admin-audit-events: passed, 2 tests."
-  - "npm run ci:core: passed."
-  - "Batch #101 partial validation: contracts:build, api:build, test:admin-incidents-frontend, test:admin-operations-frontend, admin-incidents API tests, smoke:self-hosted-admin-incidents:run and smoke:self-hosted-admin-operations:run passed."
-  - "Batch #102 validation passed: contracts:build, api:build, tsc -b --noEmit, focused admin incidents API tests (69), test:admin-incidents-frontend (10), test:admin-operations-frontend (10), test:db-contract (25), test:db-migrations (16), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, check:engineering-lessons, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incidents (2), smoke:e2e:admin-operations (2), ci:core and git diff --check."
-  - "Batch #103 validation passed after remediation expansion: lint, contracts:build, api:build, tsc -b --noEmit, focused admin incident API tests (70), test:admin-incidents-frontend (15), test:admin-operations-frontend (10), check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-detail (1), smoke:e2e:admin-incidents (2), ci:core."
-  - "Batch #104 validation passed after execution export expansion: contracts:build, api:build, focused admin incidents API tests (71), test:admin-incidents-frontend (15), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-detail (1), lint, tsc -b --noEmit and ci:core."
-  - "Batch #105 validation passed: contracts:build, api:build, tsc -b --noEmit, test:api (135), test:admin-incidents-frontend (19), check:self-hosted-api, check:production-scale-baseline, smoke:self-hosted-admin-incidents:run, smoke:e2e:admin-incident-execution-queue (1), lint and ci:core."
-  - "Batch #106 local validation passed: ci:core, contracts:build, api:build, test:api (135), test:admin-incidents-frontend (23), test:backend-contract (110), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, test:db-migrations (16), test:db-contract (27), smoke:self-hosted-admin-incidents:run, check:engineering-lessons, test:engineering-lessons (4), tsc -b --noEmit, lint and smoke:e2e:admin-incident-workload (1)."
-  - "Batch #107 local validation passed: contracts:build, api:build, test:admin-incidents-frontend (28), test:api (136), test:backend-contract (120), check:self-hosted-db, check:self-hosted-api, check:production-scale-baseline, test:db-migrations (16), test:db-contract (27), smoke:self-hosted-admin-incidents:run, tsc -b --noEmit, lint, smoke:e2e:admin-incident-trends (2), ci:core and git diff --check."
-  - "Batch #107 size gate passed: 53 changed files, 4823 insertions, 56 deletions; Batch #106 baseline was 39 files, 3872 insertions, 48 deletions; growth is +35.9% files and +24.6% insertions."
+  - "2026-05-23: npm run lint passed."
+  - "2026-05-23: npx tsc -b --noEmit passed."
+  - "2026-05-23: npm run check:production-scale-baseline passed."
+  - "2026-05-23: npm run build passed; known warnings remain for Supabase generated type drift, stale Browserslist data and a large main chunk."
+  - "2026-05-23: Playwright mobile overflow check at 390px passed for /, /how-it-works and /suppliers after current UX patch."
+  - "2026-05-23: User confirmed Lovable sync for Batch #109 is clean with no conflicts."
+  - "2026-05-23: npm run test:db-migrations passed after updating expectations for migration 0025."
+  - "2026-05-23: npm run ci:core passed after the PR #161 migration-test fixture fix."
+  - "2026-05-23: Playwright mobile audit at 390px passed with zero horizontal overflow and zero <44px interactive targets for /, /how-it-works, /suppliers, /offers and /for-suppliers."
+  - "2026-05-23: npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx passed, 8 tests."
+  - "2026-05-23: Draft PR #161 opened for Batch #110 public UX mobile scan."
+
+known_warnings:
+  - "Build uses non-strict Supabase generated type guard because access migrations have not been applied and regenerated in the linked Supabase project."
+  - "Browserslist caniuse-lite data is 11 months old."
+  - "Main production JS chunk is about 2.69 MB minified and 732 kB gzip."
 
 quality_rules:
   - "Use repository files as source of truth."
@@ -97,14 +180,17 @@ quality_rules:
 
 critical_files:
   - "AGENTS.md"
-  - "package.json"
   - "README.md"
+  - "package.json"
+  - "src/App.tsx"
   - "docs/project-memory/CONTEXT_HEALTH.md"
   - "docs/project-memory/PROJECT_STATE.yaml"
   - "docs/project-memory/HANDOFF.md"
   - "docs/project-memory/NEXT_ACTIONS.md"
   - "docs/project-memory/WORKLOG.md"
   - "docs/project-memory/ARTIFACTS.md"
+  - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "GitHub Actions status for Batch #107 is not confirmed until PR is opened and checks complete."
+  - "No external GitHub Actions status was checked for the current local UX/UI patch because it has not been committed or pushed."
+  - "Whether to prioritize performance/code splitting, font loading or route-level SEO next should be decided from the next product goal."

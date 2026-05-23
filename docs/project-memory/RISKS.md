@@ -2,75 +2,55 @@
 
 ## Active Risks
 
-- Risk: Batch #104 is implemented locally but not yet merged to `main`.
-  Impact: Lovable will not see the admin incident workflow until the PR is merged and synced.
-  Mitigation: Local validation has passed; commit, push, PR, wait for GitHub checks and merge before starting Batch #105.
-
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
-  Impact: Work may be applied in the wrong repository.
-  Mitigation: Always verify cwd and read `PROJECT_STATE.yaml` before implementation.
+  Impact: Work may be applied in the wrong repository or evaluated against the wrong product surface.
+  Mitigation: Always verify cwd, read `PROJECT_STATE.yaml`, and use `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub` as the project root unless the user explicitly asks for another repository.
 
-- Risk: Old chat context may be missing or stale.
+- Risk: Old chat context may be missing, stale or mixed with another Yorso chat.
   Impact: The assistant may infer product status incorrectly.
   Mitigation: Treat repository files as source of truth and mark unsupported claims as hypotheses.
 
-- Risk: Admin/operator review queues can become hot paths under high request volume.
-  Impact: Slow review list reads could affect support operations and buyer conversion.
-  Mitigation: Batch #96 adds bounded pagination and `0017_supplier_access_review_queue` indexes; future production validation should include mixed buyer request writes and admin review reads at the 10000 concurrent-user baseline.
+- Risk: Project-memory can drift behind merged production batches.
+  Impact: A new chat may continue from an obsolete batch, branch or next action.
+  Mitigation: The 2026-05-23 checkpoint updates state from Batch #107 to `main` at Batch #109; update project-memory after every significant audit, feature or handoff.
 
-- Risk: Admin grant revocation is commercially sensitive because it can remove buyer access to supplier identity and prices.
-  Impact: Incorrect revocation could break an active buyer workflow or leave stale access visible.
-  Mitigation: Batch #97 revokes both supplier identity and offer-price grants together, emits audit/action paths, adds runtime smoke for remasking, and adds browser e2e for the admin grants console.
+- Risk: The public production bundle is large.
+  Impact: Buyers may wait longer before they can scan offers, suppliers and access workflows, which can reduce conversion and trust on slow networks.
+  Mitigation: Plan route-level code splitting for admin/account/public-heavy routes and keep performance checks in the validation path.
+
+- Risk: Google Fonts are loaded through CSS `@import`.
+  Impact: Visual checks and first render can wait on external font loading.
+  Mitigation: Plan a font-loading cleanup using self-hosted or preloaded fonts.
+
+- Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
+  Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
+  Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
 
 - Risk: API-backed browser specs can fail in generic smoke.
   Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
-  Mitigation: Batch #98 adds `check:engineering-lessons`, `test:engineering-lessons` and an e2e script policy that keeps API-backed specs out of `smoke:e2e:run`.
+  Mitigation: Keep API-backed browser specs in dedicated package scripts and preserve the `check:engineering-lessons` guard.
 
 - Risk: Parallel Vite builds can race on shared `dist/`.
   Impact: Running two build-based e2e commands concurrently can overwrite preview assets and produce nondeterministic failures.
-  Mitigation: Batch #98 forbids parallel tokens in `smoke:e2e*` package scripts unless future work isolates output directories.
+  Mitigation: Do not add parallel tokens to `smoke:e2e*` package scripts unless future work isolates output directories.
 
-- Risk: Admin operations overview can become a hot operator endpoint during incidents.
-  Impact: Unbounded list reads or secret leakage would slow operations and expose sensitive runtime data.
-  Mitigation: Batch #99 uses bounded previews, self-hosted admin session guard, runtime smoke secret checks, frontend state tests, browser smoke and production-scale guard markers. Batch #100 keeps audit samples bounded, adds no polling and guards `/admin/audit` as a self-hosted admin-only page.
-
-- Risk: Incident response can become a dumping ground for unbounded logs.
-  Impact: Operator pages may slow down during outages and leak sensitive audit context.
-  Mitigation: Batch #101 derives bounded incidents from runtime diagnostics and audit summaries, stores only acknowledgement state, keeps `/admin/incidents` admin-only and adds smoke/e2e secret guards.
-
-- Risk: Incident workflow can expose raw operator identities or become a high-write control-plane path during outages.
-  Impact: Browser pages could leak user ids, or operator updates could add pressure while the service is degraded.
-  Mitigation: Batch #102 accepts raw assignee ids only in admin requests, returns hashed identifiers to the browser, stores bounded timeline events in `yorso_admin_incident_events`, limits bulk workflow to selected incident ids, sanitizes export, avoids polling and keeps the workflow behind self-hosted admin session and role guards.
-
-- Risk: Incident detail, handoff export and remediation plan can become an unbounded incident-data dump.
-  Impact: Large handoff payloads could slow operator response and expose sensitive evidence in browser-visible downloads.
-  Mitigation: Batch #103 exports bounded JSON/Markdown sections and bounded remediation steps from the admin incident detail contract, keeps handoff/remediation behind self-hosted admin session and role guards, uses hashed operator identifiers in browser responses and adds runtime smoke markers for JSON/Markdown handoff plus remediation plan.
-
-- Risk: Incident execution tracking can become a high-write operator path during active outages.
-  Impact: Repeated execution updates could add database pressure, leak raw operator notes or create unclear incident state.
-  Mitigation: Batch #104 stores bounded execution rows keyed by incident/item, indexes status/source/assignee reads, limits notes/evidence/blocked reason length, exports only the same bounded JSON/CSV item set, keeps updates behind self-hosted admin session and role guards, and reuses note hygiene guards against emails, UUIDs and token-like secret assignments.
-
-- Risk: Incident workload and correlation pages can become broad admin analytics endpoints during outages.
-  Impact: Unbounded reads or raw audit/session identifiers could slow operator response and leak sensitive operational context.
-  Mitigation: Batch #106 keeps workload and correlation routes behind self-hosted admin session and role guards, caps workload/correlation result sizes, exports only bounded JSON/CSV payloads, uses hashed identities, adds PostgreSQL indexes for status/source/owner/timeline reads, and verifies identity hygiene through runtime smoke plus browser e2e.
-
-## Batch #107 Trend Analytics Export Drift
-
-- Risk: trend analytics, anomaly review and operator briefing could drift into a
-  broad incident export or accidentally expose raw operator identifiers in CSV
-  or browser DOM.
-- Impact: admin control-plane export could leak internal user/session data or
-  become too heavy under the 10,000 concurrent users production baseline.
-- Mitigation: Batch #107 keeps trend routes admin-session protected, uses
-  aggregate-first contracts, caps query limits, adds CSV/JSON export smoke,
-  adds browser negative checks for email/session/database/Redis strings, adds
-  migration `0023_admin_incident_trend_analytics`, and documents load-test and
-  security boundaries.
+- Risk: Admin/operator review and incident queues can become hot paths under high request volume.
+  Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
+  Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.
 
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.
   Resolution: Added `docs/project-memory/` and `AGENTS.md`.
 
-- Risk: Batch #98 was implemented locally but not yet merged to `main`.
-  Resolution: Batch #98 is present on main as `[codex] Batch #98 engineering lessons guards`; Batch #99 now builds on top of it.
+- Risk: Batch #104 was implemented locally but not merged to `main`.
+  Resolution: Later batches through Batch #109 are now present on `main`.
+
+- Risk: Batch #107 project-memory state was stale after Batch #108 and Batch #109 merged.
+  Resolution: Updated `CONTEXT_HEALTH.md`, `PROJECT_STATE.yaml`, `HANDOFF.md`, `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md` and `RISKS.md` on 2026-05-23.
+
+- Risk: Public metadata and README still exposed Lovable defaults.
+  Resolution: Current UX/UI patch replaces Lovable metadata in `index.html` and the default Lovable README content in `README.md`.
+
+- Risk: Public mobile touch targets remained below the 44px guideline after the first audit pass.
+  Resolution: Current UX/UI patch hardens touch targets across the checked public routes. Playwright mobile audit at 390px reports zero interactive targets below 44px for `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.

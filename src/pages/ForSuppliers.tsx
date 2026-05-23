@@ -242,7 +242,7 @@ const ForSuppliers = () => {
             aria-label={tCommon.aria_breadcrumb}
             className="flex items-center gap-1.5 text-xs text-muted-foreground"
           >
-            <Link to="/" className="hover:text-foreground">
+            <Link to="/" className="-mx-2 inline-flex min-h-11 items-center px-2 hover:text-foreground sm:min-h-0">
               {tCommon.catalog_breadcrumbHome}
             </Link>
             <ChevronRight className="h-3 w-3" aria-hidden />
@@ -464,7 +464,7 @@ const ForSuppliers = () => {
                 <button
                   type="button"
                   disabled
-                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground opacity-90"
+                  className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground opacity-90"
                 >
                   {t.preview_ctaRequest}
                   <ArrowRight className="h-4 w-4" />
