@@ -2,12 +2,12 @@
 
 ## Current Next Action
 
-1. Commit, push and open PR for `codex/batch110-public-ux-mobile-scan`:
-   - metadata and README Lovable-default cleanup;
-   - mobile overflow containment;
-   - mobile touch target hardening;
-   - invalid nested CTA DOM cleanup;
-   - project-memory checkpoint updates.
+1. Watch Draft PR #161 for Batch #110:
+   - URL: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`;
+   - wait for GitHub checks;
+   - address review feedback if any;
+   - merge after green;
+   - provide Lovable sync prompt for Batch #110 after merge.
 
 2. Plan the next production-quality UX batch:
    - route-level SEO metadata and structured snippets for public buyer pages;
@@ -22,6 +22,7 @@
 - Lovable sync for Batch #109 is confirmed clean with no conflicts.
 - Project-memory has been corrected from the stale Batch #107 checkpoint.
 - Public UX/UI patch is locally validated. Playwright mobile audit at 390px reports zero overflow and zero interactive targets below 44px on `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
+- Draft PR #161 is open for Batch #110 public UX mobile scan.
 
 ## Blockers
 

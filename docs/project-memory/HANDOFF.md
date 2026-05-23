@@ -22,6 +22,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 - The repository is on branch `codex/batch110-public-ux-mobile-scan`.
 - Current head is `dc6eec1`, `[codex] Batch #109 admin incident trend action queue (#160)`.
+- Draft PR #161 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
 - Batch #108 added admin incident trend actions.
 - Batch #109 added the dedicated admin incident trend action queue.
 - Lovable sync for Batch #109 was confirmed clean by the user on 2026-05-23:
@@ -54,7 +55,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit, push and open PR for `codex/batch110-public-ux-mobile-scan`, then choose the next batch:
+Watch PR #161 checks and review feedback. Merge after green, then provide a Lovable sync prompt for Batch #110. After that choose the next batch:
 1. route-level SEO metadata and public page structure;
 2. performance/code splitting for large chunks;
 3. font-loading cleanup.

@@ -40,7 +40,8 @@ project_identity:
 active_workstream:
   id: "batch110_public_ux_trust_mobile_scan"
   summary: "Batch #110 public UX/UI remediation for Yorso public surfaces, with buyer-first trust, scanability, metadata hygiene, valid CTA semantics and mobile touch targets as priorities."
-  status: "implemented_locally_validated_ready_for_pr"
+  status: "draft_pr_open"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
   confirmed_scope:
     - "Replace Lovable default title, description and social metadata in index.html."
     - "Replace generic Lovable README content with a repository-specific YORSO Commerce Hub README."
@@ -144,7 +145,8 @@ current_ux_audit_status:
     - "The page metadata baseline is now fixed, but route-level metadata and schema structure remain a future task."
 
 next_actions:
-  - "Commit, push and open PR for branch codex/batch110-public-ux-mobile-scan."
+  - "Watch PR #161 checks and review feedback for Batch #110."
+  - "Merge PR #161 after checks and review pass, then provide Lovable sync prompt for Batch #110."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
   - "Add route-level SEO metadata and structured copy review for public buyer pages."
@@ -158,6 +160,7 @@ last_confirmed_checks:
   - "2026-05-23: User confirmed Lovable sync for Batch #109 is clean with no conflicts."
   - "2026-05-23: Playwright mobile audit at 390px passed with zero horizontal overflow and zero <44px interactive targets for /, /how-it-works, /suppliers, /offers and /for-suppliers."
   - "2026-05-23: npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx passed, 8 tests."
+  - "2026-05-23: Draft PR #161 opened for Batch #110 public UX mobile scan."
 
 known_warnings:
   - "Build uses non-strict Supabase generated type guard because access migrations have not been applied and regenerated in the linked Supabase project."

@@ -388,3 +388,6 @@ Keep this file factual and append-only.
   - `npm run build` passed with known warnings for Supabase type drift, stale Browserslist data and a large main chunk;
   - Playwright mobile audit at 390px passed with zero horizontal overflow and zero interactive targets below 44px for `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
 - Created branch `codex/batch110-public-ux-mobile-scan` for the validated public UX/UI patch.
+- Committed Batch #110 as `[codex] Batch #110 public UX mobile scan`.
+- Pushed branch `codex/batch110-public-ux-mobile-scan` to `origin`.
+- Opened Draft PR #161: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.

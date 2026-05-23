@@ -8,12 +8,13 @@ Updated: 2026-05-23
 context_risk: "medium"
 last_checkpoint: "2026-05-23"
 last_handoff_ready: true
-recommended_action: "finish validation for the current UX/UI patch, then continue with the next public UX task from NEXT_ACTIONS.md"
+recommended_action: "watch PR #161 checks and review feedback for Batch #110, then merge after green"
 current_project: "yorso-commerce-hub"
 active_branch: "codex/batch110-public-ux-mobile-scan"
 head_commit: "dc6eec1"
 latest_merged_batch: 109
 active_workstream: "batch110_public_ux_trust_mobile_scan"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
 why_medium: "Project memory was stale on Batch #107 while main already includes Batch #109; this checkpoint corrects the state during an active dirty worktree."
 ```
 
