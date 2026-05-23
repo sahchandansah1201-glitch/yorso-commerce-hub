@@ -33,6 +33,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import analytics from "@/lib/analytics";
 import { useEffect } from "react";
 import ogImage from "@/assets/og-for-suppliers.jpg";
+import { restoreCanonical, restoreGlobalSeo, setRouteSeoMarker } from "@/lib/seo";
 
 const painIcons = [Inbox, ShieldAlert, Eye, LayoutGrid];
 const helpIcons = [Lock, BadgeCheck, FileBadge, Package, LineChart];
@@ -65,12 +66,10 @@ const ForSuppliers = () => {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const prevTitle = document.title;
-    const prevDescription =
-      document.head.querySelector<HTMLMetaElement>('meta[name="description"]')?.getAttribute("content") ?? "";
     const prevCanonical =
       document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? "";
 
+    setRouteSeoMarker();
     document.title = t.seo_title;
     document.documentElement.setAttribute("lang", lang);
 
@@ -208,15 +207,15 @@ const ForSuppliers = () => {
     analytics.track("supplier_page_view", { surface: "for_suppliers" });
 
     return () => {
-      document.title = prevTitle;
-      if (prevDescription) {
-        upsertMeta('meta[name="description"]', { name: "description", content: prevDescription });
-        upsertMeta('meta[property="og:description"]', { property: "og:description", content: prevDescription });
-        upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: prevDescription });
-      }
-      upsertMeta('meta[property="og:title"]', { property: "og:title", content: prevTitle });
-      upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: prevTitle });
-      if (prevCanonical) upsertLink("canonical", prevCanonical);
+      restoreGlobalSeo({
+        title: tCommon.meta_siteTitle,
+        description: tCommon.meta_siteDescription,
+      });
+      upsertMeta('meta[property="og:title"]', { property: "og:title", content: tCommon.meta_siteTitle });
+      upsertMeta('meta[property="og:description"]', { property: "og:description", content: tCommon.meta_siteDescription });
+      upsertMeta('meta[name="twitter:title"]', { name: "twitter:title", content: tCommon.meta_siteTitle });
+      upsertMeta('meta[name="twitter:description"]', { name: "twitter:description", content: tCommon.meta_siteDescription });
+      restoreCanonical(prevCanonical);
       document.getElementById(ldId)?.remove();
     };
   }, [
@@ -225,6 +224,8 @@ const ForSuppliers = () => {
     t.seo_ogImageAlt,
     t.seo_ogLocale,
     tCommon.catalog_breadcrumbHome,
+    tCommon.meta_siteDescription,
+    tCommon.meta_siteTitle,
     tCommon.nav_forSuppliers,
     t.faq_items,
     lang,

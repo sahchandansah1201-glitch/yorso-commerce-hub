@@ -24,6 +24,19 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #111 Public Route SEO
+
+- `src/lib/seo.ts`: route-owned SEO marker, canonical/social metadata helpers and global SEO restoration.
+- `src/lib/public-route-seo.ts`: shared public route OG image, locale and title helpers.
+- `src/pages/Index.tsx`: homepage route-owned SEO, canonical, OG/Twitter and WebSite/WebPage JSON-LD.
+- `src/pages/Offers.tsx`: offer catalog route-owned SEO and CollectionPage/Breadcrumb JSON-LD.
+- `src/pages/Suppliers.tsx`: supplier directory route-owned SEO with no exact supplier company-name leakage in metadata.
+- `src/pages/HowItWorks.tsx`: route-owned SEO marker, canonical, OG/Twitter metadata and restored global cleanup.
+- `src/pages/ForSuppliers.tsx`: route-owned SEO marker and restored global cleanup for the existing supplier SEO graph.
+- `src/i18n/translations.ts`: buyer-first global meta descriptions in EN/RU/ES.
+- `src/components/landing/Hero.tsx`: homepage H1 text boundary fix for readable textContent.
+- `src/pages/PublicRouteSeo.test.tsx`: regression coverage for public route SEO, localization and supplier-name leak prevention.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

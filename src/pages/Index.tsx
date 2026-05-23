@@ -14,13 +14,106 @@ import FinalCTA from "@/components/landing/FinalCTA";
 import Footer from "@/components/landing/Footer";
 import AnimatedSection from "@/components/landing/AnimatedSection";
 import { initScrollDepthTracking } from "@/lib/analytics";
+import { useLanguage } from "@/i18n/LanguageContext";
+import {
+  absoluteUrl,
+  applyRouteSeo,
+  removeJsonLd,
+  restoreCanonical,
+  restoreGlobalSeo,
+  upsertJsonLd,
+} from "@/lib/seo";
+import {
+  PUBLIC_ROUTE_OG_IMAGE_PATH,
+  ogLocaleByLang,
+  publicRouteOgImageAlt,
+} from "@/lib/public-route-seo";
 
 const Index = () => {
   const location = useLocation();
+  const { t, lang } = useLanguage();
 
   useEffect(() => {
     return initScrollDepthTracking();
   }, []);
+
+  useEffect(() => {
+    const prevCanonical =
+      document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? null;
+    const canonical = absoluteUrl("/");
+    const image = absoluteUrl(PUBLIC_ROUTE_OG_IMAGE_PATH);
+    const title = t.meta_siteTitle;
+    const description = t.meta_siteDescription;
+    const imageAlt = publicRouteOgImageAlt[lang];
+
+    applyRouteSeo({
+      title,
+      description,
+      canonical,
+      og: {
+        type: "website",
+        title,
+        description,
+        url: canonical,
+        image,
+        imageAlt,
+        locale: ogLocaleByLang[lang],
+        siteName: "YORSO",
+      },
+      twitter: {
+        title,
+        description,
+        image,
+        imageAlt,
+      },
+    });
+
+    upsertJsonLd("home-webpage", {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${canonical}#organization`,
+          name: "YORSO",
+          url: canonical,
+          logo: image,
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${canonical}#website`,
+          url: canonical,
+          name: "YORSO",
+          description,
+          inLanguage: lang,
+          publisher: { "@id": `${canonical}#organization` },
+          potentialAction: {
+            "@type": "SearchAction",
+            target: `${absoluteUrl("/offers")}?q={search_term_string}`,
+            "query-input": "required name=search_term_string",
+          },
+        },
+        {
+          "@type": "WebPage",
+          "@id": `${canonical}#webpage`,
+          url: canonical,
+          name: title,
+          description,
+          inLanguage: lang,
+          isPartOf: { "@id": `${canonical}#website` },
+          about: { "@id": `${canonical}#organization` },
+        },
+      ],
+    });
+
+    return () => {
+      removeJsonLd("home-webpage");
+      restoreGlobalSeo({
+        title: t.meta_siteTitle,
+        description: t.meta_siteDescription,
+      });
+      restoreCanonical(prevCanonical);
+    };
+  }, [lang, t]);
 
   // Scroll to anchor when arriving with a hash (e.g. /#offers from another route)
   useEffect(() => {

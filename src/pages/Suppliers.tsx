@@ -14,7 +14,20 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/i18n/LanguageContext";
 import type { SupplierDirectoryQuery } from "@/lib/supplier-directory-api";
 import { useSupplierDirectoryList } from "@/lib/use-supplier-directory";
-
+import {
+  absoluteUrl,
+  applyRouteSeo,
+  removeJsonLd,
+  restoreCanonical,
+  restoreGlobalSeo,
+  upsertJsonLd,
+} from "@/lib/seo";
+import {
+  PUBLIC_ROUTE_OG_IMAGE_PATH,
+  ogLocaleByLang,
+  publicRouteOgImageAlt,
+  seoTitleWithBrand,
+} from "@/lib/public-route-seo";
 
 interface QuickFilter {
   id: string;
@@ -71,17 +84,6 @@ const QUICK_FILTERS: QuickFilter[] = [
     apiQuery: { verificationLevel: "documents_reviewed" },
   },
 ];
-
-const upsertMeta = (selector: string, attrs: Record<string, string>) => {
-  let el = document.head.querySelector<HTMLMetaElement>(selector);
-  if (!el) {
-    el = document.createElement("meta");
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-    document.head.appendChild(el);
-  } else {
-    Object.entries(attrs).forEach(([k, v]) => el!.setAttribute(k, v));
-  }
-};
 
 const SHORTLIST_KEY = "yorso_supplier_shortlist";
 
@@ -165,17 +167,82 @@ const Suppliers = () => {
 
   // SEO + page view (locale-aware)
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    const prevTitle = document.title;
-    document.title = `${t.suppliersPage_title} · YORSO`;
-    upsertMeta('meta[name="description"]', {
-      name: "description",
-      content: t.suppliersPage_subtitle,
+    const prevCanonical =
+      document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? null;
+    const canonical = absoluteUrl("/suppliers");
+    const image = absoluteUrl(PUBLIC_ROUTE_OG_IMAGE_PATH);
+    const title = seoTitleWithBrand(t.suppliersPage_title);
+    const description = t.suppliersPage_subtitle;
+    const imageAlt = publicRouteOgImageAlt[lang];
+
+    applyRouteSeo({
+      title,
+      description,
+      canonical,
+      og: {
+        type: "website",
+        title,
+        description,
+        url: canonical,
+        image,
+        imageAlt,
+        locale: ogLocaleByLang[lang],
+        siteName: "YORSO",
+      },
+      twitter: {
+        title,
+        description,
+        image,
+        imageAlt,
+      },
     });
+
+    upsertJsonLd("suppliers-webpage", {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": `${canonical}#webpage`,
+          url: canonical,
+          name: title,
+          description,
+          inLanguage: lang,
+          isPartOf: { "@id": `${absoluteUrl("/")}#website` },
+          about: {
+            "@type": "Thing",
+            name: t.suppliersPage_title,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${canonical}#breadcrumbs`,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: t.catalog_breadcrumbHome,
+              item: absoluteUrl("/"),
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: t.suppliersPage_breadcrumb,
+              item: canonical,
+            },
+          ],
+        },
+      ],
+    });
+
     return () => {
-      document.title = prevTitle;
+      removeJsonLd("suppliers-webpage");
+      restoreGlobalSeo({
+        title: t.meta_siteTitle,
+        description: t.meta_siteDescription,
+      });
+      restoreCanonical(prevCanonical);
     };
-  }, [t]);
+  }, [lang, t]);
 
   const persistShortlist = (next: Set<string>) => {
     setShortlist(next);

@@ -2156,7 +2156,7 @@ const en: TranslationKeys = {
 
   // Document metadata
   meta_siteTitle: "YORSO — B2B Seafood Marketplace",
-  meta_siteDescription: "Wholesale seafood from verified suppliers worldwide.",
+  meta_siteDescription: "YORSO helps seafood buyers compare offers, request price access, review supplier evidence, and manage procurement workflows.",
 
   // TrustMicroText
   trustMicro_users: "12,000+ seafood professionals already on YORSO",
@@ -3899,7 +3899,7 @@ const ru: TranslationKeys = {
 
   // Document metadata
   meta_siteTitle: "YORSO — B2B маркетплейс морепродуктов",
-  meta_siteDescription: "Оптовые морепродукты от проверенных поставщиков по всему миру.",
+  meta_siteDescription: "YORSO помогает покупателям морепродуктов сравнивать предложения, запрашивать доступ к ценам, проверять подтверждения поставщика и вести закупочный процесс.",
 
   // TrustMicroText
   trustMicro_users: "12,000+ специалистов по морепродуктам уже на YORSO",
@@ -5642,7 +5642,7 @@ const es: TranslationKeys = {
 
   // Document metadata
   meta_siteTitle: "YORSO — Mercado B2B de mariscos",
-  meta_siteDescription: "Mariscos al por mayor de proveedores verificados en todo el mundo.",
+  meta_siteDescription: "YORSO ayuda a compradores de productos del mar a comparar ofertas, solicitar acceso a precios, revisar evidencia del proveedor y gestionar el proceso de compra.",
 
   // TrustMicroText
   trustMicro_users: "12,000+ profesionales de mariscos en YORSO",

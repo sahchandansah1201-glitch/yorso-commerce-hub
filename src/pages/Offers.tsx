@@ -27,6 +27,20 @@ import Footer from "@/components/landing/Footer";
 import { AlertsInlinePanel } from "@/components/alerts/AlertsPanel";
 import TrustProofStrip from "@/components/catalog/TrustProofStrip";
 import PhotoOrientationDevPanel from "@/components/catalog/PhotoOrientationDevPanel";
+import {
+  absoluteUrl,
+  applyRouteSeo,
+  removeJsonLd,
+  restoreCanonical,
+  restoreGlobalSeo,
+  upsertJsonLd,
+} from "@/lib/seo";
+import {
+  PUBLIC_ROUTE_OG_IMAGE_PATH,
+  ogLocaleByLang,
+  publicRouteOgImageAlt,
+  seoTitleWithBrand,
+} from "@/lib/public-route-seo";
 
 const COMPARE_MAX = 5;
 const OFFER_SORT_KEYS = ["updated_at", "category", "origin", "moq"] as const;
@@ -78,7 +92,7 @@ const interpolate = (s: string, vars: Record<string, string | number>) =>
   s.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? `{${key}}`));
 
 const Offers = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
@@ -184,6 +198,84 @@ const Offers = () => {
   useEffect(() => {
     analytics.track("offers_list_view");
   }, []);
+
+  useEffect(() => {
+    const prevCanonical =
+      document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.getAttribute("href") ?? null;
+    const canonical = absoluteUrl("/offers");
+    const image = absoluteUrl(PUBLIC_ROUTE_OG_IMAGE_PATH);
+    const title = seoTitleWithBrand(t.offers_title);
+    const description = t.offers_subtitle;
+    const imageAlt = publicRouteOgImageAlt[lang];
+
+    applyRouteSeo({
+      title,
+      description,
+      canonical,
+      og: {
+        type: "website",
+        title,
+        description,
+        url: canonical,
+        image,
+        imageAlt,
+        locale: ogLocaleByLang[lang],
+        siteName: "YORSO",
+      },
+      twitter: {
+        title,
+        description,
+        image,
+        imageAlt,
+      },
+    });
+
+    upsertJsonLd("offers-webpage", {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": `${canonical}#webpage`,
+          url: canonical,
+          name: title,
+          description,
+          inLanguage: lang,
+          isPartOf: { "@id": `${absoluteUrl("/")}#website` },
+          about: {
+            "@type": "Thing",
+            name: t.offers_title,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${canonical}#breadcrumbs`,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: t.catalog_breadcrumbHome,
+              item: absoluteUrl("/"),
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: t.nav_liveOffers,
+              item: canonical,
+            },
+          ],
+        },
+      ],
+    });
+
+    return () => {
+      removeJsonLd("offers-webpage");
+      restoreGlobalSeo({
+        title: t.meta_siteTitle,
+        description: t.meta_siteDescription,
+      });
+      restoreCanonical(prevCanonical);
+    };
+  }, [lang, t]);
 
   // If the user lands here from an alert, scroll to the alerts strip and
   // clean the `fromAlert` param so back-navigation doesn't re-trigger.
