@@ -205,3 +205,64 @@
 - `docs/testing/admin-incident-trends-e2e.md`: browser smoke documentation.
 - `docs/testing/admin-incident-trends-contract-tests.md`: contract test documentation.
 - `docs/testing/admin-incident-trends-smoke.md`: runtime smoke documentation.
+
+## Batch #108 Admin Incident Trend Actions
+
+- `packages/contracts/src/admin-incidents.ts`: trend action proposal and decision DTOs.
+- `apps/api/src/modules/admin-incidents/service.ts`: bounded trend action proposal derivation and decision handling.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected trend action endpoints.
+- `apps/api/src/modules/admin-incidents/repository.ts`: memory repository support for trend action decisions.
+- `apps/api/src/modules/admin-incidents/postgres-repository.ts`: PostgreSQL repository support for trend action decisions.
+- `packages/db/migrations/0024_admin_incident_trend_actions.sql`: durable trend action decision table and indexes.
+- `src/lib/admin-incidents-api.ts`: frontend trend action API client methods.
+- `src/lib/use-admin-incident-trends.ts`: frontend trend action loading and decision bridge.
+- `src/pages/admin/AdminIncidentTrends.tsx`: trend action panel on `/admin/incident-trends`.
+- `e2e/admin-incident-trends.spec.ts`: browser guard for trend action proposals and decisions.
+- `docs/backend/admin-incident-trend-actions.md`: operator and implementation guide.
+- `docs/backend/admin-incident-trend-actions-api-contract.md`: API contract guide.
+- `docs/backend/admin-incident-trend-actions-indexing.md`: indexing note for migration 0024.
+
+## Batch #109 Admin Incident Trend Action Queue
+
+- `packages/contracts/src/admin-incidents.ts`: trend action queue query, export and bulk decision DTOs.
+- `apps/api/src/modules/admin-incidents/service.ts`: bounded queue listing, exports and bulk decision orchestration.
+- `apps/api/src/modules/admin-incidents/routes.ts`: admin-protected trend action queue routes.
+- `packages/db/migrations/0025_admin_incident_trend_action_queue.sql`: queue-oriented indexes for trend action decisions.
+- `src/lib/admin-incidents-api.ts`: frontend trend action queue API client methods.
+- `src/lib/use-admin-incident-trend-action-queue.ts`: frontend queue hook for disabled, session, forbidden, loading, error and ready states.
+- `src/pages/admin/AdminIncidentTrendActions.tsx`: `/admin/incident-trend-actions` queue page.
+- `src/components/admin/AdminOperatorNav.tsx`: admin navigation link for trend actions.
+- `e2e/admin-incident-trend-actions.spec.ts`: API-backed browser smoke for queue filters, exports and bulk decisions.
+- `docs/backend/admin-incident-trend-action-queue.md`: operator and implementation guide.
+- `docs/backend/admin-incident-trend-action-queue-api-contract.md`: API contract guide.
+- `docs/backend/admin-incident-trend-action-queue-indexing.md`: indexing note for migration 0025.
+
+## 2026-05-23 Public UX/UI Patch
+
+- `index.html`: public title, description and social metadata for YORSO instead of Lovable defaults.
+- `README.md`: YORSO Commerce Hub repository README instead of default Lovable TODO content.
+- `src/pages/Index.tsx`: landing page horizontal overflow containment.
+- `src/pages/HowItWorks.tsx`: how-it-works page horizontal overflow containment.
+- `src/components/how-it-works/ProcurementDecisionProof.tsx`: mobile-safe procurement decision comparison table.
+- `src/components/how-it-works/AccessLevels.tsx`: mobile-safe access-level comparison table.
+- `src/components/how-it-works/FinalCTA.tsx`: constrained final CTA grid to avoid narrow-screen overflow.
+- `src/components/landing/Header.tsx`: larger mobile header touch target.
+- `src/pages/Suppliers.tsx`: larger mobile supplier quick filter touch targets.
+- `src/components/ui/button.tsx`: responsive mobile minimum touch target for shared buttons and icon buttons.
+- `src/components/CertificationBadges.tsx`: mobile-safe certification chip touch targets.
+- `src/components/catalog/CatalogRecoveryCard.tsx`: CTA links use `Button asChild` instead of nested `Link > Button`.
+- `src/components/catalog/MobileFilterPills.tsx`: mobile filter pill and filter-square touch targets.
+- `src/components/catalog/MobileOfferCard.tsx`: mobile trend and delivery-basis touch targets.
+- `src/components/landing/Hero.tsx`: mobile-safe tertiary registration link.
+- `src/components/landing/FinalCTA.tsx`: CTA uses `Button asChild` instead of nested `Link > Button`.
+- `src/components/landing/LiveOffers.tsx`: mobile view-all CTA uses `Button asChild`.
+- `src/components/landing/SupplierVerification.tsx`: CTA uses `Button asChild`.
+- `src/components/landing/ValueSplit.tsx`: CTA buttons use `Button asChild`.
+- `src/pages/Offers.tsx`: mobile-safe breadcrumb and catalog sort controls.
+- `src/pages/ForSuppliers.tsx`: mobile-safe breadcrumb and request access CTA.
+- `src/components/suppliers/SupplierRow.tsx`: supplier title link touch target.
+
+## Lovable Sync Prompts
+
+- `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
+- `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.

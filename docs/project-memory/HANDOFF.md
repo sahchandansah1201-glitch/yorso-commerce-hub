@@ -2,6 +2,8 @@
 
 Project: `yorso-commerce-hub`
 
+Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+
 ## Read First
 
 1. `AGENTS.md`
@@ -10,42 +12,59 @@ Project: `yorso-commerce-hub`
 4. `docs/project-memory/NEXT_ACTIONS.md`
 5. `docs/project-memory/WORKLOG.md`
 6. `docs/project-memory/ARTIFACTS.md`
+7. `docs/project-memory/RISKS.md`
 
 ## Current Goal
 
-Continue self-hosted production backend/frontend batches for Yorso with large connected PRs and explicit quality gates.
+Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
-- Batch #107 is in progress locally on branch `codex/batch107-incident-trend-analytics`.
-- Batch #107 extends self-hosted admin incidents with trend analytics:
-  - `GET /v1/admin/incidents/trends` returns bucketed incident pressure, source/status/severity mix, route risks and SLA posture;
-  - `GET /v1/admin/incidents/trends/export?format=json|csv` exports the same bounded aggregate trend shape;
-  - `GET /v1/admin/incidents/trends/anomalies` returns bounded anomaly rows;
-  - `GET /v1/admin/incidents/trends/briefing` returns shift briefing sections, operator actions, capacity review and risk register;
-  - frontend `/admin/incident-trends` renders `admin-incident-trends-page`, filters, summary, buckets, route risks, SLA, anomalies, briefing and export controls;
-  - browser/runtime payloads keep raw emails, session ids, database URLs and Redis URLs out of UI and exports;
-  - routes remain behind self-hosted admin session and role guards.
-- Size contract for Batch #107: Batch #106 was `39 files / 3872 insertions`; Batch #107 target is at least `47 files / 4647 insertions`.
-- Pending handoff steps: size re-measure, validation, `git diff --check`, commit, push, PR, GitHub checks, merge to `main`, then Lovable sync confirmation.
+- The repository is on branch `codex/batch110-public-ux-mobile-scan`.
+- Current head is `dc6eec1`, `[codex] Batch #109 admin incident trend action queue (#160)`.
+- Batch #108 added admin incident trend actions.
+- Batch #109 added the dedicated admin incident trend action queue.
+- Lovable sync for Batch #109 was confirmed clean by the user on 2026-05-23:
+  - HEAD `dc6eec10` is present;
+  - `/admin/incident-trend-actions` maps to `AdminIncidentTrendActions`;
+  - migration `0025_admin_incident_trend_action_queue.sql` exists and is in the manifest;
+  - `/v1/admin/incidents/trend-action-queue`, `/export` and `/bulk` routes are connected;
+  - `e2e/admin-incident-trend-actions.spec.ts` and `smoke:e2e:admin-incident-trend-actions` are present.
+- Batch #110 public UX/UI patch is implemented and validated after the audit:
+  - `index.html` no longer uses Lovable default title, description or social metadata;
+  - `README.md` now describes YORSO Commerce Hub instead of the default Lovable TODO;
+  - `/` and `/how-it-works` have overflow containment for mobile;
+  - how-it-works comparison matrices were constrained for narrow screens;
+  - mobile header, footer, breadcrumbs, supplier quick filters, supplier rows, offer filters, certification chips and public CTA controls were hardened for 44px mobile touch targets;
+  - invalid `Link > Button` nesting in public CTA blocks was replaced with `Button asChild`.
+
+## Confirmed Checks In This UX Pass
+
+- `npm run lint` passed.
+- `npx tsc -b --noEmit` passed.
+- `npm run check:production-scale-baseline` passed.
+- `npm run build` passed with known warnings:
+  - non-strict Supabase generated type drift;
+  - stale Browserslist data;
+  - large main JS chunk.
+- Playwright mobile overflow checks at 390px passed for `/`, `/how-it-works` and `/suppliers`.
+- Playwright mobile audit at 390px passed with zero horizontal overflow and zero interactive targets below 44px for `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
+- `npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx` passed, 8 tests.
 
 ## Next Action
 
 ```text
-Finish Batch #107 publication:
-1. run final untracked-aware size report and confirm >= 47 files and >= 4647 insertions;
-2. run validation listed in RUNS/2026-05-22-batch107-validation-plan.md;
-3. run `git diff --check`;
-4. commit and push branch codex/batch107-incident-trend-analytics;
-5. open PR [codex] Batch #107 admin incident trend analytics;
-6. merge after checks pass;
-7. give numbered Lovable Prompt #107 to sync latest GitHub main.
+Commit, push and open PR for `codex/batch110-public-ux-mobile-scan`, then choose the next batch:
+1. route-level SEO metadata and public page structure;
+2. performance/code splitting for large chunks;
+3. font-loading cleanup.
 ```
 
 ## Rules
 
 - Files are the source of truth.
 - Do not invent old-chat context.
+- Do not mix this project with `/Users/istokdmgmail.com/yorso_new` unless explicitly asked.
 - Do not store secrets in project-memory.
 - Keep production-facing decisions tied to the 10000 concurrent users capacity review.
-- Treat repeated process instructions from the user as workflow rules. If the user repeats a rule twice, write it into the working contract before continuing.
+- Preserve existing shadcn/Tailwind/component patterns unless there is a specific UX reason to change them.

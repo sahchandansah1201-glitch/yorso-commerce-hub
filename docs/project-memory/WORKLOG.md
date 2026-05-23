@@ -329,3 +329,62 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:admin-incident-execution-queue` passed, 1 browser test.
   - `npm run lint` passed.
   - `npm run ci:core` passed.
+
+## 2026-05-23
+
+- Confirmed current repository state for the UX/UI audit:
+  - repository root is `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`;
+  - active branch is `main`;
+  - current head is `dc6eec1`, `[codex] Batch #109 admin incident trend action queue (#160)`.
+- Confirmed Batch #108 and Batch #109 are already merged to `main`:
+  - Batch #108 added admin incident trend actions and durable trend action decisions;
+  - Batch #109 added the dedicated admin incident trend action queue.
+- Audited the implemented public UX/UI surfaces and confirmed the main routes from `src/App.tsx`:
+  - `/`;
+  - `/offers`;
+  - `/offers/:id`;
+  - `/suppliers`;
+  - `/suppliers/:supplierId`;
+  - `/how-it-works`;
+  - `/for-suppliers`;
+  - `/account/*`;
+  - `/admin/*`.
+- Fixed public metadata and repository context hygiene:
+  - replaced Lovable default title, description and social metadata in `index.html`;
+  - replaced the default Lovable README TODO with a YORSO Commerce Hub README.
+- Fixed the first mobile scanability defects:
+  - added overflow containment to the landing page and how-it-works page;
+  - constrained how-it-works comparison matrices on narrow screens;
+  - increased mobile header and supplier quick filter touch targets.
+- Confirmed validation after the UX/UI patch:
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known warnings for Supabase type drift, stale Browserslist data and a large main chunk;
+  - Playwright mobile overflow checks at 390px passed for `/`, `/how-it-works` and `/suppliers`.
+- Updated project-memory after finding stale Batch #107 state in:
+  - `docs/project-memory/CONTEXT_HEALTH.md`;
+  - `docs/project-memory/PROJECT_STATE.yaml`;
+  - `docs/project-memory/HANDOFF.md`;
+  - `docs/project-memory/NEXT_ACTIONS.md`;
+  - `docs/project-memory/ARTIFACTS.md`;
+  - `docs/project-memory/RISKS.md`.
+- Added `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md` for Lovable sync confirmation after Batch #109.
+- User confirmed Lovable sync for Batch #109 is clean with no conflicts:
+  - HEAD is `dc6eec10`, `[codex] Batch #109 admin incident trend action queue (#160)`;
+  - `/admin/incident-trend-actions` maps to `AdminIncidentTrendActions`;
+  - migration `0025_admin_incident_trend_action_queue.sql` exists and is in the manifest;
+  - routes `/v1/admin/incidents/trend-action-queue`, `/export` and `/bulk` are connected;
+  - `e2e/admin-incident-trend-actions.spec.ts` and `smoke:e2e:admin-incident-trend-actions` are present.
+- Continued the public UX/UI patch after Batch #109 sync confirmation:
+  - hardened public mobile touch targets across header, footer, breadcrumbs, supplier rows, supplier filters, offer filters, certification chips, mobile offer card controls and public CTA blocks;
+  - removed invalid nested `Link > Button` structures in public CTA blocks by switching to `Button asChild`;
+  - kept desktop density with responsive `sm:` overrides where compact controls are still appropriate.
+- Confirmed final validation after public UX/UI touch-target hardening:
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx` passed, 8 tests;
+  - `npm run build` passed with known warnings for Supabase type drift, stale Browserslist data and a large main chunk;
+  - Playwright mobile audit at 390px passed with zero horizontal overflow and zero interactive targets below 44px for `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
+- Created branch `codex/batch110-public-ux-mobile-scan` for the validated public UX/UI patch.

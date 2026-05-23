@@ -21,7 +21,7 @@ const Footer = () => {
       <div className="container py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <Link to="/" className="font-heading text-xl font-bold">YORSO</Link>
+            <Link to="/" className="inline-flex min-h-11 items-center font-heading text-xl font-bold sm:min-h-0">YORSO</Link>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-accent-foreground/70">{t.footer_desc}</p>
             <div className="mt-4 space-y-2">
               <div className="flex items-center gap-2 text-sm text-accent-foreground/60">
@@ -51,7 +51,7 @@ const Footer = () => {
                       <Link
                         to={to}
                         onClick={() => handleFooterClick(link.label, to)}
-                        className="text-sm text-accent-foreground/60 transition-colors hover:text-accent-foreground"
+                        className="inline-flex min-h-11 min-w-[44px] items-center text-sm text-accent-foreground/60 transition-colors hover:text-accent-foreground sm:min-h-0 sm:min-w-0"
                       >
                         {link.label}
                       </Link>

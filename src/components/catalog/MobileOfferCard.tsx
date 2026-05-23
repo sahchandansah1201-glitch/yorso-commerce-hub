@@ -583,7 +583,7 @@ const MobileOfferCard = ({
                 title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
                 data-testid="catalog-row-trend-analytics-toggle"
                 className={cn(
-                  "ml-auto inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-xs font-semibold leading-5 transition-all duration-200",
+                  "ml-auto inline-flex min-h-11 min-w-[44px] items-center justify-center gap-0.5 rounded-md border px-2 py-2 text-xs font-semibold leading-5 transition-all duration-200",
                   analyticsOpen
                     ? "border-primary bg-primary/10 text-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]"
                     : cn("border-transparent hover:border-primary/40 hover:bg-primary/5", trendColor),
@@ -639,7 +639,7 @@ const MobileOfferCard = ({
             state={buildCatalogReturnState(offer.id)}
             data-testid="catalog-row-basis"
             aria-label={`Базис поставки ${primaryBasis.code}, ${primaryBasis.shipmentPort?.split(",")[0]}, срок ${primaryBasis.leadTime}`}
-            className="-mx-2 -my-1 flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
+            className="-mx-2 -my-1 flex min-h-11 items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
           >
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{primaryBasis.code}</span>

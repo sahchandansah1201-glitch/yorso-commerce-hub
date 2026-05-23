@@ -40,14 +40,14 @@ export const CatalogRecoveryCard = () => {
           data-testid={TID.ctaGroup}
           className="mt-4 flex flex-wrap items-center justify-center gap-2"
         >
-          <Link to="/register" data-testid={TID.ctaSignup}>
-            <Button className="font-semibold">{t.catalog_recovery_signup}</Button>
-          </Link>
-          <Link to="/signin" data-testid={TID.ctaSignin}>
-            <Button variant="outline" className="font-semibold">
+          <Button asChild className="font-semibold">
+            <Link to="/register" data-testid={TID.ctaSignup}>{t.catalog_recovery_signup}</Link>
+          </Button>
+          <Button asChild variant="outline" className="font-semibold">
+            <Link to="/signin" data-testid={TID.ctaSignin}>
               {t.catalog_recovery_signin}
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </CatalogRecoveryGate>

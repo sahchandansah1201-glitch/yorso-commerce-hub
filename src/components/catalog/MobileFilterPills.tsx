@@ -123,7 +123,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
             type="button"
             onClick={() => setAllOpen(true)}
             aria-label={t.catalog_filtersBar_title}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background hover:bg-foreground/90"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-foreground text-background hover:bg-foreground/90"
             data-testid="catalog-pill-search-square"
           >
             <Search className="h-4 w-4" />
@@ -142,7 +142,7 @@ export const MobileFilterPills = ({ value, onChange, options }: Props) => {
                   key={p.key}
                   type="button"
                   onClick={() => setOpenKey(p.key)}
-                  className={`shrink-0 inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                  className={`inline-flex min-h-11 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-foreground text-background"
                       : "bg-muted text-foreground hover:bg-muted/80"

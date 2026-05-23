@@ -184,7 +184,7 @@ const SupplierRowImpl = ({
                 <Link
                   to={`/suppliers/${supplier.id}`}
                   data-testid="supplier-row-title-link"
-                  className="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
+                  className="block min-h-11 hover:text-primary hover:underline focus:outline-none focus-visible:underline md:min-h-0"
                   aria-label={interpolate(t.supplierRow_openProfileAria, { name: displayName })}
                 >
                   {displayName}

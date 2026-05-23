@@ -162,12 +162,12 @@ const LiveOffers = () => {
         )}
 
         <div className="mt-4 text-center md:hidden">
-          <Link to="/offers" onClick={() => analytics.track("live_offers_view_all_click")}>
-            <Button variant="outline" className="gap-1 font-semibold">
+          <Button asChild variant="outline" className="gap-1 font-semibold">
+            <Link to="/offers" onClick={() => analytics.track("live_offers_view_all_click")}>
               {t.offers_viewAllMobile}
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

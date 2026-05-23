@@ -114,7 +114,7 @@ const Hero = () => {
                 analytics.track("hero_primary_cta_click");
                 saveRegistrationSource("hero_cta");
               }}
-              className="font-semibold text-accent-foreground/80 underline-offset-4 hover:text-primary hover:underline"
+              className="inline-flex min-h-11 items-center font-semibold text-accent-foreground/80 underline-offset-4 hover:text-primary hover:underline"
             >
               {t.hero_registerFree}
             </Link>

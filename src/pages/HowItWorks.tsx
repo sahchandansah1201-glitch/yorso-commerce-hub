@@ -130,7 +130,7 @@ const HowItWorks = () => {
   }, [t, lang, tCommon.catalog_breadcrumbHome, tCommon.nav_howItWorks]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <Header />
       <main>
         {/* Breadcrumbs */}
@@ -140,7 +140,7 @@ const HowItWorks = () => {
               aria-label={tCommon.aria_breadcrumb}
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <Link to="/" className="hover:text-foreground">
+              <Link to="/" className="-mx-2 inline-flex min-h-11 items-center px-2 hover:text-foreground sm:min-h-0">
                 {tCommon.catalog_breadcrumbHome}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
@@ -184,7 +184,7 @@ const HowItWorks = () => {
                 </Button>
                 <a
                   href="#system-map"
-                  className="inline-flex h-10 items-center text-sm font-medium text-foreground/70 underline-offset-4 hover:text-primary hover:underline sm:ml-1"
+                  className="inline-flex min-h-11 items-center text-sm font-medium text-foreground/70 underline-offset-4 hover:text-primary hover:underline sm:ml-1"
                 >
                   {t.hero_ctaScroll}
                 </a>
@@ -192,7 +192,7 @@ const HowItWorks = () => {
               <div className="mt-3 text-sm md:mt-4 md:text-xs">
                 <Link
                   to="/register"
-                  className="inline-flex h-9 items-center text-foreground/70 underline-offset-4 hover:text-primary hover:underline"
+                  className="inline-flex min-h-11 items-center text-foreground/70 underline-offset-4 hover:text-primary hover:underline"
                 >
                   {t.hero_ctaSupplier} →
                 </Link>

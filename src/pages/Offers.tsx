@@ -364,7 +364,7 @@ const Offers = () => {
 
       <main className="container flex-1 overflow-x-clip py-6 md:py-8 pb-32">
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Link to="/" className="inline-flex items-center gap-1 hover:text-foreground">
+          <Link to="/" className="-mx-2 inline-flex min-h-11 items-center gap-1 px-2 hover:text-foreground sm:min-h-0">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}
           </Link>
           <ChevronRight className="h-3 w-3" aria-hidden />
@@ -497,7 +497,7 @@ const Offers = () => {
                   setSortBy(event.target.value as OfferSortKey);
                   setPage(1);
                 }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
               >
                 <option value="updated_at">{t.catalog_sortUpdated}</option>
                 <option value="category">{t.catalog_sortCategory}</option>
@@ -514,7 +514,7 @@ const Offers = () => {
                   setSortDirection(event.target.value as OfferSortDirection);
                   setPage(1);
                 }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
               >
                 <option value="desc">{t.catalog_directionDesc}</option>
                 <option value="asc">{t.catalog_directionAsc}</option>
@@ -529,7 +529,7 @@ const Offers = () => {
                   setPageSize(Number(event.target.value) as OfferPageSize);
                   setPage(1);
                 }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+                className="min-h-11 rounded-md border border-input bg-background px-2 text-sm text-foreground sm:h-9 sm:min-h-0"
               >
                 {OFFER_PAGE_SIZES.map((size) => (
                   <option key={size} value={size}>
