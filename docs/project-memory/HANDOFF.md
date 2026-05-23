@@ -20,9 +20,17 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `main`.
+- The repository is on branch `codex/batch112-route-code-splitting`.
+- Batch #112 route code splitting is implemented locally and validated, but not yet committed or opened as a PR.
+- Current local base commit is `01734e1`, `[codex] Add Batch 111 Lovable sync prompt`.
 - Current merged Batch #111 commit is `17fc484`, `[codex] Batch #111 public route SEO`.
 - PR #162 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
+- Lovable sync for Batch #111 was confirmed clean by the user on 2026-05-23:
+  - GitHub commit synced to `01734e1d`, including Batch #111 `17fc4841`;
+  - route-owned SEO files, markers, JSON-LD ids and tests are present;
+  - no conflicts were found;
+  - public mobile UX routes render;
+  - supplier company names do not leak in supplier-directory SEO.
 - Current merged Batch #110 commit is `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
 - PR #161 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
 - Lovable sync for Batch #110 was confirmed clean by the user on 2026-05-23:
@@ -54,6 +62,13 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - homepage H1 textContent now has a readable boundary between stacked title lines.
 - Batch #111 Lovable sync prompt is ready:
   - `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`.
+- Batch #112 local implementation:
+  - `src/App.tsx` route pages are lazy-loaded through `React.lazy`;
+  - routes are wrapped in `Suspense` with a lightweight skeleton fallback;
+  - global providers, `LegacyOfferRedirect`, legacy redirects and `SupplierApprovalNotifier` remain eager;
+  - `vite.config.ts` splits only the local `src/i18n/translations.ts` table into `i18n-translations`;
+  - manual third-party vendor chunking was tested and rejected because production preview exposed React/vendor circular runtime errors;
+  - `src/test/app-route-code-splitting.test.ts` guards route lazy-loading and the translation chunk rule.
 
 ## Confirmed Checks In This UX Pass
 
@@ -78,14 +93,22 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npm run build` passed with known warnings;
   - Playwright head/mobile check at 390px confirmed marker, canonical, OG/Twitter, JSON-LD and no horizontal overflow on the five public routes.
 - GitHub `Core Type And Build Gate` passed on PR #162, including core CI, account reports, browser smoke, API-backed access suite, self-hosted auth/access smoke and admin smoke steps.
+- Batch #112 local validation passed:
+  - `npx vitest run src/test/app-route-code-splitting.test.ts`, 2 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only;
+  - Vite large-chunk warning removed;
+  - production entry chunk: `352.18 kB` minified, `112.99 kB` gzip;
+  - `i18n-translations`: `311.45 kB` minified, `98.15 kB` gzip;
+  - `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
 
 ## Next Action
 
 ```text
-Run `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md` in Lovable and record whether sync is clean. After that choose the next batch:
-1. performance/code splitting for large chunks;
-2. font-loading cleanup;
-3. route-level proof, metrics and trust signal review.
+Stage, commit, push and open a PR for Batch #112 route code splitting.
+After PR checks pass and the PR is merged, create the Batch #112 Lovable sync prompt.
+Then choose the next UX batch: font-loading cleanup or route-level proof/trust signal review.
 ```
 
 ## Rules

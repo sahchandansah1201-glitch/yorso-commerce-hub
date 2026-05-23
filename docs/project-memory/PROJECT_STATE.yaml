@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
-  active_branch: "main"
-  head_commit: "17fc484"
-  head_summary: "[codex] Batch #111 public route SEO"
+  active_branch: "codex/batch112-route-code-splitting"
+  head_commit: "01734e1"
+  head_summary: "[codex] Add Batch 111 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #111 Lovable sync prompt is being added after PR #162 merge."
+    - "Batch #112 route code splitting is in progress."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,37 +37,38 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch111_lovable_sync"
-  summary: "Sync Lovable after Batch #111 public route SEO, then choose the next buyer-first UX batch."
-  status: "batch111_merged_lovable_prompt_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
+  id: "batch112_route_code_splitting"
+  summary: "Reduce public entry JavaScript by lazy-loading route pages and splitting the local i18n translation table."
+  status: "implemented_locally_validation_passed"
+  pull_request: null
   confirmed_scope:
-    - "Add route-owned SEO marker coverage to /, /offers, /suppliers, /how-it-works and /for-suppliers."
-    - "Add canonical, Open Graph, Twitter and JSON-LD coverage for the public buyer-first routes."
-    - "Keep supplier directory SEO from leaking exact supplier company names in locked states."
-    - "Localize route metadata across EN/RU/ES where the page already has localized copy."
-    - "Refresh global meta descriptions with buyer-first procurement language."
-    - "Fix homepage H1 text boundary for readable textContent without changing the visual design."
-    - "Keep existing visual language and shadcn/Tailwind component patterns."
+    - "Convert route page imports in src/App.tsx to React.lazy with a lightweight Suspense fallback."
+    - "Keep global providers, legacy redirects and supplier approval notifier eager."
+    - "Split src/i18n/translations.ts into a named i18n-translations production chunk."
+    - "Avoid manual third-party vendor chunks after browser preview exposed React/vendor circular runtime errors."
+    - "Add static Vitest guard for route lazy-loading and the translation chunk rule."
+    - "Verify production preview routes render without runtime errors."
   confirmed_files:
-    - "src/components/landing/Hero.tsx"
-    - "src/i18n/translations.ts"
-    - "src/i18n/locale-document-meta-ru.test.tsx"
-    - "src/lib/seo.ts"
-    - "src/lib/public-route-seo.ts"
-    - "src/pages/Index.tsx"
-    - "src/pages/Offers.tsx"
-    - "src/pages/HowItWorks.tsx"
-    - "src/pages/ForSuppliers.tsx"
-    - "src/pages/Suppliers.tsx"
-    - "src/pages/PublicRouteSeo.test.tsx"
+    - "src/App.tsx"
+    - "vite.config.ts"
+    - "src/test/app-route-code-splitting.test.ts"
+    - "docs/backend/production-scale-baseline.md"
 
 latest_merged_batches:
   - id: 111
     summary: "Public route-owned SEO, social metadata and structured data for buyer-first pages."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "17fc484"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
+    lovable_sync:
+      confirmed_at: "2026-05-23"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to 01734e1d, including Batch #111 commit 17fc4841."
+        - "src/lib/seo.ts, src/lib/public-route-seo.ts, public route SEO markers, JSON-LD ids and tests are present."
+        - "No conflicts were found and the worktree was clean."
+        - "Public mobile UX routes render and supplier company names do not leak in supplier-directory SEO."
+        - "Known warnings remained before Batch #112: Supabase generated types drift, stale Browserslist data and large main production JS chunk."
     confirmed_files:
       - "src/lib/seo.ts"
       - "src/lib/public-route-seo.ts"
@@ -172,10 +173,10 @@ current_ux_audit_status:
     - "Admin/operator surfaces have explicit self-hosted API contracts, smoke tests, e2e coverage and production-scale guardrails."
   weak:
     - "Before Batch #111, route-level metadata was inconsistent across public routes outside the blog."
-    - "The public bundle remains very large and needs route-level code splitting."
+    - "Before Batch #112, the public bundle loaded a very large single production entry chunk."
     - "Google Fonts are loaded through CSS @import, which can block visual checks and slow first render."
   conversion_risks:
-    - "Large first-load JavaScript may delay buyer exploration."
+    - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
   trust_risks:
     - "Supabase generated types are still out of sync with backend access migrations in non-strict build mode."
@@ -184,11 +185,17 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-111-lovable-sync.md in Lovable and confirm sync status."
-  - "Plan a performance batch for route-level code splitting, especially admin/account routes."
+  - "Open a PR for Batch #112 route code splitting after final project-memory checks."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
+  - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-23: User confirmed Lovable sync for Batch #111 is clean with no conflicts at 01734e1d."
+  - "2026-05-23: Batch #112 npx vitest run src/test/app-route-code-splitting.test.ts passed, 2 tests."
+  - "2026-05-23: Batch #112 npm run lint passed."
+  - "2026-05-23: Batch #112 npx tsc -b --noEmit passed."
+  - "2026-05-23: Batch #112 npm run build passed; previous Vite large-chunk warning is gone. Entry chunk is 352.18 kB minified / 112.99 kB gzip, i18n-translations is 311.45 kB / 98.15 kB gzip."
+  - "2026-05-23: Batch #112 Playwright production preview smoke passed for e2e/smoke-core.spec.ts and e2e/suppliers-no-horizontal-overflow-375.spec.ts, 9 tests."
   - "2026-05-23: PR #162 Core Type And Build Gate passed on GitHub, including browser smoke, API-backed access suite, self-hosted auth/access and admin smoke steps."
   - "2026-05-23: PR #162 merged to main as 17fc484."
   - "2026-05-23: Batch #111 focused Vitest route SEO/i18n tests passed, 53 tests across 6 files."
@@ -215,7 +222,7 @@ last_confirmed_checks:
 known_warnings:
   - "Build uses non-strict Supabase generated type guard because access migrations have not been applied and regenerated in the linked Supabase project."
   - "Browserslist caniuse-lite data is 11 months old."
-  - "Main production JS chunk is about 2.69 MB minified and 732 kB gzip."
+  - "No custom route chunk error boundary is implemented yet; production preview currently relies on the browser/default React behavior if a lazy route chunk fails to load."
 
 quality_rules:
   - "Use repository files as source of truth."
@@ -238,5 +245,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #111 is pending."
-  - "After Batch #111 sync, choose whether the next UX batch should address performance/code splitting or font loading."
+  - "After Batch #112, choose whether the next UX batch should address font loading or route-level proof/trust signal density."
