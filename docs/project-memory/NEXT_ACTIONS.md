@@ -4,8 +4,9 @@
 
 1. Finish Batch #111 public route SEO:
    - branch: `codex/batch111-public-route-seo`;
-   - status: implemented locally and validation passed;
-   - next steps: final git review, commit, push and open PR.
+   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`;
+   - status: Draft PR open after local validation passed;
+   - next steps: monitor GitHub checks, mark ready and merge if clean.
 
 2. After Batch #111 merge, prepare the Lovable sync prompt and record whether Lovable sync is clean or has conflicts.
 
@@ -16,7 +17,8 @@
 
 ## Latest Confirmed Main State
 
-- local branch is `codex/batch111-public-route-seo` at base `ff98940`, `[codex] Add Batch 110 Lovable sync prompt`.
+- local branch is `codex/batch111-public-route-seo` at Batch #111 commit `0d9319d`, `[codex] Batch #111 public route SEO`.
+- Draft PR #162 is open for Batch #111: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - `main` includes Batch #110 commit `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`, plus the Batch #110 Lovable sync prompt commit.
 - Batch #108, Batch #109 and Batch #110 are merged to `main`.
 - Lovable sync for Batch #109 and Batch #110 is confirmed clean with no conflicts.

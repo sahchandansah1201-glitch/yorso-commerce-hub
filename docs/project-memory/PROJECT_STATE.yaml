@@ -12,12 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
   active_branch: "codex/batch111-public-route-seo"
-  head_commit: "ff98940"
-  head_summary: "[codex] Add Batch 110 Lovable sync prompt"
+  head_commit: "0d9319d"
+  head_summary: "[codex] Batch #111 public route SEO"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #111 public route SEO implementation is in progress on a Codex branch."
-    - "Project-memory checkpoint files are being updated after the local Batch #111 validation pass."
+    - "Project-memory checkpoint files are being updated after opening Draft PR #162."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -40,8 +39,8 @@ project_identity:
 active_workstream:
   id: "batch111_public_route_seo"
   summary: "Route-owned SEO, social metadata and structured data for public buyer-first pages."
-  status: "implemented_local_validation_passed_not_committed"
-  pull_request: null
+  status: "draft_pr_open"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162"
   confirmed_scope:
     - "Add route-owned SEO marker coverage to /, /offers, /suppliers, /how-it-works and /for-suppliers."
     - "Add canonical, Open Graph, Twitter and JSON-LD coverage for the public buyer-first routes."
@@ -169,7 +168,8 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit and open Batch #111 for public route SEO after final git review."
+  - "Monitor Draft PR #162 checks for Batch #111 public route SEO."
+  - "After checks pass, mark PR #162 ready and merge if no review changes are required."
   - "Prepare a Batch #111 Lovable sync prompt after merge."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
@@ -222,5 +222,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Batch #111 still needs final git review, commit, push and PR."
+  - "Batch #111 PR #162 still needs GitHub checks and merge."
   - "After Batch #111, choose whether the next UX batch should address performance/code splitting or font loading."

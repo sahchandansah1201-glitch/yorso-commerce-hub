@@ -21,8 +21,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Current Status
 
 - The repository is on branch `codex/batch111-public-route-seo`.
-- Current local base commit is `ff98940`, `[codex] Add Batch 110 Lovable sync prompt`.
-- Batch #111 public route SEO is implemented locally and validated, but not yet committed.
+- Current Batch #111 commit is `0d9319d`, `[codex] Batch #111 public route SEO`.
+- Draft PR #162 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - Current merged Batch #110 commit is `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
 - PR #161 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
 - Lovable sync for Batch #110 was confirmed clean by the user on 2026-05-23:
@@ -80,8 +80,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ```text
 Finish Batch #111:
-1. run final git review;
-2. commit, push and open PR;
+1. monitor PR #162 checks;
+2. mark ready and merge if checks pass and no review changes are required;
 3. after merge, add a Batch #111 Lovable sync prompt;
 4. next likely UX batches are performance/code splitting or font-loading cleanup.
 ```

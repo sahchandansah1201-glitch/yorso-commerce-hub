@@ -429,3 +429,6 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed;
   - `npm run build` passed with known warnings for Supabase type drift, stale Browserslist data and large main chunk;
   - Playwright head/mobile check at 390px confirmed marker, canonical, OG/Twitter, JSON-LD and no horizontal overflow on `/`, `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+- Committed Batch #111 as `0d9319d`, `[codex] Batch #111 public route SEO`.
+- Pushed branch `codex/batch111-public-route-seo` to `origin`.
+- Opened Draft PR #162: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
