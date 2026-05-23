@@ -26,6 +26,14 @@
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
   Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
 
+- Risk: API-backed browser specs can fail in generic smoke.
+  Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
+  Mitigation: Keep API-backed browser specs in dedicated package scripts and preserve the `check:engineering-lessons` guard.
+
+- Risk: Parallel Vite builds can race on shared `dist/`.
+  Impact: Running two build-based e2e commands concurrently can overwrite preview assets and produce nondeterministic failures.
+  Mitigation: Do not add parallel tokens to `smoke:e2e*` package scripts unless future work isolates output directories.
+
 - Risk: Admin/operator review and incident queues can become hot paths under high request volume.
   Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
   Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.

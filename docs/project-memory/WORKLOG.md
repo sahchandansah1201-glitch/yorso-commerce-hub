@@ -391,3 +391,7 @@ Keep this file factual and append-only.
 - Committed Batch #110 as `[codex] Batch #110 public UX mobile scan`.
 - Pushed branch `codex/batch110-public-ux-mobile-scan` to `origin`.
 - Opened Draft PR #161: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
+- Investigated PR #161 CI failure:
+  - failing check: `Core Type And Build Gate`;
+  - root cause: `check:engineering-lessons` required the risk markers `API-backed browser specs can fail in generic smoke` and `Parallel Vite builds can race on shared dist`;
+  - fix: restored those process-risk entries in `docs/project-memory/RISKS.md`.
