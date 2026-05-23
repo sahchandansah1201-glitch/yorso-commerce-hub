@@ -402,3 +402,10 @@ Keep this file factual and append-only.
 - Confirmed validation after the PR #161 migration-test fixture fix:
   - `npm run test:db-migrations` passed, 16 tests;
   - `npm run ci:core` passed with the known non-blocking warnings for Supabase type drift, stale Browserslist data and large production chunk.
+- Pushed PR #161 follow-up commit `19252cc`, `[codex] Fix migration tests for trend action queue`.
+- Confirmed GitHub PR #161 `Core Type And Build Gate` passed after the migration-test fixture fix:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access browser suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #161 ready and merged it to `main` as `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
+- Added `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md` for Batch #110 Lovable sync confirmation.

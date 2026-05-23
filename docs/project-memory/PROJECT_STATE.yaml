@@ -11,13 +11,13 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
-  active_branch: "codex/batch110-public-ux-mobile-scan"
-  head_commit: "e1653cb before local CI migration-test fix"
-  head_summary: "[codex] Restore engineering lesson risk markers"
+  active_branch: "main"
+  head_commit: "2e8fb7b"
+  head_summary: "[codex] Batch #110 public UX mobile scan"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "PR #161 CI migration tests are being updated to include Batch #109 migration 0025."
-    - "Project-memory checkpoint files are being updated after the CI fix and local ci:core pass."
+    - "Project-memory checkpoint files are being updated after PR #161 merge."
+    - "Batch #110 Lovable sync prompt is being added."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,9 +38,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch110_public_ux_trust_mobile_scan"
-  summary: "Batch #110 public UX/UI remediation for Yorso public surfaces, with buyer-first trust, scanability, metadata hygiene, valid CTA semantics and mobile touch targets as priorities."
-  status: "draft_pr_open_ci_fix_local_passed_pending_push"
+  id: "post_batch110_lovable_sync"
+  summary: "Sync Lovable after Batch #110 public UX/UI remediation, then choose the next buyer-first UX batch."
+  status: "batch110_merged_lovable_prompt_ready"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
   confirmed_scope:
     - "Replace Lovable default title, description and social metadata in index.html."
@@ -78,6 +78,34 @@ active_workstream:
     - "packages/db/src/migrator.test.ts"
 
 latest_merged_batches:
+  - id: 110
+    summary: "Public UX mobile scan, metadata cleanup, valid CTA semantics and DB migration-test fixture follow-up."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "2e8fb7b"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161"
+    confirmed_files:
+      - "index.html"
+      - "README.md"
+      - "src/components/ui/button.tsx"
+      - "src/components/CertificationBadges.tsx"
+      - "src/components/catalog/CatalogRecoveryCard.tsx"
+      - "src/components/catalog/MobileFilterPills.tsx"
+      - "src/components/catalog/MobileOfferCard.tsx"
+      - "src/components/landing/Header.tsx"
+      - "src/components/landing/Footer.tsx"
+      - "src/components/landing/Hero.tsx"
+      - "src/components/landing/FinalCTA.tsx"
+      - "src/components/landing/LiveOffers.tsx"
+      - "src/components/landing/SupplierVerification.tsx"
+      - "src/components/landing/ValueSplit.tsx"
+      - "src/components/suppliers/SupplierRow.tsx"
+      - "src/pages/Index.tsx"
+      - "src/pages/Offers.tsx"
+      - "src/pages/HowItWorks.tsx"
+      - "src/pages/ForSuppliers.tsx"
+      - "src/pages/Suppliers.tsx"
+      - "packages/db/src/cli.test.ts"
+      - "packages/db/src/migrator.test.ts"
   - id: 109
     summary: "Admin incident trend action queue on top of Batch #108 trend action decisions."
     status: "merged_to_main_lovable_sync_clean"
@@ -147,8 +175,7 @@ current_ux_audit_status:
     - "The page metadata baseline is now fixed, but route-level metadata and schema structure remain a future task."
 
 next_actions:
-  - "Push the PR #161 CI migration-test fix and recheck GitHub checks."
-  - "Merge PR #161 after checks and review pass, then provide Lovable sync prompt for Batch #110."
+  - "Run docs/project-memory/PROMPTS/prompt-110-lovable-sync.md in Lovable and confirm sync status."
   - "Plan a performance batch for route-level code splitting, especially admin/account routes."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
   - "Add route-level SEO metadata and structured copy review for public buyer pages."
@@ -162,6 +189,8 @@ last_confirmed_checks:
   - "2026-05-23: User confirmed Lovable sync for Batch #109 is clean with no conflicts."
   - "2026-05-23: npm run test:db-migrations passed after updating expectations for migration 0025."
   - "2026-05-23: npm run ci:core passed after the PR #161 migration-test fixture fix."
+  - "2026-05-23: PR #161 Core Type And Build Gate passed on GitHub."
+  - "2026-05-23: PR #161 merged to main as 2e8fb7b."
   - "2026-05-23: Playwright mobile audit at 390px passed with zero horizontal overflow and zero <44px interactive targets for /, /how-it-works, /suppliers, /offers and /for-suppliers."
   - "2026-05-23: npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx passed, 8 tests."
   - "2026-05-23: Draft PR #161 opened for Batch #110 public UX mobile scan."
@@ -192,5 +221,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No external GitHub Actions status was checked for the current local UX/UI patch because it has not been committed or pushed."
+  - "Lovable sync confirmation for Batch #110 is pending."
   - "Whether to prioritize performance/code splitting, font loading or route-level SEO next should be decided from the next product goal."

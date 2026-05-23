@@ -20,11 +20,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `codex/batch110-public-ux-mobile-scan`.
-- Current pushed head before the local CI migration-test fix is `e1653cb`, `[codex] Restore engineering lesson risk markers`.
-- Draft PR #161 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
-- PR #161 CI exposed stale DB migration test expectations after Batch #109 added `0025_admin_incident_trend_action_queue`.
-- The local fix updates `packages/db/src/cli.test.ts` and `packages/db/src/migrator.test.ts` to expect 26 migrations and the `0025` queue migration.
+- The repository is on branch `main`.
+- Current merged Batch #110 commit is `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`.
+- PR #161 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/161`.
+- PR #161 CI exposed stale DB migration test expectations after Batch #109 added `0025_admin_incident_trend_action_queue`; the merged fix updates `packages/db/src/cli.test.ts` and `packages/db/src/migrator.test.ts` to expect 26 migrations and the `0025` queue migration.
 - Batch #108 added admin incident trend actions.
 - Batch #109 added the dedicated admin incident trend action queue.
 - Lovable sync for Batch #109 was confirmed clean by the user on 2026-05-23:
@@ -55,11 +54,12 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - `npx vitest run src/components/catalog/MobileOfferCard.touchTargets.test.tsx` passed, 8 tests.
 - `npm run test:db-migrations` passed after the PR #161 CI migration-test fix.
 - `npm run ci:core` passed after the PR #161 CI migration-test fix.
+- GitHub `Core Type And Build Gate` passed on PR #161, including core CI, account reports, browser smoke, API-backed access suite and admin smoke steps.
 
 ## Next Action
 
 ```text
-Push the PR #161 CI migration-test fix and recheck GitHub checks. Merge after green, then provide a Lovable sync prompt for Batch #110. After that choose the next batch:
+Run `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md` in Lovable and record whether sync is clean. After that choose the next batch:
 1. route-level SEO metadata and public page structure;
 2. performance/code splitting for large chunks;
 3. font-loading cleanup.

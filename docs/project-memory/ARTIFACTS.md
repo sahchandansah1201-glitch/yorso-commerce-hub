@@ -266,3 +266,4 @@
 
 - `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
 - `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.
+- `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`: sync confirmation prompt for Batch #110 public UX mobile scan.
