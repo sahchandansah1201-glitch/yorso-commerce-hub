@@ -465,3 +465,12 @@ Keep this file factual and append-only.
   - production build entry chunk is `352.18 kB` minified and `112.99 kB` gzip;
   - `i18n-translations` chunk is `311.45 kB` minified and `98.15 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
+- Committed Batch #112 as `4e89ff3`, `[codex] Batch #112 route code splitting`.
+- Pushed branch `codex/batch112-route-code-splitting` to `origin`.
+- Opened Draft PR #163: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
+- Confirmed GitHub PR #163 `Core Type And Build Gate` passed:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #163 ready and merged it to `main` as `2430fef`, `[codex] Batch #112 route code splitting`.
+- Added `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md` for Batch #112 Lovable sync confirmation.

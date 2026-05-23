@@ -44,6 +44,7 @@
 - `vite.config.ts`: production build splits the local `src/i18n/translations.ts` table into the named `i18n-translations` chunk.
 - `src/test/app-route-code-splitting.test.ts`: static guard against reintroducing eager route page imports and losing the translation chunk rule.
 - `docs/backend/production-scale-baseline.md`: Batch #112 10,000 concurrent users capacity review for frontend route chunking.
+- `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`: Lovable sync prompt for Batch #112.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -289,3 +290,4 @@
 - `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.
 - `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`: sync confirmation prompt for Batch #110 public UX mobile scan.
 - `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`: sync confirmation prompt for Batch #111 public route SEO.
+- `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`: sync confirmation prompt for Batch #112 route code splitting.

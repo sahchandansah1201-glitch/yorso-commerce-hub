@@ -20,9 +20,11 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `codex/batch112-route-code-splitting`.
-- Batch #112 route code splitting is implemented locally and validated, but not yet committed or opened as a PR.
-- Current local base commit is `01734e1`, `[codex] Add Batch 111 Lovable sync prompt`.
+- The repository is on branch `main`.
+- Current merged Batch #112 commit is `2430fef`, `[codex] Batch #112 route code splitting`.
+- PR #163 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
+- Batch #112 Lovable sync prompt is ready:
+  - `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`.
 - Current merged Batch #111 commit is `17fc484`, `[codex] Batch #111 public route SEO`.
 - PR #162 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - Lovable sync for Batch #111 was confirmed clean by the user on 2026-05-23:
@@ -60,9 +62,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - global EN/RU/ES meta descriptions now use concrete buyer-first procurement language;
   - `/suppliers` metadata is covered against exact supplier company-name leakage before access;
   - homepage H1 textContent now has a readable boundary between stacked title lines.
-- Batch #111 Lovable sync prompt is ready:
-  - `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`.
-- Batch #112 local implementation:
+- Batch #112 implementation:
   - `src/App.tsx` route pages are lazy-loaded through `React.lazy`;
   - routes are wrapped in `Suspense` with a lightweight skeleton fallback;
   - global providers, `LegacyOfferRedirect`, legacy redirects and `SupplierApprovalNotifier` remain eager;
@@ -75,7 +75,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - `npm run lint` passed.
 - `npx tsc -b --noEmit` passed.
 - `npm run check:production-scale-baseline` passed.
-- `npm run build` passed with known warnings:
+- Before Batch #112, `npm run build` passed with known warnings:
   - non-strict Supabase generated type drift;
   - stale Browserslist data;
   - large main JS chunk.
@@ -102,12 +102,12 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - production entry chunk: `352.18 kB` minified, `112.99 kB` gzip;
   - `i18n-translations`: `311.45 kB` minified, `98.15 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
+- GitHub `Core Type And Build Gate` passed on PR #163, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 
 ## Next Action
 
 ```text
-Stage, commit, push and open a PR for Batch #112 route code splitting.
-After PR checks pass and the PR is merged, create the Batch #112 Lovable sync prompt.
+Run docs/project-memory/PROMPTS/prompt-112-lovable-sync.md in Lovable and record whether sync is clean.
 Then choose the next UX batch: font-loading cleanup or route-level proof/trust signal review.
 ```
 

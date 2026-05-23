@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-23"
-  active_branch: "codex/batch112-route-code-splitting"
-  head_commit: "01734e1"
-  head_summary: "[codex] Add Batch 111 Lovable sync prompt"
+  active_branch: "main"
+  head_commit: "2430fef"
+  head_summary: "[codex] Batch #112 route code splitting"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #112 route code splitting is in progress."
+    - "Batch #112 Lovable sync prompt is being added after PR #163 merge."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch112_route_code_splitting"
-  summary: "Reduce public entry JavaScript by lazy-loading route pages and splitting the local i18n translation table."
-  status: "implemented_locally_validation_passed"
-  pull_request: null
+  id: "post_batch112_lovable_sync"
+  summary: "Sync Lovable after Batch #112 route code splitting, then choose the next buyer-first UX batch."
+  status: "batch112_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163"
   confirmed_scope:
     - "Convert route page imports in src/App.tsx to React.lazy with a lightweight Suspense fallback."
     - "Keep global providers, legacy redirects and supplier approval notifier eager."
@@ -55,6 +55,17 @@ active_workstream:
     - "docs/backend/production-scale-baseline.md"
 
 latest_merged_batches:
+  - id: 112
+    summary: "Frontend route code splitting for public/admin/account route pages and the local i18n translation table."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "2430fef"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163"
+    confirmed_files:
+      - "src/App.tsx"
+      - "vite.config.ts"
+      - "src/test/app-route-code-splitting.test.ts"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-112-lovable-sync.md"
   - id: 111
     summary: "Public route-owned SEO, social metadata and structured data for buyer-first pages."
     status: "merged_to_main_lovable_sync_clean"
@@ -185,11 +196,13 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Open a PR for Batch #112 route code splitting after final project-memory checks."
+  - "Run docs/project-memory/PROMPTS/prompt-112-lovable-sync.md in Lovable and confirm sync status."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
   - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-23: PR #163 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
+  - "2026-05-23: PR #163 merged to main as 2430fef."
   - "2026-05-23: User confirmed Lovable sync for Batch #111 is clean with no conflicts at 01734e1d."
   - "2026-05-23: Batch #112 npx vitest run src/test/app-route-code-splitting.test.ts passed, 2 tests."
   - "2026-05-23: Batch #112 npm run lint passed."
@@ -245,4 +258,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "After Batch #112, choose whether the next UX batch should address font loading or route-level proof/trust signal density."
+  - "Lovable sync confirmation for Batch #112 is pending."
+  - "After Batch #112 sync, choose whether the next UX batch should address font loading or route-level proof/trust signal density."

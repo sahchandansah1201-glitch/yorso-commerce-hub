@@ -2,12 +2,13 @@
 
 ## Current Next Action
 
-1. Finish Batch #112 route code splitting:
-   - branch: `codex/batch112-route-code-splitting`;
-   - status: implemented locally and validated;
-   - next step: stage, commit, push and open a PR.
+1. Run the Batch #112 Lovable sync prompt:
+   - prompt: `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`;
+   - merged commit: `2430fef`;
+   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`;
+   - expected result: Lovable reports clean sync or gives a concrete conflict list.
 
-2. After Batch #112 PR checks pass, merge and create the Batch #112 Lovable sync prompt.
+2. Record whether Batch #112 Lovable sync is clean or has conflicts.
 
 3. Plan the next production-quality UX batch:
    - font-loading cleanup to remove blocking CSS `@import`;
@@ -15,7 +16,9 @@
 
 ## Latest Confirmed Main State
 
-- `main` is at `17fc484`, `[codex] Batch #111 public route SEO`.
+- `main` is at `2430fef`, `[codex] Batch #112 route code splitting`.
+- PR #163 is merged for Batch #112: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
+- Batch #111 merged commit is `17fc484`, `[codex] Batch #111 public route SEO`.
 - PR #162 is merged for Batch #111: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - User confirmed Lovable sync for Batch #111 is clean at `01734e1d`, with no conflicts.
 - `main` includes Batch #110 commit `2e8fb7b`, `[codex] Batch #110 public UX mobile scan`, plus the Batch #110 Lovable sync prompt commit.
@@ -30,6 +33,7 @@
   - `npx vitest run src/pages/PublicRouteSeo.test.tsx` passed, 9 tests;
   - `npm run lint`, `npx tsc -b --noEmit` and `npm run build` passed with known warnings.
 - GitHub `Core Type And Build Gate` passed on PR #162, including browser smoke, API-backed access suite, self-hosted auth/access and admin smoke steps.
+- GitHub `Core Type And Build Gate` passed on PR #163, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 - Batch #112 local validation passed:
   - `npx vitest run src/test/app-route-code-splitting.test.ts` passed, 2 tests;
   - `npm run lint` passed;
