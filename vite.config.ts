@@ -19,4 +19,15 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query"],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Keep third-party packages under Rollup control; manual vendor chunks can create ESM cycles.
+          if (id.includes("/src/i18n/translations.ts")) return "i18n-translations";
+          return undefined;
+        },
+      },
+    },
+  },
 }));

@@ -1771,6 +1771,82 @@ Marker: admin_incidents_trend_action_queue_bulk=ok.
 Marker: 0025_admin_incident_trend_action_queue.
 Marker: 10,000 concurrent users.
 
+## Batch #112 Frontend Route Code Splitting
+
+Batch #112 reduces the production frontend entry chunk by lazy-loading route
+pages from the router shell and splitting the local translation table into a
+named `i18n-translations` chunk. It does not change backend APIs,
+persistence, queues or supplier access policy.
+
+Expected read/write profile:
+
+- No new backend reads or writes are introduced.
+- Public route navigation now downloads the route chunk needed for the current
+  page instead of loading every page component in the initial entry chunk.
+- Admin/account route chunks are fetched only when the operator or account
+  route is visited.
+- The local `src/i18n/translations.ts` table is loaded as a named chunk and
+  can be cached independently by the browser/CDN.
+
+Cache, queue and backpressure strategy:
+
+- Hashed Vite assets remain browser/CDN cacheable.
+- No polling, queue work or background API traffic is added.
+- Manual third-party vendor chunks are intentionally avoided because production
+  preview exposed React/vendor circular runtime errors during Batch #112
+  validation.
+- The fallback is a lightweight skeleton, so route transitions do not add
+  backend pressure while chunks load.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch is frontend bundle structure only.
+- Existing supplier directory, offer catalog, account and admin pagination
+  rules remain the bounded read strategy for the 10,000 concurrent-user target.
+
+Failure mode and graceful degradation:
+
+- If a lazy route chunk loads normally, the route renders without changing the
+  page contract.
+- If a chunk download fails, the app currently relies on default browser/React
+  error behavior. A custom route chunk error boundary with retry is a follow-up
+  hardening item, not included in Batch #112.
+- Existing disabled/session/forbidden states on admin and account pages are
+  unchanged.
+
+Observability and load-test plan:
+
+- Track production RUM for route chunk load failures, route transition latency,
+  first contentful paint and interaction latency on `/`, `/offers`,
+  `/suppliers`, `/how-it-works` and `/for-suppliers`.
+- CDN logs should confirm high cache-hit ratios for hashed route chunks and the
+  `i18n-translations` chunk under repeat traffic.
+- Load tests remain focused on backend hot paths; this batch should reduce
+  frontend transfer pressure without changing API request volume.
+
+Validation:
+
+- `npx vitest run src/test/app-route-code-splitting.test.ts`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run build`;
+- `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`.
+
+Measured production build after Batch #112:
+
+- Previous single entry chunk before route splitting: about `2.69 MB`
+  minified and `734 kB` gzip.
+- Current entry chunk: `352.18 kB` minified and `112.99 kB` gzip.
+- Current `i18n-translations` chunk: `311.45 kB` minified and `98.15 kB`
+  gzip.
+- Previous Vite large-chunk warning is gone.
+
+Marker: Batch #112.
+Marker: frontend route code splitting.
+Marker: i18n-translations.
+Marker: app route code splitting.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

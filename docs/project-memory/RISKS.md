@@ -14,13 +14,13 @@
   Impact: A new chat may continue from an obsolete batch, branch or next action.
   Mitigation: The 2026-05-23 checkpoint updates state from Batch #107 to `main` at Batch #109; update project-memory after every significant audit, feature or handoff.
 
-- Risk: The public production bundle is large.
-  Impact: Buyers may wait longer before they can scan offers, suppliers and access workflows, which can reduce conversion and trust on slow networks.
-  Mitigation: Plan route-level code splitting for admin/account/public-heavy routes and keep performance checks in the validation path.
-
 - Risk: Google Fonts are loaded through CSS `@import`.
   Impact: Visual checks and first render can wait on external font loading.
   Mitigation: Plan a font-loading cleanup using self-hosted or preloaded fonts.
+
+- Risk: Lazy route chunk failures currently use default browser/React behavior.
+  Impact: A failed route chunk download could leave buyers on a fallback or blank transition instead of a clear retry state.
+  Mitigation: Add a route chunk error boundary/retry shell in a future frontend hardening batch; Batch #112 production preview smoke currently passes.
 
 - Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
@@ -54,3 +54,6 @@
 
 - Risk: Public mobile touch targets remained below the 44px guideline after the first audit pass.
   Resolution: Current UX/UI patch hardens touch targets across the checked public routes. Playwright mobile audit at 390px reports zero interactive targets below 44px for `/`, `/how-it-works`, `/suppliers`, `/offers` and `/for-suppliers`.
+
+- Risk: The public production bundle loaded a very large single entry chunk.
+  Resolution: Batch #112 lazy-loads route pages and splits the local translation table. The production entry chunk is now `352.18 kB` minified and `112.99 kB` gzip, and the previous Vite large-chunk warning is gone.

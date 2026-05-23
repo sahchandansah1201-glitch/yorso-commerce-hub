@@ -439,3 +439,29 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #162 ready and merged it to `main` as `17fc484`, `[codex] Batch #111 public route SEO`.
 - Added `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md` for Batch #111 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #111 is clean with no conflicts:
+  - HEAD is `01734e1d`, including Batch #111 commit `17fc4841`;
+  - `src/lib/seo.ts`, `src/lib/public-route-seo.ts`, public route SEO markers, JSON-LD ids and route SEO tests are present;
+  - public mobile UX routes render;
+  - supplier company names do not leak in supplier-directory SEO;
+  - known warnings remained before Batch #112: Supabase generated types drift, stale Browserslist data and large main production JS chunk.
+- Started Batch #112 locally on `codex/batch112-route-code-splitting`.
+- Implemented Batch #112 route code splitting:
+  - converted `src/App.tsx` route page imports to `React.lazy`;
+  - wrapped routes in `Suspense` with a lightweight skeleton fallback;
+  - kept global providers, legacy redirects and supplier approval notifier eager;
+  - split `src/i18n/translations.ts` into a named `i18n-translations` production chunk;
+  - added `src/test/app-route-code-splitting.test.ts` to guard lazy route imports and the translation chunk rule.
+- Rejected manual third-party vendor chunking during Batch #112:
+  - the first vendor split caused `Cannot read properties of undefined (reading 'createContext')` in production preview;
+  - the narrowed vendor split then caused `Cannot access 'S' before initialization` in the chart chunk;
+  - final implementation avoids manual vendor chunks and keeps only route lazy loading plus the local translation chunk.
+- Confirmed Batch #112 validation:
+  - `npx vitest run src/test/app-route-code-splitting.test.ts` passed, 2 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run build` passed with only known Supabase type drift and Browserslist warnings;
+  - the previous Vite large-chunk warning is gone;
+  - production build entry chunk is `352.18 kB` minified and `112.99 kB` gzip;
+  - `i18n-translations` chunk is `311.45 kB` minified and `98.15 kB` gzip;
+  - `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
