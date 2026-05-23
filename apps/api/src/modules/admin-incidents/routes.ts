@@ -26,6 +26,9 @@ const trendsBriefingRoute = "/v1/admin/incidents/trends/briefing";
 const trendsActionsRoute = "/v1/admin/incidents/trends/actions";
 const trendsActionDecisionPrefix = "/v1/admin/incidents/trends/actions/";
 const trendsActionDecisionSuffix = "/decision";
+const trendActionQueueRoute = "/v1/admin/incidents/trend-action-queue";
+const trendActionQueueExportRoute = "/v1/admin/incidents/trend-action-queue/export";
+const trendActionQueueBulkRoute = "/v1/admin/incidents/trend-action-queue/bulk";
 const bulkWorkflowRoute = "/v1/admin/incidents/workflow/bulk";
 const detailPrefix = "/v1/admin/incidents/";
 const ackSuffix = "/acknowledge";
@@ -103,6 +106,18 @@ export async function handleAdminIncidentRoute(
     return true;
   }
   if (match.kind === "trendsActionDecision" && request.method !== "POST") {
+    methodNotAllowed(response, context, "POST");
+    return true;
+  }
+  if (match.kind === "trendActionQueue" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendActionQueueExport" && request.method !== "GET") {
+    methodNotAllowed(response, context, "GET");
+    return true;
+  }
+  if (match.kind === "trendActionQueueBulk" && request.method !== "POST") {
     methodNotAllowed(response, context, "POST");
     return true;
   }
@@ -298,6 +313,29 @@ export async function handleAdminIncidentRoute(
       sendJson(response, 200, payload);
       return true;
     }
+    if (match.kind === "trendActionQueue") {
+      const payload = await service.listIncidentTrendActionQueue(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+    if (match.kind === "trendActionQueueExport") {
+      const payload = await service.exportIncidentTrendActionQueue(
+        Object.fromEntries(url.searchParams.entries()),
+        context.requestId,
+      );
+      auditIncidentRoute(auditSink, context, request, match, session, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
     if (match.kind === "handoff") {
       const payload = await service.exportIncidentHandoff(
         match.incidentId,
@@ -361,6 +399,13 @@ export async function handleAdminIncidentRoute(
       ? await service.bulkUpdateIncidentWorkflow(body, session.userId, context.requestId)
       : match.kind === "executionQueueBulk"
         ? await service.bulkUpdateIncidentExecutionQueue(body, session.userId, context.requestId)
+      : match.kind === "trendActionQueueBulk"
+        ? await service.bulkDecideIncidentTrendActions(
+          Object.fromEntries(url.searchParams.entries()),
+          body,
+          session.userId,
+          context.requestId,
+        )
       : match.kind === "trendsActionDecision"
         ? await service.decideIncidentTrendAction(
           match.actionId,
@@ -412,6 +457,9 @@ type IncidentRouteMatch =
   | { kind: "trendsBriefing"; route: string }
   | { kind: "trendsActions"; route: string }
   | { actionId: string; kind: "trendsActionDecision"; route: string }
+  | { kind: "trendActionQueue"; route: string }
+  | { kind: "trendActionQueueExport"; route: string }
+  | { kind: "trendActionQueueBulk"; route: string }
   | { kind: "bulkWorkflow"; route: string }
   | { incidentId: string; kind: "detail"; route: string }
   | { incidentId: string; kind: "acknowledge"; route: string }
@@ -438,6 +486,9 @@ function routeMatch(pathname: string): IncidentRouteMatch | null {
   if (pathname === trendsAnomaliesRoute) return { kind: "trendsAnomalies", route: trendsAnomaliesRoute };
   if (pathname === trendsBriefingRoute) return { kind: "trendsBriefing", route: trendsBriefingRoute };
   if (pathname === trendsActionsRoute) return { kind: "trendsActions", route: trendsActionsRoute };
+  if (pathname === trendActionQueueRoute) return { kind: "trendActionQueue", route: trendActionQueueRoute };
+  if (pathname === trendActionQueueExportRoute) return { kind: "trendActionQueueExport", route: trendActionQueueExportRoute };
+  if (pathname === trendActionQueueBulkRoute) return { kind: "trendActionQueueBulk", route: trendActionQueueBulkRoute };
   if (pathname.startsWith(trendsActionDecisionPrefix) && pathname.endsWith(trendsActionDecisionSuffix)) {
     const actionId = decodeURIComponent(
       pathname.slice(trendsActionDecisionPrefix.length, -trendsActionDecisionSuffix.length).replace(/\/$/, ""),
@@ -552,6 +603,12 @@ function auditIncidentRoute(
         ? "admin.incidents.trends.actions.read"
       : match.kind === "trendsActionDecision"
         ? "admin.incidents.trends.actions.decision"
+      : match.kind === "trendActionQueue"
+        ? "admin.incidents.trend_action_queue.read"
+      : match.kind === "trendActionQueueExport"
+        ? "admin.incidents.trend_action_queue.export"
+      : match.kind === "trendActionQueueBulk"
+        ? "admin.incidents.trend_action_queue.bulk_decision"
       : match.kind === "bulkWorkflow"
         ? "admin.incidents.workflow.bulk"
       : match.kind === "workflow"

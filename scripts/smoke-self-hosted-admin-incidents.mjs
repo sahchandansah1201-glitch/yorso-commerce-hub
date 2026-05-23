@@ -536,6 +536,68 @@ async function runSmoke(baseUrl) {
   assertStatus(invalidTrendActionDecision, 400, "admin incident trend action validation guard");
   console.log("admin_incidents_trend_action_validation_guard=ok");
 
+  const trendActionQueue = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trend-action-queue?window=7d&decision=accepted&priority=immediate&limit=50",
+    adminHeaders,
+  );
+  assertEqual(trendActionQueue.ok, true, "admin incident trend action queue ok");
+  assertArray(trendActionQueue.actions, "admin incident trend action queue rows");
+  assertNumberAtLeast(trendActionQueue.summary.total, 1, "admin incident trend action queue total");
+  assertEqual(trendActionQueue.actions[0]?.status, "accepted", "admin incident trend action queue decision filter");
+  assertNotContains(JSON.stringify(trendActionQueue), "admin@example.com", "admin incident trend action queue no email");
+  console.log("admin_incidents_trend_action_queue=ok");
+  console.log("admin_incidents_trend_action_queue_filters=ok");
+
+  const trendActionQueueExportJson = await jsonRequest(
+    baseUrl,
+    "/v1/admin/incidents/trend-action-queue/export?format=json&window=7d&limit=50",
+    adminHeaders,
+  );
+  assertEqual(trendActionQueueExportJson.ok, true, "admin incident trend action queue JSON export ok");
+  assertArray(trendActionQueueExportJson.actions, "admin incident trend action queue JSON rows");
+  assertNotContains(JSON.stringify(trendActionQueueExportJson), "admin@example.com", "admin incident trend action queue JSON no email");
+  console.log("admin_incidents_trend_action_queue_export_json=ok");
+
+  const trendActionQueueExportCsv = await fetch(
+    `${baseUrl}/v1/admin/incidents/trend-action-queue/export?format=csv&window=7d&limit=50`,
+    { headers: adminHeaders },
+  );
+  assertStatus(trendActionQueueExportCsv, 200, "admin incident trend action queue CSV export");
+  const trendActionQueueExportCsvBody = await trendActionQueueExportCsv.text();
+  assertContains(trendActionQueueExportCsvBody, "\"actionId\",\"status\"", "admin incident trend action queue CSV header");
+  assertNotContains(trendActionQueueExportCsvBody, "admin@example.com", "admin incident trend action queue CSV no email");
+  console.log("admin_incidents_trend_action_queue_export_csv=ok");
+
+  const queueBulkAction = trendActionQueue.actions[0];
+  const trendActionQueueBulk = await postJson(
+    baseUrl,
+    "/v1/admin/incidents/trend-action-queue/bulk?window=7d&limit=50",
+    adminHeaders,
+    {
+      actionIds: [queueBulkAction.actionId, "trend:missing:7d:missing"],
+      decision: "dismiss",
+      note: "Bulk trend action queue smoke.",
+    },
+  );
+  assertEqual(trendActionQueueBulk.ok, true, "admin incident trend action queue bulk ok");
+  assertEqual(trendActionQueueBulk.succeeded, 1, "admin incident trend action queue bulk success count");
+  assertEqual(trendActionQueueBulk.failed[0]?.code, "admin_incident_trend_action_not_found", "admin incident trend action queue bulk partial failure");
+  assertEqual(trendActionQueueBulk.updatedActions[0]?.status, "dismissed", "admin incident trend action queue bulk status");
+  console.log("admin_incidents_trend_action_queue_bulk=ok");
+
+  const unsafeTrendActionQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/trend-action-queue/bulk?window=7d&limit=50`, {
+    body: JSON.stringify({
+      actionIds: [queueBulkAction.actionId],
+      decision: "accept",
+      note: "Email admin@example.com",
+    }),
+    headers: adminHeaders,
+    method: "POST",
+  });
+  assertStatus(unsafeTrendActionQueueBulk, 400, "admin incident trend action queue note hygiene guard");
+  console.log("admin_incidents_trend_action_queue_note_hygiene_guard=ok");
+
   const unsafeQueueBulk = await fetch(`${baseUrl}/v1/admin/incidents/execution-queue/bulk`, {
     body: JSON.stringify({
       evidenceNote: "Email admin@example.com",

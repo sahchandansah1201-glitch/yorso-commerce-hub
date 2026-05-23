@@ -1693,6 +1693,84 @@ Marker: admin_incidents_trend_action_validation_guard=ok.
 Marker: 0024_admin_incident_trend_actions.
 Marker: 10,000 concurrent users.
 
+## Batch #109 Admin Incident Trend Action Queue
+
+Batch #109 moves trend action handling from a single inline panel into a
+dedicated admin queue. It keeps Batch #108 action decisions, then adds
+queue-level filters, bounded exports, bulk decisions and browser coverage for
+`/admin/incident-trend-actions`.
+
+Expected read/write profile:
+
+- `GET /v1/admin/incidents/trend-action-queue` is an admin control-plane read.
+- `GET /v1/admin/incidents/trend-action-queue/export?format=json|csv` is a
+  bounded admin export.
+- `POST /v1/admin/incidents/trend-action-queue/bulk` is an explicit admin
+  write capped at 25 action IDs per request.
+- Public marketplace hot paths are not called by this UI and receive no new
+  polling pressure.
+
+Cache, queue and backpressure strategy:
+
+- No browser polling is introduced.
+- Queue reads are bounded by `window`, `limit`, `offset`, decision, kind,
+  priority and owner-role filters.
+- Bulk writes reuse existing request guardrails, admin auth, audit, metrics
+  and error observability.
+- Unsafe notes are rejected before persistence.
+
+Database indexing and pagination strategy:
+
+- Migration `0025_admin_incident_trend_action_queue` adds queue indexes on the
+  existing `yorso_admin_incident_trend_actions` table.
+- `idx_yorso_admin_trend_actions_owner_priority` supports owner/priority queue
+  reads.
+- `idx_yorso_admin_trend_actions_status_kind_priority` supports decision,
+  kind and priority filters.
+- `idx_yorso_admin_trend_actions_decider_updated` supports operator decision
+  review.
+
+Failure mode and graceful degradation:
+
+- Missing API renders a disabled state.
+- Missing session renders a self-hosted session-required state.
+- Non-admin sessions render forbidden state.
+- Export and bulk failures leave previous queue data visible and retryable.
+
+Observability and load-test plan:
+
+- Queue reads are audited as `admin.incidents.trend_action_queue.read`.
+- Queue exports are audited as `admin.incidents.trend_action_queue.export`.
+- Bulk decisions are audited as
+  `admin.incidents.trend_action_queue.bulk_decision`.
+- Load test should simulate 50 concurrent queue reads, 20 concurrent bulk
+  decisions and simultaneous 10,000 concurrent public marketplace users.
+
+Validation:
+
+- `test:admin-incidents-frontend`;
+- `test:api`;
+- `smoke:self-hosted-admin-incidents`;
+- `smoke:e2e:admin-incident-trend-actions`;
+- `check:self-hosted-api`;
+- `check:self-hosted-db`;
+- `check:production-scale-baseline`.
+
+Marker: Batch #109.
+Marker: admin incident trend action queue.
+Marker: /admin/incident-trend-actions.
+Marker: /v1/admin/incidents/trend-action-queue.
+Marker: /v1/admin/incidents/trend-action-queue/export.
+Marker: /v1/admin/incidents/trend-action-queue/bulk.
+Marker: admin-incident-trend-actions-page.
+Marker: smoke:e2e:admin-incident-trend-actions.
+Marker: admin_incidents_trend_action_queue=ok.
+Marker: admin_incidents_trend_action_queue_export_json=ok.
+Marker: admin_incidents_trend_action_queue_export_csv=ok.
+Marker: admin_incidents_trend_action_queue_bulk=ok.
+Marker: 0025_admin_incident_trend_action_queue.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

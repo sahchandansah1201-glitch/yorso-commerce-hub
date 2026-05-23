@@ -182,6 +182,9 @@ jobs:
       - name: Run admin incident trends browser smoke
         run: npm run smoke:e2e:admin-incident-trends
 
+      - name: Run admin incident trend actions browser smoke
+        run: npm run smoke:e2e:admin-incident-trend-actions
+
       - name: Run self-hosted access runtime browser smoke
         run: npm run smoke:e2e:self-hosted-access-runtime
 

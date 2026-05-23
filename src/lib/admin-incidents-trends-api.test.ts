@@ -177,6 +177,27 @@ describe("admin incident trend API client", () => {
       if (url.includes("/trends/actions/") && url.includes("/decision")) {
         return new Response(JSON.stringify(actionDecisionPayload()), { headers: { "content-type": "application/json" } });
       }
+      if (url.includes("/trend-action-queue/export") && url.includes("format=csv")) {
+        return new Response("\"actionId\",\"status\"\n\"trend:route_risk_review:7d:v1-admin-audit-events\",\"proposed\"", {
+          headers: { "content-type": "text/csv" },
+        });
+      }
+      if (url.includes("/trend-action-queue/export")) {
+        return new Response(JSON.stringify({ ...actionsPayload(), limit: 50, offset: 0 }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trend-action-queue/bulk")) {
+        return new Response(JSON.stringify({
+          failed: [{ actionId: "trend:missing:7d:not-found", code: "admin_incident_trend_action_not_found" }],
+          ok: true,
+          requestId: "00000000-0000-4000-8000-000000000946",
+          succeeded: 1,
+          timelineEventsCreated: 0,
+          updatedActions: [{ ...actionsPayload().actions[0], dismissedAt: "2026-05-22T10:10:00.000Z", status: "dismissed" }],
+        }), { headers: { "content-type": "application/json" } });
+      }
+      if (url.includes("/trend-action-queue")) {
+        return new Response(JSON.stringify({ ...actionsPayload(), limit: 50, offset: 0 }), { headers: { "content-type": "application/json" } });
+      }
       if (url.includes("/trends/actions")) {
         return new Response(JSON.stringify(actionsPayload()), { headers: { "content-type": "application/json" } });
       }
@@ -207,6 +228,21 @@ describe("admin incident trend API client", () => {
       { decision: "accept", note: "Accept bounded trend action." },
       { window: "7d" },
     )).resolves.toMatchObject({ action: { status: "accepted" }, timelineEventsCreated: 1 });
+    await expect(client.trendActionQueue({
+      decision: "proposed",
+      kind: "route_risk_review",
+      limit: 50,
+      ownerRole: "engineering",
+      priority: "immediate",
+      window: "7d",
+    })).resolves.toMatchObject({ limit: 50, summary: { proposed: 1 } });
+    await expect(client.trendActionQueueExportJson({ window: "7d" })).resolves.toMatchObject({ actions: expect.any(Array) });
+    await expect(client.trendActionQueueExportCsv({ window: "7d" })).resolves.toContain("\"actionId\",\"status\"");
+    await expect(client.bulkDecideTrendActions({
+      actionIds: [actionsPayload().actions[0].actionId, "trend:missing:7d:not-found"],
+      decision: "dismiss",
+      note: "Bulk trend action queue test.",
+    }, { window: "7d" })).resolves.toMatchObject({ failed: [{ code: "admin_incident_trend_action_not_found" }], succeeded: 1 });
 
     const urls = fetchImpl.mock.calls.map((call) => String(call[0]));
     expect(urls[0]).toContain("/v1/admin/incidents/trends?");
@@ -218,6 +254,10 @@ describe("admin incident trend API client", () => {
     expect(urls.some((url) => url.includes("/trends/briefing"))).toBe(true);
     expect(urls.some((url) => url.includes("/trends/actions?"))).toBe(true);
     expect(urls.some((url) => url.includes("/trends/actions/trend%3Aroute_risk_review"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trend-action-queue?") && url.includes("decision=proposed"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trend-action-queue/export") && url.includes("format=json"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trend-action-queue/export") && url.includes("format=csv"))).toBe(true);
+    expect(urls.some((url) => url.includes("/trend-action-queue/bulk"))).toBe(true);
     const headers = fetchImpl.mock.calls[0][1]?.headers as Headers;
     expect(headers.get("x-yorso-user-id")).toBe(adminSession.userId);
     expect(headers.get("x-yorso-session-id")).toBe(adminSession.id);

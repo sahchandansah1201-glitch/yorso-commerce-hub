@@ -802,6 +802,55 @@ export const adminIncidentTrendActionDecisionResponseSchema = z.object({
   timelineEventsCreated: z.number().int().min(0).max(50),
 });
 
+export const adminIncidentTrendActionQueueQuerySchema = adminIncidentTrendQuerySchema.extend({
+  decision: adminIncidentTrendActionDecisionSchema.optional(),
+  kind: adminIncidentTrendActionKindSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+  ownerRole: adminIncidentExecutionOwnerRoleSchema.optional(),
+  priority: adminIncidentExecutionPrioritySchema.optional(),
+});
+
+export const adminIncidentTrendActionQueueExportQuerySchema = adminIncidentTrendActionQueueQuerySchema.extend({
+  format: adminIncidentExportFormatSchema.default("json"),
+});
+
+export const adminIncidentTrendActionQueueResponseSchema = z.object({
+  actions: z.array(adminIncidentTrendActionSchema).max(100),
+  generatedAt: z.string().datetime(),
+  limit: z.number().int().min(1).max(100),
+  ok: z.literal(true),
+  offset: z.number().int().min(0),
+  requestId: z.string().uuid(),
+  summary: z.object({
+    accepted: z.number().int().min(0),
+    dismissed: z.number().int().min(0),
+    immediate: z.number().int().min(0),
+    proposed: z.number().int().min(0),
+    relatedIncidents: z.number().int().min(0),
+    total: z.number().int().min(0),
+  }),
+  window: adminIncidentTrendWindowSchema,
+});
+
+export const adminIncidentTrendActionQueueBulkDecisionRequestSchema = z.object({
+  actionIds: z.array(z.string().min(8).max(180).regex(/^[a-z0-9._:-]+$/)).min(1).max(25),
+  decision: z.enum(["accept", "dismiss"]),
+  note: adminIncidentSafeNoteSchema.optional(),
+});
+
+export const adminIncidentTrendActionQueueBulkDecisionResponseSchema = z.object({
+  failed: z.array(z.object({
+    actionId: z.string().min(1).max(180),
+    code: z.enum(["admin_incident_trend_action_not_found"]),
+  })).max(25),
+  ok: z.literal(true),
+  requestId: z.string().uuid(),
+  succeeded: z.number().int().min(0).max(25),
+  timelineEventsCreated: z.number().int().min(0).max(500),
+  updatedActions: z.array(adminIncidentTrendActionSchema).max(25),
+});
+
 export type AdminIncident = z.infer<typeof adminIncidentSchema>;
 export type AdminIncidentAcknowledgeRequest = z.infer<typeof adminIncidentAcknowledgeRequestSchema>;
 export type AdminIncidentAcknowledgeResponse = z.infer<typeof adminIncidentAcknowledgeResponseSchema>;
@@ -859,6 +908,11 @@ export type AdminIncidentTrendAnomaliesResponse = z.infer<typeof adminIncidentTr
 export type AdminIncidentTrendAnomaly = z.infer<typeof adminIncidentTrendAnomalySchema>;
 export type AdminIncidentTrendAnomalySeverity = z.infer<typeof adminIncidentTrendAnomalySeveritySchema>;
 export type AdminIncidentTrendAction = z.infer<typeof adminIncidentTrendActionSchema>;
+export type AdminIncidentTrendActionQueueBulkDecisionRequest = z.infer<typeof adminIncidentTrendActionQueueBulkDecisionRequestSchema>;
+export type AdminIncidentTrendActionQueueBulkDecisionResponse = z.infer<typeof adminIncidentTrendActionQueueBulkDecisionResponseSchema>;
+export type AdminIncidentTrendActionQueueExportQuery = z.infer<typeof adminIncidentTrendActionQueueExportQuerySchema>;
+export type AdminIncidentTrendActionQueueQuery = z.infer<typeof adminIncidentTrendActionQueueQuerySchema>;
+export type AdminIncidentTrendActionQueueResponse = z.infer<typeof adminIncidentTrendActionQueueResponseSchema>;
 export type AdminIncidentTrendActionDecision = z.infer<typeof adminIncidentTrendActionDecisionSchema>;
 export type AdminIncidentTrendActionDecisionRequest = z.infer<typeof adminIncidentTrendActionDecisionRequestSchema>;
 export type AdminIncidentTrendActionDecisionResponse = z.infer<typeof adminIncidentTrendActionDecisionResponseSchema>;

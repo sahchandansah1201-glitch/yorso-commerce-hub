@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Activity, BarChart3, ClipboardCheck, FileClock, Gauge, KeyRound, LineChart, ListChecks, ShieldAlert } from "lucide-react";
+import { Activity, BarChart3, CheckSquare, ClipboardCheck, FileClock, Gauge, KeyRound, LineChart, ListChecks, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -60,6 +60,13 @@ const links = [
     testId: "admin-operator-nav-incident-trends",
   },
   {
+    href: "/admin/incident-trend-actions",
+    icon: CheckSquare,
+    id: "incident_trend_actions",
+    label: "Actions",
+    testId: "admin-operator-nav-incident-trend-actions",
+  },
+  {
     href: "/admin/audit",
     icon: FileClock,
     id: "audit",
@@ -77,7 +84,7 @@ export function AdminOperatorNav() {
       className="rounded-[1.5rem] border border-border bg-card p-2 shadow-sm"
       data-testid="admin-operator-nav"
     >
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-9">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-10">
         {links.map((item) => {
           const active = item.href === "/admin"
             ? location.pathname === item.href
