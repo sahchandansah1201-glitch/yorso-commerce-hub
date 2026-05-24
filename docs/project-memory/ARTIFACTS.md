@@ -46,6 +46,14 @@
 - `docs/backend/production-scale-baseline.md`: Batch #112 10,000 concurrent users capacity review for frontend route chunking.
 - `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`: Lovable sync prompt for Batch #112.
 
+## Batch #113 Route Chunk Error Boundary
+
+- `src/components/routing/RouteChunkErrorBoundary.tsx`: route-level error boundary with reload and go-back recovery actions.
+- `src/components/routing/RouteChunkErrorBoundary.test.tsx`: focused regression coverage for normal route rendering and fallback recovery.
+- `src/App.tsx`: lazy routes are wrapped in `RouteChunkErrorBoundary`.
+- `src/test/app-route-code-splitting.test.ts`: static route-shell guard includes error-boundary wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #113 10,000 concurrent users capacity review for route chunk failure handling.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

@@ -17,6 +17,8 @@ describe("app route code splitting", () => {
       'const AdminIncidentTrendActions = lazy(() => import("./pages/admin/AdminIncidentTrendActions.tsx"));',
     );
     expect(appSource).toContain("<Suspense fallback={<RouteFallback />}>");
+    expect(appSource).toContain('import { RouteChunkErrorBoundary } from "./components/routing/RouteChunkErrorBoundary.tsx";');
+    expect(appSource).toContain("<RouteChunkErrorBoundary>");
   });
 
   it("keeps the large local translation table in a named cacheable chunk", () => {
