@@ -16,11 +16,32 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Monitor and finish Batch #122, then continue the Yorso public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch122-runtime-ux-a11y-audit`.
+- Batch #122 is committed as `9829df0`, `[codex] Batch #122 public CTA semantics`.
+- Draft PR #173 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
+- Batch #122 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
+- Batch #122 fixes a concrete public CTA semantics defect found after Batch #121:
+  - homepage `View all offers`, landing offer certification chips and shared info/legal back CTAs rendered nested interactive controls;
+  - the homepage desktop CTA and shared info back CTA now use the existing `Button asChild` pattern;
+  - landing offer certification chips render as static proof chips inside clickable offer-card links;
+  - buyer-first copy, offer-card destinations, route shell, public route SEO, access gating, supplier identity redaction, price locks and visual styling are unchanged.
+- Batch #122 touched `src/components/landing/LiveOffers.tsx`, `src/components/landing/OfferCard.tsx`, `src/components/CertificationBadges.tsx`, `src/components/InfoPageLayout.tsx`, added `src/pages/PublicCtaSemantics.test.tsx`, added `e2e/public-cta-semantics.spec.ts`, extended dedicated/full e2e smoke scripts, and added the Batch #122 production-scale section.
+- Batch #122 validation passed:
+  - pre-fix Playwright runtime scan found nested interactive controls on `/` and shared info/legal routes;
+  - post-fix Playwright runtime scan confirmed zero nested controls and zero horizontal overflow on `/` and shared info/legal routes at 390px;
+  - `npx vitest run src/pages/PublicCtaSemantics.test.tsx`, 2 tests;
+  - `npm run smoke:e2e:public-cta-semantics`, 12 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 126 tests.
+- Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
+- The last merged production batch is still Batch #121 on `main`; Batch #122 is PR-pending.
+- Historical merged state:
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
 - Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
@@ -311,7 +332,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue the next scoped runtime UX/accessibility audit after Batch #121.
+Monitor PR #173 Core Type And Build Gate.
+If PR #173 passes, mark it ready and merge Batch #122.
+After merge, sync Lovable with docs/project-memory/PROMPTS/prompt-122-lovable-sync.md.
 ```
 
 ## Rules

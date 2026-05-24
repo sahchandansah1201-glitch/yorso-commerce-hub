@@ -134,6 +134,18 @@
 - `docs/backend/production-scale-baseline.md`: Batch #121 10,000 concurrent users capacity review for offer detail CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`: Lovable sync prompt for Batch #121; user confirmed clean sync at `9b8f9434`.
 
+## Batch #122 Public CTA Semantics
+
+- `src/components/landing/LiveOffers.tsx`: homepage desktop `View all offers` CTA uses `Button asChild` for the direct `/offers` link.
+- `src/components/landing/OfferCard.tsx`: landing offer cards pass `interactive={false}` to certification proof chips.
+- `src/components/CertificationBadges.tsx`: `interactive` prop supports static chips inside parent links while preserving default button/dialog behavior elsewhere.
+- `src/components/InfoPageLayout.tsx`: shared info/legal `Back to homepage` CTA uses `Button asChild` for the direct `/` link.
+- `src/pages/PublicCtaSemantics.test.tsx`: regression coverage against nested interactive controls on the homepage and info page back CTA.
+- `e2e/public-cta-semantics.spec.ts`: browser guard for homepage mobile/desktop and shared info/legal route CTA semantics, zero nested controls and no horizontal overflow.
+- `package.json`: dedicated public CTA semantics smoke script and full e2e smoke script include the public CTA e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #122 10,000 concurrent users capacity review for public CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: Lovable sync prompt for Batch #122 after PR #173 merge.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
@@ -382,3 +394,10 @@
 - `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`: sync confirmation prompt for Batch #113 route chunk error boundary.
 - `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`: sync confirmation prompt for Batch #114 font-loading cleanup.
 - `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`: sync confirmation prompt for Batch #115 catalog locale hardening.
+- `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`: sync confirmation prompt for Batch #116 proof anchor fallback.
+- `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`: sync confirmation prompt for Batch #117 request anchor.
+- `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`: sync confirmation prompt for Batch #118 for-suppliers CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md`: sync confirmation prompt for Batch #119 offers CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`: sync confirmation prompt for Batch #120 auth CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`: sync confirmation prompt for Batch #121 offer detail CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: sync confirmation prompt for Batch #122 public CTA semantics.

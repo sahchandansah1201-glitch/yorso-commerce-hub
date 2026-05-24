@@ -2,12 +2,35 @@
 
 ## Current Next Action
 
-1. Continue the next scoped runtime UX/accessibility audit from repository files.
+1. Monitor PR #173 Core Type And Build Gate.
 
-2. Use browser/Playwright verification for any route-level UI defect before changing code.
+2. If PR #173 passes, mark it ready and merge Batch #122.
+
+3. After merge, sync Lovable with `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
 
 ## Latest Confirmed Main State
 
+- Current branch is `codex/batch122-runtime-ux-a11y-audit`.
+- Batch #122 implementation is committed as `9829df0`, `[codex] Batch #122 public CTA semantics`.
+- Draft PR #173 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
+- Batch #122 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
+- Batch #122 fixes invalid nested interactive CTA markup on the homepage and shared info/legal routes:
+  - homepage desktop `View all offers` uses `Button asChild` and remains a direct `/offers` link;
+  - landing offer certification chips render as static proof chips inside clickable offer cards;
+  - shared `InfoPageLayout` back CTA uses `Button asChild` and remains a direct `/` link.
+- Batch #122 keeps buyer-first copy, offer-card destinations, public route SEO behavior, route shell, access gating, supplier identity redaction, price locks and visual styling unchanged.
+- Batch #122 added `src/pages/PublicCtaSemantics.test.tsx` and `e2e/public-cta-semantics.spec.ts`.
+- `smoke:e2e:public-cta-semantics:run` and `smoke:e2e:run` now include `e2e/public-cta-semantics.spec.ts`.
+- Batch #122 local validation passed:
+  - pre-fix runtime scan found nested interactive controls on `/` and shared info/legal routes;
+  - post-fix runtime scan confirmed zero nested controls and zero horizontal overflow on `/` and shared info/legal routes at 390px;
+  - `npx vitest run src/pages/PublicCtaSemantics.test.tsx`, 2 tests;
+  - `npm run smoke:e2e:public-cta-semantics`, 12 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 126 tests.
+- Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
 - Current branch is `main`.
 - Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
 - PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
