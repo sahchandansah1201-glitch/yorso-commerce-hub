@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "f9ab991"
-  head_summary: "[codex] Add Batch 117 Lovable sync prompt"
-  dirty_worktree_before_project_memory: false
+  active_branch: "codex/batch118-for-suppliers-cta-semantics"
+  head_commit: "2916424"
+  head_summary: "[codex] Record Batch 117 Lovable sync"
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Only Batch #117 Lovable sync confirmation is being recorded in project-memory."
+    - "Batch #118 for-suppliers CTA semantics implementation, e2e guard and docs are being prepared for PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch117_route_ux_review"
-  summary: "Continue route-level buyer trust/conversion review after clean Batch #117 Lovable sync."
-  status: "batch117_lovable_sync_clean"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168"
+  id: "batch118_for_suppliers_cta_semantics"
+  summary: "Fix invalid nested CTA markup on /for-suppliers supplier CTAs."
+  status: "implemented_local_validation_passed_pr_pending"
+  pull_request: "pending"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -62,11 +62,12 @@ active_workstream:
     - "Add a stable #request anchor around the existing catalog access/value strip."
     - "Create a Lovable sync prompt for Batch #117."
     - "Record the user's clean Lovable sync report for Batch #117."
+    - "Audit /for-suppliers CTA runtime semantics after Batch #117."
+    - "Fix nested Link/Button CTA markup on /for-suppliers using the existing Button asChild pattern."
   confirmed_files:
-    - "src/pages/Offers.tsx"
-    - "src/pages/HowItWorks.tsx"
-    - "src/components/how-it-works/FinalCTA.tsx"
-    - "e2e/how-it-works-request-anchor.spec.ts"
+    - "src/pages/ForSuppliers.tsx"
+    - "src/pages/ForSuppliers.test.tsx"
+    - "e2e/for-suppliers-cta-semantics.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -356,6 +357,7 @@ current_ux_audit_status:
     - "Before Batch #115, English /offers runtime exposed legacy Russian labels for locked prices and analytics triggers."
     - "Before Batch #116, /offers mobile trust proof-strip could target the hidden desktop intelligence panel and fail to move buyers to visible evidence."
     - "Before Batch #117, /how-it-works request-access CTAs pointed to /offers#request, but /offers had no request anchor and catalog search-param normalization stripped the hash."
+    - "Before Batch #118, /for-suppliers hero and final CTAs rendered nested Link/Button controls, creating duplicate interactive elements at the same visual target."
   conversion_risks:
     - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
@@ -366,11 +368,19 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Continue route-level proof/trust/conversion review after clean Batch #117 Lovable sync."
-  - "Use runtime checks before changing public UI."
-  - "If the next issue affects production frontend behavior, keep the 10000 concurrent users capacity review updated."
+  - "Commit Batch #118, push codex/batch118-for-suppliers-cta-semantics and open a draft PR."
+  - "Wait for GitHub Core Type And Build Gate, mark ready and merge if clean."
+  - "After merge, add a Batch #118 Lovable sync prompt and record the post-merge state."
 
 last_confirmed_checks:
+  - "2026-05-24: Batch #118 focused test passed: npx vitest run src/pages/ForSuppliers.test.tsx, 4 tests."
+  - "2026-05-24: Batch #118 Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium, 1 test."
+  - "2026-05-24: Batch #118 runtime Playwright check confirmed /for-suppliers has zero nested a/button controls, visible Register as supplier and See buyer requests links, and zero horizontal overflow at 390px."
+  - "2026-05-24: Batch #118 npm run lint passed."
+  - "2026-05-24: Batch #118 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #118 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #118 npm run build passed; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved. CSS bundle: 125.44 kB minified, 20.79 kB gzip. Entry chunk: 355.46 kB minified, 114.16 kB gzip. i18n-translations: 313.45 kB minified, 98.69 kB gzip. ForSuppliers route chunk: 59.73 kB minified, 17.05 kB gzip."
+  - "2026-05-24: In-app Browser MCP remained unavailable with Transport closed; runtime verification used Playwright against local Vite."
   - "2026-05-24: User confirmed Lovable sync for Batch #117 is clean with no conflicts on main on top of Batch #117 c2c5ff3."
   - "2026-05-24: Lovable confirmed Offers request anchor files, hash-preserving URL normalization, hash-scroll effect, /how-it-works structured CTA targets, e2e guard, smoke script wiring, public route declarations, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening and Batch #116 proof anchor fallback are all present."
   - "2026-05-24: PR #168 Core Type And Build Gate passed on GitHub in 10m54s."
@@ -483,4 +493,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Next route-level proof/trust issue to remediate after Batch #117 sync."
+  - "GitHub Core Type And Build Gate result for Batch #118 PR."
+  - "After Batch #118 merge, run Lovable sync and continue route-level proof/trust review."

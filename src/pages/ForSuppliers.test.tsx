@@ -102,4 +102,10 @@ describe("/for-suppliers route", () => {
     const main = screen.getByRole("main");
     expect(within(main).getByRole("heading", { level: 1 })).toBeInTheDocument();
   });
+
+  it("does not nest CTA buttons inside links", () => {
+    renderPage();
+
+    expect(document.querySelectorAll("a button, button a")).toHaveLength(0);
+  });
 });

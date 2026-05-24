@@ -31,6 +31,21 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - the e2e guard and smoke script wiring are present;
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, access gating and supplier identity redaction are preserved.
+- The repository is currently on branch `codex/batch118-for-suppliers-cta-semantics`.
+- Batch #118 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
+  - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
+  - CTAs now use the existing `Button asChild` pattern;
+  - destinations, analytics events, visual styling, SEO, route shell, access gating and supplier redaction are unchanged.
+- Batch #118 touched `src/pages/ForSuppliers.tsx`, `src/pages/ForSuppliers.test.tsx`, added `e2e/for-suppliers-cta-semantics.spec.ts`, extended `smoke:e2e:run`, and added the Batch #118 production-scale section.
+- Batch #118 validation passed:
+  - `npx vitest run src/pages/ForSuppliers.test.tsx`, 4 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium`, 1 test;
+  - runtime Playwright check for `/for-suppliers` at 390px confirmed zero nested interactive CTA controls, visible register/request links and zero horizontal overflow;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - Batch #117 fixes a concrete cross-route conversion defect found in runtime review:
   - `/how-it-works` buyer request-access CTAs pointed to `/offers#request`;
   - `/offers` had no `#request` anchor and catalog URL normalization stripped the hash;
@@ -229,8 +244,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue route-level proof/trust/conversion review after clean Batch #117 Lovable sync.
-Keep the next batch narrow, runtime-verified and tied to a concrete public-route issue.
+Commit and push Batch #118 on codex/batch118-for-suppliers-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+After merge, add a Batch #118 Lovable sync prompt and update project-memory back to a clean main checkpoint.
 ```
 
 ## Rules

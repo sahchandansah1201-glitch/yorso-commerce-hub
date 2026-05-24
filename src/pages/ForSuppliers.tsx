@@ -266,23 +266,23 @@ const ForSuppliers = () => {
               {t.hero_subtitle}
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3 md:mt-8">
-              <Link
-                to="/register"
-                onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "hero" })}
-              >
-                <Button size="lg" className="gap-2 px-7 text-base font-semibold shadow-sm">
+              <Button asChild size="lg" className="gap-2 px-7 text-base font-semibold shadow-sm">
+                <Link
+                  to="/register"
+                  onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "hero" })}
+                >
                   {t.hero_ctaPrimary}
                   <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link
-                to="/offers"
-                onClick={() => analytics.track("supplier_page_cta_requests_click", { surface: "hero" })}
-              >
-                <Button size="lg" variant="outline" className="gap-2 px-7 text-base font-semibold">
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="gap-2 px-7 text-base font-semibold">
+                <Link
+                  to="/offers"
+                  onClick={() => analytics.track("supplier_page_cta_requests_click", { surface: "hero" })}
+                >
                   {t.hero_ctaSecondary}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
             <p className="mt-3 text-xs text-muted-foreground md:mt-4">{t.hero_note}</p>
           </div>
@@ -733,23 +733,23 @@ const ForSuppliers = () => {
               {t.cta_subtitle}
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:mt-8">
-              <Link
-                to="/register"
-                onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
-              >
-                <Button size="lg" className="gap-2 px-8 text-base font-semibold shadow-sm">
+              <Button asChild size="lg" className="gap-2 px-8 text-base font-semibold shadow-sm">
+                <Link
+                  to="/register"
+                  onClick={() => analytics.track("supplier_page_cta_register_click", { surface: "final" })}
+                >
                   {t.cta_primary}
                   <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link
-                to="/offers"
-                onClick={() => analytics.track("supplier_page_cta_requests_click", { surface: "final" })}
-              >
-                <Button size="lg" variant="outline" className="gap-2 px-8 text-base font-semibold">
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="gap-2 px-8 text-base font-semibold">
+                <Link
+                  to="/offers"
+                  onClick={() => analytics.track("supplier_page_cta_requests_click", { surface: "final" })}
+                >
                   {t.cta_secondary}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
             <p className="mt-3 text-xs text-muted-foreground md:mt-4">{t.cta_note}</p>
           </div>
