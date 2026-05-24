@@ -718,3 +718,20 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #170 `Core Type And Build Gate` passed in 11m44s.
 - Marked PR #170 ready and merged it to `main` as `e17810e`, `[codex] Batch #119 offers CTA semantics (#170)`.
 - Added `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md` for Batch #119 Lovable sync confirmation.
+- Started Batch #120 on `codex/batch120-auth-cta-semantics`.
+- Reviewed `/signin` and `/reset-password` after Batch #119 and confirmed the remaining nested interactive CTA markup:
+  - `/signin` home back-link rendered as `Link` around `Button`;
+  - `/reset-password` sign-in back-link rendered as `Link` around `Button`.
+- Implemented Batch #120 auth CTA semantics:
+  - converted the two auth back links to the existing `Button asChild` pattern;
+  - preserved auth copy, form behavior, redirect behavior, self-hosted API integration, Supabase prototype recovery behavior, route shell and visual classes;
+  - added `src/pages/AuthCtaSemantics.test.tsx`;
+  - added `e2e/auth-cta-semantics.spec.ts` and wired it into a dedicated smoke script plus full e2e smoke;
+  - added Batch #120 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #120 local validation:
+  - `npx vitest run src/pages/AuthCtaSemantics.test.tsx` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4192 npx playwright test e2e/auth-cta-semantics.spec.ts --project=chromium` passed, 2 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only.
