@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch118-for-suppliers-cta-semantics"
-  head_commit: "2916424"
-  head_summary: "[codex] Record Batch 117 Lovable sync"
-  dirty_worktree_before_project_memory: true
+  active_branch: "main"
+  head_commit: "f025e7b"
+  head_summary: "[codex] Batch #118 for-suppliers CTA semantics (#169)"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #118 for-suppliers CTA semantics implementation, e2e guard and docs are being prepared for PR."
+    - "Only post-merge Lovable sync prompt and project-memory files are being updated."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch118_for_suppliers_cta_semantics"
-  summary: "Fix invalid nested CTA markup on /for-suppliers supplier CTAs."
-  status: "implemented_local_validation_passed_pr_pending"
-  pull_request: "pending"
+  id: "post_batch118_lovable_sync"
+  summary: "Sync Lovable with Batch #118 and continue route-level buyer trust/conversion review."
+  status: "batch118_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -64,6 +64,7 @@ active_workstream:
     - "Record the user's clean Lovable sync report for Batch #117."
     - "Audit /for-suppliers CTA runtime semantics after Batch #117."
     - "Fix nested Link/Button CTA markup on /for-suppliers using the existing Button asChild pattern."
+    - "Create a Lovable sync prompt for Batch #118."
   confirmed_files:
     - "src/pages/ForSuppliers.tsx"
     - "src/pages/ForSuppliers.test.tsx"
@@ -76,8 +77,25 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/PROMPTS/prompt-117-lovable-sync.md"
+    - "docs/project-memory/PROMPTS/prompt-118-lovable-sync.md"
 
 latest_merged_batches:
+  - id: 118
+    summary: "For-suppliers CTA semantics so supplier CTAs render as single links instead of nested link/button controls."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "f025e7b"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
+    lovable_sync:
+      confirmed_at: "pending"
+      result: "pending_lovable_confirmation"
+      prompt: "docs/project-memory/PROMPTS/prompt-118-lovable-sync.md"
+    confirmed_files:
+      - "src/pages/ForSuppliers.tsx"
+      - "src/pages/ForSuppliers.test.tsx"
+      - "e2e/for-suppliers-cta-semantics.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-118-lovable-sync.md"
   - id: 117
     summary: "Offers request anchor so /how-it-works buyer CTAs land on a real /offers#request section."
     status: "merged_to_main_lovable_sync_clean"
@@ -368,11 +386,14 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit Batch #118, push codex/batch118-for-suppliers-cta-semantics and open a draft PR."
-  - "Wait for GitHub Core Type And Build Gate, mark ready and merge if clean."
-  - "After merge, add a Batch #118 Lovable sync prompt and record the post-merge state."
+  - "Sync Lovable with docs/project-memory/PROMPTS/prompt-118-lovable-sync.md."
+  - "Record the Lovable Batch #118 sync report if clean, or resolve concrete conflicts if Lovable reports any."
+  - "Continue route-level proof/trust/conversion review after Lovable confirms Batch #118."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #169 Core Type And Build Gate passed on GitHub in 10m36s."
+  - "2026-05-24: PR #169 merged to main as f025e7b."
+  - "2026-05-24: Batch #118 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-118-lovable-sync.md."
   - "2026-05-24: Batch #118 focused test passed: npx vitest run src/pages/ForSuppliers.test.tsx, 4 tests."
   - "2026-05-24: Batch #118 Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium, 1 test."
   - "2026-05-24: Batch #118 runtime Playwright check confirmed /for-suppliers has zero nested a/button controls, visible Register as supplier and See buyer requests links, and zero horizontal overflow at 390px."
@@ -493,5 +514,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "GitHub Core Type And Build Gate result for Batch #118 PR."
-  - "After Batch #118 merge, run Lovable sync and continue route-level proof/trust review."
+  - "Lovable sync confirmation for Batch #118."
+  - "After Batch #118 sync, continue route-level proof/trust review."

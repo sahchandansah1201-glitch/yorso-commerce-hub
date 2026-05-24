@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Commit and push Batch #118 on `codex/batch118-for-suppliers-cta-semantics`.
+1. Sync Lovable with `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
 
-2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
+2. Ask Lovable to confirm Batch #118 files, runtime behavior and no conflicts.
 
-3. After merge, add a Batch #118 Lovable sync prompt and record the post-merge state.
+3. Continue route-level UX/trust review after Lovable reports clean sync or concrete conflicts.
 
 ## Latest Confirmed Main State
 
@@ -16,12 +16,15 @@
 - Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
 - Lovable sync for Batch #117 is confirmed clean with no conflicts.
 - Lovable confirmed `src/pages/Offers.tsx`, `src/pages/HowItWorks.tsx`, `src/components/how-it-works/FinalCTA.tsx`, `e2e/how-it-works-request-anchor.spec.ts`, `package.json` smoke wiring, route declarations and preserved Batch #110-#116 safeguards.
-- Current work branch is `codex/batch118-for-suppliers-cta-semantics`.
-- Batch #118 is implemented locally and validation passed.
+- Current branch is `main`.
+- Batch #118 is merged to `main` as `f025e7b`, `[codex] Batch #118 for-suppliers CTA semantics (#169)`.
+- PR #169 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169`.
+- Batch #118 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
 - Batch #118 fixes invalid nested interactive CTA markup on `/for-suppliers`: hero and final supplier CTAs now use `Button asChild`, so the visual target is a single link instead of `a > button`.
 - Batch #118 keeps CTA destinations, analytics events, visual styling, SEO, route shell, access gating and supplier redaction unchanged.
 - Batch #118 added `e2e/for-suppliers-cta-semantics.spec.ts`.
 - `smoke:e2e:run` now includes `e2e/for-suppliers-cta-semantics.spec.ts`.
+- GitHub `Core Type And Build Gate` passed on PR #169 in 10m36s.
 - Batch #118 local validation passed:
   - `npx vitest run src/pages/ForSuppliers.test.tsx`, 4 tests;
   - `E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium`, 1 test;

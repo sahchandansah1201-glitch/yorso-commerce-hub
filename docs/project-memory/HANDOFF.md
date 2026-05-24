@@ -31,8 +31,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - the e2e guard and smoke script wiring are present;
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, access gating and supplier identity redaction are preserved.
-- The repository is currently on branch `codex/batch118-for-suppliers-cta-semantics`.
-- Batch #118 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #118 is merged to `main` as `f025e7b`, `[codex] Batch #118 for-suppliers CTA semantics (#169)`.
+- PR #169 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169`.
+- Batch #118 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -46,6 +47,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
+- GitHub `Core Type And Build Gate` passed on PR #169 in 10m36s.
 - Batch #117 fixes a concrete cross-route conversion defect found in runtime review:
   - `/how-it-works` buyer request-access CTAs pointed to `/offers#request`;
   - `/offers` had no `#request` anchor and catalog URL normalization stripped the hash;
@@ -244,8 +246,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit and push Batch #118 on codex/batch118-for-suppliers-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
-After merge, add a Batch #118 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Sync Lovable with docs/project-memory/PROMPTS/prompt-118-lovable-sync.md.
+After Lovable reports clean sync or concrete conflicts, record the result and continue route-level proof/trust review.
 ```
 
 ## Rules

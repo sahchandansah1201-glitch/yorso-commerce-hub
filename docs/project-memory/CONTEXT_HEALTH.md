@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "commit and open Batch #118 PR"
+recommended_action: "sync Lovable with Batch #118, then continue route-level UX/trust review"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch118-for-suppliers-cta-semantics"
-head_commit: "2916424"
-latest_merged_batch: 117
-active_workstream: "batch118_for_suppliers_cta_semantics"
-pull_request: "pending"
-why_medium: "Batch #118 has local code, e2e and docs changes that passed validation but are not yet committed, pushed or merged."
+active_branch: "main"
+head_commit: "f025e7b"
+latest_merged_batch: 118
+active_workstream: "post_batch118_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
+why_medium: "Batch #118 is merged and locally recorded; Lovable sync is the next external confirmation step."
 ```
 
 ## Risk Levels
@@ -50,9 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch118-for-suppliers-cta-semantics.
-Current local workstream: Batch #118 for-suppliers CTA semantics on codex/batch118-for-suppliers-cta-semantics.
-Batch #117 is merged to main as c2c5ff3 after GitHub Core Type And Build Gate passed in 10m54s.
-Lovable sync for Batch #117 is confirmed clean with no conflicts.
-Commit Batch #118, push the branch, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+Current branch: main.
+Current local workstream: post-Batch #118 Lovable sync and route-level UX/trust review.
+Batch #118 is merged to main as f025e7b after GitHub Core Type And Build Gate passed in 10m36s.
+Next: sync Lovable with docs/project-memory/PROMPTS/prompt-118-lovable-sync.md, then continue route-level UX/trust review.
 ```
