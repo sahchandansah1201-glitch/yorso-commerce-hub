@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch114-font-loading-cleanup"
-  head_commit: "946ff9a"
-  head_summary: "[codex] Record Batch 113 Lovable sync"
+  active_branch: "main"
+  head_commit: "df5b66f"
+  head_summary: "[codex] Batch #114 font loading cleanup"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #114 font-loading cleanup is in progress."
+    - "Post-merge project-memory and Batch #114 Lovable sync prompt are being added."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,15 +37,16 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch114_font_loading_cleanup"
-  summary: "Replace blocking Google Fonts CSS import with a production-friendly font loading path."
-  status: "implemented_locally_validation_passed"
-  pull_request: null
+  id: "post_batch114_lovable_sync"
+  summary: "Sync Lovable after Batch #114 font-loading cleanup, then run route-level proof and trust-signal review."
+  status: "batch114_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
     - "Remove or replace CSS @import font loading without changing the visual system."
     - "Preserve buyer-first public pages, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary."
+    - "Create a Lovable sync prompt for Batch #114."
   confirmed_files:
     - "index.html"
     - "src/index.css"
@@ -58,6 +59,17 @@ active_workstream:
     - "docs/project-memory/CONTEXT_HEALTH.md"
 
 latest_merged_batches:
+  - id: 114
+    summary: "Move Google Fonts discovery from CSS @import to document-head preconnect and stylesheet links."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "df5b66f"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
+    confirmed_files:
+      - "index.html"
+      - "src/index.css"
+      - "src/test/font-loading.test.ts"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-114-lovable-sync.md"
   - id: 113
     summary: "Route chunk error boundary and recovery state for lazy route failures after Batch #112 code splitting."
     status: "merged_to_main_lovable_sync_clean"
@@ -231,10 +243,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Open a PR for Batch #114 font-loading cleanup."
+  - "Run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable and confirm sync status."
   - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #165 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
+  - "2026-05-24: PR #165 merged to main as df5b66f."
   - "2026-05-24: Batch #114 implementation removes the Google Fonts CSS @import from src/index.css, adds document-head preconnect and stylesheet links in index.html, and adds src/test/font-loading.test.ts."
   - "2026-05-24: Batch #114 npx vitest run src/test/font-loading.test.ts passed, 3 tests."
   - "2026-05-24: Batch #114 npm run lint passed."
@@ -308,4 +322,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "After Batch #114, run the route-level proof, metrics and trust-signal density review."
+  - "Lovable sync confirmation for Batch #114 is pending."
+  - "After Batch #114 sync, run the route-level proof, metrics and trust-signal density review."

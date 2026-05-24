@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "open a PR for Batch #114 font-loading cleanup"
+recommended_action: "run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch114-font-loading-cleanup"
-head_commit: "946ff9a"
-latest_merged_batch: 113
-active_workstream: "batch114_font_loading_cleanup"
-pull_request: null
-why_low: "Batch #113 is merged and synced clean in Lovable; Batch #114 is a narrow static font-loading cleanup with full local validation passed."
+active_branch: "main"
+head_commit: "df5b66f"
+latest_merged_batch: 114
+active_workstream: "post_batch114_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
+why_low: "Batch #114 is merged to main, GitHub Core Type And Build Gate passed, and only the Lovable sync confirmation remains."
 ```
 
 ## Risk Levels
@@ -50,5 +50,6 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current local workstream: Batch #114 font-loading cleanup on codex/batch114-font-loading-cleanup.
+Current local workstream: Batch #114 Lovable sync confirmation after merge to main at df5b66f.
+Run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable, then record the sync result in project-memory.
 ```

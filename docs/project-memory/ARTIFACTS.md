@@ -61,6 +61,7 @@
 - `src/index.css`: typography contract without blocking Google Fonts CSS `@import`.
 - `src/test/font-loading.test.ts`: static guard for font loading path and body/heading font families.
 - `docs/backend/production-scale-baseline.md`: Batch #114 10,000 concurrent users capacity review for font loading.
+- `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`: Lovable sync prompt for Batch #114.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -307,3 +308,5 @@
 - `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`: sync confirmation prompt for Batch #110 public UX mobile scan.
 - `docs/project-memory/PROMPTS/prompt-111-lovable-sync.md`: sync confirmation prompt for Batch #111 public route SEO.
 - `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`: sync confirmation prompt for Batch #112 route code splitting.
+- `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`: sync confirmation prompt for Batch #113 route chunk error boundary.
+- `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`: sync confirmation prompt for Batch #114 font-loading cleanup.

@@ -537,3 +537,12 @@ Keep this file factual and append-only.
   - production build entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
   - production CSS bundle is `125.44 kB` minified and `20.79 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4184 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
+- Committed Batch #114 as `18f165a`, `[codex] Batch #114 font loading cleanup`.
+- Pushed branch `codex/batch114-font-loading-cleanup` to `origin`.
+- Opened Draft PR #165: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
+- Confirmed GitHub PR #165 `Core Type And Build Gate` passed:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #165 ready and merged it to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
+- Added `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md` for Batch #114 Lovable sync confirmation.

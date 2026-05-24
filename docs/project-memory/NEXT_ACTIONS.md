@@ -2,17 +2,22 @@
 
 ## Current Next Action
 
-1. Start Batch #114 font-loading cleanup:
-   - inspect current Google Fonts CSS `@import`;
-   - status: implemented locally, full local validation passed;
-   - replace it with a production-friendly loading path without changing the visual system;
+1. Run `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md` in Lovable:
+   - sync Lovable with GitHub `main` at `df5b66f` or newer;
+   - verify the Batch #114 font-loading cleanup is present;
+   - confirm no conflicts and no overwritten user edits;
    - preserve Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary.
 
 2. Then run the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
 ## Latest Confirmed Main State
 
-- `main` is at `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
+- `main` is at `df5b66f`, `[codex] Batch #114 font loading cleanup`.
+- PR #165 is merged for Batch #114: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
+- Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
+- Batch #114 moves Google Fonts discovery from CSS `@import` to document-head preconnect and stylesheet links without changing the typography contract.
+- GitHub `Core Type And Build Gate` passed on PR #165, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
+- `main` also includes `946ff9a`, `[codex] Record Batch 113 Lovable sync`.
 - User confirmed Lovable sync for Batch #113 is clean at `9d3c90d2`, with no conflicts.
 - PR #164 is merged for Batch #113: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
 - Batch #113 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`.
@@ -51,6 +56,16 @@
   - `npm run build` passed with the known Supabase type drift and Browserslist warnings only;
   - Vite large-chunk warning stayed resolved;
   - production preview Playwright smoke passed for `e2e/smoke-core.spec.ts` and `e2e/suppliers-no-horizontal-overflow-375.spec.ts`, 9 tests.
+- Batch #114 full local validation passed:
+  - `npx vitest run src/test/font-loading.test.ts` passed, 3 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - Vite large-chunk warning stayed resolved;
+  - production CSS bundle is `125.44 kB` minified and `20.79 kB` gzip;
+  - production entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
+  - production preview Playwright smoke passed for `e2e/smoke-core.spec.ts` and `e2e/suppliers-no-horizontal-overflow-375.spec.ts`, 9 tests.
 
 ## Blockers
 
@@ -58,5 +73,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #114 font-loading cleanup is the next planned UX/performance batch.
-- Batch #114 currently needs PR, GitHub checks and merge.
+- Batch #114 needs Lovable sync confirmation.

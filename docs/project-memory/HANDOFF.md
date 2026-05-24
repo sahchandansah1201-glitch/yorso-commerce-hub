@@ -20,8 +20,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `codex/batch114-font-loading-cleanup`.
-- Batch #114 font-loading cleanup is implemented locally and full local validation has passed, but PR is still pending.
+- The repository is on branch `main`.
+- Batch #114 font-loading cleanup is merged to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
+- PR #165 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
+- Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
 - Current merged Batch #113 commit is `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
 - PR #164 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
 - Lovable sync for Batch #113 was confirmed clean by the user on 2026-05-24:
@@ -90,6 +92,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `src/index.css` no longer loads Google Fonts through CSS `@import`;
   - `index.html` preconnects to `fonts.googleapis.com` and `fonts.gstatic.com` and loads the existing Inter plus Plus Jakarta Sans stylesheet from the document head;
   - `src/test/font-loading.test.ts` guards against reintroducing the CSS import and keeps the body/heading font contract explicit.
+  - PR #165 passed GitHub `Core Type And Build Gate` and merged to `main`.
 
 ## Confirmed Checks In This UX Pass
 
@@ -146,11 +149,14 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - production entry chunk: `355.46 kB` minified, `114.16 kB` gzip;
   - CSS bundle: `125.44 kB` minified, `20.79 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4184 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
+- GitHub `Core Type And Build Gate` passed on PR #165, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 
 ## Next Action
 
 ```text
-Open a PR for Batch #114 font-loading cleanup.
+Run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable.
+Confirm the synced GitHub commit, files/routes checked, conflict status, public runtime status, font-loading status, bundle/code-splitting status and remaining known warnings.
+Then record the Lovable sync result in project-memory before starting the route-level proof/trust review.
 ```
 
 ## Rules
