@@ -2,21 +2,17 @@
 
 ## Current Next Action
 
-1. Run the Batch #113 Lovable sync prompt:
-   - prompt: `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`;
-   - merged commit: `9860aa3`;
-   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`;
-   - expected result: Lovable reports clean sync or gives a concrete conflict list.
+1. Start Batch #114 font-loading cleanup:
+   - inspect current Google Fonts CSS `@import`;
+   - replace it with a production-friendly loading path without changing the visual system;
+   - preserve Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary.
 
-2. Record whether Batch #113 Lovable sync is clean or has conflicts.
-
-3. Plan the next production-quality UX batch:
-   - font-loading cleanup to remove blocking CSS `@import`;
-   - route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+2. Then run the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
 ## Latest Confirmed Main State
 
 - `main` is at `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
+- User confirmed Lovable sync for Batch #113 is clean at `9d3c90d2`, with no conflicts.
 - PR #164 is merged for Batch #113: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
 - Batch #113 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`.
 - GitHub `Core Type And Build Gate` passed on PR #164, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
@@ -61,4 +57,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Lovable sync confirmation for Batch #113 is pending.
+- Batch #114 font-loading cleanup is the next planned UX/performance batch.

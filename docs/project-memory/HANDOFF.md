@@ -23,8 +23,11 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - The repository is on branch `main`.
 - Current merged Batch #113 commit is `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
 - PR #164 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
-- Batch #113 Lovable sync prompt is ready:
-  - `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`.
+- Lovable sync for Batch #113 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `9d3c90d2`, including Batch #113 `9860aa3` or newer;
+  - route chunk error boundary files, route-shell wiring, test coverage and production-scale notes are present;
+  - no conflicts were found and nothing was overwritten;
+  - buyer-first public narrative, Batch #110 mobile fixes, Batch #111 SEO and Batch #112 bundle strategy are preserved.
 - Current merged Batch #112 commit is `2430fef`, `[codex] Batch #112 route code splitting`.
 - PR #163 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
 - Lovable sync for Batch #112 was confirmed clean by the user on 2026-05-24:
@@ -132,8 +135,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Run docs/project-memory/PROMPTS/prompt-113-lovable-sync.md in Lovable and record whether sync is clean.
-Then choose the next UX batch: font-loading cleanup or route-level proof/trust signal review.
+Start Batch #114 font-loading cleanup. Inspect the current Google Fonts CSS @import and replace it with a production-friendly loading path without changing the visual system.
 ```
 
 ## Rules

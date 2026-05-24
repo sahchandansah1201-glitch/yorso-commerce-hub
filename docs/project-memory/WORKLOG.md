@@ -512,3 +512,11 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #164 ready and merged it to `main` as `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
 - Added `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md` for Batch #113 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #113 is clean with no conflicts:
+  - HEAD is `9d3c90d2`, including Batch #113 commit `9860aa3` or newer;
+  - `RouteChunkErrorBoundary` implementation, tests, route-shell wiring and Batch #113 production-scale notes are present;
+  - eager providers, `LegacyOfferRedirect`, `legacyRedirects` and `SupplierApprovalNotifier` are preserved;
+  - public route runtime, buyer-first narrative, Batch #110 mobile overflow fixes and Batch #111 SEO are intact;
+  - Batch #112 code-splitting strategy is unchanged and the previous large-chunk warning remains resolved;
+  - known warnings remain: Supabase generated types drift in non-strict mode and stale Browserslist data.
+- Set the next planned UX batch to Batch #114 font-loading cleanup.

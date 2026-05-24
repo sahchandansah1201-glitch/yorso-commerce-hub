@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "9860aa3"
-  head_summary: "[codex] Batch #113 route chunk error boundary"
+  head_commit: "9d3c90d"
+  head_summary: "[codex] Add Batch 113 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Post-merge project-memory and Batch #113 Lovable sync prompt are being added."
+    - "Batch #113 Lovable sync clean report is being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,30 +37,38 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch113_lovable_sync"
-  summary: "Sync Lovable after Batch #113 route chunk error boundary, then choose the next buyer-first UX batch."
-  status: "batch113_merged_lovable_prompt_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164"
+  id: "batch114_font_loading_cleanup"
+  summary: "Replace blocking Google Fonts CSS import with a production-friendly font loading path."
+  status: "planned_after_batch113_lovable_sync_clean"
+  pull_request: null
   confirmed_scope:
-    - "Add a route-level error boundary around lazy routes."
-    - "Show a concrete reload/go-back state if a lazy route fails to render or a route chunk fails to load."
-    - "Keep buyer-first public routes, SEO and mobile fixes unchanged."
-    - "Add focused regression tests for route error fallback and route-shell wiring."
-    - "Create a Lovable sync prompt for Batch #113."
+    - "Record the user's clean Lovable sync report for Batch #113."
+    - "Inspect current Google Fonts loading."
+    - "Remove or replace CSS @import font loading without changing the visual system."
+    - "Preserve buyer-first public pages, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary."
   confirmed_files:
-    - "src/App.tsx"
-    - "src/components/routing/RouteChunkErrorBoundary.tsx"
-    - "src/components/routing/RouteChunkErrorBoundary.test.tsx"
-    - "src/test/app-route-code-splitting.test.ts"
-    - "docs/backend/production-scale-baseline.md"
-    - "docs/project-memory/PROMPTS/prompt-113-lovable-sync.md"
+    - "docs/project-memory/PROJECT_STATE.yaml"
+    - "docs/project-memory/NEXT_ACTIONS.md"
+    - "docs/project-memory/HANDOFF.md"
+    - "docs/project-memory/WORKLOG.md"
+    - "docs/project-memory/CONTEXT_HEALTH.md"
 
 latest_merged_batches:
   - id: 113
     summary: "Route chunk error boundary and recovery state for lazy route failures after Batch #112 code splitting."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "9860aa3"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164"
+    lovable_sync:
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to 9d3c90d2, including Batch #113 commit 9860aa3 or newer."
+        - "RouteChunkErrorBoundary files, route-shell wiring, app route code-splitting guard and Batch #113 production-scale section are present."
+        - "No conflicts were found and nothing was overwritten."
+        - "Public route runtime, buyer-first narrative, Batch #110 mobile fixes and Batch #111 SEO are intact."
+        - "Route chunk error boundary fallback has data-testid route-chunk-error, Reload page and Go back actions, and copy confirming the screen does not change YORSO session, access requests or workspace data."
+        - "Batch #112 bundle strategy remains unchanged with only i18n-translations manualChunk and large-chunk warning remains resolved."
     confirmed_files:
       - "src/App.tsx"
       - "src/components/routing/RouteChunkErrorBoundary.tsx"
@@ -219,11 +227,11 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-113-lovable-sync.md in Lovable and confirm sync status."
-  - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
+  - "Start Batch #114 font-loading cleanup: inspect current Google Fonts CSS @import and replace it with a production-friendly loading path."
   - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #113 is clean with no conflicts at 9d3c90d2."
   - "2026-05-24: PR #164 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
   - "2026-05-24: PR #164 merged to main as 9860aa3."
   - "2026-05-24: User confirmed Lovable sync for Batch #112 is clean with no conflicts at 45891e11."
@@ -289,4 +297,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "After Batch #113, choose whether the next UX batch should address font loading or route-level proof/trust signal density."
+  - "After Batch #114, run the route-level proof, metrics and trust-signal density review."

@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "run the Batch #113 Lovable sync prompt, then choose the next UX batch"
+recommended_action: "start Batch #114 font-loading cleanup"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "9860aa3"
+head_commit: "9d3c90d"
 latest_merged_batch: 113
-active_workstream: "post_batch113_lovable_sync"
+active_workstream: "batch114_font_loading_cleanup"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164"
-why_low: "Batch #113 is merged, PR #164 checks passed, and the next action is a bounded Lovable sync prompt."
+why_low: "Batch #113 is merged, Lovable sync is clean, and the next action is a bounded font-loading cleanup."
 ```
 
 ## Risk Levels
@@ -50,5 +50,5 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current merged workstream: Batch #113 route chunk error boundary on main at 9860aa3.
+Current confirmed state: Batch #113 route chunk error boundary is synced clean in Lovable at 9d3c90d2. Next local workstream is Batch #114 font-loading cleanup.
 ```
