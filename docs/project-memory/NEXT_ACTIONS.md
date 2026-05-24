@@ -2,15 +2,18 @@
 
 ## Current Next Action
 
-1. Commit Batch #125 public landmark labels on `codex/batch125-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` at `7196cc8` or newer using `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
 
-2. Push the branch, open the PR, and wait for GitHub `Core Type And Build Gate`.
+2. Confirm no conflicts and that public landmark labels are present on Header, `/how-it-works`, `/blog` and `/blog/:slug`.
 
-3. After merge, create the Batch #125 Lovable sync prompt and ask Lovable to sync.
+3. Preserve known warnings only: Supabase generated types out of sync in non-strict mode and stale Browserslist data.
 
-## Batch #125 Local Validation Ready
+## Batch #125 Merged, Lovable Sync Ready
 
-- Branch: `codex/batch125-public-runtime-ux-a11y-audit`.
+- Branch: `main`.
+- Merge commit: `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
 - Scope: public landmark labels and screen-reader route scanability.
 - Runtime finding:
   - desktop `Header` navigation had no accessible landmark name;
@@ -30,6 +33,8 @@
   - `npm run smoke:e2e:public-landmark-labels`, 39 tests after production build;
   - `npm run lint`;
   - `npm run smoke:e2e:run`, 176 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 11m52s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #124 Lovable Sync Confirmed

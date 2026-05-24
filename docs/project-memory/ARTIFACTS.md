@@ -183,6 +183,7 @@
 - `e2e/public-landmark-labels.spec.ts`: mobile/desktop browser guard for visible public `nav`/`aside` landmark names and open mobile menu navigation.
 - `package.json`: dedicated public landmark smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #125 10,000 concurrent users capacity review for public landmark labels.
+- `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`: Lovable sync prompt for Batch #125 after PR #176 merge.
 
 ## Batch #96 Supplier Access Review Console
 

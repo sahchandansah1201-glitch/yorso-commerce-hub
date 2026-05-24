@@ -932,3 +932,9 @@ Keep this file factual and append-only.
   - `npm run lint` passed;
   - `npm run smoke:e2e:run` passed, 176 tests.
 - Batch #125 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #125 as `edf8a25`, `[codex] Batch #125 public landmark labels`.
+- Pushed branch `codex/batch125-public-runtime-ux-a11y-audit` to `origin`.
+- Opened Draft PR #176: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
+- Confirmed GitHub PR #176 `Core Type And Build Gate` passed in 11m52s.
+- Marked PR #176 ready and merged it to `main` as `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`.
+- Added `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md` for Batch #125 Lovable sync confirmation.
