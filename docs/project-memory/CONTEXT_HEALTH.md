@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "commit and open Batch #117 PR"
+recommended_action: "sync Lovable with Batch #117, then continue route-level UX/trust review"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch117-offers-request-anchor"
-head_commit: "1651d68"
-latest_merged_batch: 116
-active_workstream: "batch117_offers_request_anchor"
-pull_request: "pending"
-why_medium: "Batch #117 has local code, e2e and docs changes that passed validation but are not yet committed, pushed or merged."
+active_branch: "main"
+head_commit: "c2c5ff3"
+latest_merged_batch: 117
+active_workstream: "post_batch117_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168"
+why_medium: "Batch #117 is merged and locally recorded; Lovable sync is the next external confirmation step."
 ```
 
 ## Risk Levels
@@ -50,7 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current local workstream: Batch #117 offers request anchor on codex/batch117-offers-request-anchor.
-Batch #116 Lovable sync was confirmed clean at 3bca7961 and recorded on main at 1651d68.
-Commit Batch #117, push the branch, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+Current branch: main.
+Current local workstream: post-Batch #117 Lovable sync and route-level UX/trust review.
+Batch #117 is merged to main as c2c5ff3 after GitHub Core Type And Build Gate passed in 10m54s.
+Next: sync Lovable with docs/project-memory/PROMPTS/prompt-117-lovable-sync.md, then continue route-level UX/trust review.
 ```

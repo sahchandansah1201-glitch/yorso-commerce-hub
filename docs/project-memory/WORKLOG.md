@@ -649,3 +649,9 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed;
   - `npm run check:production-scale-baseline` passed;
   - `npm run build` passed with known Supabase type drift and Browserslist warnings only.
+- Committed Batch #117 as `d1acb7f`, `[codex] Batch #117 offers request anchor`.
+- Pushed branch `codex/batch117-offers-request-anchor` to `origin`.
+- Opened Draft PR #168: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
+- Confirmed GitHub PR #168 `Core Type And Build Gate` passed in 10m54s.
+- Marked PR #168 ready and merged it to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
+- Added `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md` for Batch #117 Lovable sync confirmation.

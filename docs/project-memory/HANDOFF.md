@@ -20,9 +20,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch117-offers-request-anchor`.
-- The active work branch is `codex/batch117-offers-request-anchor`, based on `main` at `1651d68`, `[codex] Record Batch 116 Lovable sync`.
-- Batch #117 is implemented locally and validation passed; it is not yet pushed or merged.
+- The repository is currently on branch `main`.
+- Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
+- PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
+- Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
 - Batch #117 fixes a concrete cross-route conversion defect found in runtime review:
   - `/how-it-works` buyer request-access CTAs pointed to `/offers#request`;
   - `/offers` had no `#request` anchor and catalog URL normalization stripped the hash;
@@ -35,6 +36,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
+- GitHub `Core Type And Build Gate` passed on PR #168 in 10m54s.
 - Batch #116 offers proof anchor fallback is merged to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
 - PR #167 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
 - Batch #116 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`.
@@ -220,8 +222,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit and push Batch #117 on codex/batch117-offers-request-anchor, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
-After merge, add a Batch #117 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Sync Lovable with docs/project-memory/PROMPTS/prompt-117-lovable-sync.md.
+After Lovable reports clean sync or concrete conflicts, record the result and continue route-level proof/trust review.
 ```
 
 ## Rules

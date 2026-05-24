@@ -2,20 +2,23 @@
 
 ## Current Next Action
 
-1. Commit and push Batch #117 on `codex/batch117-offers-request-anchor`.
+1. Sync Lovable with `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
 
-2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
+2. Ask Lovable to confirm Batch #117 files, routes, runtime behavior and no conflicts.
 
-3. After merge, add a Batch #117 Lovable sync prompt and record the post-merge state.
+3. Continue route-level UX/trust review after Lovable reports clean sync or concrete conflicts.
 
 ## Latest Confirmed Main State
 
-- Current work branch is `codex/batch117-offers-request-anchor`.
-- Batch #117 is implemented locally and validation passed.
+- Current branch is `main`.
+- Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
+- PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
+- Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
 - Batch #117 fixes a cross-route conversion defect: `/how-it-works` request-access CTAs now preserve `/offers#request`, and `/offers` exposes a real `#request` anchor around the access/value strip.
 - `/offers` catalog URL normalization now preserves the active hash while it rewrites search params for filters, sort, rows and page state.
 - Batch #117 added `e2e/how-it-works-request-anchor.spec.ts`.
 - `smoke:e2e:run` now includes `e2e/how-it-works-request-anchor.spec.ts`.
+- GitHub `Core Type And Build Gate` passed on PR #168 in 10m54s.
 - Batch #117 local validation passed:
   - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium`, 2 tests;
   - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium`, 4 tests;
@@ -24,7 +27,7 @@
   - `npm run check:production-scale-baseline`;
   - `npm run build`.
 - Known warnings remain during build: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-- `main` is at `1651d68`, `[codex] Record Batch 116 Lovable sync`.
+- `main` includes `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - Lovable sync for Batch #116 is confirmed clean at `3bca7961`, with no conflicts.
 - PR #167 is merged for Batch #116: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
 - Batch #116 fixes a `/offers` trust-proof navigation defect: on mobile, `Procurement intelligence` no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence; `Document readiness` now lands on offer cards instead of the filter bar.

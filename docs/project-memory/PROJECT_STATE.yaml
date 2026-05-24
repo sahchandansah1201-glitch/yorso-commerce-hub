@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch117-offers-request-anchor"
-  head_commit: "1651d68"
-  head_summary: "[codex] Record Batch 116 Lovable sync"
-  dirty_worktree_before_project_memory: true
+  active_branch: "main"
+  head_commit: "c2c5ff3"
+  head_summary: "[codex] Batch #117 offers request anchor (#168)"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #117 offers request anchor implementation, e2e guard and docs are being prepared for PR."
+    - "Only post-merge Lovable sync prompt and project-memory files are being updated."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch117_offers_request_anchor"
-  summary: "Restore /how-it-works request-access CTAs to a real /offers#request landing target."
-  status: "implemented_local_validation_passed_pr_pending"
-  pull_request: "pending"
+  id: "post_batch117_lovable_sync"
+  summary: "Sync Lovable with Batch #117 and continue route-level buyer trust/conversion review."
+  status: "batch117_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -60,6 +60,7 @@ active_workstream:
     - "Audit /how-it-works request-access CTA runtime behavior after Batch #116."
     - "Fix /offers hash preservation so /offers#request survives catalog URL normalization."
     - "Add a stable #request anchor around the existing catalog access/value strip."
+    - "Create a Lovable sync prompt for Batch #117."
   confirmed_files:
     - "src/pages/Offers.tsx"
     - "src/pages/HowItWorks.tsx"
@@ -72,8 +73,26 @@ active_workstream:
     - "docs/project-memory/HANDOFF.md"
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
+    - "docs/project-memory/PROMPTS/prompt-117-lovable-sync.md"
 
 latest_merged_batches:
+  - id: 117
+    summary: "Offers request anchor so /how-it-works buyer CTAs land on a real /offers#request section."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "c2c5ff3"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168"
+    lovable_sync:
+      confirmed_at: "pending"
+      result: "pending_lovable_confirmation"
+      prompt: "docs/project-memory/PROMPTS/prompt-117-lovable-sync.md"
+    confirmed_files:
+      - "src/pages/Offers.tsx"
+      - "src/pages/HowItWorks.tsx"
+      - "src/components/how-it-works/FinalCTA.tsx"
+      - "e2e/how-it-works-request-anchor.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-117-lovable-sync.md"
   - id: 116
     summary: "Offers trust proof-strip anchor fallback so mobile proof buttons land on visible offer evidence."
     status: "merged_to_main_lovable_sync_clean"
@@ -334,11 +353,14 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit Batch #117, push codex/batch117-offers-request-anchor and open a draft PR."
-  - "Wait for GitHub Core Type And Build Gate, mark ready and merge if clean."
-  - "After merge, add a Batch #117 Lovable sync prompt and record the post-merge state."
+  - "Sync Lovable with docs/project-memory/PROMPTS/prompt-117-lovable-sync.md."
+  - "Record the Lovable Batch #117 sync report if clean, or resolve concrete conflicts if Lovable reports any."
+  - "Continue route-level proof/trust/conversion review after Lovable confirms Batch #117."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #168 Core Type And Build Gate passed on GitHub in 10m54s."
+  - "2026-05-24: PR #168 merged to main as c2c5ff3."
+  - "2026-05-24: Batch #117 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-117-lovable-sync.md."
   - "2026-05-24: Batch #117 Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium, 2 tests."
   - "2026-05-24: Batch #117 regression Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium, 4 tests."
   - "2026-05-24: Batch #117 runtime Playwright check confirmed direct /offers#request and /how-it-works request CTA both preserve #request and show the catalog value strip on desktop and mobile."
@@ -446,5 +468,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "GitHub Core Type And Build Gate result for Batch #117 PR."
-  - "After Batch #117 merge, run Lovable sync and continue route-level proof/trust review."
+  - "Lovable sync confirmation for Batch #117."
+  - "Next route-level proof/trust issue to remediate after Batch #117 sync."
