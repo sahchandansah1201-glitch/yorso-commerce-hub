@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "df5b66f"
-  head_summary: "[codex] Batch #114 font loading cleanup"
+  head_commit: "3be3d6d2"
+  head_summary: "[codex] Add Batch 114 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Post-merge project-memory and Batch #114 Lovable sync prompt are being added."
+    - "Recording the user's clean Lovable sync report for Batch #114."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch114_lovable_sync"
-  summary: "Sync Lovable after Batch #114 font-loading cleanup, then run route-level proof and trust-signal review."
-  status: "batch114_merged_lovable_prompt_ready"
+  id: "public_route_proof_trust_review"
+  summary: "Run route-level proof, metrics and trust-signal review for buyer-first public pages."
+  status: "ready_after_batch114_lovable_sync_clean"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -47,6 +47,7 @@ active_workstream:
     - "Remove or replace CSS @import font loading without changing the visual system."
     - "Preserve buyer-first public pages, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary."
     - "Create a Lovable sync prompt for Batch #114."
+    - "Record the user's clean Lovable sync report for Batch #114."
   confirmed_files:
     - "index.html"
     - "src/index.css"
@@ -61,9 +62,23 @@ active_workstream:
 latest_merged_batches:
   - id: 114
     summary: "Move Google Fonts discovery from CSS @import to document-head preconnect and stylesheet links."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "df5b66f"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
+    lovable_sync:
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to 3be3d6d2, [codex] Add Batch 114 Lovable sync prompt, on main and on top of Batch #114 df5b66f."
+        - "src/index.css has no Google Fonts @import; body uses Inter and headings use Plus Jakarta Sans."
+        - "index.html has preconnect links for fonts.googleapis.com and fonts.gstatic.com crossorigin, plus a stylesheet for Plus Jakarta Sans weights 400,500,600,700,800 and Inter weights 400,500,600 with display=swap."
+        - "src/test/font-loading.test.ts guards the no-CSS-import path and the body/heading typography contract."
+        - "docs/backend/production-scale-baseline.md contains the Batch #114 10,000 concurrent users section."
+        - "Routes /, /offers, /suppliers, /suppliers/:supplierId, /blog, /for-suppliers and /account/:section remain declared in src/App.tsx with lazy routes, RouteChunkErrorBoundary and Suspense."
+        - "No conflicts were found; the tree was clean and no local edits were made in Lovable."
+        - "Public runtime status preserves buyer-first narrative, Batch #110 mobile overflow fixes and Batch #111 SEO; supplier content remains a trust mechanism."
+        - "Batch #112 i18n-translations manual chunk strategy and Batch #113 RouteChunkErrorBoundary remain in place; large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "index.html"
       - "src/index.css"
@@ -243,10 +258,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable and confirm sync status."
-  - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
+  - "Run a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
+  - "If the review finds concrete public UX gaps, implement the next narrow buyer-first remediation batch."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #114 is clean with no conflicts at 3be3d6d2."
+  - "2026-05-24: Lovable confirmed index.html font preconnect/stylesheet, src/index.css no @import, src/test/font-loading.test.ts, Batch #114 production-scale notes, public route declarations, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are all present."
   - "2026-05-24: PR #165 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
   - "2026-05-24: PR #165 merged to main as df5b66f."
   - "2026-05-24: Batch #114 implementation removes the Google Fonts CSS @import from src/index.css, adds document-head preconnect and stylesheet links in index.html, and adds src/test/font-loading.test.ts."
@@ -322,5 +339,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #114 is pending."
-  - "After Batch #114 sync, run the route-level proof, metrics and trust-signal density review."
+  - "Run the route-level proof, metrics and trust-signal density review."

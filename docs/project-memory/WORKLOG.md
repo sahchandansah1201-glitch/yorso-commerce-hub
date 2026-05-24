@@ -546,3 +546,11 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #165 ready and merged it to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
 - Added `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md` for Batch #114 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #114 is clean with no conflicts:
+  - HEAD is `3be3d6d2`, `[codex] Add Batch 114 Lovable sync prompt`, on branch `main` and on top of Batch #114 `df5b66f`;
+  - `src/index.css` has no Google Fonts `@import`, body uses Inter and headings use Plus Jakarta Sans;
+  - `index.html` has Google Fonts preconnects and a single stylesheet for Plus Jakarta Sans weights `400,500,600,700,800` plus Inter weights `400,500,600` with `display=swap`;
+  - `src/test/font-loading.test.ts` and Batch #114 production-scale notes are present;
+  - routes `/`, `/offers`, `/suppliers`, `/suppliers/:supplierId`, `/blog`, `/for-suppliers` and `/account/:section` remain declared in `src/App.tsx` with lazy loading, `RouteChunkErrorBoundary` and `Suspense`;
+  - buyer-first narrative, Batch #110 mobile overflow fixes, Batch #111 SEO, Batch #112 i18n-only manual chunking and Batch #113 route chunk boundary are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

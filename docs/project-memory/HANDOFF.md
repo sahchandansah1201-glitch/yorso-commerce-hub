@@ -24,6 +24,14 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #114 font-loading cleanup is merged to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
 - PR #165 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
 - Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
+- Lovable sync for Batch #114 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `3be3d6d2`, `[codex] Add Batch 114 Lovable sync prompt`, on top of Batch #114 `df5b66f`;
+  - `src/index.css` has no Google Fonts `@import`, while body copy still uses Inter and headings use Plus Jakarta Sans;
+  - `index.html` contains Google Fonts preconnect plus the Plus Jakarta Sans and Inter stylesheet with `display=swap`;
+  - `src/test/font-loading.test.ts` and the Batch #114 production-scale section are present;
+  - public routes remain declared in `src/App.tsx` with lazy loading, `RouteChunkErrorBoundary` and `Suspense`;
+  - no conflicts were found and no local Lovable edits were made;
+  - buyer-first runtime, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting and Batch #113 route chunk boundary are preserved.
 - Current merged Batch #113 commit is `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
 - PR #164 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
 - Lovable sync for Batch #113 was confirmed clean by the user on 2026-05-24:
@@ -154,9 +162,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Run docs/project-memory/PROMPTS/prompt-114-lovable-sync.md in Lovable.
-Confirm the synced GitHub commit, files/routes checked, conflict status, public runtime status, font-loading status, bundle/code-splitting status and remaining known warnings.
-Then record the Lovable sync result in project-memory before starting the route-level proof/trust review.
+Run the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
+Focus on whether each route gives a buyer enough evidence to compare, trust and act, while keeping suppliers as a trust/supply mechanism.
+If the review finds a concrete public UX gap, implement the next narrow buyer-first remediation batch.
 ```
 
 ## Rules

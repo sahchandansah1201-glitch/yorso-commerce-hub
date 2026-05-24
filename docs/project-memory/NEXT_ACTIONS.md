@@ -2,20 +2,21 @@
 
 ## Current Next Action
 
-1. Run `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md` in Lovable:
-   - sync Lovable with GitHub `main` at `df5b66f` or newer;
-   - verify the Batch #114 font-loading cleanup is present;
-   - confirm no conflicts and no overwritten user edits;
-   - preserve Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary.
+1. Run the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`:
+   - verify whether each route gives a buyer enough evidence to compare, trust and act;
+   - check proof density, concrete metrics, trust signals, CTA clarity and mobile scanability;
+   - keep supplier content as a trust/supply mechanism, not the primary narrative.
 
-2. Then run the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+2. If the review finds a concrete public UX gap, implement the next narrow buyer-first remediation batch.
 
 ## Latest Confirmed Main State
 
 - `main` is at `df5b66f`, `[codex] Batch #114 font loading cleanup`.
+- Lovable sync for Batch #114 is confirmed clean at `3be3d6d2`, with no conflicts.
 - PR #165 is merged for Batch #114: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
 - Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
 - Batch #114 moves Google Fonts discovery from CSS `@import` to document-head preconnect and stylesheet links without changing the typography contract.
+- Lovable confirmed `src/index.css`, `index.html`, `src/test/font-loading.test.ts`, Batch #114 production-scale notes, route declarations, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are present.
 - GitHub `Core Type And Build Gate` passed on PR #165, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 - `main` also includes `946ff9a`, `[codex] Record Batch 113 Lovable sync`.
 - User confirmed Lovable sync for Batch #113 is clean at `9d3c90d2`, with no conflicts.
@@ -73,4 +74,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #114 needs Lovable sync confirmation.
+- No hard blocker for the next route-level UX proof/trust review.
