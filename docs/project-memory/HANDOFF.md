@@ -21,9 +21,17 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Current Status
 
 - The repository is on branch `main`.
+- The repository is synced on `main` at `040e17b`, `[codex] Add Batch 115 Lovable sync prompt`.
 - Batch #115 catalog locale hardening is merged to `main` as `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
 - PR #166 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
 - Batch #115 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`.
+- Lovable sync for Batch #115 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `040e17b9`, `[codex] Add Batch 115 Lovable sync prompt`, on top of Batch #115 `eec49ec`;
+  - `src/lib/catalog-display-labels.ts`, catalog row/card locale changes, focused regression tests, EN/RU/ES analytics keys and Batch #115 production-scale notes are present;
+  - no conflicts were found and no files were modified in Lovable;
+  - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary and Batch #114 font loading are preserved;
+  - English locked offer labels render as `Exact price locked per kg` on desktop and `Exact price locked` on mobile, and legacy Russian strings do not appear in the EN UI;
+  - known warnings remain: Supabase generated types drift in non-strict mode and stale Browserslist data.
 - Batch #115 fixes a concrete `/offers` UX/trust defect found during the route-level proof review: English locked offer cards exposed legacy Russian labels for the price state and analytics trigger/hints.
 - Batch #115 keeps buyer access gating, supplier identity redaction, Batch #112 route splitting and Batch #113 route error boundary unchanged.
 - Batch #114 font-loading cleanup is merged to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
@@ -175,9 +183,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Run docs/project-memory/PROMPTS/prompt-115-lovable-sync.md in Lovable.
-Confirm the synced GitHub commit, files/routes checked, conflict status, public runtime status, catalog locale hardening status, bundle/code-splitting status and remaining known warnings.
-Then record the Lovable sync result in project-memory before continuing the route-level proof/trust review.
+Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
+If a concrete buyer-facing issue is confirmed from route runtime evidence, implement the narrowest connected UX/UI batch with tests, production-scale notes, project-memory updates and a Lovable sync prompt.
 ```
 
 ## Rules

@@ -2,20 +2,22 @@
 
 ## Current Next Action
 
-1. Run `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md` in Lovable:
-   - sync Lovable with GitHub `main` at `eec49ec` or newer;
-   - verify the Batch #115 catalog locale hardening is present;
-   - confirm no conflicts and no overwritten user edits;
-   - preserve access gating, supplier redaction, Batch #112 route splitting and Batch #113 route error boundary.
+1. Continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
-2. After Batch #115 sync, continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+2. If the review finds a concrete buyer-facing issue, implement the narrowest connected UX/UI batch with:
+   - runtime evidence from the route;
+   - focused tests or e2e coverage;
+   - `docs/backend/production-scale-baseline.md` notes for 10,000 concurrent users;
+   - project-memory updates and a Lovable sync prompt.
 
 ## Latest Confirmed Main State
 
-- `main` is at `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
+- `main` is at `040e17b`, `[codex] Add Batch 115 Lovable sync prompt`.
+- Lovable sync for Batch #115 is confirmed clean at `040e17b9`, with no conflicts.
 - PR #166 is merged for Batch #115: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
-- Batch #115 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`.
 - Batch #115 fixes English `/offers` locked offer card labels so legacy Russian fallback data no longer appears in buyer-facing price or analytics controls.
+- Lovable confirmed `src/lib/catalog-display-labels.ts`, catalog row/card changes, active-locale analytics keys, focused regression tests, Batch #115 production-scale notes and public route declarations are present.
+- Buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary and Batch #114 font loading are preserved.
 - Lovable sync for Batch #114 is confirmed clean at `3be3d6d2`, with no conflicts.
 - PR #165 is merged for Batch #114: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
 - Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
@@ -86,4 +88,3 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #115 needs Lovable sync confirmation.

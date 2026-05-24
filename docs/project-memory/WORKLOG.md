@@ -583,3 +583,10 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #166 ready and merged it to `main` as `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
 - Added `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md` for Batch #115 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #115 is clean:
+  - HEAD is `040e17b9`, `[codex] Add Batch 115 Lovable sync prompt`, on `main` and on top of Batch #115 `eec49ec`;
+  - catalog locale hardening files, focused regression tests, EN/RU/ES analytics labels and Batch #115 production-scale notes are present;
+  - public routes remain declared in `src/App.tsx` with lazy loading, `RouteChunkErrorBoundary` and `Suspense`;
+  - no conflicts were found and Lovable did not modify files;
+  - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary and Batch #114 font loading are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
