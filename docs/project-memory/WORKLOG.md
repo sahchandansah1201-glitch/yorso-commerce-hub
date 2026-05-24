@@ -780,3 +780,15 @@ Keep this file factual and append-only.
 - Reran the failed GitHub check; `Core Type And Build Gate` passed on rerun in 10m56s.
 - Marked PR #172 ready and merged it to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
 - Added `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md` for Batch #121 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #121 is clean:
+  - HEAD is `9b8f9434`, `[codex] Add Batch 121 Lovable sync prompt`, on `main` and on top of Batch #121 `809d35f`, PR #172;
+  - `OfferDetail.tsx` uses `Button asChild` plus `Link` or hash anchor for load-error fallback, not-found fallback, anonymous `/register` banner, registered-locked `#offer-supplier-access` banner, sticky mobile anonymous CTA and sticky mobile registered-locked CTA;
+  - `OfferSummary.tsx` uses `Button asChild` plus `Link to="/register"` for the price-lock CTA;
+  - `e2e/offer-detail-cta-semantics.spec.ts`, dedicated smoke script and full `smoke:e2e:run` wiring are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - `/offers/:id` renders in English on desktop and mobile through lazy routes and `RouteChunkErrorBoundary`;
+  - anonymous and registered-locked offer detail states keep supplier identity, exact price and access gating locked as expected;
+  - unknown offer fallback exposes `Browse all offers` as a link;
+  - nested `a button, button a` is 0, mobile 390px has no overflow, and Batches #117-#120 remain unchanged;
+  - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

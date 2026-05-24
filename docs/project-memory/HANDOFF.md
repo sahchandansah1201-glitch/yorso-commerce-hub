@@ -79,6 +79,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
 - PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
 - Batch #121 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
+- Lovable sync for Batch #121 is confirmed clean at `9b8f9434`, with no conflicts and no files modified.
 - Batch #121 fixes a concrete `/offers/:id` runtime semantics defect found after Batch #120:
   - load-error, not-found, locked access banner, price-lock summary and sticky mobile CTAs rendered as nested link/anchor plus `Button`, producing duplicate interactive controls;
   - CTAs now use the existing `Button asChild` pattern;
@@ -308,8 +309,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Sync Lovable with Batch #121 using docs/project-memory/PROMPTS/prompt-121-lovable-sync.md.
-After the user reports the Lovable result, record the sync status in project-memory.
+Continue the next scoped runtime UX/accessibility audit after Batch #121.
 Batch #119 Lovable sync remains pending unless the user provides a sync report.
 ```
 

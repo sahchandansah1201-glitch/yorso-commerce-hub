@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Sync Lovable with Batch #121 using `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
+1. Continue the next scoped runtime UX/accessibility audit from repository files.
 
-2. Record the user's Lovable sync report for Batch #121 in project-memory.
+2. Use browser/Playwright verification for any route-level UI defect before changing code.
 
-3. Continue the next scoped runtime UX/accessibility audit. Batch #119 Lovable sync remains pending as a separate explicit report unless the user provides it.
+3. Batch #119 Lovable sync remains pending as a separate explicit report unless the user provides it.
 
 ## Latest Confirmed Main State
 
@@ -14,6 +14,8 @@
 - Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
 - PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
 - Batch #121 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
+- Lovable sync for Batch #121 is confirmed clean at `9b8f9434`, with no conflicts and no files modified.
+- Lovable confirmed `src/pages/OfferDetail.tsx`, `src/components/offer-detail/OfferSummary.tsx`, `e2e/offer-detail-cta-semantics.spec.ts`, `package.json` smoke wiring, Batch #121 production-scale notes, offer detail runtime states, preserved Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 - Batch #121 fixes invalid nested interactive CTA markup on `/offers/:id`: load-error, not-found, locked access banner, price-lock summary and sticky mobile CTAs now use `Button asChild`, so each visual target is one link or one button instead of `a > button`.
 - Batch #121 keeps CTA destinations, offer detail copy, visual styling, return-to-catalog behavior, access request behavior, buyer access gating, supplier identity redaction and exact-price locking unchanged.
 - Batch #121 added `e2e/offer-detail-cta-semantics.spec.ts`.

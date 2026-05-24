@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "809d35f"
-  head_summary: "[codex] Batch #121 offer detail CTA semantics (#172)"
+  head_commit: "9b8f943"
+  head_summary: "[codex] Add Batch 121 Lovable sync prompt"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #121 Lovable sync prompt and project-memory updates are being recorded after PR #172 merged."
+    - "User-confirmed clean Lovable sync report for Batch #121 is being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch121_lovable_sync"
-  summary: "Sync Lovable after Batch #121 offer detail CTA semantics."
-  status: "ready_for_lovable_sync"
+  id: "post_batch121_runtime_ux_audit"
+  summary: "Continue scoped runtime UX/accessibility audit after Batch #121."
+  status: "ready_for_next_scoped_audit"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -76,6 +76,7 @@ active_workstream:
     - "Audit /offers/:id CTA runtime semantics after Batch #120."
     - "Fix nested Link/Button and anchor/Button CTA markup on offer detail using the existing Button asChild pattern."
     - "Create a Lovable sync prompt for Batch #121."
+    - "Record the user's clean Lovable sync report for Batch #121."
   confirmed_files:
     - "src/pages/OfferDetail.tsx"
     - "src/components/offer-detail/OfferSummary.tsx"
@@ -96,21 +97,29 @@ active_workstream:
 latest_merged_batches:
   - id: 121
     summary: "Offer detail CTA semantics so /offers/:id CTAs render as single links or buttons instead of nested link/button controls."
-    status: "merged_to_main_lovable_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "809d35f"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172"
     lovable_sync:
-      confirmed_at: "pending"
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-121-lovable-sync.md"
-      expected_user_report:
-        - "GitHub commit synced to 809d35f or newer, on main and on top of Batch #121 PR #172."
-        - "src/pages/OfferDetail.tsx uses Button asChild for /offers, /register and #offer-supplier-access CTA links and anchors."
-        - "src/components/offer-detail/OfferSummary.tsx uses Button asChild for the anonymous price-lock /register CTA."
-        - "e2e/offer-detail-cta-semantics.spec.ts checks 390x844 mobile, anonymous/registered-locked/unknown states, zero nested controls and zero overflow."
-        - "package.json smoke:e2e:offer-detail-cta-semantics:run and smoke:e2e:run include e2e/offer-detail-cta-semantics.spec.ts."
+      user_confirmed:
+        - "GitHub commit synced to 9b8f9434, [codex] Add Batch 121 Lovable sync prompt, on main and on top of Batch #121 809d35f, PR #172."
+        - "The working tree was clean and no conflicts were found."
+        - "src/pages/OfferDetail.tsx uses Button asChild plus Link or hash anchor for load-error fallback, not-found fallback, anonymous /register banner, registered-locked #offer-supplier-access banner, sticky mobile anonymous CTA and sticky mobile registered-locked CTA."
+        - "src/components/offer-detail/OfferSummary.tsx uses Button asChild with Link to /register for the price-lock CTA."
+        - "e2e/offer-detail-cta-semantics.spec.ts checks 390x844 mobile, anonymous Register Free / Sign up to view exact prices / Register to Contact Supplier, registered-locked Open access panel links to #offer-supplier-access, unknown offer Browse all offers, zero nested controls and zero overflow."
+        - "package.json includes smoke:e2e:offer-detail-cta-semantics, smoke:e2e:offer-detail-cta-semantics:run and full smoke:e2e:run wiring for the spec."
         - "docs/backend/production-scale-baseline.md includes the Batch #121 10,000 concurrent-user capacity review."
-        - "Buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, Batch #117 /offers#request anchor, Batch #118 for-suppliers CTA semantics, Batch #119 offers CTA semantics, Batch #120 auth CTA semantics, access gating, supplier identity redaction and price lock are preserved."
+        - "/offers/:id renders in English on desktop and mobile through lazy routes and Batch #113 RouteChunkErrorBoundary."
+        - "Anonymous offer detail shows product context, Register Free, Sign up to view exact prices and sticky Register to Contact Supplier without supplier identity leakage."
+        - "Registered-locked offer detail shows Open access panel links to #offer-supplier-access, keeps the supplier-request panel available, and keeps exact price and supplier name hidden."
+        - "Unknown offer /offers/00000000-0000-0000-0000-000000009999 shows Browse all offers as a link."
+        - "Access gating, supplier redaction, price-lock, sticky CTA and return-to-catalog behavior are unchanged."
+        - "Offer detail CTAs are single semantic anchors; document.querySelectorAll(\"a button, button a\").length is 0 and mobile 390px has no horizontal overflow."
+        - "/offers, /signin, /reset-password, /for-suppliers and /how-it-works behavior from Batches #117-#120 is unchanged."
+        - "Batch #112 strategy and Batch #113 RouteChunkErrorBoundary are preserved; large-chunk warning remains resolved."
         - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/pages/OfferDetail.tsx"
@@ -498,11 +507,13 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Sync Lovable with Batch #121 using docs/project-memory/PROMPTS/prompt-121-lovable-sync.md."
-  - "Record Batch #121 Lovable sync after the user provides the sync report."
+  - "Continue scoped runtime UX/accessibility audit."
   - "Record Batch #119 Lovable sync if the user provides the sync report."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #121 is clean with no conflicts at 9b8f9434."
+  - "2026-05-24: Lovable confirmed OfferDetail and OfferSummary CTA semantics, offer-detail-cta e2e guard, package smoke wiring, Batch #121 production-scale notes, offer detail runtime states, preserved access gating, supplier redaction, price-lock, sticky CTA, return-to-catalog, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary."
+  - "2026-05-24: Repository check found SupplierTrustPanel.access.test.tsx exists and covers supplier access flow; the direct nested-control regression for Batch #121 is covered by e2e/offer-detail-cta-semantics.spec.ts."
   - "2026-05-24: Batch #121 committed as 84b615b and merged to main as 809d35f via PR #172."
   - "2026-05-24: PR #172 Core Type And Build Gate passed on GitHub rerun in 10m56s after an unrelated first-run account-company e2e failure."
   - "2026-05-24: Batch #121 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-121-lovable-sync.md."
@@ -664,6 +675,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync result for Batch #121."
   - "Lovable sync result for Batch #119."
   - "Next scoped route-level UX/accessibility issue after offer detail CTA semantics."
