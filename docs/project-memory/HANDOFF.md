@@ -41,8 +41,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `ForSuppliers.test.tsx` and `e2e/for-suppliers-cta-semantics.spec.ts` are present;
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, Batch #117 request anchor, access gating, supplier identity redaction and price lock are preserved.
-- The repository is currently on branch `codex/batch119-offers-cta-semantics`.
-- Batch #119 is implemented locally and validation passed; it is not yet pushed or merged.
+- The repository is currently on branch `main`.
+- Batch #119 is merged to `main` as `e17810e`, `[codex] Batch #119 offers CTA semantics (#170)`.
+- PR #170 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/170`.
+- Batch #119 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md`.
 - Batch #119 fixes a concrete `/offers` runtime semantics defect found after Batch #118:
   - locked-buyer account, value-strip and related-request CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls in the buyer catalog;
   - CTAs now use the existing `Button asChild` pattern;
@@ -55,6 +57,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
+- GitHub `Core Type And Build Gate` passed on PR #170 in 11m44s.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -267,8 +270,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit and push Batch #119 on codex/batch119-offers-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
-After merge, add a Batch #119 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Sync Lovable with Batch #119 using docs/project-memory/PROMPTS/prompt-119-lovable-sync.md.
+After the user reports the Lovable result, record the sync status in project-memory.
+Then continue the next scoped runtime UX audit; verify whether the earlier /signin and /reset-password nested-control findings still exist before changing anything.
 ```
 
 ## Rules

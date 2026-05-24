@@ -113,6 +113,7 @@
 - `e2e/offers-cta-semantics.spec.ts`: mobile browser guard for locked buyer CTA links, zero nested interactive controls, access gating and no horizontal overflow.
 - `package.json`: offers-catalog and full e2e smoke scripts include the offers CTA semantics e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #119 10,000 concurrent users capacity review for offers CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md`: Lovable sync prompt for Batch #119.
 
 ## Batch #96 Supplier Access Review Console
 
