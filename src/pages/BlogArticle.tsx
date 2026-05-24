@@ -681,7 +681,7 @@ const BlogArticle = () => {
               </div>
 
               {/* Right rail */}
-              <aside className="hidden space-y-5 lg:block lg:sticky lg:top-24 lg:self-start">
+              <aside aria-label={t.blog_articleAsideAria} className="hidden space-y-5 lg:block lg:sticky lg:top-24 lg:self-start">
                 {toc.length > 0 && (
                   <nav
                     aria-label={t.blog_onThisPage}

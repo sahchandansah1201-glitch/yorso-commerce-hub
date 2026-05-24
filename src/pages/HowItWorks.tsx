@@ -380,7 +380,10 @@ const HowItWorks = () => {
               </div>
 
               {/* Supplier mechanism — secondary, trust-supporting column */}
-              <aside className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start xl:col-span-4">
+              <aside
+                aria-labelledby="how-it-works-supplier-trust-heading"
+                className="lg:col-span-5 lg:sticky lg:top-24 lg:self-start xl:col-span-4"
+              >
                 <div className="rounded-xl bg-[hsl(var(--cool-gray))] p-5 md:p-6">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-[hsl(var(--success))]" />
@@ -388,7 +391,10 @@ const HowItWorks = () => {
                       {t.problem_supplier_eyebrow}
                     </p>
                   </div>
-                  <h3 className="mt-2 font-heading text-base font-bold leading-snug text-foreground md:text-[17px]">
+                  <h3
+                    id="how-it-works-supplier-trust-heading"
+                    className="mt-2 font-heading text-base font-bold leading-snug text-foreground md:text-[17px]"
+                  >
                     {t.problem_supplier_title}
                   </h3>
                   <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">

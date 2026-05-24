@@ -16,11 +16,26 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Finish Batch #125 public landmark labels: commit the validated local implementation, open the PR, wait for GitHub gate, then prepare Lovable sync after merge.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch125-public-runtime-ux-a11y-audit`.
+- Batch #125 public landmark labels is locally implemented and validated; PR is pending.
+- Batch #125 fixes a concrete public scanability/accessibility defect found after Batch #124:
+  - desktop `Header` nav and open mobile `Header` nav were visible navigation landmarks without accessible names;
+  - `/how-it-works` supplier/trust asides, `/blog` sidebar and `/blog/:slug` article tools aside were visible complementary landmarks without names.
+- Batch #125 touches `src/components/landing/Header.tsx`, `src/components/landing/Header.landmarks.test.tsx`, `src/pages/HowItWorks.tsx`, `src/components/how-it-works/BusinessOutcomes.tsx`, `src/pages/Blog.tsx`, `src/pages/BlogArticle.tsx`, `src/i18n/translations.ts`, `src/i18n/aria-tooltips-localized.ru.test.tsx`, adds `e2e/public-landmark-labels.spec.ts`, extends dedicated/full e2e smoke scripts, and adds the Batch #125 production-scale section.
+- Batch #125 preserves header visual layout, header links, mobile menu behavior, how-it-works buyer narrative, supplier trust mechanism, blog/article content, access gating, supplier identity redaction, price locks, buyer-first public copy and route shell behavior.
+- Batch #125 local validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 8 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `E2E_BASE_URL=http://127.0.0.1:4197 npx playwright test e2e/public-landmark-labels.spec.ts --project=chromium`, 39 tests;
+  - `npm run smoke:e2e:public-landmark-labels`, 39 tests after production build;
+  - `npm run lint`;
+  - `npm run smoke:e2e:run`, 176 tests.
+- Known warnings remain: Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Batch #124 public heading structure is merged to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`, via PR #175.
 - PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
 - GitHub `Core Type And Build Gate` passed on PR #175 in 11m28s.

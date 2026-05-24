@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch after Batch #124 Lovable sync"
+recommended_action: "open PR for Batch #125 public landmark labels after local validation"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main after Batch #124 Lovable sync record commit"
+active_branch: "codex/batch125-public-runtime-ux-a11y-audit"
+head_commit: "branch from a4ad9b1 after Batch #124 Lovable sync record commit"
 latest_merged_batch: 124
-active_workstream: "ready_for_next_public_ux_batch"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
-why_low: "Batch #124 is merged to main as fdaf76a via PR #175 and Lovable sync is confirmed clean at 05d09f4b with no conflicts or file modifications."
+active_workstream: "batch125_public_landmark_labels"
+pull_request: "pending"
+why_low: "Batch #125 has a narrow public accessibility scope, local validation is green, and the latest merged baseline remains Batch #124 clean on main."
 ```
 
 ## Risk Levels
@@ -50,8 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch after Batch #124 merge: main.
-Current workstream: Batch #124 public heading structure is merged to main and Lovable sync is confirmed clean.
+Current branch: codex/batch125-public-runtime-ux-a11y-audit.
+Current workstream: Batch #125 public landmark labels is locally implemented and validated; PR is pending.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -70,5 +70,9 @@ Batch #124 local validation passed: npx vitest run src/components/landing/Footer
 Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-124-lovable-sync.md.
 Lovable sync for Batch #124 is confirmed clean at 05d09f4b with no conflicts and no file changes.
 Lovable confirmed Footer nav groups, Suppliers results H2, EN/RU/ES suppliersPage_resultsHeading, public-heading e2e guard, package smoke wiring, preserved Batch #112 code splitting, preserved Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123.
-Next step: start the next scoped public UX/UI audit batch from current main.
+Batch #125 runtime audit found unnamed visible public landmarks: desktop header nav, open mobile header nav, two /how-it-works asides, /blog sidebar aside and /blog/:slug article tools aside.
+Batch #125 implementation labels those landmarks with locale-owned navigation/complementary names, adds Header landmark unit coverage, adds e2e/public-landmark-labels.spec.ts, wires the dedicated/full smoke scripts, and records the 10,000 concurrent-user baseline note.
+Batch #125 local validation passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:public-landmark-labels; npm run lint; npm run smoke:e2e:run, 176 tests.
+Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+Next step: commit Batch #125, push the branch, open the PR and wait for GitHub Core Type And Build Gate.
 ```

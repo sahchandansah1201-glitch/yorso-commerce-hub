@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "main after Batch #124 Lovable sync record commit"
+  active_branch: "codex/batch125-public-runtime-ux-a11y-audit"
+  head_commit: "a4ad9b1 before Batch #125 local commit"
   head_summary: "[codex] Record Batch 124 Lovable sync"
-  dirty_worktree_before_project_memory: false
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "User confirmed Batch #124 Lovable sync clean; only project-memory is updated in this checkpoint."
+    - "Batch #125 public landmark labels implementation and project-memory updates are in progress before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,17 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "ready_for_next_public_ux_batch"
-  summary: "Batch #124 Lovable sync is clean; start the next scoped public UX/UI audit batch."
-  status: "ready_for_next_batch"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
+  id: "batch125_public_landmark_labels"
+  summary: "Batch #125 labels visible public navigation and complementary landmarks discovered in runtime audit."
+  status: "local_validation_passed_ready_for_pr"
+  pull_request: "pending"
   confirmed_scope:
+    - "Audit public routes after Batch #124 for landmark semantics and screen-reader navigation structure."
+    - "Fix unnamed visible public nav and aside landmarks without changing visual layout or buyer-first copy."
+    - "Add locale-owned names for desktop and mobile header navigation."
+    - "Add explicit names for how-it-works supplier/trust sidebars and blog/article complementary rails."
+    - "Add focused Header landmark unit tests and public landmark e2e smoke coverage."
+    - "Run local Batch #125 validation including full smoke:e2e:run."
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
     - "Remove or replace CSS @import font loading without changing the visual system."
@@ -101,6 +107,15 @@ active_workstream:
     - "Create a Lovable sync prompt for Batch #124."
     - "Record the user's clean Lovable sync report for Batch #124."
   confirmed_files:
+    - "src/components/landing/Header.tsx"
+    - "src/components/landing/Header.landmarks.test.tsx"
+    - "src/pages/HowItWorks.tsx"
+    - "src/components/how-it-works/BusinessOutcomes.tsx"
+    - "src/pages/Blog.tsx"
+    - "src/pages/BlogArticle.tsx"
+    - "src/i18n/translations.ts"
+    - "src/i18n/aria-tooltips-localized.ru.test.tsx"
+    - "e2e/public-landmark-labels.spec.ts"
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
     - "src/components/CertificationBadges.tsx"
@@ -134,37 +149,39 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
 
 active_batch:
-  id: 124
-  summary: "Public heading structure for footer navigation and supplier results."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "fdaf76a"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
+  id: 125
+  summary: "Public landmark labels for header navigation, how-it-works asides and blog sidebars."
+  status: "local_validation_passed_ready_for_pr"
+  commit: "pending"
+  branch: "codex/batch125-public-runtime-ux-a11y-audit"
+  pull_request: "pending"
+  lovable_sync_prompt: "pending_after_merge"
   lovable_sync:
-    confirmed_at: "2026-05-24"
-    head: "05d09f4b"
-    result: "clean_no_conflicts"
+    confirmed_at: null
+    head: null
+    result: "pending"
   confirmed_findings:
-    - "Runtime audit found footer H4 labels created heading-level skips on public routes."
-    - "Runtime audit found /suppliers jumped from H1 directly to H3 supplier row headings."
+    - "Runtime audit found the desktop Header nav had no accessible landmark name."
+    - "Runtime audit found the open mobile Header nav had no accessible landmark name."
+    - "Runtime audit found /how-it-works supplier/trust asides, /blog sidebar and /blog/:slug article tools aside were visible complementary landmarks without names."
   confirmed_changes:
-    - "Footer columns render as named navigation groups and no longer contribute H4 page headings."
-    - "/suppliers result cards are grouped under a screen-reader-visible H2 Supplier results heading."
-    - "Dedicated e2e guard asserts sequential heading outlines on public routes and no footer headings."
-    - "Batch #124 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
+    - "Header desktop and mobile navigation landmarks now use locale-owned aria-labels."
+    - "/how-it-works supplier/trust complementary panels are labelled by their existing headings."
+    - "/blog and /blog/:slug sidebars now expose locale-owned complementary landmark labels."
+    - "Dedicated e2e guard asserts visible nav/aside landmarks have aria-label or aria-labelledby on mobile and desktop public routes."
+    - "Batch #125 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx, 24 tests."
-    - "E2E_BASE_URL=http://127.0.0.1:4196 npx playwright test e2e/public-heading-structure.spec.ts --project=chromium, 8 tests."
-    - "npm run smoke:e2e:public-heading-structure, 8 tests after production build."
-    - "npm run lint."
+    - "npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 8 tests."
     - "npx tsc -b --noEmit."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:run, 137 tests."
-    - "GitHub Core Type And Build Gate passed on PR #175 in 11m28s."
+    - "E2E_BASE_URL=http://127.0.0.1:4197 npx playwright test e2e/public-landmark-labels.spec.ts --project=chromium, 39 tests."
+    - "npm run smoke:e2e:public-landmark-labels, 39 tests after production build."
+    - "npm run lint."
+    - "npm run smoke:e2e:run, 176 tests."
   preserved_behavior:
-    - "Footer visual layout, link destinations and analytics are unchanged."
-    - "Supplier directory filtering, sorting, pagination, row selection and supplier-profile links are unchanged."
+    - "Header visual layout, links, mobile menu behavior and route shell are unchanged."
+    - "How-it-works copy, buyer request CTAs, supplier trust mechanism and content hierarchy are unchanged."
+    - "Blog/category/article content, link destinations and visuals are unchanged."
     - "Buyer-first copy, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
@@ -690,6 +707,7 @@ current_ux_audit_status:
     - "Before Batch #120, /signin and /reset-password auth back links rendered nested Link/Button controls, creating duplicate interactive elements on public auth routes."
     - "Before Batch #121, /offers/:id load-error, not-found, locked access, price-lock and sticky mobile CTAs rendered nested link/button controls, creating duplicate interactive elements on the buyer decision route."
     - "Before Batch #122, homepage View all offers, landing offer certification chips and shared info/legal back CTAs rendered nested interactive controls."
+    - "Before Batch #125, several visible public navigation/complementary landmarks lacked accessible names, weakening screen-reader route scanability."
   conversion_risks:
     - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
@@ -700,10 +718,21 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Start the next scoped public UX/UI runtime audit from repository state."
-  - "Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure."
+  - "Commit Batch #125 public landmark labels."
+  - "Push codex/batch125-public-runtime-ux-a11y-audit and open a PR."
+  - "Wait for GitHub Core Type And Build Gate before merge."
 
 last_confirmed_checks:
+  - "2026-05-24: Batch #125 runtime audit found unnamed visible landmarks on Header desktop nav, open Header mobile nav, /how-it-works supplier/trust asides, /blog sidebar and /blog/:slug article tools aside."
+  - "2026-05-24: Batch #125 implemented locale-owned navigation/complementary landmark labels and heading-linked labels for existing how-it-works aside headings."
+  - "2026-05-24: Batch #125 focused test passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 8 tests."
+  - "2026-05-24: Batch #125 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #125 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #125 focused Playwright passed: E2E_BASE_URL=http://127.0.0.1:4197 npx playwright test e2e/public-landmark-labels.spec.ts --project=chromium, 39 tests."
+  - "2026-05-24: Batch #125 smoke script passed: npm run smoke:e2e:public-landmark-labels, 39 tests after production build."
+  - "2026-05-24: Batch #125 npm run lint passed."
+  - "2026-05-24: Batch #125 full browser smoke passed locally: npm run smoke:e2e:run, 176 tests."
+  - "2026-05-24: Batch #125 build preserved known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale; Vite large-chunk warning remains resolved. CSS bundle: 125.47 kB minified, 20.80 kB gzip. Entry chunk: 355.46 kB minified, 114.18 kB gzip. i18n-translations: 314.26 kB minified, 98.98 kB gzip."
   - "2026-05-24: User confirmed Lovable sync for Batch #122 is clean with no conflicts at 98335bd5."
   - "2026-05-24: Lovable confirmed LiveOffers, OfferCard, CertificationBadges, InfoPageLayout, PublicCtaSemantics.test.tsx, e2e/public-cta-semantics.spec.ts, package smoke wiring, Batch #122 production-scale notes, homepage runtime status, info/legal CTA semantics, preserved Batches #117-#121 behavior, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary."
   - "2026-05-24: PR #173 Core Type And Build Gate passed in 11m31s."

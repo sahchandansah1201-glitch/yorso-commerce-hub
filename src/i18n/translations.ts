@@ -180,6 +180,8 @@ type TranslationKeys = {
   signin_couldNotSendLink: string;
   cert_viewDetails: string;
   aria_toggleMenu: string;
+  aria_mainNavigation: string;
+  aria_mobileNavigation: string;
   aria_goBack: string;
   aria_breadcrumb: string;
   aria_catalogResults: string;
@@ -1329,6 +1331,8 @@ type TranslationKeys = {
   blog_featuredEyebrow: string;
   blog_popularTopics: string;
   blog_startHere: string;
+  blog_sidebarAria: string;
+  blog_articleAsideAria: string;
   blog_relatedArticles: string;
   blog_onThisPage: string;
   blog_quickAnswer: string;
@@ -1966,6 +1970,8 @@ const en: TranslationKeys = {
   signin_couldNotSendLink: "Could not send link",
   cert_viewDetails: "View details for {cert} certification",
   aria_toggleMenu: "Toggle menu",
+  aria_mainNavigation: "Main navigation",
+  aria_mobileNavigation: "Mobile navigation",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
   aria_catalogResults: "Catalog results",
@@ -3102,6 +3108,8 @@ const en: TranslationKeys = {
   blog_featuredEyebrow: "Featured market intelligence",
   blog_popularTopics: "Popular topics",
   blog_startHere: "Start here",
+  blog_sidebarAria: "Insights navigation",
+  blog_articleAsideAria: "Article tools",
   blog_relatedArticles: "Related articles",
   blog_onThisPage: "On this page",
   blog_quickAnswer: "Quick answer",
@@ -3719,6 +3727,8 @@ const ru: TranslationKeys = {
   signin_couldNotSendLink: "Не удалось отправить ссылку",
   cert_viewDetails: "Подробнее о сертификации {cert}",
   aria_toggleMenu: "Открыть меню",
+  aria_mainNavigation: "Основная навигация",
+  aria_mobileNavigation: "Мобильная навигация",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
   aria_catalogResults: "Результаты каталога",
@@ -4855,6 +4865,8 @@ const ru: TranslationKeys = {
   blog_featuredEyebrow: "Главная аналитика рынка",
   blog_popularTopics: "Популярные темы",
   blog_startHere: "Начните отсюда",
+  blog_sidebarAria: "Навигация по материалам",
+  blog_articleAsideAria: "Инструменты статьи",
   blog_relatedArticles: "Похожие материалы",
   blog_onThisPage: "На этой странице",
   blog_quickAnswer: "Краткий ответ",
@@ -5472,6 +5484,8 @@ const es: TranslationKeys = {
   signin_couldNotSendLink: "No se pudo enviar el enlace",
   cert_viewDetails: "Ver detalles de la certificación {cert}",
   aria_toggleMenu: "Abrir menú",
+  aria_mainNavigation: "Navegación principal",
+  aria_mobileNavigation: "Navegación móvil",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
   aria_catalogResults: "Resultados del catálogo",
@@ -6607,6 +6621,8 @@ const es: TranslationKeys = {
   blog_featuredEyebrow: "Análisis de mercado destacado",
   blog_popularTopics: "Temas populares",
   blog_startHere: "Empieza aquí",
+  blog_sidebarAria: "Navegación de insights",
+  blog_articleAsideAria: "Herramientas del artículo",
   blog_relatedArticles: "Artículos relacionados",
   blog_onThisPage: "En esta página",
   blog_quickAnswer: "Respuesta rápida",

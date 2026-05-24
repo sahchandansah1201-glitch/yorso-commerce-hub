@@ -2594,6 +2594,71 @@ Marker: public heading structure.
 Marker: footer supplier directory heading outline.
 Marker: 10,000 concurrent users.
 
+## Batch #125 Public Landmark Labels
+
+Batch #125 fixes unnamed public navigation and supporting-aside landmarks found
+in runtime audit after Batch #124. The shared header now names desktop and
+mobile navigation, `/how-it-works` names supplier-supporting asides through
+their headings, and `/blog` plus `/blog/:slug` name their insight/article
+support rails. Visual layout, copy, routes, search/filter behavior, article
+links, supplier access rules, supplier identity redaction, price locks, auth
+behavior and analytics stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Header navigation, blog filtering, article reads, supplier-directory reads,
+  catalog reads, sign-in behavior and homepage search are unchanged.
+- The only runtime change is client-side landmark naming for existing public
+  route markup.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter public-route, blog, catalog or supplier-directory
+  request volume at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, supplier
+  pagination, blog content data, offer reads, auth persistence or account
+  persistence.
+- Existing bounded public-route rendering, blog static content and supplier
+  directory pagination remain the 10,000 concurrent-user strategy.
+
+Failure mode and graceful degradation:
+
+- Header navigation remains normal links in desktop and mobile states.
+- Blog side rails and how-it-works support columns remain normal static content.
+- If JavaScript hydration is delayed, existing markup still exposes labelled
+  landmarks for screen-reader landmark navigation.
+
+Observability and load-test plan:
+
+- Regression coverage should assert public `nav` and `aside` landmarks have
+  accessible names on mobile and desktop.
+- Browser smoke verifies `/`, catalog, supplier, auth, info/legal, insights
+  and article routes have no unnamed visible nav/aside landmarks.
+- Existing public route smoke continues to verify route rendering, mobile
+  overflow, nested-control absence, input accessibility, heading structure,
+  access gating, supplier redaction, price locks and route chunk recovery.
+
+Validation:
+
+- `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`;
+- `npm run smoke:e2e:public-landmark-labels`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #125.
+Marker: public landmark labels.
+Marker: header blog how-it-works labelled landmarks.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

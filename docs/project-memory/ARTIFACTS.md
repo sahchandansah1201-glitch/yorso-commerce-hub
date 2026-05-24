@@ -170,6 +170,20 @@
 - `docs/backend/production-scale-baseline.md`: Batch #124 10,000 concurrent users capacity review for public heading structure.
 - `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`: Lovable sync prompt for Batch #124 after PR #175 merge; user confirmed clean sync at `05d09f4b`.
 
+## Batch #125 Public Landmark Labels
+
+- `src/components/landing/Header.tsx`: desktop and mobile navigation landmarks expose locale-owned accessible names.
+- `src/components/landing/Header.landmarks.test.tsx`: regression coverage for named desktop and mobile header navigation landmarks in EN/RU/ES.
+- `src/pages/HowItWorks.tsx`: supplier trust infrastructure aside is labelled by its existing heading.
+- `src/components/how-it-works/BusinessOutcomes.tsx`: supplier outcomes aside is labelled by its existing heading.
+- `src/pages/Blog.tsx`: blog sidebar complementary landmark exposes a locale-owned label.
+- `src/pages/BlogArticle.tsx`: article tools complementary landmark exposes a locale-owned label.
+- `src/i18n/translations.ts`: EN/RU/ES labels for main navigation, mobile navigation, insights navigation and article tools.
+- `src/i18n/aria-tooltips-localized.ru.test.tsx`: Russian localization guard includes the new navigation labels.
+- `e2e/public-landmark-labels.spec.ts`: mobile/desktop browser guard for visible public `nav`/`aside` landmark names and open mobile menu navigation.
+- `package.json`: dedicated public landmark smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #125 10,000 concurrent users capacity review for public landmark labels.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

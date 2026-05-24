@@ -911,3 +911,24 @@ Keep this file factual and append-only.
   - Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved;
   - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #125 on `codex/batch125-public-runtime-ux-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #124 and found unnamed visible landmarks:
+  - desktop `Header` navigation had no accessible landmark name;
+  - open mobile `Header` navigation had no accessible landmark name;
+  - `/how-it-works` supplier/trust asides, `/blog` sidebar and `/blog/:slug` article tools aside were visible complementary landmarks without accessible names.
+- Implemented Batch #125 public landmark labels:
+  - added EN/RU/ES locale-owned labels for desktop and mobile header navigation landmarks;
+  - labelled `/how-it-works` supplier/trust asides from their existing visible headings;
+  - added locale-owned labels for `/blog` sidebar and `/blog/:slug` article tools aside;
+  - added `src/components/landing/Header.landmarks.test.tsx`;
+  - added `e2e/public-landmark-labels.spec.ts` and wired it into a dedicated smoke script plus full `smoke:e2e:run`;
+  - added Batch #125 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #125 local validation:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx` passed, 8 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `E2E_BASE_URL=http://127.0.0.1:4197 npx playwright test e2e/public-landmark-labels.spec.ts --project=chromium` passed, 39 tests;
+  - `npm run smoke:e2e:public-landmark-labels` passed, 39 tests after production build;
+  - `npm run lint` passed;
+  - `npm run smoke:e2e:run` passed, 176 tests.
+- Batch #125 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

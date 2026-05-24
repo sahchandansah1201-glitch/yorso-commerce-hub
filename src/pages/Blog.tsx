@@ -585,7 +585,7 @@ const Blog = () => {
                 )}
               </div>
 
-              <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+              <aside aria-label={t.blog_sidebarAria} className="space-y-6 lg:sticky lg:top-24 lg:self-start">
                 <div className="rounded-lg border border-border bg-card p-5">
                   <h2 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
                     {t.blog_popularTopics}
