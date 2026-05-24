@@ -2,17 +2,29 @@
 
 ## Current Next Action
 
-1. Continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+1. Commit and push Batch #116 on `codex/batch116-offers-proof-anchor-fallback`.
 
-2. If the review finds a concrete buyer-facing issue, implement the narrowest connected UX/UI batch with:
-   - runtime evidence from the route;
-   - focused tests or e2e coverage;
-   - `docs/backend/production-scale-baseline.md` notes for 10,000 concurrent users;
-   - project-memory updates and a Lovable sync prompt.
+2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
+
+3. After merge, add a Batch #116 Lovable sync prompt and record the post-merge state.
 
 ## Latest Confirmed Main State
 
-- `main` is at `040e17b`, `[codex] Add Batch 115 Lovable sync prompt`.
+- Current work branch is `codex/batch116-offers-proof-anchor-fallback`.
+- Batch #116 is implemented locally and validation passed.
+- Batch #116 fixes a `/offers` trust-proof navigation defect: on mobile, `Procurement intelligence` no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence; `Document readiness` now lands on offer cards instead of the filter bar.
+- Batch #116 added `src/components/catalog/TrustProofStrip.test.tsx` and `e2e/offers-trust-proof-anchors.spec.ts`.
+- `smoke:e2e:offers-catalog:run` now includes both `e2e/offers-catalog-paging.spec.ts` and `e2e/offers-trust-proof-anchors.spec.ts`.
+- Batch #116 local validation passed:
+  - `npx vitest run src/components/catalog/TrustProofStrip.test.tsx`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-catalog-paging.spec.ts e2e/offers-trust-proof-anchors.spec.ts --project=chromium`, 6 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build`.
+- Known warnings remain during build: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- `main` is at `a320088`, `[codex] Record Batch 115 Lovable sync`.
 - Lovable sync for Batch #115 is confirmed clean at `040e17b9`, with no conflicts.
 - PR #166 is merged for Batch #115: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
 - Batch #115 fixes English `/offers` locked offer card labels so legacy Russian fallback data no longer appears in buyer-facing price or analytics controls.

@@ -116,7 +116,7 @@
     "smoke:e2e:account-company:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/account-company-edit-contract.spec.ts --project=chromium",
     "smoke:e2e:account-company:report:run": "E2E_USE_WEB_SERVER=1 PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/account-company-save-flow/playwright-report.json playwright test e2e/account-company-save-flow-report.spec.ts --project=chromium --reporter=list,json",
     "smoke:e2e:account-products:report:run": "E2E_USE_WEB_SERVER=1 PLAYWRIGHT_JSON_OUTPUT_NAME=test-results/account-products-save-flow/playwright-report.json playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium --reporter=list,json",
-    "smoke:e2e:offers-catalog:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/offers-catalog-paging.spec.ts --project=chromium",
+    "smoke:e2e:offers-catalog:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/offers-catalog-paging.spec.ts e2e/offers-trust-proof-anchors.spec.ts --project=chromium",
     "smoke:e2e:suppliers-directory:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/suppliers-directory-paging.spec.ts --project=chromium",
     "smoke:e2e:supplier-profile-detail:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/supplier-profile-detail.spec.ts --project=chromium",
     "smoke:e2e:supplier-directory-profile-flow:run": "E2E_USE_WEB_SERVER=1 playwright test e2e/supplier-directory-profile-flow.spec.ts --project=chromium",

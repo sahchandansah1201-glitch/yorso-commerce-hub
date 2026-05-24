@@ -20,8 +20,22 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `main`.
-- The repository is synced on `main` at `040e17b`, `[codex] Add Batch 115 Lovable sync prompt`.
+- The repository is currently on branch `codex/batch116-offers-proof-anchor-fallback`.
+- The active work branch is `codex/batch116-offers-proof-anchor-fallback`, based on `main` at `a320088`, `[codex] Record Batch 115 Lovable sync`.
+- Batch #116 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #116 fixes a concrete `/offers` trust-proof navigation defect found in runtime review:
+  - on mobile, `Procurement intelligence` proof no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence;
+  - `Document readiness` proof now lands on offer cards where document status is visible instead of the filter bar;
+  - access gating, supplier identity redaction, offer data, routes and backend APIs are unchanged.
+- Batch #116 touched `src/components/catalog/TrustProofStrip.tsx`, added `src/components/catalog/TrustProofStrip.test.tsx`, added `e2e/offers-trust-proof-anchors.spec.ts`, extended `smoke:e2e:offers-catalog:run`, and added the Batch #116 production-scale section.
+- Batch #116 validation passed:
+  - `npx vitest run src/components/catalog/TrustProofStrip.test.tsx`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-catalog-paging.spec.ts e2e/offers-trust-proof-anchors.spec.ts --project=chromium`, 6 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - Batch #115 catalog locale hardening is merged to `main` as `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
 - PR #166 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
 - Batch #115 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`.
@@ -183,8 +197,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
-If a concrete buyer-facing issue is confirmed from route runtime evidence, implement the narrowest connected UX/UI batch with tests, production-scale notes, project-memory updates and a Lovable sync prompt.
+Commit and push Batch #116 on codex/batch116-offers-proof-anchor-fallback, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+After merge, add a Batch #116 Lovable sync prompt and update project-memory back to a clean main checkpoint.
 ```
 
 ## Rules
