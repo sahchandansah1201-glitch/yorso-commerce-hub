@@ -17,11 +17,11 @@ const InfoPageLayout = ({ title, children, updated }: Props) => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container max-w-3xl py-12 md:py-16">
-        <Link to="/">
-          <Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
+        <Button asChild variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
+          <Link to="/">
             <ArrowLeft className="h-4 w-4" /> {t.info_backToHome}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground">{title}</h1>
         {updated && <p className="mt-2 text-sm text-muted-foreground">{t.info_lastUpdated}: {updated}</p>}
         <div className="mt-8 prose prose-sm max-w-none text-foreground/80 leading-relaxed space-y-4">

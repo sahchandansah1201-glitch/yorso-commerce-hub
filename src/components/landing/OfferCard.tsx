@@ -83,6 +83,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           certifications={offer.certifications ?? []}
           limit={2}
           className="mt-1.5"
+          interactive={false}
         />
 
         <div className="mt-auto pt-3">

@@ -2403,6 +2403,69 @@ Marker: offer detail CTA semantics.
 Marker: offer detail nested interactive markup.
 Marker: 10,000 concurrent users.
 
+## Batch #122 Public CTA Semantics
+
+Batch #122 fixes invalid nested interactive markup on the homepage and shared
+info/legal pages. The homepage `View all offers` CTA now uses the existing
+`Button asChild` pattern, landing offer certification chips render as static
+proof chips inside card links, and the shared `InfoPageLayout` back CTA uses a
+single semantic link. Buyer-first copy, offer-card destinations, information
+page content, route shell, SEO behavior and visual styling stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Homepage offer reads, mock fallback behavior, analytics calls, route-owned SEO
+  effects and information page rendering are unchanged.
+- The only runtime change is client-side DOM semantics for landing and
+  info/legal CTA targets.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter homepage or information page traffic volume at the
+  10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, catalog
+  pagination, offer reads, supplier reads or account persistence.
+- Existing bounded catalog and public-route loading plans remain the
+  10,000 concurrent-user strategy.
+
+Failure mode and graceful degradation:
+
+- Homepage offer cards remain normal links to offer detail pages.
+- The homepage `View all offers` CTA remains a normal link to `/offers`.
+- Shared information page back CTAs remain normal links to `/`.
+- Static certification chips keep the proof signal without creating child
+  buttons inside parent links.
+
+Observability and load-test plan:
+
+- Regression coverage should assert homepage and shared info/legal routes have
+  no nested interactive CTA markup.
+- Browser smoke verifies homepage mobile/desktop and all shared info/legal
+  routes keep zero nested controls and zero horizontal overflow.
+- Existing public route smoke continues to verify route rendering, SEO,
+  buyer-first narrative, supplier identity redaction and access gating.
+
+Validation:
+
+- `npx vitest run src/pages/PublicCtaSemantics.test.tsx`;
+- `npm run smoke:e2e:public-cta-semantics`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #122.
+Marker: public CTA semantics.
+Marker: homepage info page nested interactive markup.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
