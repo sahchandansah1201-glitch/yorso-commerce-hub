@@ -93,7 +93,7 @@
 - `e2e/how-it-works-request-anchor.spec.ts`: browser-level mobile guard for `/how-it-works` request CTA and direct `/offers#request` entry.
 - `package.json`: `smoke:e2e:run` includes the `/how-it-works` request anchor e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #117 10,000 concurrent users capacity review for hash preservation and request-anchor landing.
-- `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`: Lovable sync prompt for Batch #117.
+- `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`: Lovable sync prompt for Batch #117; user confirmed clean sync on main on top of Batch #117 `c2c5ff3`.
 
 ## Batch #96 Supplier Access Review Console
 

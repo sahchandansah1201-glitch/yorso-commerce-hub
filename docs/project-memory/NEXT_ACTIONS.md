@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Sync Lovable with `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
+1. Continue route-level proof/trust/conversion review after clean Batch #117 Lovable sync.
 
-2. Ask Lovable to confirm Batch #117 files, routes, runtime behavior and no conflicts.
+2. Use runtime checks before changing public UI.
 
-3. Continue route-level UX/trust review after Lovable reports clean sync or concrete conflicts.
+3. If a concrete issue is found, keep the next batch narrow and preserve existing buyer-first narrative, route shell, access gating and supplier redaction.
 
 ## Latest Confirmed Main State
 
@@ -14,6 +14,8 @@
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
 - Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
+- Lovable sync for Batch #117 is confirmed clean with no conflicts.
+- Lovable confirmed `src/pages/Offers.tsx`, `src/pages/HowItWorks.tsx`, `src/components/how-it-works/FinalCTA.tsx`, `e2e/how-it-works-request-anchor.spec.ts`, `package.json` smoke wiring, route declarations and preserved Batch #110-#116 safeguards.
 - Batch #117 fixes a cross-route conversion defect: `/how-it-works` request-access CTAs now preserve `/offers#request`, and `/offers` exposes a real `#request` anchor around the access/value strip.
 - `/offers` catalog URL normalization now preserves the active hash while it rewrites search params for filters, sort, rows and page state.
 - Batch #117 added `e2e/how-it-works-request-anchor.spec.ts`.

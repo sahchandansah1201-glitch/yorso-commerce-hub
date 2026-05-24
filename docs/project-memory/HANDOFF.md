@@ -24,6 +24,13 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
 - Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
+- Lovable sync for Batch #117 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced on `main` on top of Batch #117 `c2c5ff3`, PR #168;
+  - `Offers.tsx` has the stable `#request` anchor, hash-preserving URL normalization and hash-scroll effect;
+  - `/how-it-works` hero and final buyer CTAs use structured React Router targets to `/offers#request`;
+  - the e2e guard and smoke script wiring are present;
+  - no conflicts were found and Lovable did not modify files;
+  - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, access gating and supplier identity redaction are preserved.
 - Batch #117 fixes a concrete cross-route conversion defect found in runtime review:
   - `/how-it-works` buyer request-access CTAs pointed to `/offers#request`;
   - `/offers` had no `#request` anchor and catalog URL normalization stripped the hash;
@@ -222,8 +229,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Sync Lovable with docs/project-memory/PROMPTS/prompt-117-lovable-sync.md.
-After Lovable reports clean sync or concrete conflicts, record the result and continue route-level proof/trust review.
+Continue route-level proof/trust/conversion review after clean Batch #117 Lovable sync.
+Keep the next batch narrow, runtime-verified and tied to a concrete public-route issue.
 ```
 
 ## Rules

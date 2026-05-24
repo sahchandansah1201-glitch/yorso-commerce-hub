@@ -655,3 +655,11 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #168 `Core Type And Build Gate` passed in 10m54s.
 - Marked PR #168 ready and merged it to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - Added `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md` for Batch #117 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #117 is clean:
+  - HEAD is on `main` on top of Batch #117 `c2c5ff3`, PR #168;
+  - `Offers.tsx` has the stable `#request` anchor around the access/value strip, hash-preserving URL normalization and hash-scroll effect after render;
+  - `HowItWorks.tsx` and `FinalCTA.tsx` use structured React Router targets to `/offers#request`;
+  - `e2e/how-it-works-request-anchor.spec.ts` and `smoke:e2e:run` wiring are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - buyer-first narrative, access gating, supplier identity redaction, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening and Batch #116 proof anchor fallback are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
