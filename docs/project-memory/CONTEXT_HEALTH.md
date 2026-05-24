@@ -5,17 +5,17 @@ Updated: 2026-05-24
 ## Current Status
 
 ```yaml
-context_risk: "low"
+context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "continue route-level UX/trust review"
+recommended_action: "commit and open Batch #119 PR"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "dc78e09"
+active_branch: "codex/batch119-offers-cta-semantics"
+head_commit: "d0e27b0"
 latest_merged_batch: 118
-active_workstream: "post_batch118_route_ux_review"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
-why_low: "Batch #118 is merged, Lovable sync is confirmed clean, and project-memory is being updated from explicit user confirmation."
+active_workstream: "batch119_offers_cta_semantics"
+pull_request: "pending"
+why_medium: "Batch #119 has local code, e2e and docs changes that passed validation but are not yet committed, pushed or merged."
 ```
 
 ## Risk Levels
@@ -50,9 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current local workstream: post-Batch #118 route-level UX/trust review.
-Batch #118 is merged to main as f025e7b after GitHub Core Type And Build Gate passed in 10m36s.
-Lovable sync for Batch #118 is confirmed clean with no conflicts.
-Next: continue route-level UX/trust review and keep changes narrow.
+Current branch: codex/batch119-offers-cta-semantics.
+Current local workstream: Batch #119 offers CTA semantics.
+Batch #118 Lovable sync is confirmed clean at dc78e094 and recorded on main at d0e27b0.
+Commit Batch #119, push the branch, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
 ```

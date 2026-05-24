@@ -46,11 +46,11 @@ export const RelatedRequests = ({ category }: Props) => {
                   <MessageSquare className="h-3 w-3" /> {t.catalog_relatedReq_respond}
                 </Button>
               ) : (
-                <Link to="/register">
-                  <Button size="sm" variant="ghost" className="h-7 text-[11px]">
+                <Button asChild size="sm" variant="ghost" className="h-7 text-[11px]">
+                  <Link to="/register">
                     {t.catalog_relatedReq_respond} <ArrowRight className="h-3 w-3" />
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               )}
             </div>
           </li>

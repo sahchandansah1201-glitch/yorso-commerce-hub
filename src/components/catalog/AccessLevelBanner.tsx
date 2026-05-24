@@ -102,11 +102,11 @@ export const AccessLevelBanner = () => {
         <p className="font-heading text-sm font-semibold text-foreground">{t.catalog_access_anon_title}</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t.catalog_access_anon_body}</p>
       </div>
-      <Link to="/register">
-        <Button size="sm" className="font-semibold">
+      <Button asChild size="sm" className="font-semibold">
+        <Link to="/register">
           {t.catalog_access_anon_cta}
-        </Button>
-      </Link>
+        </Link>
+      </Button>
     </div>
   );
 };

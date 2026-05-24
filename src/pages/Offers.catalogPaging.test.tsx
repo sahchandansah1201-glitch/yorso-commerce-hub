@@ -51,4 +51,11 @@ describe("/offers catalog pagination and sort controls", () => {
     expect(screen.getByTestId("offer-catalog-page-summary")).toBeInTheDocument();
     expect(screen.getByTestId("catalog-result-count")).toHaveTextContent(/active offers/i);
   });
+
+  it("does not nest catalog CTA links inside buttons", async () => {
+    renderOffers("/offers");
+
+    await waitFor(() => expect(screen.getByTestId("catalog-result-count")).toBeInTheDocument());
+    expect(document.querySelectorAll("a button, button a")).toHaveLength(0);
+  });
 });
