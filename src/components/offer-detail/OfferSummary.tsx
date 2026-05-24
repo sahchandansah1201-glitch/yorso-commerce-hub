@@ -280,11 +280,11 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
 
             {/* CTA — differs by access state */}
             {isAnonymous ? (
-              <Link to="/register" className="block">
-                <Button className="w-full gap-2" size="sm">
+              <Button asChild className="w-full gap-2" size="sm">
+                <Link to="/register">
                   {t.offerDetail_priceLocked_anonCta} <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             ) : (
               <Button
                 type="button"

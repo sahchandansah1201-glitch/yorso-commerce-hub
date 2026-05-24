@@ -2340,6 +2340,69 @@ Marker: auth CTA semantics.
 Marker: auth nested interactive markup.
 Marker: 10,000 concurrent users.
 
+## Batch #121 Offer Detail CTA Semantics
+
+Batch #121 fixes invalid nested interactive markup on `/offers/:id`. The offer
+detail error, not-found, locked access and sticky mobile CTAs now use the
+existing `Button asChild` pattern instead of rendering `Link` or hash-anchor
+elements around `Button` elements. Offer detail copy, visual hierarchy, access
+gating, supplier identity redaction, exact-price locking, return-to-catalog
+behavior and access-request behavior stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Offer detail reads, fallback data, buyer sessions, supplier access requests,
+  access level resolution and supplier identity redaction are unchanged.
+- The only runtime change is client-side DOM semantics for offer detail CTA
+  links and hash anchors.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter offer detail request volume at the 10,000
+  concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, catalog
+  pagination, offer detail lookups, supplier reads or account persistence.
+- Existing bounded catalog pagination and detail lookup plans remain the
+  10,000 concurrent-user strategy.
+
+Failure mode and graceful degradation:
+
+- Offer detail CTAs remain normal links to `/register`, `/offers` or
+  `#offer-supplier-access`.
+- If JavaScript hydration is delayed, anchor semantics still expose direct
+  destinations.
+- Access gating remains fail-closed: exact prices and supplier identities stay
+  locked until the buyer is qualified.
+
+Observability and load-test plan:
+
+- Regression coverage should assert `/offers/:id` has no nested interactive
+  CTA markup across anonymous, registered-locked and unknown-offer states.
+- Browser smoke verifies mobile offer detail CTAs remain visible as links and
+  do not create horizontal overflow.
+- Existing offer detail smoke continues to verify supplier identity redaction,
+  approval refresh behavior and unlocked commercial controls.
+
+Validation:
+
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/offer-detail-cta-semantics.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #121.
+Marker: offer detail CTA semantics.
+Marker: offer detail nested interactive markup.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
