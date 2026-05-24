@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "5105f3c"
-  head_summary: "[codex] Batch #123 public input accessibility"
+  head_commit: "50b10bc"
+  head_summary: "[codex] Add Batch 123 Lovable sync prompt"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #123 merge and Lovable sync prompt are being recorded."
+    - "Batch #123 Lovable sync report is being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch123_lovable_sync_ready"
-  summary: "Batch #123 public input accessibility is merged to main and ready for Lovable sync."
-  status: "merged_lovable_sync_prompt_ready"
+  id: "post_batch123_lovable_sync_recorded"
+  summary: "Batch #123 public input accessibility Lovable sync is confirmed clean; continue the next scoped public UX/UI runtime audit."
+  status: "lovable_sync_clean_next_audit_ready"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -91,6 +91,7 @@ active_workstream:
     - "Run local Batch #123 validation including full smoke:e2e:run."
     - "Open PR #174, confirm GitHub Core Type And Build Gate, and merge Batch #123 to main."
     - "Create a Lovable sync prompt for Batch #123."
+    - "Record the user's clean Lovable sync report for Batch #123."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -121,11 +122,15 @@ active_workstream:
 active_batch:
   id: 123
   summary: "Public input accessibility for homepage search and sign-in fields."
-  status: "merged_to_main_lovable_sync_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "5105f3c"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-24"
+    result: "clean_no_conflicts"
+    head_commit: "50b10bc"
   confirmed_findings:
     - "Runtime audit found the homepage hero search input had no programmatic accessible name."
     - "Runtime audit found /signin email and password fields had no programmatic accessible names in email mode."
@@ -155,13 +160,31 @@ active_batch:
 latest_merged_batches:
   - id: 123
     summary: "Public input accessibility so homepage search and public sign-in inputs have programmatic accessible names."
-    status: "merged_to_main_lovable_sync_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "5105f3c"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to 50b10bc1, [codex] Add Batch 123 Lovable sync prompt, on main and on top of Batch #123 5105f3c, PR #174."
+        - "The working tree was clean and no conflicts were found."
+        - "src/components/landing/Hero.tsx has a sr-only label connected to id home-offer-search."
+        - "src/i18n/translations.ts includes hero_searchLabel in EN/RU/ES."
+        - "src/pages/SignIn.tsx connects signin-email, signin-phone, signin-password and signin-forgot-email to visible labels."
+        - "src/components/registration/CountryPhoneInput.tsx supports inputId, inputAriaLabel, countryButtonAriaLabel, countrySearchAriaLabel and aria-label for the mobile close button."
+        - "src/pages/PublicInputA11y.test.tsx covers homepage search, sign-in email mode, sign-in phone mode and forgot-password."
+        - "e2e/public-input-a11y.spec.ts checks 390x844 English locale, zero unnamed controls and zero overflow."
+        - "package.json includes smoke:e2e:public-input-a11y, smoke:e2e:public-input-a11y:run and full smoke:e2e:run wiring for the spec."
+        - "docs/backend/production-scale-baseline.md includes the Batch #123 10,000 concurrent-user capacity review."
+        - "Homepage input accessibility is clean in EN/RU/ES, and search submit routing to /offers?q=... is unchanged."
+        - "Public auth input accessibility is clean for email, phone and forgot-password modes; country selector, country search and mobile close button are named."
+        - "Submit handlers, phone handling and buyer-session behavior are unchanged."
+        - "Batch #112 code-splitting strategy and Batch #113 RouteChunkErrorBoundary are preserved; large-chunk warning remains resolved."
+        - "Bundle metrics: CSS 125.47 kB / 20.80 kB gzip; entry 355.46 kB / 114.15 kB gzip; i18n-translations 313.60 kB / 98.72 kB gzip; Index 35.70 kB / 10.09 kB gzip; SignIn 9.16 kB / 2.81 kB gzip; CountryPhoneInput 8.12 kB / 2.95 kB gzip."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
+        - "Buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#122 are preserved."
     confirmed_files:
       - "src/components/landing/Hero.tsx"
       - "src/i18n/translations.ts"

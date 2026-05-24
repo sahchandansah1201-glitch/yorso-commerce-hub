@@ -25,6 +25,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - GitHub `Core Type And Build Gate` passed on PR #174 in 11m31s.
 - Batch #123 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
+- Batch #123 Lovable sync is confirmed clean at `50b10bc`, `[codex] Add Batch 123 Lovable sync prompt`, with no conflicts and no local file modifications in Lovable.
 - Batch #123 fixes a concrete public accessibility defect found after Batch #122:
   - homepage hero search had no programmatic accessible name;
   - `/signin` email and password fields had no programmatic accessible names in email mode;
@@ -39,6 +40,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 129 tests.
+- Lovable confirmed homepage search labels in EN/RU/ES, sign-in email/phone/password/forgot-password label wiring, named country selector/search/mobile close controls, package smoke wiring, Batch #123 production-scale notes, preserved search/auth behavior, preserved Batch #112 code-splitting, preserved Batch #113 RouteChunkErrorBoundary, and preserved Batches #110-#122.
 - Batch #122 is merged to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
 - PR #173 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
 - GitHub `Core Type And Build Gate` passed on PR #173 in 11m31s.
@@ -61,7 +63,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 126 tests.
 - Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
 - Lovable confirmed `LiveOffers`, `OfferCard`, `CertificationBadges`, `InfoPageLayout`, `PublicCtaSemantics.test.tsx`, `e2e/public-cta-semantics.spec.ts`, package smoke wiring, Batch #122 production-scale notes, homepage runtime status, info/legal CTA semantics, preserved Batches #117-#121 behavior, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary.
-- The latest merged production batch is Batch #122 on `main`; Lovable sync for Batch #122 is clean.
+- The latest merged production batch is Batch #123 on `main`; Lovable sync for Batch #123 is clean.
 - Historical merged state:
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.

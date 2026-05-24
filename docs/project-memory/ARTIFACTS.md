@@ -156,7 +156,7 @@
 - `e2e/public-input-a11y.spec.ts`: mobile browser guard for named public inputs, zero visible unnamed controls and no horizontal overflow.
 - `package.json`: dedicated public input accessibility smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #123 10,000 concurrent users capacity review for public input accessibility.
-- `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`: Lovable sync prompt for Batch #123.
+- `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`: Lovable sync prompt for Batch #123; user confirmed clean sync at `50b10bc`.
 
 ## Batch #96 Supplier Access Review Console
 

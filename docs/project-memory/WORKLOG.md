@@ -866,3 +866,12 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #174 `Core Type And Build Gate` passed in 11m31s.
 - Marked PR #174 ready and merged it to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - Added `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md` for Batch #123 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #123 is clean:
+  - HEAD is `50b10bc1`, `[codex] Add Batch 123 Lovable sync prompt`, on `main` and on top of Batch #123 `5105f3c`, PR #174;
+  - `Hero.tsx`, `translations.ts`, `SignIn.tsx`, `CountryPhoneInput.tsx`, `PublicInputA11y.test.tsx`, `e2e/public-input-a11y.spec.ts`, package smoke wiring and Batch #123 production-scale notes are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - homepage search has localized accessible labels in EN/RU/ES and keeps `/offers?q=...` routing unchanged;
+  - public auth email, phone and forgot-password modes expose named fields; country selector, country search and mobile close button are named;
+  - submit handlers, phone handling, buyer session behavior, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#122 are preserved;
+  - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved, and the large-chunk warning remains resolved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

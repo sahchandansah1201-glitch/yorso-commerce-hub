@@ -2,15 +2,16 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at `5105f3c` or newer using `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
+1. Start the next scoped public UX/UI runtime audit from repository state.
 
-2. Report whether Lovable sync is clean or list concrete conflicts.
+2. Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure.
 
-## Batch #123 Ready For Lovable Sync
+## Batch #123 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Commit: `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
+- Lovable sync: clean at `50b10bc`, `[codex] Add Batch 123 Lovable sync prompt`, no conflicts and no file modifications.
 - Scope: homepage and sign-in public input accessibility.
 - Runtime finding: `/` and `/signin` had visible input controls without programmatic accessible names.
 - Implemented fix:
@@ -27,6 +28,7 @@
   - `npm run smoke:e2e:run`, 129 tests.
 - GitHub validation passed: `Core Type And Build Gate`, 11m31s.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
+- Lovable confirmed homepage input accessibility, public auth input accessibility, preserved search/auth behavior, preserved Batch #112 code-splitting, preserved Batch #113 RouteChunkErrorBoundary and preserved Batches #110-#122.
 
 ## Latest Confirmed Main State
 
@@ -34,6 +36,7 @@
 - Batch #123 is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - Batch #123 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
+- Batch #123 Lovable sync is confirmed clean at `50b10bc`, `[codex] Add Batch 123 Lovable sync prompt`, with no conflicts and no local file modifications in Lovable.
 - Batch #123 fixes unnamed visible public input controls on `/` and `/signin` while preserving search routing, auth runtime, public copy, visual layout, access gating, supplier redaction and price locks.
 - Batch #123 added `src/pages/PublicInputA11y.test.tsx` and `e2e/public-input-a11y.spec.ts`.
 - `smoke:e2e:public-input-a11y` and `smoke:e2e:run` now include `e2e/public-input-a11y.spec.ts`.
