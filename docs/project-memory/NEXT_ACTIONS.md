@@ -2,9 +2,30 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI runtime audit from repository state.
+1. Push `codex/batch124-public-runtime-a11y-audit` and open the Batch #124 PR.
 
-2. Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure.
+2. Open the PR, wait for GitHub `Core Type And Build Gate`, merge to `main`, then create the Batch #124 Lovable sync prompt.
+
+## Batch #124 In Progress
+
+- Branch: `codex/batch124-public-runtime-a11y-audit`.
+- Commit: current branch HEAD, `[codex] Batch #124 public heading structure`.
+- Scope: public heading structure and SEO/scannability outline.
+- Runtime finding:
+  - footer column labels created H2/H4 or H1/H4 heading skips on public routes;
+  - `/suppliers` jumped from H1 directly to H3 supplier result cards.
+- Implemented fix:
+  - footer columns are named navigation groups, not page headings;
+  - `/suppliers` result cards sit under a screen-reader-visible H2 `Supplier results`;
+  - `public-heading-structure` e2e guard checks sequential outlines, zero footer headings and supplier rows under results.
+- Preserved behavior: footer links, footer analytics, supplier directory search/sort/page-size/pagination, access gating, supplier redaction, price locks, public copy and visual layout.
+- Local validation passed:
+  - `npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx`, 24 tests;
+  - `npm run smoke:e2e:public-heading-structure`, 8 tests after production build;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 137 tests.
 
 ## Batch #123 Lovable Sync Confirmed
 

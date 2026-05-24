@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "50b10bc"
-  head_summary: "[codex] Add Batch 123 Lovable sync prompt"
+  active_branch: "codex/batch124-public-runtime-a11y-audit"
+  head_commit: "current branch HEAD"
+  head_summary: "[codex] Batch #124 public heading structure"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #123 Lovable sync report is being recorded."
+    - "Batch #124 implementation is committed and ready for PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch123_lovable_sync_recorded"
-  summary: "Batch #123 public input accessibility Lovable sync is confirmed clean; continue the next scoped public UX/UI runtime audit."
-  status: "lovable_sync_clean_next_audit_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
+  id: "batch124_public_heading_structure"
+  summary: "Fix public-route heading outline regressions after the Batch #123 accessibility sync."
+  status: "committed_ready_for_pr"
+  pull_request: "pending"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -92,6 +92,11 @@ active_workstream:
     - "Open PR #174, confirm GitHub Core Type And Build Gate, and merge Batch #123 to main."
     - "Create a Lovable sync prompt for Batch #123."
     - "Record the user's clean Lovable sync report for Batch #123."
+    - "Audit public routes after Batch #123 for heading outline and SEO structure."
+    - "Fix footer column labels so they are navigation labels, not page headings."
+    - "Add a real H2 supplier results heading before /suppliers result cards."
+    - "Add focused unit and mobile e2e guards for public heading structure."
+    - "Run local Batch #124 validation including full smoke:e2e:run."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -118,41 +123,39 @@ active_workstream:
     - "src/pages/PublicInputA11y.test.tsx"
     - "e2e/public-input-a11y.spec.ts"
     - "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
+    - "src/components/landing/Footer.tsx"
+    - "src/components/landing/Footer.test.tsx"
+    - "src/pages/Suppliers.tsx"
+    - "src/pages/Suppliers.test.tsx"
+    - "e2e/public-heading-structure.spec.ts"
 
 active_batch:
-  id: 123
-  summary: "Public input accessibility for homepage search and sign-in fields."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "5105f3c"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-24"
-    result: "clean_no_conflicts"
-    head_commit: "50b10bc"
+  id: 124
+  summary: "Public heading structure for footer navigation and supplier results."
+  status: "committed_ready_for_pr"
+  commit: "current branch HEAD"
+  branch: "codex/batch124-public-runtime-a11y-audit"
+  pull_request: "pending"
   confirmed_findings:
-    - "Runtime audit found the homepage hero search input had no programmatic accessible name."
-    - "Runtime audit found /signin email and password fields had no programmatic accessible names in email mode."
-    - "Phone-mode and forgot-password fields are covered to prevent the same regression on alternate sign-in states."
+    - "Runtime audit found footer H4 labels created heading-level skips on public routes."
+    - "Runtime audit found /suppliers jumped from H1 directly to H3 supplier row headings."
   confirmed_changes:
-    - "Homepage hero search uses a locale-owned sr-only label and stable home-offer-search id."
-    - "/signin labels are bound to email, phone, password and forgot-password email inputs."
-    - "CountryPhoneInput accepts inputId and optional aria-label overrides, names its country selector, country search input and mobile close control, and preserves existing value/country behavior."
-    - "Dedicated unit and e2e guards assert public fields are reachable by accessible label, visible controls are named and 390px mobile has no horizontal overflow."
-    - "Batch #123 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
+    - "Footer columns render as named navigation groups and no longer contribute H4 page headings."
+    - "/suppliers result cards are grouped under a screen-reader-visible H2 Supplier results heading."
+    - "Dedicated e2e guard asserts sequential heading outlines on public routes and no footer headings."
+    - "Batch #124 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/pages/PublicInputA11y.test.tsx, 4 tests."
-    - "E2E_BASE_URL=http://127.0.0.1:4195 npx playwright test e2e/public-input-a11y.spec.ts --project=chromium, 3 tests."
-    - "npm run smoke:e2e:public-input-a11y, 3 tests after production build."
+    - "npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx, 24 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4196 npx playwright test e2e/public-heading-structure.spec.ts --project=chromium, 8 tests."
+    - "npm run smoke:e2e:public-heading-structure, 8 tests after production build."
     - "npm run lint."
     - "npx tsc -b --noEmit."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:run, 129 tests."
+    - "npm run smoke:e2e:run, 137 tests."
   preserved_behavior:
-    - "Buyer-first narrative and public route copy remain unchanged except the non-visible homepage search label."
-    - "Homepage search routing, auth runtime selection, sign-in submissions, password reset, buyer session behavior and analytics are unchanged."
-    - "Access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
+    - "Footer visual layout, link destinations and analytics are unchanged."
+    - "Supplier directory filtering, sorting, pagination, row selection and supplier-profile links are unchanged."
+    - "Buyer-first copy, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."

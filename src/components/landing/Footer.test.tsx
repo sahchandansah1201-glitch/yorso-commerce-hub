@@ -34,19 +34,20 @@ describe("Footer — /for-suppliers link in Company section", () => {
         `Company section must contain /for-suppliers in ${lang} translations`
       ).toBeDefined();
 
-      // Company column heading is rendered
-      const heading = screen.getByRole("heading", {
+      // Footer columns are navigation groups, not page headings.
+      const companySection = screen.getByRole("navigation", {
         name: t.footer_company,
-        level: 4,
       });
-      expect(heading).toBeInTheDocument();
+      expect(companySection).toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: t.footer_company }),
+      ).not.toBeInTheDocument();
 
       // The visible link uses the localized label and points to /for-suppliers
       const link = screen.getByRole("link", { name: companyLink!.label });
       expect(link).toHaveAttribute("href", "/for-suppliers");
 
-      // And it lives inside the same section as the Company heading
-      const companySection = heading.parentElement!;
+      // And it lives inside the same section as the Company navigation group
       expect(companySection.contains(link)).toBe(true);
 
       // It must NOT be duplicated in the Platform column

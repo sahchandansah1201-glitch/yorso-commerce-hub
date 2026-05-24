@@ -117,6 +117,9 @@ describe("/suppliers — implementation quality fixes", () => {
 
   it("does not render nested <button> elements inside supplier rows", () => {
     renderPage();
+    expect(
+      screen.getByRole("heading", { name: /supplier results/i, level: 2 }),
+    ).toBeInTheDocument();
     const rows = screen.getAllByTestId("supplier-row");
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {

@@ -875,3 +875,24 @@ Keep this file factual and append-only.
   - submit handlers, phone handling, buyer session behavior, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#122 are preserved;
   - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved, and the large-chunk warning remains resolved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #124 on `codex/batch124-public-runtime-a11y-audit`.
+- Ran the next scoped public UX/SEO runtime audit after Batch #123 and found heading outline defects:
+  - footer column labels rendered as H4 page headings, creating heading-level skips on public routes;
+  - `/suppliers` supplier rows rendered as H3 headings immediately after the page H1.
+- Implemented Batch #124 public heading structure:
+  - changed footer columns to named navigation groups while keeping the same visible labels, links and analytics;
+  - added a screen-reader-visible H2 `Supplier results` above `/suppliers` result cards with EN/RU/ES translations;
+  - updated footer and supplier tests;
+  - added `e2e/public-heading-structure.spec.ts` and wired it into a dedicated smoke script plus full `smoke:e2e:run`;
+  - added Batch #124 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #124 local validation:
+  - runtime audit confirmed zero heading-level skips and zero footer headings on `/`, `/offers`, `/suppliers`, `/how-it-works`, `/for-suppliers`, `/signin` and `/reset-password`;
+  - `npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx` passed, 24 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4196 npx playwright test e2e/public-heading-structure.spec.ts --project=chromium` passed, 8 tests;
+  - `npm run smoke:e2e:public-heading-structure` passed, 8 tests after production build;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:run` passed, 137 tests.
+- Batch #124 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #124 as current branch HEAD, `[codex] Batch #124 public heading structure`.

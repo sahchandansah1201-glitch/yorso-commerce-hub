@@ -2531,6 +2531,69 @@ Marker: public input accessibility.
 Marker: homepage sign-in unnamed inputs.
 Marker: 10,000 concurrent users.
 
+## Batch #124 Public Heading Structure
+
+Batch #124 fixes public-route heading outline regressions found in runtime
+audit after Batch #123. Footer column labels are treated as navigation labels
+instead of page headings, and the supplier directory results list now sits under
+a real, screen-reader-visible H2. Visual layout, copy, routes, access gating,
+supplier identity redaction, price locks, auth behavior and analytics stay
+unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier directory reads, catalog reads, sign-in behavior, homepage search
+  and information page rendering are unchanged.
+- The only runtime change is client-side semantic structure for existing public
+  route markup.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter public-route or supplier-directory request volume
+  at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, supplier
+  pagination, supplier API queries, offer reads, auth persistence or account
+  persistence.
+- Existing bounded supplier-directory pagination remains the 10,000
+  concurrent-user strategy.
+
+Failure mode and graceful degradation:
+
+- Footer links remain normal links grouped by navigation labels.
+- Supplier rows remain the same selectable rows and supplier-profile links.
+- If JavaScript hydration is delayed, the static document still exposes a
+  sequential heading outline for public routes.
+
+Observability and load-test plan:
+
+- Regression coverage should assert public routes do not skip heading levels.
+- Browser smoke verifies the footer does not contribute page headings and
+  `/suppliers` exposes the supplier result cards under the results H2.
+- Existing public route smoke continues to verify route rendering, mobile
+  overflow, access gating, supplier redaction, price locks and route chunk
+  recovery.
+
+Validation:
+
+- `npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx`;
+- `npm run smoke:e2e:public-heading-structure`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #124.
+Marker: public heading structure.
+Marker: footer supplier directory heading outline.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

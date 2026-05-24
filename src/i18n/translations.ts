@@ -996,6 +996,7 @@ type TranslationKeys = {
   suppliersPage_title: string;
   suppliersPage_subtitle: string;
   suppliersPage_countSuffix: string; // "{visible} / {total} suppliers"
+  suppliersPage_resultsHeading: string;
   suppliersPage_searchPlaceholder: string;
   suppliersPage_searchAriaLabel: string;
   suppliersPage_clearFilters: string;
@@ -2779,6 +2780,7 @@ const en: TranslationKeys = {
   suppliersPage_title: "Seafood suppliers",
   suppliersPage_subtitle: "Discover producers, processors, exporters and traders across key seafood origins. Review trust evidence and request access on your terms.",
   suppliersPage_countSuffix: "{visible} / {total} suppliers",
+  suppliersPage_resultsHeading: "Supplier results",
   suppliersPage_searchPlaceholder: "Search supplier, species, country, certification...",
   suppliersPage_searchAriaLabel: "Search suppliers",
   suppliersPage_clearFilters: "Clear filters",
@@ -4531,6 +4533,7 @@ const ru: TranslationKeys = {
   suppliersPage_title: "Поставщики морепродуктов",
   suppliersPage_subtitle: "Производители, переработчики, экспортёры и трейдеры из ключевых стран. Изучайте подтверждения и запрашивайте доступ на своих условиях.",
   suppliersPage_countSuffix: "{visible} / {total} поставщиков",
+  suppliersPage_resultsHeading: "Результаты поставщиков",
   suppliersPage_searchPlaceholder: "Поиск поставщика, вида, страны, сертификата...",
   suppliersPage_searchAriaLabel: "Поиск поставщиков",
   suppliersPage_clearFilters: "Сбросить фильтры",
@@ -6283,6 +6286,7 @@ const es: TranslationKeys = {
   suppliersPage_title: "Proveedores de productos del mar",
   suppliersPage_subtitle: "Productores, procesadores, exportadores y traders de los principales orígenes. Revisa la evidencia de confianza y solicita acceso en tus condiciones.",
   suppliersPage_countSuffix: "{visible} / {total} proveedores",
+  suppliersPage_resultsHeading: "Resultados de proveedores",
   suppliersPage_searchPlaceholder: "Buscar proveedor, especie, país, certificación...",
   suppliersPage_searchAriaLabel: "Buscar proveedores",
   suppliersPage_clearFilters: "Limpiar filtros",
