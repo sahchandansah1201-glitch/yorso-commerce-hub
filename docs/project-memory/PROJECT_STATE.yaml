@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "dc2a3ca"
-  head_summary: "[codex] Batch #122 public CTA semantics (#173)"
+  head_commit: "98335bd"
+  head_summary: "[codex] Record Batch 122 merge"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #122 merged state is being recorded after PR #173 merge."
+    - "Batch #122 Lovable sync report is being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch122_lovable_sync"
-  summary: "Sync Lovable after Batch #122 public CTA semantics."
-  status: "merged_to_main_lovable_prompt_ready"
+  id: "post_batch122_lovable_sync_recorded"
+  summary: "Batch #122 public CTA semantics Lovable sync is recorded; continue the next scoped public UX/UI runtime audit."
+  status: "lovable_sync_clean_next_audit_ready"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -82,6 +82,7 @@ active_workstream:
     - "Fix nested interactive markup on homepage View all offers, landing offer certification chips and shared info/legal back CTAs."
     - "Create a Lovable sync prompt for Batch #122."
     - "Mark PR #173 ready, confirm GitHub Core Type And Build Gate, and merge Batch #122."
+    - "Record the user's clean Lovable sync report for Batch #122."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -106,24 +107,30 @@ active_workstream:
 latest_merged_batches:
   - id: 122
     summary: "Public CTA semantics so homepage and shared info/legal CTAs render as single links or static proof chips instead of nested interactive controls."
-    status: "merged_to_main_lovable_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "dc2a3ca"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
     lovable_sync:
-      confirmed_at: "pending"
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-122-lovable-sync.md"
-      expected_user_report:
-        - "GitHub commit synced to dc2a3ca or newer, on main and on top of Batch #122 PR #173."
-        - "LiveOffers desktop View all offers uses Button asChild with a direct /offers link."
-        - "OfferCard passes interactive=false to CertificationBadges so landing certification chips are static proof chips inside linked offer cards."
-        - "CertificationBadges keeps default interactive button/dialog behavior outside static landing-card usage."
-        - "InfoPageLayout Back to homepage uses Button asChild with a direct / link."
-        - "PublicCtaSemantics.test.tsx and e2e/public-cta-semantics.spec.ts are present."
-        - "package.json includes smoke:e2e:public-cta-semantics, smoke:e2e:public-cta-semantics:run and full smoke:e2e:run wiring for the spec."
+      user_confirmed:
+        - "GitHub commit synced to 98335bd5, [codex] Record Batch 122 merge, on main and on top of Batch #122 dc2a3ca, PR #173."
+        - "The working tree was clean and no conflicts were found."
+        - "src/components/landing/LiveOffers.tsx uses Button asChild with Link to /offers for desktop and mobile View all offers."
+        - "src/components/landing/OfferCard.tsx passes interactive=false to CertificationBadges inside clickable landing cards."
+        - "src/components/CertificationBadges.tsx supports interactive with default true, renders static chips when false, and does not mount the dialog for static chips."
+        - "src/components/InfoPageLayout.tsx uses Button asChild with Link to / for the shared Back to homepage CTA."
+        - "src/pages/PublicCtaSemantics.test.tsx checks homepage and /about have zero a button, button a, a a and button button controls."
+        - "e2e/public-cta-semantics.spec.ts checks homepage at 390x844 and 1024x768 plus /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press and /partners with zero nested controls and zero overflow."
+        - "package.json includes smoke:e2e:public-cta-semantics, smoke:e2e:public-cta-semantics:run and full smoke:e2e:run wiring for the public CTA spec."
         - "docs/backend/production-scale-baseline.md includes the Batch #122 10,000 concurrent-user capacity review."
-        - "Homepage and shared info/legal routes have zero nested a button, button a, a a, button button controls and no horizontal overflow around 390px."
-        - "Buyer-first copy, offer-card destinations, public route SEO behavior, route shell, access gating, supplier identity redaction, price locks, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved."
+        - "Homepage renders in English on desktop and mobile; View all offers goes to /offers as one anchor, and landing offer cards go to /offers/:id with static certification chips."
+        - "The 10 info/legal routes expose Back to homepage as one direct anchor to / with zero nested controls and zero horizontal overflow at 390px."
+        - "Batches #117 through #121 remain preserved: /offers#request, /for-suppliers CTA semantics, /offers catalog CTAs, /signin and /reset-password auth CTAs and /offers/:id CTAs."
+        - "Access gating, supplier redaction and price-lock behavior are unchanged."
+        - "Batch #112 i18n-translations manualChunk strategy and Batch #113 RouteChunkErrorBoundary are preserved; large-chunk warning remains resolved."
+        - "Bundle metrics: CSS 125.47 kB / 20.80 kB gzip; entry 355.46 kB / 114.15 kB gzip; i18n-translations 313.45 kB / 98.69 kB gzip; Index 35.58 kB / 10.05 kB gzip; InfoPageLayout 1.16 kB / 0.61 kB gzip."
         - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/components/landing/LiveOffers.tsx"
@@ -553,10 +560,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Sync Lovable using docs/project-memory/PROMPTS/prompt-122-lovable-sync.md."
-  - "Record Batch #122 Lovable sync result when the user provides the sync report."
+  - "Start the next scoped public UX/UI runtime audit from repository state."
+  - "Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #122 is clean with no conflicts at 98335bd5."
+  - "2026-05-24: Lovable confirmed LiveOffers, OfferCard, CertificationBadges, InfoPageLayout, PublicCtaSemantics.test.tsx, e2e/public-cta-semantics.spec.ts, package smoke wiring, Batch #122 production-scale notes, homepage runtime status, info/legal CTA semantics, preserved Batches #117-#121 behavior, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary."
   - "2026-05-24: PR #173 Core Type And Build Gate passed in 11m31s."
   - "2026-05-24: PR #173 merged to main as dc2a3ca, [codex] Batch #122 public CTA semantics (#173)."
   - "2026-05-24: Batch #122 committed as 9829df0 and draft PR #173 opened."
@@ -735,5 +744,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync result for Batch #122."
   - "Next scoped route-level UX/accessibility issue after public CTA semantics."

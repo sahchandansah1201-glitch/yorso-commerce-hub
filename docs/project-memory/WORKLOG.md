@@ -830,3 +830,11 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #173 `Core Type And Build Gate` passed in 11m31s.
 - Merged PR #173 to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
 - Updated `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md` to use GitHub `main` at commit `dc2a3ca` or newer as Lovable's sync source of truth.
+- User confirmed Lovable sync for Batch #122 is clean:
+  - HEAD is `98335bd5`, `[codex] Record Batch 122 merge`, on `main` and on top of Batch #122 `dc2a3ca`, PR #173;
+  - `LiveOffers.tsx`, `OfferCard.tsx`, `CertificationBadges.tsx`, `InfoPageLayout.tsx`, `PublicCtaSemantics.test.tsx`, `e2e/public-cta-semantics.spec.ts`, package smoke wiring and Batch #122 production-scale notes are present;
+  - no conflicts were found and no files were modified in Lovable;
+  - `/` renders on desktop and mobile in English, `View all offers` is a single direct `/offers` link, and landing offer cards link to `/offers/:id` with static certification chips;
+  - `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`, `/anti-fraud`, `/careers`, `/press` and `/partners` expose `Back to homepage` as one direct `/` link with zero nested controls and zero 390px overflow;
+  - Batches #117-#121, access gating, supplier redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

@@ -2,16 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
+1. Start the next scoped public UX/UI runtime audit from repository state.
 
-2. Record Batch #122 Lovable sync result when the user provides the sync report.
+2. Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure.
 
 ## Latest Confirmed Main State
 
 - Current branch is `main`.
 - Batch #122 is merged to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
 - PR #173 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
-- Batch #122 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
+- Batch #122 Lovable sync is confirmed clean at `98335bd5`, `[codex] Record Batch 122 merge`, with no conflicts and no local file modifications in Lovable.
+- Batch #122 Lovable sync prompt remains archived at `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
 - Batch #122 fixes invalid nested interactive CTA markup on the homepage and shared info/legal routes:
   - homepage desktop `View all offers` uses `Button asChild` and remains a direct `/offers` link;
   - landing offer certification chips render as static proof chips inside clickable offer cards;
@@ -30,6 +31,7 @@
   - `npm run smoke:e2e:run`, 126 tests.
 - Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
 - GitHub `Core Type And Build Gate` passed on PR #173 in 11m31s.
+- Lovable confirmed `LiveOffers`, `OfferCard`, `CertificationBadges`, `InfoPageLayout`, `PublicCtaSemantics.test.tsx`, `e2e/public-cta-semantics.spec.ts`, package smoke wiring, Batch #122 production-scale notes, homepage runtime status, info/legal CTA semantics, preserved Batches #117-#121 behavior, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary.
 - Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
 - PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
 - Batch #121 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
