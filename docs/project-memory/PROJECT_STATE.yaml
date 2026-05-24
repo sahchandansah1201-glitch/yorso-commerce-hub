@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "98335bd"
-  head_summary: "[codex] Record Batch 122 merge"
+  active_branch: "codex/batch123-public-runtime-a11y-audit"
+  head_commit: "current branch HEAD"
+  head_summary: "[codex] Batch #123 public input accessibility"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #122 Lovable sync report is being recorded."
+    - "Batch #123 implementation is committed and ready for PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch122_lovable_sync_recorded"
-  summary: "Batch #122 public CTA semantics Lovable sync is recorded; continue the next scoped public UX/UI runtime audit."
-  status: "lovable_sync_clean_next_audit_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
+  id: "batch123_public_input_accessibility"
+  summary: "Fix unnamed visible public input controls on the homepage and sign-in route after the Batch #122 CTA semantics audit."
+  status: "committed_ready_for_pr"
+  pull_request: "pending"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -83,6 +83,12 @@ active_workstream:
     - "Create a Lovable sync prompt for Batch #122."
     - "Mark PR #173 ready, confirm GitHub Core Type And Build Gate, and merge Batch #122."
     - "Record the user's clean Lovable sync report for Batch #122."
+    - "Audit public routes after Batch #122 for visible controls that lack programmatic accessible names."
+    - "Fix the homepage offer search input with a locale-owned programmatic label."
+    - "Fix /signin email, phone, password and forgot-password email fields by connecting visible labels to inputs."
+    - "Harden CountryPhoneInput so phone, country-selector, country-search and mobile close controls expose names without changing phone behavior."
+    - "Add focused unit and mobile e2e guards for public input accessibility."
+    - "Run local Batch #123 validation including full smoke:e2e:run."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -103,6 +109,44 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-120-lovable-sync.md"
     - "docs/project-memory/PROMPTS/prompt-121-lovable-sync.md"
     - "docs/project-memory/PROMPTS/prompt-122-lovable-sync.md"
+    - "src/components/landing/Hero.tsx"
+    - "src/components/registration/CountryPhoneInput.tsx"
+    - "src/pages/SignIn.tsx"
+    - "src/pages/PublicInputA11y.test.tsx"
+    - "e2e/public-input-a11y.spec.ts"
+
+active_batch:
+  id: 123
+  summary: "Public input accessibility for homepage search and sign-in fields."
+  status: "committed_ready_for_pr"
+  commit: "current branch HEAD"
+  branch: "codex/batch123-public-runtime-a11y-audit"
+  pull_request: "pending"
+  confirmed_findings:
+    - "Runtime audit found the homepage hero search input had no programmatic accessible name."
+    - "Runtime audit found /signin email and password fields had no programmatic accessible names in email mode."
+    - "Phone-mode and forgot-password fields are covered to prevent the same regression on alternate sign-in states."
+  confirmed_changes:
+    - "Homepage hero search uses a locale-owned sr-only label and stable home-offer-search id."
+    - "/signin labels are bound to email, phone, password and forgot-password email inputs."
+    - "CountryPhoneInput accepts inputId and optional aria-label overrides, names its country selector, country search input and mobile close control, and preserves existing value/country behavior."
+    - "Dedicated unit and e2e guards assert public fields are reachable by accessible label, visible controls are named and 390px mobile has no horizontal overflow."
+    - "Batch #123 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
+  validation:
+    - "npx vitest run src/pages/PublicInputA11y.test.tsx, 4 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4195 npx playwright test e2e/public-input-a11y.spec.ts --project=chromium, 3 tests."
+    - "npm run smoke:e2e:public-input-a11y, 3 tests after production build."
+    - "npm run lint."
+    - "npx tsc -b --noEmit."
+    - "npm run check:production-scale-baseline."
+    - "npm run smoke:e2e:run, 129 tests."
+  preserved_behavior:
+    - "Buyer-first narrative and public route copy remain unchanged except the non-visible homepage search label."
+    - "Homepage search routing, auth runtime selection, sign-in submissions, password reset, buyer session behavior and analytics are unchanged."
+    - "Access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
+  known_warnings:
+    - "Supabase generated types are out of sync in non-strict mode."
+    - "Browserslist data is stale."
 
 latest_merged_batches:
   - id: 122

@@ -2,9 +2,28 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI runtime audit from repository state.
+1. Push `codex/batch123-public-runtime-a11y-audit` and open the Batch #123 PR.
 
-2. Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure.
+2. Open the PR, wait for GitHub `Core Type And Build Gate`, merge to `main`, then create/update the Batch #123 Lovable sync prompt.
+
+## Batch #123 In Progress
+
+- Branch: `codex/batch123-public-runtime-a11y-audit`.
+- Commit: current branch HEAD, `[codex] Batch #123 public input accessibility`.
+- Scope: homepage and sign-in public input accessibility.
+- Runtime finding: `/` and `/signin` had visible input controls without programmatic accessible names.
+- Implemented fix:
+  - homepage hero search now has a locale-owned sr-only label and stable input id;
+  - `/signin` email, phone, password and forgot-password email fields are connected to labels;
+  - `CountryPhoneInput` exposes names for the phone input, country selector, country search and mobile close control.
+- Preserved behavior: homepage search routing, auth runtime, sign-in submits, password reset, buyer session behavior, access gating, supplier redaction, price locks, public copy and visual layout.
+- Local validation passed:
+  - `npx vitest run src/pages/PublicInputA11y.test.tsx`, 4 tests;
+  - `npm run smoke:e2e:public-input-a11y`, 3 tests after production build;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 129 tests.
 
 ## Latest Confirmed Main State
 

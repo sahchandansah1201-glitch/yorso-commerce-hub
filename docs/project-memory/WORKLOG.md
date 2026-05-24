@@ -838,3 +838,26 @@ Keep this file factual and append-only.
   - `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`, `/anti-fraud`, `/careers`, `/press` and `/partners` expose `Back to homepage` as one direct `/` link with zero nested controls and zero 390px overflow;
   - Batches #117-#121, access gating, supplier redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #123 on `codex/batch123-public-runtime-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #122 and found unnamed visible input controls:
+  - homepage hero search input had no programmatic accessible name;
+  - `/signin` email and password inputs had no programmatic accessible names in email mode;
+  - phone-mode and forgot-password states were included in the fix scope to prevent alternate-state regressions.
+- Implemented Batch #123 public input accessibility:
+  - added a locale-owned hidden label for homepage offer search and a stable `home-offer-search` input id;
+  - connected `/signin` visible labels to email, phone, password and forgot-password email inputs;
+  - hardened `CountryPhoneInput` with `inputId` and optional aria-label props, named country selector, named country-search input and named mobile close control;
+  - preserved homepage search routing, auth runtime selection, sign-in submits, password reset, buyer session behavior, public copy and visual layout;
+  - added `src/pages/PublicInputA11y.test.tsx`;
+  - added `e2e/public-input-a11y.spec.ts` and wired it into a dedicated smoke script plus full `smoke:e2e:run`;
+  - added Batch #123 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #123 local validation:
+  - `npx vitest run src/pages/PublicInputA11y.test.tsx` passed, 4 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4195 npx playwright test e2e/public-input-a11y.spec.ts --project=chromium` passed, 3 tests;
+  - `npm run smoke:e2e:public-input-a11y` passed, 3 tests after production build;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:run` passed, 129 tests.
+- Batch #123 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #123 as current branch HEAD, `[codex] Batch #123 public input accessibility`.

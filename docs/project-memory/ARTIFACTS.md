@@ -146,6 +146,17 @@
 - `docs/backend/production-scale-baseline.md`: Batch #122 10,000 concurrent users capacity review for public CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: Lovable sync prompt for Batch #122; user confirmed clean sync at `98335bd5`.
 
+## Batch #123 Public Input Accessibility
+
+- `src/components/landing/Hero.tsx`: homepage offer search input has a locale-owned programmatic label and stable `home-offer-search` id.
+- `src/i18n/translations.ts`: EN/RU/ES `hero_searchLabel` copy for the homepage search accessible name.
+- `src/pages/SignIn.tsx`: email, phone, password and forgot-password email fields are connected to their visible labels.
+- `src/components/registration/CountryPhoneInput.tsx`: reusable phone input accepts `inputId` and optional aria-label props, names the country selector, country search input and mobile close control.
+- `src/pages/PublicInputA11y.test.tsx`: regression coverage for homepage search, sign-in email mode, sign-in phone mode and forgot-password email labels.
+- `e2e/public-input-a11y.spec.ts`: mobile browser guard for named public inputs, zero visible unnamed controls and no horizontal overflow.
+- `package.json`: dedicated public input accessibility smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #123 10,000 concurrent users capacity review for public input accessibility.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

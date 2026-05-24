@@ -20,7 +20,22 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch123-public-runtime-a11y-audit`.
+- Batch #123 public input accessibility is committed as current branch HEAD, `[codex] Batch #123 public input accessibility`, pending PR/merge.
+- Batch #123 fixes a concrete public accessibility defect found after Batch #122:
+  - homepage hero search had no programmatic accessible name;
+  - `/signin` email and password fields had no programmatic accessible names in email mode;
+  - phone-mode and forgot-password fields are now covered so alternate auth states do not regress.
+- Batch #123 touched `src/components/landing/Hero.tsx`, `src/components/registration/CountryPhoneInput.tsx`, `src/pages/SignIn.tsx`, `src/i18n/translations.ts`, added `src/pages/PublicInputA11y.test.tsx`, added `e2e/public-input-a11y.spec.ts`, extended dedicated/full e2e smoke scripts, and added the Batch #123 production-scale section.
+- Batch #123 preserves homepage search routing, self-hosted auth runtime, Supabase fallback behavior, sign-in submissions, password-reset flow, buyer session behavior, access gating, supplier identity redaction, price locks, buyer-first public copy and visual layout.
+- Batch #123 local validation passed:
+  - `npx vitest run src/pages/PublicInputA11y.test.tsx`, 4 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4195 npx playwright test e2e/public-input-a11y.spec.ts --project=chromium`, 3 tests;
+  - `npm run smoke:e2e:public-input-a11y`, 3 tests after production build;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 129 tests.
 - Batch #122 is merged to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
 - PR #173 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
 - GitHub `Core Type And Build Gate` passed on PR #173 in 11m31s.
