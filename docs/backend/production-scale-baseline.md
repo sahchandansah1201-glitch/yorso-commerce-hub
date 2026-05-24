@@ -2161,6 +2161,64 @@ Marker: how-it-works request CTA.
 Marker: hash preservation.
 Marker: 10,000 concurrent users.
 
+## Batch #118 For-Suppliers CTA Semantics
+
+Batch #118 fixes invalid nested interactive markup on `/for-suppliers`.
+Supplier-facing hero and final CTAs now use the existing `Button asChild`
+pattern instead of rendering `Link` elements around `Button` elements. The
+visual hierarchy, destinations, analytics events and public route shell stay
+unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier-facing page content, SEO metadata, route loading, registration
+  flow destinations and offer catalog reads remain unchanged.
+- The only runtime change is client-side DOM semantics for CTA links.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter request volume at the 10,000 concurrent-user
+  target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, catalog
+  pagination, supplier reads or account persistence.
+
+Failure mode and graceful degradation:
+
+- CTAs remain normal links to `/register` and `/offers`.
+- If JavaScript hydration is delayed, anchor semantics still expose direct
+  destinations.
+- Analytics click handlers remain best-effort and do not block navigation.
+
+Observability and load-test plan:
+
+- Regression coverage should assert `/for-suppliers` has no nested
+  interactive CTA markup.
+- Browser smoke verifies the supplier register and buyer request CTAs remain
+  visible on mobile and the page has no horizontal overflow.
+- Existing public route checks should continue to verify no horizontal
+  overflow at mobile widths.
+
+Validation:
+
+- `npx vitest run src/pages/ForSuppliers.test.tsx`;
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #118.
+Marker: for-suppliers CTA semantics.
+Marker: nested interactive markup.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

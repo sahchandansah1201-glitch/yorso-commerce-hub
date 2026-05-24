@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Continue route-level proof/trust/conversion review after clean Batch #117 Lovable sync.
+1. Commit and push Batch #118 on `codex/batch118-for-suppliers-cta-semantics`.
 
-2. Use runtime checks before changing public UI.
+2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
 
-3. If a concrete issue is found, keep the next batch narrow and preserve existing buyer-first narrative, route shell, access gating and supplier redaction.
+3. After merge, add a Batch #118 Lovable sync prompt and record the post-merge state.
 
 ## Latest Confirmed Main State
 
@@ -16,6 +16,20 @@
 - Batch #117 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`.
 - Lovable sync for Batch #117 is confirmed clean with no conflicts.
 - Lovable confirmed `src/pages/Offers.tsx`, `src/pages/HowItWorks.tsx`, `src/components/how-it-works/FinalCTA.tsx`, `e2e/how-it-works-request-anchor.spec.ts`, `package.json` smoke wiring, route declarations and preserved Batch #110-#116 safeguards.
+- Current work branch is `codex/batch118-for-suppliers-cta-semantics`.
+- Batch #118 is implemented locally and validation passed.
+- Batch #118 fixes invalid nested interactive CTA markup on `/for-suppliers`: hero and final supplier CTAs now use `Button asChild`, so the visual target is a single link instead of `a > button`.
+- Batch #118 keeps CTA destinations, analytics events, visual styling, SEO, route shell, access gating and supplier redaction unchanged.
+- Batch #118 added `e2e/for-suppliers-cta-semantics.spec.ts`.
+- `smoke:e2e:run` now includes `e2e/for-suppliers-cta-semantics.spec.ts`.
+- Batch #118 local validation passed:
+  - `npx vitest run src/pages/ForSuppliers.test.tsx`, 4 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium`, 1 test;
+  - runtime Playwright check for `/for-suppliers` at 390px: zero nested `a button, button a`, visible register/request links and zero horizontal overflow;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build`.
 - Batch #117 fixes a cross-route conversion defect: `/how-it-works` request-access CTAs now preserve `/offers#request`, and `/offers` exposes a real `#request` anchor around the access/value strip.
 - `/offers` catalog URL normalization now preserves the active hash while it rewrites search params for filters, sort, rows and page state.
 - Batch #117 added `e2e/how-it-works-request-anchor.spec.ts`.

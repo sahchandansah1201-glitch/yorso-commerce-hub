@@ -95,6 +95,14 @@
 - `docs/backend/production-scale-baseline.md`: Batch #117 10,000 concurrent users capacity review for hash preservation and request-anchor landing.
 - `docs/project-memory/PROMPTS/prompt-117-lovable-sync.md`: Lovable sync prompt for Batch #117; user confirmed clean sync on main on top of Batch #117 `c2c5ff3`.
 
+## Batch #118 For-Suppliers CTA Semantics
+
+- `src/pages/ForSuppliers.tsx`: supplier hero and final CTAs use `Button asChild` instead of nested `Link` plus `Button`.
+- `src/pages/ForSuppliers.test.tsx`: regression coverage against nested `a button` / `button a` CTA markup.
+- `e2e/for-suppliers-cta-semantics.spec.ts`: mobile browser guard for visible supplier CTAs, zero nested interactive controls and no horizontal overflow.
+- `package.json`: `smoke:e2e:run` includes the for-suppliers CTA semantics e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #118 10,000 concurrent users capacity review for CTA semantics.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

@@ -663,3 +663,21 @@ Keep this file factual and append-only.
   - no conflicts were found and files were not modified in Lovable;
   - buyer-first narrative, access gating, supplier identity redaction, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening and Batch #116 proof anchor fallback are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #118 on `codex/batch118-for-suppliers-cta-semantics`.
+- Ran runtime review on `/for-suppliers` after Batch #117 and found nested interactive CTA markup:
+  - hero and final `Register as supplier` / `See buyer requests` CTAs rendered as both a link and a button in the same visual target;
+  - runtime DOM query showed nested `a button` / `button a` controls before the fix.
+- Implemented Batch #118 for-suppliers CTA semantics:
+  - converted the four supplier CTA wrappers to the existing `Button asChild` pattern;
+  - preserved `/register` and `/offers` destinations, analytics events and visual classes;
+  - added `src/pages/ForSuppliers.test.tsx` coverage against nested interactive controls;
+  - added `e2e/for-suppliers-cta-semantics.spec.ts` and wired it into `smoke:e2e:run`;
+  - added Batch #118 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #118 local validation:
+  - `npx vitest run src/pages/ForSuppliers.test.tsx` passed, 4 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4190 npx playwright test e2e/for-suppliers-cta-semantics.spec.ts --project=chromium` passed, 1 test;
+  - runtime Playwright check confirmed zero nested interactive controls, visible supplier CTAs and zero horizontal overflow at 390px;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only.
