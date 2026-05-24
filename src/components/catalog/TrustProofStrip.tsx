@@ -8,6 +8,7 @@ type ProofItem = {
   label: string;
   hint: string;
   anchor: string;
+  fallbackAnchor?: string;
 };
 
 /**
@@ -49,13 +50,14 @@ const TrustProofStrip = () => {
       label: t.catalog_trust_signals_label,
       hint: t.catalog_trust_signals_hint,
       anchor: "catalog-anchor-intelligence",
+      fallbackAnchor: "catalog-anchor-results",
     },
     {
       id: "documents",
       icon: FileCheck,
       label: t.catalog_trust_documents_label,
       hint: t.catalog_trust_documents_hint,
-      anchor: "catalog-anchor-filters",
+      anchor: "catalog-anchor-results",
     },
     {
       id: "recovery",
@@ -66,14 +68,39 @@ const TrustProofStrip = () => {
     },
   ];
 
+  const isUsableAnchor = (el: HTMLElement | null) => {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return (
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      rect.width > 0 &&
+      rect.height > 0
+    );
+  };
+
+  const resolveAnchor = (item: ProofItem) => {
+    const primary = document.getElementById(item.anchor);
+    if (isUsableAnchor(primary)) return item.anchor;
+
+    const fallback = item.fallbackAnchor
+      ? document.getElementById(item.fallbackAnchor)
+      : null;
+    if (isUsableAnchor(fallback)) return item.fallbackAnchor;
+
+    return item.anchor;
+  };
+
   const handleJump = (item: ProofItem) => {
-    const el = document.getElementById(item.anchor);
+    const anchor = resolveAnchor(item);
+    const el = document.getElementById(anchor);
     if (el) {
       el.scrollIntoView({ block: "start", behavior: "smooth" });
     }
     analytics.track("catalog_trust_proof_click", {
       itemId: item.id,
-      anchor: item.anchor,
+      anchor,
     });
   };
 

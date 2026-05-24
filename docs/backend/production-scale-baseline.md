@@ -2035,6 +2035,69 @@ Marker: locked price active locale.
 Marker: analytics trigger active locale.
 Marker: 10,000 concurrent users.
 
+## Batch #116 Offers Proof Anchor Fallback
+
+Batch #116 hardens the `/offers` trust proof strip so proof buttons always
+move buyers to visible evidence. The `Procurement intelligence` proof still
+targets the desktop intelligence panel when it is visible, but falls back to
+the offer-results evidence on mobile where that desktop panel is intentionally
+hidden. The `Document readiness` proof now lands on offer cards where document
+status is visible instead of the procurement filter bar.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Catalog API/fallback reads, buyer session state and access-gating state are
+  unchanged.
+- The only runtime change is a client-side `scrollIntoView` target selection
+  after a proof-strip click.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and the `i18n-translations` chunk remain
+  browser/CDN cacheable.
+- No queues, polling, retries, timers or background jobs are introduced.
+- The fallback anchor is resolved synchronously from the current DOM.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch offer reads, supplier reads,
+  pagination, search, filters or database indexes.
+- Existing offer/supplier bounded read strategies remain the 10,000
+  concurrent-user plan.
+
+Failure mode and graceful degradation:
+
+- If the primary proof target is visible, the existing target is used.
+- If the primary target is hidden or not measurable, the UI falls back to a
+  visible offer-results anchor when configured.
+- If neither target exists, behavior degrades to the original anchor lookup
+  without changing access state, supplier identity redaction or catalog data.
+
+Observability and load-test plan:
+
+- Existing `catalog_trust_proof_click` telemetry continues to fire with the
+  resolved anchor id.
+- Synthetic mobile checks should click the proof-strip intelligence and
+  document-readiness buttons and assert the first offer card is in view.
+- Public route checks should continue to verify `/offers` has no horizontal
+  overflow at mobile widths.
+
+Validation:
+
+- `npx vitest run src/components/catalog/TrustProofStrip.test.tsx`;
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #116.
+Marker: offers proof anchor fallback.
+Marker: catalog trust proof strip.
+Marker: mobile visible evidence.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

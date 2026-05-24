@@ -590,3 +590,25 @@ Keep this file factual and append-only.
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary and Batch #114 font loading are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Recorded Batch #115 Lovable sync in project-memory and pushed `main` as `a320088`, `[codex] Record Batch 115 Lovable sync`.
+- Started Batch #116 on `codex/batch116-offers-proof-anchor-fallback`.
+- Ran route-level proof/trust review on `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers` at desktop and mobile widths.
+- Found a concrete `/offers` trust-proof navigation defect:
+  - on mobile, the `Procurement intelligence` proof button targeted the hidden desktop-only `catalog-anchor-intelligence` panel and did not move the buyer to visible evidence;
+  - the `Document readiness` proof landed on the procurement filter bar instead of offer-card evidence where document status is visible.
+- Implemented Batch #116 offers proof anchor fallback:
+  - `TrustProofStrip` now resolves a visible primary anchor first and can fall back to a visible anchor when the primary target is hidden;
+  - `Procurement intelligence` falls back to `catalog-anchor-results` on mobile;
+  - `Document readiness` points directly to offer results;
+  - existing `catalog_trust_proof_click` telemetry still fires with the resolved anchor id.
+- Added `src/components/catalog/TrustProofStrip.test.tsx` and `e2e/offers-trust-proof-anchors.spec.ts`.
+- Extended `smoke:e2e:offers-catalog:run` to include the trust-proof anchor e2e spec.
+- Added Batch #116 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #116 local validation:
+  - `npx vitest run src/components/catalog/TrustProofStrip.test.tsx` passed, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-catalog-paging.spec.ts e2e/offers-trust-proof-anchors.spec.ts --project=chromium` passed, 6 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only.

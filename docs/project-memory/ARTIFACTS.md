@@ -76,6 +76,14 @@
 - `docs/backend/production-scale-baseline.md`: Batch #115 10,000 concurrent users capacity review for catalog locale hardening.
 - `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`: Lovable sync prompt for Batch #115; user confirmed clean sync at `040e17b9`.
 
+## Batch #116 Offers Proof Anchor Fallback
+
+- `src/components/catalog/TrustProofStrip.tsx`: visible-anchor resolution and mobile fallback for proof-strip navigation.
+- `src/components/catalog/TrustProofStrip.test.tsx`: focused regression coverage for hidden intelligence fallback and document-readiness target.
+- `e2e/offers-trust-proof-anchors.spec.ts`: browser-level mobile guard for proof-strip clicks landing on visible offer evidence.
+- `package.json`: `smoke:e2e:offers-catalog:run` includes the trust-proof anchor e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #116 10,000 concurrent users capacity review for proof-strip scroll behavior.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
