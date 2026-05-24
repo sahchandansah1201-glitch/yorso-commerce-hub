@@ -612,3 +612,12 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed;
   - `npm run check:production-scale-baseline` passed;
   - `npm run build` passed with known Supabase type drift and Browserslist warnings only.
+- Committed Batch #116 as `6eb713c`, `[codex] Batch #116 offers proof anchor fallback`.
+- Pushed branch `codex/batch116-offers-proof-anchor-fallback` to `origin`.
+- Opened Draft PR #167: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
+- Confirmed GitHub PR #167 `Core Type And Build Gate` passed:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #167 ready and merged it to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
+- Added `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md` for Batch #116 Lovable sync confirmation.

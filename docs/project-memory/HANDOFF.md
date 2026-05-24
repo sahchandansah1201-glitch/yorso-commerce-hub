@@ -20,14 +20,16 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch116-offers-proof-anchor-fallback`.
-- The active work branch is `codex/batch116-offers-proof-anchor-fallback`, based on `main` at `a320088`, `[codex] Record Batch 115 Lovable sync`.
-- Batch #116 is implemented locally and validation passed; it is not yet pushed or merged.
+- The repository is on branch `main`.
+- Batch #116 offers proof anchor fallback is merged to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
+- PR #167 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
+- Batch #116 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`.
 - Batch #116 fixes a concrete `/offers` trust-proof navigation defect found in runtime review:
   - on mobile, `Procurement intelligence` proof no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence;
   - `Document readiness` proof now lands on offer cards where document status is visible instead of the filter bar;
   - access gating, supplier identity redaction, offer data, routes and backend APIs are unchanged.
 - Batch #116 touched `src/components/catalog/TrustProofStrip.tsx`, added `src/components/catalog/TrustProofStrip.test.tsx`, added `e2e/offers-trust-proof-anchors.spec.ts`, extended `smoke:e2e:offers-catalog:run`, and added the Batch #116 production-scale section.
+- GitHub `Core Type And Build Gate` passed on PR #167, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 - Batch #116 validation passed:
   - `npx vitest run src/components/catalog/TrustProofStrip.test.tsx`, 3 tests;
   - `E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium`, 2 tests;
@@ -197,8 +199,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit and push Batch #116 on codex/batch116-offers-proof-anchor-fallback, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
-After merge, add a Batch #116 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Run docs/project-memory/PROMPTS/prompt-116-lovable-sync.md in Lovable.
+Confirm the synced GitHub commit, files/routes checked, conflict status, public runtime status, offers proof anchor fallback status, bundle/code-splitting status and remaining known warnings.
+Then record the Lovable sync result in project-memory before continuing the route-level proof/trust review.
 ```
 
 ## Rules

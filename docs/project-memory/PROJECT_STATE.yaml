@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch116-offers-proof-anchor-fallback"
-  head_commit: "a320088"
-  head_summary: "[codex] Record Batch 115 Lovable sync"
+  active_branch: "main"
+  head_commit: "33d92c3"
+  head_summary: "[codex] Batch #116 offers proof anchor fallback (#167)"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #116 offers proof anchor fallback implementation, tests and docs are being prepared for PR."
+    - "Post-merge project-memory and Batch #116 Lovable sync prompt are being added."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch116_offers_proof_anchor_fallback"
-  summary: "Harden /offers trust proof-strip anchors so mobile proof buttons land on visible offer evidence."
-  status: "implemented_local_validation_passed_pr_pending"
-  pull_request: "pending"
+  id: "post_batch116_lovable_sync"
+  summary: "Sync Lovable after Batch #116 offers proof anchor fallback, then continue route-level proof and trust-signal review."
+  status: "batch116_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -55,12 +55,14 @@ active_workstream:
     - "Audit /offers proof-strip runtime behavior after Batch #115."
     - "Fix mobile proof-strip navigation where Procurement intelligence targeted a hidden desktop-only panel."
     - "Route Document readiness proof to offer evidence instead of the filter bar."
+    - "Create a Lovable sync prompt for Batch #116."
   confirmed_files:
     - "src/components/catalog/TrustProofStrip.tsx"
     - "src/components/catalog/TrustProofStrip.test.tsx"
     - "e2e/offers-trust-proof-anchors.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
+    - "docs/project-memory/PROMPTS/prompt-116-lovable-sync.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
@@ -68,6 +70,18 @@ active_workstream:
     - "docs/project-memory/CONTEXT_HEALTH.md"
 
 latest_merged_batches:
+  - id: 116
+    summary: "Offers trust proof-strip anchor fallback so mobile proof buttons land on visible offer evidence."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "33d92c3"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
+    confirmed_files:
+      - "src/components/catalog/TrustProofStrip.tsx"
+      - "src/components/catalog/TrustProofStrip.test.tsx"
+      - "e2e/offers-trust-proof-anchors.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-116-lovable-sync.md"
   - id: 115
     summary: "Catalog locale hardening for locked offer price and analytics labels on /offers."
     status: "merged_to_main_lovable_sync_clean"
@@ -299,11 +313,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit Batch #116, push codex/batch116-offers-proof-anchor-fallback and open a draft PR."
-  - "Wait for GitHub Core Type And Build Gate, mark ready and merge if clean."
-  - "After merge, add a Batch #116 Lovable sync prompt and record the post-merge state."
+  - "Run docs/project-memory/PROMPTS/prompt-116-lovable-sync.md in Lovable and confirm sync status."
+  - "After Batch #116 sync, continue the route-level proof/trust review."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #167 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
+  - "2026-05-24: PR #167 merged to main as 33d92c3."
   - "2026-05-24: Batch #116 focused test passed: npx vitest run src/components/catalog/TrustProofStrip.test.tsx, 3 tests."
   - "2026-05-24: Batch #116 Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-trust-proof-anchors.spec.ts --project=chromium, 2 tests."
   - "2026-05-24: Batch #116 combined offers e2e passed: E2E_BASE_URL=http://127.0.0.1:4187 npx playwright test e2e/offers-catalog-paging.spec.ts e2e/offers-trust-proof-anchors.spec.ts --project=chromium, 6 tests."
@@ -400,5 +415,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "GitHub Core Type And Build Gate result for Batch #116 PR."
-  - "After Batch #116 merge, run Lovable sync and continue route-level proof/trust review."
+  - "Lovable sync confirmation for Batch #116 is pending."
+  - "After Batch #116 sync, continue route-level proof, metrics and trust-signal density review."
