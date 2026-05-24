@@ -62,6 +62,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #120 is merged to `main` as `276f790`, `[codex] Batch #120 auth CTA semantics (#171)`.
 - PR #171 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171`.
 - Batch #120 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`.
+- Lovable sync for Batch #120 is confirmed clean at `700d4484`, with no conflicts and a clean working tree.
 - Batch #120 fixes a concrete public auth route semantics defect found after Batch #119:
   - `/signin` home back-link and `/reset-password` sign-in back-link rendered as nested `Link` plus `Button`, producing duplicate interactive controls;
   - both back links now use the existing `Button asChild` pattern;
@@ -287,8 +288,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Sync Lovable with Batch #120 using docs/project-memory/PROMPTS/prompt-120-lovable-sync.md.
-After the user reports the Lovable result, record the sync status in project-memory.
+Continue the next scoped runtime UX/accessibility audit after Batch #120.
 Batch #119 Lovable sync remains pending unless the user provides a sync report.
 ```
 

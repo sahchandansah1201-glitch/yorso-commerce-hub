@@ -123,7 +123,7 @@
 - `e2e/auth-cta-semantics.spec.ts`: mobile browser guard for sign-in and reset-password back links, zero nested interactive controls and no horizontal overflow.
 - `package.json`: dedicated auth CTA semantics smoke script and full e2e smoke script include the auth e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #120 10,000 concurrent users capacity review for auth CTA semantics.
-- `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`: Lovable sync prompt for Batch #120.
+- `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`: Lovable sync prompt for Batch #120; user confirmed clean sync at `700d4484`.
 
 ## Batch #96 Supplier Access Review Console
 

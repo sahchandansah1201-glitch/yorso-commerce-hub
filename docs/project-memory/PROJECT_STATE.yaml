@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "276f790"
-  head_summary: "[codex] Batch #120 auth CTA semantics (#171)"
+  head_commit: "700d448"
+  head_summary: "[codex] Add Batch 120 Lovable sync prompt"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Post-merge project-memory update and Batch #120 Lovable sync prompt are being recorded."
+    - "User-confirmed clean Lovable sync report for Batch #120 is being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch120_lovable_sync"
-  summary: "Sync Lovable after Batch #120 auth CTA semantics."
-  status: "merged_to_main_prompt_ready"
+  id: "post_batch120_runtime_ux_audit"
+  summary: "Continue scoped runtime UX/accessibility audit after Batch #120."
+  status: "ready_for_next_scoped_audit"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -72,6 +72,7 @@ active_workstream:
     - "Audit /signin and /reset-password CTA runtime semantics after Batch #119."
     - "Fix nested Link/Button CTA markup on auth back links using the existing Button asChild pattern."
     - "Create a Lovable sync prompt for Batch #120."
+    - "Record the user's clean Lovable sync report for Batch #120."
   confirmed_files:
     - "src/pages/SignIn.tsx"
     - "src/pages/ResetPassword.tsx"
@@ -92,21 +93,25 @@ active_workstream:
 latest_merged_batches:
   - id: 120
     summary: "Auth CTA semantics so public auth route back links render as single links instead of nested link/button controls."
-    status: "merged_to_main_lovable_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "276f790"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171"
     lovable_sync:
-      confirmed_at: "pending"
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-120-lovable-sync.md"
-      expected_user_report:
-        - "GitHub commit synced to 276f790 or newer, on main and on top of Batch #120 PR #171."
-        - "SignIn and ResetPassword auth back links use Button asChild with direct links to / and /signin."
-        - "AuthCtaSemantics.test.tsx includes the nested-control regression for both auth routes."
-        - "e2e/auth-cta-semantics.spec.ts checks 390x844 mobile, visible Back and Back to sign in links, forgot-password return button, invalid reset-link fallback, zero nested controls and zero overflow."
-        - "package.json smoke:e2e:auth-cta-semantics:run and smoke:e2e:run include e2e/auth-cta-semantics.spec.ts."
-        - "docs/backend/production-scale-baseline.md includes the Batch #120 10,000 concurrent-user capacity review."
-        - "Auth copy, form behavior, redirects, self-hosted auth API integration, Supabase prototype recovery behavior, route shell, buyer-first narrative, Batch #110-#119 safeguards, access gating, supplier identity redaction and price lock are preserved."
+      user_confirmed:
+        - "GitHub commit synced to 700d4484, [codex] Add Batch 120 Lovable sync prompt, on main and on top of Batch #120 276f790, PR #171."
+        - "src/pages/SignIn.tsx uses Button asChild with Link to / for the login-view Back CTA."
+        - "src/pages/ResetPassword.tsx uses Button asChild with Link to /signin for Back to sign in."
+        - "src/pages/AuthCtaSemantics.test.tsx asserts document.querySelectorAll(\"a button, button a\") length is 0 on /signin and /reset-password."
+        - "e2e/auth-cta-semantics.spec.ts checks 390x844 mobile, back/register links, forgot-password button, invalid reset-link fallback, zero nested controls and zero overflow."
+        - "package.json includes smoke:e2e:auth-cta-semantics:run and general smoke:e2e:run includes the spec."
+        - "No conflicts were found and the working tree was clean."
+        - "/signin and /reset-password render; self-hosted auth runtime, Supabase legacy fallback and password-recovery observer are unchanged."
+        - "Buyer access gating, supplier redaction and price-lock are preserved."
+        - "Back on /signin and Back to sign in on /reset-password are single semantic links; forgot-password remains a button without navigation; nested a button, button a is 0; mobile 390px has no overflow."
+        - "Batch #112 strategy and Batch #113 RouteChunkErrorBoundary are preserved; large-chunk warning remains resolved."
         - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/pages/SignIn.tsx"
@@ -464,12 +469,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Sync Lovable with Batch #120 using docs/project-memory/PROMPTS/prompt-120-lovable-sync.md."
-  - "Record the user's Batch #120 Lovable sync report in project-memory."
   - "Continue scoped runtime UX/accessibility audit."
   - "Record Batch #119 Lovable sync if the user provides the sync report."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #120 is clean with no conflicts at 700d4484."
+  - "2026-05-24: Lovable confirmed SignIn and ResetPassword auth CTA semantics, AuthCtaSemantics unit guard, auth-cta e2e guard, smoke script wiring, public auth runtime status, preserved self-hosted auth runtime, Supabase legacy fallback, password-recovery observer, buyer access gating, supplier redaction, price lock, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary."
   - "2026-05-24: Batch #120 committed as 853b08c and merged to main as 276f790 via PR #171."
   - "2026-05-24: PR #171 Core Type And Build Gate passed on GitHub in 10m50s."
   - "2026-05-24: Batch #120 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-120-lovable-sync.md."
@@ -617,5 +622,4 @@ critical_files:
 
 open_questions:
   - "Lovable sync result for Batch #119."
-  - "Lovable sync result for Batch #120."
   - "Next scoped route-level UX/accessibility issue after auth CTA semantics."

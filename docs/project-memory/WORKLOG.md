@@ -741,3 +741,12 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #171 `Core Type And Build Gate` passed in 10m50s.
 - Marked PR #171 ready and merged it to `main` as `276f790`, `[codex] Batch #120 auth CTA semantics (#171)`.
 - Added `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md` for Batch #120 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #120 is clean:
+  - HEAD is `700d4484`, `[codex] Add Batch 120 Lovable sync prompt`, on `main` and on top of Batch #120 `276f790`, PR #171;
+  - `SignIn.tsx` and `ResetPassword.tsx` use `Button asChild` with direct links for auth back CTAs;
+  - `AuthCtaSemantics.test.tsx`, `e2e/auth-cta-semantics.spec.ts`, `smoke:e2e:auth-cta-semantics:run` and full `smoke:e2e:run` wiring are present;
+  - no conflicts were found and the working tree was clean;
+  - `/signin` and `/reset-password` render, self-hosted auth runtime, Supabase legacy fallback, password-recovery observer, buyer access gating, supplier redaction and price-lock behavior are unchanged;
+  - auth back CTAs are single semantic links, forgot-password remains a non-navigation button, nested `a button, button a` is 0 and mobile 390px has no overflow;
+  - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
