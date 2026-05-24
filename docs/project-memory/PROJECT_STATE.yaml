@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch124-public-runtime-a11y-audit"
-  head_commit: "current branch HEAD"
-  head_summary: "[codex] Batch #124 public heading structure"
-  dirty_worktree_before_project_memory: false
+  active_branch: "main"
+  head_commit: "main after Batch #124 Lovable sync prompt commit"
+  head_summary: "[codex] Add Batch 124 Lovable sync prompt"
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #124 implementation is committed and ready for PR."
+    - "Only project-memory and the Batch #124 Lovable sync prompt were dirty before this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch124_public_heading_structure"
-  summary: "Fix public-route heading outline regressions after the Batch #123 accessibility sync."
-  status: "committed_ready_for_pr"
-  pull_request: "pending"
+  id: "batch124_lovable_sync_ready"
+  summary: "Sync Batch #124 public heading structure to Lovable after merge."
+  status: "merged_to_main_lovable_sync_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -97,6 +97,8 @@ active_workstream:
     - "Add a real H2 supplier results heading before /suppliers result cards."
     - "Add focused unit and mobile e2e guards for public heading structure."
     - "Run local Batch #124 validation including full smoke:e2e:run."
+    - "Open PR #175, confirm GitHub Core Type And Build Gate, and merge Batch #124 to main."
+    - "Create a Lovable sync prompt for Batch #124."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -128,14 +130,16 @@ active_workstream:
     - "src/pages/Suppliers.tsx"
     - "src/pages/Suppliers.test.tsx"
     - "e2e/public-heading-structure.spec.ts"
+    - "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
 
 active_batch:
   id: 124
   summary: "Public heading structure for footer navigation and supplier results."
-  status: "committed_ready_for_pr"
-  commit: "current branch HEAD"
-  branch: "codex/batch124-public-runtime-a11y-audit"
-  pull_request: "pending"
+  status: "merged_to_main_lovable_sync_ready"
+  commit: "fdaf76a"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
   confirmed_findings:
     - "Runtime audit found footer H4 labels created heading-level skips on public routes."
     - "Runtime audit found /suppliers jumped from H1 directly to H3 supplier row headings."
@@ -152,6 +156,7 @@ active_batch:
     - "npx tsc -b --noEmit."
     - "npm run check:production-scale-baseline."
     - "npm run smoke:e2e:run, 137 tests."
+    - "GitHub Core Type And Build Gate passed on PR #175 in 11m28s."
   preserved_behavior:
     - "Footer visual layout, link destinations and analytics are unchanged."
     - "Supplier directory filtering, sorting, pagination, row selection and supplier-profile links are unchanged."
@@ -161,6 +166,25 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 124
+    summary: "Public heading structure so footer navigation labels do not pollute page headings and supplier cards sit under an H2 results section."
+    status: "merged_to_main_lovable_sync_ready"
+    commit: "fdaf76a"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending"
+      prompt: "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
+    confirmed_files:
+      - "src/components/landing/Footer.tsx"
+      - "src/components/landing/Footer.test.tsx"
+      - "src/pages/Suppliers.tsx"
+      - "src/pages/Suppliers.test.tsx"
+      - "src/i18n/translations.ts"
+      - "e2e/public-heading-structure.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
   - id: 123
     summary: "Public input accessibility so homepage search and public sign-in inputs have programmatic accessible names."
     status: "merged_to_main_lovable_sync_clean"

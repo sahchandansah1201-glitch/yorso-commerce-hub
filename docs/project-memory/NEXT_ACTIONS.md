@@ -2,14 +2,16 @@
 
 ## Current Next Action
 
-1. Push `codex/batch124-public-runtime-a11y-audit` and open the Batch #124 PR.
+1. Sync Batch #124 to Lovable using `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
 
-2. Open the PR, wait for GitHub `Core Type And Build Gate`, merge to `main`, then create the Batch #124 Lovable sync prompt.
+2. After Lovable reports clean sync or conflicts, record the sync report in project memory.
 
-## Batch #124 In Progress
+## Batch #124 Lovable Sync Ready
 
-- Branch: `codex/batch124-public-runtime-a11y-audit`.
-- Commit: current branch HEAD, `[codex] Batch #124 public heading structure`.
+- Branch: `main`.
+- Merge commit: `fdaf76a`, `[codex] Batch #124 public heading structure`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
 - Scope: public heading structure and SEO/scannability outline.
 - Runtime finding:
   - footer column labels created H2/H4 or H1/H4 heading skips on public routes;
@@ -26,6 +28,8 @@
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 137 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 11m28s.
 
 ## Batch #123 Lovable Sync Confirmed
 
@@ -54,6 +58,20 @@
 ## Latest Confirmed Main State
 
 - Current branch is `main`.
+- Batch #124 is merged to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`.
+- PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
+- Batch #124 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
+- Batch #124 fixes public heading outline regressions while preserving footer layout, supplier directory behavior, access gating, supplier identity redaction, price locks, public copy and route shell behavior.
+- Batch #124 added `e2e/public-heading-structure.spec.ts`.
+- `smoke:e2e:public-heading-structure` and `smoke:e2e:run` now include `e2e/public-heading-structure.spec.ts`.
+- Batch #124 local validation passed:
+  - `npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx`, 24 tests;
+  - `npm run smoke:e2e:public-heading-structure`, 8 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 137 tests.
+- GitHub `Core Type And Build Gate` passed on PR #175 in 11m28s.
 - Batch #123 is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - Batch #123 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.

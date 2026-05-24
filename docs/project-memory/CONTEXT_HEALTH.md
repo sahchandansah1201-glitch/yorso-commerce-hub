@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "finish Batch #124 public heading structure PR and merge after GitHub gate"
+recommended_action: "sync Batch #124 to Lovable using docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch124-public-runtime-a11y-audit"
-head_commit: "current branch HEAD"
-latest_merged_batch: 123
-active_workstream: "batch124_public_heading_structure"
-pull_request: "pending"
-why_low: "Batch #124 is a scoped public UX/SEO structure hardening branch committed at current branch HEAD with local unit, e2e, lint, type, production-scale and full smoke validation passed."
+active_branch: "main"
+head_commit: "main after Batch #124 Lovable sync prompt commit"
+latest_merged_batch: 124
+active_workstream: "batch124_lovable_sync_ready"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
+why_low: "Batch #124 is merged to main as fdaf76a via PR #175, GitHub Core Type And Build Gate passed, and the Lovable sync prompt is ready."
 ```
 
 ## Risk Levels
@@ -50,8 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch124-public-runtime-a11y-audit.
-Current workstream: Batch #124 public heading structure is locally implemented and ready for PR.
+Current branch after Batch #124 merge: main.
+Current workstream: Batch #124 public heading structure is merged to main and ready for Lovable sync.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -64,7 +64,9 @@ GitHub Core Type And Build Gate passed on PR #174 in 11m31s.
 Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-123-lovable-sync.md.
 Lovable sync for Batch #123 is confirmed clean at 50b10bc with no conflicts and no file changes.
 Batch #124 fixes public-route heading outline regressions: footer column labels are navigation labels instead of H4 page headings, and /suppliers rows sit under an H2 Supplier results section.
-Batch #124 is committed at current branch HEAD, [codex] Batch #124 public heading structure.
+Batch #124 is merged to main as fdaf76a, [codex] Batch #124 public heading structure, via PR #175.
+GitHub Core Type And Build Gate passed on PR #175 in 11m28s.
 Batch #124 local validation passed: npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx; npm run smoke:e2e:public-heading-structure; npm run lint; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:run, 137 tests.
-Next step: open PR, wait for GitHub Core Type And Build Gate, merge, then prepare Lovable sync prompt.
+Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-124-lovable-sync.md.
+Next step: sync Lovable with GitHub main at fdaf76a or newer using the Batch #124 prompt, then record the Lovable sync report.
 ```

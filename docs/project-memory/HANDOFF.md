@@ -20,8 +20,12 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch124-public-runtime-a11y-audit`.
-- Batch #124 public heading structure is committed as current branch HEAD, `[codex] Batch #124 public heading structure`, pending PR/merge.
+- The repository is currently on branch `main`.
+- Batch #124 public heading structure is merged to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`, via PR #175.
+- PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
+- GitHub `Core Type And Build Gate` passed on PR #175 in 11m28s.
+- Batch #124 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
+- Next step: sync Batch #124 to Lovable from GitHub `main` at `fdaf76a` or newer, then record the Lovable sync result.
 - Batch #124 fixes a concrete public SEO/scannability defect found after Batch #123:
   - footer column labels rendered as H4 page headings, which created heading-level skips on public routes;
   - `/suppliers` supplier result cards rendered as H3 headings immediately after the page H1.
