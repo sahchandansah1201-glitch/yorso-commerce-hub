@@ -74,6 +74,7 @@
 - `src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx`: updated mobile analytics trigger contract for active-locale copy.
 - `src/i18n/translations.ts`: EN/RU/ES catalog analytics trigger labels and hints.
 - `docs/backend/production-scale-baseline.md`: Batch #115 10,000 concurrent users capacity review for catalog locale hardening.
+- `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`: Lovable sync prompt for Batch #115.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -322,3 +323,4 @@
 - `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`: sync confirmation prompt for Batch #112 route code splitting.
 - `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`: sync confirmation prompt for Batch #113 route chunk error boundary.
 - `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`: sync confirmation prompt for Batch #114 font-loading cleanup.
+- `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`: sync confirmation prompt for Batch #115 catalog locale hardening.

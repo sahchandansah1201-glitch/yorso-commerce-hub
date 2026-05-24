@@ -2,17 +2,19 @@
 
 ## Current Next Action
 
-1. Open a PR for Batch #115 catalog locale hardening:
-   - fix `/offers` English runtime leaking legacy Russian locked-price and analytics labels;
-   - keep access gating, supplier redaction, route splitting and route error boundary unchanged;
-   - include the Batch #115 10,000 concurrent-user review.
+1. Run `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md` in Lovable:
+   - sync Lovable with GitHub `main` at `eec49ec` or newer;
+   - verify the Batch #115 catalog locale hardening is present;
+   - confirm no conflicts and no overwritten user edits;
+   - preserve access gating, supplier redaction, Batch #112 route splitting and Batch #113 route error boundary.
 
-2. After Batch #115 merge, create a Lovable sync prompt and then continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+2. After Batch #115 sync, continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
 ## Latest Confirmed Main State
 
-- `main` is at `df5b66f`, `[codex] Batch #114 font loading cleanup`.
-- Local branch `codex/batch115-catalog-locale-hardening` is implemented and locally validated on top of `c181b429`, `[codex] Record Batch 114 Lovable sync`.
+- `main` is at `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
+- PR #166 is merged for Batch #115: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
+- Batch #115 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md`.
 - Batch #115 fixes English `/offers` locked offer card labels so legacy Russian fallback data no longer appears in buyer-facing price or analytics controls.
 - Lovable sync for Batch #114 is confirmed clean at `3be3d6d2`, with no conflicts.
 - PR #165 is merged for Batch #114: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
@@ -76,6 +78,7 @@
   - `npm run check:production-scale-baseline` passed;
   - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
   - production preview Playwright check passed for `/offers` desktop and mobile: no horizontal overflow and no visible Russian locked-price or analytics labels.
+- GitHub `Core Type And Build Gate` passed on PR #166 in 10m52s, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 
 ## Blockers
 
@@ -83,4 +86,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #115 needs PR, GitHub checks and merge.
+- Batch #115 needs Lovable sync confirmation.

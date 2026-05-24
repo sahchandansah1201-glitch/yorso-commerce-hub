@@ -574,3 +574,12 @@ Keep this file factual and append-only.
   - `npm run check:production-scale-baseline` passed;
   - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
   - production preview Playwright check for `/offers` desktop and mobile passed: no horizontal overflow, no visible Russian locked-price label, no visible Russian analytics trigger/hint, and locked price textContent includes a space before `per kg`.
+- Committed Batch #115 as `67ff3f4`, `[codex] Batch #115 catalog locale hardening`.
+- Pushed branch `codex/batch115-catalog-locale-hardening` to `origin`.
+- Opened Draft PR #166: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166`.
+- Confirmed GitHub PR #166 `Core Type And Build Gate` passed in 10m52s:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #166 ready and merged it to `main` as `eec49ec`, `[codex] Batch #115 catalog locale hardening`.
+- Added `docs/project-memory/PROMPTS/prompt-115-lovable-sync.md` for Batch #115 Lovable sync confirmation.

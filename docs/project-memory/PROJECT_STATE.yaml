@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch115-catalog-locale-hardening"
-  head_commit: "c181b429"
-  head_summary: "[codex] Record Batch 114 Lovable sync"
+  active_branch: "main"
+  head_commit: "eec49ec"
+  head_summary: "[codex] Batch #115 catalog locale hardening"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #115 catalog locale hardening is implemented locally and project-memory is being updated before commit."
+    - "Post-merge project-memory and Batch #115 Lovable sync prompt are being added."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch115_catalog_locale_hardening"
-  summary: "Remove legacy Russian locked-price and analytics labels from the English offer catalog runtime."
-  status: "implemented_locally_validation_passed"
-  pull_request: null
+  id: "post_batch115_lovable_sync"
+  summary: "Sync Lovable after Batch #115 catalog locale hardening, then continue route-level proof and trust-signal review."
+  status: "batch115_merged_lovable_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -50,6 +50,7 @@ active_workstream:
     - "Record the user's clean Lovable sync report for Batch #114."
     - "Audit public routes for proof, metrics, trust signals, CTA clarity and mobile scanability."
     - "Fix the concrete /offers locale defect where English locked offer cards exposed Russian price and analytics labels."
+    - "Create a Lovable sync prompt for Batch #115."
   confirmed_files:
     - "src/lib/catalog-display-labels.ts"
     - "src/lib/catalog-display-labels.test.ts"
@@ -67,6 +68,20 @@ active_workstream:
     - "docs/project-memory/CONTEXT_HEALTH.md"
 
 latest_merged_batches:
+  - id: 115
+    summary: "Catalog locale hardening for locked offer price and analytics labels on /offers."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "eec49ec"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166"
+    confirmed_files:
+      - "src/lib/catalog-display-labels.ts"
+      - "src/lib/catalog-display-labels.test.ts"
+      - "src/components/catalog/CatalogOfferRow.tsx"
+      - "src/components/catalog/CatalogOfferRow.locale.test.tsx"
+      - "src/components/catalog/MobileOfferCard.tsx"
+      - "src/i18n/translations.ts"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-115-lovable-sync.md"
   - id: 114
     summary: "Move Google Fonts discovery from CSS @import to document-head preconnect and stylesheet links."
     status: "merged_to_main_lovable_sync_clean"
@@ -266,10 +281,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Open a PR for Batch #115 catalog locale hardening."
-  - "After Batch #115 merge, create a Lovable sync prompt and then continue the route-level proof/trust review."
+  - "Run docs/project-memory/PROMPTS/prompt-115-lovable-sync.md in Lovable and confirm sync status."
+  - "After Batch #115 sync, continue the route-level proof/trust review."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #166 Core Type And Build Gate passed on GitHub in 10m52s, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
+  - "2026-05-24: PR #166 merged to main as eec49ec."
   - "2026-05-24: Batch #115 focused tests passed: npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx, 16 tests."
   - "2026-05-24: Batch #115 npm run lint passed."
   - "2026-05-24: Batch #115 npx tsc -b --noEmit passed."
@@ -353,5 +370,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Open PR and run GitHub validation for Batch #115."
+  - "Lovable sync confirmation for Batch #115 is pending."
   - "After Batch #115 sync, continue route-level proof, metrics and trust-signal density review."

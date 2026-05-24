@@ -5,17 +5,17 @@ Updated: 2026-05-24
 ## Current Status
 
 ```yaml
-context_risk: "medium"
+context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "open a PR for Batch #115 catalog locale hardening"
+recommended_action: "run docs/project-memory/PROMPTS/prompt-115-lovable-sync.md in Lovable"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch115-catalog-locale-hardening"
-head_commit: "c181b429"
-latest_merged_batch: 114
-active_workstream: "batch115_catalog_locale_hardening"
-pull_request: null
-why_medium: "Batch #115 has local code and project-memory changes on a feature branch; PR and GitHub checks are still pending."
+active_branch: "main"
+head_commit: "eec49ec"
+latest_merged_batch: 115
+active_workstream: "post_batch115_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/166"
+why_low: "Batch #115 is merged to main, GitHub Core Type And Build Gate passed, and only the Lovable sync confirmation remains."
 ```
 
 ## Risk Levels
@@ -50,7 +50,7 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current local workstream: Batch #115 catalog locale hardening on codex/batch115-catalog-locale-hardening.
+Current local workstream: Batch #115 Lovable sync confirmation after merge to main at eec49ec.
 Batch #114 Lovable sync was confirmed clean at 3be3d6d2.
-Batch #115 local validation passed; open a PR, wait for GitHub checks, merge, then create the Lovable sync prompt.
+Run docs/project-memory/PROMPTS/prompt-115-lovable-sync.md in Lovable, then record the sync result in project-memory.
 ```
