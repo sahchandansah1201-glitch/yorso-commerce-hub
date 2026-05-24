@@ -801,3 +801,28 @@ Keep this file factual and append-only.
   - nested `a button, button a` is 0, mobile 390px has no overflow, and Batches #117-#120 remain unchanged;
   - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #122 on `codex/batch122-runtime-ux-a11y-audit`.
+- Ran runtime scan after Batch #121 and confirmed remaining nested interactive CTA markup:
+  - homepage `/` had nested controls in desktop `View all offers` and certification chips inside linked landing offer cards;
+  - shared info/legal routes `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`, `/anti-fraud`, `/careers`, `/press` and `/partners` had nested back-link CTA markup from `InfoPageLayout`;
+  - mobile horizontal overflow stayed at zero on the checked routes.
+- Implemented Batch #122 public CTA semantics:
+  - converted homepage desktop `View all offers` to the existing `Button asChild` pattern;
+  - added `interactive={false}` support to `CertificationBadges` and used it in landing `OfferCard` so certification proof chips inside clickable cards render as static spans;
+  - converted shared `InfoPageLayout` back CTA to `Button asChild`;
+  - preserved buyer-first copy, offer-card destinations, public route SEO behavior, route shell, access gating, supplier identity redaction, price locks and visual styling;
+  - added `src/pages/PublicCtaSemantics.test.tsx`;
+  - added `e2e/public-cta-semantics.spec.ts` and wired it into a dedicated smoke script plus full `smoke:e2e:run`;
+  - added Batch #122 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #122 local validation:
+  - post-fix Playwright runtime scan confirmed zero nested controls and zero horizontal overflow on `/` and shared info/legal routes at 390px;
+  - `npx vitest run src/pages/PublicCtaSemantics.test.tsx` passed, 2 tests;
+  - `npm run smoke:e2e:public-cta-semantics` passed, 12 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:run` passed, 126 tests.
+- Committed Batch #122 as `9829df0`, `[codex] Batch #122 public CTA semantics`.
+- Pushed branch `codex/batch122-runtime-ux-a11y-audit` to `origin`.
+- Opened Draft PR #173: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
+- Added `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md` for Batch #122 Lovable sync confirmation after merge.

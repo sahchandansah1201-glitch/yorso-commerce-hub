@@ -18,6 +18,8 @@ interface CertificationBadgesProps {
   /** Limit how many badges to display */
   limit?: number;
   className?: string;
+  /** Render static proof chips when the badges sit inside a parent link. */
+  interactive?: boolean;
 }
 
 const sizeClasses = {
@@ -35,6 +37,7 @@ const CertificationBadges = ({
   size = "xs",
   limit,
   className,
+  interactive = true,
 }: CertificationBadgesProps) => {
   const { lang, t } = useLanguage();
   const [activeCert, setActiveCert] = useState<CertificationInfo | null>(null);
@@ -46,81 +49,105 @@ const CertificationBadges = ({
   return (
     <>
       <div className={cn("flex flex-wrap items-center gap-1", className)}>
-        {items.map((cert) => (
-          <button
-            key={cert}
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setActiveCert(getCertificationInfo(cert, lang));
-            }}
-            className={cn(
-              "inline-flex items-center rounded border border-border bg-muted/50 font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-              sizeClasses[size],
-            )}
-            aria-label={t.cert_viewDetails.replace("{cert}", cert)}
-          >
-            <Award className={cn(iconSize[size], "text-primary")} />
-            {cert}
-          </button>
-        ))}
+        {items.map((cert) => {
+          const chipContent = (
+            <>
+              <Award className={cn(iconSize[size], "text-primary")} />
+              {cert}
+            </>
+          );
+
+          if (!interactive) {
+            return (
+              <span
+                key={cert}
+                className={cn(
+                  "inline-flex cursor-default items-center rounded border border-border bg-muted/50 font-medium text-muted-foreground",
+                  sizeClasses[size],
+                )}
+              >
+                {chipContent}
+              </span>
+            );
+          }
+
+          return (
+            <button
+              key={cert}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setActiveCert(getCertificationInfo(cert, lang));
+              }}
+              className={cn(
+                "inline-flex items-center rounded border border-border bg-muted/50 font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                sizeClasses[size],
+              )}
+              aria-label={t.cert_viewDetails.replace("{cert}", cert)}
+            >
+              {chipContent}
+            </button>
+          );
+        })}
       </div>
 
-      <Dialog open={!!activeCert} onOpenChange={(open) => !open && setActiveCert(null)}>
-        <DialogContent className="sm:max-w-md">
-          {activeCert && (
-            <>
-              <DialogHeader>
-                <div className="flex items-start gap-3">
-                  {activeCert.logo ? (
-                    <img
-                      src={activeCert.logo}
-                      alt={`${activeCert.code} logo`}
-                      loading="lazy"
-                      width={56}
-                      height={56}
-                      className="h-14 w-14 shrink-0 rounded-md border border-border bg-white object-contain p-1"
-                    />
-                  ) : (
-                    <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-primary/10">
-                      <Award className="h-6 w-6 text-primary" />
+      {interactive && (
+        <Dialog open={!!activeCert} onOpenChange={(open) => !open && setActiveCert(null)}>
+          <DialogContent className="sm:max-w-md">
+            {activeCert && (
+              <>
+                <DialogHeader>
+                  <div className="flex items-start gap-3">
+                    {activeCert.logo ? (
+                      <img
+                        src={activeCert.logo}
+                        alt={`${activeCert.code} logo`}
+                        loading="lazy"
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 shrink-0 rounded-md border border-border bg-white object-contain p-1"
+                      />
+                    ) : (
+                      <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                        <Award className="h-6 w-6 text-primary" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1 text-left">
+                      <DialogTitle className="font-heading text-lg leading-tight">
+                        {activeCert.fullName}
+                      </DialogTitle>
+                      <DialogDescription className="mt-1 text-xs uppercase tracking-wide text-primary">
+                        {activeCert.code}
+                      </DialogDescription>
                     </div>
-                  )}
-                  <div className="min-w-0 flex-1 text-left">
-                    <DialogTitle className="font-heading text-lg leading-tight">
-                      {activeCert.fullName}
-                    </DialogTitle>
-                    <DialogDescription className="mt-1 text-xs uppercase tracking-wide text-primary">
-                      {activeCert.code}
-                    </DialogDescription>
                   </div>
+                </DialogHeader>
+                <p className="text-sm leading-relaxed text-foreground">
+                  {activeCert.description}
+                </p>
+                <div className="mt-2 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
+                  <div>
+                    <span className="font-semibold text-foreground">{t.cert_issuer}: </span>
+                    {activeCert.issuer}
+                  </div>
+                  {activeCert.website && (
+                    <a
+                      href={activeCert.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      {t.cert_officialWebsite}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </div>
-              </DialogHeader>
-              <p className="text-sm leading-relaxed text-foreground">
-                {activeCert.description}
-              </p>
-              <div className="mt-2 space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
-                <div>
-                  <span className="font-semibold text-foreground">{t.cert_issuer}: </span>
-                  {activeCert.issuer}
-                </div>
-                {activeCert.website && (
-                  <a
-                    href={activeCert.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline"
-                  >
-                    {t.cert_officialWebsite}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

@@ -63,16 +63,15 @@ const LiveOffers = () => {
               {t.offers_subtitle}
             </p>
           </div>
-          <Link
-            to="/offers"
-            onClick={() => analytics.track("live_offers_view_all_click")}
-            className="hidden md:block"
-          >
-            <Button variant="ghost" className="gap-1 text-sm font-medium text-primary hover:text-primary">
+          <Button asChild variant="ghost" className="hidden gap-1 text-sm font-medium text-primary hover:text-primary md:inline-flex">
+            <Link
+              to="/offers"
+              onClick={() => analytics.track("live_offers_view_all_click")}
+            >
               {t.offers_viewAll}
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
 
         {/* Visible offers — 8 cards */}

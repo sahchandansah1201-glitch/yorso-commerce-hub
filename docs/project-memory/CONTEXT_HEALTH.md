@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "continue the next scoped runtime UX/accessibility audit"
+recommended_action: "monitor PR #173 CI and merge Batch #122 if green"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "851ad960"
+active_branch: "codex/batch122-runtime-ux-a11y-audit"
+head_commit: "9829df0"
 latest_merged_batch: 121
-active_workstream: "post_batch121_runtime_ux_audit"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172"
-why_low: "Batch #121 is merged to main, GitHub Core Type And Build Gate passed on rerun, Lovable sync is confirmed clean, Batch #119 Lovable sync is also confirmed clean and project-memory is current."
+active_workstream: "batch122_public_cta_semantics"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
+why_low: "Batch #122 implementation is committed, draft PR #173 is open, focused and full local validation passed, and project-memory is being updated."
 ```
 
 ## Risk Levels
@@ -50,10 +50,12 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: post-Batch #121 scoped runtime UX/accessibility audit.
+Current branch: codex/batch122-runtime-ux-a11y-audit.
+Current workstream: Batch #122 public CTA semantics.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
-GitHub Core Type And Build Gate passed on rerun in 10m56s.
-Continue from repository files and pick the next concrete runtime UX/accessibility issue before changing code.
+Batch #122 is committed as 9829df0 and draft PR #173 is open.
+Batch #122 fixes nested interactive controls on homepage and shared info/legal CTA surfaces.
+Local validation passed: npx vitest run src/pages/PublicCtaSemantics.test.tsx; npm run smoke:e2e:public-cta-semantics; npm run lint; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:run.
+Next step: monitor PR #173 Core Type And Build Gate, mark ready and merge if green, then sync Lovable with docs/project-memory/PROMPTS/prompt-122-lovable-sync.md.
 ```
