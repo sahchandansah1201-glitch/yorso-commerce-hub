@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Continue route-level proof/trust/conversion review after clean Batch #118 Lovable sync.
+1. Commit and push Batch #119 on `codex/batch119-offers-cta-semantics`.
 
-2. Use runtime checks before changing public UI.
+2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
 
-3. If a concrete issue is found, keep the next batch narrow and preserve existing buyer-first narrative, route shell, access gating and supplier redaction.
+3. After merge, add a Batch #119 Lovable sync prompt and record the post-merge state.
 
 ## Latest Confirmed Main State
 
@@ -22,6 +22,19 @@
 - Batch #118 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
 - Lovable sync for Batch #118 is confirmed clean at `dc78e094`, with no conflicts.
 - Lovable confirmed `src/pages/ForSuppliers.tsx`, `src/pages/ForSuppliers.test.tsx`, `e2e/for-suppliers-cta-semantics.spec.ts`, `package.json` smoke wiring, Batch #118 production-scale notes, route declarations and preserved Batch #110-#117 safeguards.
+- Current work branch is `codex/batch119-offers-cta-semantics`.
+- Batch #119 is implemented locally and validation passed.
+- Batch #119 fixes invalid nested interactive CTA markup on locked-buyer `/offers`: catalog account CTA, value-strip CTA and related-request CTAs now use `Button asChild`, so each visual target is a single link instead of `a > button`.
+- Batch #119 keeps CTA destinations, catalog copy, visual styling, access gating, supplier redaction, price locks, sorting, filtering and pagination unchanged.
+- Batch #119 added `e2e/offers-cta-semantics.spec.ts`.
+- `smoke:e2e:offers-catalog:run` and `smoke:e2e:run` now include `e2e/offers-cta-semantics.spec.ts`.
+- Batch #119 local validation passed:
+  - `npx vitest run src/pages/Offers.catalogPaging.test.tsx`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4191 npx playwright test e2e/offers-cta-semantics.spec.ts --project=chromium`, 1 test;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build`.
 - Batch #118 fixes invalid nested interactive CTA markup on `/for-suppliers`: hero and final supplier CTAs now use `Button asChild`, so the visual target is a single link instead of `a > button`.
 - Batch #118 keeps CTA destinations, analytics events, visual styling, SEO, route shell, access gating and supplier redaction unchanged.
 - Batch #118 added `e2e/for-suppliers-cta-semantics.spec.ts`.

@@ -41,6 +41,20 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `ForSuppliers.test.tsx` and `e2e/for-suppliers-cta-semantics.spec.ts` are present;
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, Batch #117 request anchor, access gating, supplier identity redaction and price lock are preserved.
+- The repository is currently on branch `codex/batch119-offers-cta-semantics`.
+- Batch #119 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #119 fixes a concrete `/offers` runtime semantics defect found after Batch #118:
+  - locked-buyer account, value-strip and related-request CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls in the buyer catalog;
+  - CTAs now use the existing `Button asChild` pattern;
+  - destinations, copy, visual styling, access gating, supplier redaction, price locks, sorting, filtering and pagination are unchanged.
+- Batch #119 touched `src/components/catalog/AccessLevelBanner.tsx`, `src/components/catalog/CatalogValueStrip.tsx`, `src/components/catalog/RelatedRequests.tsx`, `src/pages/Offers.catalogPaging.test.tsx`, added `e2e/offers-cta-semantics.spec.ts`, extended offers/full e2e smoke scripts, and added the Batch #119 production-scale section.
+- Batch #119 validation passed:
+  - `npx vitest run src/pages/Offers.catalogPaging.test.tsx`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4191 npx playwright test e2e/offers-cta-semantics.spec.ts --project=chromium`, 1 test;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -253,8 +267,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue route-level proof/trust/conversion review after clean Batch #118 Lovable sync.
-Keep the next batch narrow, runtime-verified and tied to a concrete public-route issue.
+Commit and push Batch #119 on codex/batch119-offers-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+After merge, add a Batch #119 Lovable sync prompt and update project-memory back to a clean main checkpoint.
 ```
 
 ## Rules

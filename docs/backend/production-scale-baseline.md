@@ -2219,6 +2219,67 @@ Marker: for-suppliers CTA semantics.
 Marker: nested interactive markup.
 Marker: 10,000 concurrent users.
 
+## Batch #119 Offers CTA Semantics
+
+Batch #119 fixes invalid nested interactive markup on `/offers`. Locked-buyer
+account and related-request CTAs now use the existing `Button asChild` pattern
+instead of rendering `Link` elements around `Button` elements. Catalog copy,
+visual hierarchy, destinations, access gating, supplier redaction, price locks,
+sorting, filtering and pagination stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Offer catalog reads, fallback data, buyer sessions, access requests, access
+  levels and supplier identity redaction are unchanged.
+- The only runtime change is client-side DOM semantics for locked-buyer CTA
+  links.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter request volume at the 10,000 concurrent-user
+  target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, catalog
+  pagination, supplier reads, offer reads or account persistence.
+- Existing bounded catalog pagination remains the 10,000 concurrent-user plan.
+
+Failure mode and graceful degradation:
+
+- Locked-buyer CTAs remain normal links to `/register`.
+- If JavaScript hydration is delayed, anchor semantics still expose direct
+  destinations.
+- Access gating remains fail-closed: exact prices and supplier identities stay
+  locked until the buyer is qualified.
+
+Observability and load-test plan:
+
+- Regression coverage should assert `/offers` has no nested interactive CTA
+  markup.
+- Browser smoke verifies the locked account CTA and related-request CTAs remain
+  visible as links on mobile.
+- Existing catalog smoke continues to verify URL-backed sort, pagination,
+  private supplier search gating and mobile overflow.
+
+Validation:
+
+- `npx vitest run src/pages/Offers.catalogPaging.test.tsx`;
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/offers-cta-semantics.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #119.
+Marker: offers CTA semantics.
+Marker: catalog nested interactive markup.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

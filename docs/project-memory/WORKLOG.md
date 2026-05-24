@@ -695,3 +695,20 @@ Keep this file factual and append-only.
   - no conflicts were found and files were not modified in Lovable;
   - buyer-first narrative, access gating, supplier identity redaction, price lock, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback and Batch #117 request anchor are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #119 on `codex/batch119-offers-cta-semantics`.
+- Ran runtime review on `/offers` after Batch #118 and found nested interactive CTA markup:
+  - locked-buyer `Create account` and `Respond` CTAs rendered as both a link and a button in the same visual target;
+  - runtime DOM query showed nested `a button` controls before the fix.
+- Implemented Batch #119 offers CTA semantics:
+  - converted `AccessLevelBanner`, `CatalogValueStrip` and `RelatedRequests` locked-buyer link CTAs to the existing `Button asChild` pattern;
+  - preserved `/register` destinations, catalog copy, visual classes, access gating, supplier redaction, price locks, sorting, filtering and pagination;
+  - added `src/pages/Offers.catalogPaging.test.tsx` coverage against nested interactive controls;
+  - added `e2e/offers-cta-semantics.spec.ts` and wired it into offers-catalog and full e2e smoke scripts;
+  - added Batch #119 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #119 local validation:
+  - `npx vitest run src/pages/Offers.catalogPaging.test.tsx` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4191 npx playwright test e2e/offers-cta-semantics.spec.ts --project=chromium` passed, 1 test;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only.

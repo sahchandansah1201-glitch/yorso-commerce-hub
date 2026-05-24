@@ -103,17 +103,6 @@ export const CatalogValueStrip = () => {
     { icon: LineChart, label: t.catalog_value_cap_intelligence },
   ];
 
-  const button = (
-    <Button
-      size="sm"
-      className="gap-1.5 font-semibold"
-      onClick={isRegistered ? () => setDialogOpen(true) : undefined}
-      data-testid="catalog-value-strip-cta"
-    >
-      {ctaLabel} <ArrowRight className="h-3.5 w-3.5" />
-    </Button>
-  );
-
   return (
     <>
       <div
@@ -128,7 +117,22 @@ export const CatalogValueStrip = () => {
             </li>
           ))}
         </ul>
-        {isRegistered ? button : <Link to="/register">{button}</Link>}
+        {isRegistered ? (
+          <Button
+            size="sm"
+            className="gap-1.5 font-semibold"
+            onClick={() => setDialogOpen(true)}
+            data-testid="catalog-value-strip-cta"
+          >
+            {ctaLabel} <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        ) : (
+          <Button asChild size="sm" className="gap-1.5 font-semibold" data-testid="catalog-value-strip-cta">
+            <Link to="/register">
+              {ctaLabel} <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        )}
       </div>
 
       {isRegistered && (
