@@ -106,7 +106,7 @@ describe("MobileOfferCard · trend indicator opens analytics", () => {
     // нашим единственным trend-триггером.
     const expandables = container.querySelectorAll("[aria-expanded]");
     const analyticsTriggers = Array.from(expandables).filter((el) =>
-      (el as HTMLElement).getAttribute("aria-label")?.includes("аналитик"),
+      (el as HTMLElement).getAttribute("aria-label")?.toLowerCase().includes("analytic"),
     );
     expect(analyticsTriggers).toHaveLength(1);
   });

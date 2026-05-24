@@ -63,6 +63,18 @@
 - `docs/backend/production-scale-baseline.md`: Batch #114 10,000 concurrent users capacity review for font loading.
 - `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`: Lovable sync prompt for Batch #114.
 
+## Batch #115 Catalog Locale Hardening
+
+- `src/lib/catalog-display-labels.ts`: maps legacy redacted price labels to the active locale display label.
+- `src/lib/catalog-display-labels.test.ts`: regression coverage for legacy redacted label normalization.
+- `src/components/catalog/CatalogOfferRow.tsx`: localized desktop locked-price and analytics trigger copy.
+- `src/components/catalog/CatalogOfferRow.locale.test.tsx`: regression coverage against Russian locked-price and analytics leaks in the English catalog row.
+- `src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx`: updated analytics trigger a11y contract for active-locale copy.
+- `src/components/catalog/MobileOfferCard.tsx`: localized mobile locked-price and trend analytics labels.
+- `src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx`: updated mobile analytics trigger contract for active-locale copy.
+- `src/i18n/translations.ts`: EN/RU/ES catalog analytics trigger labels and hints.
+- `docs/backend/production-scale-baseline.md`: Batch #115 10,000 concurrent users capacity review for catalog locale hardening.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

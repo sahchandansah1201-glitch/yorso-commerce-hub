@@ -2,16 +2,18 @@
 
 ## Current Next Action
 
-1. Run the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`:
-   - verify whether each route gives a buyer enough evidence to compare, trust and act;
-   - check proof density, concrete metrics, trust signals, CTA clarity and mobile scanability;
-   - keep supplier content as a trust/supply mechanism, not the primary narrative.
+1. Open a PR for Batch #115 catalog locale hardening:
+   - fix `/offers` English runtime leaking legacy Russian locked-price and analytics labels;
+   - keep access gating, supplier redaction, route splitting and route error boundary unchanged;
+   - include the Batch #115 10,000 concurrent-user review.
 
-2. If the review finds a concrete public UX gap, implement the next narrow buyer-first remediation batch.
+2. After Batch #115 merge, create a Lovable sync prompt and then continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
 ## Latest Confirmed Main State
 
 - `main` is at `df5b66f`, `[codex] Batch #114 font loading cleanup`.
+- Local branch `codex/batch115-catalog-locale-hardening` is implemented and locally validated on top of `c181b429`, `[codex] Record Batch 114 Lovable sync`.
+- Batch #115 fixes English `/offers` locked offer card labels so legacy Russian fallback data no longer appears in buyer-facing price or analytics controls.
 - Lovable sync for Batch #114 is confirmed clean at `3be3d6d2`, with no conflicts.
 - PR #165 is merged for Batch #114: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
 - Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
@@ -67,6 +69,13 @@
   - production CSS bundle is `125.44 kB` minified and `20.79 kB` gzip;
   - production entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
   - production preview Playwright smoke passed for `e2e/smoke-core.spec.ts` and `e2e/suppliers-no-horizontal-overflow-375.spec.ts`, 9 tests.
+- Batch #115 local validation passed:
+  - `npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx` passed, 16 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - production preview Playwright check passed for `/offers` desktop and mobile: no horizontal overflow and no visible Russian locked-price or analytics labels.
 
 ## Blockers
 
@@ -74,4 +83,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- No hard blocker for the next route-level UX proof/trust review.
+- Batch #115 needs PR, GitHub checks and merge.

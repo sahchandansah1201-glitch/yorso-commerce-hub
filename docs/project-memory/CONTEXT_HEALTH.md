@@ -5,17 +5,17 @@ Updated: 2026-05-24
 ## Current Status
 
 ```yaml
-context_risk: "low"
+context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "run route-level proof, metrics and trust-signal review for public buyer routes"
+recommended_action: "open a PR for Batch #115 catalog locale hardening"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "3be3d6d2"
+active_branch: "codex/batch115-catalog-locale-hardening"
+head_commit: "c181b429"
 latest_merged_batch: 114
-active_workstream: "public_route_proof_trust_review"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
-why_low: "Batch #114 is merged, GitHub Core Type And Build Gate passed, Lovable sync is clean, and the next task is a bounded public UX review."
+active_workstream: "batch115_catalog_locale_hardening"
+pull_request: null
+why_medium: "Batch #115 has local code and project-memory changes on a feature branch; PR and GitHub checks are still pending."
 ```
 
 ## Risk Levels
@@ -50,6 +50,7 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current local workstream: route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
+Current local workstream: Batch #115 catalog locale hardening on codex/batch115-catalog-locale-hardening.
 Batch #114 Lovable sync was confirmed clean at 3be3d6d2.
+Batch #115 local validation passed; open a PR, wait for GitHub checks, merge, then create the Lovable sync prompt.
 ```

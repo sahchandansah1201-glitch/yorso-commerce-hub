@@ -20,7 +20,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `main`.
+- The repository is on branch `codex/batch115-catalog-locale-hardening`.
+- Batch #115 catalog locale hardening is implemented locally and full local validation has passed; PR is still pending.
+- Batch #115 fixes a concrete `/offers` UX/trust defect found during the route-level proof review: English locked offer cards exposed legacy Russian labels for the price state and analytics trigger/hints.
+- Batch #115 keeps buyer access gating, supplier identity redaction, Batch #112 route splitting and Batch #113 route error boundary unchanged.
 - Batch #114 font-loading cleanup is merged to `main` as `df5b66f`, `[codex] Batch #114 font loading cleanup`.
 - PR #165 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165`.
 - Batch #114 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-114-lovable-sync.md`.
@@ -158,13 +161,20 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - CSS bundle: `125.44 kB` minified, `20.79 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4184 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
 - GitHub `Core Type And Build Gate` passed on PR #165, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
+- Batch #115 local validation passed:
+  - `npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx`, 16 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only;
+  - production preview Playwright check for `/offers` at 1440px and 390px confirmed no horizontal overflow, no visible Russian locked-price label and no visible Russian analytics trigger/hint.
 
 ## Next Action
 
 ```text
-Run the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
-Focus on whether each route gives a buyer enough evidence to compare, trust and act, while keeping suppliers as a trust/supply mechanism.
-If the review finds a concrete public UX gap, implement the next narrow buyer-first remediation batch.
+Open a PR for Batch #115 catalog locale hardening.
+Wait for GitHub Core Type And Build Gate, merge if clean, then create the Batch #115 Lovable sync prompt.
+After sync, continue the route-level proof, metrics and trust-signal review.
 ```
 
 ## Rules
