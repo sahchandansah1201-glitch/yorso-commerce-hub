@@ -16,13 +16,14 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Monitor and finish Batch #122, then continue the Yorso public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Sync Lovable with Batch #122, then record the sync report and continue the Yorso public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch122-runtime-ux-a11y-audit`.
-- Batch #122 is committed as `9829df0`, `[codex] Batch #122 public CTA semantics`.
-- Draft PR #173 is open: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
+- The repository is currently on branch `main`.
+- Batch #122 is merged to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
+- PR #173 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
+- GitHub `Core Type And Build Gate` passed on PR #173 in 11m31s.
 - Batch #122 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`.
 - Batch #122 fixes a concrete public CTA semantics defect found after Batch #121:
   - homepage `View all offers`, landing offer certification chips and shared info/legal back CTAs rendered nested interactive controls;
@@ -40,7 +41,7 @@ Monitor and finish Batch #122, then continue the Yorso public UX/UI audit and re
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 126 tests.
 - Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
-- The last merged production batch is still Batch #121 on `main`; Batch #122 is PR-pending.
+- The latest merged production batch is Batch #122 on `main`; Lovable sync for Batch #122 is pending.
 - Historical merged state:
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.
@@ -332,9 +333,9 @@ Monitor and finish Batch #122, then continue the Yorso public UX/UI audit and re
 ## Next Action
 
 ```text
-Monitor PR #173 Core Type And Build Gate.
-If PR #173 passes, mark it ready and merge Batch #122.
-After merge, sync Lovable with docs/project-memory/PROMPTS/prompt-122-lovable-sync.md.
+Sync Lovable with docs/project-memory/PROMPTS/prompt-122-lovable-sync.md.
+After the user provides the Lovable report, record whether Batch #122 synced cleanly or list concrete conflicts.
+Then continue the next scoped public UX/UI runtime audit from repository state.
 ```
 
 ## Rules

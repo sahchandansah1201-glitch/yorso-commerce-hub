@@ -144,7 +144,7 @@
 - `e2e/public-cta-semantics.spec.ts`: browser guard for homepage mobile/desktop and shared info/legal route CTA semantics, zero nested controls and no horizontal overflow.
 - `package.json`: dedicated public CTA semantics smoke script and full e2e smoke script include the public CTA e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #122 10,000 concurrent users capacity review for public CTA semantics.
-- `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: Lovable sync prompt for Batch #122 after PR #173 merge.
+- `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: Lovable sync prompt for Batch #122; PR #173 merged as `dc2a3ca`.
 
 ## Batch #96 Supplier Access Review Console
 

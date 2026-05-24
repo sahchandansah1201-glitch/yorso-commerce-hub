@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch122-runtime-ux-a11y-audit"
-  head_commit: "9829df0"
-  head_summary: "[codex] Batch #122 public CTA semantics"
+  active_branch: "main"
+  head_commit: "dc2a3ca"
+  head_summary: "[codex] Batch #122 public CTA semantics (#173)"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #122 project-memory and Lovable prompt are being recorded after implementation commit."
+    - "Batch #122 merged state is being recorded after PR #173 merge."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch122_public_cta_semantics"
-  summary: "Fix nested interactive CTA markup on the homepage and shared info/legal pages."
-  status: "draft_pr_open"
+  id: "post_batch122_lovable_sync"
+  summary: "Sync Lovable after Batch #122 public CTA semantics."
+  status: "merged_to_main_lovable_prompt_ready"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -81,6 +81,7 @@ active_workstream:
     - "Audit homepage and shared info/legal route CTA runtime semantics after Batch #121."
     - "Fix nested interactive markup on homepage View all offers, landing offer certification chips and shared info/legal back CTAs."
     - "Create a Lovable sync prompt for Batch #122."
+    - "Mark PR #173 ready, confirm GitHub Core Type And Build Gate, and merge Batch #122."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -103,6 +104,37 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-122-lovable-sync.md"
 
 latest_merged_batches:
+  - id: 122
+    summary: "Public CTA semantics so homepage and shared info/legal CTAs render as single links or static proof chips instead of nested interactive controls."
+    status: "merged_to_main_lovable_prompt_ready"
+    commit: "dc2a3ca"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
+    lovable_sync:
+      confirmed_at: "pending"
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-122-lovable-sync.md"
+      expected_user_report:
+        - "GitHub commit synced to dc2a3ca or newer, on main and on top of Batch #122 PR #173."
+        - "LiveOffers desktop View all offers uses Button asChild with a direct /offers link."
+        - "OfferCard passes interactive=false to CertificationBadges so landing certification chips are static proof chips inside linked offer cards."
+        - "CertificationBadges keeps default interactive button/dialog behavior outside static landing-card usage."
+        - "InfoPageLayout Back to homepage uses Button asChild with a direct / link."
+        - "PublicCtaSemantics.test.tsx and e2e/public-cta-semantics.spec.ts are present."
+        - "package.json includes smoke:e2e:public-cta-semantics, smoke:e2e:public-cta-semantics:run and full smoke:e2e:run wiring for the spec."
+        - "docs/backend/production-scale-baseline.md includes the Batch #122 10,000 concurrent-user capacity review."
+        - "Homepage and shared info/legal routes have zero nested a button, button a, a a, button button controls and no horizontal overflow around 390px."
+        - "Buyer-first copy, offer-card destinations, public route SEO behavior, route shell, access gating, supplier identity redaction, price locks, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
+    confirmed_files:
+      - "src/components/landing/LiveOffers.tsx"
+      - "src/components/landing/OfferCard.tsx"
+      - "src/components/CertificationBadges.tsx"
+      - "src/components/InfoPageLayout.tsx"
+      - "src/pages/PublicCtaSemantics.test.tsx"
+      - "e2e/public-cta-semantics.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-122-lovable-sync.md"
   - id: 121
     summary: "Offer detail CTA semantics so /offers/:id CTAs render as single links or buttons instead of nested link/button controls."
     status: "merged_to_main_lovable_sync_clean"
@@ -521,11 +553,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Monitor PR #173 Core Type And Build Gate."
-  - "If PR #173 passes, mark ready and merge Batch #122."
-  - "After merge, sync Lovable using docs/project-memory/PROMPTS/prompt-122-lovable-sync.md."
+  - "Sync Lovable using docs/project-memory/PROMPTS/prompt-122-lovable-sync.md."
+  - "Record Batch #122 Lovable sync result when the user provides the sync report."
 
 last_confirmed_checks:
+  - "2026-05-24: PR #173 Core Type And Build Gate passed in 11m31s."
+  - "2026-05-24: PR #173 merged to main as dc2a3ca, [codex] Batch #122 public CTA semantics (#173)."
   - "2026-05-24: Batch #122 committed as 9829df0 and draft PR #173 opened."
   - "2026-05-24: Batch #122 pre-fix Playwright runtime scan found nested interactive controls on /, /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press and /partners."
   - "2026-05-24: Batch #122 post-fix Playwright runtime scan confirmed zero nested controls and zero horizontal overflow on / and the shared info/legal routes at 390px."
@@ -702,6 +735,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "PR #173 CI result and merge status."
-  - "Lovable sync result for Batch #122 after merge."
+  - "Lovable sync result for Batch #122."
   - "Next scoped route-level UX/accessibility issue after public CTA semantics."

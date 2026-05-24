@@ -826,3 +826,7 @@ Keep this file factual and append-only.
 - Pushed branch `codex/batch122-runtime-ux-a11y-audit` to `origin`.
 - Opened Draft PR #173: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
 - Added `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md` for Batch #122 Lovable sync confirmation after merge.
+- Marked PR #173 ready after no draft-only checks appeared.
+- Confirmed GitHub PR #173 `Core Type And Build Gate` passed in 11m31s.
+- Merged PR #173 to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
+- Updated `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md` to use GitHub `main` at commit `dc2a3ca` or newer as Lovable's sync source of truth.

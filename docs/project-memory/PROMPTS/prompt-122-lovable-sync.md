@@ -2,7 +2,7 @@
 
 Target: Lovable.dev
 
-Use this prompt after syncing Lovable with GitHub `main` at commit `9829df0`
+Use this prompt after syncing Lovable with GitHub `main` at commit `dc2a3ca`
 or newer.
 
 ```text
@@ -16,7 +16,7 @@ offer-card destinations, information page content, access gating, supplier
 identity redaction, backend APIs, Supabase settings or data models.
 
 Source of truth:
-- GitHub `main`, commit `9829df0` or newer after PR #173 is merged.
+- GitHub `main`, commit `dc2a3ca` or newer.
 - PR #173: [codex] Batch #122 public CTA semantics.
 - Project name: YORSO Commerce Hub.
 - Audience: B2B seafood buyers, procurement teams, decision makers and suppliers.
