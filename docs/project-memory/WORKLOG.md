@@ -735,3 +735,9 @@ Keep this file factual and append-only.
   - `npx tsc -b --noEmit` passed;
   - `npm run check:production-scale-baseline` passed;
   - `npm run build` passed with known Supabase type drift and Browserslist warnings only.
+- Committed Batch #120 as `853b08c`, `[codex] Batch #120 auth CTA semantics`.
+- Pushed branch `codex/batch120-auth-cta-semantics` to `origin`.
+- Opened Draft PR #171: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171`.
+- Confirmed GitHub PR #171 `Core Type And Build Gate` passed in 10m50s.
+- Marked PR #171 ready and merged it to `main` as `276f790`, `[codex] Batch #120 auth CTA semantics (#171)`.
+- Added `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md` for Batch #120 Lovable sync confirmation.

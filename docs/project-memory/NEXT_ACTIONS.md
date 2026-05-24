@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Commit and push Batch #120 on `codex/batch120-auth-cta-semantics`.
+1. Sync Lovable with Batch #120 using `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`.
 
-2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
+2. Record the user's Lovable sync report for Batch #120 in project-memory.
 
-3. After merge, add a Batch #120 Lovable sync prompt and record the post-merge state. Batch #119 Lovable sync remains pending unless the user provides a sync report.
+3. Continue the next scoped runtime UX/accessibility audit. Batch #119 Lovable sync remains pending unless the user provides a sync report.
 
 ## Latest Confirmed Main State
 
@@ -38,12 +38,15 @@
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run build`.
-- Current work branch is `codex/batch120-auth-cta-semantics`.
-- Batch #120 is implemented locally and validation passed.
+- Current branch is `main`.
+- Batch #120 is merged to `main` as `276f790`, `[codex] Batch #120 auth CTA semantics (#171)`.
+- PR #171 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171`.
+- Batch #120 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`.
 - Batch #120 fixes invalid nested interactive CTA markup on public auth routes: `/signin` home back-link and `/reset-password` sign-in back-link now use `Button asChild`, so each visual target is a single link instead of `a > button`.
 - Batch #120 keeps auth copy, form behavior, redirect behavior, self-hosted API integration, Supabase prototype recovery behavior, route shell and visual styling unchanged.
 - Batch #120 added `src/pages/AuthCtaSemantics.test.tsx` and `e2e/auth-cta-semantics.spec.ts`.
 - `smoke:e2e:auth-cta-semantics:run` and `smoke:e2e:run` now include `e2e/auth-cta-semantics.spec.ts`.
+- GitHub `Core Type And Build Gate` passed on PR #171 in 10m50s.
 - Batch #120 local validation passed:
   - `npx vitest run src/pages/AuthCtaSemantics.test.tsx`, 2 tests;
   - `E2E_BASE_URL=http://127.0.0.1:4192 npx playwright test e2e/auth-cta-semantics.spec.ts --project=chromium`, 2 tests;

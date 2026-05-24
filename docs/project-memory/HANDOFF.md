@@ -58,8 +58,10 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - GitHub `Core Type And Build Gate` passed on PR #170 in 11m44s.
-- The repository is currently on branch `codex/batch120-auth-cta-semantics`.
-- Batch #120 is implemented locally and validation passed; it is not yet pushed or merged.
+- The repository is currently on branch `main`.
+- Batch #120 is merged to `main` as `276f790`, `[codex] Batch #120 auth CTA semantics (#171)`.
+- PR #171 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/171`.
+- Batch #120 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`.
 - Batch #120 fixes a concrete public auth route semantics defect found after Batch #119:
   - `/signin` home back-link and `/reset-password` sign-in back-link rendered as nested `Link` plus `Button`, producing duplicate interactive controls;
   - both back links now use the existing `Button asChild` pattern;
@@ -72,6 +74,7 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
+- GitHub `Core Type And Build Gate` passed on PR #171 in 10m50s.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -284,8 +287,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Commit and push Batch #120 on codex/batch120-auth-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
-After merge, add a Batch #120 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Sync Lovable with Batch #120 using docs/project-memory/PROMPTS/prompt-120-lovable-sync.md.
+After the user reports the Lovable result, record the sync status in project-memory.
 Batch #119 Lovable sync remains pending unless the user provides a sync report.
 ```
 
