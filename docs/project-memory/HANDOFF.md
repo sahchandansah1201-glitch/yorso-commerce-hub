@@ -20,8 +20,11 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch123-public-runtime-a11y-audit`.
-- Batch #123 public input accessibility is committed as current branch HEAD, `[codex] Batch #123 public input accessibility`, pending PR/merge.
+- The repository is currently on branch `main`.
+- Batch #123 public input accessibility is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
+- PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
+- GitHub `Core Type And Build Gate` passed on PR #174 in 11m31s.
+- Batch #123 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
 - Batch #123 fixes a concrete public accessibility defect found after Batch #122:
   - homepage hero search had no programmatic accessible name;
   - `/signin` email and password fields had no programmatic accessible names in email mode;

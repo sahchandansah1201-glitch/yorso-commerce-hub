@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch123-public-runtime-a11y-audit"
-  head_commit: "current branch HEAD"
+  active_branch: "main"
+  head_commit: "5105f3c"
   head_summary: "[codex] Batch #123 public input accessibility"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #123 implementation is committed and ready for PR."
+    - "Batch #123 merge and Lovable sync prompt are being recorded."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch123_public_input_accessibility"
-  summary: "Fix unnamed visible public input controls on the homepage and sign-in route after the Batch #122 CTA semantics audit."
-  status: "committed_ready_for_pr"
-  pull_request: "pending"
+  id: "batch123_lovable_sync_ready"
+  summary: "Batch #123 public input accessibility is merged to main and ready for Lovable sync."
+  status: "merged_lovable_sync_prompt_ready"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -89,6 +89,8 @@ active_workstream:
     - "Harden CountryPhoneInput so phone, country-selector, country-search and mobile close controls expose names without changing phone behavior."
     - "Add focused unit and mobile e2e guards for public input accessibility."
     - "Run local Batch #123 validation including full smoke:e2e:run."
+    - "Open PR #174, confirm GitHub Core Type And Build Gate, and merge Batch #123 to main."
+    - "Create a Lovable sync prompt for Batch #123."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -114,14 +116,16 @@ active_workstream:
     - "src/pages/SignIn.tsx"
     - "src/pages/PublicInputA11y.test.tsx"
     - "e2e/public-input-a11y.spec.ts"
+    - "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
 
 active_batch:
   id: 123
   summary: "Public input accessibility for homepage search and sign-in fields."
-  status: "committed_ready_for_pr"
-  commit: "current branch HEAD"
-  branch: "codex/batch123-public-runtime-a11y-audit"
-  pull_request: "pending"
+  status: "merged_to_main_lovable_sync_ready"
+  commit: "5105f3c"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
   confirmed_findings:
     - "Runtime audit found the homepage hero search input had no programmatic accessible name."
     - "Runtime audit found /signin email and password fields had no programmatic accessible names in email mode."
@@ -149,6 +153,25 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 123
+    summary: "Public input accessibility so homepage search and public sign-in inputs have programmatic accessible names."
+    status: "merged_to_main_lovable_sync_ready"
+    commit: "5105f3c"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
+    confirmed_files:
+      - "src/components/landing/Hero.tsx"
+      - "src/i18n/translations.ts"
+      - "src/pages/SignIn.tsx"
+      - "src/components/registration/CountryPhoneInput.tsx"
+      - "src/pages/PublicInputA11y.test.tsx"
+      - "e2e/public-input-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-123-lovable-sync.md"
   - id: 122
     summary: "Public CTA semantics so homepage and shared info/legal CTAs render as single links or static proof chips instead of nested interactive controls."
     status: "merged_to_main_lovable_sync_clean"

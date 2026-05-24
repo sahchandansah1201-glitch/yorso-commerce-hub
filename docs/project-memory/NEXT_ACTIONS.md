@@ -2,14 +2,15 @@
 
 ## Current Next Action
 
-1. Push `codex/batch123-public-runtime-a11y-audit` and open the Batch #123 PR.
+1. Sync Lovable with GitHub `main` at `5105f3c` or newer using `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
 
-2. Open the PR, wait for GitHub `Core Type And Build Gate`, merge to `main`, then create/update the Batch #123 Lovable sync prompt.
+2. Report whether Lovable sync is clean or list concrete conflicts.
 
-## Batch #123 In Progress
+## Batch #123 Ready For Lovable Sync
 
-- Branch: `codex/batch123-public-runtime-a11y-audit`.
-- Commit: current branch HEAD, `[codex] Batch #123 public input accessibility`.
+- Branch: `main`.
+- Commit: `5105f3c`, `[codex] Batch #123 public input accessibility`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - Scope: homepage and sign-in public input accessibility.
 - Runtime finding: `/` and `/signin` had visible input controls without programmatic accessible names.
 - Implemented fix:
@@ -24,10 +25,26 @@
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 129 tests.
+- GitHub validation passed: `Core Type And Build Gate`, 11m31s.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
 
 ## Latest Confirmed Main State
 
 - Current branch is `main`.
+- Batch #123 is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
+- PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
+- Batch #123 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`.
+- Batch #123 fixes unnamed visible public input controls on `/` and `/signin` while preserving search routing, auth runtime, public copy, visual layout, access gating, supplier redaction and price locks.
+- Batch #123 added `src/pages/PublicInputA11y.test.tsx` and `e2e/public-input-a11y.spec.ts`.
+- `smoke:e2e:public-input-a11y` and `smoke:e2e:run` now include `e2e/public-input-a11y.spec.ts`.
+- Batch #123 local validation passed:
+  - `npx vitest run src/pages/PublicInputA11y.test.tsx`, 4 tests;
+  - `npm run smoke:e2e:public-input-a11y`, 3 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 129 tests.
+- GitHub `Core Type And Build Gate` passed on PR #174 in 11m31s.
 - Batch #122 is merged to `main` as `dc2a3ca`, `[codex] Batch #122 public CTA semantics (#173)`.
 - PR #173 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173`.
 - Batch #122 Lovable sync is confirmed clean at `98335bd5`, `[codex] Record Batch 122 merge`, with no conflicts and no local file modifications in Lovable.
