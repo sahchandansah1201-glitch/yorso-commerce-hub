@@ -67,8 +67,8 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      <main className="flex flex-1 items-center justify-center bg-muted px-4 py-16">
+      <Header showSkipLink />
+      <main id="main" className="flex flex-1 items-center justify-center bg-muted px-4 py-16">
         <div className="w-full max-w-3xl">
           <div className="text-center">
             <p className="font-heading text-6xl font-extrabold tracking-tight text-primary">

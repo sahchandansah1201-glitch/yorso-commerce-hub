@@ -185,6 +185,17 @@
 - `docs/backend/production-scale-baseline.md`: Batch #125 10,000 concurrent users capacity review for public landmark labels.
 - `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`: Lovable sync prompt for Batch #125 after PR #176 merge; user confirmed clean sync at `a984c87`.
 
+## Batch #126 Public Skip-To-Main Target
+
+- `src/components/landing/Header.tsx`: opt-in skip-to-main link with locale-owned copy and focus/scroll behavior.
+- `src/components/landing/Header.landmarks.test.tsx`: regression coverage for named navigation landmarks and the optional skip link in EN/RU/ES.
+- `src/i18n/translations.ts`: EN/RU/ES `aria_skipToMain` copy.
+- `src/i18n/aria-tooltips-localized.ru.test.tsx`: Russian localization guard includes the skip-link English string.
+- `src/pages/Index.tsx`, `src/pages/Offers.tsx`, `src/pages/Suppliers.tsx`, `src/pages/HowItWorks.tsx`, `src/pages/ForSuppliers.tsx`, `src/components/InfoPageLayout.tsx`, `src/pages/SignIn.tsx`, `src/pages/ResetPassword.tsx`, `src/pages/Blog.tsx`, `src/pages/BlogArticle.tsx`, `src/pages/OfferDetail.tsx`, `src/pages/SupplierProfile.tsx`, `src/pages/NotFound.tsx`: audited public route shells expose exactly one `main#main` when opting into the skip link.
+- `e2e/public-skip-main-target.spec.ts`: mobile/desktop browser guard for one `main#main`, one skip link, zero extra main landmarks and no horizontal overflow across public routes, plus skip-link keyboard activation.
+- `package.json`: dedicated public skip-to-main smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #126 10,000 concurrent users capacity review for the public skip-to-main target.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

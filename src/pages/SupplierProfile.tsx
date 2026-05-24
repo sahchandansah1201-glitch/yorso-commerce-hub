@@ -831,8 +831,8 @@ const SupplierProfile = () => {
   if (!supplier && supplierDirectoryDetail.status === "loading") {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container py-10">
+        <Header showSkipLink />
+        <main id="main" className="container py-10">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="mt-4 h-40 w-full" />
         </main>
@@ -844,8 +844,8 @@ const SupplierProfile = () => {
   if (!supplier || supplierDirectoryDetail.missing) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <Header />
-        <main className="flex-1 container py-16">
+        <Header showSkipLink />
+        <main id="main" className="flex-1 container py-16">
           <h1 className="font-heading text-2xl font-bold text-foreground">
             {t.supplier_notFound_title}
           </h1>
@@ -876,8 +876,8 @@ const SupplierProfile = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
-      <main className="flex-1">
+      <Header showSkipLink />
+      <main id="main" className="flex-1">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-background">
           <div className="container py-3">

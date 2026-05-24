@@ -107,8 +107,8 @@ const OfferDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background font-body flex flex-col">
-        <Header />
-        <main className="container py-6 md:py-10 flex-1" aria-busy="true" aria-live="polite">
+        <Header showSkipLink />
+        <main id="main" className="container py-6 md:py-10 flex-1" aria-busy="true" aria-live="polite">
           <Skeleton className="h-8 w-32 mb-5" />
           <DetailSkeleton />
         </main>
@@ -124,8 +124,8 @@ const OfferDetail = () => {
       : null;
     return (
       <div className="min-h-screen bg-background font-body flex flex-col">
-        <Header />
-        <main className="container py-16 flex-1" role="alert" aria-live="assertive">
+        <Header showSkipLink />
+        <main id="main" className="container py-16 flex-1" role="alert" aria-live="assertive">
           <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-sm">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
               <AlertTriangle className="h-6 w-6 text-destructive" aria-hidden />
@@ -165,8 +165,8 @@ const OfferDetail = () => {
   if (!offer) {
     return (
       <div className="min-h-screen bg-background font-body flex flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center">
+        <Header showSkipLink />
+        <main id="main" className="flex flex-1 items-center justify-center">
           <div className="text-center">
             <h1 className="font-heading text-2xl font-bold text-foreground">{t.offerDetail_notFound}</h1>
             <Button asChild className="mt-4">
@@ -181,9 +181,9 @@ const OfferDetail = () => {
 
   return (
     <div className="min-h-screen bg-background font-body">
-      <Header />
+      <Header showSkipLink />
 
-      <main className="container py-6 md:py-10">
+      <main id="main" className="container py-6 md:py-10">
         <Button
           type="button"
           variant="ghost"

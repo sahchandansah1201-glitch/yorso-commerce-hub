@@ -182,6 +182,7 @@ type TranslationKeys = {
   aria_toggleMenu: string;
   aria_mainNavigation: string;
   aria_mobileNavigation: string;
+  aria_skipToMain: string;
   aria_goBack: string;
   aria_breadcrumb: string;
   aria_catalogResults: string;
@@ -1972,6 +1973,7 @@ const en: TranslationKeys = {
   aria_toggleMenu: "Toggle menu",
   aria_mainNavigation: "Main navigation",
   aria_mobileNavigation: "Mobile navigation",
+  aria_skipToMain: "Skip to main content",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
   aria_catalogResults: "Catalog results",
@@ -3729,6 +3731,7 @@ const ru: TranslationKeys = {
   aria_toggleMenu: "Открыть меню",
   aria_mainNavigation: "Основная навигация",
   aria_mobileNavigation: "Мобильная навигация",
+  aria_skipToMain: "Перейти к основному содержимому",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
   aria_catalogResults: "Результаты каталога",
@@ -5486,6 +5489,7 @@ const es: TranslationKeys = {
   aria_toggleMenu: "Abrir menú",
   aria_mainNavigation: "Navegación principal",
   aria_mobileNavigation: "Navegación móvil",
+  aria_skipToMain: "Saltar al contenido principal",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
   aria_catalogResults: "Resultados del catálogo",

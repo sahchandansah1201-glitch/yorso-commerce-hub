@@ -2,9 +2,36 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit, push and open PR for Batch #126 from `codex/batch126-public-skip-main-target`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. After PR creation, wait for GitHub `Core Type And Build Gate`. If it passes, mark the PR ready and merge; then create the Batch #126 Lovable sync prompt.
+
+## Batch #126 Local Validation Ready
+
+- Branch: `codex/batch126-public-skip-main-target`.
+- Scope: public skip-to-main target and stable main landmarks.
+- Runtime finding:
+  - homepage `/` had no main landmark;
+  - public routes had no reliable keyboard skip-to-main path;
+  - some public route shells and fallback/detail states lacked a stable `main#main` target.
+- Implemented fix:
+  - `Header` now has opt-in `showSkipLink` and `mainId` props;
+  - public routes that opt into the skip link expose exactly one `main#main`;
+  - skip link copy is locale-owned through EN/RU/ES `aria_skipToMain`;
+  - the skip link focuses and scrolls the target, then normalizes the URL to `#main`;
+  - `e2e/public-skip-main-target.spec.ts` covers public routes at 390px and 1024px.
+- Preserved behavior: public visual layout, buyer-first copy, CTA destinations, SEO route ownership, mobile overflow fixes, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Local validation passed:
+  - runtime Playwright pre-check on local dev server for `main#main`, skip-link presence and homepage skip-link focus;
+  - `E2E_BASE_URL=http://127.0.0.1:4198 npx playwright test e2e/public-skip-main-target.spec.ts --project=chromium`, 43 tests;
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 8 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-skip-main-target`, 43 tests after production build;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 219 tests.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #125 Lovable Sync Confirmed
 

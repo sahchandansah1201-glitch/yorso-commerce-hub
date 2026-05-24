@@ -88,9 +88,9 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      <Header showSkipLink />
 
-      <main className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
+      <main id="main" className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
         <div className="w-full max-w-md">
           <Button asChild variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
             <Link to="/signin">
