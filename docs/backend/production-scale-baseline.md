@@ -1974,6 +1974,67 @@ Marker: Google Fonts preconnect.
 Marker: no CSS font import.
 Marker: 10,000 concurrent users.
 
+## Batch #115 Catalog Locale Hardening
+
+Batch #115 fixes English catalog runtime copy that was still rendered from
+legacy Russian literals in locked offer cards. The buyer-facing `/offers`
+page now displays the redacted price label, analytics trigger, title, aria
+label and screen-reader hint from the active locale. The change is UI copy
+normalization only: it does not change price access rules, supplier identity
+redaction, offer data, routes, backend APIs or the Batch #112/#113 route shell.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Catalog API and fallback reads stay unchanged.
+- No buyer session, supplier access request, saved offer or admin state is
+  written by this change.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and the `i18n-translations` chunk remain browser/CDN
+  cacheable.
+- No queues, polling loops, retries or background jobs are introduced.
+- Locale strings are resolved client-side from the existing translation table.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch only changes display labels in existing catalog
+  components.
+- Existing offer/supplier pagination, access gating and database indexes
+  remain the 10,000 concurrent-user plan.
+
+Failure mode and graceful degradation:
+
+- If a legacy redacted price label is returned by fallback data, the UI maps it
+  to the active locale's locked-price label.
+- Unknown non-redacted price labels still render as received.
+- Screen-reader copy for the analytics toggle stays tied to the same
+  `aria-controls`, `aria-expanded`, `aria-describedby` and region contracts.
+
+Observability and load-test plan:
+
+- Synthetic checks should confirm `/offers` in English no longer exposes
+  Russian locked-price or analytics toggle text.
+- Existing catalog interaction telemetry can continue to track analytics panel
+  opens; event names and selectors are unchanged.
+- Browser smoke should continue to include mobile overflow checks for
+  `/offers` and `/suppliers`.
+
+Validation:
+
+- `npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- production preview browser check for `/offers` desktop and mobile.
+
+Marker: Batch #115.
+Marker: catalog locale hardening.
+Marker: locked price active locale.
+Marker: analytics trigger active locale.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

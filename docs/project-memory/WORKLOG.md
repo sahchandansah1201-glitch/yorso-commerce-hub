@@ -554,3 +554,23 @@ Keep this file factual and append-only.
   - routes `/`, `/offers`, `/suppliers`, `/suppliers/:supplierId`, `/blog`, `/for-suppliers` and `/account/:section` remain declared in `src/App.tsx` with lazy loading, `RouteChunkErrorBoundary` and `Suspense`;
   - buyer-first narrative, Batch #110 mobile overflow fixes, Batch #111 SEO, Batch #112 i18n-only manual chunking and Batch #113 route chunk boundary are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #115 locally on `codex/batch115-catalog-locale-hardening`.
+- Ran the route-level proof/trust review with local Vite plus Playwright at 1440px and 390px for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+- Found a concrete `/offers` English-locale UX defect:
+  - locked offer cards displayed legacy Russian `Цена по запросу`;
+  - desktop analytics trigger and sr-only hints displayed Russian `Аналитика цен и рынка` / `Разворачивает...`;
+  - mobile trend analytics aria/title used Russian `Показать аналитику цен`.
+- Implemented Batch #115 catalog locale hardening:
+  - added `src/lib/catalog-display-labels.ts` to map legacy redacted price labels into the active locale label;
+  - localized desktop and mobile catalog analytics trigger copy through `src/i18n/translations.ts`;
+  - kept existing analytics selectors, aria-controls, aria-expanded, aria-describedby and panel region contracts;
+  - added textContent spacing before the price unit so locked labels read as `Exact price locked per kg`;
+  - added focused locale and display-label regression tests;
+  - added the Batch #115 10,000 concurrent-user capacity review.
+- Confirmed Batch #115 local validation:
+  - `npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx` passed, 16 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - production preview Playwright check for `/offers` desktop and mobile passed: no horizontal overflow, no visible Russian locked-price label, no visible Russian analytics trigger/hint, and locked price textContent includes a space before `per kg`.

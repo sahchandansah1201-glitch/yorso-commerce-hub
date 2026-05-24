@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "3be3d6d2"
-  head_summary: "[codex] Add Batch 114 Lovable sync prompt"
+  active_branch: "codex/batch115-catalog-locale-hardening"
+  head_commit: "c181b429"
+  head_summary: "[codex] Record Batch 114 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Recording the user's clean Lovable sync report for Batch #114."
+    - "Batch #115 catalog locale hardening is implemented locally and project-memory is being updated before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "public_route_proof_trust_review"
-  summary: "Run route-level proof, metrics and trust-signal review for buyer-first public pages."
-  status: "ready_after_batch114_lovable_sync_clean"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/165"
+  id: "batch115_catalog_locale_hardening"
+  summary: "Remove legacy Russian locked-price and analytics labels from the English offer catalog runtime."
+  status: "implemented_locally_validation_passed"
+  pull_request: null
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -48,10 +48,17 @@ active_workstream:
     - "Preserve buyer-first public pages, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary."
     - "Create a Lovable sync prompt for Batch #114."
     - "Record the user's clean Lovable sync report for Batch #114."
+    - "Audit public routes for proof, metrics, trust signals, CTA clarity and mobile scanability."
+    - "Fix the concrete /offers locale defect where English locked offer cards exposed Russian price and analytics labels."
   confirmed_files:
-    - "index.html"
-    - "src/index.css"
-    - "src/test/font-loading.test.ts"
+    - "src/lib/catalog-display-labels.ts"
+    - "src/lib/catalog-display-labels.test.ts"
+    - "src/components/catalog/CatalogOfferRow.tsx"
+    - "src/components/catalog/CatalogOfferRow.locale.test.tsx"
+    - "src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx"
+    - "src/components/catalog/MobileOfferCard.tsx"
+    - "src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx"
+    - "src/i18n/translations.ts"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
@@ -248,6 +255,7 @@ current_ux_audit_status:
     - "Before Batch #111, route-level metadata was inconsistent across public routes outside the blog."
     - "Before Batch #112, the public bundle loaded a very large single production entry chunk."
     - "Before Batch #114, Google Fonts were loaded through CSS @import, which can block visual checks and slow first render."
+    - "Before Batch #115, English /offers runtime exposed legacy Russian labels for locked prices and analytics triggers."
   conversion_risks:
     - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
@@ -258,10 +266,16 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
-  - "If the review finds concrete public UX gaps, implement the next narrow buyer-first remediation batch."
+  - "Open a PR for Batch #115 catalog locale hardening."
+  - "After Batch #115 merge, create a Lovable sync prompt and then continue the route-level proof/trust review."
 
 last_confirmed_checks:
+  - "2026-05-24: Batch #115 focused tests passed: npx vitest run src/lib/catalog-display-labels.test.ts src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/catalog/CatalogOfferRow.analyticsA11y.test.tsx src/components/catalog/MobileOfferCard.analyticsToggle.test.tsx, 16 tests."
+  - "2026-05-24: Batch #115 npm run lint passed."
+  - "2026-05-24: Batch #115 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #115 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #115 npm run build passed; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved. CSS bundle: 125.44 kB minified, 20.79 kB gzip. Entry chunk: 355.46 kB minified, 114.16 kB gzip. i18n-translations: 313.45 kB minified, 98.69 kB gzip."
+  - "2026-05-24: Batch #115 production preview Playwright check passed for /offers desktop and mobile: no horizontal overflow, no visible Russian locked-price label, no visible Russian analytics trigger/hint, and locked price textContent includes a space before per kg."
   - "2026-05-24: User confirmed Lovable sync for Batch #114 is clean with no conflicts at 3be3d6d2."
   - "2026-05-24: Lovable confirmed index.html font preconnect/stylesheet, src/index.css no @import, src/test/font-loading.test.ts, Batch #114 production-scale notes, public route declarations, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are all present."
   - "2026-05-24: PR #165 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
@@ -339,4 +353,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Run the route-level proof, metrics and trust-signal density review."
+  - "Open PR and run GitHub validation for Batch #115."
+  - "After Batch #115 sync, continue route-level proof, metrics and trust-signal density review."

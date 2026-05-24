@@ -829,6 +829,14 @@ type TranslationKeys = {
   catalog_row_signal_news: string;
   catalog_row_signal_docsReady: string;
   catalog_row_signal_docsPending: string;
+  catalog_row_analytics_title: string;
+  catalog_row_analytics_show: string;
+  catalog_row_analytics_hide: string;
+  catalog_row_analytics_showFor: string;
+  catalog_row_analytics_hideFor: string;
+  catalog_row_analytics_hintClosed: string;
+  catalog_row_analytics_hintOpen: string;
+  catalog_row_analytics_heading: string;
 
   // Procurement workspace — selected-offer panel
   catalog_panel_aria: string;
@@ -2615,6 +2623,14 @@ const en: TranslationKeys = {
   catalog_row_signal_news: "news",
   catalog_row_signal_docsReady: "Docs ready",
   catalog_row_signal_docsPending: "Docs pending",
+  catalog_row_analytics_title: "Price & market analytics",
+  catalog_row_analytics_show: "Show price analytics",
+  catalog_row_analytics_hide: "Hide analytics",
+  catalog_row_analytics_showFor: "Show price and market analytics for {product}",
+  catalog_row_analytics_hideFor: "Hide price and market analytics for {product}",
+  catalog_row_analytics_hintClosed: "Opens the inline panel with price trend, market signals and country news for this offer. The page does not reload.",
+  catalog_row_analytics_hintOpen: "Collapses the inline panel with price trend, market signals and country news for this offer.",
+  catalog_row_analytics_heading: "Offer analytics: {product}",
 
   catalog_panel_aria: "Selected offer intelligence",
   catalog_panel_dock_aria: "Selected offer analytics",
@@ -4358,6 +4374,14 @@ const ru: TranslationKeys = {
   catalog_row_signal_news: "новости",
   catalog_row_signal_docsReady: "Документы готовы",
   catalog_row_signal_docsPending: "Документы уточняются",
+  catalog_row_analytics_title: "Аналитика цен и рынка",
+  catalog_row_analytics_show: "Показать аналитику цен",
+  catalog_row_analytics_hide: "Скрыть аналитику",
+  catalog_row_analytics_showFor: "Показать аналитику цен и рынка для {product}",
+  catalog_row_analytics_hideFor: "Скрыть аналитику цен и рынка для {product}",
+  catalog_row_analytics_hintClosed: "Разворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу. Страница не перезагружается.",
+  catalog_row_analytics_hintOpen: "Сворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу.",
+  catalog_row_analytics_heading: "Аналитика по офферу: {product}",
 
   catalog_panel_aria: "Аналитика выбранного предложения",
   catalog_panel_dock_aria: "Аналитика по выбранному предложению",
@@ -6101,6 +6125,14 @@ const es: TranslationKeys = {
   catalog_row_signal_news: "noticias",
   catalog_row_signal_docsReady: "Documentos listos",
   catalog_row_signal_docsPending: "Documentos pendientes",
+  catalog_row_analytics_title: "Analítica de precio y mercado",
+  catalog_row_analytics_show: "Mostrar analítica de precio",
+  catalog_row_analytics_hide: "Ocultar analítica",
+  catalog_row_analytics_showFor: "Mostrar analítica de precio y mercado para {product}",
+  catalog_row_analytics_hideFor: "Ocultar analítica de precio y mercado para {product}",
+  catalog_row_analytics_hintClosed: "Abre el panel integrado con tendencia de precio, señales de mercado y noticias por país para esta oferta. La página no se recarga.",
+  catalog_row_analytics_hintOpen: "Contrae el panel integrado con tendencia de precio, señales de mercado y noticias por país para esta oferta.",
+  catalog_row_analytics_heading: "Analítica de la oferta: {product}",
 
   catalog_panel_aria: "Inteligencia de la oferta seleccionada",
   catalog_panel_dock_aria: "Analítica de la oferta seleccionada",

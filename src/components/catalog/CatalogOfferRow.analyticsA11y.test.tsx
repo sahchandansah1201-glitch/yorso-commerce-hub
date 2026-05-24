@@ -56,7 +56,7 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
     expect(panel.getAttribute("role")).toBe("region");
 
     // aria-labelledby ссылается на скрытый h4 внутри панели — даёт
-    // скринридерам имя "Аналитика по офферу <название>" и корректную
+    // скринридерам имя "Offer analytics: <название>" и корректную
     // h3 → h4 → h5 иерархию. Сам h4 рендерится только когда Radix
     // открыл CollapsibleContent, поэтому открываем панель перед
     // проверкой DOM-узла заголовка.
@@ -92,14 +92,14 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
     const offer = renderRow();
     const btn = screen.getByTestId("catalog-row-analytics-toggle");
 
-    expect(btn.getAttribute("aria-label")).toMatch(/Показать аналитику/);
+    expect(btn.getAttribute("aria-label")).toMatch(/Show price and market analytics/);
     expect(btn.getAttribute("aria-label")).toContain(offer.productName);
-    expect(btn.getAttribute("title")).toBe("Аналитика цен и рынка");
+    expect(btn.getAttribute("title")).toBe("Price & market analytics");
 
     fireEvent.click(btn);
-    expect(btn.getAttribute("aria-label")).toMatch(/Скрыть аналитику/);
+    expect(btn.getAttribute("aria-label")).toMatch(/Hide price and market analytics/);
     expect(btn.getAttribute("aria-label")).toContain(offer.productName);
-    expect(btn.getAttribute("title")).toBe("Скрыть аналитику");
+    expect(btn.getAttribute("title")).toBe("Hide analytics");
   });
 
   it("aria-describedby ссылается на скрытый sr-only помощник с описанием эффекта", () => {
@@ -113,11 +113,11 @@ describe("CatalogOfferRow · «Аналитика» — a11y контракт", 
     expect(hint!.className).toContain("sr-only");
 
     // closed → объясняет, что произойдёт по активации.
-    expect(hint!.textContent).toMatch(/Разворачивает/);
-    expect(hint!.textContent).toMatch(/Страница не перезагружается/);
+    expect(hint!.textContent).toMatch(/Opens the inline panel/);
+    expect(hint!.textContent).toMatch(/The page does not reload/);
 
     fireEvent.click(btn);
-    expect(hint!.textContent).toMatch(/Сворачивает/);
+    expect(hint!.textContent).toMatch(/Collapses the inline panel/);
   });
 
   it("focus-visible стили присутствуют и в closed-, и в open-состоянии", () => {

@@ -28,6 +28,7 @@ import {
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
+import { resolveCatalogPriceRangeLabel } from "@/lib/catalog-display-labels";
 import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
@@ -441,7 +442,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   const hasNumeric = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
   const range = hasNumeric
     ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
-    : offer.priceRange;
+    : resolveCatalogPriceRangeLabel(offer.priceRange, t.catalog_card_priceLocked);
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
   // Deal terms surfaced directly under price: in B2B procurement, Incoterm
@@ -481,6 +482,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
           <span className="font-heading text-[17px] font-bold text-foreground">
             {offer.currency ?? "USD"} {exact}
           </span>
+          {" "}
           <PriceUnit unit={unit} />
         </div>
         {MoqLine}
@@ -532,6 +534,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
     >
       <div data-testid="catalog-row-price" className="flex items-baseline gap-1.5">
         <span className="font-heading text-[17px] font-bold text-foreground">{range}</span>
+        {" "}
         <PriceUnit unit={unit} />
       </div>
       {hasVolumeBreaks && moqSummary ? (
@@ -634,6 +637,9 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
       analyticsToggleRef.current?.focus();
     });
   };
+  const analyticsShowLabel = t.catalog_row_analytics_showFor.replace("{product}", offer.productName);
+  const analyticsHideLabel = t.catalog_row_analytics_hideFor.replace("{product}", offer.productName);
+  const analyticsHeading = t.catalog_row_analytics_heading.replace("{product}", offer.productName);
 
   const trend = getPriceTrend(offer.category);
   const offerCountries = new Set([offer.origin, offer.supplier.country]);
@@ -777,10 +783,10 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           aria-describedby={`offer-analytics-${offer.id}-hint`}
           aria-label={
             analyticsOpen
-              ? `Скрыть аналитику цен и рынка для ${offer.productName}`
-              : `Показать аналитику цен и рынка для ${offer.productName}`
+              ? analyticsHideLabel
+              : analyticsShowLabel
           }
-          title={analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}
+          title={analyticsOpen ? t.catalog_row_analytics_hide : t.catalog_row_analytics_title}
           data-testid="catalog-row-analytics-toggle"
           data-state={analyticsOpen ? "open" : "closed"}
           className={cn(
@@ -792,7 +798,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           )}
         >
           <BarChart3 className="h-4 w-4" aria-hidden />
-          <span>{analyticsOpen ? "Скрыть аналитику" : "Аналитика цен и рынка"}</span>
+          <span>{analyticsOpen ? t.catalog_row_analytics_hide : t.catalog_row_analytics_title}</span>
           <ChevronDown
             className={cn(
               "h-3.5 w-3.5 shrink-0 transition-transform",
@@ -802,8 +808,8 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
           />
           <span id={`offer-analytics-${offer.id}-hint`} className="sr-only">
             {analyticsOpen
-              ? "Сворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу."
-              : "Разворачивает встроенную панель с трендом цен, рыночными сигналами и новостями по этому офферу. Страница не перезагружается."}
+              ? t.catalog_row_analytics_hintOpen
+              : t.catalog_row_analytics_hintClosed}
           </span>
         </button>
       </div>
@@ -879,7 +885,7 @@ export const CatalogOfferRow = ({ offer, isSelected, onSelect, forceLevel, isHig
               id={`offer-analytics-${offer.id}-heading`}
               className="sr-only"
             >
-              Аналитика по офферу: {offer.productName}
+              {analyticsHeading}
             </h4>
             <OfferAnalyticsPanel offer={offer} />
           </div>

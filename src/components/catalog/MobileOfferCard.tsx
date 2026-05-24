@@ -5,6 +5,7 @@ import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximi
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
 import { formatPriceRange } from "@/lib/format";
+import { resolveCatalogPriceRangeLabel } from "@/lib/catalog-display-labels";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { getPriceTrend } from "@/data/mockIntelligence";
 import { cn } from "@/lib/utils";
@@ -370,7 +371,7 @@ const MobileOfferCard = ({
   const hasNumeric = typeof offer.priceMin === "number" && typeof offer.priceMax === "number";
   const range = hasNumeric
     ? formatPriceRange(offer.priceMin!, offer.priceMax!, lang, offer.currency ?? "USD")
-    : offer.priceRange;
+    : resolveCatalogPriceRangeLabel(offer.priceRange, t.catalog_card_priceLocked);
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
   const exact = unlocked && hasNumeric
     ? `${offer.currency ?? "USD"} ${((offer.priceMin! + offer.priceMax!) / 2).toFixed(2)}`
@@ -566,21 +567,22 @@ const MobileOfferCard = ({
         {/* 2. Price first, with trend (trend doubles as analytics trigger) */}
         <div className="flex items-baseline gap-2 leading-6">
           {exact ? (
-            <span className="font-heading text-lg font-bold leading-6 text-foreground">
+            <span data-testid="catalog-row-price" className="font-heading text-lg font-bold leading-6 text-foreground">
               {exact}
             </span>
           ) : (
-            <span className="font-heading text-lg font-bold leading-6 text-foreground">{range}</span>
+            <span data-testid="catalog-row-price" className="font-heading text-lg font-bold leading-6 text-foreground">{range}</span>
           )}
+          {" "}
           <span className="text-xs leading-5 text-muted-foreground">{unit}</span>
           {TrendIcon && trend && (
             <CollapsibleTrigger asChild>
               <button
                 type="button"
                 onClick={(e) => e.stopPropagation()}
-                aria-label={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
+                aria-label={analyticsOpen ? t.catalog_row_analytics_hide : t.catalog_row_analytics_show}
                 aria-expanded={analyticsOpen}
-                title={analyticsOpen ? "Скрыть аналитику" : "Показать аналитику цен"}
+                title={analyticsOpen ? t.catalog_row_analytics_hide : t.catalog_row_analytics_show}
                 data-testid="catalog-row-trend-analytics-toggle"
                 className={cn(
                   "ml-auto inline-flex min-h-11 min-w-[44px] items-center justify-center gap-0.5 rounded-md border px-2 py-2 text-xs font-semibold leading-5 transition-all duration-200",
