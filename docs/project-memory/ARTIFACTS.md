@@ -83,7 +83,7 @@
 - `e2e/offers-trust-proof-anchors.spec.ts`: browser-level mobile guard for proof-strip clicks landing on visible offer evidence.
 - `package.json`: `smoke:e2e:offers-catalog:run` includes the trust-proof anchor e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #116 10,000 concurrent users capacity review for proof-strip scroll behavior.
-- `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`: Lovable sync prompt for Batch #116.
+- `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`: Lovable sync prompt for Batch #116; user confirmed clean sync at `3bca7961`.
 
 ## Batch #96 Supplier Access Review Console
 

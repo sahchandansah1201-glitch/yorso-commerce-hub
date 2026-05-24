@@ -621,3 +621,10 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #167 ready and merged it to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
 - Added `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md` for Batch #116 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #116 is clean:
+  - HEAD is `3bca7961`, `[codex] Add Batch 116 Lovable sync prompt`, on `main` and on top of Batch #116 `33d92c3`;
+  - `TrustProofStrip` visible-anchor fallback, focused unit tests, mobile e2e guard, offers-catalog smoke wiring and Batch #116 production-scale notes are present;
+  - public routes remain declared with lazy loading and `RouteChunkErrorBoundary`;
+  - no conflicts were found and Lovable did not modify files;
+  - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary, Batch #114 font loading and Batch #115 locale hardening are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

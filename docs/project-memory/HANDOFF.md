@@ -24,6 +24,13 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #116 offers proof anchor fallback is merged to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
 - PR #167 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
 - Batch #116 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`.
+- Lovable sync for Batch #116 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `3bca7961`, `[codex] Add Batch 116 Lovable sync prompt`, on top of Batch #116 `33d92c3`;
+  - `TrustProofStrip` visible-anchor resolution, focused tests, mobile e2e guard, offers-catalog smoke wiring and Batch #116 production-scale notes are present;
+  - no conflicts were found and no files were modified in Lovable;
+  - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary, Batch #114 font loading and Batch #115 locale hardening are preserved;
+  - `Procurement intelligence` targets `catalog-anchor-intelligence` on desktop and falls back to `catalog-anchor-results` on mobile; `Document readiness` targets `catalog-anchor-results`; telemetry sends the resolved anchor id;
+  - known warnings remain: Supabase generated types drift in non-strict mode and stale Browserslist data.
 - Batch #116 fixes a concrete `/offers` trust-proof navigation defect found in runtime review:
   - on mobile, `Procurement intelligence` proof no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence;
   - `Document readiness` proof now lands on offer cards where document status is visible instead of the filter bar;
@@ -199,9 +206,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Run docs/project-memory/PROMPTS/prompt-116-lovable-sync.md in Lovable.
-Confirm the synced GitHub commit, files/routes checked, conflict status, public runtime status, offers proof anchor fallback status, bundle/code-splitting status and remaining known warnings.
-Then record the Lovable sync result in project-memory before continuing the route-level proof/trust review.
+Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
+If a concrete buyer-facing issue is confirmed from route runtime evidence, implement the narrowest connected UX/UI batch with tests, production-scale notes, project-memory updates and a Lovable sync prompt.
 ```
 
 ## Rules

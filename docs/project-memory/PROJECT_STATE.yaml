@@ -12,11 +12,10 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "33d92c3"
-  head_summary: "[codex] Batch #116 offers proof anchor fallback (#167)"
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Post-merge project-memory and Batch #116 Lovable sync prompt are being added."
+  head_commit: "3bca796"
+  head_summary: "[codex] Add Batch 116 Lovable sync prompt"
+  dirty_worktree_before_project_memory: false
+  dirty_worktree_reason: []
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +36,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch116_lovable_sync"
-  summary: "Sync Lovable after Batch #116 offers proof anchor fallback, then continue route-level proof and trust-signal review."
-  status: "batch116_merged_lovable_prompt_ready"
+  id: "route_proof_trust_review_after_batch116"
+  summary: "Continue route-level proof, metrics and trust-signal review after clean Batch #116 Lovable sync."
+  status: "batch116_lovable_sync_clean_route_review_next"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -56,6 +55,7 @@ active_workstream:
     - "Fix mobile proof-strip navigation where Procurement intelligence targeted a hidden desktop-only panel."
     - "Route Document readiness proof to offer evidence instead of the filter bar."
     - "Create a Lovable sync prompt for Batch #116."
+    - "Record the user's clean Lovable sync report for Batch #116."
   confirmed_files:
     - "src/components/catalog/TrustProofStrip.tsx"
     - "src/components/catalog/TrustProofStrip.test.tsx"
@@ -72,9 +72,25 @@ active_workstream:
 latest_merged_batches:
   - id: 116
     summary: "Offers trust proof-strip anchor fallback so mobile proof buttons land on visible offer evidence."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "33d92c3"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
+    lovable_sync:
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to 3bca7961, [codex] Add Batch 116 Lovable sync prompt, on main and on top of Batch #116 33d92c3."
+        - "src/components/catalog/TrustProofStrip.tsx resolveAnchor checks display, visibility and rect before scrollIntoView, falls back to catalog-anchor-results, and documents points to catalog-anchor-results."
+        - "src/components/catalog/TrustProofStrip.test.tsx has three cases: hidden intelligence to results, visible intelligence to intelligence, and documents to results."
+        - "e2e/offers-trust-proof-anchors.spec.ts uses a 390x844 viewport and verifies catalog-trust-proof-signals and catalog-trust-proof-documents land on visible offer evidence."
+        - "package.json smoke:e2e:offers-catalog:run includes offers-catalog-paging.spec.ts and offers-trust-proof-anchors.spec.ts."
+        - "docs/backend/production-scale-baseline.md is present."
+        - "Routes /, /offers, /suppliers, /how-it-works and /for-suppliers remain lazy-loaded through RouteChunkErrorBoundary."
+        - "No conflicts were found; the worktree was clean and files were not modified in Lovable."
+        - "Buyer-first narrative, Batch #111 SEO, Batch #110 mobile fixes, Batch #114 font loading, Batch #115 locale hardening, access gating and supplier identity redaction are preserved."
+        - "Procurement intelligence targets catalog-anchor-intelligence on desktop and falls back to catalog-anchor-results on mobile; Document readiness targets catalog-anchor-results; catalog_trust_proof_click sends the resolved anchor id."
+        - "Batch #112 i18n-translations manual chunk strategy and Batch #113 RouteChunkErrorBoundary remain in place; large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/components/catalog/TrustProofStrip.tsx"
       - "src/components/catalog/TrustProofStrip.test.tsx"
@@ -313,10 +329,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-116-lovable-sync.md in Lovable and confirm sync status."
-  - "After Batch #116 sync, continue the route-level proof/trust review."
+  - "Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
+  - "Implement the next concrete buyer-facing UX/UI improvement only if it is backed by route runtime evidence."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #116 is clean with no conflicts at 3bca7961."
+  - "2026-05-24: Lovable confirmed TrustProofStrip anchor fallback files, focused tests, e2e guard, offers catalog smoke wiring, Batch #116 production-scale notes, public route declarations, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading and Batch #115 locale hardening are all present."
   - "2026-05-24: PR #167 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
   - "2026-05-24: PR #167 merged to main as 33d92c3."
   - "2026-05-24: Batch #116 focused test passed: npx vitest run src/components/catalog/TrustProofStrip.test.tsx, 3 tests."
@@ -415,5 +433,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #116 is pending."
-  - "After Batch #116 sync, continue route-level proof, metrics and trust-signal density review."
+  - "Next route-level proof/trust issue to address after Batch #116 sync."

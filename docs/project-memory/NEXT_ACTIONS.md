@@ -2,22 +2,24 @@
 
 ## Current Next Action
 
-1. Run `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md` in Lovable:
-   - sync Lovable with GitHub `main` at `33d92c3` or newer;
-   - verify the Batch #116 offers proof anchor fallback is present;
-   - confirm no conflicts and no overwritten user edits;
-   - preserve access gating, supplier redaction, Batch #112 route splitting and Batch #113 route error boundary.
+1. Continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
 
-2. After Batch #116 sync, continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+2. If the review finds a concrete buyer-facing issue, implement the narrowest connected UX/UI batch with:
+   - runtime evidence from the route;
+   - focused tests or e2e coverage;
+   - `docs/backend/production-scale-baseline.md` notes for 10,000 concurrent users;
+   - project-memory updates and a Lovable sync prompt.
 
 ## Latest Confirmed Main State
 
-- `main` is at `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
+- `main` is at `3bca796`, `[codex] Add Batch 116 Lovable sync prompt`.
+- Lovable sync for Batch #116 is confirmed clean at `3bca7961`, with no conflicts.
 - PR #167 is merged for Batch #116: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
-- Batch #116 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`.
 - Batch #116 fixes a `/offers` trust-proof navigation defect: on mobile, `Procurement intelligence` no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence; `Document readiness` now lands on offer cards instead of the filter bar.
 - Batch #116 added `src/components/catalog/TrustProofStrip.test.tsx` and `e2e/offers-trust-proof-anchors.spec.ts`.
 - `smoke:e2e:offers-catalog:run` now includes both `e2e/offers-catalog-paging.spec.ts` and `e2e/offers-trust-proof-anchors.spec.ts`.
+- Lovable confirmed `TrustProofStrip` visible-anchor resolution, resolved-anchor telemetry, mobile proof evidence landing, Batch #116 tests, e2e guard, production-scale notes and public route declarations are present.
+- Buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary, Batch #114 font loading and Batch #115 locale hardening are preserved.
 - GitHub `Core Type And Build Gate` passed on PR #167, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 - Batch #116 local validation passed:
   - `npx vitest run src/components/catalog/TrustProofStrip.test.tsx`, 3 tests;
@@ -103,4 +105,3 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #116 needs Lovable sync confirmation.
