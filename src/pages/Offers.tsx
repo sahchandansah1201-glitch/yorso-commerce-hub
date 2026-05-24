@@ -96,7 +96,7 @@ const Offers = () => {
   const { level } = useAccessLevel();
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [initialCatalogView] = useState(() => readInitialCatalogView(searchParams));
   const [filters, setFilters] = useState<CatalogFilterState>(initialCatalogView.filters);
   const [sortBy, setSortBy] = useState<OfferSortKey>(initialCatalogView.sortBy);
@@ -129,30 +129,40 @@ const Offers = () => {
   }, [filters.q]);
 
   useEffect(() => {
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
-      if (debouncedQuery) next.set("q", debouncedQuery);
-      else next.delete("q");
-      if (filters.category) next.set("category", filters.category);
-      else next.delete("category");
-      if (filters.origin) next.set("origin", filters.origin);
-      else next.delete("origin");
-      if (filters.supplierCountry) next.set("supplierCountry", filters.supplierCountry);
-      else next.delete("supplierCountry");
-      if (filters.certification) next.set("certification", filters.certification);
-      else next.delete("certification");
-      if (filters.state) next.set("state", filters.state);
-      else next.delete("state");
-      if (sortBy !== DEFAULT_OFFER_SORT_KEY) next.set("sort", sortBy);
-      else next.delete("sort");
-      if (sortDirection !== DEFAULT_OFFER_SORT_DIRECTION) next.set("dir", sortDirection);
-      else next.delete("dir");
-      if (pageSize !== DEFAULT_OFFER_PAGE_SIZE) next.set("rows", String(pageSize));
-      else next.delete("rows");
-      if (page > 1) next.set("page", String(page));
-      else next.delete("page");
-      return next;
-    }, { replace: true });
+    const next = new URLSearchParams(location.search);
+    if (debouncedQuery) next.set("q", debouncedQuery);
+    else next.delete("q");
+    if (filters.category) next.set("category", filters.category);
+    else next.delete("category");
+    if (filters.origin) next.set("origin", filters.origin);
+    else next.delete("origin");
+    if (filters.supplierCountry) next.set("supplierCountry", filters.supplierCountry);
+    else next.delete("supplierCountry");
+    if (filters.certification) next.set("certification", filters.certification);
+    else next.delete("certification");
+    if (filters.state) next.set("state", filters.state);
+    else next.delete("state");
+    if (sortBy !== DEFAULT_OFFER_SORT_KEY) next.set("sort", sortBy);
+    else next.delete("sort");
+    if (sortDirection !== DEFAULT_OFFER_SORT_DIRECTION) next.set("dir", sortDirection);
+    else next.delete("dir");
+    if (pageSize !== DEFAULT_OFFER_PAGE_SIZE) next.set("rows", String(pageSize));
+    else next.delete("rows");
+    if (page > 1) next.set("page", String(page));
+    else next.delete("page");
+
+    const nextSearch = next.toString();
+    const currentSearch = new URLSearchParams(location.search).toString();
+    if (nextSearch === currentSearch) return;
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: nextSearch ? `?${nextSearch}` : "",
+        hash: location.hash,
+      },
+      { replace: true },
+    );
   }, [
     debouncedQuery,
     filters.category,
@@ -160,9 +170,12 @@ const Offers = () => {
     filters.origin,
     filters.state,
     filters.supplierCountry,
+    location.hash,
+    location.pathname,
+    location.search,
+    navigate,
     page,
     pageSize,
-    setSearchParams,
     sortBy,
     sortDirection,
   ]);
@@ -194,6 +207,17 @@ const Offers = () => {
     setFilters(next);
     setPage(1);
   };
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const targetId = decodeURIComponent(location.hash.slice(1));
+    requestAnimationFrame(() => {
+      document.getElementById(targetId)?.scrollIntoView({
+        block: "start",
+        behavior: "auto",
+      });
+    });
+  }, [location.hash, offers.length]);
 
   useEffect(() => {
     analytics.track("offers_list_view");
@@ -551,7 +575,9 @@ const Offers = () => {
         </div>
 
         <div id="catalog-anchor-access" className="mt-4 scroll-mt-20">
-          <CatalogValueStrip />
+          <div id="request" className="scroll-mt-20">
+            <CatalogValueStrip />
+          </div>
         </div>
 
         {level === "anonymous_locked" && (

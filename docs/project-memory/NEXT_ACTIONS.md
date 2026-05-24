@@ -2,17 +2,29 @@
 
 ## Current Next Action
 
-1. Continue the route-level proof, metrics and trust signal review for `/offers`, `/suppliers`, `/how-it-works` and `/for-suppliers`.
+1. Commit and push Batch #117 on `codex/batch117-offers-request-anchor`.
 
-2. If the review finds a concrete buyer-facing issue, implement the narrowest connected UX/UI batch with:
-   - runtime evidence from the route;
-   - focused tests or e2e coverage;
-   - `docs/backend/production-scale-baseline.md` notes for 10,000 concurrent users;
-   - project-memory updates and a Lovable sync prompt.
+2. Open a draft PR, wait for GitHub `Core Type And Build Gate`, then mark ready and merge if clean.
+
+3. After merge, add a Batch #117 Lovable sync prompt and record the post-merge state.
 
 ## Latest Confirmed Main State
 
-- `main` is at `3bca796`, `[codex] Add Batch 116 Lovable sync prompt`.
+- Current work branch is `codex/batch117-offers-request-anchor`.
+- Batch #117 is implemented locally and validation passed.
+- Batch #117 fixes a cross-route conversion defect: `/how-it-works` request-access CTAs now preserve `/offers#request`, and `/offers` exposes a real `#request` anchor around the access/value strip.
+- `/offers` catalog URL normalization now preserves the active hash while it rewrites search params for filters, sort, rows and page state.
+- Batch #117 added `e2e/how-it-works-request-anchor.spec.ts`.
+- `smoke:e2e:run` now includes `e2e/how-it-works-request-anchor.spec.ts`.
+- Batch #117 local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium`, 4 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build`.
+- Known warnings remain during build: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- `main` is at `1651d68`, `[codex] Record Batch 116 Lovable sync`.
 - Lovable sync for Batch #116 is confirmed clean at `3bca7961`, with no conflicts.
 - PR #167 is merged for Batch #116: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
 - Batch #116 fixes a `/offers` trust-proof navigation defect: on mobile, `Procurement intelligence` no longer targets the hidden desktop-only intelligence column and falls back to visible offer evidence; `Document readiness` now lands on offer cards instead of the filter bar.

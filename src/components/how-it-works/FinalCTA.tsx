@@ -51,7 +51,7 @@ const FinalCTA = () => {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="font-semibold">
-                <Link to="/offers#request">
+                <Link to={{ pathname: "/offers", hash: "#request" }}>
                   <FileSignature className="mr-1.5 h-4 w-4" />
                   {t.fc_buyer_cta2}
                 </Link>

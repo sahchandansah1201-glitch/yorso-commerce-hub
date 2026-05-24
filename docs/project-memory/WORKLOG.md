@@ -628,3 +628,24 @@ Keep this file factual and append-only.
   - no conflicts were found and Lovable did not modify files;
   - buyer-first narrative, supplier trust mechanism, access gating, supplier identity redaction, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 route chunk boundary, Batch #114 font loading and Batch #115 locale hardening are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Recorded Batch #116 Lovable sync in project-memory and pushed `main` as `1651d68`, `[codex] Record Batch 116 Lovable sync`.
+- Started Batch #117 on `codex/batch117-offers-request-anchor`.
+- Ran runtime review for the `/how-it-works` buyer request-access CTA and `/offers#request` landing.
+- Found a concrete cross-route conversion defect:
+  - `/how-it-works` CTAs linked to `/offers#request`;
+  - `/offers` did not expose a `#request` anchor;
+  - catalog search-param normalization rewrote the URL and stripped the hash.
+- Implemented Batch #117 offers request anchor:
+  - added a stable `#request` anchor around the existing catalog access/value strip;
+  - changed `/how-it-works` request-access CTAs to object `to={{ pathname: "/offers", hash: "#request" }}`;
+  - changed `/offers` URL normalization to preserve `location.hash`;
+  - added a hash-scroll effect after catalog render.
+- Added `e2e/how-it-works-request-anchor.spec.ts` and wired it into `smoke:e2e:run`.
+- Added Batch #117 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #117 local validation:
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium` passed, 4 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only.

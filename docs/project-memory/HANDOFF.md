@@ -20,7 +20,21 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `main`.
+- The repository is currently on branch `codex/batch117-offers-request-anchor`.
+- The active work branch is `codex/batch117-offers-request-anchor`, based on `main` at `1651d68`, `[codex] Record Batch 116 Lovable sync`.
+- Batch #117 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #117 fixes a concrete cross-route conversion defect found in runtime review:
+  - `/how-it-works` buyer request-access CTAs pointed to `/offers#request`;
+  - `/offers` had no `#request` anchor and catalog URL normalization stripped the hash;
+  - `/offers` now exposes a stable `#request` anchor around the existing access/value strip and preserves active hashes while rewriting search params.
+- Batch #117 touched `src/pages/Offers.tsx`, `src/pages/HowItWorks.tsx`, `src/components/how-it-works/FinalCTA.tsx`, added `e2e/how-it-works-request-anchor.spec.ts`, extended `smoke:e2e:run`, and added the Batch #117 production-scale section.
+- Batch #117 validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium`, 4 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - Batch #116 offers proof anchor fallback is merged to `main` as `33d92c3`, `[codex] Batch #116 offers proof anchor fallback (#167)`.
 - PR #167 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167`.
 - Batch #116 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`.
@@ -206,8 +220,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers.
-If a concrete buyer-facing issue is confirmed from route runtime evidence, implement the narrowest connected UX/UI batch with tests, production-scale notes, project-memory updates and a Lovable sync prompt.
+Commit and push Batch #117 on codex/batch117-offers-request-anchor, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+After merge, add a Batch #117 Lovable sync prompt and update project-memory back to a clean main checkpoint.
 ```
 
 ## Rules

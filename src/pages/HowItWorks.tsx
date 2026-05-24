@@ -191,7 +191,7 @@ const HowItWorks = () => {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="w-full font-semibold sm:w-auto">
-                  <Link to="/offers#request">
+                  <Link to={{ pathname: "/offers", hash: "#request" }}>
                     <FileCheck2 className="mr-1.5 h-4 w-4" />
                     {t.hero_ctaRequestAccess}
                   </Link>
