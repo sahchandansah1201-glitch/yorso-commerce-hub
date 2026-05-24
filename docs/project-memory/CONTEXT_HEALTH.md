@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "sync Lovable with Batch #125 after PR #176 merge"
+recommended_action: "start the next scoped public UX/UI audit batch after Batch #125 Lovable sync"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "main after Batch #125 merge and Lovable sync prompt"
+head_commit: "main after Batch #125 Lovable sync record commit"
 latest_merged_batch: 125
-active_workstream: "batch125_lovable_sync_ready"
+active_workstream: "ready_for_next_public_ux_batch"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176"
-why_low: "Batch #125 is merged to main as 7196cc8 via PR #176, GitHub gate passed, and the Lovable sync prompt is ready."
+why_low: "Batch #125 is merged to main as 7196cc8 via PR #176 and Lovable sync is confirmed clean at a984c87 with no conflicts or file modifications."
 ```
 
 ## Risk Levels
@@ -51,7 +51,7 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch after Batch #125 merge: main.
-Current workstream: Batch #125 public landmark labels is merged to main and Lovable sync prompt is ready.
+Current workstream: Batch #125 public landmark labels is merged to main and Lovable sync is confirmed clean.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -76,6 +76,8 @@ Batch #125 local validation passed: npx vitest run src/components/landing/Header
 Batch #125 is merged to main as 7196cc8, [codex] Batch #125 public landmark labels (#176), via PR #176.
 GitHub Core Type And Build Gate passed on PR #176 in 11m52s.
 Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-125-lovable-sync.md.
+Lovable sync for Batch #125 is confirmed clean at a984c87 with no conflicts and no file changes.
+Lovable confirmed Header desktop/mobile landmark labels, HowItWorks supplier/trust aside labels, Blog and BlogArticle sidebar labels, EN/RU/ES i18n keys, RU leak guard, public-landmark e2e guard, package smoke wiring, preserved Batch #112 code splitting, preserved Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: ask Lovable to sync from GitHub main at 7196cc8 or newer.
+Next step: start the next scoped public UX/UI audit batch from current main.
 ```

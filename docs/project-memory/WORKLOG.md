@@ -938,3 +938,12 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #176 `Core Type And Build Gate` passed in 11m52s.
 - Marked PR #176 ready and merged it to `main` as `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`.
 - Added `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md` for Batch #125 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #125 is clean:
+  - HEAD is `a984c87` on `main`, including Batch #125 `7196cc8` / PR #176;
+  - `Header.tsx`, `Header.landmarks.test.tsx`, `HowItWorks.tsx`, `BusinessOutcomes.tsx`, `Blog.tsx`, `BlogArticle.tsx`, `translations.ts`, `aria-tooltips-localized.ru.test.tsx`, `e2e/public-landmark-labels.spec.ts` and package smoke wiring are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - visible `nav`/`aside`/`role=navigation|complementary` landmarks are named across all 19 public routes;
+  - desktop Header exposes `Main navigation`, and the open mobile menu exposes `Mobile navigation`;
+  - links, destinations, open/close behavior, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are unchanged;
+  - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

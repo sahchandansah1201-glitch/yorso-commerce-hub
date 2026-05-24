@@ -2,18 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at `7196cc8` or newer using `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Confirm no conflicts and that public landmark labels are present on Header, `/how-it-works`, `/blog` and `/blog/:slug`.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-3. Preserve known warnings only: Supabase generated types out of sync in non-strict mode and stale Browserslist data.
-
-## Batch #125 Merged, Lovable Sync Ready
+## Batch #125 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
+- Lovable sync: clean at `a984c87`, no conflicts and no file modifications.
 - Scope: public landmark labels and screen-reader route scanability.
 - Runtime finding:
   - desktop `Header` navigation had no accessible landmark name;
@@ -36,6 +35,15 @@
 - GitHub validation passed:
   - `Core Type And Build Gate`, 11m52s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
+- Lovable confirmed:
+  - Header desktop/mobile nav landmarks are named;
+  - `/how-it-works` supplier/trust asides are labelled;
+  - `/blog` and `/blog/:slug` sidebar landmarks are labelled;
+  - EN/RU/ES translation keys and RU leak guard are present;
+  - `e2e/public-landmark-labels.spec.ts` and package smoke wiring are present;
+  - public landmarks are named across 19 public routes at mobile 390 and desktop 1024;
+  - header links, destinations and open/close behavior are unchanged;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124 are preserved.
 
 ## Batch #124 Lovable Sync Confirmed
 

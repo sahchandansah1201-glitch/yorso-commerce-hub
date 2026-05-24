@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with GitHub `main` after Batch #125 using `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -25,6 +25,7 @@ Sync Lovable with GitHub `main` after Batch #125 using `docs/project-memory/PROM
 - PR #176 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
 - GitHub `Core Type And Build Gate` passed on PR #176 in 11m52s.
 - Batch #125 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-125-lovable-sync.md`.
+- Batch #125 Lovable sync is confirmed clean at `a984c87`, with no conflicts and no local file modifications in Lovable.
 - Batch #125 fixes a concrete public scanability/accessibility defect found after Batch #124:
   - desktop `Header` nav and open mobile `Header` nav were visible navigation landmarks without accessible names;
   - `/how-it-works` supplier/trust asides, `/blog` sidebar and `/blog/:slug` article tools aside were visible complementary landmarks without names.
@@ -38,7 +39,8 @@ Sync Lovable with GitHub `main` after Batch #125 using `docs/project-memory/PROM
   - `npm run smoke:e2e:public-landmark-labels`, 39 tests after production build;
   - `npm run lint`;
   - `npm run smoke:e2e:run`, 176 tests.
-- Next step: ask Lovable to sync from GitHub `main` at `7196cc8` or newer and report conflicts if any.
+- Lovable confirmed Header desktop/mobile nav labels, HowItWorks supplier/trust aside labels, Blog and BlogArticle sidebar labels, EN/RU/ES landmark i18n keys, RU leak guard, public-landmark e2e guard, package smoke wiring, preserved Batch #112 code splitting, preserved Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Known warnings remain: Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Batch #124 public heading structure is merged to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`, via PR #175.
 - PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.

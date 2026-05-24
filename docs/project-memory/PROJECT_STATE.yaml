@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "main after Batch #125 merge and Lovable sync prompt"
-  head_summary: "[codex] Batch #125 public landmark labels (#176)"
+  head_commit: "main after Batch #125 Lovable sync record commit"
+  head_summary: "[codex] Record Batch 125 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Only Batch #125 Lovable sync prompt and post-merge project-memory updates are in progress before commit."
+    - "User confirmed Batch #125 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch125_lovable_sync_ready"
-  summary: "Batch #125 public landmark labels is merged; Lovable sync prompt is ready."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #125 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176"
   confirmed_scope:
     - "Audit public routes after Batch #124 for landmark semantics and screen-reader navigation structure."
@@ -154,15 +154,15 @@ active_workstream:
 active_batch:
   id: 125
   summary: "Public landmark labels for header navigation, how-it-works asides and blog sidebars."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "7196cc8"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-125-lovable-sync.md"
   lovable_sync:
-    confirmed_at: null
-    head: null
-    result: "pending"
+    confirmed_at: "2026-05-24"
+    head: "a984c87"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit found the desktop Header nav had no accessible landmark name."
     - "Runtime audit found the open mobile Header nav had no accessible landmark name."
@@ -194,13 +194,33 @@ active_batch:
 latest_merged_batches:
   - id: 125
     summary: "Public landmark labels so visible public navigation and complementary landmarks have accessible names."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "7196cc8"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176"
     lovable_sync:
-      confirmed_at: null
-      result: "pending"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-125-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to a984c87 on main, including Batch #125 7196cc8 / PR #176."
+        - "The working tree was clean and no conflicts were found."
+        - "src/components/landing/Header.tsx labels desktop nav with aria_mainNavigation and mobile nav with aria_mobileNavigation."
+        - "src/components/landing/Header.landmarks.test.tsx covers EN/RU/ES desktop and mobile landmark assertions."
+        - "src/pages/HowItWorks.tsx labels the supplier trust aside through how-it-works-supplier-trust-heading."
+        - "src/components/how-it-works/BusinessOutcomes.tsx labels the supplier outcomes aside through business-outcomes-supplier-heading."
+        - "src/pages/Blog.tsx labels the blog sidebar with blog_sidebarAria."
+        - "src/pages/BlogArticle.tsx labels the article aside with blog_articleAsideAria."
+        - "src/i18n/translations.ts includes aria_mainNavigation, aria_mobileNavigation, blog_sidebarAria and blog_articleAsideAria in EN/RU/ES."
+        - "src/i18n/aria-tooltips-localized.ru.test.tsx guards English nav labels leaking into Russian UI."
+        - "e2e/public-landmark-labels.spec.ts covers 19 public routes at mobile 390 and desktop 1024, plus mobile-menu landmark naming."
+        - "package.json includes smoke:e2e:public-landmark-labels, smoke:e2e:public-landmark-labels:run and full smoke:e2e:run wiring."
+        - "Visible nav/aside/role navigation/complementary landmarks are named across all 19 public routes."
+        - "Header desktop Main navigation and mobile open menu Mobile navigation are present; links, destinations and open/close behavior are unchanged."
+        - "Batch #112 code-splitting strategy and Batch #113 RouteChunkErrorBoundary are preserved."
+        - "Bundle metrics: CSS 125.47 kB / 20.80 kB gzip; entry 355.46 kB / 114.18 kB gzip; i18n-translations 314.26 kB / 98.98 kB gzip; Header 49.15 kB / 13.71 kB gzip; Blog 18.58 kB / 4.64 kB gzip; BlogArticle 20.26 kB / 5.34 kB gzip; HowItWorks 172.22 kB / 47.09 kB gzip."
+        - "The large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
+        - "Buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124 are preserved."
     confirmed_files:
       - "src/components/landing/Header.tsx"
       - "src/components/landing/Header.landmarks.test.tsx"
@@ -744,11 +764,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit Batch #125 public landmark labels."
-  - "Push codex/batch125-public-runtime-ux-a11y-audit and open a PR."
-  - "Wait for GitHub Core Type And Build Gate before merge."
+  - "Start the next scoped public UX/UI runtime audit from repository state."
+  - "Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #125 is clean with no conflicts at a984c87."
+  - "2026-05-24: Lovable confirmed Header desktop/mobile nav labels, HowItWorks supplier/trust aside labels, Blog and BlogArticle sidebar labels, EN/RU/ES landmark i18n keys, RU leak guard, public-landmark e2e guard, package smoke wiring, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124 are preserved."
   - "2026-05-24: Batch #125 runtime audit found unnamed visible landmarks on Header desktop nav, open Header mobile nav, /how-it-works supplier/trust asides, /blog sidebar and /blog/:slug article tools aside."
   - "2026-05-24: Batch #125 implemented locale-owned navigation/complementary landmark labels and heading-linked labels for existing how-it-works aside headings."
   - "2026-05-24: Batch #125 focused test passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 8 tests."
