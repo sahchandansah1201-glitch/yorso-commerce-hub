@@ -2,12 +2,13 @@
 
 ## Current Next Action
 
-1. Finish Batch #113 route chunk error boundary:
-   - branch: `codex/batch113-route-chunk-error-boundary`;
-   - status: implemented locally, full local validation passed;
-   - next step: stage, commit, push and open a PR.
+1. Run the Batch #113 Lovable sync prompt:
+   - prompt: `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`;
+   - merged commit: `9860aa3`;
+   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`;
+   - expected result: Lovable reports clean sync or gives a concrete conflict list.
 
-2. After Batch #113 PR checks pass, merge and create a Batch #113 Lovable sync prompt.
+2. Record whether Batch #113 Lovable sync is clean or has conflicts.
 
 3. Plan the next production-quality UX batch:
    - font-loading cleanup to remove blocking CSS `@import`;
@@ -15,7 +16,11 @@
 
 ## Latest Confirmed Main State
 
-- `main` is at `2430fef`, `[codex] Batch #112 route code splitting`.
+- `main` is at `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
+- PR #164 is merged for Batch #113: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
+- Batch #113 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`.
+- GitHub `Core Type And Build Gate` passed on PR #164, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
+- Batch #112 merged commit is `2430fef`, `[codex] Batch #112 route code splitting`.
 - PR #163 is merged for Batch #112: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
 - User confirmed Lovable sync for Batch #112 is clean at `45891e11`, with no conflicts.
 - Batch #111 merged commit is `17fc484`, `[codex] Batch #111 public route SEO`.
@@ -56,4 +61,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Batch #113 still needs commit, push and PR.
+- Lovable sync confirmation for Batch #113 is pending.

@@ -20,9 +20,11 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `codex/batch113-route-chunk-error-boundary`.
-- Batch #113 route chunk error boundary is implemented locally and full local validation has passed, but commit, push and PR are still pending.
-- Current local base commit is `45891e1`, `[codex] Add Batch 112 Lovable sync prompt`.
+- The repository is on branch `main`.
+- Current merged Batch #113 commit is `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
+- PR #164 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
+- Batch #113 Lovable sync prompt is ready:
+  - `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`.
 - Current merged Batch #112 commit is `2430fef`, `[codex] Batch #112 route code splitting`.
 - PR #163 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
 - Lovable sync for Batch #112 was confirmed clean by the user on 2026-05-24:
@@ -125,11 +127,13 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - production entry chunk: `355.46 kB` minified, `114.16 kB` gzip;
   - `i18n-translations`: `311.45 kB` minified, `98.15 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4183 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
+- GitHub `Core Type And Build Gate` passed on PR #164, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
 
 ## Next Action
 
 ```text
-Stage, commit, push and open a PR for Batch #113 route chunk error boundary.
+Run docs/project-memory/PROMPTS/prompt-113-lovable-sync.md in Lovable and record whether sync is clean.
+Then choose the next UX batch: font-loading cleanup or route-level proof/trust signal review.
 ```
 
 ## Rules

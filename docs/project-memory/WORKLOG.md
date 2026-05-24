@@ -503,3 +503,12 @@ Keep this file factual and append-only.
   - production build entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4183 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
   - In-app Browser MCP returned `Transport closed`, so local runtime verification used the production preview server plus Playwright.
+- Committed Batch #113 as `fee82bf`, `[codex] Batch #113 route chunk error boundary`.
+- Pushed branch `codex/batch113-route-chunk-error-boundary` to `origin`.
+- Opened Draft PR #164: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/164`.
+- Confirmed GitHub PR #164 `Core Type And Build Gate` passed:
+  - core CI passed;
+  - account report smoke and report verification passed;
+  - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
+- Marked PR #164 ready and merged it to `main` as `9860aa3`, `[codex] Batch #113 route chunk error boundary`.
+- Added `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md` for Batch #113 Lovable sync confirmation.

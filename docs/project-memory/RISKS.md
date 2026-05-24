@@ -18,10 +18,6 @@
   Impact: Visual checks and first render can wait on external font loading.
   Mitigation: Plan a font-loading cleanup using self-hosted or preloaded fonts.
 
-- Risk: Lazy route chunk failures currently use default browser/React behavior.
-  Impact: A failed route chunk download could leave buyers on a fallback or blank transition instead of a clear retry state.
-  Mitigation: Batch #113 adds a route chunk error boundary/retry shell; keep production preview smoke in the validation path before merge.
-
 - Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
   Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
@@ -57,3 +53,6 @@
 
 - Risk: The public production bundle loaded a very large single entry chunk.
   Resolution: Batch #112 lazy-loads route pages and splits the local translation table. The production entry chunk is now `352.18 kB` minified and `112.99 kB` gzip, and the previous Vite large-chunk warning is gone.
+
+- Risk: Lazy route chunk failures used default browser/React behavior.
+  Resolution: Batch #113 adds `RouteChunkErrorBoundary` around lazy routes with reload and go-back recovery actions. PR #164 passed the GitHub `Core Type And Build Gate` and merged to `main` as `9860aa3`.

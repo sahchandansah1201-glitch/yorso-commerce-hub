@@ -53,6 +53,7 @@
 - `src/App.tsx`: lazy routes are wrapped in `RouteChunkErrorBoundary`.
 - `src/test/app-route-code-splitting.test.ts`: static route-shell guard includes error-boundary wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #113 10,000 concurrent users capacity review for route chunk failure handling.
+- `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`: Lovable sync prompt for Batch #113.
 
 ## Batch #96 Supplier Access Review Console
 
