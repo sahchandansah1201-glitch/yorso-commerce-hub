@@ -16,11 +16,30 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Finish Batch #126 public skip-to-main target: commit the locally validated branch, open PR, wait for GitHub validation, merge if clean, then prepare the Lovable sync prompt.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch126-public-skip-main-target`.
+- Batch #126 public skip-to-main target is locally validated and ready for PR.
+- Batch #126 fixes a concrete public keyboard scanability/accessibility defect found after Batch #125:
+  - homepage `/` had no main landmark;
+  - public routes had no reliable keyboard skip-to-main path;
+  - some public route shells and fallback/detail states lacked a stable `main#main` target.
+- Batch #126 touches `src/components/landing/Header.tsx`, `src/components/landing/Header.landmarks.test.tsx`, `src/i18n/translations.ts`, `src/i18n/aria-tooltips-localized.ru.test.tsx`, public route pages/layouts, adds `e2e/public-skip-main-target.spec.ts`, extends dedicated/full e2e smoke scripts, and adds the Batch #126 production-scale section.
+- Batch #126 preserves public visual layout, buyer-first copy, CTA destinations, SEO route ownership, mobile overflow fixes, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Batch #126 local validation passed:
+  - runtime Playwright pre-check on local dev server for `main#main`, skip-link presence and homepage skip-link focus;
+  - `E2E_BASE_URL=http://127.0.0.1:4198 npx playwright test e2e/public-skip-main-target.spec.ts --project=chromium`, 43 tests;
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 8 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-skip-main-target`, 43 tests after production build;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 219 tests.
+- Next step: commit, push and open PR for Batch #126.
+- The latest merged batch remains Batch #125.
 - Batch #125 public landmark labels is merged to `main` as `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`, via PR #176.
 - PR #176 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
 - GitHub `Core Type And Build Gate` passed on PR #176 in 11m52s.

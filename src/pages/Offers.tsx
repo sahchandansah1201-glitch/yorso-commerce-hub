@@ -476,9 +476,9 @@ const Offers = () => {
         hasCompareTray ? "pb-24 md:pb-20" : ""
       }`}
     >
-      <Header />
+      <Header showSkipLink />
 
-      <main className="container flex-1 overflow-x-clip py-6 md:py-8 pb-32">
+      <main id="main" className="container flex-1 overflow-x-clip py-6 md:py-8 pb-32">
         <nav aria-label={t.aria_breadcrumb} className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="-mx-2 inline-flex min-h-11 items-center gap-1 px-2 hover:text-foreground sm:min-h-0">
             <ArrowLeft className="h-3 w-3" /> {t.catalog_breadcrumbHome}

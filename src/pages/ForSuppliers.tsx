@@ -233,7 +233,7 @@ const ForSuppliers = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
-      <Header />
+      <Header showSkipLink />
       <main id="main" className="overflow-x-hidden">
 
       {/* Breadcrumbs */}

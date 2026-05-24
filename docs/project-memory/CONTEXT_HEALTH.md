@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch after Batch #125 Lovable sync"
+recommended_action: "open PR for Batch #126 public skip-to-main target after local validation"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main after Batch #125 Lovable sync record commit"
+active_branch: "codex/batch126-public-skip-main-target"
+head_commit: "local Batch #126 branch pending commit"
 latest_merged_batch: 125
-active_workstream: "ready_for_next_public_ux_batch"
+active_workstream: "batch126_public_skip_main_target"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176"
-why_low: "Batch #125 is merged to main as 7196cc8 via PR #176 and Lovable sync is confirmed clean at a984c87 with no conflicts or file modifications."
+why_low: "Batch #126 is a scoped public frontend accessibility/scanability patch with local validation passed; Batch #125 remains the latest merged Lovable-clean batch."
 ```
 
 ## Risk Levels
@@ -50,8 +50,9 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch after Batch #125 merge: main.
-Current workstream: Batch #125 public landmark labels is merged to main and Lovable sync is confirmed clean.
+Current branch: codex/batch126-public-skip-main-target.
+Current workstream: Batch #126 public skip-to-main target is locally validated and ready for PR.
+Latest merged batch: Batch #125 public landmark labels is merged to main and Lovable sync is confirmed clean.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -78,6 +79,10 @@ GitHub Core Type And Build Gate passed on PR #176 in 11m52s.
 Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-125-lovable-sync.md.
 Lovable sync for Batch #125 is confirmed clean at a984c87 with no conflicts and no file changes.
 Lovable confirmed Header desktop/mobile landmark labels, HowItWorks supplier/trust aside labels, Blog and BlogArticle sidebar labels, EN/RU/ES i18n keys, RU leak guard, public-landmark e2e guard, package smoke wiring, preserved Batch #112 code splitting, preserved Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124.
+Batch #126 runtime audit found public routes lacked a reliable keyboard skip-to-main path: homepage had no main landmark, skip-to-content was absent, and some public shells/fallback states had no stable main#main target.
+Batch #126 implementation adds an opt-in Header skip link, EN/RU/ES aria_skipToMain copy, exact one main#main targets across audited public routes, e2e/public-skip-main-target.spec.ts and a 10,000 concurrent-user baseline note.
+Batch #126 local validation passed: runtime Playwright pre-check; E2E_BASE_URL=http://127.0.0.1:4198 npx playwright test e2e/public-skip-main-target.spec.ts --project=chromium, 43 tests; npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 8 tests; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:public-skip-main-target, 43 tests; npm run lint; git diff --check; npm run smoke:e2e:run, 219 tests.
+Batch #126 preserves public visual layout, buyer-first copy, CTA destinations, SEO route ownership, mobile overflow fixes, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: start the next scoped public UX/UI audit batch from current main.
+Next step: commit, push and open PR for Batch #126.
 ```

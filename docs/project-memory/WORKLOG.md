@@ -947,3 +947,27 @@ Keep this file factual and append-only.
   - links, destinations, open/close behavior, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are unchanged;
   - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#124 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #126 on `codex/batch126-public-skip-main-target`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #125 and found skip-to-main defects:
+  - homepage `/` had no main landmark;
+  - public routes had no reliable keyboard skip-to-main path;
+  - some public route shells and fallback/detail states lacked a stable `main#main` target.
+- Implemented Batch #126 public skip-to-main target:
+  - added opt-in `showSkipLink` and `mainId` props to `Header`;
+  - added locale-owned EN/RU/ES `aria_skipToMain` copy;
+  - made the skip link focus and scroll the target, then normalize the URL to `#main`;
+  - normalized audited public routes to exactly one `main#main`;
+  - added Header unit coverage for the skip link;
+  - added `e2e/public-skip-main-target.spec.ts` and wired it into a dedicated smoke script plus full `smoke:e2e:run`;
+  - added Batch #126 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #126 local validation:
+  - runtime Playwright pre-check passed on local dev server for public `main#main`, skip-link presence and homepage skip-link focus;
+  - `E2E_BASE_URL=http://127.0.0.1:4198 npx playwright test e2e/public-skip-main-target.spec.ts --project=chromium` passed, 43 tests;
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx` passed, 8 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:public-skip-main-target` passed, 43 tests after production build;
+  - `npm run lint` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 219 tests.
+- Batch #126 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Globe, ChevronDown, Bell, LogOut, User } from "lucide-react";
@@ -14,7 +14,12 @@ import { signOutCurrentAuthSession } from "@/lib/auth-runtime";
 
 const langs: Language[] = ["en", "ru", "es"];
 
-const Header = () => {
+type HeaderProps = {
+  showSkipLink?: boolean;
+  mainId?: string;
+};
+
+const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -73,8 +78,30 @@ const Header = () => {
     });
   };
 
+  const skipToMain = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    const target = document.getElementById(mainId);
+    if (!target) return;
+
+    event.preventDefault();
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "start" });
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${mainId}`);
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      {showSkipLink && (
+        <a
+          href={`#${mainId}`}
+          onClick={skipToMain}
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          {t.aria_skipToMain}
+        </a>
+      )}
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex min-h-11 items-center gap-2">
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>

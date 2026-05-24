@@ -15,8 +15,8 @@ const InfoPageLayout = ({ title, children, updated }: Props) => {
   const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container max-w-3xl py-12 md:py-16">
+      <Header showSkipLink />
+      <main id="main" className="container max-w-3xl py-12 md:py-16">
         <Button asChild variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
           <Link to="/">
             <ArrowLeft className="h-4 w-4" /> {t.info_backToHome}

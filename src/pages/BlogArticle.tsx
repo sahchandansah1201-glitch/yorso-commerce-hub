@@ -278,7 +278,7 @@ const BlogArticle = () => {
   if (!post) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header showSkipLink />
         <main id="main">
           <div className="container py-16">
             <div
@@ -311,7 +311,7 @@ const BlogArticle = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header showSkipLink />
       <main id="main">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-background">

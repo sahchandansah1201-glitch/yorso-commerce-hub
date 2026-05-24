@@ -379,7 +379,7 @@ const Suppliers = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header showSkipLink />
       <main id="main">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-background">

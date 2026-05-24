@@ -145,8 +145,8 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
-      <Header />
-      <main>
+      <Header showSkipLink />
+      <main id="main">
         {/* Breadcrumbs */}
         <div className="border-b border-border bg-background">
           <div className="container max-w-6xl py-3">

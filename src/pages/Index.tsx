@@ -128,35 +128,37 @@ const Index = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <Header />
-      <Hero />
-      <AnimatedSection>
-        <LiveOffers />
-      </AnimatedSection>
-      <AnimatedSection preset="scale" delay={0.05}>
-        <TrustStrip />
-      </AnimatedSection>
-      <AnimatedSection preset="fade-left">
-        <ValueSplit />
-      </AnimatedSection>
-      <AnimatedSection preset="fade-right" delay={0.1}>
-        <CategoryAcceleration />
-      </AnimatedSection>
-      <AnimatedSection preset="blur">
-        <SupplierVerification />
-      </AnimatedSection>
-      <AnimatedSection preset="fade-up" delay={0.05}>
-        <MarketplaceActivity />
-      </AnimatedSection>
-      <AnimatedSection preset="scale">
-        <SocialProof />
-      </AnimatedSection>
-      <AnimatedSection preset="fade-up">
-        <FAQ />
-      </AnimatedSection>
-      <AnimatedSection preset="blur" delay={0.1}>
-        <FinalCTA />
-      </AnimatedSection>
+      <Header showSkipLink />
+      <main id="main">
+        <Hero />
+        <AnimatedSection>
+          <LiveOffers />
+        </AnimatedSection>
+        <AnimatedSection preset="scale" delay={0.05}>
+          <TrustStrip />
+        </AnimatedSection>
+        <AnimatedSection preset="fade-left">
+          <ValueSplit />
+        </AnimatedSection>
+        <AnimatedSection preset="fade-right" delay={0.1}>
+          <CategoryAcceleration />
+        </AnimatedSection>
+        <AnimatedSection preset="blur">
+          <SupplierVerification />
+        </AnimatedSection>
+        <AnimatedSection preset="fade-up" delay={0.05}>
+          <MarketplaceActivity />
+        </AnimatedSection>
+        <AnimatedSection preset="scale">
+          <SocialProof />
+        </AnimatedSection>
+        <AnimatedSection preset="fade-up">
+          <FAQ />
+        </AnimatedSection>
+        <AnimatedSection preset="blur" delay={0.1}>
+          <FinalCTA />
+        </AnimatedSection>
+      </main>
       <Footer />
     </div>
   );

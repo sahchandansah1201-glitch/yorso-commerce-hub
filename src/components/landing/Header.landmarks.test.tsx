@@ -10,7 +10,7 @@ const renderHeader = (lang: Language) => {
   return render(
     <MemoryRouter>
       <LanguageProvider>
-        <Header />
+        <Header showSkipLink />
       </LanguageProvider>
     </MemoryRouter>,
   );
@@ -30,6 +30,7 @@ describe("Header landmark labels", () => {
       expect(
         screen.getByRole("navigation", { name: t.aria_mainNavigation }),
       ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: t.aria_skipToMain })).toHaveAttribute("href", "#main");
 
       fireEvent.click(screen.getByRole("button", { name: t.aria_toggleMenu }));
 
