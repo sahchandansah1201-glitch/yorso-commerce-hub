@@ -2,14 +2,33 @@
 
 ## Current Next Action
 
-1. Continue the next scoped runtime UX/accessibility audit from repository files.
+1. Sync Lovable with Batch #121 using `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
 
-2. Use browser/Playwright verification for any route-level UI defect before changing code.
+2. Record the user's Lovable sync report for Batch #121 in project-memory.
 
-3. Batch #119 Lovable sync remains pending as a separate explicit report unless the user provides it.
+3. Continue the next scoped runtime UX/accessibility audit. Batch #119 Lovable sync remains pending as a separate explicit report unless the user provides it.
 
 ## Latest Confirmed Main State
 
+- Current branch is `main`.
+- Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
+- PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
+- Batch #121 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
+- Batch #121 fixes invalid nested interactive CTA markup on `/offers/:id`: load-error, not-found, locked access banner, price-lock summary and sticky mobile CTAs now use `Button asChild`, so each visual target is one link or one button instead of `a > button`.
+- Batch #121 keeps CTA destinations, offer detail copy, visual styling, return-to-catalog behavior, access request behavior, buyer access gating, supplier identity redaction and exact-price locking unchanged.
+- Batch #121 added `e2e/offer-detail-cta-semantics.spec.ts`.
+- `smoke:e2e:offer-detail-cta-semantics:run` and `smoke:e2e:run` now include `e2e/offer-detail-cta-semantics.spec.ts`.
+- GitHub `Core Type And Build Gate` passed on PR #172 rerun in 10m56s.
+- Batch #121 local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-cta-semantics.spec.ts --project=chromium`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-access.spec.ts e2e/offer-detail-cta-semantics.spec.ts --project=chromium`, 6 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build`;
+  - `npm run smoke:e2e:offer-detail-cta-semantics:run`, 3 tests;
+  - `npm run smoke:e2e:run`, 114 tests.
+- The first PR #172 GitHub run failed in unrelated `e2e/account-company-edit-contract.spec.ts`; local isolated and full smoke passed, and the GitHub rerun passed without code changes.
 - Current branch is `main`.
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.

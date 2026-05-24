@@ -125,6 +125,15 @@
 - `docs/backend/production-scale-baseline.md`: Batch #120 10,000 concurrent users capacity review for auth CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`: Lovable sync prompt for Batch #120; user confirmed clean sync at `700d4484`.
 
+## Batch #121 Offer Detail CTA Semantics
+
+- `src/pages/OfferDetail.tsx`: offer detail error, not-found, locked access banner and sticky mobile CTAs use `Button asChild` instead of nested `Link` or hash-anchor plus `Button`.
+- `src/components/offer-detail/OfferSummary.tsx`: anonymous price-lock CTA uses `Button asChild` for the `/register` link.
+- `e2e/offer-detail-cta-semantics.spec.ts`: mobile browser guard for anonymous, registered-locked and unknown-offer states, zero nested interactive controls and no horizontal overflow.
+- `package.json`: dedicated offer-detail CTA semantics smoke script and full e2e smoke script include the offer detail e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #121 10,000 concurrent users capacity review for offer detail CTA semantics.
+- `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`: Lovable sync prompt for Batch #121.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

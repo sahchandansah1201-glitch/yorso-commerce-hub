@@ -750,3 +750,33 @@ Keep this file factual and append-only.
   - auth back CTAs are single semantic links, forgot-password remains a non-navigation button, nested `a button, button a` is 0 and mobile 390px has no overflow;
   - Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #121 on `codex/batch121-offer-detail-cta-semantics`.
+- Reviewed `/offers/:id` after Batch #120 and confirmed remaining nested interactive CTA markup:
+  - anonymous offer detail had three nested CTA controls: `Register Free`, `Sign up to view exact prices`, and `Register to Contact Supplier`;
+  - registered-locked offer detail had two nested hash CTA controls for `Open access panel`;
+  - unknown offer fallback had one nested `Browse all offers` CTA.
+- Implemented Batch #121 offer detail CTA semantics:
+  - converted offer detail load-error, not-found, locked access banner and sticky mobile CTAs to the existing `Button asChild` pattern;
+  - converted the anonymous price-lock CTA in `OfferSummary` to `Button asChild`;
+  - preserved `/register`, `/offers` and `#offer-supplier-access` destinations, offer detail copy, visual classes, return-to-catalog behavior, access-request behavior, access gating, supplier identity redaction and exact-price locks;
+  - added `e2e/offer-detail-cta-semantics.spec.ts`;
+  - added `smoke:e2e:offer-detail-cta-semantics:run` and wired the spec into full `smoke:e2e:run`;
+  - added Batch #121 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #121 local validation:
+  - pre-fix Playwright runtime scan found nested controls on anonymous, registered-locked and unknown offer detail states;
+  - post-fix Playwright runtime scan confirmed zero nested controls and zero horizontal overflow on all three states at 390px;
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-cta-semantics.spec.ts --project=chromium` passed, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-access.spec.ts e2e/offer-detail-cta-semantics.spec.ts --project=chromium` passed, 6 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - `npm run smoke:e2e:offer-detail-cta-semantics:run` passed, 3 tests;
+  - `npm run smoke:e2e:run` passed, 114 tests.
+- Committed Batch #121 as `84b615b`, `[codex] Batch #121 offer detail CTA semantics`.
+- Pushed branch `codex/batch121-offer-detail-cta-semantics` to `origin`.
+- Opened Draft PR #172: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
+- The first GitHub PR #172 `Core Type And Build Gate` run failed in unrelated `e2e/account-company-edit-contract.spec.ts`; local isolated account-company smoke and full browser smoke passed.
+- Reran the failed GitHub check; `Core Type And Build Gate` passed on rerun in 10m56s.
+- Marked PR #172 ready and merged it to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
+- Added `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md` for Batch #121 Lovable sync confirmation.

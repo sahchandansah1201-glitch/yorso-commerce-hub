@@ -76,6 +76,26 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - GitHub `Core Type And Build Gate` passed on PR #171 in 10m50s.
+- Batch #121 is merged to `main` as `809d35f`, `[codex] Batch #121 offer detail CTA semantics (#172)`.
+- PR #172 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/172`.
+- Batch #121 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`.
+- Batch #121 fixes a concrete `/offers/:id` runtime semantics defect found after Batch #120:
+  - load-error, not-found, locked access banner, price-lock summary and sticky mobile CTAs rendered as nested link/anchor plus `Button`, producing duplicate interactive controls;
+  - CTAs now use the existing `Button asChild` pattern;
+  - destinations, copy, visual styling, return-to-catalog behavior, access-request behavior, access gating, supplier identity redaction and exact-price locks are unchanged.
+- Batch #121 touched `src/pages/OfferDetail.tsx`, `src/components/offer-detail/OfferSummary.tsx`, added `e2e/offer-detail-cta-semantics.spec.ts`, extended dedicated/full e2e smoke scripts, and added the Batch #121 production-scale section.
+- Batch #121 validation passed:
+  - pre-fix Playwright scan confirmed nested controls on anonymous, registered-locked and unknown offer detail states;
+  - post-fix Playwright scan confirmed zero nested controls and zero horizontal overflow on all three states at 390px;
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-cta-semantics.spec.ts --project=chromium`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4193 npx playwright test e2e/offer-detail-access.spec.ts e2e/offer-detail-cta-semantics.spec.ts --project=chromium`, 6 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only;
+  - `npm run smoke:e2e:offer-detail-cta-semantics:run`, 3 tests;
+  - `npm run smoke:e2e:run`, 114 tests.
+- GitHub `Core Type And Build Gate` passed on PR #172 rerun in 10m56s. The first run failed in unrelated `account-company-edit-contract`; local isolated and full smoke passed, and the rerun passed without code changes.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -288,7 +308,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Continue the next scoped runtime UX/accessibility audit after Batch #120.
+Sync Lovable with Batch #121 using docs/project-memory/PROMPTS/prompt-121-lovable-sync.md.
+After the user reports the Lovable result, record the sync status in project-memory.
 Batch #119 Lovable sync remains pending unless the user provides a sync report.
 ```
 
