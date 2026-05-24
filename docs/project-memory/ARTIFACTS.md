@@ -168,7 +168,7 @@
 - `e2e/public-heading-structure.spec.ts`: mobile browser guard for sequential public heading outlines, zero footer headings and supplier rows under the results H2.
 - `package.json`: dedicated public heading structure smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #124 10,000 concurrent users capacity review for public heading structure.
-- `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`: Lovable sync prompt for Batch #124 after PR #175 merge.
+- `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`: Lovable sync prompt for Batch #124 after PR #175 merge; user confirmed clean sync at `05d09f4b`.
 
 ## Batch #96 Supplier Access Review Console
 

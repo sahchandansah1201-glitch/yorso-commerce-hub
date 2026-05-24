@@ -2,16 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Batch #124 to Lovable using `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. After Lovable reports clean sync or conflicts, record the sync report in project memory.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #124 Lovable Sync Ready
+## Batch #124 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `fdaf76a`, `[codex] Batch #124 public heading structure`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
+- Lovable sync: clean at `05d09f4b`, no conflicts and no file modifications.
 - Scope: public heading structure and SEO/scannability outline.
 - Runtime finding:
   - footer column labels created H2/H4 or H1/H4 heading skips on public routes;
@@ -30,6 +31,13 @@
   - `npm run smoke:e2e:run`, 137 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 11m28s.
+- Lovable confirmed:
+  - footer columns render as nav groups with visible p labels, not H4 headings;
+  - `/suppliers` results section has the sr-only H2 `Supplier results`;
+  - `suppliersPage_resultsHeading` is present in type declaration and EN/RU/ES locales;
+  - `e2e/public-heading-structure.spec.ts` and package smoke wiring are present;
+  - public routes keep sequential heading outlines and footer has zero headings;
+  - supplier directory behavior, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123 are preserved.
 
 ## Batch #123 Lovable Sync Confirmed
 
@@ -61,6 +69,7 @@
 - Batch #124 is merged to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`.
 - PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
 - Batch #124 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
+- Batch #124 Lovable sync is confirmed clean at `05d09f4b`, with no conflicts and no local file modifications in Lovable.
 - Batch #124 fixes public heading outline regressions while preserving footer layout, supplier directory behavior, access gating, supplier identity redaction, price locks, public copy and route shell behavior.
 - Batch #124 added `e2e/public-heading-structure.spec.ts`.
 - `smoke:e2e:public-heading-structure` and `smoke:e2e:run` now include `e2e/public-heading-structure.spec.ts`.

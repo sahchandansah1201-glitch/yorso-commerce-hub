@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "main after Batch #124 Lovable sync prompt commit"
-  head_summary: "[codex] Add Batch 124 Lovable sync prompt"
-  dirty_worktree_before_project_memory: true
+  head_commit: "main after Batch #124 Lovable sync record commit"
+  head_summary: "[codex] Record Batch 124 Lovable sync"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Only project-memory and the Batch #124 Lovable sync prompt were dirty before this checkpoint."
+    - "User confirmed Batch #124 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch124_lovable_sync_ready"
-  summary: "Sync Batch #124 public heading structure to Lovable after merge."
-  status: "merged_to_main_lovable_sync_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #124 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -99,6 +99,7 @@ active_workstream:
     - "Run local Batch #124 validation including full smoke:e2e:run."
     - "Open PR #175, confirm GitHub Core Type And Build Gate, and merge Batch #124 to main."
     - "Create a Lovable sync prompt for Batch #124."
+    - "Record the user's clean Lovable sync report for Batch #124."
   confirmed_files:
     - "src/components/landing/LiveOffers.tsx"
     - "src/components/landing/OfferCard.tsx"
@@ -135,11 +136,15 @@ active_workstream:
 active_batch:
   id: 124
   summary: "Public heading structure for footer navigation and supplier results."
-  status: "merged_to_main_lovable_sync_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "fdaf76a"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-24"
+    head: "05d09f4b"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit found footer H4 labels created heading-level skips on public routes."
     - "Runtime audit found /suppliers jumped from H1 directly to H3 supplier row headings."
@@ -168,13 +173,31 @@ active_batch:
 latest_merged_batches:
   - id: 124
     summary: "Public heading structure so footer navigation labels do not pollute page headings and supplier cards sit under an H2 results section."
-    status: "merged_to_main_lovable_sync_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "fdaf76a"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175"
     lovable_sync:
-      confirmed_at: null
-      result: "pending"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-124-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to 05d09f4b on main, including Batch #124 / PR #175 fdaf76a."
+        - "The working tree was clean and no conflicts were found."
+        - "src/components/landing/Footer.tsx renders columns as nav groups with aria-label from section title and visible p labels, with no h4 footer headings."
+        - "src/components/landing/Footer.test.tsx asserts the Company nav group, the /for-suppliers link inside it, no heading with that label and no Platform duplicate."
+        - "src/pages/Suppliers.tsx exposes the supplier results section through aria-labelledby supplier-directory-results-heading and a sr-only H2."
+        - "src/i18n/translations.ts includes suppliersPage_resultsHeading in the type declaration and EN/RU/ES locales."
+        - "src/pages/Suppliers.test.tsx is present."
+        - "e2e/public-heading-structure.spec.ts checks 390x844 English public routes for sequential headings, zero footer headings and H2 Supplier results before H3 supplier rows."
+        - "package.json includes smoke:e2e:public-heading-structure, smoke:e2e:public-heading-structure:run and full smoke:e2e:run wiring for the spec."
+        - "Footer no longer contributes page headings; public routes keep sequential H1 to H2 to H3 structure."
+        - "/suppliers outline begins H1 Seafood suppliers, H2 Supplier results, then H3 supplier cards."
+        - "Supplier directory search, filters, sorting, pagination, selected preview and profile links are unchanged."
+        - "Batch #112 code-splitting strategy and Batch #113 RouteChunkErrorBoundary are preserved."
+        - "Bundle metrics: CSS 125.47 kB / 20.80 kB gzip; entry 355.46 kB / 114.17 kB gzip; i18n-translations 313.75 kB / 98.77 kB gzip; Footer 2.33 kB / 0.86 kB gzip; Suppliers 36.32 kB / 9.05 kB gzip."
+        - "The large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
+        - "Buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123 are preserved."
     confirmed_files:
       - "src/components/landing/Footer.tsx"
       - "src/components/landing/Footer.test.tsx"

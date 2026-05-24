@@ -25,7 +25,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - PR #175 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/175`.
 - GitHub `Core Type And Build Gate` passed on PR #175 in 11m28s.
 - Batch #124 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md`.
-- Next step: sync Batch #124 to Lovable from GitHub `main` at `fdaf76a` or newer, then record the Lovable sync result.
+- Batch #124 Lovable sync is confirmed clean at `05d09f4b`, with no conflicts and no local file modifications in Lovable.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #124 fixes a concrete public SEO/scannability defect found after Batch #123:
   - footer column labels rendered as H4 page headings, which created heading-level skips on public routes;
   - `/suppliers` supplier result cards rendered as H3 headings immediately after the page H1.
@@ -39,6 +40,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 137 tests.
+- Lovable confirmed Footer nav groups, Suppliers results H2, EN/RU/ES `suppliersPage_resultsHeading`, `e2e/public-heading-structure.spec.ts`, package smoke wiring, preserved supplier directory behavior, preserved Batch #112 code splitting, preserved Batch #113 `RouteChunkErrorBoundary`, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123.
 - Batch #123 public input accessibility is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - GitHub `Core Type And Build Gate` passed on PR #174 in 11m31s.
@@ -81,7 +83,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 126 tests.
 - Batch #122 build completed inside `npm run smoke:e2e:public-cta-semantics`; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved.
 - Lovable confirmed `LiveOffers`, `OfferCard`, `CertificationBadges`, `InfoPageLayout`, `PublicCtaSemantics.test.tsx`, `e2e/public-cta-semantics.spec.ts`, package smoke wiring, Batch #122 production-scale notes, homepage runtime status, info/legal CTA semantics, preserved Batches #117-#121 behavior, Batch #112 code-splitting and Batch #113 RouteChunkErrorBoundary.
-- The latest merged production batch is Batch #123 on `main`; Lovable sync for Batch #123 is clean.
+- The latest merged production batch is Batch #124 on `main`; Lovable sync for Batch #124 is clean.
 - Historical merged state:
 - Batch #117 is merged to `main` as `c2c5ff3`, `[codex] Batch #117 offers request anchor (#168)`.
 - PR #168 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/168`.

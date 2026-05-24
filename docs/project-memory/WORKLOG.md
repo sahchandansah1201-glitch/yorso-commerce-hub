@@ -901,3 +901,13 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #175 `Core Type And Build Gate` passed in 11m28s.
 - Marked PR #175 ready and merged it to `main` as `fdaf76a`, `[codex] Batch #124 public heading structure`.
 - Added `docs/project-memory/PROMPTS/prompt-124-lovable-sync.md` for Batch #124 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #124 is clean:
+  - HEAD is `05d09f4b` on `main`, including Batch #124 / PR #175 `fdaf76a`;
+  - `Footer.tsx`, `Footer.test.tsx`, `Suppliers.tsx`, `translations.ts`, `Suppliers.test.tsx`, `e2e/public-heading-structure.spec.ts` and package smoke wiring are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - footer columns render as named nav groups with visible p labels and no footer H1-H6 headings;
+  - `/suppliers` outline starts `H1 Seafood suppliers`, `H2 Supplier results`, then H3 supplier cards;
+  - supplier directory search, filters, sorting, pagination, selected preview and profile links are unchanged;
+  - Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved;
+  - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#123 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
