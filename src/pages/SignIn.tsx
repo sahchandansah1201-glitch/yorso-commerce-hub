@@ -139,7 +139,11 @@ const SignIn = () => {
         <div className="w-full max-w-md">
           {view === "login" ? (
             <>
-              <Link to="/"><Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground"><ArrowLeft className="h-4 w-4" /> {t.signin_back}</Button></Link>
+              <Button asChild variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
+                <Link to="/">
+                  <ArrowLeft className="h-4 w-4" /> {t.signin_back}
+                </Link>
+              </Button>
 
               <h1 className="font-heading text-2xl font-bold text-foreground">{t.signin_title}</h1>
               <p className="mt-2 text-sm text-muted-foreground">{t.signin_subtitle}</p>

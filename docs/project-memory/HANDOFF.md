@@ -58,6 +58,20 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `npm run check:production-scale-baseline`;
   - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - GitHub `Core Type And Build Gate` passed on PR #170 in 11m44s.
+- The repository is currently on branch `codex/batch120-auth-cta-semantics`.
+- Batch #120 is implemented locally and validation passed; it is not yet pushed or merged.
+- Batch #120 fixes a concrete public auth route semantics defect found after Batch #119:
+  - `/signin` home back-link and `/reset-password` sign-in back-link rendered as nested `Link` plus `Button`, producing duplicate interactive controls;
+  - both back links now use the existing `Button asChild` pattern;
+  - auth copy, form behavior, redirect behavior, self-hosted API integration, Supabase prototype recovery behavior, route shell and visual styling are unchanged.
+- Batch #120 touched `src/pages/SignIn.tsx`, `src/pages/ResetPassword.tsx`, added `src/pages/AuthCtaSemantics.test.tsx`, added `e2e/auth-cta-semantics.spec.ts`, extended full e2e smoke scripts, and added the Batch #120 production-scale section.
+- Batch #120 validation passed:
+  - `npx vitest run src/pages/AuthCtaSemantics.test.tsx`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4192 npx playwright test e2e/auth-cta-semantics.spec.ts --project=chromium`, 2 tests;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -270,9 +284,9 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Sync Lovable with Batch #119 using docs/project-memory/PROMPTS/prompt-119-lovable-sync.md.
-After the user reports the Lovable result, record the sync status in project-memory.
-Then continue the next scoped runtime UX audit; verify whether the earlier /signin and /reset-password nested-control findings still exist before changing anything.
+Commit and push Batch #120 on codex/batch120-auth-cta-semantics, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
+After merge, add a Batch #120 Lovable sync prompt and update project-memory back to a clean main checkpoint.
+Batch #119 Lovable sync remains pending unless the user provides a sync report.
 ```
 
 ## Rules

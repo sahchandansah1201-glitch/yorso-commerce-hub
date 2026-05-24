@@ -2280,6 +2280,66 @@ Marker: offers CTA semantics.
 Marker: catalog nested interactive markup.
 Marker: 10,000 concurrent users.
 
+## Batch #120 Auth CTA Semantics
+
+Batch #120 fixes invalid nested interactive markup on the public auth routes.
+The `/signin` home back-link and `/reset-password` sign-in back-link now use
+the existing `Button asChild` pattern instead of rendering `Link` elements
+around `Button` elements. Auth copy, form behavior, redirect behavior,
+self-hosted API integration, Supabase prototype recovery behavior, route shell
+and visual styling stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Sign-in submissions, password-reset requests, password update requests,
+  buyer session storage and downstream catalog session headers are unchanged.
+- The only runtime change is client-side DOM semantics for auth back-link CTAs.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter auth request volume at the 10,000 concurrent-user
+  target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, auth
+  persistence, catalog pagination, offer reads or account persistence.
+
+Failure mode and graceful degradation:
+
+- Auth back CTAs remain normal links to `/` and `/signin`.
+- If JavaScript hydration is delayed, anchor semantics still expose direct
+  destinations.
+- Sign-in and password-reset submit buttons remain real buttons with the
+  existing submit handlers.
+
+Observability and load-test plan:
+
+- Regression coverage should assert auth routes have no nested interactive CTA
+  markup.
+- Browser smoke verifies `/signin` and `/reset-password` back CTAs remain
+  visible as links on mobile.
+- Existing auth smoke continues to verify self-hosted sign-in session storage
+  and downstream session headers.
+
+Validation:
+
+- `npx vitest run src/pages/AuthCtaSemantics.test.tsx`;
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/auth-cta-semantics.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #120.
+Marker: auth CTA semantics.
+Marker: auth nested interactive markup.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

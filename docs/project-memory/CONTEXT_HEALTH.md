@@ -5,17 +5,17 @@ Updated: 2026-05-24
 ## Current Status
 
 ```yaml
-context_risk: "low"
+context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "sync Lovable with Batch #119 using docs/project-memory/PROMPTS/prompt-119-lovable-sync.md"
+recommended_action: "commit and open Batch #120 PR"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "e17810e"
+active_branch: "codex/batch120-auth-cta-semantics"
+head_commit: "03a62cf"
 latest_merged_batch: 119
-active_workstream: "batch119_lovable_sync"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/170"
-why_low: "Batch #119 is merged to main, GitHub Core Type And Build Gate passed, and the Lovable sync prompt is recorded."
+active_workstream: "batch120_auth_cta_semantics"
+pull_request: "pending"
+why_medium: "Batch #120 has local code, e2e and docs changes that passed validation but are not yet committed, pushed or merged."
 ```
 
 ## Risk Levels
@@ -50,9 +50,9 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #119 Lovable sync.
-Batch #119 is merged to main as e17810e via PR #170.
-GitHub Core Type And Build Gate passed in 11m44s.
-Use docs/project-memory/PROMPTS/prompt-119-lovable-sync.md to sync Lovable, then record the user's sync report.
+Current branch: codex/batch120-auth-cta-semantics.
+Current local workstream: Batch #120 auth CTA semantics.
+Batch #119 is merged to main as e17810e via PR #170, and prompt-119 is recorded on main at 03a62cf.
+Batch #120 fixes nested auth back-link controls on /signin and /reset-password using Button asChild.
+Commit Batch #120, push the branch, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
 ```

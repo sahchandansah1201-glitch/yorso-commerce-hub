@@ -92,11 +92,11 @@ const ResetPassword = () => {
 
       <main className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
         <div className="w-full max-w-md">
-          <Link to="/signin">
-            <Button variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
+          <Button asChild variant="ghost" size="sm" className="mb-6 gap-1.5 text-muted-foreground">
+            <Link to="/signin">
               <ArrowLeft className="h-4 w-4" /> {c.back}
-            </Button>
-          </Link>
+            </Link>
+          </Button>
 
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <KeyRound className="h-6 w-6 text-primary" />

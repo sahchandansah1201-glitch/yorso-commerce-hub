@@ -115,6 +115,15 @@
 - `docs/backend/production-scale-baseline.md`: Batch #119 10,000 concurrent users capacity review for offers CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md`: Lovable sync prompt for Batch #119.
 
+## Batch #120 Auth CTA Semantics
+
+- `src/pages/SignIn.tsx`: public sign-in back CTA uses `Button asChild` instead of nested `Link` plus `Button`.
+- `src/pages/ResetPassword.tsx`: password-reset back CTA uses `Button asChild` instead of nested `Link` plus `Button`.
+- `src/pages/AuthCtaSemantics.test.tsx`: regression coverage against nested `a button` / `button a` CTA markup on auth routes.
+- `e2e/auth-cta-semantics.spec.ts`: mobile browser guard for sign-in and reset-password back links, zero nested interactive controls and no horizontal overflow.
+- `package.json`: dedicated auth CTA semantics smoke script and full e2e smoke script include the auth e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #120 10,000 concurrent users capacity review for auth CTA semantics.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
