@@ -72,6 +72,8 @@ const collectAttrs = () => {
 // Английские маркеры, которые НЕ должны встречаться в подсказках под ru.
 const EN_TOOLTIP_MARKERS = [
   "Toggle menu",
+  "Main navigation",
+  "Mobile navigation",
   "Go back",
   "Breadcrumb",
   "Country or code",

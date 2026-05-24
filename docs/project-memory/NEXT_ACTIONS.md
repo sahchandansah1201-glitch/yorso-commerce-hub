@@ -2,9 +2,35 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #125 public landmark labels on `codex/batch125-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Push the branch, open the PR, and wait for GitHub `Core Type And Build Gate`.
+
+3. After merge, create the Batch #125 Lovable sync prompt and ask Lovable to sync.
+
+## Batch #125 Local Validation Ready
+
+- Branch: `codex/batch125-public-runtime-ux-a11y-audit`.
+- Scope: public landmark labels and screen-reader route scanability.
+- Runtime finding:
+  - desktop `Header` navigation had no accessible landmark name;
+  - open mobile `Header` navigation had no accessible landmark name;
+  - `/how-it-works` supplier/trust asides, `/blog` sidebar and `/blog/:slug` article tools aside were visible complementary landmarks without names.
+- Implemented fix:
+  - Header desktop/mobile nav landmarks use locale-owned EN/RU/ES aria labels;
+  - `/how-it-works` asides are labelled by their existing visible headings;
+  - blog sidebar and article tools aside use locale-owned complementary labels;
+  - `e2e/public-landmark-labels.spec.ts` checks visible `nav`/`aside` landmarks on mobile and desktop public routes plus the open mobile menu.
+- Preserved behavior: header links and mobile menu behavior, how-it-works buyer narrative, supplier trust mechanism, blog/article content, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 route chunk boundary.
+- Local validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 8 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `E2E_BASE_URL=http://127.0.0.1:4197 npx playwright test e2e/public-landmark-labels.spec.ts --project=chromium`, 39 tests;
+  - `npm run smoke:e2e:public-landmark-labels`, 39 tests after production build;
+  - `npm run lint`;
+  - `npm run smoke:e2e:run`, 176 tests.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #124 Lovable Sync Confirmed
 

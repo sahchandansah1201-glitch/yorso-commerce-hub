@@ -142,12 +142,12 @@ const BusinessOutcomes = () => {
           </div>
 
           {/* Supplier outcomes — secondary, compact */}
-          <aside className="lg:col-span-2">
+          <aside aria-labelledby="business-outcomes-supplier-heading" className="lg:col-span-2">
             <header className="mb-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 {t.bo_supplier_eyebrow}
               </p>
-              <h3 className="font-heading text-base font-bold text-foreground md:text-lg">
+              <h3 id="business-outcomes-supplier-heading" className="font-heading text-base font-bold text-foreground md:text-lg">
                 {t.bo_supplier_title}
               </h3>
             </header>

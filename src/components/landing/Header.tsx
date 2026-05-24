@@ -80,7 +80,7 @@ const Header = () => {
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground">YORSO</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav aria-label={t.aria_mainNavigation} className="hidden items-center gap-6 md:flex">
           <Link to="/offers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_liveOffers}</Link>
           <a href="/#categories" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_categories}</a>
           <Link to="/how-it-works" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:min-h-0">{t.nav_howItWorks}</Link>
@@ -211,7 +211,7 @@ const Header = () => {
 
       {mobileOpen && (
         <div className="border-t border-border bg-background px-4 pb-6 pt-4 md:hidden">
-          <nav className="flex flex-col gap-4">
+          <nav aria-label={t.aria_mobileNavigation} className="flex flex-col gap-4">
             <Link to="/offers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</Link>
             <a href="/#categories" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
             <Link to="/how-it-works" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_howItWorks}</Link>
