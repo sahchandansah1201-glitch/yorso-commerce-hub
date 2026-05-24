@@ -55,6 +55,13 @@
 - `docs/backend/production-scale-baseline.md`: Batch #113 10,000 concurrent users capacity review for route chunk failure handling.
 - `docs/project-memory/PROMPTS/prompt-113-lovable-sync.md`: Lovable sync prompt for Batch #113.
 
+## Batch #114 Font Loading Cleanup
+
+- `index.html`: document-head Google Fonts preconnect and stylesheet loading for Inter plus Plus Jakarta Sans.
+- `src/index.css`: typography contract without blocking Google Fonts CSS `@import`.
+- `src/test/font-loading.test.ts`: static guard for font loading path and body/heading font families.
+- `docs/backend/production-scale-baseline.md`: Batch #114 10,000 concurrent users capacity review for font loading.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

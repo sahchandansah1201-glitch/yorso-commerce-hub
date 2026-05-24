@@ -14,10 +14,6 @@
   Impact: A new chat may continue from an obsolete batch, branch or next action.
   Mitigation: The 2026-05-23 checkpoint updates state from Batch #107 to `main` at Batch #109; update project-memory after every significant audit, feature or handoff.
 
-- Risk: Google Fonts are loaded through CSS `@import`.
-  Impact: Visual checks and first render can wait on external font loading.
-  Mitigation: Plan a font-loading cleanup using self-hosted or preloaded fonts.
-
 - Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
   Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
@@ -56,3 +52,6 @@
 
 - Risk: Lazy route chunk failures used default browser/React behavior.
   Resolution: Batch #113 adds `RouteChunkErrorBoundary` around lazy routes with reload and go-back recovery actions. PR #164 passed the GitHub `Core Type And Build Gate` and merged to `main` as `9860aa3`.
+
+- Risk: Google Fonts were loaded through CSS `@import`.
+  Resolution: Batch #114 moves font discovery into document-head preconnect and stylesheet links while keeping Inter for body copy and Plus Jakarta Sans for headings.

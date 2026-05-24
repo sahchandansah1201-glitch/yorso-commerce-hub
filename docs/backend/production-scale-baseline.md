@@ -1911,6 +1911,69 @@ Marker: RouteChunkErrorBoundary.
 Marker: route-chunk-error.
 Marker: 10,000 concurrent users.
 
+## Batch #114 Font Loading Cleanup
+
+Batch #114 moves Google Fonts loading out of `src/index.css` and into early
+document-head links. The visual contract is unchanged: body copy still uses
+Inter and headings still use Plus Jakarta Sans. The change removes blocking
+CSS `@import` discovery and lets the browser preconnect to the font origins
+before the main stylesheet is parsed.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- The browser makes the same font stylesheet request, but discovers it from
+  `index.html` instead of from a nested CSS import.
+- No application data, buyer session, supplier access state or admin runtime
+  state is read or written.
+
+Cache, queue and backpressure strategy:
+
+- Google Fonts CSS remains browser/CDN cacheable.
+- `fonts.gstatic.com` font binaries remain browser/CDN cacheable.
+- `preconnect` reduces connection setup delay for cold sessions without adding
+  polling, queues, timers or repeated retries.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch only changes static document and CSS loading.
+- Existing supplier, offer, account and admin bounded read strategies remain
+  the 10,000 concurrent-user database plan.
+
+Failure mode and graceful degradation:
+
+- If Google Fonts are delayed or unavailable, the existing fallback stack
+  still uses `system-ui, sans-serif`.
+- The page remains readable before webfonts finish loading because the request
+  uses `display=swap`.
+- Public routes, SEO metadata, mobile overflow fixes, lazy route splitting and
+  the Batch #113 route error boundary are unchanged.
+
+Observability and load-test plan:
+
+- Synthetic browser checks should confirm the five public buyer routes still
+  render with no horizontal overflow.
+- Production RUM should monitor first contentful paint, layout shift and font
+  request error rates after deployment.
+- CDN/browser waterfall checks should confirm there is no CSS `@import` font
+  request chain.
+
+Validation:
+
+- `npx vitest run src/test/font-loading.test.ts`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`;
+- production preview browser smoke for `e2e/smoke-core.spec.ts` and
+  `e2e/suppliers-no-horizontal-overflow-375.spec.ts`.
+
+Marker: Batch #114.
+Marker: font loading cleanup.
+Marker: Google Fonts preconnect.
+Marker: no CSS font import.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

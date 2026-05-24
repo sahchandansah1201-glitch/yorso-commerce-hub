@@ -4,6 +4,7 @@
 
 1. Start Batch #114 font-loading cleanup:
    - inspect current Google Fonts CSS `@import`;
+   - status: implemented locally, full local validation passed;
    - replace it with a production-friendly loading path without changing the visual system;
    - preserve Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary.
 
@@ -58,3 +59,4 @@
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
 - Batch #114 font-loading cleanup is the next planned UX/performance batch.
+- Batch #114 currently needs PR, GitHub checks and merge.

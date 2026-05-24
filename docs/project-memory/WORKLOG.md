@@ -520,3 +520,20 @@ Keep this file factual and append-only.
   - Batch #112 code-splitting strategy is unchanged and the previous large-chunk warning remains resolved;
   - known warnings remain: Supabase generated types drift in non-strict mode and stale Browserslist data.
 - Set the next planned UX batch to Batch #114 font-loading cleanup.
+- Started Batch #114 locally on `codex/batch114-font-loading-cleanup`.
+- Implemented Batch #114 font-loading cleanup:
+  - removed the Google Fonts CSS `@import` from `src/index.css`;
+  - added document-head preconnect links for `fonts.googleapis.com` and `fonts.gstatic.com`;
+  - moved the existing Inter and Plus Jakarta Sans stylesheet request into `index.html`;
+  - added `src/test/font-loading.test.ts` to guard the loading path and typography contract;
+  - added the Batch #114 10,000 concurrent-user capacity review to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #114 full local validation:
+  - `npx vitest run src/test/font-loading.test.ts` passed, 3 tests;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - the Vite large-chunk warning stayed resolved;
+  - production build entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
+  - production CSS bundle is `125.44 kB` minified and `20.79 kB` gzip;
+  - `E2E_BASE_URL=http://127.0.0.1:4184 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
