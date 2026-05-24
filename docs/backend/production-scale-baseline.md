@@ -2466,6 +2466,71 @@ Marker: public CTA semantics.
 Marker: homepage info page nested interactive markup.
 Marker: 10,000 concurrent users.
 
+## Batch #123 Public Input Accessibility
+
+Batch #123 fixes unnamed visible input controls on the homepage and public
+sign-in route. The homepage offer search now has a programmatic label, and the
+sign-in email, phone, password and forgot-password email fields are connected
+to their visible labels. Country phone inputs also expose named country and
+country-search controls. Visual layout, copy, routes, auth behavior,
+buyer-session behavior and analytics stay unchanged.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Homepage search navigation, sign-in submissions, phone sign-in behavior,
+  password-reset requests, buyer sessions and auth runtime selection are
+  unchanged.
+- The only runtime change is client-side accessibility semantics for existing
+  public input controls.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter homepage search or auth request volume at the
+  10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, catalog
+  pagination, offer reads, auth persistence or account persistence.
+- Existing bounded catalog search and self-hosted auth plans remain the
+  10,000 concurrent-user strategy.
+
+Failure mode and graceful degradation:
+
+- Homepage search remains a normal form that routes to `/offers` or
+  `/offers?q=...`.
+- Sign-in and forgot-password fields remain normal inputs with the same
+  submit handlers and required validation.
+- If JavaScript hydration is delayed, labels still describe the static input
+  fields in the rendered document.
+
+Observability and load-test plan:
+
+- Regression coverage should assert homepage and public sign-in fields are
+  reachable by accessible label.
+- Browser smoke verifies `/` and `/signin` have no visible unnamed controls in
+  the checked mobile states and no horizontal overflow.
+- Existing auth and public route smoke continues to verify routing, access
+  gating, supplier redaction, price locks and route chunk recovery.
+
+Validation:
+
+- `npx vitest run src/pages/PublicInputA11y.test.tsx`;
+- `npm run smoke:e2e:public-input-a11y`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #123.
+Marker: public input accessibility.
+Marker: homepage sign-in unnamed inputs.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -189,6 +189,10 @@ interface CountryPhoneInputProps {
   onCountryChange?: (countryName: string) => void;
   countryName?: string;
   disabled?: boolean;
+  inputId?: string;
+  inputAriaLabel?: string;
+  countryButtonAriaLabel?: string;
+  countrySearchAriaLabel?: string;
   placeholderText?: string;
 }
 
@@ -198,6 +202,10 @@ export default function CountryPhoneInput({
   onCountryChange,
   countryName,
   disabled,
+  inputId,
+  inputAriaLabel,
+  countryButtonAriaLabel,
+  countrySearchAriaLabel,
   placeholderText,
 }: CountryPhoneInputProps) {
   const { t } = useLanguage();
@@ -267,6 +275,7 @@ export default function CountryPhoneInput({
           type="button"
           onClick={() => !disabled && setOpen(!open)}
           disabled={disabled}
+          aria-label={countryButtonAriaLabel ?? t.country_searchPlaceholder}
           className="flex items-center gap-1.5 h-12 px-3 rounded-l-xl border border-r-0 border-input bg-muted/50 hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <span className="text-xl leading-none">{selected?.flag || "🌍"}</span>
@@ -280,10 +289,12 @@ export default function CountryPhoneInput({
 
         {/* Phone number input */}
         <Input
+          id={inputId}
           type="tel"
           value={phone}
           onChange={(e) => handlePhoneInput(e.target.value)}
           placeholder={placeholder}
+          aria-label={inputId ? undefined : inputAriaLabel ?? placeholderFallback}
           className="h-12 text-base rounded-l-none rounded-r-xl border-l-0 flex-1"
           disabled={disabled}
         />
@@ -316,6 +327,7 @@ export default function CountryPhoneInput({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={t.country_searchPlaceholder}
+                    aria-label={countrySearchAriaLabel ?? t.country_searchPlaceholder}
                     className="h-10 text-sm rounded-lg pl-3 pr-9"
                     autoFocus
                   />
@@ -324,6 +336,7 @@ export default function CountryPhoneInput({
                 <button
                   type="button"
                   onClick={() => { setOpen(false); setSearch(""); }}
+                  aria-label={t.aria_close}
                   className="ml-2 p-2 rounded-lg hover:bg-muted md:hidden"
                 >
                   <X className="h-5 w-5 text-muted-foreground" />

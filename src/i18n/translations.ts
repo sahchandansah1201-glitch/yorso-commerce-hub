@@ -26,6 +26,7 @@ type TranslationKeys = {
   hero_title1: string;
   hero_title2: string;
   hero_subtitle: string;
+  hero_searchLabel: string;
   hero_searchPlaceholder: string;
   hero_searchBtn: string;
   hero_popular: string;
@@ -1747,6 +1748,7 @@ const en: TranslationKeys = {
   hero_title1: "Verified Suppliers. Transparent Prices.",
   hero_title2: "Full Control Over Your Sourcing.",
   hero_subtitle: `Compare offers, check supplier documents, and request price access in one workspace. No commission on the deal.`,
+  hero_searchLabel: "Search seafood offers",
   hero_searchPlaceholder: "Search products: salmon fillet, vannamei shrimp, cod loin...",
   hero_searchBtn: "Search",
   hero_popular: "Popular: Atlantic Salmon · Vannamei Shrimp · Cod Loin · King Crab",
@@ -3509,6 +3511,7 @@ const ru: TranslationKeys = {
   hero_title1: "Проверенные поставщики. Прозрачные цены.",
   hero_title2: "Полный контроль закупок.",
   hero_subtitle: "Сравнивайте предложения, проверяйте документы поставщиков и запрашивайте доступ к ценам в одном рабочем окне. Без комиссий со сделки.",
+  hero_searchLabel: "Поиск предложений морепродуктов",
   hero_searchPlaceholder: "Поиск продукции: филе лосося, креветка ваннамей, филе трески...",
   hero_searchBtn: "Найти",
   hero_popular: "Популярное: Атлантический лосось · Креветка ваннамей · Филе трески · Королевский краб",
@@ -5260,6 +5263,7 @@ const es: TranslationKeys = {
   hero_title1: "Proveedores verificados. Precios transparentes.",
   hero_title2: "Control total de sus compras.",
   hero_subtitle: "Compare ofertas, revise documentos del proveedor y solicite acceso a precios en un solo espacio de trabajo. Sin comisiones por operación.",
+  hero_searchLabel: "Buscar ofertas de productos del mar",
   hero_searchPlaceholder: "Buscar productos: filete de salmón, camarón vannamei, lomo de bacalao...",
   hero_searchBtn: "Buscar",
   hero_popular: "Popular: Salmón Atlántico · Camarón Vannamei · Lomo de Bacalao · Cangrejo Rey",

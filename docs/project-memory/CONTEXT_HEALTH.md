@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "continue the next scoped public UX/UI runtime audit"
+recommended_action: "finish Batch #123 public input accessibility PR and merge after GitHub gate"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "98335bd"
+active_branch: "codex/batch123-public-runtime-a11y-audit"
+head_commit: "current branch HEAD"
 latest_merged_batch: 122
-active_workstream: "post_batch122_lovable_sync_recorded"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/173"
-why_low: "Batch #122 is merged to main, Lovable sync is confirmed clean at 98335bd, and project-memory is current."
+active_workstream: "batch123_public_input_accessibility"
+pull_request: "pending"
+why_low: "Batch #123 is a scoped public UX/a11y hardening branch committed at current branch HEAD with local unit, e2e, lint, type, production-scale and full smoke validation passed."
 ```
 
 ## Risk Levels
@@ -50,14 +50,16 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: continue the next scoped public UX/UI runtime audit after Batch #122 Lovable sync.
+Current branch: codex/batch123-public-runtime-a11y-audit.
+Current workstream: Batch #123 public input accessibility is in progress on `codex/batch123-public-runtime-a11y-audit`.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
 Batch #122 Lovable sync is confirmed clean at 98335bd with no conflicts and no file changes.
 Batch #122 fixes nested interactive controls on homepage and shared info/legal CTA surfaces.
-Local validation passed: npx vitest run src/pages/PublicCtaSemantics.test.tsx; npm run smoke:e2e:public-cta-semantics; npm run lint; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:run.
+Batch #123 fixes unnamed visible input controls on `/` and `/signin`: homepage search, sign-in email, phone, password and forgot-password email fields now have programmatic names.
+Batch #123 is committed at current branch HEAD, [codex] Batch #123 public input accessibility.
+Batch #123 local validation passed: npx vitest run src/pages/PublicInputA11y.test.tsx; npm run smoke:e2e:public-input-a11y; npm run lint; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:run, 129 tests.
 GitHub Core Type And Build Gate passed on PR #173 in 11m31s.
-Next step: start the next scoped public UX/UI runtime audit from repository state.
+Next step: commit Batch #123, open PR, wait for GitHub Core Type And Build Gate, merge, then prepare Lovable sync prompt.
 ```
