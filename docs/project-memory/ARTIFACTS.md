@@ -195,6 +195,7 @@
 - `e2e/public-skip-main-target.spec.ts`: mobile/desktop browser guard for one `main#main`, one skip link, zero extra main landmarks and no horizontal overflow across public routes, plus skip-link keyboard activation.
 - `package.json`: dedicated public skip-to-main smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #126 10,000 concurrent users capacity review for the public skip-to-main target.
+- `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`: Lovable sync prompt for Batch #126 after PR #177 merge.
 
 ## Batch #96 Supplier Access Review Console
 

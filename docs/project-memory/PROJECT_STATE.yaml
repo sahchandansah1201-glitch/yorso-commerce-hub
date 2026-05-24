@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "codex/batch126-public-skip-main-target"
-  head_commit: "branch from b7e048a after Batch #125 Lovable sync record commit"
-  head_summary: "Batch #126 public skip-to-main target local changes pending commit"
+  active_branch: "main"
+  head_commit: "c1ebd76"
+  head_summary: "[codex] Batch #126 public skip-to-main target (#177)"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #126 code, tests, production-scale note and project-memory are updated locally before commit."
+    - "Batch #126 is merged; only post-merge Lovable sync prompt and project-memory are updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,9 +38,10 @@ project_identity:
 
 active_workstream:
   id: "batch126_public_skip_main_target"
-  summary: "Batch #126 adds an opt-in public skip-to-main link and normalizes public route main landmarks."
-  status: "local_validation_passed_ready_for_pr"
-  branch: "codex/batch126-public-skip-main-target"
+  summary: "Batch #126 is merged to main and Lovable sync prompt is ready."
+  status: "merged_to_main_sync_prompt_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
   confirmed_scope:
     - "Audit public routes after Batch #125 for main landmark and keyboard skip-to-content behavior."
     - "Fix public routes that lacked a stable main#main target without changing buyer-first copy or layout."
@@ -48,6 +49,8 @@ active_workstream:
     - "Normalize public pages and shared info/detail layouts so each audited route has exactly one main#main."
     - "Add focused Header unit coverage and public skip-to-main e2e coverage on mobile and desktop."
     - "Run local Batch #126 validation including full smoke:e2e:run."
+    - "Open PR #177, confirm GitHub Core Type And Build Gate, and merge Batch #126 to main."
+    - "Create a Lovable sync prompt for Batch #126."
   confirmed_files:
     - "src/components/landing/Header.tsx"
     - "src/components/landing/Header.landmarks.test.tsx"
@@ -75,13 +78,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
 
 active_batch:
   id: 126
   summary: "Public skip-to-main target and stable main landmarks across public routes."
-  status: "local_validation_passed_ready_for_pr"
-  branch: "codex/batch126-public-skip-main-target"
-  pull_request: null
+  status: "merged_to_main_sync_prompt_ready"
+  commit: "c1ebd76"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
   confirmed_findings:
     - "Runtime audit found the homepage had no main landmark."
     - "Public routes had no working skip-to-main path for keyboard users."
@@ -102,6 +108,7 @@ active_batch:
     - "npm run lint."
     - "git diff --check."
     - "npm run smoke:e2e:run, 219 tests."
+    - "GitHub Core Type And Build Gate passed on PR #177 in 11m54s."
   preserved_behavior:
     - "Header skip link is opt-in, so admin/account usages without main#main are not changed."
     - "Public route visual layout, buyer-first copy, CTA destinations, SEO route ownership and mobile overflow fixes are preserved."
@@ -111,6 +118,37 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 126
+    summary: "Public skip-to-main target so public routes expose a keyboard skip path and stable main#main landmarks."
+    status: "merged_to_main_sync_prompt_ready"
+    commit: "c1ebd76"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
+    confirmed_files:
+      - "src/components/landing/Header.tsx"
+      - "src/components/landing/Header.landmarks.test.tsx"
+      - "src/i18n/translations.ts"
+      - "src/i18n/aria-tooltips-localized.ru.test.tsx"
+      - "src/pages/Index.tsx"
+      - "src/pages/Offers.tsx"
+      - "src/pages/Suppliers.tsx"
+      - "src/pages/HowItWorks.tsx"
+      - "src/pages/ForSuppliers.tsx"
+      - "src/components/InfoPageLayout.tsx"
+      - "src/pages/SignIn.tsx"
+      - "src/pages/ResetPassword.tsx"
+      - "src/pages/Blog.tsx"
+      - "src/pages/BlogArticle.tsx"
+      - "src/pages/OfferDetail.tsx"
+      - "src/pages/SupplierProfile.tsx"
+      - "src/pages/NotFound.tsx"
+      - "e2e/public-skip-main-target.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
   - id: 125
     summary: "Public landmark labels so visible public navigation and complementary landmarks have accessible names."
     status: "merged_to_main_lovable_sync_clean"

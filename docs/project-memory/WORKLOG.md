@@ -971,3 +971,9 @@ Keep this file factual and append-only.
   - `git diff --check` passed;
   - `npm run smoke:e2e:run` passed, 219 tests.
 - Batch #126 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #126 as `ac2318f`, `[codex] Batch #126 public skip-to-main target`.
+- Pushed branch `codex/batch126-public-skip-main-target` to `origin`.
+- Opened Draft PR #177: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
+- Confirmed GitHub PR #177 `Core Type And Build Gate` passed in 11m54s.
+- Marked PR #177 ready and merged it to `main` as `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`.
+- Added `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md` for Batch #126 Lovable sync confirmation.

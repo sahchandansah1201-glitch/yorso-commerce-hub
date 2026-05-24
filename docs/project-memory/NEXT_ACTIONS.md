@@ -2,13 +2,16 @@
 
 ## Current Next Action
 
-1. Commit, push and open PR for Batch #126 from `codex/batch126-public-skip-main-target`.
+1. Sync Lovable with GitHub `main` at `c1ebd76` or newer using `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
 
-2. After PR creation, wait for GitHub `Core Type And Build Gate`. If it passes, mark the PR ready and merge; then create the Batch #126 Lovable sync prompt.
+2. Ask Lovable to return the required clean sync report or concrete conflict list.
 
-## Batch #126 Local Validation Ready
+## Batch #126 Lovable Sync Pending
 
-- Branch: `codex/batch126-public-skip-main-target`.
+- Branch: `main`.
+- Merge commit: `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
 - Scope: public skip-to-main target and stable main landmarks.
 - Runtime finding:
   - homepage `/` had no main landmark;
@@ -31,6 +34,8 @@
   - `npm run lint`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 219 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 11m54s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #125 Lovable Sync Confirmed
