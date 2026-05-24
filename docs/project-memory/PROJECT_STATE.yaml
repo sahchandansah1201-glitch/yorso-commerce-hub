@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "9d3c90d"
-  head_summary: "[codex] Add Batch 113 Lovable sync prompt"
+  active_branch: "codex/batch114-font-loading-cleanup"
+  head_commit: "946ff9a"
+  head_summary: "[codex] Record Batch 113 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #113 Lovable sync clean report is being recorded."
+    - "Batch #114 font-loading cleanup is in progress."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,7 +39,7 @@ project_identity:
 active_workstream:
   id: "batch114_font_loading_cleanup"
   summary: "Replace blocking Google Fonts CSS import with a production-friendly font loading path."
-  status: "planned_after_batch113_lovable_sync_clean"
+  status: "implemented_locally_validation_passed"
   pull_request: null
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -47,6 +47,10 @@ active_workstream:
     - "Remove or replace CSS @import font loading without changing the visual system."
     - "Preserve buyer-first public pages, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 route splitting and Batch #113 route error boundary."
   confirmed_files:
+    - "index.html"
+    - "src/index.css"
+    - "src/test/font-loading.test.ts"
+    - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
@@ -216,7 +220,7 @@ current_ux_audit_status:
   weak:
     - "Before Batch #111, route-level metadata was inconsistent across public routes outside the blog."
     - "Before Batch #112, the public bundle loaded a very large single production entry chunk."
-    - "Google Fonts are loaded through CSS @import, which can block visual checks and slow first render."
+    - "Before Batch #114, Google Fonts were loaded through CSS @import, which can block visual checks and slow first render."
   conversion_risks:
     - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
@@ -227,10 +231,17 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Start Batch #114 font-loading cleanup: inspect current Google Fonts CSS @import and replace it with a production-friendly loading path."
+  - "Open a PR for Batch #114 font-loading cleanup."
   - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-24: Batch #114 implementation removes the Google Fonts CSS @import from src/index.css, adds document-head preconnect and stylesheet links in index.html, and adds src/test/font-loading.test.ts."
+  - "2026-05-24: Batch #114 npx vitest run src/test/font-loading.test.ts passed, 3 tests."
+  - "2026-05-24: Batch #114 npm run lint passed."
+  - "2026-05-24: Batch #114 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #114 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #114 npm run build passed; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved. CSS bundle: 125.44 kB minified, 20.79 kB gzip. Entry chunk: 355.46 kB minified, 114.16 kB gzip."
+  - "2026-05-24: Batch #114 production preview Playwright smoke passed for e2e/smoke-core.spec.ts and e2e/suppliers-no-horizontal-overflow-375.spec.ts, 9 tests."
   - "2026-05-24: User confirmed Lovable sync for Batch #113 is clean with no conflicts at 9d3c90d2."
   - "2026-05-24: PR #164 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
   - "2026-05-24: PR #164 merged to main as 9860aa3."
