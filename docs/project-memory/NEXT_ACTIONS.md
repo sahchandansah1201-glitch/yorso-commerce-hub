@@ -2,13 +2,12 @@
 
 ## Current Next Action
 
-1. Run the Batch #112 Lovable sync prompt:
-   - prompt: `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`;
-   - merged commit: `2430fef`;
-   - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`;
-   - expected result: Lovable reports clean sync or gives a concrete conflict list.
+1. Finish Batch #113 route chunk error boundary:
+   - branch: `codex/batch113-route-chunk-error-boundary`;
+   - status: implemented locally, full local validation passed;
+   - next step: stage, commit, push and open a PR.
 
-2. Record whether Batch #112 Lovable sync is clean or has conflicts.
+2. After Batch #113 PR checks pass, merge and create a Batch #113 Lovable sync prompt.
 
 3. Plan the next production-quality UX batch:
    - font-loading cleanup to remove blocking CSS `@import`;
@@ -18,6 +17,7 @@
 
 - `main` is at `2430fef`, `[codex] Batch #112 route code splitting`.
 - PR #163 is merged for Batch #112: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
+- User confirmed Lovable sync for Batch #112 is clean at `45891e11`, with no conflicts.
 - Batch #111 merged commit is `17fc484`, `[codex] Batch #111 public route SEO`.
 - PR #162 is merged for Batch #111: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - User confirmed Lovable sync for Batch #111 is clean at `01734e1d`, with no conflicts.
@@ -40,6 +40,15 @@
   - `npx tsc -b --noEmit` passed;
   - `npm run build` passed with the previous large-chunk warning removed;
   - production preview Playwright smoke passed for `e2e/smoke-core.spec.ts` and `e2e/suppliers-no-horizontal-overflow-375.spec.ts`, 9 tests.
+- Batch #113 focused validation passed:
+  - `npx vitest run src/components/routing/RouteChunkErrorBoundary.test.tsx src/test/app-route-code-splitting.test.ts` passed, 4 tests;
+  - `npx tsc -b --noEmit` passed.
+- Batch #113 full local validation passed:
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with the known Supabase type drift and Browserslist warnings only;
+  - Vite large-chunk warning stayed resolved;
+  - production preview Playwright smoke passed for `e2e/smoke-core.spec.ts` and `e2e/suppliers-no-horizontal-overflow-375.spec.ts`, 9 tests.
 
 ## Blockers
 
@@ -47,5 +56,4 @@
 - Known warnings remain:
   - Supabase generated types are out of sync in non-strict build mode;
   - Browserslist data is stale.
-- Residual Batch #112 risk:
-  - lazy route chunk failures still use default browser/React behavior; a custom route chunk error boundary is not included in this batch.
+- Batch #113 still needs commit, push and PR.

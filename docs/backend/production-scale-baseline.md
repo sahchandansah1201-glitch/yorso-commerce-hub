@@ -1847,6 +1847,70 @@ Marker: i18n-translations.
 Marker: app route code splitting.
 Marker: 10,000 concurrent users.
 
+## Batch #113 Route Chunk Error Boundary
+
+Batch #113 adds a route-level error boundary around the lazy routes introduced
+in Batch #112. If a lazy route render or route chunk load fails, buyers and
+operators see a clear recovery state instead of a blank screen or default
+React runtime failure.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- The fallback state is rendered fully in the browser.
+- Reload uses the current browser location and does not add polling, queue work
+  or background API traffic.
+- Go-back uses browser history and does not write application state.
+
+Cache, queue and backpressure strategy:
+
+- Hashed Vite route chunks and the `i18n-translations` chunk remain
+  browser/CDN cacheable.
+- A failed route chunk download is handled as a user-visible recovery path,
+  not retried in a loop.
+- No queues, timers or repeated fetch retries are introduced.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch only changes route-shell failure handling.
+- Existing catalog, supplier, account and admin pagination/indexing strategies
+  remain the bounded read plan for the 10,000 concurrent-user target.
+
+Failure mode and graceful degradation:
+
+- Normal route loads are unchanged.
+- If a lazy route fails, `RouteChunkErrorBoundary` shows a concise reload
+  action and a go-back action.
+- The fallback copy states that the screen itself does not change the YORSO
+  session, access requests or workspace data.
+- Existing page-level disabled/session/forbidden/error states remain inside
+  their routes and still render when route code loads successfully.
+
+Observability and load-test plan:
+
+- Track route error-boundary impressions, reload clicks and route chunk load
+  failures in production RUM when telemetry is available.
+- CDN logs should be checked for route chunk `404`, `5xx` and cache-miss
+  spikes after deploys.
+- Synthetic browser checks should continue to cover `/`, `/offers`,
+  `/suppliers`, `/blog`, `/for-suppliers` and `/account/personal`.
+
+Validation:
+
+- `npx vitest run src/components/routing/RouteChunkErrorBoundary.test.tsx src/test/app-route-code-splitting.test.ts`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`;
+- production preview browser smoke for `e2e/smoke-core.spec.ts` and
+  `e2e/suppliers-no-horizontal-overflow-375.spec.ts`.
+
+Marker: Batch #113.
+Marker: route chunk error boundary.
+Marker: RouteChunkErrorBoundary.
+Marker: route-chunk-error.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

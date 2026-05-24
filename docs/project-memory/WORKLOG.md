@@ -474,3 +474,32 @@ Keep this file factual and append-only.
   - browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps passed.
 - Marked PR #163 ready and merged it to `main` as `2430fef`, `[codex] Batch #112 route code splitting`.
 - Added `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md` for Batch #112 Lovable sync confirmation.
+
+## 2026-05-24
+
+- User confirmed Lovable sync for Batch #112 is clean with no conflicts:
+  - HEAD is `45891e11`, including Batch #112 commit `2430fef4`;
+  - `src/App.tsx` uses `React.lazy` for route pages and `<Suspense fallback={<RouteFallback />}>`;
+  - global providers, `LegacyOfferRedirect`, `legacyRedirects` and `SupplierApprovalNotifier` remain eager;
+  - `vite.config.ts` only splits `src/i18n/translations.ts` into `i18n-translations`;
+  - no manual `vendor-react`, `vendor-charts` or `vendor-supabase` chunk rules were present;
+  - `src/test/app-route-code-splitting.test.ts` is present;
+  - public routes render, buyer-first narrative is preserved, and Batch #111 SEO plus Batch #110 mobile fixes remain in place.
+- Started Batch #113 locally on `codex/batch113-route-chunk-error-boundary`.
+- Implemented Batch #113 route chunk error boundary:
+  - added `src/components/routing/RouteChunkErrorBoundary.tsx`;
+  - wrapped lazy routes in `RouteChunkErrorBoundary` in `src/App.tsx`;
+  - added a clear reload/go-back state for lazy route render or chunk-load failures;
+  - added `src/components/routing/RouteChunkErrorBoundary.test.tsx`;
+  - extended `src/test/app-route-code-splitting.test.ts` to guard route boundary wiring.
+- Confirmed Batch #113 focused validation so far:
+  - `npx vitest run src/components/routing/RouteChunkErrorBoundary.test.tsx src/test/app-route-code-splitting.test.ts` passed, 4 tests;
+  - `npx tsc -b --noEmit` passed.
+- Confirmed Batch #113 full local validation:
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run build` passed with known Supabase type drift and Browserslist warnings only;
+  - the Vite large-chunk warning stayed resolved;
+  - production build entry chunk is `355.46 kB` minified and `114.16 kB` gzip;
+  - `E2E_BASE_URL=http://127.0.0.1:4183 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium` passed, 9 tests.
+  - In-app Browser MCP returned `Transport closed`, so local runtime verification used the production preview server plus Playwright.

@@ -20,11 +20,16 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 
 ## Current Status
 
-- The repository is on branch `main`.
+- The repository is on branch `codex/batch113-route-chunk-error-boundary`.
+- Batch #113 route chunk error boundary is implemented locally and full local validation has passed, but commit, push and PR are still pending.
+- Current local base commit is `45891e1`, `[codex] Add Batch 112 Lovable sync prompt`.
 - Current merged Batch #112 commit is `2430fef`, `[codex] Batch #112 route code splitting`.
 - PR #163 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163`.
-- Batch #112 Lovable sync prompt is ready:
-  - `docs/project-memory/PROMPTS/prompt-112-lovable-sync.md`.
+- Lovable sync for Batch #112 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `45891e11`, including Batch #112 `2430fef4`;
+  - route lazy-loading, `Suspense`, eager providers, `i18n-translations` chunking and route code-splitting tests are present;
+  - no conflicts were found;
+  - public route runtime, buyer-first narrative, Batch #111 SEO and Batch #110 mobile fixes are preserved.
 - Current merged Batch #111 commit is `17fc484`, `[codex] Batch #111 public route SEO`.
 - PR #162 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/162`.
 - Lovable sync for Batch #111 was confirmed clean by the user on 2026-05-23:
@@ -69,6 +74,12 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `vite.config.ts` splits only the local `src/i18n/translations.ts` table into `i18n-translations`;
   - manual third-party vendor chunking was tested and rejected because production preview exposed React/vendor circular runtime errors;
   - `src/test/app-route-code-splitting.test.ts` guards route lazy-loading and the translation chunk rule.
+- Batch #113 implementation:
+  - `src/components/routing/RouteChunkErrorBoundary.tsx` adds a route-level recovery state for lazy route render or chunk-load failures;
+  - `src/App.tsx` wraps lazy routes in `RouteChunkErrorBoundary`;
+  - the fallback gives buyers/operators a reload action and a go-back action without changing product data;
+  - `src/components/routing/RouteChunkErrorBoundary.test.tsx` covers normal render and fallback recovery;
+  - `src/test/app-route-code-splitting.test.ts` now guards error-boundary wiring.
 
 ## Confirmed Checks In This UX Pass
 
@@ -103,12 +114,22 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
   - `i18n-translations`: `311.45 kB` minified, `98.15 kB` gzip;
   - `E2E_BASE_URL=http://127.0.0.1:4182 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
 - GitHub `Core Type And Build Gate` passed on PR #163, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps.
+- Batch #113 focused validation passed:
+  - `npx vitest run src/components/routing/RouteChunkErrorBoundary.test.tsx src/test/app-route-code-splitting.test.ts`, 4 tests;
+  - `npx tsc -b --noEmit`.
+- Batch #113 full local validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run build` with known Supabase type drift and Browserslist warnings only;
+  - Vite large-chunk warning stayed resolved;
+  - production entry chunk: `355.46 kB` minified, `114.16 kB` gzip;
+  - `i18n-translations`: `311.45 kB` minified, `98.15 kB` gzip;
+  - `E2E_BASE_URL=http://127.0.0.1:4183 npx playwright test e2e/smoke-core.spec.ts e2e/suppliers-no-horizontal-overflow-375.spec.ts --project=chromium`, 9 tests.
 
 ## Next Action
 
 ```text
-Run docs/project-memory/PROMPTS/prompt-112-lovable-sync.md in Lovable and record whether sync is clean.
-Then choose the next UX batch: font-loading cleanup or route-level proof/trust signal review.
+Stage, commit, push and open a PR for Batch #113 route chunk error boundary.
 ```
 
 ## Rules

@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-23"
+updated_at: "2026-05-24"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-23"
-  active_branch: "main"
-  head_commit: "2430fef"
-  head_summary: "[codex] Batch #112 route code splitting"
+  git_status_confirmed_at: "2026-05-24"
+  active_branch: "codex/batch113-route-chunk-error-boundary"
+  head_commit: "45891e1"
+  head_summary: "[codex] Add Batch 112 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #112 Lovable sync prompt is being added after PR #163 merge."
+    - "Batch #113 route chunk error boundary is in progress."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,29 +37,39 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch112_lovable_sync"
-  summary: "Sync Lovable after Batch #112 route code splitting, then choose the next buyer-first UX batch."
-  status: "batch112_merged_lovable_prompt_ready"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163"
+  id: "batch113_route_chunk_error_boundary"
+  summary: "Add a clear retry state for lazy route chunk failures after Batch #112 code splitting."
+  status: "implemented_locally_validation_passed"
+  pull_request: null
   confirmed_scope:
-    - "Convert route page imports in src/App.tsx to React.lazy with a lightweight Suspense fallback."
-    - "Keep global providers, legacy redirects and supplier approval notifier eager."
-    - "Split src/i18n/translations.ts into a named i18n-translations production chunk."
-    - "Avoid manual third-party vendor chunks after browser preview exposed React/vendor circular runtime errors."
-    - "Add static Vitest guard for route lazy-loading and the translation chunk rule."
-    - "Verify production preview routes render without runtime errors."
+    - "Record the user's clean Lovable sync report for Batch #112."
+    - "Add a route-level error boundary around lazy routes."
+    - "Show a concrete reload/go-back state if a lazy route fails to render or a route chunk fails to load."
+    - "Keep buyer-first public routes, SEO and mobile fixes unchanged."
+    - "Add focused regression tests for route error fallback and route-shell wiring."
   confirmed_files:
     - "src/App.tsx"
-    - "vite.config.ts"
+    - "src/components/routing/RouteChunkErrorBoundary.tsx"
+    - "src/components/routing/RouteChunkErrorBoundary.test.tsx"
     - "src/test/app-route-code-splitting.test.ts"
     - "docs/backend/production-scale-baseline.md"
 
 latest_merged_batches:
   - id: 112
     summary: "Frontend route code splitting for public/admin/account route pages and the local i18n translation table."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "2430fef"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/163"
+    lovable_sync:
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to 45891e11, including Batch #112 commit 2430fef4."
+        - "src/App.tsx uses React.lazy for pages and Suspense fallback, while global providers, LegacyOfferRedirect, legacyRedirects and SupplierApprovalNotifier remain eager."
+        - "vite.config.ts only splits src/i18n/translations.ts into i18n-translations and does not use manual vendor-react, vendor-charts or vendor-supabase chunk rules."
+        - "src/test/app-route-code-splitting.test.ts is present."
+        - "Public routes render, buyer-first narrative, Batch #111 SEO and Batch #110 mobile overflow fixes are preserved."
+        - "No conflicts were found and the worktree was clean."
     confirmed_files:
       - "src/App.tsx"
       - "vite.config.ts"
@@ -196,11 +206,19 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Run docs/project-memory/PROMPTS/prompt-112-lovable-sync.md in Lovable and confirm sync status."
+  - "Stage, commit, push and open a PR for Batch #113 route chunk error boundary."
+  - "After Batch #113 PR checks pass, merge and create a Batch #113 Lovable sync prompt."
   - "Plan a font-loading batch: self-host or preload fonts instead of relying on CSS @import."
   - "Plan a route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #112 is clean with no conflicts at 45891e11."
+  - "2026-05-24: Batch #113 focused tests passed: npx vitest run src/components/routing/RouteChunkErrorBoundary.test.tsx src/test/app-route-code-splitting.test.ts, 4 tests."
+  - "2026-05-24: Batch #113 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #113 npm run lint passed."
+  - "2026-05-24: Batch #113 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #113 npm run build passed; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved. Entry chunk: 355.46 kB minified, 114.16 kB gzip. i18n-translations: 311.45 kB minified, 98.15 kB gzip."
+  - "2026-05-24: Batch #113 production preview Playwright smoke passed for e2e/smoke-core.spec.ts and e2e/suppliers-no-horizontal-overflow-375.spec.ts, 9 tests."
   - "2026-05-23: PR #163 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
   - "2026-05-23: PR #163 merged to main as 2430fef."
   - "2026-05-23: User confirmed Lovable sync for Batch #111 is clean with no conflicts at 01734e1d."
@@ -235,7 +253,6 @@ last_confirmed_checks:
 known_warnings:
   - "Build uses non-strict Supabase generated type guard because access migrations have not been applied and regenerated in the linked Supabase project."
   - "Browserslist caniuse-lite data is 11 months old."
-  - "No custom route chunk error boundary is implemented yet; production preview currently relies on the browser/default React behavior if a lazy route chunk fails to load."
 
 quality_rules:
   - "Use repository files as source of truth."
@@ -258,5 +275,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #112 is pending."
-  - "After Batch #112 sync, choose whether the next UX batch should address font loading or route-level proof/trust signal density."
+  - "After Batch #113, choose whether the next UX batch should address font loading or route-level proof/trust signal density."

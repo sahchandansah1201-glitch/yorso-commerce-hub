@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { RegistrationProvider } from "./contexts/RegistrationContext.tsx";
 import LegacyOfferRedirect from "./components/routing/LegacyOfferRedirect.tsx";
+import { RouteChunkErrorBoundary } from "./components/routing/RouteChunkErrorBoundary.tsx";
 import { legacyRedirects } from "./lib/legacy-redirects.ts";
 import { SupplierApprovalNotifier } from "./components/suppliers/SupplierApprovalNotifier.tsx";
 
@@ -81,67 +82,69 @@ const App = () => (
           <BuyerSessionProvider>
             <RegistrationProvider>
               <SupplierApprovalNotifier />
-              <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/register" element={<RegisterChoose />} />
-                  <Route path="/register/email" element={<RegisterEmail />} />
-                  <Route path="/register/verify" element={<RegisterVerify />} />
-                  <Route path="/register/details" element={<RegisterDetails />} />
-                  <Route path="/register/onboarding" element={<RegisterOnboarding />} />
-                  <Route path="/register/countries" element={<RegisterCountries />} />
-                  <Route path="/register/ready" element={<RegisterReady />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/offers" element={<Offers />} />
-                  <Route path="/offers/:id" element={<LegacyOfferRedirect><OfferDetail /></LegacyOfferRedirect>} />
-                  <Route path="/suppliers" element={<Suppliers />} />
-                  <Route path="/suppliers/:supplierId" element={<SupplierProfile />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/terms" element={<Terms />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/cookies" element={<Cookies />} />
-                  <Route path="/gdpr" element={<GDPR />} />
-                  <Route path="/anti-fraud" element={<AntiFraud />} />
-                  <Route path="/careers" element={<Careers />} />
-                  <Route path="/press" element={<Press />} />
-                  <Route path="/partners" element={<Partners />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
-                  <Route path="/for-suppliers" element={<ForSuppliers />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogArticle />} />
-                  <Route path="/account" element={<Navigate to="/account/personal" replace />} />
-                  <Route path="/account/:section" element={<Account />} />
-                  <Route path="/profile" element={<Navigate to="/account/personal" replace />} />
-                  <Route path="/profile/personal" element={<Navigate to="/account/personal" replace />} />
-                  <Route path="/profile/company" element={<Navigate to="/account/company" replace />} />
-                  <Route path="/profile/company-addresses" element={<Navigate to="/account/branches" replace />} />
-                  <Route path="/profile/classify" element={<Navigate to="/account/products" replace />} />
-                  <Route path="/profile/meta-regions" element={<Navigate to="/account/meta-regions" replace />} />
-                  <Route path="/profile/company-spam" element={<Navigate to="/account/notifications" replace />} />
-                  <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
-                  <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
-                  <Route path="/admin" element={<AdminOperations />} />
-                  <Route path="/admin/access-requests" element={<AdminAccessRequests />} />
-                  <Route path="/admin/access-grants" element={<AdminAccessGrants />} />
-                  <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
-                  <Route path="/admin/audit" element={<AdminAuditEvents />} />
-                  <Route path="/admin/incidents" element={<AdminIncidents />} />
-                  <Route path="/admin/incidents/:incidentId" element={<AdminIncidentDetail />} />
-                  <Route path="/admin/incident-execution" element={<AdminIncidentExecutionQueue />} />
-                  <Route path="/admin/incident-workload" element={<AdminIncidentWorkload />} />
-                  <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
-                  <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
-                  <Route path="/dev/typography" element={<TypographyAudit />} />
-                  {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
-                  {legacyRedirects.flatMap(({ from, to }) => [
-                    <Route key={from} path={from} element={<Navigate to={to} replace />} />,
-                    <Route key={`${from}/*`} path={`${from}/*`} element={<Navigate to={to} replace />} />,
-                  ])}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
+              <RouteChunkErrorBoundary>
+                <Suspense fallback={<RouteFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/register" element={<RegisterChoose />} />
+                    <Route path="/register/email" element={<RegisterEmail />} />
+                    <Route path="/register/verify" element={<RegisterVerify />} />
+                    <Route path="/register/details" element={<RegisterDetails />} />
+                    <Route path="/register/onboarding" element={<RegisterOnboarding />} />
+                    <Route path="/register/countries" element={<RegisterCountries />} />
+                    <Route path="/register/ready" element={<RegisterReady />} />
+                    <Route path="/signin" element={<SignIn />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/offers" element={<Offers />} />
+                    <Route path="/offers/:id" element={<LegacyOfferRedirect><OfferDetail /></LegacyOfferRedirect>} />
+                    <Route path="/suppliers" element={<Suppliers />} />
+                    <Route path="/suppliers/:supplierId" element={<SupplierProfile />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/cookies" element={<Cookies />} />
+                    <Route path="/gdpr" element={<GDPR />} />
+                    <Route path="/anti-fraud" element={<AntiFraud />} />
+                    <Route path="/careers" element={<Careers />} />
+                    <Route path="/press" element={<Press />} />
+                    <Route path="/partners" element={<Partners />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/for-suppliers" element={<ForSuppliers />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogArticle />} />
+                    <Route path="/account" element={<Navigate to="/account/personal" replace />} />
+                    <Route path="/account/:section" element={<Account />} />
+                    <Route path="/profile" element={<Navigate to="/account/personal" replace />} />
+                    <Route path="/profile/personal" element={<Navigate to="/account/personal" replace />} />
+                    <Route path="/profile/company" element={<Navigate to="/account/company" replace />} />
+                    <Route path="/profile/company-addresses" element={<Navigate to="/account/branches" replace />} />
+                    <Route path="/profile/classify" element={<Navigate to="/account/products" replace />} />
+                    <Route path="/profile/meta-regions" element={<Navigate to="/account/meta-regions" replace />} />
+                    <Route path="/profile/company-spam" element={<Navigate to="/account/notifications" replace />} />
+                    <Route path="/dashboard/registration-funnel" element={<RegistrationFunnelDashboard />} />
+                    <Route path="/dashboard/registration-resend" element={<ResendEffectivenessDashboard />} />
+                    <Route path="/admin" element={<AdminOperations />} />
+                    <Route path="/admin/access-requests" element={<AdminAccessRequests />} />
+                    <Route path="/admin/access-grants" element={<AdminAccessGrants />} />
+                    <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
+                    <Route path="/admin/audit" element={<AdminAuditEvents />} />
+                    <Route path="/admin/incidents" element={<AdminIncidents />} />
+                    <Route path="/admin/incidents/:incidentId" element={<AdminIncidentDetail />} />
+                    <Route path="/admin/incident-execution" element={<AdminIncidentExecutionQueue />} />
+                    <Route path="/admin/incident-workload" element={<AdminIncidentWorkload />} />
+                    <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
+                    <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
+                    <Route path="/dev/typography" element={<TypographyAudit />} />
+                    {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
+                    {legacyRedirects.flatMap(({ from, to }) => [
+                      <Route key={from} path={from} element={<Navigate to={to} replace />} />,
+                      <Route key={`${from}/*`} path={`${from}/*`} element={<Navigate to={to} replace />} />,
+                    ])}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </RouteChunkErrorBoundary>
             </RegistrationProvider>
           </BuyerSessionProvider>
         </BrowserRouter>

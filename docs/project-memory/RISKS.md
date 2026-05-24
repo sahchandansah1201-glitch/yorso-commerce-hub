@@ -20,7 +20,7 @@
 
 - Risk: Lazy route chunk failures currently use default browser/React behavior.
   Impact: A failed route chunk download could leave buyers on a fallback or blank transition instead of a clear retry state.
-  Mitigation: Add a route chunk error boundary/retry shell in a future frontend hardening batch; Batch #112 production preview smoke currently passes.
+  Mitigation: Batch #113 adds a route chunk error boundary/retry shell; keep production preview smoke in the validation path before merge.
 
 - Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
