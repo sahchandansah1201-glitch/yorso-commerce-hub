@@ -149,11 +149,11 @@ const OfferDetail = () => {
                 <RefreshCw className={`h-3.5 w-3.5 ${retrying ? "animate-spin" : ""}`} aria-hidden />
                 {retrying ? t.offerDetail_loadError_retrying : t.offerDetail_loadError_retry}
               </Button>
-              <Link to="/offers">
-                <Button variant="outline" className="w-full sm:w-auto">
+              <Button asChild variant="outline" className="w-full sm:w-auto">
+                <Link to="/offers">
                   {t.offerDetail_loadError_goCatalog}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </main>
@@ -169,7 +169,9 @@ const OfferDetail = () => {
         <main className="flex flex-1 items-center justify-center">
           <div className="text-center">
             <h1 className="font-heading text-2xl font-bold text-foreground">{t.offerDetail_notFound}</h1>
-            <Link to="/offers"><Button className="mt-4">{t.offerDetail_browseAll}</Button></Link>
+            <Button asChild className="mt-4">
+              <Link to="/offers">{t.offerDetail_browseAll}</Link>
+            </Button>
           </div>
         </main>
         <Footer />
@@ -204,17 +206,17 @@ const OfferDetail = () => {
               <p className="mt-1 text-xs text-muted-foreground">{lockBody}</p>
             </div>
             {renderAccessLevel === "anonymous_locked" ? (
-              <Link to="/register">
-                <Button size="sm" className="font-semibold">
+              <Button asChild size="sm" className="font-semibold">
+                <Link to="/register">
                   {t.nav_registerFree}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             ) : supplierAccessId ? (
-              <a href="#offer-supplier-access">
-                <Button size="sm" className="font-semibold">
+              <Button asChild size="sm" className="font-semibold">
+                <a href="#offer-supplier-access">
                   {accessPanelCta}
-                </Button>
-              </a>
+                </a>
+              </Button>
             ) : null}
           </div>
         )}
@@ -293,17 +295,17 @@ const OfferDetail = () => {
       {renderAccessLevel !== "qualified_unlocked" && (
         <div className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur lg:hidden">
           {renderAccessLevel === "anonymous_locked" ? (
-            <Link to="/register" className="block">
-              <Button className="h-12 w-full gap-2 text-base font-semibold">
+            <Button asChild className="h-12 w-full gap-2 text-base font-semibold">
+              <Link to="/register">
                 {t.offerDetail_registerToContact} <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           ) : (
-            <a href="#offer-supplier-access" className="block">
-              <Button className="h-12 w-full gap-2 text-base font-semibold">
+            <Button asChild className="h-12 w-full gap-2 text-base font-semibold">
+              <a href="#offer-supplier-access">
                 {accessPanelCta} <ArrowRight className="h-4 w-4" />
-              </Button>
-            </a>
+              </a>
+            </Button>
           )}
           <p className="mt-1.5 text-center text-[11px] text-muted-foreground">{t.offerDetail_freeRegistration}</p>
         </div>
