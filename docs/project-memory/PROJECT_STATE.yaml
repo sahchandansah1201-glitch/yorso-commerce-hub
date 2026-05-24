@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
   active_branch: "main"
-  head_commit: "f025e7b"
-  head_summary: "[codex] Batch #118 for-suppliers CTA semantics (#169)"
+  head_commit: "dc78e09"
+  head_summary: "[codex] Add Batch 118 Lovable sync prompt"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Only post-merge Lovable sync prompt and project-memory files are being updated."
+    - "Only Batch #118 Lovable sync confirmation is being recorded in project-memory."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "post_batch118_lovable_sync"
-  summary: "Sync Lovable with Batch #118 and continue route-level buyer trust/conversion review."
-  status: "batch118_merged_lovable_prompt_ready"
+  id: "post_batch118_route_ux_review"
+  summary: "Continue route-level buyer trust/conversion review after clean Batch #118 Lovable sync."
+  status: "batch118_lovable_sync_clean"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
@@ -65,6 +65,7 @@ active_workstream:
     - "Audit /for-suppliers CTA runtime semantics after Batch #117."
     - "Fix nested Link/Button CTA markup on /for-suppliers using the existing Button asChild pattern."
     - "Create a Lovable sync prompt for Batch #118."
+    - "Record the user's clean Lovable sync report for Batch #118."
   confirmed_files:
     - "src/pages/ForSuppliers.tsx"
     - "src/pages/ForSuppliers.test.tsx"
@@ -82,13 +83,26 @@ active_workstream:
 latest_merged_batches:
   - id: 118
     summary: "For-suppliers CTA semantics so supplier CTAs render as single links instead of nested link/button controls."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "f025e7b"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169"
     lovable_sync:
-      confirmed_at: "pending"
-      result: "pending_lovable_confirmation"
+      confirmed_at: "2026-05-24"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-118-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to dc78e094, [codex] Add Batch 118 Lovable sync prompt, on main and on top of Batch #118 f025e7b, PR #169."
+        - "src/pages/ForSuppliers.tsx hero and final CTAs use Button asChild with Link targets to /register and /offers."
+        - "Analytics supplier_page_cta_register_click and supplier_page_cta_requests_click remain attached with surface hero/final."
+        - "src/pages/ForSuppliers.test.tsx includes the regression asserting document.querySelectorAll(\"a button, button a\") length is 0."
+        - "e2e/for-suppliers-cta-semantics.spec.ts checks 390x844 mobile, Register as supplier to /register, See buyer requests to /offers, zero nested controls and zero overflow."
+        - "package.json smoke:e2e:run includes e2e/for-suppliers-cta-semantics.spec.ts."
+        - "docs/backend/production-scale-baseline.md includes the Batch #118 10,000 concurrent-user capacity review."
+        - "Routes /, /offers, /suppliers, /how-it-works and /for-suppliers remain lazy-loaded through RouteChunkErrorBoundary."
+        - "No conflicts were found; the tree was clean and files were not modified in Lovable."
+        - "Buyer-first narrative, Batch #111 SEO, Batch #110 mobile fix, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, Batch #117 /offers#request anchor, access gating, supplier identity redaction and price lock are preserved."
+        - "Batch #112 i18n-translations manual chunk strategy and Batch #113 RouteChunkErrorBoundary remain in place; large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/pages/ForSuppliers.tsx"
       - "src/pages/ForSuppliers.test.tsx"
@@ -386,11 +400,13 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Sync Lovable with docs/project-memory/PROMPTS/prompt-118-lovable-sync.md."
-  - "Record the Lovable Batch #118 sync report if clean, or resolve concrete conflicts if Lovable reports any."
-  - "Continue route-level proof/trust/conversion review after Lovable confirms Batch #118."
+  - "Continue route-level proof/trust/conversion review after clean Batch #118 Lovable sync."
+  - "Use runtime checks before changing public UI."
+  - "If the next issue affects production frontend behavior, keep the 10000 concurrent users capacity review updated."
 
 last_confirmed_checks:
+  - "2026-05-24: User confirmed Lovable sync for Batch #118 is clean with no conflicts at dc78e094 on main."
+  - "2026-05-24: Lovable confirmed ForSuppliers CTA semantics files, nested-control regression, mobile e2e guard, smoke script wiring, Batch #118 production-scale notes, public route declarations, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback and Batch #117 /offers#request anchor are all present."
   - "2026-05-24: PR #169 Core Type And Build Gate passed on GitHub in 10m36s."
   - "2026-05-24: PR #169 merged to main as f025e7b."
   - "2026-05-24: Batch #118 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-118-lovable-sync.md."
@@ -514,5 +530,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Lovable sync confirmation for Batch #118."
-  - "After Batch #118 sync, continue route-level proof/trust review."
+  - "Next route-level proof/trust issue to remediate after Batch #118 sync."

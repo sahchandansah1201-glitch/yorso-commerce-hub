@@ -34,6 +34,13 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 - Batch #118 is merged to `main` as `f025e7b`, `[codex] Batch #118 for-suppliers CTA semantics (#169)`.
 - PR #169 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169`.
 - Batch #118 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
+- Lovable sync for Batch #118 was confirmed clean by the user on 2026-05-24:
+  - GitHub commit synced to `dc78e094`, `[codex] Add Batch 118 Lovable sync prompt`, on `main` and on top of Batch #118 `f025e7b`;
+  - `ForSuppliers.tsx` hero and final CTAs use `Button asChild` with direct React Router links to `/register` and `/offers`;
+  - analytics `supplier_page_cta_register_click` and `supplier_page_cta_requests_click` remain attached with `surface: hero|final`;
+  - `ForSuppliers.test.tsx` and `e2e/for-suppliers-cta-semantics.spec.ts` are present;
+  - no conflicts were found and Lovable did not modify files;
+  - buyer-first narrative, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback, Batch #117 request anchor, access gating, supplier identity redaction and price lock are preserved.
 - Batch #118 fixes a concrete `/for-suppliers` runtime semantics defect found after Batch #117:
   - hero and final CTAs rendered as nested `Link` plus `Button`, producing duplicate interactive controls at the same visual target;
   - CTAs now use the existing `Button asChild` pattern;
@@ -246,8 +253,8 @@ Continue the Yorso public UX/UI audit and remediation work with a buyer-first B2
 ## Next Action
 
 ```text
-Sync Lovable with docs/project-memory/PROMPTS/prompt-118-lovable-sync.md.
-After Lovable reports clean sync or concrete conflicts, record the result and continue route-level proof/trust review.
+Continue route-level proof/trust/conversion review after clean Batch #118 Lovable sync.
+Keep the next batch narrow, runtime-verified and tied to a concrete public-route issue.
 ```
 
 ## Rules

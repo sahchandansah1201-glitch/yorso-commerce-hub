@@ -102,7 +102,7 @@
 - `e2e/for-suppliers-cta-semantics.spec.ts`: mobile browser guard for visible supplier CTAs, zero nested interactive controls and no horizontal overflow.
 - `package.json`: `smoke:e2e:run` includes the for-suppliers CTA semantics e2e guard.
 - `docs/backend/production-scale-baseline.md`: Batch #118 10,000 concurrent users capacity review for CTA semantics.
-- `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`: Lovable sync prompt for Batch #118.
+- `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`: Lovable sync prompt for Batch #118; user confirmed clean sync at `dc78e094`.
 
 ## Batch #96 Supplier Access Review Console
 

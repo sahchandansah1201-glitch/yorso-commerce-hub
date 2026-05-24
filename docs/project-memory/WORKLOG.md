@@ -687,3 +687,11 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #169 `Core Type And Build Gate` passed in 10m36s.
 - Marked PR #169 ready and merged it to `main` as `f025e7b`, `[codex] Batch #118 for-suppliers CTA semantics (#169)`.
 - Added `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md` for Batch #118 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #118 is clean:
+  - HEAD is `dc78e094`, `[codex] Add Batch 118 Lovable sync prompt`, on `main` and on top of Batch #118 `f025e7b`;
+  - `ForSuppliers.tsx` hero and final CTAs use `Button asChild` with links to `/register` and `/offers`;
+  - analytics `supplier_page_cta_register_click` and `supplier_page_cta_requests_click` remain attached with `surface: hero|final`;
+  - `ForSuppliers.test.tsx`, `e2e/for-suppliers-cta-semantics.spec.ts`, `smoke:e2e:run` wiring and Batch #118 production-scale notes are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - buyer-first narrative, access gating, supplier identity redaction, price lock, Batch #110 mobile fix, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading, Batch #115 locale hardening, Batch #116 proof anchor fallback and Batch #117 request anchor are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

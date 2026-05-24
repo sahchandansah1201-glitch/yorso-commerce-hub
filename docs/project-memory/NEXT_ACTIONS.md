@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Sync Lovable with `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
+1. Continue route-level proof/trust/conversion review after clean Batch #118 Lovable sync.
 
-2. Ask Lovable to confirm Batch #118 files, runtime behavior and no conflicts.
+2. Use runtime checks before changing public UI.
 
-3. Continue route-level UX/trust review after Lovable reports clean sync or concrete conflicts.
+3. If a concrete issue is found, keep the next batch narrow and preserve existing buyer-first narrative, route shell, access gating and supplier redaction.
 
 ## Latest Confirmed Main State
 
@@ -20,6 +20,8 @@
 - Batch #118 is merged to `main` as `f025e7b`, `[codex] Batch #118 for-suppliers CTA semantics (#169)`.
 - PR #169 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/169`.
 - Batch #118 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-118-lovable-sync.md`.
+- Lovable sync for Batch #118 is confirmed clean at `dc78e094`, with no conflicts.
+- Lovable confirmed `src/pages/ForSuppliers.tsx`, `src/pages/ForSuppliers.test.tsx`, `e2e/for-suppliers-cta-semantics.spec.ts`, `package.json` smoke wiring, Batch #118 production-scale notes, route declarations and preserved Batch #110-#117 safeguards.
 - Batch #118 fixes invalid nested interactive CTA markup on `/for-suppliers`: hero and final supplier CTAs now use `Button asChild`, so the visual target is a single link instead of `a > button`.
 - Batch #118 keeps CTA destinations, analytics events, visual styling, SEO, route shell, access gating and supplier redaction unchanged.
 - Batch #118 added `e2e/for-suppliers-cta-semantics.spec.ts`.
