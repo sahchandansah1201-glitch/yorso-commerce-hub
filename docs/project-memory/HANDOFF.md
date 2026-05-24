@@ -20,7 +20,21 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch124-public-runtime-a11y-audit`.
+- Batch #124 public heading structure is committed as current branch HEAD, `[codex] Batch #124 public heading structure`, pending PR/merge.
+- Batch #124 fixes a concrete public SEO/scannability defect found after Batch #123:
+  - footer column labels rendered as H4 page headings, which created heading-level skips on public routes;
+  - `/suppliers` supplier result cards rendered as H3 headings immediately after the page H1.
+- Batch #124 touches `src/components/landing/Footer.tsx`, `src/components/landing/Footer.test.tsx`, `src/pages/Suppliers.tsx`, `src/pages/Suppliers.test.tsx`, `src/i18n/translations.ts`, adds `e2e/public-heading-structure.spec.ts`, extends dedicated/full e2e smoke scripts, and adds the Batch #124 production-scale section.
+- Batch #124 preserves footer visual layout, footer link destinations and analytics, supplier directory search/sort/pagination, row selection, supplier-profile links, access gating, supplier identity redaction, price locks, buyer-first public copy and visual layout.
+- Batch #124 local validation passed:
+  - `npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx`, 24 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4196 npx playwright test e2e/public-heading-structure.spec.ts --project=chromium`, 8 tests;
+  - `npm run smoke:e2e:public-heading-structure`, 8 tests after production build;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 137 tests.
 - Batch #123 public input accessibility is merged to `main` as `5105f3c`, `[codex] Batch #123 public input accessibility`.
 - PR #174 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174`.
 - GitHub `Core Type And Build Gate` passed on PR #174 in 11m31s.

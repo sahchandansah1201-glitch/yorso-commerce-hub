@@ -8,14 +8,14 @@ Updated: 2026-05-24
 context_risk: "low"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "continue the next scoped public UX/UI runtime audit"
+recommended_action: "finish Batch #124 public heading structure PR and merge after GitHub gate"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "50b10bc"
+active_branch: "codex/batch124-public-runtime-a11y-audit"
+head_commit: "current branch HEAD"
 latest_merged_batch: 123
-active_workstream: "post_batch123_lovable_sync_recorded"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/174"
-why_low: "Batch #123 is merged to main, Lovable sync is confirmed clean at 50b10bc, and project-memory is current."
+active_workstream: "batch124_public_heading_structure"
+pull_request: "pending"
+why_low: "Batch #124 is a scoped public UX/SEO structure hardening branch committed at current branch HEAD with local unit, e2e, lint, type, production-scale and full smoke validation passed."
 ```
 
 ## Risk Levels
@@ -50,8 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: continue the next scoped public UX/UI runtime audit after Batch #123 Lovable sync.
+Current branch: codex/batch124-public-runtime-a11y-audit.
+Current workstream: Batch #124 public heading structure is locally implemented and ready for PR.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -63,5 +63,8 @@ Batch #123 local validation passed: npx vitest run src/pages/PublicInputA11y.tes
 GitHub Core Type And Build Gate passed on PR #174 in 11m31s.
 Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-123-lovable-sync.md.
 Lovable sync for Batch #123 is confirmed clean at 50b10bc with no conflicts and no file changes.
-Next step: start the next scoped public UX/UI runtime audit from repository state.
+Batch #124 fixes public-route heading outline regressions: footer column labels are navigation labels instead of H4 page headings, and /suppliers rows sit under an H2 Supplier results section.
+Batch #124 is committed at current branch HEAD, [codex] Batch #124 public heading structure.
+Batch #124 local validation passed: npx vitest run src/components/landing/Footer.test.tsx src/pages/Suppliers.test.tsx; npm run smoke:e2e:public-heading-structure; npm run lint; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run smoke:e2e:run, 137 tests.
+Next step: open PR, wait for GitHub Core Type And Build Gate, merge, then prepare Lovable sync prompt.
 ```

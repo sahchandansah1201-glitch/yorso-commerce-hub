@@ -40,8 +40,8 @@ const Footer = () => {
           </div>
 
           {sections.map((section) => (
-            <div key={section.title}>
-              <h4 className="text-sm font-semibold">{section.title}</h4>
+            <nav key={section.title} aria-label={section.title}>
+              <p className="text-sm font-semibold">{section.title}</p>
               <ul className="mt-3 space-y-2">
                 {section.links.map((link) => {
                   // Normalize legacy bare hash anchors to absolute home anchors so they work from any route
@@ -59,7 +59,7 @@ const Footer = () => {
                   );
                 })}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 

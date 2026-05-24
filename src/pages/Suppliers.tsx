@@ -569,8 +569,11 @@ const Suppliers = () => {
           </div>
         </section>
 
-        <section className="bg-cool-gray/40">
+        <section className="bg-cool-gray/40" aria-labelledby="supplier-directory-results-heading">
           <div className="container py-6 md:py-8">
+            <h2 id="supplier-directory-results-heading" className="sr-only">
+              {t.suppliersPage_resultsHeading}
+            </h2>
             {directory.status === "error" && (
               <div
                 data-testid="supplier-directory-error"

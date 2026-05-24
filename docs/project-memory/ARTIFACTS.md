@@ -158,6 +158,17 @@
 - `docs/backend/production-scale-baseline.md`: Batch #123 10,000 concurrent users capacity review for public input accessibility.
 - `docs/project-memory/PROMPTS/prompt-123-lovable-sync.md`: Lovable sync prompt for Batch #123; user confirmed clean sync at `50b10bc`.
 
+## Batch #124 Public Heading Structure
+
+- `src/components/landing/Footer.tsx`: footer columns render as named navigation groups instead of H4 page headings.
+- `src/components/landing/Footer.test.tsx`: regression coverage for the Company footer group after heading removal.
+- `src/pages/Suppliers.tsx`: supplier result cards sit under a screen-reader-visible `Supplier results` H2.
+- `src/pages/Suppliers.test.tsx`: regression coverage for the supplier results H2.
+- `src/i18n/translations.ts`: EN/RU/ES `suppliersPage_resultsHeading` copy.
+- `e2e/public-heading-structure.spec.ts`: mobile browser guard for sequential public heading outlines, zero footer headings and supplier rows under the results H2.
+- `package.json`: dedicated public heading structure smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #124 10,000 concurrent users capacity review for public heading structure.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
