@@ -718,6 +718,15 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #170 `Core Type And Build Gate` passed in 11m44s.
 - Marked PR #170 ready and merged it to `main` as `e17810e`, `[codex] Batch #119 offers CTA semantics (#170)`.
 - Added `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md` for Batch #119 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #119 is clean:
+  - HEAD is `851ad960`, `[codex] Record Batch 121 Lovable sync`, on `main` and on top of Batch #119 `e17810e`, Batch #120 `700d4484` and Batch #121 `9b8f9434`;
+  - `AccessLevelBanner` anonymous locked CTA uses `Button asChild` with a direct `/register` Link, while `registered_locked` stays a normal simulation button and `qualified_unlocked` stays info-only;
+  - `CatalogValueStrip` anonymous locked CTA uses `Button asChild` with a direct `/register` Link and the registered buyer CTA remains a normal dialog button;
+  - `RelatedRequests` locked `Respond` CTA uses `Button asChild` with a direct `/register` Link and the unlocked branch remains a normal `MessageSquare` button;
+  - `Offers.catalogPaging.test.tsx`, `e2e/offers-cta-semantics.spec.ts`, `smoke:e2e:offers-catalog:run`, `smoke:e2e:run` wiring and Batch #119 production-scale notes are present;
+  - `/offers` locked-buyer CTAs are single semantic links, nested `a button` / `button a` controls are zero and 390px mobile has no horizontal overflow;
+  - no conflicts were found and files were not modified in Lovable;
+  - buyer-first narrative, access gating, supplier identity redaction, price-lock, URL-backed catalog controls, Batch #116 proof-anchor fallback, Batch #117 request anchor, Batch #118 for-suppliers CTA semantics, Batch #120 auth CTA semantics and Batch #121 offer detail CTA semantics are preserved.
 - Started Batch #120 on `codex/batch120-auth-cta-semantics`.
 - Reviewed `/signin` and `/reset-password` after Batch #119 and confirmed the remaining nested interactive CTA markup:
   - `/signin` home back-link rendered as `Link` around `Button`;

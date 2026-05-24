@@ -6,8 +6,6 @@
 
 2. Use browser/Playwright verification for any route-level UI defect before changing code.
 
-3. Batch #119 Lovable sync remains pending as a separate explicit report unless the user provides it.
-
 ## Latest Confirmed Main State
 
 - Current branch is `main`.
@@ -47,8 +45,11 @@
 - Batch #119 is merged to `main` as `e17810e`, `[codex] Batch #119 offers CTA semantics (#170)`.
 - PR #170 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/170`.
 - Batch #119 Lovable sync prompt is ready: `docs/project-memory/PROMPTS/prompt-119-lovable-sync.md`.
+- Lovable sync for Batch #119 is confirmed clean at `851ad960`, with no conflicts and no files modified.
+- Lovable confirmed `src/components/catalog/AccessLevelBanner.tsx`, `src/components/catalog/CatalogValueStrip.tsx`, `src/components/catalog/RelatedRequests.tsx`, `src/pages/Offers.catalogPaging.test.tsx`, `e2e/offers-cta-semantics.spec.ts`, `package.json` offers/full smoke wiring and Batch #119 production-scale notes.
 - Batch #119 fixes invalid nested interactive CTA markup on locked-buyer `/offers`: catalog account CTA, value-strip CTA and related-request CTAs now use `Button asChild`, so each visual target is a single link instead of `a > button`.
 - Batch #119 keeps CTA destinations, catalog copy, visual styling, access gating, supplier redaction, price locks, sorting, filtering and pagination unchanged.
+- Batch #119 Lovable sync preserves Batch #116 proof-anchor fallback, Batch #117 `/offers#request` anchor, Batch #118 `/for-suppliers` CTA semantics, Batch #120 auth CTA semantics and Batch #121 offer detail CTA semantics.
 - Batch #119 added `e2e/offers-cta-semantics.spec.ts`.
 - `smoke:e2e:offers-catalog:run` and `smoke:e2e:run` now include `e2e/offers-cta-semantics.spec.ts`.
 - GitHub `Core Type And Build Gate` passed on PR #170 in 11m44s.
