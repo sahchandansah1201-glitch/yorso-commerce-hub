@@ -85,6 +85,15 @@
 - `docs/backend/production-scale-baseline.md`: Batch #116 10,000 concurrent users capacity review for proof-strip scroll behavior.
 - `docs/project-memory/PROMPTS/prompt-116-lovable-sync.md`: Lovable sync prompt for Batch #116; user confirmed clean sync at `3bca7961`.
 
+## Batch #117 Offers Request Anchor
+
+- `src/pages/Offers.tsx`: stable `#request` anchor around the catalog access/value strip, hash-preserving catalog URL normalization and hash-scroll after render.
+- `src/pages/HowItWorks.tsx`: hero request-access CTA points to `/offers#request` through a structured React Router target.
+- `src/components/how-it-works/FinalCTA.tsx`: final buyer request-access CTA points to `/offers#request` through a structured React Router target.
+- `e2e/how-it-works-request-anchor.spec.ts`: browser-level mobile guard for `/how-it-works` request CTA and direct `/offers#request` entry.
+- `package.json`: `smoke:e2e:run` includes the `/how-it-works` request anchor e2e guard.
+- `docs/backend/production-scale-baseline.md`: Batch #117 10,000 concurrent users capacity review for hash preservation and request-anchor landing.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

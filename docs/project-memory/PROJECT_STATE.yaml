@@ -11,11 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-24"
-  active_branch: "main"
-  head_commit: "3bca796"
-  head_summary: "[codex] Add Batch 116 Lovable sync prompt"
-  dirty_worktree_before_project_memory: false
-  dirty_worktree_reason: []
+  active_branch: "codex/batch117-offers-request-anchor"
+  head_commit: "1651d68"
+  head_summary: "[codex] Record Batch 116 Lovable sync"
+  dirty_worktree_before_project_memory: true
+  dirty_worktree_reason:
+    - "Batch #117 offers request anchor implementation, e2e guard and docs are being prepared for PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "route_proof_trust_review_after_batch116"
-  summary: "Continue route-level proof, metrics and trust-signal review after clean Batch #116 Lovable sync."
-  status: "batch116_lovable_sync_clean_route_review_next"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
+  id: "batch117_offers_request_anchor"
+  summary: "Restore /how-it-works request-access CTAs to a real /offers#request landing target."
+  status: "implemented_local_validation_passed_pr_pending"
+  pull_request: "pending"
   confirmed_scope:
     - "Record the user's clean Lovable sync report for Batch #113."
     - "Inspect current Google Fonts loading."
@@ -56,13 +57,16 @@ active_workstream:
     - "Route Document readiness proof to offer evidence instead of the filter bar."
     - "Create a Lovable sync prompt for Batch #116."
     - "Record the user's clean Lovable sync report for Batch #116."
+    - "Audit /how-it-works request-access CTA runtime behavior after Batch #116."
+    - "Fix /offers hash preservation so /offers#request survives catalog URL normalization."
+    - "Add a stable #request anchor around the existing catalog access/value strip."
   confirmed_files:
-    - "src/components/catalog/TrustProofStrip.tsx"
-    - "src/components/catalog/TrustProofStrip.test.tsx"
-    - "e2e/offers-trust-proof-anchors.spec.ts"
+    - "src/pages/Offers.tsx"
+    - "src/pages/HowItWorks.tsx"
+    - "src/components/how-it-works/FinalCTA.tsx"
+    - "e2e/how-it-works-request-anchor.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
-    - "docs/project-memory/PROMPTS/prompt-116-lovable-sync.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
@@ -319,6 +323,7 @@ current_ux_audit_status:
     - "Before Batch #114, Google Fonts were loaded through CSS @import, which can block visual checks and slow first render."
     - "Before Batch #115, English /offers runtime exposed legacy Russian labels for locked prices and analytics triggers."
     - "Before Batch #116, /offers mobile trust proof-strip could target the hidden desktop intelligence panel and fail to move buyers to visible evidence."
+    - "Before Batch #117, /how-it-works request-access CTAs pointed to /offers#request, but /offers had no request anchor and catalog search-param normalization stripped the hash."
   conversion_risks:
     - "Large first-load JavaScript delayed buyer exploration before Batch #112; current local build reduces the entry chunk and removes the Vite large-chunk warning."
     - "Mobile horizontal overflow on long pages weakens perceived quality."
@@ -329,10 +334,18 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Continue the route-level proof, metrics and trust-signal review for /offers, /suppliers, /how-it-works and /for-suppliers."
-  - "Implement the next concrete buyer-facing UX/UI improvement only if it is backed by route runtime evidence."
+  - "Commit Batch #117, push codex/batch117-offers-request-anchor and open a draft PR."
+  - "Wait for GitHub Core Type And Build Gate, mark ready and merge if clean."
+  - "After merge, add a Batch #117 Lovable sync prompt and record the post-merge state."
 
 last_confirmed_checks:
+  - "2026-05-24: Batch #117 Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium, 2 tests."
+  - "2026-05-24: Batch #117 regression Playwright test passed: E2E_BASE_URL=http://127.0.0.1:4188 npx playwright test e2e/offers-catalog-paging.spec.ts --project=chromium, 4 tests."
+  - "2026-05-24: Batch #117 runtime Playwright check confirmed direct /offers#request and /how-it-works request CTA both preserve #request and show the catalog value strip on desktop and mobile."
+  - "2026-05-24: Batch #117 npm run lint passed."
+  - "2026-05-24: Batch #117 npx tsc -b --noEmit passed."
+  - "2026-05-24: Batch #117 npm run check:production-scale-baseline passed."
+  - "2026-05-24: Batch #117 npm run build passed; known Supabase type drift and Browserslist warnings remain, and the Vite large-chunk warning stayed resolved. CSS bundle: 125.44 kB minified, 20.79 kB gzip. Entry chunk: 355.46 kB minified, 114.15 kB gzip. i18n-translations: 313.45 kB minified, 98.69 kB gzip."
   - "2026-05-24: User confirmed Lovable sync for Batch #116 is clean with no conflicts at 3bca7961."
   - "2026-05-24: Lovable confirmed TrustProofStrip anchor fallback files, focused tests, e2e guard, offers catalog smoke wiring, Batch #116 production-scale notes, public route declarations, Batch #110 mobile fixes, Batch #111 SEO, Batch #112 code-splitting, Batch #113 RouteChunkErrorBoundary, Batch #114 font loading and Batch #115 locale hardening are all present."
   - "2026-05-24: PR #167 Core Type And Build Gate passed on GitHub, including core CI, account reports, browser smoke, API-backed access suite, frontend no-Supabase smoke, self-hosted auth/access smoke and admin smoke steps."
@@ -433,4 +446,5 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Next route-level proof/trust issue to address after Batch #116 sync."
+  - "GitHub Core Type And Build Gate result for Batch #117 PR."
+  - "After Batch #117 merge, run Lovable sync and continue route-level proof/trust review."

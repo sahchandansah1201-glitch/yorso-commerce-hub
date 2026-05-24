@@ -5,17 +5,17 @@ Updated: 2026-05-24
 ## Current Status
 
 ```yaml
-context_risk: "low"
+context_risk: "medium"
 last_checkpoint: "2026-05-24"
 last_handoff_ready: true
-recommended_action: "continue route-level proof, metrics and trust-signal review"
+recommended_action: "commit and open Batch #117 PR"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "3bca796"
+active_branch: "codex/batch117-offers-request-anchor"
+head_commit: "1651d68"
 latest_merged_batch: 116
-active_workstream: "route_proof_trust_review_after_batch116"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/167"
-why_low: "Batch #116 is merged to main, GitHub Core Type And Build Gate passed, and Lovable sync was confirmed clean by the user."
+active_workstream: "batch117_offers_request_anchor"
+pull_request: "pending"
+why_medium: "Batch #117 has local code, e2e and docs changes that passed validation but are not yet committed, pushed or merged."
 ```
 
 ## Risk Levels
@@ -50,7 +50,7 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current local workstream: route-level proof, metrics and trust-signal review after Batch #116.
-Batch #116 Lovable sync was confirmed clean at 3bca7961.
-Continue the public route UX/UI review and implement only concrete, route-evidenced improvements.
+Current local workstream: Batch #117 offers request anchor on codex/batch117-offers-request-anchor.
+Batch #116 Lovable sync was confirmed clean at 3bca7961 and recorded on main at 1651d68.
+Commit Batch #117, push the branch, open a draft PR, wait for GitHub Core Type And Build Gate, then merge if clean.
 ```

@@ -2098,6 +2098,69 @@ Marker: catalog trust proof strip.
 Marker: mobile visible evidence.
 Marker: 10,000 concurrent users.
 
+## Batch #117 Offers Request Anchor
+
+Batch #117 restores the cross-route request-access landing contract between
+`/how-it-works` and `/offers`. Buyer CTAs that promise supplier access now
+preserve `#request`, and `/offers` exposes a stable request anchor around the
+existing access/value strip. The catalog URL normalization now preserves the
+active hash when filters, sort, rows or page state rewrite search params.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Catalog reads, fallback data, buyer sessions, access requests and supplier
+  identity redaction are unchanged.
+- The only runtime changes are client-side URL hash preservation and a
+  `scrollIntoView` pass for hash anchors after the catalog renders.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and the `i18n-translations` chunk remain
+  browser/CDN cacheable.
+- No queues, polling, retries, timers or background jobs are introduced.
+- Hash scrolling is synchronous browser/client behavior and does not increase
+  network load at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch offer reads, supplier reads,
+  pagination, search, filters or database indexes.
+- Existing offer/supplier bounded read strategies remain the 10,000
+  concurrent-user plan.
+
+Failure mode and graceful degradation:
+
+- If a supported hash target exists, `/offers` scrolls it into view after
+  render.
+- If the target does not exist, the page remains on the normal catalog view.
+- Search-param normalization preserves the current hash; if no hash exists,
+  existing catalog URL behavior is unchanged.
+- Access gating, price locks and supplier identity redaction remain the same.
+
+Observability and load-test plan:
+
+- Browser smoke should verify `/how-it-works` request-access CTAs land on
+  `/offers#request` and the access/value strip is visible.
+- Browser smoke should verify direct `/offers#request` entry preserves the
+  hash through catalog URL normalization.
+- Existing public route checks should continue to verify `/offers` and
+  `/how-it-works` have no horizontal overflow at mobile widths.
+
+Validation:
+
+- `E2E_BASE_URL=http://127.0.0.1:<port> npx playwright test e2e/how-it-works-request-anchor.spec.ts --project=chromium`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #117.
+Marker: offers request anchor.
+Marker: how-it-works request CTA.
+Marker: hash preservation.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
