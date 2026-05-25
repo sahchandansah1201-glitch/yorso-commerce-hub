@@ -2,29 +2,29 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #134 using
-   `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Ask Lovable for the required seven-section sync report:
-   GitHub commit synced, files/routes checked, conflicts, supplier directory
-   locale/a11y status, supplier directory behavior status, bundle/code-splitting
-   status and remaining known warnings.
+2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
+   accessibility, locale, trust, scanability or SEO-structure issue in code or
+   browser behavior before changing files.
 
-3. If Lovable reports no conflicts, record the clean sync in project memory.
-   If Lovable reports conflicts, inspect the concrete files before changing
-   anything.
+3. Keep the same buyer-first review lens: trust, clarity, scanability,
+   conversion, SEO structure, accessibility semantics and supplier evidence as
+   a trust mechanism.
 
 4. Preserve current known contracts: buyer-first supplier directory narrative,
    access gating, supplier identity redaction, price-lock, sorting/filtering,
    pagination, supplier profile routing, Batch #112 code splitting and Batch
    #113 route chunk error boundary.
 
-## Batch #134 Merged, Lovable Sync Pending
+## Batch #134 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `6cd21e9`, `[codex] Batch #134 supplier directory locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #134 (`6cd21e9` or newer), no conflicts
+  and no file modifications.
 - Scope: public supplier directory locale/a11y hardening for `/suppliers`.
 - Runtime finding:
   - supplier rows and selected supplier panel still exposed hardcoded English
@@ -60,6 +60,19 @@
   - the first failed run was the known `suppliers-directory-paging` flake;
   - the new `suppliers-directory-locale-a11y` spec passed in the failed run and
     the rerun passed the full gate without code changes.
+- Lovable confirmed:
+  - `src/i18n/translations.ts`, `src/pages/Suppliers.tsx`,
+    `src/components/suppliers/SupplierRow.tsx`,
+    `src/components/suppliers/SelectedSupplierPanel.tsx`,
+    `src/pages/Suppliers.i18n.test.tsx`,
+    `e2e/suppliers-directory-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` are aligned;
+  - RU labels and image alt text are localized and hardcoded English leakage is
+    gone;
+  - supplier directory behavior, access gating, redaction, exact-price/supplier
+    locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112
+    code splitting, Batch #113 route chunk error boundary and Batches #110-#133
+    are preserved.
 - Preserved:
   - supplier directory search/sort/filter/page-size/pagination;
   - supplier profile routing and directory/profile approval bridge;

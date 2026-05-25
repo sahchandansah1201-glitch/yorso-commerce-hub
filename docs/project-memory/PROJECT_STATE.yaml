@@ -12,11 +12,10 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "main_after_batch_134_lovable_sync_prompt"
-  head_summary: "Batch #134 supplier directory locale a11y merged and Lovable sync prompt ready"
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Batch #134 Lovable sync prompt and post-merge project-memory updates are pending commit."
+  head_commit: "main_after_batch_134_lovable_sync_record"
+  head_summary: "Batch #134 supplier directory locale a11y merged and Lovable sync confirmed clean"
+  dirty_worktree_before_project_memory: false
+  dirty_worktree_reason: []
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +36,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_134_lovable_sync"
-  summary: "Sync Lovable with merged Batch #134 supplier directory locale a11y."
-  status: "ready_for_lovable_sync"
+  id: "next_scoped_public_ux_ui_audit"
+  summary: "Start the next scoped public UX/UI audit batch from current main."
+  status: "ready"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
+  pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -68,11 +67,23 @@ active_workstream:
 active_batch:
   id: 134
   summary: "Supplier directory locale a11y: /suppliers trust labels and image alt text use locale-owned copy."
-  status: "merged_to_main_github_validated_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "6cd21e9"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "6cd21e9_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #134, PR #186, 6cd21e9 or newer."
+      - "Files/routes checked: translations, Suppliers, SupplierRow, SelectedSupplierPanel, Suppliers.i18n.test.tsx, suppliers-directory-locale-a11y e2e, package.json and production-scale baseline."
+      - "No conflicts found; no files were modified in Lovable."
+      - "Supplier directory locale/a11y status OK: RU labels and image alt text are localized with no hardcoded English leakage."
+      - "Supplier directory behavior unchanged: search, sorting, page-size, pagination, selected panel, shortlist, profile links, access gating, redaction, locks, SEO, analytics and buyer-first copy are preserved."
+      - "Batch #112 code splitting and Batch #113 route chunk error boundary preserved; no manual vendor chunks added."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "`/suppliers` selected supplier aside used hardcoded English `aria-label=\"Selected supplier\"`."
     - "`SupplierRow` used hardcoded English `aria-label=\"Supplier signals\"`."
@@ -108,14 +119,22 @@ active_batch:
 latest_merged_batches:
   - id: 134
     summary: "Supplier directory locale a11y hardening so /suppliers trust labels and image alt text use locale-owned copy."
-    status: "merged_to_main_lovable_sync_pending"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "6cd21e9"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
-      confirmed_at: null
+      confirmed_at: "2026-05-25"
       head: "6cd21e9_or_newer"
-      result: "pending"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #134, PR #186, 6cd21e9 or newer."
+        - "Files/routes checked: translations, Suppliers, SupplierRow, SelectedSupplierPanel, Suppliers.i18n.test.tsx, suppliers-directory-locale-a11y e2e, package.json and production-scale baseline."
+        - "No conflicts found; no files were modified in Lovable."
+        - "Locale/a11y status OK: RU selected supplier, supplier signals, catalog preview, delivery preview and image alt text are localized, with no hardcoded English leakage."
+        - "Supplier directory behavior, access gating, redaction, exact-price/supplier locks, SEO, analytics, buyer-first copy, Pulse compact contract and Batches #110-#133 are preserved."
+        - "Bundle/code-splitting unchanged from Batch #112; Batch #113 route chunk error boundary remains."
+        - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
     confirmed_files:
       - "src/pages/Suppliers.tsx"
       - "src/pages/Suppliers.i18n.test.tsx"

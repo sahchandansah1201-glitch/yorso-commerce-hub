@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #134 supplier directory locale a11y, then record the Lovable clean-sync result or concrete conflicts.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -26,7 +26,8 @@ Sync Lovable with Batch #134 supplier directory locale a11y, then record the Lov
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
 - Batch #134 Lovable sync prompt is ready:
   `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
-- Batch #134 Lovable sync is pending.
+- Batch #134 Lovable sync is confirmed clean by the user at `main` @ Batch #134
+  (`6cd21e9` or newer), with no conflicts and no file modifications.
 - Batch #134 scoped finding:
   - `/suppliers` still exposed hardcoded English programmatic trust labels under localized UI:
     `Selected supplier`, `Supplier signals`, `Product catalog preview` and `Delivery markets preview`;
@@ -56,8 +57,20 @@ Sync Lovable with Batch #134 supplier directory locale a11y, then record the Lov
   - one rerun passed the full gate without code changes.
 - Batch #134 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip.
 - Batch #134 preserves supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing, directory/profile approval bridge, buyer-first narrative, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#133 public UX/a11y safeguards.
-- Next step: use `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md` to
-  sync Lovable and wait for the seven-section sync report.
+- Lovable confirmed:
+  - `src/i18n/translations.ts`, `src/pages/Suppliers.tsx`,
+    `src/components/suppliers/SupplierRow.tsx`,
+    `src/components/suppliers/SelectedSupplierPanel.tsx`,
+    `src/pages/Suppliers.i18n.test.tsx`,
+    `e2e/suppliers-directory-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` are aligned;
+  - RU labels and image alt text are localized and hardcoded English leakage is
+    gone;
+  - supplier directory behavior, access gating, redaction, exact-price/supplier
+    locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112
+    code splitting, Batch #113 route chunk error boundary and Batches #110-#133
+    are preserved.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Historical baseline:
 - Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
   `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:

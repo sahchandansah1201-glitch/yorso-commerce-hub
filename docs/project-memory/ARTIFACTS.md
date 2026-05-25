@@ -35,7 +35,7 @@
 - `e2e/suppliers-directory-locale-a11y.spec.ts`: mobile browser guard for `/suppliers` RU locale trust labels, image alt text and zero horizontal overflow.
 - `package.json`: dedicated `smoke:e2e:suppliers-directory-locale-a11y` script and full `smoke:e2e:run` wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #134 10,000 concurrent users capacity review.
-- `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`: Lovable sync prompt for Batch #134 after PR #186 merge.
+- `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`: Lovable sync prompt for Batch #134 after PR #186 merge; user confirmed clean sync at `main` @ Batch #134, `6cd21e9` or newer.
 
 ## Batch #132 Public Offer Locale A11y Hardening
 

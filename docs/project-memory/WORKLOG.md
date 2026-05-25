@@ -1340,3 +1340,11 @@ Keep this file factual and append-only.
 - Reran the failed GitHub job without code changes. The rerun passed `Core Type And Build Gate` in 12m07s.
 - Marked PR #186 ready and squash-merged it to `main` as `6cd21e9`, `[codex] Batch #134 supplier directory locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #134.
+- User confirmed Lovable sync for Batch #134 is clean:
+  - GitHub commit synced to `main` @ Batch #134, PR #186, `6cd21e9` or newer;
+  - checked `src/i18n/translations.ts`, `src/pages/Suppliers.tsx`, `src/components/suppliers/SupplierRow.tsx`, `src/components/suppliers/SelectedSupplierPanel.tsx`, `src/pages/Suppliers.i18n.test.tsx`, `e2e/suppliers-directory-locale-a11y.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no files were modified in Lovable;
+  - RU supplier directory labels and image alt text are localized with no hardcoded English leakage;
+  - supplier directory behavior, access gating, redaction, exact-price/supplier locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#133 are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
+- Recorded Batch #134 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
