@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "84f71ba"
-  head_summary: "[codex] Add Batch 131 Lovable sync prompt"
+  head_commit: "main_head_after_batch_131_memory_checkpoint"
+  head_summary: "Batch #131 Lovable sync prompt and memory checkpoint"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #131 is merged as 8590361; Lovable sync prompt is committed on top as 84f71ba."
+    - "Batch #131 is merged as 8590361; Lovable sync prompt and memory checkpoint are committed on top."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."

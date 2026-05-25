@@ -1184,3 +1184,4 @@ Keep this file factual and append-only.
 - Marked PR #183 ready and merged it to `main` as `8590361`, `[codex] Batch #131 public pulse estimate disclosure`.
 - Added `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md` for Batch #131 Lovable sync confirmation.
 - Pushed `main` to `84f71ba`, `[codex] Add Batch 131 Lovable sync prompt`, on top of Batch #131 merge commit `8590361`.
+- Added a follow-up project-memory checkpoint on `main` so recovery instructions point to the Batch #131 Lovable sync prompt without depending on an exact post-checkpoint HEAD hash.

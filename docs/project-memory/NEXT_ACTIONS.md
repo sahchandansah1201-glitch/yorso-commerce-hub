@@ -9,7 +9,7 @@
 ## Batch #131 Merged, Lovable Sync Pending
 
 - Branch: `main`.
-- Current HEAD: `84f71ba`, `[codex] Add Batch 131 Lovable sync prompt`.
+- Current `main`: includes the Batch #131 Lovable sync prompt and memory checkpoint.
 - Merge commit: `8590361`, `[codex] Batch #131 public pulse estimate disclosure`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
