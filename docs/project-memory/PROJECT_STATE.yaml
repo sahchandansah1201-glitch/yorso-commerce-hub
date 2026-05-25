@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch130-public-runtime-ux-a11y-audit"
-  head_commit: "2550a29"
-  head_summary: "[codex] Add Batch 129 Lovable sync prompt"
+  active_branch: "main"
+  head_commit: "1449efa"
+  head_summary: "[codex] Batch #130 supplier profile mobile accessibility (#181)"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #130 supplier profile mobile accessibility is implemented and locally validated before commit."
+    - "Batch #130 is merged; project-memory and Lovable sync prompt are being updated."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,18 +37,18 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch130_supplier_profile_mobile_accessibility"
-  summary: "Batch #130 supplier profile mobile accessibility is locally validated; commit, push, open PR, wait for GitHub gate, merge and prepare Lovable sync prompt."
-  status: "local_validated_before_commit"
-  branch: "codex/batch130-public-runtime-ux-a11y-audit"
-  pull_request: null
+  id: "batch130_lovable_sync_ready"
+  summary: "Batch #130 supplier profile mobile accessibility is merged to main; Lovable sync prompt is ready."
+  status: "lovable_sync_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
   confirmed_scope:
     - "Runtime audit after Batch #129 found concrete mobile target defects on /suppliers/:id, the supplier trust/supply route."
     - "Fix only supplier profile breadcrumb, tab and not-found recovery target sizes plus breadcrumb landmark localization without changing supplier data, access gating, redaction, approval behavior, route behavior, copy, SEO or analytics."
     - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#129 public UX/a11y safeguards."
     - "Add focused e2e coverage for supplier profile mobile target sizes, nested-control absence and no horizontal overflow."
     - "Run focused, neighboring supplier profile, dedicated production smoke and full smoke:e2e:run before commit."
-    - "Commit, push, open PR, confirm GitHub Core Type And Build Gate, merge to main and prepare the Lovable sync prompt."
+    - "Batch #130 is merged to main and the next action is Lovable sync using docs/project-memory/PROMPTS/prompt-130-lovable-sync.md."
   confirmed_files:
     - "src/pages/SupplierProfile.tsx"
     - "e2e/supplier-profile-mobile-a11y.spec.ts"
@@ -60,16 +60,20 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
 
 active_batch:
   id: 130
   summary: "Supplier profile mobile accessibility: 44px breadcrumb, trust tab and not-found recovery targets on /suppliers/:id."
-  status: "local_validated_before_commit"
-  commit: null
-  branch: "codex/batch130-public-runtime-ux-a11y-audit"
-  pull_request: null
-  lovable_sync_prompt: null
-  lovable_sync: null
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  commit: "1449efa"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: null
+    head: null
+    result: "pending_user_sync"
   confirmed_findings:
     - "Runtime audit at 390px found supplier profile breadcrumb Home and Suppliers links could render below the 44px mobile target baseline."
     - "Supplier trust/profile tab triggers could render at 36px height on mobile."
@@ -91,6 +95,7 @@ active_batch:
     - "npm run smoke:e2e:supplier-profile-mobile-a11y, 2 tests after production build."
     - "npm run smoke:e2e:run, 235 tests."
     - "Post-i18n build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip."
+    - "GitHub Core Type And Build Gate passed on PR #181 in 12m26s."
   preserved_behavior:
     - "Supplier profile copy, route behavior, access gating, supplier identity redaction, approval refresh and directory/profile bridge behavior are preserved."
     - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#129 public UX/a11y safeguards are preserved."
@@ -99,6 +104,22 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 130
+    summary: "Supplier profile mobile accessibility so /suppliers/:id exposes mobile-safe breadcrumbs, trust tabs and not-found recovery."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "1449efa"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_user_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
+      head: null
+    confirmed_files:
+      - "src/pages/SupplierProfile.tsx"
+      - "e2e/supplier-profile-mobile-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
   - id: 129
     summary: "Offer detail mobile accessibility so /offers/:id exposes named gallery controls, mobile-safe buyer decision targets and accessible disclosure states."
     status: "merged_to_main_lovable_sync_clean"
