@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch128-public-runtime-ux-a11y-audit"
-  head_commit: "1f7d2bc plus uncommitted Batch #128 local changes"
-  head_summary: "[codex] Record Batch 127 Lovable sync"
+  active_branch: "main"
+  head_commit: "912230c"
+  head_summary: "[codex] Batch #128 public auth registration accessibility (#179)"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #128 public auth and registration accessibility is implemented locally and validated; project-memory is being updated before commit/PR."
+    - "Batch #128 is merged to main; only project-memory Lovable sync prompt/checkpoint files are being updated."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch128_public_auth_registration_accessibility"
-  summary: "Public auth and registration accessibility/scanability hardening after Batch #127."
-  status: "local_validation_passed_ready_for_commit_and_pr"
-  branch: "codex/batch128-public-runtime-ux-a11y-audit"
-  pull_request: null
+  id: "batch128_lovable_sync_pending"
+  summary: "Batch #128 is merged to main and ready for Lovable sync confirmation."
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
   confirmed_scope:
     - "Runtime audit after Batch #127 found registration routes were not covered by previous public skip/main, tap-target and input-accessibility batches."
     - "Fix only public auth/registration UX semantics and mobile scanability without changing registration business logic, auth runtime, copy, routes, analytics, access gating, supplier redaction or price locks."
@@ -52,6 +52,7 @@ active_workstream:
     - "Add focused e2e coverage for registration shell landmarks, target size, nested controls, overflow, skip focus and completion hints."
     - "Run local Batch #128 validation including dedicated production smoke and full smoke:e2e:run."
     - "Commit, push, open PR and confirm GitHub Core Type And Build Gate."
+    - "Merge Batch #128 to main and prepare the Lovable sync prompt."
   confirmed_files:
     - "src/components/registration/RegistrationLayout.tsx"
     - "src/components/registration/CountryPhoneInput.tsx"
@@ -72,15 +73,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
 
 active_batch:
   id: 128
   summary: "Public auth and registration accessibility: registration skip/main target, mobile target sizes, form labels/autocomplete and ready CTA semantics."
-  status: "local_validation_passed_ready_for_commit_and_pr"
-  commit: null
-  branch: "codex/batch128-public-runtime-ux-a11y-audit"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  commit: "912230c"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "Runtime audit after Batch #127 found /register, /register/email, /register/verify, /register/details, /register/onboarding, /register/countries and /register/ready had no stable main#main and no skip-to-main link."
@@ -106,6 +108,7 @@ active_batch:
     - "git diff --check."
     - "npm run smoke:e2e:public-auth-registration-a11y, 10 tests after production build."
     - "npm run smoke:e2e:run, 231 tests."
+    - "GitHub Core Type And Build Gate passed on PR #179 in 11m57s."
   preserved_behavior:
     - "Registration copy, route flow, analytics hooks, local registration storage behavior and auth runtime behavior are preserved."
     - "Buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
@@ -114,6 +117,30 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 128
+    summary: "Public auth and registration accessibility so registration routes expose skip/main landmarks, mobile-safe targets, form labels/autocomplete and single semantic CTAs."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "912230c"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
+    confirmed_files:
+      - "src/components/registration/RegistrationLayout.tsx"
+      - "src/components/registration/CountryPhoneInput.tsx"
+      - "src/pages/SignIn.tsx"
+      - "src/pages/ResetPassword.tsx"
+      - "src/pages/register/RegisterEmail.tsx"
+      - "src/pages/register/RegisterVerify.tsx"
+      - "src/pages/register/RegisterDetails.tsx"
+      - "src/pages/register/RegisterOnboarding.tsx"
+      - "src/pages/register/RegisterCountries.tsx"
+      - "src/pages/register/RegisterReady.tsx"
+      - "e2e/public-auth-registration-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
   - id: 127
     summary: "Public blog mobile tap targets so /blog and blog articles expose 44px mobile-safe controls."
     status: "merged_to_main_lovable_sync_clean"

@@ -1052,3 +1052,9 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:public-auth-registration-a11y` passed, 10 tests after production build;
   - `npm run smoke:e2e:run` passed, 231 tests.
 - Batch #128 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #128 as `2c74e3b`, `[codex] Batch #128 public auth registration accessibility`.
+- Pushed branch `codex/batch128-public-runtime-ux-a11y-audit` to `origin`.
+- Opened Draft PR #179: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
+- Confirmed GitHub PR #179 `Core Type And Build Gate` passed in 11m57s.
+- Marked PR #179 ready and merged it to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`.
+- Added `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md` for Batch #128 Lovable sync confirmation.

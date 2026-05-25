@@ -16,12 +16,15 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Complete Batch #128 public auth and registration accessibility: commit the validated local changes, push the branch, open PR, wait for GitHub validation, merge when green and prepare the Lovable sync prompt.
+Sync Lovable with Batch #128 public auth and registration accessibility and confirm clean sync or concrete conflicts.
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch128-public-runtime-ux-a11y-audit`.
-- Batch #128 public auth and registration accessibility is implemented locally and ready for commit/PR.
+- The repository is currently on branch `main`.
+- Batch #128 public auth and registration accessibility is merged to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`, via PR #179.
+- PR #179 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
+- GitHub `Core Type And Build Gate` passed on PR #179 in 11m57s.
+- Batch #128 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
 - Batch #128 runtime audit after Batch #127 found the registration flow was not covered by previous public skip/main, tap-target and input-accessibility batches:
   - `/register`, `/register/email`, `/register/verify`, `/register/details`, `/register/onboarding`, `/register/countries` and `/register/ready` had no stable `main#main` and no skip-to-main link;
   - registration header/footer/legal/secondary actions could render below the 44px mobile target baseline;
@@ -47,9 +50,8 @@ Complete Batch #128 public auth and registration accessibility: commit the valid
   - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
   - `npm run smoke:e2e:run`, 231 tests.
 - Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-- Next step: commit Batch #128, push `codex/batch128-public-runtime-ux-a11y-audit`, open a draft PR, confirm GitHub `Core Type And Build Gate`, merge when green and create `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
-- The latest merged batch remains Batch #127.
-- The repository was previously clean on `main` at Batch #127 Lovable sync record commit before Batch #128 local work.
+- Next step: sync Lovable with GitHub `main` at `912230c` or newer using `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`, then report clean sync or concrete conflicts.
+- The latest merged batch is Batch #128.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - GitHub `Core Type And Build Gate` passed on PR #178 in 12m16s.

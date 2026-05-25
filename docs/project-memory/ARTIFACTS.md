@@ -221,6 +221,7 @@
 - `e2e/public-auth-registration-a11y.spec.ts`: browser guard for sign-in completion hints, registration shell landmarks, skip focus, 44px targets, nested-control absence, overflow absence and registration form labels/autocomplete.
 - `package.json`: dedicated public auth/registration accessibility smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #128 10,000 concurrent users capacity review for public auth and registration accessibility.
+- `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`: sync confirmation prompt for Batch #128 after PR #179 merge.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -478,3 +479,4 @@
 - `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`: sync confirmation prompt for Batch #121 offer detail CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: sync confirmation prompt for Batch #122 public CTA semantics; user confirmed clean sync at `98335bd5`.
 - `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: sync confirmation prompt for Batch #127 public blog mobile tap targets; user confirmed clean sync at `e8d096f`.
+- `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`: sync confirmation prompt for Batch #128 public auth and registration accessibility.

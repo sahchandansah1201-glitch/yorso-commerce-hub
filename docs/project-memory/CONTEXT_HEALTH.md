@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "commit Batch #128, push branch, open PR and confirm GitHub Core Type And Build Gate"
+recommended_action: "sync Lovable with Batch #128 and confirm clean sync or report conflicts"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch128-public-runtime-ux-a11y-audit"
-head_commit: "1f7d2bc plus uncommitted Batch #128 local changes"
-latest_merged_batch: 127
-active_workstream: "batch128_public_auth_registration_accessibility"
-pull_request: null
-why_low: "Batch #128 scope is narrow and local validation passed: typecheck, lint, production-scale guard, dedicated production smoke and full smoke:e2e:run with 231 tests."
+active_branch: "main"
+head_commit: "912230c"
+latest_merged_batch: 128
+active_workstream: "batch128_lovable_sync_pending"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
+why_low: "Batch #128 is merged to main as 912230c via PR #179, GitHub Core Type And Build Gate passed, and the Lovable sync prompt is ready."
 ```
 
 ## Risk Levels
@@ -50,9 +50,9 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch128-public-runtime-ux-a11y-audit.
-Current workstream: Batch #128 public auth and registration accessibility is implemented locally and ready for commit/PR.
-Latest merged batch: Batch #127 public blog mobile tap targets is merged to main.
+Current branch: main.
+Current workstream: Batch #128 public auth and registration accessibility is merged to main and ready for Lovable sync confirmation.
+Latest merged batch: Batch #128 public auth and registration accessibility is merged to main.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -100,7 +100,10 @@ Batch #127 preserves blog copy, routes, SEO, buyer-first narrative, access gatin
 Batch #128 runtime audit found the registration flow was not covered by previous public accessibility batches: `/register*` routes had no stable `main#main`, no skip-to-main link, several registration shell/legal/secondary targets below 44px, unnamed OTP inputs, missing completion hints and a nested Link/Button CTA on `/register/ready`.
 Batch #128 implementation adds `main#main` and a hidden-until-focus skip link to `RegistrationLayout`, hardens registration shell/footer/action mobile targets, adds form labels and autocomplete hints to registration/auth fields, removes the `/register/ready` nested CTA with `Button asChild`, adds `e2e/public-auth-registration-a11y.spec.ts`, wires dedicated/full smoke scripts and records the 10,000 concurrent-user baseline note.
 Batch #128 local validation passed: `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium`, 10 tests; `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium`, 5 tests; `npx tsc -b --noEmit`; `npm run check:production-scale-baseline`; `npm run lint`; `git diff --check`; `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build; `npm run smoke:e2e:run`, 231 tests.
+Batch #128 is merged to main as 912230c, [codex] Batch #128 public auth registration accessibility (#179), via PR #179.
+GitHub Core Type And Build Gate passed on PR #179 in 11m57s.
+Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-128-lovable-sync.md.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: commit Batch #128, push `codex/batch128-public-runtime-ux-a11y-audit`, open a draft PR, wait for GitHub Core Type And Build Gate, merge when green, then prepare the Batch #128 Lovable sync prompt.
+Next step: sync Lovable with GitHub main at commit 912230c or newer using docs/project-memory/PROMPTS/prompt-128-lovable-sync.md, then report clean sync or concrete conflicts.
 ```

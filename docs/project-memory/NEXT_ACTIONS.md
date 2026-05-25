@@ -2,15 +2,18 @@
 
 ## Current Next Action
 
-1. Commit Batch #128 public auth and registration accessibility on `codex/batch128-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` at commit `912230c` or newer using `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
 
-2. Push the branch, open a draft PR, wait for GitHub `Core Type And Build Gate`, merge when green and then create the Batch #128 Lovable sync prompt.
+2. Confirm a clean sync or report concrete conflicts.
 
-3. Keep the same buyer-first review lens for the next scoped batch: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+3. After Lovable confirms Batch #128, start the next scoped public UX/UI audit batch from current `main`.
 
-## Batch #128 Local Validation Ready
+## Batch #128 Lovable Sync Pending
 
-- Branch: `codex/batch128-public-runtime-ux-a11y-audit`.
+- Branch: `main`.
+- Merge commit: `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
 - Scope: public auth and registration accessibility/scanability after Batch #127.
 - Runtime finding:
   - registration routes lacked stable `main#main` and skip-to-main behavior;
@@ -37,6 +40,8 @@
   - `git diff --check`;
   - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
   - `npm run smoke:e2e:run`, 231 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 11m57s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #127 Lovable Sync Confirmed
