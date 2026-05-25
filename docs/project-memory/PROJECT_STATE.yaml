@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "8590361"
-  head_summary: "[codex] Batch #131 public pulse estimate disclosure"
+  head_commit: "84f71ba"
+  head_summary: "[codex] Add Batch 131 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #131 is merged; only Lovable sync prompt and project-memory updates are being committed."
+    - "Batch #131 is merged as 8590361; Lovable sync prompt is committed on top as 84f71ba."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."

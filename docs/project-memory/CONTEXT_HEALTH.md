@@ -11,11 +11,11 @@ last_handoff_ready: true
 recommended_action: "sync Lovable with Batch #131 using docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "8590361"
+head_commit: "84f71ba"
 latest_merged_batch: 131
 active_workstream: "batch_131_lovable_sync_ready"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
-why_low: "Batch #131 is merged to main as 8590361 via PR #183, GitHub Core Type And Build Gate passed, and the Lovable sync prompt is ready."
+why_low: "main is synced to 84f71ba with the Batch #131 Lovable sync prompt; Batch #131 itself is merged as 8590361 via PR #183 and GitHub Core Type And Build Gate passed."
 ```
 
 ## Risk Levels
@@ -51,7 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: Batch #131 public Pulse estimate disclosure is merged; next step is Lovable sync using docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
+Current workstream: Batch #131 public Pulse estimate disclosure is merged and the Lovable sync prompt is committed; next step is Lovable sync using docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
+Current HEAD: 84f71ba, [codex] Add Batch 131 Lovable sync prompt.
 Latest merged batch: Batch #131 public Pulse estimate disclosure is merged to main as 8590361 via PR #183.
 Lovable sync prompt: docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
 GitHub Core Type And Build Gate passed on PR #183 in 10m13s.
