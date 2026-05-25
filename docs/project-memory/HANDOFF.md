@@ -20,7 +20,32 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch130-public-runtime-ux-a11y-audit`.
+- Batch #130 supplier profile mobile accessibility is implemented and locally validated before commit.
+- Base head is `2550a29`, `[codex] Add Batch 129 Lovable sync prompt`.
+- Batch #130 runtime audit focused on `/suppliers/:id`, the supplier trust/supply route after Batch #129 Lovable sync.
+- Batch #130 findings:
+  - breadcrumb `Home` and `Suppliers` links could render below the 44px mobile target baseline;
+  - supplier profile trust tabs could render at 36px height on mobile;
+  - unknown supplier fallback directory recovery link could render below the 44px mobile target baseline.
+- Batch #130 implementation:
+  - `SupplierProfile` breadcrumbs use locale-owned `aria_breadcrumb` and mobile-safe Home/Suppliers targets;
+  - supplier profile tab triggers use `min-h-11` and `data-supplier-profile-mobile-target` markers;
+  - unknown supplier fallback directory recovery link uses a mobile-safe target and marker;
+  - `e2e/supplier-profile-mobile-a11y.spec.ts` covers supplier profile and not-found states;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #130 10,000 concurrent-user note.
+- Batch #130 local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts e2e/supplier-profile-detail.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-directory-profile-flow.spec.ts --project=chromium`, 12 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 235 tests.
+- Batch #130 build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip.
+- Batch #130 preserves supplier profile copy, route behavior, access gating, supplier identity redaction, approval refresh, directory/profile bridge behavior, Batch #126 skip-to-main, Batch #125 landmark labels, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Next step: commit Batch #130, push, open PR, wait for GitHub `Core Type And Build Gate`, merge, then prepare the Lovable sync prompt.
 - Batch #129 offer detail mobile accessibility is merged to `main` as `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`, via PR #180.
 - PR #180 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
 - GitHub `Core Type And Build Gate` passed on PR #180 in 12m46s.

@@ -851,7 +851,11 @@ const SupplierProfile = () => {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {t.supplier_notFound_body}{" "}
-            <Link to="/suppliers" className="text-primary underline">
+            <Link
+              to="/suppliers"
+              className="inline-flex min-h-11 items-center rounded px-1 text-primary underline"
+              data-supplier-profile-mobile-target="not-found-directory"
+            >
               {t.supplier_notFound_link}
             </Link>
             .
@@ -872,7 +876,7 @@ const SupplierProfile = () => {
   };
 
   const tabTriggerCls =
-    "rounded-full px-5 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background";
+    "min-h-11 rounded-full px-5 py-2 text-sm data-[state=active]:bg-foreground data-[state=active]:text-background";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -882,14 +886,22 @@ const SupplierProfile = () => {
         <div className="border-b border-border bg-background">
           <div className="container py-3">
             <nav
-              aria-label="Breadcrumb"
+              aria-label={t.aria_breadcrumb}
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <Link to="/" className="hover:text-foreground">
+              <Link
+                to="/"
+                className="inline-flex min-h-11 min-w-11 items-center rounded px-1 hover:text-foreground"
+                data-supplier-profile-mobile-target="breadcrumb-home"
+              >
                 {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
-              <Link to="/suppliers" className="hover:text-foreground">
+              <Link
+                to="/suppliers"
+                className="inline-flex min-h-11 min-w-11 items-center rounded px-1 hover:text-foreground"
+                data-supplier-profile-mobile-target="breadcrumb-suppliers"
+              >
                 {t.supplier_breadcrumb_suppliers}
               </Link>
               <ChevronRight className="h-3 w-3" aria-hidden />
@@ -1222,19 +1234,39 @@ const SupplierProfile = () => {
           <div className="container py-6">
             <Tabs defaultValue="about" className="w-full">
               <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-cool-gray/60 p-1">
-                <TabsTrigger value="about" className={tabTriggerCls}>
+                <TabsTrigger
+                  value="about"
+                  className={tabTriggerCls}
+                  data-supplier-profile-mobile-target="profile-tab"
+                >
                   {t.supplier_tab_about}
                 </TabsTrigger>
-                <TabsTrigger value="catalog" className={tabTriggerCls}>
+                <TabsTrigger
+                  value="catalog"
+                  className={tabTriggerCls}
+                  data-supplier-profile-mobile-target="profile-tab"
+                >
                   {interpolate(t.supplier_tab_catalog, { n: supplierOffers.length })}
                 </TabsTrigger>
-                <TabsTrigger value="passport" className={tabTriggerCls}>
+                <TabsTrigger
+                  value="passport"
+                  className={tabTriggerCls}
+                  data-supplier-profile-mobile-target="profile-tab"
+                >
                   {t.supplier_tab_passport}
                 </TabsTrigger>
-                <TabsTrigger value="cases" className={tabTriggerCls}>
+                <TabsTrigger
+                  value="cases"
+                  className={tabTriggerCls}
+                  data-supplier-profile-mobile-target="profile-tab"
+                >
                   {t.supplier_tab_cases}
                 </TabsTrigger>
-                <TabsTrigger value="faq" className={tabTriggerCls}>
+                <TabsTrigger
+                  value="faq"
+                  className={tabTriggerCls}
+                  data-supplier-profile-mobile-target="profile-tab"
+                >
                   {t.supplier_tab_faq}
                 </TabsTrigger>
               </TabsList>

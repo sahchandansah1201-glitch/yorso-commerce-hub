@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "main"
+  active_branch: "codex/batch130-public-runtime-ux-a11y-audit"
   head_commit: "2550a29"
   head_summary: "[codex] Add Batch 129 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "User confirmed Batch #129 Lovable sync clean; only project-memory is updated in this checkpoint."
+    - "Batch #130 supplier profile mobile accessibility is implemented and locally validated before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,26 +37,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "ready_for_next_public_ux_batch"
-  summary: "Batch #129 Lovable sync is clean; start the next scoped public UX/UI audit batch."
-  status: "ready_for_next_batch"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
+  id: "batch130_supplier_profile_mobile_accessibility"
+  summary: "Batch #130 supplier profile mobile accessibility is locally validated; commit, push, open PR, wait for GitHub gate, merge and prepare Lovable sync prompt."
+  status: "local_validated_before_commit"
+  branch: "codex/batch130-public-runtime-ux-a11y-audit"
+  pull_request: null
   confirmed_scope:
-    - "Runtime audit after Batch #128 found concrete mobile/accessibility defects on /offers/:id, the buyer decision detail route."
-    - "Fix only offer detail mobile target sizes, named gallery controls and disclosure semantics without changing offer data, access gating, supplier redaction, price locks, CTA destinations, copy, route behavior, SEO or analytics."
-    - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards."
-    - "Add focused e2e coverage for offer detail mobile target sizes, named gallery/lightbox controls, nested-control absence, unnamed-button absence and no horizontal overflow."
-    - "Run dedicated production smoke and full smoke:e2e:run before commit."
+    - "Runtime audit after Batch #129 found concrete mobile target defects on /suppliers/:id, the supplier trust/supply route."
+    - "Fix only supplier profile breadcrumb, tab and not-found recovery target sizes plus breadcrumb landmark localization without changing supplier data, access gating, redaction, approval behavior, route behavior, copy, SEO or analytics."
+    - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#129 public UX/a11y safeguards."
+    - "Add focused e2e coverage for supplier profile mobile target sizes, nested-control absence and no horizontal overflow."
+    - "Run focused, neighboring supplier profile, dedicated production smoke and full smoke:e2e:run before commit."
     - "Commit, push, open PR, confirm GitHub Core Type And Build Gate, merge to main and prepare the Lovable sync prompt."
   confirmed_files:
-    - "src/components/offer-detail/PhotoGallery.tsx"
-    - "src/pages/OfferDetail.tsx"
-    - "src/components/offer-detail/OfferSummary.tsx"
-    - "src/components/offer-detail/FullSpecifications.tsx"
-    - "src/components/offer-detail/SupplierTrustPanel.tsx"
-    - "src/i18n/translations.ts"
-    - "e2e/offer-detail-mobile-a11y.spec.ts"
+    - "src/pages/SupplierProfile.tsx"
+    - "e2e/supplier-profile-mobile-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -65,46 +60,40 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
 
 active_batch:
-  id: 129
-  summary: "Offer detail mobile accessibility: named gallery/lightbox controls, 44px buyer decision targets and disclosure states on /offers/:id."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "f81ee18"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-25"
-    head: "2550a29"
-    result: "clean_no_conflicts"
+  id: 130
+  summary: "Supplier profile mobile accessibility: 44px breadcrumb, trust tab and not-found recovery targets on /suppliers/:id."
+  status: "local_validated_before_commit"
+  commit: null
+  branch: "codex/batch130-public-runtime-ux-a11y-audit"
+  pull_request: null
+  lovable_sync_prompt: null
+  lovable_sync: null
   confirmed_findings:
-    - "Runtime audit at 390px found unnamed visible offer photo/gallery buttons on /offers/:id."
-    - "The back-to-catalog control, breadcrumbs, delivery-basis chips, supplier review-scope disclosure and full-specifications disclosure could render below the 44px mobile target baseline."
-    - "No horizontal overflow or nested interactive controls were present before the Batch #129 fix."
+    - "Runtime audit at 390px found supplier profile breadcrumb Home and Suppliers links could render below the 44px mobile target baseline."
+    - "Supplier trust/profile tab triggers could render at 36px height on mobile."
+    - "Unknown supplier fallback directory recovery link could render below the 44px mobile target baseline."
+    - "No horizontal overflow or nested interactive controls were present before the Batch #130 fix."
   confirmed_changes:
-    - "PhotoGallery now exposes locale-owned named previous/next/open-gallery controls, named thumbnails, named lightbox close/previous/next controls and mobile-safe target sizes."
-    - "OfferDetail back-to-catalog and breadcrumb links now meet the mobile target baseline while preserving destinations."
-    - "OfferSummary delivery-basis options now meet the mobile target baseline in locked and unlocked states."
-    - "SupplierTrustPanel review-scope disclosure and FullSpecifications disclosure now expose aria-expanded and mobile-safe targets."
-    - "e2e/offer-detail-mobile-a11y.spec.ts covers marked mobile targets, named gallery/lightbox controls, no unnamed visible buttons, no nested controls and no horizontal overflow."
-    - "Dedicated and full e2e smoke scripts include the offer detail mobile accessibility guard."
-    - "Batch #129 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
+    - "SupplierProfile breadcrumbs now use locale-owned aria_breadcrumb and mobile-safe Home/Suppliers link targets."
+    - "Supplier profile TabsTriggers now include min-h-11 and data-supplier-profile-mobile-target markers."
+    - "Supplier not-found directory recovery link now uses a mobile-safe target and target marker."
+    - "e2e/supplier-profile-mobile-a11y.spec.ts covers profile and not-found states, marked 44px targets, no nested controls and no horizontal overflow."
+    - "Dedicated and full e2e smoke scripts include the supplier profile mobile accessibility guard."
+    - "Batch #130 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
   validation:
-    - "Focused runtime Playwright scan on /offers/:id at 390px: zero horizontal overflow, zero nested controls, zero unnamed visible buttons and zero marked targets below 44px."
-    - "E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-mobile-a11y.spec.ts --project=chromium, 2 tests."
-    - "E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-cta-semantics.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-detail-mobile-a11y.spec.ts --project=chromium, 9 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts --project=chromium, 2 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts e2e/supplier-profile-detail.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-directory-profile-flow.spec.ts --project=chromium, 12 tests."
     - "npx tsc -b --noEmit."
-    - "npm run check:production-scale-baseline."
     - "npm run lint."
-    - "npm run smoke:e2e:offer-detail-mobile-a11y, 2 tests after production build."
-    - "npm run smoke:e2e:run, 233 tests."
-    - "Post-i18n build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip."
-    - "GitHub Core Type And Build Gate passed on PR #180 in 12m46s."
+    - "npm run check:production-scale-baseline."
+    - "npm run smoke:e2e:supplier-profile-mobile-a11y, 2 tests after production build."
+    - "npm run smoke:e2e:run, 235 tests."
+    - "Post-i18n build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip."
   preserved_behavior:
-    - "Offer data, exact-price locking, supplier identity redaction, access gating, sticky CTAs, return-to-catalog behavior and route behavior are preserved."
-    - "Buyer-first public narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards are preserved."
+    - "Supplier profile copy, route behavior, access gating, supplier identity redaction, approval refresh and directory/profile bridge behavior are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#129 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
