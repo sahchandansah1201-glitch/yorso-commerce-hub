@@ -2,20 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` using `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Confirm Lovable reports clean sync, or capture any concrete conflict list before further edits.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-3. After clean Lovable sync, start the next scoped public UX/UI audit batch.
-
-4. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
-
-## Batch #130 Lovable Sync Ready
+## Batch #130 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
+- Lovable sync: clean at `1449efa`, no conflicts and no files modified in Lovable.
 - Base: Batch #129 Lovable sync clean on `main` at `2550a29`.
 - Scope: supplier profile mobile accessibility on `/suppliers/:id`, the supplier trust/supply route.
 - Runtime finding:
@@ -41,6 +38,13 @@
 - Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip. Large-chunk warning did not return.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 12m26s.
+- Lovable confirmed:
+  - `SupplierProfile.tsx` breadcrumb landmark uses `t.aria_breadcrumb`;
+  - `data-supplier-profile-mobile-target` markers are present for `breadcrumb-home`, `breadcrumb-suppliers`, `not-found-directory` and five `profile-tab` controls;
+  - `e2e/supplier-profile-mobile-a11y.spec.ts`, package smoke wiring and Batch #130 production-scale notes are present;
+  - access gating, supplier identity redaction, approval refresh and directory bridge are unchanged;
+  - no nested interactive controls and no 390px horizontal overflow were found;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#129 are preserved.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #129 Lovable Sync Confirmed

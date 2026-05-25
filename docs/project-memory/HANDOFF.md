@@ -25,6 +25,10 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - PR #181 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
 - GitHub `Core Type And Build Gate` passed on PR #181 in 12m26s.
 - Batch #130 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
+- Batch #130 Lovable sync is confirmed clean at `1449efa`, with no conflicts and no file modifications in Lovable.
+- Lovable confirmed `SupplierProfile.tsx`, `e2e/supplier-profile-mobile-a11y.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md` are present and aligned.
+- Lovable confirmed the supplier profile breadcrumb landmark uses `t.aria_breadcrumb`, target markers are present for `breadcrumb-home`, `breadcrumb-suppliers`, `not-found-directory` and five `profile-tab` controls, and no nested interactive controls or 390px horizontal overflow were found.
+- Lovable confirmed access gating, supplier identity redaction, approval refresh, directory bridge, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#129 are preserved.
 - Batch #130 runtime audit focused on `/suppliers/:id`, the supplier trust/supply route after Batch #129 Lovable sync.
 - Batch #130 findings:
   - breadcrumb `Home` and `Suppliers` links could render below the 44px mobile target baseline;
@@ -47,7 +51,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 235 tests.
 - Batch #130 build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip.
 - Batch #130 preserves supplier profile copy, route behavior, access gating, supplier identity redaction, approval refresh, directory/profile bridge behavior, Batch #126 skip-to-main, Batch #125 landmark labels, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-- Next step: sync Lovable with GitHub `main` using `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #129 offer detail mobile accessibility is merged to `main` as `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`, via PR #180.
 - PR #180 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
 - GitHub `Core Type And Build Gate` passed on PR #180 in 12m46s.

@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "1449efa"
-  head_summary: "[codex] Batch #130 supplier profile mobile accessibility (#181)"
+  head_commit: "17a2175"
+  head_summary: "[codex] Add Batch 130 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #130 is merged; project-memory and Lovable sync prompt are being updated."
+    - "User confirmed Batch #130 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch130_lovable_sync_ready"
-  summary: "Batch #130 supplier profile mobile accessibility is merged to main; Lovable sync prompt is ready."
-  status: "lovable_sync_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #130 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
   confirmed_scope:
@@ -48,7 +48,8 @@ active_workstream:
     - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#129 public UX/a11y safeguards."
     - "Add focused e2e coverage for supplier profile mobile target sizes, nested-control absence and no horizontal overflow."
     - "Run focused, neighboring supplier profile, dedicated production smoke and full smoke:e2e:run before commit."
-    - "Batch #130 is merged to main and the next action is Lovable sync using docs/project-memory/PROMPTS/prompt-130-lovable-sync.md."
+    - "Batch #130 is merged to main and Lovable sync is confirmed clean at 1449efa with no conflicts or file modifications."
+    - "Next action is the next scoped public UX/UI audit batch."
   confirmed_files:
     - "src/pages/SupplierProfile.tsx"
     - "e2e/supplier-profile-mobile-a11y.spec.ts"
@@ -65,15 +66,30 @@ active_workstream:
 active_batch:
   id: 130
   summary: "Supplier profile mobile accessibility: 44px breadcrumb, trust tab and not-found recovery targets on /suppliers/:id."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "1449efa"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
   lovable_sync:
-    confirmed_at: null
-    head: null
-    result: "pending_user_sync"
+    confirmed_at: "2026-05-25"
+    head: "1449efa"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to 1449efa on main, including PR #181 Batch #130 supplier profile mobile accessibility."
+      - "The working tree was clean and no conflicts were found."
+      - "SupplierProfile breadcrumb landmark uses t.aria_breadcrumb."
+      - "data-supplier-profile-mobile-target markers are present for breadcrumb-home, breadcrumb-suppliers, not-found-directory and five profile-tab controls."
+      - "e2e/supplier-profile-mobile-a11y.spec.ts is present."
+      - "package.json includes smoke:e2e:supplier-profile-mobile-a11y, the run script and full smoke:e2e:run wiring."
+      - "docs/backend/production-scale-baseline.md includes the Batch #130 section."
+      - "Breadcrumb localization, 44px mobile targets, access gating, supplier identity redaction, approval refresh and directory bridge are preserved."
+      - "No nested interactive controls and no 390px horizontal overflow were found."
+      - "Batch #112 code splitting remains unchanged, no manual vendor chunks were added, and Batch #113 RouteChunkErrorBoundary is preserved."
+      - "Batches #110-#129 remain preserved."
+      - "Bundle metrics: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip."
+      - "The large-chunk warning did not return."
+      - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
   confirmed_findings:
     - "Runtime audit at 390px found supplier profile breadcrumb Home and Suppliers links could render below the 44px mobile target baseline."
     - "Supplier trust/profile tab triggers could render at 36px height on mobile."
@@ -106,14 +122,25 @@ active_batch:
 latest_merged_batches:
   - id: 130
     summary: "Supplier profile mobile accessibility so /suppliers/:id exposes mobile-safe breadcrumbs, trust tabs and not-found recovery."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "1449efa"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_user_sync"
+      confirmed_at: "2026-05-25"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-130-lovable-sync.md"
-      head: null
+      head: "1449efa"
+      user_confirmed:
+        - "GitHub commit synced to 1449efa on main, including PR #181 Batch #130 supplier profile mobile accessibility."
+        - "The working tree was clean and no conflicts were found."
+        - "SupplierProfile breadcrumb landmark uses t.aria_breadcrumb."
+        - "data-supplier-profile-mobile-target markers are present for breadcrumb-home, breadcrumb-suppliers, not-found-directory and five profile-tab controls."
+        - "e2e/supplier-profile-mobile-a11y.spec.ts is present."
+        - "package.json includes smoke:e2e:supplier-profile-mobile-a11y, the run script and full smoke:e2e:run wiring."
+        - "docs/backend/production-scale-baseline.md includes the Batch #130 section."
+        - "No nested interactive controls and no 390px horizontal overflow were found."
+        - "Access gating, supplier identity redaction, approval refresh, directory bridge, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#129 are preserved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/pages/SupplierProfile.tsx"
       - "e2e/supplier-profile-mobile-a11y.spec.ts"

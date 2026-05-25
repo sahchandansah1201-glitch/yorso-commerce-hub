@@ -1138,3 +1138,15 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #181 `Core Type And Build Gate` passed in 12m26s.
 - Marked PR #181 ready and merged it to `main` as `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`.
 - Added `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md` for Batch #130 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #130 is clean:
+  - HEAD synced to `1449efa` on `main`, including PR #181 Batch #130 supplier profile mobile accessibility;
+  - `src/pages/SupplierProfile.tsx`, `e2e/supplier-profile-mobile-a11y.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md` were checked;
+  - no conflicts were found and files were not modified in Lovable;
+  - `SupplierProfile.tsx` breadcrumb landmark uses `t.aria_breadcrumb`;
+  - `data-supplier-profile-mobile-target` markers are present for `breadcrumb-home`, `breadcrumb-suppliers`, `not-found-directory` and five `profile-tab` controls;
+  - package smoke scripts and full `smoke:e2e:run` wiring are present;
+  - Batch #130 production-scale notes are present;
+  - access gating, supplier identity redaction, approval refresh and directory bridge are unchanged;
+  - no nested interactive controls and no 390px horizontal overflow were found;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#129 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
