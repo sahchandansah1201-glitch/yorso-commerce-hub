@@ -11,11 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "main"
-  head_commit: "main_after_batch_134_lovable_sync_record"
-  head_summary: "Batch #134 supplier directory locale a11y merged and Lovable sync confirmed clean"
-  dirty_worktree_before_project_memory: false
-  dirty_worktree_reason: []
+  active_branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
+  head_commit: "batch_135_local_validation_passed_pending_commit"
+  head_summary: "Batch #135 supplier profile logo locale a11y implemented locally and final validation passed; pending commit/PR"
+  dirty_worktree_before_project_memory: true
+  dirty_worktree_reason:
+    - "Batch #135 implementation and project-memory updates are intentionally pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,27 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
+  id: "batch_135_supplier_profile_logo_locale_a11y"
+  summary: "Public supplier profile logo accessible name and image alt text use locale-owned copy."
+  status: "final_validation_passed_pending_commit"
+  branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
   pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
-    - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#133 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Batch #135 is scoped to `/suppliers/:id` supplier-profile logo locale/a11y only."
+    - "Preserve Batch #110-#134 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
-    - "src/pages/Suppliers.tsx"
-    - "src/pages/Suppliers.i18n.test.tsx"
-    - "src/components/suppliers/SupplierRow.tsx"
-    - "src/components/suppliers/SelectedSupplierPanel.tsx"
-    - "src/components/suppliers/__snapshots__/SupplierRow.snapshot.test.tsx.snap"
-    - "src/i18n/translations.ts"
-    - "e2e/suppliers-directory-locale-a11y.spec.ts"
+    - "src/pages/SupplierProfile.tsx"
+    - "src/pages/__tests__/SupplierProfile.i18n.test.tsx"
+    - "e2e/supplier-profile-logo-locale-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
-    - "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
@@ -65,6 +61,40 @@ active_workstream:
     - "docs/project-memory/ARTIFACTS.md"
 
 active_batch:
+  id: 135
+  summary: "Supplier profile logo locale a11y: /suppliers/:id supplier logo accessible name and image alt text use the existing locale-owned supplier_logo_aria template."
+  status: "final_validation_passed_pending_commit"
+  commit: null
+  branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
+  pull_request: null
+  confirmed_findings:
+    - "`/suppliers/:id` `SupplierLogoCard` used a hardcoded Russian wrapper aria-label template: `Логотип {name}`."
+    - "`/suppliers/:id` supplier logo image alt text used a hardcoded English suffix: `{name} logo`."
+    - "This mixed localized supplier trust UI with wrong-locale programmatic copy on the supplier trust route."
+  confirmed_changes:
+    - "`src/pages/SupplierProfile.tsx` now derives both supplier logo wrapper `aria-label` and image `alt` from the existing `supplier_logo_aria` EN/RU/ES translation template."
+    - "`src/pages/__tests__/SupplierProfile.i18n.test.tsx` guards EN/RU/ES supplier logo accessible names and image alt text."
+    - "`e2e/supplier-profile-logo-locale-a11y.spec.ts` covers `/suppliers/sup-no-001` at 390px in EN/RU/ES with no wrong-locale logo label leakage, no nested controls and no horizontal overflow."
+    - "`package.json` wires the dedicated supplier profile logo locale a11y smoke script into the full smoke suite."
+    - "`docs/backend/production-scale-baseline.md` contains the Batch #135 10,000 concurrent-user note."
+  validation:
+    - "npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx, 24 tests."
+    - "npm run check:production-scale-baseline."
+    - "npm run smoke:e2e:supplier-profile-logo-locale-a11y, 3 tests after production build."
+    - "npm run smoke:e2e:supplier-profile-mobile-a11y:run, 2 tests."
+    - "npm run smoke:e2e:supplier-profile-detail:run, 4 tests."
+    - "npx tsc -b --noEmit."
+    - "npm run lint."
+    - "npx vitest run src/pages/__tests__/SupplierProfile.access.test.tsx src/pages/__tests__/SupplierProfile.heroNoInlineCta.test.tsx src/pages/__tests__/SupplierProfile.i18n.test.tsx src/pages/__tests__/SupplierProfile.lockedDomLeak.test.tsx src/pages/__tests__/SupplierProfile.meta.test.tsx src/pages/__tests__/SupplierProfile.langSwitch.tons.test.tsx, 81 tests passed and 2 skipped."
+    - "git diff --check."
+    - "npm run smoke:e2e:run, 246 tests."
+  preserved_behavior:
+    - "Supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards are preserved."
+  known_warnings:
+    - "Supabase generated types are out of sync in non-strict mode."
+    - "Browserslist data is stale."
+
+last_lovable_synced_batch:
   id: 134
   summary: "Supplier directory locale a11y: /suppliers trust labels and image alt text use locale-owned copy."
   status: "merged_to_main_lovable_sync_clean"

@@ -3287,6 +3287,79 @@ Marker: supplier directory locale a11y.
 Marker: supplier trust mechanism scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #135 Supplier Profile Logo Locale A11y
+
+Batch #135 localizes supplier-profile logo accessible names on
+`/suppliers/:id`. The scoped change replaces a hardcoded Russian wrapper label
+and hardcoded English image alt suffix in `SupplierLogoCard` with the existing
+locale-owned `supplier_logo_aria` translation. It preserves buyer-first profile
+content, supplier identity redaction, access gating, profile tabs, approval
+bridge behavior, supplier directory routing and SEO.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier profile detail data paths are unchanged; the route continues to use
+  the existing API/local fallback flow.
+- Runtime work is limited to one translation lookup for the logo accessible
+  name and image alt text.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- Translation bundle size is unchanged because the existing `supplier_logo_aria`
+  key is reused.
+- No queues, polling, retries, timers, subscriptions or background jobs are
+  introduced.
+- Request volume is unchanged at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, supplier
+  reads, offer reads, pagination, auth persistence, access persistence or
+  account persistence.
+- Supplier directory/profile approval bridge and profile routing remain
+  unchanged.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, the supplier profile content remains
+  readable native content.
+- If CSS fails, the logo monogram or logo image remains visible.
+- If a locale is missing during development, TypeScript catches the translation
+  contract because `supplier_logo_aria` is typed.
+- Locked supplier identity, contact channels, exact catalog breadth and exact
+  delivery geography remain hidden until qualified access.
+
+Observability and load-test plan:
+
+- Unit coverage verifies supplier logo wrapper accessible names and image alt
+  text follow EN/RU/ES translation templates and do not leak the previous
+  hardcoded Russian/English labels.
+- Browser smoke verifies `/suppliers/:id` at 390px exposes locale-owned supplier
+  logo labels in EN/RU/ES, keeps zero horizontal overflow and has no nested
+  interactive controls.
+- Existing supplier-profile smoke continues to verify mobile targets, locked
+  hints, access gating and directory/profile bridge behavior.
+- No new load-test dimension is required because the change is static frontend
+  DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx`;
+- `npm run smoke:e2e:supplier-profile-logo-locale-a11y`;
+- `npm run smoke:e2e:supplier-profile-mobile-a11y:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #135.
+Marker: supplier profile logo locale a11y.
+Marker: supplier trust route scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

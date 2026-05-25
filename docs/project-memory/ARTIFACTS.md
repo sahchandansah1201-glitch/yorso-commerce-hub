@@ -531,6 +531,15 @@
 - `docs/backend/production-scale-baseline.md`: Batch #133 10,000 concurrent-user review.
 - `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 after PR #185 merge; user confirmed clean sync at `main` @ `ca1438b` or newer.
 
+## Batch #135 Supplier Profile Logo Locale A11y
+
+- `src/pages/SupplierProfile.tsx`: supplier profile logo wrapper `aria-label` and logo image `alt` use the existing locale-owned `supplier_logo_aria` template.
+- `src/pages/__tests__/SupplierProfile.i18n.test.tsx`: EN/RU/ES regression coverage for supplier logo accessible names and image alt text.
+- `e2e/supplier-profile-logo-locale-a11y.spec.ts`: browser smoke for `/suppliers/sup-no-001` at 390px in EN/RU/ES, including wrong-locale leakage, nested controls and horizontal overflow.
+- `package.json`: dedicated `smoke:e2e:supplier-profile-logo-locale-a11y` script and full smoke wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #135 10,000 concurrent-user review.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`, `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #135 checkpoint before commit/PR.
+
 - `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
 - `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.
 - `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`: sync confirmation prompt for Batch #110 public UX mobile scan.

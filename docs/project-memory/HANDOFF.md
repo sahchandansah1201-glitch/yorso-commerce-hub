@@ -20,7 +20,30 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch-135-supplier-profile-logo-locale-a11y`.
+- Batch #135 supplier profile logo locale a11y is implemented locally and final validation has passed; commit and PR are pending.
+- Batch #135 scoped finding:
+  - `/suppliers/:id` `SupplierLogoCard` mixed locale-owned UI with hardcoded logo programmatic copy;
+  - the wrapper used `aria-label={`Логотип ${nameForLabel}`}` regardless of active locale;
+  - the image used `alt={`${nameForLabel} logo`}` regardless of active locale.
+- Batch #135 implementation:
+  - `src/pages/SupplierProfile.tsx` now derives both supplier logo wrapper `aria-label` and image `alt` from the existing `supplier_logo_aria` EN/RU/ES translation template;
+  - `src/pages/__tests__/SupplierProfile.i18n.test.tsx` guards EN/RU/ES supplier logo accessible names and image alt text;
+  - `e2e/supplier-profile-logo-locale-a11y.spec.ts` covers `/suppliers/sup-no-001` at 390px in EN/RU/ES;
+  - `package.json` wires the dedicated supplier profile logo locale a11y smoke script into the full smoke suite;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #135 10,000 concurrent-user note.
+- Batch #135 local validation passed:
+  - `npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx`, 24 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:supplier-profile-logo-locale-a11y`, 3 tests after production build;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:supplier-profile-detail:run`, 4 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - explicit `SupplierProfile` unit suite, 81 tests passed and 2 skipped.
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 246 tests.
+- Batch #135 preserves supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards.
 - Batch #134 supplier directory locale a11y is merged to `main` as `6cd21e9`,
   `[codex] Batch #134 supplier directory locale a11y`, via PR #186:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
@@ -70,7 +93,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
     locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112
     code splitting, Batch #113 route chunk error boundary and Batches #110-#133
     are preserved.
-- Next step: start the next scoped public UX/UI audit batch from current `main`.
+- Next step: commit Batch #135, push and open PR.
 - Historical baseline:
 - Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
   `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:
