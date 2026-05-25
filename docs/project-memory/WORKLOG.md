@@ -1387,3 +1387,26 @@ Keep this file factual and append-only.
   - supplier profile behavior, access gating, identity redaction, approval refresh, profile tabs, directory/profile bridge, route SEO, buyer-first trust copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#134 are preserved;
   - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Recorded Batch #135 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
+- Started Batch #136 on `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens on `/offers/:id` and found hardcoded English supplier trust panel UI labels inside localized RU/ES offer detail UI.
+- Confirmed affected labels in `SupplierTrustPanel`: `Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`.
+- Implemented Batch #136 offer detail supplier trust locale a11y hardening:
+  - `src/components/offer-detail/SupplierTrustPanel.tsx` now uses typed EN/RU/ES `offerDetail_*` supplier trust labels, no-date fallback copy and pluralized years-in-business text;
+  - `src/lib/supplier-i18n.ts` helper comment now reflects broader public supplier/trust use;
+  - `src/pages/OfferDetail.tsx` route shells use `overflow-x-hidden` after the new RU disclosure guard exposed 15px mobile overflow at 390px;
+  - `src/components/offer-detail/SupplierTrustPanel.access.test.tsx` guards RU/ES trust labels and qualified CTAs;
+  - `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES trust labels, disclosure target height, nested controls and zero horizontal overflow at 390px;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #136 10,000 concurrent-user capacity note.
+- Confirmed Batch #136 local validation:
+  - `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx` passed, 4 tests;
+  - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y` passed, 2 tests after production build;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y:run` passed, 2 tests;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run` passed, 2 tests;
+  - `npm run check:production-scale-baseline` passed;
+  - `git diff --check` passed;
+  - `npm run lint` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run smoke:e2e:run` passed, 248 tests.
+- Batch #136 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 324.98 kB / 102.16 kB gzip; OfferDetail 51.78 kB / 12.87 kB gzip.
+- Batch #136 preserves buyer-first offer detail narrative, access gating, supplier identity redaction, exact-price lock, supplier access requests, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards.

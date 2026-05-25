@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import SupplierTrustPanel from "@/components/offer-detail/SupplierTrustPanel";
 import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
 import { SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY } from "@/lib/supplier-access-requests";
+import type { Language } from "@/i18n/translations";
 
 const offerWithSupplierId = (): SeafoodOffer => ({
   ...mockOffers[0],
@@ -24,6 +25,14 @@ const renderPanel = (
     />
   </LanguageProvider>,
 );
+
+const renderPanelInLanguage = (
+  lang: Language,
+  props: Partial<Parameters<typeof SupplierTrustPanel>[0]> = {},
+) => {
+  localStorage.setItem("yorso-lang", lang);
+  return renderPanel(props);
+};
 
 describe("SupplierTrustPanel · offer detail access flow", () => {
   beforeEach(() => {
@@ -63,5 +72,64 @@ describe("SupplierTrustPanel · offer detail access flow", () => {
 
     expect(screen.queryByTestId("supplier-request-price-access")).toBeNull();
     expect(screen.getByTestId("supplier-access-request-status")).toHaveAttribute("data-status", "pending");
+  });
+
+  it("localizes supplier trust labels and qualified CTAs in Russian", () => {
+    renderPanelInLanguage("ru", { accessLevel: "qualified_unlocked" });
+    const yearsInBusiness = new Date().getFullYear() - offerWithSupplierId().supplier.inBusinessSince;
+    const verification = within(screen.getByTestId("offer-detail-supplier-verification"));
+
+    expect(verification.getByText(/Поставщик проверен/)).toBeVisible();
+    expect(verification.getByText(/Проверено: March 2025/)).toBeVisible();
+    expect(screen.getByText("На рынке")).toBeVisible();
+    expect(screen.getByText(new RegExp(`^${yearsInBusiness}\\s`))).toBeVisible();
+    expect(screen.getByText("Ответ")).toBeVisible();
+    expect(screen.getByText("Сертификаты")).toBeVisible();
+    expect(screen.getByText("Проверенные документы")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Открыть профиль поставщика" })).toBeVisible();
+    expect(screen.getByRole("button", { name: /Связаться с поставщиком/ })).toBeVisible();
+    expect(screen.getByRole("button", { name: /В шортлист/ })).toBeVisible();
+    expect(screen.getByRole("button", { name: /Сравнить похожие предложения/ })).toBeVisible();
+
+    const reviewToggle = verification.getByRole("button", { name: "Что проверено?" });
+    fireEvent.click(reviewToggle);
+    expect(verification.getByRole("button", { name: "Скрыть детали" })).toBeVisible();
+
+    for (const leaked of [
+      "Verified Supplier",
+      "Pending Full Verification",
+      "What was reviewed?",
+      "Hide details",
+      "In business",
+      "Response",
+      "Reviewed documents",
+      "View Supplier Profile",
+      "Contact Supplier",
+      "Save to Shortlist",
+      "Compare Similar Offers",
+    ]) {
+      expect(screen.queryByText(leaked)).toBeNull();
+    }
+  });
+
+  it("localizes supplier trust labels in Spanish", () => {
+    renderPanelInLanguage("es", { accessLevel: "registered_locked" });
+    const yearsInBusiness = new Date().getFullYear() - offerWithSupplierId().supplier.inBusinessSince;
+    const verification = within(screen.getByTestId("offer-detail-supplier-verification"));
+
+    expect(verification.getByText(/Proveedor verificado/)).toBeVisible();
+    expect(verification.getByText(/Verificado: March 2025/)).toBeVisible();
+    expect(screen.getByText("En operación")).toBeVisible();
+    expect(screen.getByText(`${yearsInBusiness} años`)).toBeVisible();
+    expect(screen.getByText("Respuesta")).toBeVisible();
+    expect(screen.getByText("Certificaciones")).toBeVisible();
+
+    const reviewToggle = verification.getByRole("button", { name: "¿Qué se revisó?" });
+    fireEvent.click(reviewToggle);
+    expect(verification.getByRole("button", { name: "Ocultar detalles" })).toBeVisible();
+
+    expect(screen.queryByText("What was reviewed?")).toBeNull();
+    expect(screen.queryByText("In business")).toBeNull();
+    expect(screen.queryByText("Reviewed documents")).toBeNull();
   });
 });

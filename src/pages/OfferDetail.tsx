@@ -106,7 +106,7 @@ const OfferDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background font-body flex flex-col">
+      <div className="min-h-screen overflow-x-hidden bg-background font-body flex flex-col">
         <Header showSkipLink />
         <main id="main" className="container py-6 md:py-10 flex-1" aria-busy="true" aria-live="polite">
           <Skeleton className="h-8 w-32 mb-5" />
@@ -123,7 +123,7 @@ const OfferDetail = () => {
       ? t.offerDetail_loadError_code.replace("{code}", String(lastErrorCode))
       : null;
     return (
-      <div className="min-h-screen bg-background font-body flex flex-col">
+      <div className="min-h-screen overflow-x-hidden bg-background font-body flex flex-col">
         <Header showSkipLink />
         <main id="main" className="container py-16 flex-1" role="alert" aria-live="assertive">
           <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-sm">
@@ -164,7 +164,7 @@ const OfferDetail = () => {
 
   if (!offer) {
     return (
-      <div className="min-h-screen bg-background font-body flex flex-col">
+      <div className="min-h-screen overflow-x-hidden bg-background font-body flex flex-col">
         <Header showSkipLink />
         <main id="main" className="flex flex-1 items-center justify-center">
           <div className="text-center">
@@ -180,7 +180,7 @@ const OfferDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="min-h-screen overflow-x-hidden bg-background font-body">
       <Header showSkipLink />
 
       <main id="main" className="container py-6 md:py-10">

@@ -11,6 +11,7 @@ import analytics from "@/lib/analytics";
 import { useState } from "react";
 import CertificationBadges from "@/components/CertificationBadges";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { interpolate, pluralize } from "@/lib/supplier-i18n";
 import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
@@ -40,7 +41,7 @@ const SupplierTrustPanel = ({
   accessRequest,
   onAccessRequestSent,
 }: Props) => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const s = offer.supplier;
   const yearsInBusiness = new Date().getFullYear() - s.inBusinessSince;
   const [showScope, setShowScope] = useState(false);
@@ -52,10 +53,21 @@ const SupplierTrustPanel = ({
 
   // Mask supplier identity for non-qualified states — show real name blurred.
   const initial = s.name.charAt(0);
+  const verifiedBody = s.verificationDate
+    ? interpolate(t.offerDetail_supplierVerifiedBody, { date: s.verificationDate })
+    : t.offerDetail_supplierVerifiedBodyNoDate;
+  const yearsInBusinessLabel = interpolate(
+    pluralize(lang, yearsInBusiness, {
+      one: t.offerDetail_yearsInBusiness_one,
+      few: t.offerDetail_yearsInBusiness_few,
+      many: t.offerDetail_yearsInBusiness_many,
+    }),
+    { n: yearsInBusiness },
+  );
 
   return (
     <div className="space-y-4">
-      {/* Supplier card — must contain: 1) logo, 2) name, 3) In business / Response, 4) flag + country of origin */}
+      {/* Supplier card — must contain logo, name, stats and country of origin */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center gap-3">
           {/* 1. Логотип поставщика (плейсхолдер с инициалом, пока нет реальных логотипов) */}
@@ -108,19 +120,23 @@ const SupplierTrustPanel = ({
           s.isVerified
             ? "bg-success/5 border border-success/20 text-foreground"
             : "bg-orange-50 border border-orange-200 text-foreground dark:bg-orange-950/20 dark:border-orange-800/30"
-        }`}>
+        }`} data-testid="offer-detail-supplier-verification">
           {s.isVerified ? (
             <>
-              <p className="font-semibold text-success mb-1">✓ Verified Supplier</p>
+              <p className="font-semibold text-success mb-1">
+                <span aria-hidden>✓</span> {t.offerDetail_supplierVerifiedTitle}
+              </p>
               <p className="text-muted-foreground">
-                Verified {s.verificationDate}. Business license, certifications, and trade references reviewed by YORSO.
+                {verifiedBody}
               </p>
             </>
           ) : (
             <>
-              <p className="font-semibold text-orange-600 dark:text-orange-400 mb-1">⏳ Pending Full Verification</p>
+              <p className="font-semibold text-orange-600 dark:text-orange-400 mb-1">
+                <span aria-hidden>⏳</span> {t.offerDetail_supplierPendingTitle}
+              </p>
               <p className="text-muted-foreground">
-                Basic documents reviewed. Full verification in progress. Exercise due diligence for large orders.
+                {t.offerDetail_supplierPendingBody}
               </p>
             </>
           )}
@@ -133,7 +149,7 @@ const SupplierTrustPanel = ({
               data-offer-detail-mobile-target="supplier-review-scope"
             >
               <Info className="h-3 w-3" />
-              {showScope ? "Hide details" : "What was reviewed?"}
+              {showScope ? t.offerDetail_supplierReviewHide : t.offerDetail_supplierReviewShow}
             </button>
           )}
           {showScope && s.verificationScope && (
@@ -142,20 +158,20 @@ const SupplierTrustPanel = ({
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <MiniStat icon={<Building2 className="h-3.5 w-3.5" />} label="In business" value={`${yearsInBusiness} years`} />
-          <MiniStat icon={<Timer className="h-3.5 w-3.5" />} label="Response" value={s.responseTime} />
+          <MiniStat icon={<Building2 className="h-3.5 w-3.5" />} label={t.offerDetail_inBusinessLabel} value={yearsInBusinessLabel} />
+          <MiniStat icon={<Timer className="h-3.5 w-3.5" />} label={t.offerDetail_responseLabel} value={s.responseTime} />
         </div>
 
         {s.certifications.length > 0 && (
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">Certifications</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">{t.offerDetail_supplierCertificationsLabel}</p>
             <CertificationBadges certifications={s.certifications} size="sm" />
           </div>
         )}
 
         {isQualified && s.documentsReviewed.length > 0 && (
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1.5">Reviewed documents</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">{t.offerDetail_reviewedDocumentsLabel}</p>
             <ul className="space-y-1">
               {s.documentsReviewed.map((d) => (
                 <li key={d} className="flex items-center gap-1.5 text-xs text-foreground">
@@ -168,7 +184,7 @@ const SupplierTrustPanel = ({
 
         {isQualified && (
           <Button variant="outline" size="sm" className="w-full text-xs">
-            View Supplier Profile
+            {t.offerDetail_viewSupplierProfileCta}
           </Button>
         )}
       </div>
@@ -183,13 +199,13 @@ const SupplierTrustPanel = ({
           <>
             <Button className="w-full gap-2 font-semibold" size="lg"
               onClick={() => analytics.track("register_cta_offer_detail", { offerId: offer.id })}>
-              Contact Supplier <ArrowRight className="h-4 w-4" />
+              {t.offerDetail_contactSupplierCta} <ArrowRight className="h-4 w-4" />
             </Button>
             <Button variant="outline" className="w-full gap-2" size="sm">
-              <Bookmark className="h-4 w-4" /> Save to Shortlist
+              <Bookmark className="h-4 w-4" /> {t.offerDetail_saveToShortlistCta}
             </Button>
             <Button variant="ghost" className="w-full gap-2 text-muted-foreground" size="sm">
-              <GitCompareArrows className="h-4 w-4" /> Compare Similar Offers
+              <GitCompareArrows className="h-4 w-4" /> {t.offerDetail_compareSimilarOffersCta}
             </Button>
           </>
         ) : isRegisteredLocked ? (
