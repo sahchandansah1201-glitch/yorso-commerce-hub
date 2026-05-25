@@ -125,8 +125,11 @@ const SupplierTrustPanel = ({
           )}
           {s.verificationScope && (
             <button
+              type="button"
               onClick={() => setShowScope(!showScope)}
-              className="mt-1.5 inline-flex items-center gap-1 text-primary hover:underline"
+              className="mt-1.5 inline-flex min-h-11 items-center gap-1 rounded text-primary hover:underline"
+              aria-expanded={showScope}
+              data-offer-detail-mobile-target="supplier-review-scope"
             >
               <Info className="h-3 w-3" />
               {showScope ? "Hide details" : "What was reviewed?"}

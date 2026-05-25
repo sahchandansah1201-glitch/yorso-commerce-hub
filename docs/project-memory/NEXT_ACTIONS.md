@@ -2,9 +2,42 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Finish Batch #129 from branch `codex/batch129-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Commit the offer detail mobile accessibility fix, push the branch, open a draft PR, confirm GitHub `Core Type And Build Gate`, then merge and prepare the Batch #129 Lovable sync prompt.
+
+3. Keep the same buyer-first review lens for the next audit: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+
+## Batch #129 Local Validation Ready
+
+- Branch: `codex/batch129-public-runtime-ux-a11y-audit`.
+- Base: Batch #128 Lovable sync clean on `main` at `f1f482b`.
+- Scope: offer detail mobile accessibility on `/offers/:id`, the buyer decision route.
+- Runtime finding:
+  - visible gallery/photo buttons on offer detail were unnamed;
+  - back-to-catalog, breadcrumbs, delivery-basis chips, supplier verification disclosure and full specifications disclosure could render below the 44px mobile target baseline;
+  - no horizontal overflow or nested interactive controls were present before the fix.
+- Implemented fix:
+  - `PhotoGallery` exposes named previous/next/open-gallery controls, named thumbnails, named lightbox controls and 44px mobile-safe target boxes;
+  - new gallery control labels are locale-owned in EN/RU/ES through `src/i18n/translations.ts`;
+  - `OfferDetail` back-to-catalog and breadcrumb links meet the mobile target baseline without changing destinations;
+  - `OfferSummary` delivery-basis controls meet the mobile target baseline in locked and unlocked states;
+  - `SupplierTrustPanel` review-scope disclosure and `FullSpecifications` disclosure expose `aria-expanded` and mobile-safe target boxes;
+  - `e2e/offer-detail-mobile-a11y.spec.ts` covers marked mobile targets, named gallery/lightbox controls, no unnamed visible buttons, no nested controls and no horizontal overflow;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #129 10,000 concurrent-user note.
+- Preserved behavior: offer data, access gating, supplier identity redaction, exact-price locking, sticky CTAs, return-to-catalog behavior, route behavior, buyer-first narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards.
+- Local validation passed:
+  - focused runtime Playwright scan on `/offers/:id` at 390px: zero horizontal overflow, zero nested controls, zero unnamed visible buttons and zero marked targets below 44px;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-mobile-a11y.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-cta-semantics.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-detail-mobile-a11y.spec.ts --project=chromium`, 9 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 233 tests.
+- Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip. Large-chunk warning did not return.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #128 Lovable Sync Confirmed
 

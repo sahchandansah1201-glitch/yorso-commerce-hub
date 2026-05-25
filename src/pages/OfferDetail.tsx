@@ -191,7 +191,8 @@ const OfferDetail = () => {
           onClick={handleBack}
           data-testid="offer-detail-back-to-catalog"
           aria-label={t.offerDetail_backToCatalog}
-          className="mb-3 -ml-2 inline-flex max-w-full items-center gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground sm:gap-2 sm:px-3 sm:text-sm"
+          className="mb-3 -ml-2 inline-flex min-h-11 min-w-11 max-w-full items-center gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground sm:gap-2 sm:px-3 sm:text-sm"
+          data-offer-detail-mobile-target="back-to-catalog"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
           <span className="hidden truncate sm:inline md:hidden">{t.offerDetail_backToCatalogShort}</span>
@@ -261,11 +262,35 @@ const OfferDetail = () => {
 
         <nav aria-label={t.aria_breadcrumb} className="mb-5">
           <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
-            <li><Link to="/" className="hover:text-foreground transition-colors">{t.offerDetail_home}</Link></li>
+            <li>
+              <Link
+                to="/"
+                className="inline-flex min-h-11 items-center rounded px-1 transition-colors hover:text-foreground"
+                data-offer-detail-mobile-target="breadcrumb-home"
+              >
+                {t.offerDetail_home}
+              </Link>
+            </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link to="/offers" className="hover:text-foreground transition-colors">{t.offerDetail_offers}</Link></li>
+            <li>
+              <Link
+                to="/offers"
+                className="inline-flex min-h-11 items-center rounded px-1 transition-colors hover:text-foreground"
+                data-offer-detail-mobile-target="breadcrumb-offers"
+              >
+                {t.offerDetail_offers}
+              </Link>
+            </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
-            <li><Link to={`/offers?category=${encodeURIComponent(offer.category)}`} className="hover:text-foreground transition-colors">{offer.category}</Link></li>
+            <li>
+              <Link
+                to={`/offers?category=${encodeURIComponent(offer.category)}`}
+                className="inline-flex min-h-11 items-center rounded px-1 transition-colors hover:text-foreground"
+                data-offer-detail-mobile-target="breadcrumb-category"
+              >
+                {offer.category}
+              </Link>
+            </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none">{offer.productName}</li>
           </ol>
