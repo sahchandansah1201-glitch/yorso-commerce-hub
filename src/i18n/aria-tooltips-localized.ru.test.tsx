@@ -13,6 +13,9 @@ import { translations } from "@/i18n/translations";
 import Header from "@/components/landing/Header";
 import SignIn from "@/pages/SignIn";
 import OfferDetail from "@/pages/OfferDetail";
+import Suppliers from "@/pages/Suppliers";
+import Blog from "@/pages/Blog";
+import BlogArticle from "@/pages/BlogArticle";
 import RegisterDetails from "@/pages/register/RegisterDetails";
 import CountryPhoneInput from "@/components/registration/CountryPhoneInput";
 import { mockOffers } from "@/data/mockOffers";
@@ -115,6 +118,36 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
         </LanguageProvider>
       </MemoryRouter>,
     );
+    const { labels } = collectAttrs();
+    expect(labels).toContain(translations.ru.aria_breadcrumb);
+    expect(labels).not.toContain("Breadcrumb");
+  });
+
+  it("Blog routes: breadcrumb aria-label is Russian", () => {
+    renderRu("/blog", <Blog />);
+    let attrs = collectAttrs();
+    expect(attrs.labels).toContain(translations.ru.aria_breadcrumb);
+    expect(attrs.labels).not.toContain("Breadcrumb");
+
+    document.body.innerHTML = "";
+    render(
+      <MemoryRouter initialEntries={["/blog/atlantic-salmon-q1-price-pressure"]}>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Routes>
+              <Route path="/blog/:slug" element={<BlogArticle />} />
+            </Routes>
+          </TooltipProvider>
+        </LanguageProvider>
+      </MemoryRouter>,
+    );
+    attrs = collectAttrs();
+    expect(attrs.labels).toContain(translations.ru.aria_breadcrumb);
+    expect(attrs.labels).not.toContain("Breadcrumb");
+  });
+
+  it("Suppliers directory: breadcrumb aria-label is Russian", () => {
+    renderRu("/suppliers", <Suppliers />);
     const { labels } = collectAttrs();
     expect(labels).toContain(translations.ru.aria_breadcrumb);
     expect(labels).not.toContain("Breadcrumb");

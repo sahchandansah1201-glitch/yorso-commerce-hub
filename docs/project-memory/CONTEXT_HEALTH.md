@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "start next scoped public UX/UI audit batch"
+recommended_action: "finish Batch #133 PR and merge, then prepare Lovable sync"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
+active_branch: "codex/batch133-public-runtime-ux-a11y-audit"
 head_commit: "d1bf472"
 latest_merged_batch: 132
-active_workstream: "batch_132_public_offer_locale_a11y_hardening"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
-why_low: "Batch #132 is a scoped public frontend i18n/a11y hardening. Unit tests, tsc, lint, production-scale guard, dedicated Playwright smoke, full smoke:e2e:run and GitHub Core Type And Build Gate passed; PR #184 merged to main as ab46fd3; Lovable sync is confirmed clean at d1bf472."
+active_workstream: "batch_133_public_breadcrumb_locale_a11y"
+pull_request: "pending"
+why_low: "Batch #133 is a scoped public frontend i18n/a11y hardening on /suppliers, /blog and /blog/:slug. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard and full smoke:e2e:run passed locally on branch codex/batch133-public-runtime-ux-a11y-audit."
 ```
 
 ## Risk Levels
@@ -50,12 +50,16 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #132 public offer locale a11y hardening is merged to main as ab46fd3 via PR #184 and Lovable sync is confirmed clean at d1bf472; next step is start the next scoped public UX/UI audit batch.
+Current branch: codex/batch133-public-runtime-ux-a11y-audit.
+Current workstream: Batch #133 public breadcrumb locale a11y is locally implemented and validated; next step is commit, push, open PR, wait for GitHub Core Type And Build Gate, merge, then prepare Lovable sync.
 Current HEAD: main includes Batch #132 Lovable sync record d1bf472.
 Latest merged batch: Batch #132 public offer locale a11y is merged to main as ab46fd3 via PR #184.
 Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-132-lovable-sync.md.
 Lovable sync for Batch #132 is confirmed clean at d1bf472 with no conflicts and 7 focused tests passed.
+Batch #133 local scope: replace hardcoded English breadcrumb accessible names on /suppliers, /blog and /blog/:slug with the existing locale-owned aria_breadcrumb value while preserving supplier directory behavior, blog/article routing, SEO, mobile tap-target hardening and buyer-first content structure.
+Batch #133 local validation passed: npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx, 7 tests; npm run smoke:e2e:public-breadcrumb-locale-a11y, 3 tests after production build; npm run smoke:e2e:public-breadcrumb-locale-a11y:run, 3 tests; npm run smoke:e2e:blog-mobile-tap-targets:run, 2 tests; npm run smoke:e2e:suppliers-directory:run, 5 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 242 tests.
+Batch #133 changed files: src/pages/Suppliers.tsx, src/pages/Blog.tsx, src/pages/BlogArticle.tsx, src/i18n/aria-tooltips-localized.ru.test.tsx, e2e/public-breadcrumb-locale-a11y.spec.ts, package.json, docs/backend/production-scale-baseline.md and project-memory files.
+Batch #133 preserves Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary, Batches #117-#132 public UX/a11y safeguards, access gating, supplier identity redaction, price-lock, SEO route ownership and analytics.
 Batch #132 local scope: remove hardcoded Russian visible/programmatic labels from English public offer catalog cards and offer-detail commercial summary while preserving buyer access gating, supplier identity redaction and price lock.
 Batch #132 local validation passed: npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx, 4 tests; npx tsc -b --noEmit; npm run smoke:e2e:public-offer-locale-a11y, 2 tests after production build; npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 239 tests.
 Batch #132 was rebased onto origin/main 35317b0 without conflicts; post-rebase validation passed: focused unit tests, npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline and npm run smoke:e2e:public-offer-locale-a11y.

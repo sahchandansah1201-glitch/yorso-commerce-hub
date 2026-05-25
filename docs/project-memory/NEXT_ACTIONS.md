@@ -2,7 +2,8 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Finish Batch #133: commit the local branch, push it, open PR, wait for
+   GitHub `Core Type And Build Gate`, merge, then prepare Lovable sync.
 
 2. Keep the same buyer-first review lens: trust, clarity, scanability,
    conversion, SEO structure, accessibility semantics and supplier evidence as
@@ -10,6 +11,35 @@
 
 3. Preserve current known contracts unless the new audit finds a confirmed
    problem in code or runtime.
+
+## Batch #133 Local Validation Ready
+
+- Branch: `codex/batch133-public-runtime-ux-a11y-audit`.
+- Scope: public breadcrumb locale/a11y hardening for `/suppliers`, `/blog` and
+  `/blog/:slug`.
+- Runtime finding:
+  - these routes used hardcoded English `aria-label="Breadcrumb"` while the
+    rest of the page could be localized.
+- Implemented fix:
+  - `Suppliers`, `Blog` and `BlogArticle` use `t.aria_breadcrumb`;
+  - `aria-tooltips-localized.ru.test.tsx` covers Suppliers, Blog and
+    BlogArticle under RU;
+  - `e2e/public-breadcrumb-locale-a11y.spec.ts` covers `/suppliers`, `/blog`
+    and `/blog/atlantic-salmon-q1-price-pressure` at 390px;
+  - `package.json` wires the dedicated and full smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #133
+    10,000 concurrent-user review.
+- Local validation passed:
+  - `npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx`, 7 tests;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y`, 3 tests after
+    production build;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y:run`, 3 tests;
+  - `npm run smoke:e2e:blog-mobile-tap-targets:run`, 2 tests;
+  - `npm run smoke:e2e:suppliers-directory:run`, 5 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 242 tests.
 
 ## Batch #132 Lovable Sync Confirmed
 

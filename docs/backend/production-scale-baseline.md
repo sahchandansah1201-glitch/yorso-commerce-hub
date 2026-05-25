@@ -3145,6 +3145,76 @@ Marker: public offer locale a11y hardening.
 Marker: buyer decision scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #133 Public Breadcrumb Locale A11y
+
+Batch #133 localizes public breadcrumb landmark names on `/suppliers`, `/blog`
+and `/blog/:slug`. The scoped change replaces hardcoded English `Breadcrumb`
+accessible names with the existing locale-owned `aria_breadcrumb` copy. It
+preserves supplier directory behavior, blog content, article routing, SEO
+metadata, mobile tap-target hardening and buyer-first public structure.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier directory, blog and article routes continue to use the existing
+  static/local content paths.
+- Runtime work is limited to localized accessible names and browser regression
+  coverage.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No new translation keys are added; the batch reuses existing EN/RU/ES copy.
+- No queues, polling, retries, timers, subscriptions or background jobs are
+  introduced.
+- Request volume is unchanged at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Supplier directory sorting/filtering, blog list filtering and article slug
+  resolution remain unchanged.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, breadcrumb links remain native anchors.
+- If CSS fails, breadcrumb text remains readable and navigation order remains
+  intact.
+- If a locale is missing, the existing LanguageProvider fallback still supplies
+  the translation object.
+- English public routes keep the same `Breadcrumb` accessible name through the
+  EN translation, while RU/ES no longer hear hardcoded English.
+
+Observability and load-test plan:
+
+- Unit coverage verifies Suppliers, Blog and BlogArticle breadcrumbs use the
+  Russian `aria_breadcrumb` label and do not leak the hardcoded English label.
+- Browser smoke verifies `/suppliers`, `/blog` and `/blog/:slug` at 390px
+  expose `Хлебные крошки`, do not expose `Breadcrumb`, and keep zero
+  horizontal overflow.
+- Existing public smoke continues to verify heading structure, landmark labels,
+  skip-to-main, blog mobile tap targets and offer locale/a11y contracts.
+- No new load-test dimension is required because the change is static frontend
+  DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx`;
+- `npm run smoke:e2e:public-breadcrumb-locale-a11y`;
+- `npm run smoke:e2e:blog-mobile-tap-targets:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #133.
+Marker: public breadcrumb locale a11y.
+Marker: directory and insight route scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

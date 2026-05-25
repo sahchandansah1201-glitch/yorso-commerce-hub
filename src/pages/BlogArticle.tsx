@@ -321,7 +321,7 @@ const BlogArticle = () => {
         <div className="border-b border-border bg-background">
           <div className="container py-3">
             <nav
-              aria-label="Breadcrumb"
+              aria-label={t.aria_breadcrumb}
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
               <Link
