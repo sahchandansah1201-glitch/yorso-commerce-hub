@@ -204,7 +204,7 @@
 - `e2e/blog-mobile-tap-targets.spec.ts`: mobile browser guard for 44px marked blog tap targets and zero horizontal overflow at 390px.
 - `package.json`: dedicated public blog mobile tap-target smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #127 10,000 concurrent users capacity review for public blog mobile tap targets.
-- `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: Lovable sync prompt for Batch #127 after PR #178 merge.
+- `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: Lovable sync prompt for Batch #127 after PR #178 merge; user confirmed clean sync at `e8d096f`.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -461,4 +461,4 @@
 - `docs/project-memory/PROMPTS/prompt-120-lovable-sync.md`: sync confirmation prompt for Batch #120 auth CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-121-lovable-sync.md`: sync confirmation prompt for Batch #121 offer detail CTA semantics.
 - `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: sync confirmation prompt for Batch #122 public CTA semantics; user confirmed clean sync at `98335bd5`.
-- `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: sync confirmation prompt for Batch #127 public blog mobile tap targets.
+- `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: sync confirmation prompt for Batch #127 public blog mobile tap targets; user confirmed clean sync at `e8d096f`.

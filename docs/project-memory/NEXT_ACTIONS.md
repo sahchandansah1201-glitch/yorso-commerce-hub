@@ -2,16 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at `3aed8dd` or newer.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Use `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`, then confirm whether Lovable is clean or has concrete conflicts.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #127 Lovable Sync Ready
+## Batch #127 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`.
+- Lovable sync: clean at `e8d096f`, no conflicts and tree clean.
 - Scope: public blog mobile tap-target scanability on `/blog` and `/blog/:slug`.
 - Runtime finding:
   - no visible unnamed interactives, no focusable `aria-hidden` controls and no missing image alt issues on audited public routes;
@@ -35,6 +36,12 @@
   - `npm run smoke:e2e:run`, 221 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 12m16s.
+- Lovable confirmed:
+  - `src/pages/Blog.tsx` has target markers for breadcrumb-home, featured-read-article, filter-chip, read-article, topic-chip and see-all-updates;
+  - `src/pages/BlogArticle.tsx` has target markers for article-breadcrumb-home, article-breadcrumb-blog, mobile-toc-summary and mobile-toc-link;
+  - FAQ summaries and back-to-index use `min-h-11`, desktop TOC has rounded/py target improvement;
+  - `e2e/blog-mobile-tap-targets.spec.ts`, dedicated smoke script and full smoke wiring are present;
+  - Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are intact.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #126 Lovable Sync Confirmed

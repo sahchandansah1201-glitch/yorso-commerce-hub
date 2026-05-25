@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "main after Batch #127 Lovable sync prompt"
-  head_summary: "[codex] Add Batch 127 Lovable sync prompt"
+  head_commit: "main after Batch #127 Lovable sync record commit"
+  head_summary: "[codex] Record Batch 127 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #127 is merged; only project-memory and the Lovable sync prompt are updated in this checkpoint."
+    - "User confirmed Batch #127 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch127_lovable_sync_ready"
-  summary: "Batch #127 public blog mobile tap targets is merged and ready for Lovable sync."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #127 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
   confirmed_scope:
@@ -68,12 +68,15 @@ active_workstream:
 active_batch:
   id: 127
   summary: "Public blog mobile tap targets on /blog and blog article pages."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "3aed8dd"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "e8d096f"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit after Batch #126 found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on audited public routes."
     - "Mobile 390px runtime audit found /blog filter chips, popular topic chips, read-article links, see-all-updates link and some breadcrumbs below the 44px target baseline."
@@ -105,13 +108,28 @@ active_batch:
 latest_merged_batches:
   - id: 127
     summary: "Public blog mobile tap targets so /blog and blog articles expose 44px mobile-safe controls."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "3aed8dd"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-25"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to e8d096f on main, including Batch #127 3aed8dd / PR #178."
+        - "The working tree was clean and no conflicts were found."
+        - "src/pages/Blog.tsx has six data-blog-mobile-target markers: breadcrumb-home, featured-read-article, filter-chip, read-article, topic-chip and see-all-updates."
+        - "src/pages/BlogArticle.tsx has four data-blog-mobile-target markers: article-breadcrumb-home, article-breadcrumb-blog, mobile-toc-summary and mobile-toc-link."
+        - "BlogArticle FAQ summaries and back-to-index CTA have min-h-11, and desktop TOC has the rounded/py target improvement."
+        - "e2e/blog-mobile-tap-targets.spec.ts checks /blog and /blog/atlantic-salmon-q1-price-pressure at 390px for visibility, at least 44px by 44px target boxes and no horizontal overflow."
+        - "package.json includes smoke:e2e:blog-mobile-tap-targets, smoke:e2e:blog-mobile-tap-targets:run and full smoke:e2e:run wiring."
+        - "docs/backend/production-scale-baseline.md is present."
+        - "All marked /blog and /blog/:slug targets use min-h-11/min-w-11 helper classes where needed and meet the 44px mobile target guard."
+        - "Blog copy, routes, in-page anchors and SEO were not changed."
+        - "Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code-splitting strategy are intact."
+        - "Bundle metrics: CSS 126.67 kB / 20.99 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 314.40 kB / 99.06 kB gzip; Blog 19.10 kB / 4.83 kB gzip; BlogArticle 20.71 kB / 5.48 kB gzip."
+        - "The large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/pages/Blog.tsx"
       - "src/pages/BlogArticle.tsx"
@@ -743,11 +761,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Sync Lovable with GitHub main at 3aed8dd or newer."
-  - "Use docs/project-memory/PROMPTS/prompt-127-lovable-sync.md for the Lovable sync check."
-  - "Confirm no conflicts, no unexpected Lovable edits, and that blog mobile tap-target guards remain present."
+  - "Start the next scoped public UX/UI runtime audit from repository state."
+  - "Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure."
 
 last_confirmed_checks:
+  - "2026-05-25: User confirmed Lovable sync for Batch #127 is clean with no conflicts at e8d096f."
+  - "2026-05-25: Lovable confirmed Blog and BlogArticle mobile tap-target markers, e2e/blog-mobile-tap-targets.spec.ts, package smoke wiring, Batch #127 production-scale notes, preserved Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary, Batch #112 code-splitting and known warnings."
   - "2026-05-25: Batch #127 committed as ac0a4fd and merged to main as 3aed8dd via PR #178."
   - "2026-05-25: PR #178 Core Type And Build Gate passed on GitHub in 12m16s."
   - "2026-05-25: Batch #127 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-127-lovable-sync.md."

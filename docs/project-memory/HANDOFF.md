@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with GitHub `main` after Batch #127 and confirm the public blog mobile tap-target fix is present without conflicts.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -25,6 +25,8 @@ Sync Lovable with GitHub `main` after Batch #127 and confirm the public blog mob
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - GitHub `Core Type And Build Gate` passed on PR #178 in 12m16s.
 - Batch #127 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`.
+- Batch #127 Lovable sync is confirmed clean at `e8d096f`, with no conflicts and no local file modifications in Lovable.
+- Lovable confirmed `Blog.tsx` six target markers, `BlogArticle.tsx` four target markers plus `min-h-11` on FAQ/back-to-index, the blog mobile tap-target e2e guard, package smoke wiring, Batch #127 production-scale notes, preserved Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 route chunk error boundary and Batch #112 code splitting.
 - Batch #127 runtime audit after Batch #126 found no visible unnamed interactives, no focusable `aria-hidden` controls and no missing image alt issues on audited public routes.
 - Batch #127 mobile 390px audit found concrete blog-surface target defects:
   - `/blog` filter chips, popular topic chips, `Read article` links, `See all updates` and some breadcrumbs could render below the 44px target baseline;
@@ -45,7 +47,7 @@ Sync Lovable with GitHub `main` after Batch #127 and confirm the public blog mob
   - `npm run smoke:e2e:blog-mobile-tap-targets`, 2 tests after production build;
   - `npm run smoke:e2e:run`, 221 tests.
 - Batch #127 preserves blog copy, article content, routes, SEO, buyer-first narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-- Next step: use `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md` to sync Lovable with GitHub `main` at `3aed8dd` or newer and report clean/conflict status.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #126 public skip-to-main target is merged to `main` as `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`, via PR #177.
 - PR #177 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
 - GitHub `Core Type And Build Gate` passed on PR #177 in 11m54s.

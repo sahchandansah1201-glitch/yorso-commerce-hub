@@ -1018,3 +1018,10 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #178 `Core Type And Build Gate` passed in 12m16s.
 - Marked PR #178 ready and merged it to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`.
 - Added `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md` for Batch #127 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #127 is clean:
+  - HEAD is `e8d096f` on `main`, including Batch #127 `3aed8dd` / PR #178;
+  - `Blog.tsx`, `BlogArticle.tsx`, `e2e/blog-mobile-tap-targets.spec.ts`, package smoke wiring and Batch #127 production-scale notes are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - `/blog` and `/blog/:slug` mobile targets are marked, min-h/min-w hardened where needed and covered by the 390px e2e guard;
+  - blog copy, routes, in-page anchors, SEO, Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
