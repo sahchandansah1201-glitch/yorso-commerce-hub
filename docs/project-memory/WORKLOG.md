@@ -1333,3 +1333,10 @@ Keep this file factual and append-only.
 - Recorded Batch #134 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip.
 - Batch #134 preserved supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing, directory/profile approval bridge, buyer-first narrative, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#133 public UX/a11y safeguards.
 - Batch #134 preserved known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Committed Batch #134 as `033df30`, `[codex] Batch #134 supplier directory locale a11y`.
+- Pushed branch `codex/batch-134-supplier-directory-locale-a11y` to `origin`.
+- Opened draft PR #186: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
+- GitHub `Core Type And Build Gate` initially failed in the full browser smoke on the known `e2e/suppliers-directory-paging.spec.ts` test. The new `suppliers-directory-locale-a11y` spec passed in that run.
+- Reran the failed GitHub job without code changes. The rerun passed `Core Type And Build Gate` in 12m07s.
+- Marked PR #186 ready and squash-merged it to `main` as `6cd21e9`, `[codex] Batch #134 supplier directory locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #134.

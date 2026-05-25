@@ -2,23 +2,29 @@
 
 ## Current Next Action
 
-1. Open a scoped PR for Batch #134 from
-   `codex/batch-134-supplier-directory-locale-a11y`.
+1. Sync Lovable with GitHub `main` after Batch #134 using
+   `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
 
-2. Let GitHub `Core Type And Build Gate` validate the batch. If the existing
-   `suppliers-directory-paging` flake appears, rerun once before changing code.
+2. Ask Lovable for the required seven-section sync report:
+   GitHub commit synced, files/routes checked, conflicts, supplier directory
+   locale/a11y status, supplier directory behavior status, bundle/code-splitting
+   status and remaining known warnings.
 
-3. After merge, create the Batch #134 Lovable sync prompt and wait for Lovable
-   clean-sync confirmation.
+3. If Lovable reports no conflicts, record the clean sync in project memory.
+   If Lovable reports conflicts, inspect the concrete files before changing
+   anything.
 
 4. Preserve current known contracts: buyer-first supplier directory narrative,
    access gating, supplier identity redaction, price-lock, sorting/filtering,
    pagination, supplier profile routing, Batch #112 code splitting and Batch
    #113 route chunk error boundary.
 
-## Batch #134 Local Validation Ready
+## Batch #134 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch-134-supplier-directory-locale-a11y`.
+- Branch: `main`.
+- Merge commit: `6cd21e9`, `[codex] Batch #134 supplier directory locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
 - Scope: public supplier directory locale/a11y hardening for `/suppliers`.
 - Runtime finding:
   - supplier rows and selected supplier panel still exposed hardcoded English
@@ -49,6 +55,11 @@
   - `npm run check:production-scale-baseline`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 243 tests.
+- GitHub validation:
+  - PR #186 `Core Type And Build Gate` passed after one rerun;
+  - the first failed run was the known `suppliers-directory-paging` flake;
+  - the new `suppliers-directory-locale-a11y` spec passed in the failed run and
+    the rerun passed the full gate without code changes.
 - Preserved:
   - supplier directory search/sort/filter/page-size/pagination;
   - supplier profile routing and directory/profile approval bridge;

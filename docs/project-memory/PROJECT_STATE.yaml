@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch-134-supplier-directory-locale-a11y"
-  head_commit: "batch_134_local_validation_passed_pending_commit"
-  head_summary: "Batch #134 supplier directory locale a11y implemented locally and ready for PR"
+  active_branch: "main"
+  head_commit: "main_after_batch_134_lovable_sync_prompt"
+  head_summary: "Batch #134 supplier directory locale a11y merged and Lovable sync prompt ready"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #134 source, tests, package wiring, production-scale note and project-memory updates are pending commit."
+    - "Batch #134 Lovable sync prompt and post-merge project-memory updates are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_134_supplier_directory_locale_a11y"
-  summary: "Localize supplier-directory trust labels and image alt text under RU/ES."
-  status: "implemented_local_validation_passed"
-  branch: "codex/batch-134-supplier-directory-locale-a11y"
-  pull_request: null
+  id: "batch_134_lovable_sync"
+  summary: "Sync Lovable with merged Batch #134 supplier directory locale a11y."
+  status: "ready_for_lovable_sync"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -57,6 +57,7 @@ active_workstream:
     - "e2e/suppliers-directory-locale-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
+    - "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
@@ -67,10 +68,11 @@ active_workstream:
 active_batch:
   id: 134
   summary: "Supplier directory locale a11y: /suppliers trust labels and image alt text use locale-owned copy."
-  status: "implemented_local_validation_passed"
-  commit: "pending_local_commit"
-  branch: "codex/batch-134-supplier-directory-locale-a11y"
-  pull_request: null
+  status: "merged_to_main_github_validated_lovable_sync_prompt_ready"
+  commit: "6cd21e9"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
   confirmed_findings:
     - "`/suppliers` selected supplier aside used hardcoded English `aria-label=\"Selected supplier\"`."
     - "`SupplierRow` used hardcoded English `aria-label=\"Supplier signals\"`."
@@ -94,6 +96,7 @@ active_batch:
     - "npm run check:production-scale-baseline."
     - "git diff --check."
     - "npm run smoke:e2e:run, 243 tests."
+    - "GitHub Core Type And Build Gate passed on PR #186 after one rerun; the first failed run was the known suppliers-directory-paging flake, while the new suppliers-directory-locale-a11y spec passed."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip."
   preserved_behavior:
     - "Supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing and directory/profile approval bridge are preserved."
@@ -103,6 +106,27 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 134
+    summary: "Supplier directory locale a11y hardening so /suppliers trust labels and image alt text use locale-owned copy."
+    status: "merged_to_main_lovable_sync_pending"
+    commit: "6cd21e9"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
+      confirmed_at: null
+      head: "6cd21e9_or_newer"
+      result: "pending"
+    confirmed_files:
+      - "src/pages/Suppliers.tsx"
+      - "src/pages/Suppliers.i18n.test.tsx"
+      - "src/components/suppliers/SupplierRow.tsx"
+      - "src/components/suppliers/SelectedSupplierPanel.tsx"
+      - "src/components/suppliers/__snapshots__/SupplierRow.snapshot.test.tsx.snap"
+      - "src/i18n/translations.ts"
+      - "e2e/suppliers-directory-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-134-lovable-sync.md"
   - id: 133
     summary: "Public breadcrumb locale a11y hardening so /suppliers, /blog and /blog/:slug use locale-owned breadcrumb landmark names."
     status: "merged_to_main_lovable_sync_clean"

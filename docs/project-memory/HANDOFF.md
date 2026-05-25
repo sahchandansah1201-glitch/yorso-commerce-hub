@@ -16,12 +16,17 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Finish Batch #134 supplier directory locale a11y: open the scoped PR, let GitHub validate it, then prepare the Lovable sync prompt after merge.
+Sync Lovable with Batch #134 supplier directory locale a11y, then record the Lovable clean-sync result or concrete conflicts.
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch-134-supplier-directory-locale-a11y`.
-- Batch #134 supplier directory locale a11y is implemented locally and ready for PR.
+- The repository is currently on branch `main`.
+- Batch #134 supplier directory locale a11y is merged to `main` as `6cd21e9`,
+  `[codex] Batch #134 supplier directory locale a11y`, via PR #186:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
+- Batch #134 Lovable sync prompt is ready:
+  `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md`.
+- Batch #134 Lovable sync is pending.
 - Batch #134 scoped finding:
   - `/suppliers` still exposed hardcoded English programmatic trust labels under localized UI:
     `Selected supplier`, `Supplier signals`, `Product catalog preview` and `Delivery markets preview`;
@@ -44,9 +49,15 @@ Finish Batch #134 supplier directory locale a11y: open the scoped PR, let GitHub
   - `npm run check:production-scale-baseline`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 243 tests.
+- Batch #134 GitHub validation passed:
+  - PR #186 `Core Type And Build Gate` initially failed on the known
+    `suppliers-directory-paging` flake;
+  - the new `suppliers-directory-locale-a11y` spec passed in that failed run;
+  - one rerun passed the full gate without code changes.
 - Batch #134 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip.
 - Batch #134 preserves supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing, directory/profile approval bridge, buyer-first narrative, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#133 public UX/a11y safeguards.
-- Next step: commit Batch #134, push branch, open PR, wait for GitHub `Core Type And Build Gate`, merge, then prepare Lovable sync.
+- Next step: use `docs/project-memory/PROMPTS/prompt-134-lovable-sync.md` to
+  sync Lovable and wait for the seven-section sync report.
 - Historical baseline:
 - Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
   `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:

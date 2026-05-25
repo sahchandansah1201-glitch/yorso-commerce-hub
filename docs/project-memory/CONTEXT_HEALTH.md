@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "open PR for Batch #134 supplier directory locale a11y"
+recommended_action: "sync Lovable for Batch #134"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-134-supplier-directory-locale-a11y"
-head_commit: "batch_134_local_validation_passed_pending_commit"
-latest_merged_batch: 133
-active_workstream: "batch_134_supplier_directory_locale_a11y"
-pull_request: null
-why_low: "Batch #134 is implemented locally on codex/batch-134-supplier-directory-locale-a11y. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard, build and full smoke:e2e:run passed."
+active_branch: "main"
+head_commit: "main_after_batch_134_lovable_sync_prompt"
+latest_merged_batch: 134
+active_workstream: "batch_134_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
+why_low: "Batch #134 is merged to main as 6cd21e9 and the Lovable sync prompt is ready. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed after one rerun for an existing supplier-directory-paging flake."
 ```
 
 ## Risk Levels
@@ -50,11 +50,11 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch-134-supplier-directory-locale-a11y.
-Current workstream: Batch #134 supplier directory locale a11y is implemented locally and ready for PR/GitHub validation.
-Current HEAD: local Batch #134 candidate branch, pending commit/push.
-Latest merged batch: Batch #133 public breadcrumb locale a11y is merged to main as ca1438b via PR #185.
-Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-133-lovable-sync.md.
+Current branch: main.
+Current workstream: Batch #134 supplier directory locale a11y is merged; next step is Lovable sync.
+Current HEAD: main includes Batch #134 merge commit 6cd21e9 and the Batch #134 Lovable sync prompt record.
+Latest merged batch: Batch #134 supplier directory locale a11y is merged to main as 6cd21e9 via PR #186.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-134-lovable-sync.md.
 Lovable sync for Batch #133 is confirmed clean by the user at main @ Batch #133, ca1438b or newer, with no conflicts.
 Lovable sync for Batch #132 is confirmed clean at d1bf472 with no conflicts and 7 focused tests passed.
 Batch #133 scope: replace hardcoded English breadcrumb accessible names on /suppliers, /blog and /blog/:slug with the existing locale-owned aria_breadcrumb value while preserving supplier directory behavior, blog/article routing, SEO, mobile tap-target hardening and buyer-first content structure.
@@ -66,6 +66,8 @@ Lovable confirmed Batch #133 files/routes checked: src/pages/Suppliers.tsx, src/
 Batch #134 scope: localize public supplier-directory trust labels and image alt text on /suppliers while preserving supplier directory behavior, access gating, supplier identity redaction, shortlist behavior, sorting/filtering/pagination and supplier profile routing.
 Batch #134 finding: /suppliers still exposed hardcoded English programmatic labels and alt phrases for selected supplier, supplier signals, product catalog preview, delivery markets preview, hero reference image and product preview images under RU.
 Batch #134 local validation passed: npx vitest run src/pages/Suppliers.i18n.test.tsx src/components/suppliers/SupplierRow.test.tsx src/components/suppliers/SupplierRow.snapshot.test.tsx, 24 tests; npm run smoke:e2e:suppliers-directory-locale-a11y, 1 test after production build; npm run smoke:e2e:suppliers-directory:run, 5 passed with one retry-resolved existing paging flake; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; git diff --check; npm run smoke:e2e:run, 243 tests.
+Batch #134 GitHub validation passed: PR #186 Core Type And Build Gate passed after one rerun; the first failure was the known suppliers-directory-paging test and the new suppliers-directory-locale-a11y spec passed in that failed run.
+Batch #134 merge: PR #186 was marked ready and squash-merged to main as 6cd21e9, [codex] Batch #134 supplier directory locale a11y (#186).
 Batch #132 local scope: remove hardcoded Russian visible/programmatic labels from English public offer catalog cards and offer-detail commercial summary while preserving buyer access gating, supplier identity redaction and price lock.
 Batch #132 local validation passed: npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx, 4 tests; npx tsc -b --noEmit; npm run smoke:e2e:public-offer-locale-a11y, 2 tests after production build; npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 239 tests.
 Batch #132 was rebased onto origin/main 35317b0 without conflicts; post-rebase validation passed: focused unit tests, npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline and npm run smoke:e2e:public-offer-locale-a11y.
