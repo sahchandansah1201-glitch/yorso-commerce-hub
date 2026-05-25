@@ -2,20 +2,56 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #135 supplier profile logo locale a11y from branch
+   `codex/batch-135-supplier-profile-logo-locale-a11y`.
 
-2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
-   accessibility, locale, trust, scanability or SEO-structure issue in code or
-   browser behavior before changing files.
+2. Push the branch and open the Batch #135 PR.
 
-3. Keep the same buyer-first review lens: trust, clarity, scanability,
-   conversion, SEO structure, accessibility semantics and supplier evidence as
-   a trust mechanism.
+3. Watch GitHub `Core Type And Build Gate`; rerun once if the known supplier
+   directory paging flake appears without a new Batch #135 failure.
 
-4. Preserve current known contracts: buyer-first supplier directory narrative,
-   access gating, supplier identity redaction, price-lock, sorting/filtering,
-   pagination, supplier profile routing, Batch #112 code splitting and Batch
-   #113 route chunk error boundary.
+4. Preserve current known contracts: supplier profile route behavior, access
+   gating, supplier identity redaction, approval refresh, profile tabs,
+   directory/profile bridge, buyer-first trust narrative, Batch #112 code
+   splitting and Batch #113 route chunk error boundary.
+
+## Batch #135 In Progress
+
+- Branch: `codex/batch-135-supplier-profile-logo-locale-a11y`.
+- Scope: public supplier profile logo locale/a11y hardening for `/suppliers/:id`.
+- Runtime finding:
+  - `SupplierLogoCard` used hardcoded Russian wrapper aria-label copy:
+    `Логотип {name}`;
+  - supplier logo image alt text used hardcoded English suffix: `{name} logo`;
+  - this exposed wrong-locale programmatic copy on the supplier trust route.
+- Implemented fix:
+  - `src/pages/SupplierProfile.tsx` derives the logo wrapper `aria-label` and
+    image `alt` from `interpolate(t.supplier_logo_aria, { name })`;
+  - `src/pages/__tests__/SupplierProfile.i18n.test.tsx` guards EN/RU/ES
+    supplier logo accessible names and image alt text;
+  - `e2e/supplier-profile-logo-locale-a11y.spec.ts` covers
+    `/suppliers/sup-no-001` at 390px in EN/RU/ES, wrong-locale leakage,
+    nested controls and horizontal overflow;
+  - `package.json` wires the dedicated and full smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #135
+    10,000 concurrent-user review.
+- Focused validation already passed:
+  - `npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx`, 24 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:supplier-profile-logo-locale-a11y`, 3 tests after production build;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:supplier-profile-detail:run`, 4 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - explicit `SupplierProfile` unit suite, 81 tests passed and 2 skipped.
+- Final validation also passed:
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 246 tests.
+- Preserved:
+  - supplier profile route behavior, access gating, supplier identity redaction,
+    approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112
+    route splitting, Batch #113 route chunk boundary and Batches #110-#134
+    public UX/a11y safeguards.
 
 ## Batch #134 Lovable Sync Confirmed
 

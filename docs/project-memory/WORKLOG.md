@@ -1348,3 +1348,28 @@ Keep this file factual and append-only.
   - supplier directory behavior, access gating, redaction, exact-price/supplier locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#133 are preserved;
   - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Recorded Batch #134 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
+- Started Batch #135 on `codex/batch-135-supplier-profile-logo-locale-a11y`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens on `/suppliers/:id` and found wrong-locale supplier logo programmatic copy:
+  - `SupplierLogoCard` used hardcoded Russian wrapper aria-label copy, `Логотип {name}`;
+  - supplier logo image alt text used hardcoded English suffix, `{name} logo`.
+- Implemented Batch #135 supplier profile logo locale a11y hardening:
+  - `src/pages/SupplierProfile.tsx` now derives both supplier logo wrapper `aria-label` and image `alt` from the existing `supplier_logo_aria` EN/RU/ES template;
+  - `src/pages/__tests__/SupplierProfile.i18n.test.tsx` now guards EN/RU/ES supplier logo accessible names and image alt text;
+  - added `e2e/supplier-profile-logo-locale-a11y.spec.ts` for `/suppliers/sup-no-001` at 390px in EN/RU/ES;
+  - wired `smoke:e2e:supplier-profile-logo-locale-a11y` and the full smoke suite in `package.json`;
+  - added Batch #135 production-scale notes to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #135 focused local validation:
+  - `npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx` passed, 24 tests;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:supplier-profile-logo-locale-a11y` passed, 3 tests after production build;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y:run` passed, 2 tests;
+  - `npm run smoke:e2e:supplier-profile-detail:run` passed, 4 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - explicit `SupplierProfile` unit suite passed, 81 tests passed and 2 skipped.
+- Confirmed Batch #135 final validation:
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 246 tests.
+- Recorded Batch #135 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.16 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; SupplierProfile 60.58 kB / 15.43 kB gzip.
+- Batch #135 preserves supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards.
+- Known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.

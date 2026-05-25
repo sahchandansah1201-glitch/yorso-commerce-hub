@@ -243,7 +243,9 @@ const SupplierLogoCard = ({
   displayName?: string;
   showLogoImage?: boolean;
 }) => {
+  const { t } = useLanguage();
   const nameForLabel = displayName ?? supplier.companyName;
+  const logoLabel = interpolate(t.supplier_logo_aria, { name: nameForLabel });
   const initials = getCompanyInitials(nameForLabel);
   // Hero — 80→86px. Mini — 28→32px (sticky-хедер). Плавный переход на md.
   const isHero = priority === "hero";
@@ -294,7 +296,7 @@ const SupplierLogoCard = ({
     <div
       className={`relative flex shrink-0 items-center justify-center overflow-hidden border border-border bg-card ${radius} ${ring} ${sizeClasses} ${motionReduceLockdown} ${className}`}
       style={sizeStyle}
-      aria-label={`Логотип ${nameForLabel}`}
+      aria-label={logoLabel}
     >
       {showImage ? (
         <>
@@ -306,7 +308,7 @@ const SupplierLogoCard = ({
           )}
           <img
             src={supplier.logoImage}
-            alt={`${nameForLabel} logo`}
+            alt={logoLabel}
             className={`h-full w-full object-contain p-1 transition-opacity duration-200 ${
               status === "loaded" ? "opacity-100" : "opacity-0"
             }`}

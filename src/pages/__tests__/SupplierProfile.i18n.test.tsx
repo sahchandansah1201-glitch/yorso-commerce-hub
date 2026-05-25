@@ -18,7 +18,8 @@ import SupplierProfile from "@/pages/SupplierProfile";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { mockSuppliers } from "@/data/mockSuppliers";
-import type { Language } from "@/i18n/translations";
+import { translations, type Language } from "@/i18n/translations";
+import { interpolate } from "@/lib/supplier-i18n";
 
 const SUPPLIER_ID = "sup-no-001"; // Nordfjord Sjømat AS — Norway
 
@@ -126,6 +127,39 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
       expect(typeof json.description).toBe("string");
       expect(json.description).toMatch(/Norway/);
     });
+  });
+
+  it("localizes supplier logo accessible name and image alt text", () => {
+    const supplier = mockSuppliers.find((s) => s.id === SUPPLIER_ID)!;
+    const originalLogo = supplier.logoImage;
+    supplier.logoImage = "/logos/nordfjord.svg";
+
+    try {
+      for (const lang of ["en", "ru", "es"] as const) {
+        renderWithLang(lang);
+        const expected = interpolate(translations[lang].supplier_logo_aria, {
+          name: supplier.companyName,
+        });
+        const labels = Array.from(
+          document.querySelectorAll<HTMLElement>("[aria-label]"),
+        ).map((el) => el.getAttribute("aria-label") ?? "");
+
+        expect(labels).toContain(expected);
+        expect(screen.getAllByAltText(expected).length).toBeGreaterThan(0);
+      }
+
+      renderWithLang("en");
+      expect(
+        Array.from(document.querySelectorAll<HTMLElement>("[aria-label]"))
+          .map((el) => el.getAttribute("aria-label") ?? "")
+          .some((label) => label.includes("Логотип")),
+      ).toBe(false);
+
+      renderWithLang("ru");
+      expect(screen.queryByAltText("Nordfjord Sjømat AS logo")).toBeNull();
+    } finally {
+      supplier.logoImage = originalLogo;
+    }
   });
 
   describe("RU перевод через localizeSupplier", () => {
@@ -352,4 +386,3 @@ describe("SupplierProfile · локализация RU/ES/EN", () => {
     });
   });
 });
-

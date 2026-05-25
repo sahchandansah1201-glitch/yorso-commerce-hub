@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch"
+recommended_action: "commit Batch #135 and open PR"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main_after_batch_134_lovable_sync_record"
+active_branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
+head_commit: "batch_135_final_validation_passed_pending_commit"
 latest_merged_batch: 134
-active_workstream: "next_scoped_public_ux_ui_audit"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186"
-why_low: "Batch #134 is merged to main as 6cd21e9 and Lovable sync is confirmed clean by the user at main @ Batch #134, 6cd21e9 or newer. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed after one rerun for an existing supplier-directory-paging flake."
+active_workstream: "batch_135_supplier_profile_logo_locale_a11y"
+pull_request: null
+why_low: "Batch #135 is a narrow public supplier-profile locale/a11y change. Focused unit, dedicated Playwright smoke, supplier-profile compatibility smokes, TypeScript, lint, diff check, production-scale guard and full smoke:e2e:run have passed; commit and PR are next."
 ```
 
 ## Risk Levels
@@ -50,12 +50,16 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #134 supplier directory locale a11y is merged and Lovable sync is confirmed clean; next step is the next scoped public UX/UI audit batch.
-Current HEAD: main includes the Batch #134 Lovable sync record on top of merge commit 6cd21e9.
+Current branch: codex/batch-135-supplier-profile-logo-locale-a11y.
+Current workstream: Batch #135 supplier profile logo locale a11y is implemented locally and final validation passed; next step is commit and PR.
+Current HEAD: local Batch #135 branch has uncommitted implementation and memory updates pending final commit.
 Latest merged batch: Batch #134 supplier directory locale a11y is merged to main as 6cd21e9 via PR #186.
 Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-134-lovable-sync.md.
 Lovable sync for Batch #134 is confirmed clean by the user at main @ Batch #134, 6cd21e9 or newer, with no conflicts and no file modifications.
+Batch #135 scope: localize supplier profile logo accessible name and image alt text on /suppliers/:id using the existing supplier_logo_aria translation template while preserving supplier profile route behavior.
+Batch #135 finding: SupplierLogoCard used hardcoded Russian wrapper aria-label `Логотип {name}` and hardcoded English image alt `{name} logo`, creating wrong-locale programmatic copy on the supplier trust route.
+Batch #135 implementation: SupplierProfile derives the logo wrapper aria-label and image alt from `interpolate(t.supplier_logo_aria, { name })`; SupplierProfile.i18n.test.tsx guards EN/RU/ES; e2e/supplier-profile-logo-locale-a11y.spec.ts covers `/suppliers/sup-no-001` at 390px in EN/RU/ES; package smoke wiring and Batch #135 production-scale notes are present.
+Batch #135 validation passed: npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx, 24 tests; npm run check:production-scale-baseline; npm run smoke:e2e:supplier-profile-logo-locale-a11y, 3 tests after production build; npm run smoke:e2e:supplier-profile-mobile-a11y:run, 2 tests; npm run smoke:e2e:supplier-profile-detail:run, 4 tests; npx tsc -b --noEmit; npm run lint; explicit SupplierProfile unit suite, 81 tests passed and 2 skipped; git diff --check; npm run smoke:e2e:run, 246 tests.
 Lovable sync for Batch #133 is confirmed clean by the user at main @ Batch #133, ca1438b or newer, with no conflicts.
 Lovable sync for Batch #132 is confirmed clean at d1bf472 with no conflicts and 7 focused tests passed.
 Batch #133 scope: replace hardcoded English breadcrumb accessible names on /suppliers, /blog and /blog/:slug with the existing locale-owned aria_breadcrumb value while preserving supplier directory behavior, blog/article routing, SEO, mobile tap-target hardening and buyer-first content structure.
