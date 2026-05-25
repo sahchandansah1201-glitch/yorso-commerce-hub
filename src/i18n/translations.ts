@@ -3688,6 +3688,25 @@ const ru: TranslationKeys = {
     { text: "Новый верифицированный поставщик: Austral Fisheries (Австралия)", time: "1ч назад" },
   ],
 
+  marketStats_title: "Пульс маркетплейса · за сутки",
+  marketStats_subtitle: "Агрегированная активность платформы — оценка по внутренним сигналам.",
+  marketStats_items: [
+    { label: "Активных офферов", value: "1 247" },
+    { label: "Верифицированных поставщиков онлайн", value: "86" },
+    { label: "Запросов доступа к ценам", value: "312" },
+    { label: "Стран поставки", value: "48" },
+  ],
+  pulse_viewing: "{n} покупателей смотрят сейчас",
+  pulse_requests: "{n} запросов доступа за час",
+  pulse_estimate: "оценка",
+  marketPulse_title: "Пульс рынка",
+  marketPulse_viewing: "{n} покупателей смотрят это предложение",
+  marketPulse_rfqs: "{n} RFQ по категории за 24ч",
+  marketPulse_response: "Среднее время ответа поставщиков: {time}",
+  marketPulse_priceMoves: "{n} изменений цен за 7 дней",
+  marketPulse_estimate: "Оценка по активности платформы, не live-данные рынка.",
+
+
   social_title: "От скептиков к постоянным пользователям",
   social_subtitle: "Реальные истории закупщиков, которые обожглись раньше — и нашли кое-что лучше.",
   social_testimonials: [
