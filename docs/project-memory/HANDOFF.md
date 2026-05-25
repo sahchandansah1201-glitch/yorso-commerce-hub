@@ -20,8 +20,12 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch-135-supplier-profile-logo-locale-a11y`.
-- Batch #135 supplier profile logo locale a11y is implemented locally and final validation has passed; commit and PR are pending.
+- The repository is currently on branch `main`.
+- Batch #135 supplier profile logo locale a11y is merged to `main` as `eb23d5f`,
+  `[codex] Batch #135 supplier profile logo locale a11y`, via PR #187:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.
+- Batch #135 Lovable sync prompt is ready:
+  `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
 - Batch #135 scoped finding:
   - `/suppliers/:id` `SupplierLogoCard` mixed locale-owned UI with hardcoded logo programmatic copy;
   - the wrapper used `aria-label={`Логотип ${nameForLabel}`}` regardless of active locale;
@@ -43,6 +47,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - explicit `SupplierProfile` unit suite, 81 tests passed and 2 skipped.
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 246 tests.
+- Batch #135 GitHub validation passed:
+  - PR #187 `Core Type And Build Gate` passed in 12m21s.
 - Batch #135 preserves supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards.
 - Batch #134 supplier directory locale a11y is merged to `main` as `6cd21e9`,
   `[codex] Batch #134 supplier directory locale a11y`, via PR #186:
@@ -93,7 +99,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
     locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112
     code splitting, Batch #113 route chunk error boundary and Batches #110-#133
     are preserved.
-- Next step: commit Batch #135, push and open PR.
+- Next step: sync Lovable with GitHub `main` using
+  `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
 - Historical baseline:
 - Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
   `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:

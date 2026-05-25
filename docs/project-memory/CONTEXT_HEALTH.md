@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "commit Batch #135 and open PR"
+recommended_action: "sync Lovable with Batch #135"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
-head_commit: "batch_135_final_validation_passed_pending_commit"
-latest_merged_batch: 134
-active_workstream: "batch_135_supplier_profile_logo_locale_a11y"
-pull_request: null
-why_low: "Batch #135 is a narrow public supplier-profile locale/a11y change. Focused unit, dedicated Playwright smoke, supplier-profile compatibility smokes, TypeScript, lint, diff check, production-scale guard and full smoke:e2e:run have passed; commit and PR are next."
+active_branch: "main"
+head_commit: "main_after_batch_135_lovable_sync_prompt"
+latest_merged_batch: 135
+active_workstream: "batch_135_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187"
+why_low: "Batch #135 is merged to main as eb23d5f via PR #187. Local focused unit, dedicated Playwright smoke, supplier-profile compatibility smokes, TypeScript, lint, diff check, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed. Lovable sync prompt is ready."
 ```
 
 ## Risk Levels
@@ -50,11 +50,13 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch-135-supplier-profile-logo-locale-a11y.
-Current workstream: Batch #135 supplier profile logo locale a11y is implemented locally and final validation passed; next step is commit and PR.
-Current HEAD: local Batch #135 branch has uncommitted implementation and memory updates pending final commit.
-Latest merged batch: Batch #134 supplier directory locale a11y is merged to main as 6cd21e9 via PR #186.
-Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-134-lovable-sync.md.
+Current branch: main.
+Current workstream: Batch #135 supplier profile logo locale a11y is merged; next step is Lovable sync using docs/project-memory/PROMPTS/prompt-135-lovable-sync.md.
+Current HEAD: main includes Batch #135 merge commit eb23d5f plus the Batch #135 Lovable sync prompt commit.
+Latest merged batch: Batch #135 supplier profile logo locale a11y is merged to main as eb23d5f via PR #187.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-135-lovable-sync.md.
+Batch #135 GitHub validation passed: PR #187 Core Type And Build Gate passed in 12m21s.
+Batch #135 changed files: src/pages/SupplierProfile.tsx, src/pages/__tests__/SupplierProfile.i18n.test.tsx, e2e/supplier-profile-logo-locale-a11y.spec.ts, package.json, docs/backend/production-scale-baseline.md and project-memory files.
 Lovable sync for Batch #134 is confirmed clean by the user at main @ Batch #134, 6cd21e9 or newer, with no conflicts and no file modifications.
 Batch #135 scope: localize supplier profile logo accessible name and image alt text on /suppliers/:id using the existing supplier_logo_aria translation template while preserving supplier profile route behavior.
 Batch #135 finding: SupplierLogoCard used hardcoded Russian wrapper aria-label `Логотип {name}` and hardcoded English image alt `{name} logo`, creating wrong-locale programmatic copy on the supplier trust route.

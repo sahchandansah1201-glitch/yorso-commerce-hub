@@ -2,22 +2,24 @@
 
 ## Current Next Action
 
-1. Commit Batch #135 supplier profile logo locale a11y from branch
-   `codex/batch-135-supplier-profile-logo-locale-a11y`.
+1. Sync Lovable with GitHub `main` after Batch #135.
 
-2. Push the branch and open the Batch #135 PR.
+2. Use `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md` as the sync
+   prompt.
 
-3. Watch GitHub `Core Type And Build Gate`; rerun once if the known supplier
-   directory paging flake appears without a new Batch #135 failure.
+3. Confirm Lovable reports either a clean sync or a concrete conflict list.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting and Batch #113 route chunk error boundary.
 
-## Batch #135 In Progress
+## Batch #135 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch-135-supplier-profile-logo-locale-a11y`.
+- Branch: `main`.
+- Merge commit: `eb23d5f`, `[codex] Batch #135 supplier profile logo locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
 - Scope: public supplier profile logo locale/a11y hardening for `/suppliers/:id`.
 - Runtime finding:
   - `SupplierLogoCard` used hardcoded Russian wrapper aria-label copy:
@@ -47,6 +49,8 @@
 - Final validation also passed:
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 246 tests.
+- GitHub validation passed:
+  - PR #187 `Core Type And Build Gate`, 12m21s.
 - Preserved:
   - supplier profile route behavior, access gating, supplier identity redaction,
     approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112

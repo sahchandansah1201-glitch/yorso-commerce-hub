@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
-  head_commit: "batch_135_local_validation_passed_pending_commit"
-  head_summary: "Batch #135 supplier profile logo locale a11y implemented locally and final validation passed; pending commit/PR"
+  active_branch: "main"
+  head_commit: "main_after_batch_135_lovable_sync_prompt"
+  head_summary: "Batch #135 supplier profile logo locale a11y merged to main; Lovable sync prompt ready"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #135 implementation and project-memory updates are intentionally pending commit."
+    - "Batch #135 Lovable sync prompt and post-merge project-memory updates are intentionally pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_135_supplier_profile_logo_locale_a11y"
-  summary: "Public supplier profile logo accessible name and image alt text use locale-owned copy."
-  status: "final_validation_passed_pending_commit"
-  branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
-  pull_request: null
+  id: "batch_135_lovable_sync"
+  summary: "Sync Lovable after Batch #135 supplier profile logo locale a11y merge."
+  status: "pending_lovable_sync"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Batch #135 is scoped to `/suppliers/:id` supplier-profile logo locale/a11y only."
@@ -59,14 +59,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-135-lovable-sync.md"
 
 active_batch:
   id: 135
   summary: "Supplier profile logo locale a11y: /suppliers/:id supplier logo accessible name and image alt text use the existing locale-owned supplier_logo_aria template."
-  status: "final_validation_passed_pending_commit"
-  commit: null
-  branch: "codex/batch-135-supplier-profile-logo-locale-a11y"
-  pull_request: null
+  status: "merged_to_main_pending_lovable_sync"
+  commit: "eb23d5f"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-135-lovable-sync.md"
   confirmed_findings:
     - "`/suppliers/:id` `SupplierLogoCard` used a hardcoded Russian wrapper aria-label template: `Логотип {name}`."
     - "`/suppliers/:id` supplier logo image alt text used a hardcoded English suffix: `{name} logo`."
@@ -147,6 +149,22 @@ last_lovable_synced_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 135
+    summary: "Supplier profile logo locale a11y hardening so /suppliers/:id logo accessible names and image alt text use locale-owned copy."
+    status: "merged_to_main_pending_lovable_sync"
+    commit: "eb23d5f"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-135-lovable-sync.md"
+      confirmed_at: null
+      result: "pending"
+    confirmed_files:
+      - "src/pages/SupplierProfile.tsx"
+      - "src/pages/__tests__/SupplierProfile.i18n.test.tsx"
+      - "e2e/supplier-profile-logo-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-135-lovable-sync.md"
   - id: 134
     summary: "Supplier directory locale a11y hardening so /suppliers trust labels and image alt text use locale-owned copy."
     status: "merged_to_main_lovable_sync_clean"

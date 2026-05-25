@@ -1373,3 +1373,9 @@ Keep this file factual and append-only.
 - Recorded Batch #135 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.16 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; SupplierProfile 60.58 kB / 15.43 kB gzip.
 - Batch #135 preserves supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards.
 - Known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
+- Committed Batch #135 as `93aaf3f`, `[codex] Batch #135 supplier profile logo locale a11y`.
+- Pushed branch `codex/batch-135-supplier-profile-logo-locale-a11y` to `origin`.
+- Opened draft PR #187: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.
+- GitHub `Core Type And Build Gate` passed on PR #187 in 12m21s.
+- Marked PR #187 ready and squash-merged it to `main` as `eb23d5f`, `[codex] Batch #135 supplier profile logo locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #135.
