@@ -1132,3 +1132,9 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:run` passed, 235 tests.
 - Recorded Batch #130 build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip.
 - Batch #130 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #130 as `984e05a`, `[codex] Batch #130 supplier profile mobile accessibility`.
+- Pushed branch `codex/batch130-public-runtime-ux-a11y-audit` to `origin`.
+- Opened Draft PR #181: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
+- Confirmed GitHub PR #181 `Core Type And Build Gate` passed in 12m26s.
+- Marked PR #181 ready and merged it to `main` as `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`.
+- Added `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md` for Batch #130 Lovable sync confirmation.

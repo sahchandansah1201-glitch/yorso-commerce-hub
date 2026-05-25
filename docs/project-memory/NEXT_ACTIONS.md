@@ -2,18 +2,21 @@
 
 ## Current Next Action
 
-1. Commit Batch #130 from `codex/batch130-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` using `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
 
-2. Push the branch, open a draft PR, wait for GitHub `Core Type And Build Gate`, mark ready and merge.
+2. Confirm Lovable reports clean sync, or capture any concrete conflict list before further edits.
 
-3. After merge, create the Batch #130 Lovable sync prompt and update project memory again.
+3. After clean Lovable sync, start the next scoped public UX/UI audit batch.
 
 4. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #130 Local Validation Complete
+## Batch #130 Lovable Sync Ready
 
-- Branch: `codex/batch130-public-runtime-ux-a11y-audit`.
-- Base head: `2550a29`, `[codex] Add Batch 129 Lovable sync prompt`.
+- Branch: `main`.
+- Merge commit: `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`.
+- Base: Batch #129 Lovable sync clean on `main` at `2550a29`.
 - Scope: supplier profile mobile accessibility on `/suppliers/:id`, the supplier trust/supply route.
 - Runtime finding:
   - breadcrumb `Home` and `Suppliers` links could render below the 44px mobile target baseline;
@@ -36,6 +39,8 @@
   - `npm run smoke:e2e:supplier-profile-mobile-a11y`, 2 tests after production build;
   - `npm run smoke:e2e:run`, 235 tests.
 - Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip. Large-chunk warning did not return.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 12m26s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #129 Lovable Sync Confirmed
