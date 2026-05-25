@@ -64,21 +64,20 @@ const PulseBadge = ({ offerId, variant = "viewing", className }: Props) => {
     return () => window.clearInterval(id);
   }, [offerId, min, max, visible]);
 
-  if (!visible) return null;
-
   const tpl = variant === "viewing" ? t.pulse_viewing : t.pulse_requests;
   const label = tpl.replace("{n}", String(count));
   const accessibleLabel = `${label}. ${t.pulse_estimate}`;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success transition-opacity duration-500 ${className ?? ""}`}
-      aria-label={accessibleLabel}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium transition-opacity duration-500 ${visible ? "bg-success/10 text-success opacity-100" : "bg-transparent text-transparent opacity-0"} ${className ?? ""}`}
+      aria-label={visible ? accessibleLabel : undefined}
+      aria-hidden={!visible}
       data-testid="pulse-badge"
-      title={t.pulse_estimate}
+      title={visible ? t.pulse_estimate : undefined}
     >
       <span className="relative flex h-1.5 w-1.5" aria-hidden>
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
+        <span className={`absolute inline-flex h-full w-full rounded-full bg-success opacity-75 motion-reduce:animate-none ${visible ? "animate-ping" : ""}`} />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
       </span>
       <span>{label}</span>
