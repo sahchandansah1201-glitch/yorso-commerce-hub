@@ -663,7 +663,7 @@ const Suppliers = () => {
 
               {/* Selected supplier panel — sticky on desktop, stacked below on mobile */}
               <aside
-                aria-label="Selected supplier"
+                aria-label={t.selectedSupplier_aboutLabel}
                 className="lg:sticky lg:top-20 lg:self-start"
               >
                 <SelectedSupplierPanel

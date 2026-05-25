@@ -3215,6 +3215,78 @@ Marker: public breadcrumb locale a11y.
 Marker: directory and insight route scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #134 Supplier Directory Locale A11y
+
+Batch #134 localizes supplier-directory programmatic trust labels on
+`/suppliers`. The scoped change replaces hardcoded English accessible names and
+image alt phrases in supplier rows and the selected supplier panel with
+locale-owned EN/RU/ES strings. It preserves buyer-first directory content,
+supplier identity redaction, access gating, shortlist behavior, sorting,
+filtering, pagination and supplier profile routing.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier directory list/detail data paths are unchanged; the route continues
+  to use the existing API/local fallback flow.
+- Runtime work is limited to translation lookups for accessible names and image
+  alt text, plus regression coverage.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- Translation bundle size increases only by a small set of static strings.
+- No queues, polling, retries, timers, subscriptions or background jobs are
+  introduced.
+- Request volume is unchanged at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- URL-backed supplier sorting, filtering, page-size and pagination behavior are
+  preserved.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, supplier rows and profile links remain
+  readable native content.
+- If CSS fails, supplier trust evidence, catalog preview and delivery preview
+  remain visible text/images.
+- If a locale is missing during development, TypeScript catches the translation
+  contract.
+- Locked supplier identity, contact channels, exact catalog breadth and exact
+  delivery geography remain hidden until qualified access.
+
+Observability and load-test plan:
+
+- Unit coverage verifies RU supplier directory accessible names and image alt
+  text no longer leak hardcoded English labels.
+- Browser smoke verifies `/suppliers` at 390px exposes RU accessible names for
+  selected supplier, trust signals, catalog preview and delivery preview, keeps
+  localized image alt text and has zero horizontal overflow.
+- Existing supplier-directory smoke continues to verify URL-backed sorting,
+  filtering, pagination and locked search behavior.
+- No new load-test dimension is required because the change is static frontend
+  DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/pages/Suppliers.i18n.test.tsx`;
+- `npm run smoke:e2e:suppliers-directory-locale-a11y`;
+- `npm run smoke:e2e:suppliers-directory:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #134.
+Marker: supplier directory locale a11y.
+Marker: supplier trust mechanism scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

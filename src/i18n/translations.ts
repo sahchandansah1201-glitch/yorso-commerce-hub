@@ -1107,6 +1107,11 @@ type TranslationKeys = {
   supplierRow_activeOffersHidden: string; // "Active offers — request access"
   supplierRow_moreProductsSr: string; // sr-only — must contain "More products after access" in EN
   supplierRow_moreMarketsSr: string;  // sr-only — must contain "More markets after access" in EN
+  supplierRow_signalsAria: string;
+  supplierRow_productCatalogPreviewAria: string;
+  supplierRow_deliveryMarketsPreviewAria: string;
+  supplierRow_heroImageAlt: string;
+  supplierRow_productPreviewAlt: string;
   selectedSupplier_activeOffersHidden: string;
   // Selected supplier panel
   selectedSupplier_emptyTitle: string;
@@ -2936,6 +2941,11 @@ const en: TranslationKeys = {
   supplierRow_activeOffersHidden: "Active offers — request access",
   supplierRow_moreProductsSr: " — More products after access",
   supplierRow_moreMarketsSr: " — More markets after access",
+  supplierRow_signalsAria: "Supplier signals",
+  supplierRow_productCatalogPreviewAria: "Product catalog preview",
+  supplierRow_deliveryMarketsPreviewAria: "Delivery markets preview",
+  supplierRow_heroImageAlt: "{species} reference image for {name}",
+  supplierRow_productPreviewAlt: "{species} ({form}) product preview from {name}",
   selectedSupplier_emptyTitle: "Select a supplier to review details",
   selectedSupplier_emptyBody: "Select a supplier to review product focus, trust evidence, and access options.",
   selectedSupplier_quickPreview: "Quick preview",
@@ -4736,6 +4746,11 @@ const ru: TranslationKeys = {
   supplierRow_activeOffersHidden: "Активные офферы — запросите доступ",
   supplierRow_moreProductsSr: " — Больше товаров после получения доступа",
   supplierRow_moreMarketsSr: " — Больше рынков после получения доступа",
+  supplierRow_signalsAria: "Сигналы поставщика",
+  supplierRow_productCatalogPreviewAria: "Превью каталога товаров",
+  supplierRow_deliveryMarketsPreviewAria: "Превью рынков доставки",
+  supplierRow_heroImageAlt: "Референсное изображение: {species}, {name}",
+  supplierRow_productPreviewAlt: "Превью товара: {species} ({form}), {name}",
   selectedSupplier_emptyTitle: "Выберите поставщика для деталей",
   selectedSupplier_emptyBody: "Выберите поставщика, чтобы увидеть продуктовый профиль, подтверждения и опции доступа.",
   selectedSupplier_quickPreview: "Быстрый предпросмотр",
@@ -6536,6 +6551,11 @@ const es: TranslationKeys = {
   supplierRow_activeOffersHidden: "Ofertas activas — solicita acceso",
   supplierRow_moreProductsSr: " — Más productos tras el acceso",
   supplierRow_moreMarketsSr: " — Más mercados tras el acceso",
+  supplierRow_signalsAria: "Señales del proveedor",
+  supplierRow_productCatalogPreviewAria: "Vista del catálogo de productos",
+  supplierRow_deliveryMarketsPreviewAria: "Vista de mercados de entrega",
+  supplierRow_heroImageAlt: "Imagen de referencia: {species}, {name}",
+  supplierRow_productPreviewAlt: "Vista de producto: {species} ({form}), {name}",
   selectedSupplier_emptyTitle: "Selecciona un proveedor para ver detalles",
   selectedSupplier_emptyBody: "Selecciona un proveedor para revisar enfoque de producto, evidencia de confianza y opciones de acceso.",
   selectedSupplier_quickPreview: "Vista rápida",

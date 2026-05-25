@@ -125,7 +125,10 @@ const SupplierRowImpl = ({
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted md:aspect-auto md:h-full md:min-h-[220px]">
               <img
                 src={supplier.heroImage}
-                alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
+                alt={interpolate(t.supplierRow_heroImageAlt, {
+                  species: supplier.productFocus[0]?.species ?? "Seafood",
+                  name: displayName,
+                })}
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover"
               />
@@ -248,7 +251,7 @@ const SupplierRowImpl = ({
               )}
 
               <div
-                aria-label="Supplier signals"
+                aria-label={t.supplierRow_signalsAria}
                 className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 text-xs md:pt-5"
               >
                 {isUnlocked ? (
@@ -292,13 +295,17 @@ const SupplierRowImpl = ({
                   </div>
                   <div
                     className="mt-2 flex items-center gap-2"
-                    aria-label="Product catalog preview"
+                    aria-label={t.supplierRow_productCatalogPreviewAria}
                   >
                     {catalogPreview.map((item, i) => (
                       <img
                         key={`${item.image}-${i}`}
                         src={item.image}
-                        alt={`${item.species} (${item.form}) product preview from ${displayName}`}
+                        alt={interpolate(t.supplierRow_productPreviewAlt, {
+                          species: item.species,
+                          form: item.form,
+                          name: displayName,
+                        })}
                         loading="lazy"
                         className="h-12 w-12 shrink-0 rounded-md border border-border object-cover"
                         title={item.name}
@@ -330,7 +337,7 @@ const SupplierRowImpl = ({
                   </div>
                   <div
                     className="mt-2 flex flex-wrap items-center gap-1.5 text-xs"
-                    aria-label="Delivery markets preview"
+                    aria-label={t.supplierRow_deliveryMarketsPreviewAria}
                   >
                     {previewDeliveries.map((d) => (
                       <span

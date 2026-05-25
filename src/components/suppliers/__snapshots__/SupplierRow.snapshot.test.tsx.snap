@@ -79,7 +79,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for a
         >
           <a
             aria-label="Open supplier profile: Norwegian salmon producer · NO-114"
-            class="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
+            class="block min-h-11 hover:text-primary hover:underline focus:outline-none focus-visible:underline md:min-h-0"
             data-testid="supplier-row-title-link"
             href="/suppliers/sup-no-001"
           >
@@ -482,10 +482,10 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for a
           </p>
         </div>
         <div
-          class="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch"
+          class="mt-1 flex flex-col items-stretch gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             Create account
@@ -508,7 +508,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for a
           </button>
           <a
             aria-label="Open profile: Norwegian salmon producer · NO-114"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full gap-2 justify-center"
             data-testid="supplier-row-open-profile"
             href="/suppliers/sup-no-001"
           >
@@ -516,7 +516,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for a
           </a>
           <button
             aria-pressed="false"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             <svg
@@ -624,7 +624,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for q
         >
           <a
             aria-label="Open supplier profile: Nordfjord Sjømat AS"
-            class="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
+            class="block min-h-11 hover:text-primary hover:underline focus:outline-none focus-visible:underline md:min-h-0"
             data-testid="supplier-row-title-link"
             href="/suppliers/sup-no-001"
           >
@@ -967,10 +967,10 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for q
           </div>
         </div>
         <div
-          class="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch"
+          class="mt-1 flex flex-col items-stretch gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             Open supplier profile
@@ -993,7 +993,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for q
           </button>
           <a
             aria-label="Open profile: Nordfjord Sjømat AS"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full gap-2 justify-center"
             data-testid="supplier-row-open-profile"
             href="/suppliers/sup-no-001"
           >
@@ -1001,7 +1001,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for q
           </a>
           <button
             aria-pressed="false"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             <svg
@@ -1109,7 +1109,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for r
         >
           <a
             aria-label="Open supplier profile: Norwegian salmon producer · NO-114"
-            class="hover:text-primary hover:underline focus:outline-none focus-visible:underline"
+            class="block min-h-11 hover:text-primary hover:underline focus:outline-none focus-visible:underline md:min-h-0"
             data-testid="supplier-row-title-link"
             href="/suppliers/sup-no-001"
           >
@@ -1512,10 +1512,10 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for r
           </p>
         </div>
         <div
-          class="mt-1 flex flex-row items-center gap-2 md:flex-col md:items-stretch"
+          class="mt-1 flex flex-col items-stretch gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             Request supplier access
@@ -1538,7 +1538,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for r
           </button>
           <a
             aria-label="Open profile: Norwegian salmon producer · NO-114"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full gap-2 justify-center"
             data-testid="supplier-row-open-profile"
             href="/suppliers/sup-no-001"
           >
@@ -1546,7 +1546,7 @@ exports[`SupplierRow — visual structure snapshots > matches DOM snapshot for r
           </a>
           <button
             aria-pressed="false"
-            class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 gap-2"
+            class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground min-h-11 rounded-md px-3 py-2 sm:h-9 sm:min-h-0 sm:py-0 w-full justify-center gap-2"
             type="button"
           >
             <svg
