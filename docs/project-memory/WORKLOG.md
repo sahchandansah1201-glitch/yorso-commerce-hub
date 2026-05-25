@@ -1098,3 +1098,13 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #180 `Core Type And Build Gate` passed in 12m46s.
 - Marked PR #180 ready and merged it to `main` as `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`.
 - Added `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md` for Batch #129 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #129 is clean:
+  - HEAD is `2550a29` on `main`, including Batch #129 PR #180 `f81ee18`;
+  - `PhotoGallery.tsx`, `OfferSummary.tsx`, `SupplierTrustPanel.tsx`, `FullSpecifications.tsx`, `OfferDetail.tsx`, `translations.ts`, `e2e/offer-detail-mobile-a11y.spec.ts` and `package.json` were checked;
+  - no conflicts were found and files were not modified in Lovable;
+  - `PhotoGallery.tsx` uses `useLanguage()` and gallery control names are localized in EN/RU/ES;
+  - `data-offer-detail-mobile-target` markers are present for gallery controls, delivery basis controls, disclosures, back-to-catalog and breadcrumbs;
+  - supplier review scope and full specifications disclosures expose `aria-expanded`;
+  - access gating, supplier identity redaction, price lock and Batch #121 CTA semantics are unchanged;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#128 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

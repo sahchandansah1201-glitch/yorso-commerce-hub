@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "f81ee18"
-  head_summary: "[codex] Batch #129 offer detail mobile accessibility (#180)"
+  head_commit: "2550a29"
+  head_summary: "[codex] Add Batch 129 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #129 is merged to main; only Batch #129 Lovable sync prompt and project-memory checkpoint are being added."
+    - "User confirmed Batch #129 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,8 +38,8 @@ project_identity:
 
 active_workstream:
   id: "ready_for_next_public_ux_batch"
-  summary: "Batch #129 is merged; prepare Lovable sync confirmation, then start the next scoped public UX/UI audit batch."
-  status: "merged_to_main_lovable_prompt_ready"
+  summary: "Batch #129 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
   confirmed_scope:
@@ -70,12 +70,15 @@ active_workstream:
 active_batch:
   id: 129
   summary: "Offer detail mobile accessibility: named gallery/lightbox controls, 44px buyer decision targets and disclosure states on /offers/:id."
-  status: "merged_to_main_lovable_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "f81ee18"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "2550a29"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit at 390px found unnamed visible offer photo/gallery buttons on /offers/:id."
     - "The back-to-catalog control, breadcrumbs, delivery-basis chips, supplier review-scope disclosure and full-specifications disclosure could render below the 44px mobile target baseline."
@@ -109,13 +112,27 @@ active_batch:
 latest_merged_batches:
   - id: 129
     summary: "Offer detail mobile accessibility so /offers/:id exposes named gallery controls, mobile-safe buyer decision targets and accessible disclosure states."
-    status: "merged_to_main_lovable_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "f81ee18"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-25"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
+      head: "2550a29"
+      user_confirmed:
+        - "GitHub commit synced to 2550a29 on main, including PR #180 f81ee18."
+        - "The working tree was clean and no conflicts were found."
+        - "PhotoGallery, OfferSummary, SupplierTrustPanel, FullSpecifications, OfferDetail, translations, e2e/offer-detail-mobile-a11y.spec.ts and package wiring were checked."
+        - "PhotoGallery uses useLanguage and gallery control names are localized in EN/RU/ES."
+        - "data-offer-detail-mobile-target markers are present for gallery previous/next/open/thumbnail, supplier-review-scope, full-specifications, delivery-basis, back-to-catalog and breadcrumbs."
+        - "Supplier review scope and full specifications disclosures expose aria-expanded."
+        - "Access gating, supplier identity redaction, price lock and Batch #121 CTA semantics were not touched."
+        - "Batch #112 code splitting remains unchanged, no manual vendor chunks were added, and Batch #113 RouteChunkErrorBoundary is preserved."
+        - "Batches #110-#128 remain preserved, including #125 landmarks, #126 skip-to-main, #127 blog tap targets and #128 auth/registration accessibility."
+        - "Bundle metrics: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip."
+        - "The large-chunk warning did not return."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/components/offer-detail/PhotoGallery.tsx"
       - "src/pages/OfferDetail.tsx"

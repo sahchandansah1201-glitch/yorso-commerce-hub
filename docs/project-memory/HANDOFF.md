@@ -25,6 +25,10 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - PR #180 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
 - GitHub `Core Type And Build Gate` passed on PR #180 in 12m46s.
 - Batch #129 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
+- Batch #129 Lovable sync is confirmed clean at `2550a29`, with no conflicts and no file modifications in Lovable.
+- Lovable confirmed `PhotoGallery.tsx`, `OfferSummary.tsx`, `SupplierTrustPanel.tsx`, `FullSpecifications.tsx`, `OfferDetail.tsx`, `translations.ts`, `e2e/offer-detail-mobile-a11y.spec.ts` and `package.json` are present and aligned.
+- Lovable confirmed `PhotoGallery.tsx` uses `useLanguage()` and gallery control names are localized in EN/RU/ES.
+- Lovable confirmed `data-offer-detail-mobile-target` markers, `aria-expanded` disclosures, preserved access gating, supplier identity redaction, price lock, Batch #121 CTA semantics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#128.
 - Base state: Batch #128 public auth and registration accessibility is merged to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`, and Lovable sync is confirmed clean at `f1f482b`.
 - Batch #129 runtime audit focused on `/offers/:id`, the buyer decision route.
 - Batch #129 findings:
@@ -50,7 +54,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 233 tests.
 - Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip.
 - Batch #129 preserves offer data, access gating, supplier identity redaction, exact-price locking, sticky CTAs, return-to-catalog behavior, route behavior, buyer-first narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards.
-- Next step: sync Lovable with GitHub `main` using `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #129.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.

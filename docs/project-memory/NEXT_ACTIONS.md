@@ -2,18 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #129.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Use `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md` and confirm whether Lovable sync is clean or has concrete conflicts.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-3. After Lovable sync is confirmed, start the next scoped public UX/UI audit batch with the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
-
-## Batch #129 Merged, Lovable Sync Pending
+## Batch #129 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
+- Lovable sync: clean at `2550a29`, no conflicts and no files modified in Lovable.
 - Base: Batch #128 Lovable sync clean on `main` at `f1f482b`.
 - Scope: offer detail mobile accessibility on `/offers/:id`, the buyer decision route.
 - Runtime finding:
@@ -43,6 +42,12 @@
 - GitHub validation passed:
   - `Core Type And Build Gate`, 12m46s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
+- Lovable confirmed:
+  - `PhotoGallery.tsx` uses `useLanguage()` and gallery control names are localized in EN/RU/ES;
+  - `data-offer-detail-mobile-target` markers are present on gallery controls, delivery basis controls, disclosures, back-to-catalog and breadcrumbs;
+  - supplier review scope and full specifications disclosures expose `aria-expanded`;
+  - access gating, supplier identity redaction, price lock and Batch #121 CTA semantics are unchanged;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#128 are preserved.
 
 ## Batch #128 Lovable Sync Confirmed
 
