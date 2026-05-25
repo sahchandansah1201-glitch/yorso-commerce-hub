@@ -987,3 +987,28 @@ Keep this file factual and append-only.
   - Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are intact;
   - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #127 on `codex/batch127-public-runtime-ux-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #126:
+  - no visible unnamed interactives were found on audited public routes;
+  - no focusable `aria-hidden` controls were found;
+  - no missing image alt issues were found;
+  - mobile 390px target-size audit found undersized targets on `/blog` filter chips, popular topic chips, read links, see-all-updates and some breadcrumbs;
+  - mobile 390px target-size audit found undersized targets on `/blog/:slug` breadcrumbs and mobile TOC links.
+- Implemented Batch #127 public blog mobile tap targets:
+  - added reusable mobile target classes in `src/pages/Blog.tsx`;
+  - enlarged existing blog breadcrumbs, filter chips, read links, popular topic chips and see-all-updates link without changing destinations or copy;
+  - added reusable mobile target classes in `src/pages/BlogArticle.tsx`;
+  - enlarged existing article breadcrumbs, mobile TOC summary/links, FAQ summaries and back-to-index CTA without changing article content or SEO;
+  - added `e2e/blog-mobile-tap-targets.spec.ts`;
+  - wired `smoke:e2e:blog-mobile-tap-targets` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #127 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #127 local validation:
+  - post-fix runtime Playwright scan passed for `/blog` and `/blog/atlantic-salmon-q1-price-pressure` at 390px: zero marked targets below 44px and zero horizontal overflow;
+  - `E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium` passed, 2 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:blog-mobile-tap-targets` passed, 2 tests after production build;
+  - `npm run smoke:e2e:run` passed, 221 tests.
+- Batch #127 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

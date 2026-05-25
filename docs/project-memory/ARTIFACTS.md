@@ -197,6 +197,14 @@
 - `docs/backend/production-scale-baseline.md`: Batch #126 10,000 concurrent users capacity review for the public skip-to-main target.
 - `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`: Lovable sync prompt for Batch #126 after PR #177 merge; user confirmed clean sync at `6a27659`.
 
+## Batch #127 Public Blog Mobile Tap Targets
+
+- `src/pages/Blog.tsx`: mobile-safe target zones for existing blog breadcrumbs, filter chips, article read links, popular topic chips and see-all-updates link.
+- `src/pages/BlogArticle.tsx`: mobile-safe target zones for existing article breadcrumbs, mobile TOC summary/links, FAQ summaries and back-to-index CTA.
+- `e2e/blog-mobile-tap-targets.spec.ts`: mobile browser guard for 44px marked blog tap targets and zero horizontal overflow at 390px.
+- `package.json`: dedicated public blog mobile tap-target smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #127 10,000 concurrent users capacity review for public blog mobile tap targets.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

@@ -2,9 +2,35 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #127 public blog mobile tap targets from branch `codex/batch127-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Push the branch, open a draft PR, watch GitHub `Core Type And Build Gate`, merge if clean, then create the Batch #127 Lovable sync prompt.
+
+## Batch #127 Local Validation Ready
+
+- Branch: `codex/batch127-public-runtime-ux-a11y-audit`.
+- Scope: public blog mobile tap-target scanability on `/blog` and `/blog/:slug`.
+- Runtime finding:
+  - no visible unnamed interactives, no focusable `aria-hidden` controls and no missing image alt issues on audited public routes;
+  - `/blog` had undersized mobile targets on filter chips, popular topic chips, read links, see-all-updates and some breadcrumbs;
+  - `/blog/:slug` had undersized mobile targets on breadcrumbs and mobile TOC links.
+- Implemented fix:
+  - existing blog breadcrumbs, filter chips, read links, popular topic chips and see-all-updates link now have mobile-safe target zones;
+  - existing blog article breadcrumbs, mobile TOC summary/links, FAQ summaries and back-to-index CTA now have mobile-safe target zones;
+  - `e2e/blog-mobile-tap-targets.spec.ts` checks marked controls at 390px for at least 44px width and height, plus no horizontal overflow;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #127 10,000 concurrent-user note.
+- Preserved behavior: blog copy, article content, routes, link destinations, SEO, buyer-first narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Local validation passed:
+  - post-fix runtime Playwright scan for `/blog` and `/blog/atlantic-salmon-q1-price-pressure` at 390px found zero marked targets below 44px and zero horizontal overflow;
+  - `E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium`, 2 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:blog-mobile-tap-targets`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 221 tests.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #126 Lovable Sync Confirmed
 

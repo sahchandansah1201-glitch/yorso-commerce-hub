@@ -2728,6 +2728,73 @@ Marker: public skip-to-main target.
 Marker: header main keyboard scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #127 Public Blog Mobile Tap Targets
+
+Batch #127 fixes mobile scanability and tap precision on the public insights
+surface after Batch #126. Blog filter chips, article-read actions, popular
+topic chips, blog breadcrumbs and mobile article table-of-contents links now
+use mobile-safe target zones while preserving copy, route destinations, article
+data, SEO metadata, buyer narrative, supplier trust positioning, access gating,
+supplier identity redaction, price locks and route shell behavior.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Blog post data, article reads, catalog reads, supplier reads, auth behavior
+  and info/legal routes are unchanged.
+- The only runtime change is CSS class hardening for existing blog links,
+  buttons and disclosure controls.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter public-route or blog request volume at the 10,000
+  concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier pagination, blog content data, auth persistence or account
+  persistence.
+- Blog content remains static client data loaded through the existing route
+  chunk strategy.
+
+Failure mode and graceful degradation:
+
+- Blog filters, topic buttons, article links, breadcrumbs and table-of-contents
+  anchors remain normal buttons and links.
+- If CSS fails, the underlying controls still expose the same labels and
+  destinations.
+- If JavaScript hydration is delayed, article links and in-page anchors remain
+  normal browser navigation targets.
+
+Observability and load-test plan:
+
+- Regression coverage should assert selected blog mobile controls expose at
+  least 44px by 44px target boxes at 390px.
+- Browser smoke verifies `/blog` and a representative `/blog/:slug` route keep
+  zero horizontal overflow while preserving existing route rendering.
+- Existing public route smoke continues to verify route rendering, mobile
+  overflow, nested-control absence, input accessibility, heading structure,
+  landmark naming, skip-to-main behavior, access gating, supplier redaction,
+  price locks and route chunk recovery.
+
+Validation:
+
+- `npm run smoke:e2e:blog-mobile-tap-targets`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #127.
+Marker: public blog mobile tap targets.
+Marker: insights route mobile scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
