@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch after Batch #131 Lovable sync"
+recommended_action: "publish Batch #132 PR and then prepare Lovable sync after merge"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main_head_after_batch_131_lovable_sync_record"
+active_branch: "codex/batch132-public-runtime-ux-a11y-audit"
+head_commit: "batch_132_branch_head_after_rebase"
 latest_merged_batch: 131
-active_workstream: "ready_for_next_public_ux_batch"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
-why_low: "Batch #131 is merged to main as 8590361 via PR #183 and Lovable sync is confirmed clean at 6655d11 with no conflicts."
+active_workstream: "batch_132_public_offer_locale_a11y_hardening"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
+why_low: "Batch #132 is a scoped public frontend i18n/a11y hardening. Unit tests, tsc, lint, production-scale guard, dedicated Playwright smoke and full smoke:e2e:run have passed locally; the branch was rebased onto origin/main 35317b0 without conflicts."
 ```
 
 ## Risk Levels
@@ -50,22 +50,28 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #131 Lovable sync is confirmed clean; next step is the next scoped public UX/UI audit batch.
-Current HEAD: main includes the Batch #131 Lovable sync record.
+Current branch: codex/batch132-public-runtime-ux-a11y-audit.
+Current workstream: Batch #132 public offer locale a11y hardening is implemented, validated and open as PR #184; next step is GitHub gate and merge if clean.
+Current HEAD: branch is rebased onto origin/main 35317b0.
 Latest merged batch: Batch #131 public Pulse estimate disclosure is merged to main as 8590361 via PR #183.
-Lovable sync prompt: docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
+Batch #132 local scope: remove hardcoded Russian visible/programmatic labels from English public offer catalog cards and offer-detail commercial summary while preserving buyer access gating, supplier identity redaction and price lock.
+Batch #132 local validation passed: npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx, 4 tests; npx tsc -b --noEmit; npm run smoke:e2e:public-offer-locale-a11y, 2 tests after production build; npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 239 tests.
+Batch #132 was rebased onto origin/main 35317b0 without conflicts; post-rebase validation passed: focused unit tests, npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline and npm run smoke:e2e:public-offer-locale-a11y.
+PR #184 GitHub gate initially failed because public-pulse-disclosure e2e still required visible `estimate` text after `origin/main` 35317b0 removed the compact visible estimate chip; the test, production-scale note and project memory now match the current programmatic disclosure contract.
+Batch #132 CI-fix validation passed: focused Pulse + offer locale unit tests, npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline, npm run smoke:e2e:public-pulse-disclosure, npm run smoke:e2e:public-offer-locale-a11y:run and npm run smoke:e2e:run, 239 tests.
 GitHub Core Type And Build Gate passed on PR #183 in 10m13s.
 Lovable sync for Batch #131 is confirmed clean at 6655d11 with no conflicts and no file modifications.
-Lovable confirmed PulseBadge visible and programmatic estimate disclosure, Dynamic Pulse behavior, MarketPulse labelled section, public-pulse-disclosure e2e guard, package wiring, Batch #131 production-scale notes, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130.
+Lovable confirmed PulseBadge estimate disclosure, Dynamic Pulse behavior, MarketPulse labelled section, public-pulse-disclosure e2e guard, package wiring, Batch #131 production-scale notes, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130.
+Current PulseBadge contract after `origin/main` `35317b0`: visible activity count only on the compact badge; estimate status remains programmatic through `aria-label` and `title`.
 Batch #131 was rebased onto origin/main da880e4 to preserve dynamic PulseBadge behavior before merge.
-Batch #131 preserves dynamic Pulse count drift, visible estimate disclosure, reduced-motion guards, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
+Batch #131 preserves dynamic Pulse count drift, programmatic estimate disclosure, reduced-motion guards, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
 Batch #130 supplier profile mobile accessibility is merged to main as 1449efa via PR #181 and Lovable sync is confirmed clean.
 Lovable sync for Batch #130 is confirmed clean at 1449efa with no conflicts and no file modifications.
 Lovable sync for Batch #129 is confirmed clean at 2550a29 with no conflicts and no file modifications.
 Batch #131 runtime audit focused on public Pulse activity signals introduced by recent Lovable/user changes: homepage offer Pulse badges and offer-detail MarketPulse.
 Batch #131 finding: live-looking buyer activity and market-pulse signals disclosed their estimate status only weakly, with homepage Pulse badges hiding estimate status in title-only copy and pulse animations lacking reduced-motion guards.
-Batch #131 implementation: PulseBadge now exposes visible and programmatic estimate disclosure, keeps localized disclosure text, and disables ping animation under reduced motion; MarketPulse is a labelled section and its ping animation also respects reduced motion; e2e/public-pulse-disclosure.spec.ts and src/components/PulseBadge.test.tsx cover the contract.
+Batch #131 implementation: PulseBadge exposes localized programmatic estimate disclosure and disables ping animation under reduced motion; MarketPulse is a labelled section and its ping animation also respects reduced motion; e2e/public-pulse-disclosure.spec.ts and src/components/PulseBadge.test.tsx cover the current contract.
 Batch #131 local validation passed before and after rebase: npx vitest run src/components/PulseBadge.test.tsx, 3 tests; E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-pulse-disclosure.spec.ts --project=chromium, 2 tests before rebase; E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-heading-structure.spec.ts e2e/public-landmark-labels.spec.ts --project=chromium, 47 tests before rebase; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:public-pulse-disclosure, 2 tests after production build; npm run smoke:e2e:run, 237 tests.
 Batch #131 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
 Batch #130 runtime audit focused on /suppliers/:id, the supplier trust/supply route after Batch #129 Lovable sync.

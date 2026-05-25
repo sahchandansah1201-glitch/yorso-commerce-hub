@@ -24,6 +24,17 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #132 Public Offer Locale A11y Hardening
+
+- `src/components/catalog/MobileOfferCard.tsx`: localized mobile offer details aria-label, delivery-basis aria-label and mixed-orientation photo hint copy.
+- `src/components/catalog/CatalogOfferRow.locale.test.tsx`: regression coverage for English mobile offer labels and no Russian aria leakage.
+- `src/components/offer-detail/OfferSummary.tsx`: localized stock, inventory, capacity, certification, delivery-basis, min-lot and locked price/supplier summary labels.
+- `src/components/offer-detail/OfferSummary.locale.test.tsx`: regression coverage for English offer-detail summary labels and no Russian visible/programmatic leakage.
+- `src/i18n/translations.ts`: EN/RU/ES keys for public offer mobile card and offer-detail summary labels.
+- `e2e/public-offer-locale-a11y.spec.ts`: mobile browser guard for `/offers` and `/offers/:id` English locale accessible names.
+- `package.json`: dedicated `smoke:e2e:public-offer-locale-a11y` script and full `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #132 10,000 concurrent users capacity review.
+
 ## Batch #111 Public Route SEO
 
 - `src/lib/seo.ts`: route-owned SEO marker, canonical/social metadata helpers and global SEO restoration.
@@ -246,10 +257,10 @@
 
 ## Batch #131 Public Pulse Estimate Disclosure
 
-- `src/components/PulseBadge.tsx`: public Pulse badges expose visible localized estimate disclosure, programmatic estimate naming, reduced-motion ping behavior and preserve the dynamic count drift from `origin/main`.
+- `src/components/PulseBadge.tsx`: public Pulse badges expose localized activity counts, programmatic estimate naming, reduced-motion ping behavior and preserve the dynamic count drift from `origin/main`.
 - `src/components/offer-detail/MarketPulse.tsx`: offer detail market pulse renders as a labelled section and respects reduced-motion preferences.
-- `src/components/PulseBadge.test.tsx`: regression coverage for visible/programmatic estimate disclosure, RU localization and reduced-motion class presence.
-- `e2e/public-pulse-disclosure.spec.ts`: mobile browser guard for homepage Pulse badges and offer-detail MarketPulse disclosure, zero nested controls and zero horizontal overflow.
+- `src/components/PulseBadge.test.tsx`: regression coverage for programmatic-only compact estimate disclosure, RU localization and reduced-motion class presence.
+- `e2e/public-pulse-disclosure.spec.ts`: mobile browser guard for homepage Pulse badge programmatic disclosure and offer-detail MarketPulse disclosure, zero nested controls and zero horizontal overflow.
 - `package.json`: dedicated public Pulse disclosure smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #131 10,000 concurrent users capacity review for public Pulse estimate disclosure.
 - `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 after PR #183 merge; user confirmed clean sync at `6655d11`.

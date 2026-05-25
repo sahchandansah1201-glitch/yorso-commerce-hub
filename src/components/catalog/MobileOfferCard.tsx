@@ -538,12 +538,12 @@ const MobileOfferCard = ({
         {isMixed && (
           <div
             role="note"
-            aria-label="Фото показаны полностью, без обрезки — в галерее смешаны вертикальные и горизонтальные кадры"
-            title="Без обрезки: смешанные ориентации фото"
+            aria-label={t.catalog_mobile_noCropAria}
+            title={t.catalog_mobile_noCropTitle}
             className="pointer-events-auto absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur-sm"
           >
             <Maximize2 className="h-3 w-3" aria-hidden />
-            <span>Без обрезки</span>
+            <span>{t.catalog_mobile_noCropLabel}</span>
           </div>
         )}
 
@@ -612,7 +612,7 @@ const MobileOfferCard = ({
           to={`/offers/${offer.id}`}
           state={buildCatalogReturnState(offer.id)}
           data-testid="catalog-row-view-details"
-          aria-label={`Открыть карточку: ${offer.productName}`}
+          aria-label={t.catalog_mobile_viewDetailsFor.replace("{product}", offer.productName)}
           className="block min-w-0 -mx-2 -my-1 rounded-md px-2 py-1 touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
         >
           <h3
@@ -640,7 +640,10 @@ const MobileOfferCard = ({
             to={`/offers/${offer.id}`}
             state={buildCatalogReturnState(offer.id)}
             data-testid="catalog-row-basis"
-            aria-label={`Базис поставки ${primaryBasis.code}, ${primaryBasis.shipmentPort?.split(",")[0]}, срок ${primaryBasis.leadTime}`}
+            aria-label={t.catalog_mobile_basisAria
+              .replace("{code}", primaryBasis.code)
+              .replace("{port}", primaryBasis.shipmentPort?.split(",")[0] ?? "")
+              .replace("{leadTime}", primaryBasis.leadTime)}
             className="-mx-2 -my-1 flex min-h-11 items-center gap-1.5 rounded-md px-2 py-1.5 text-xs leading-5 text-foreground touch-manipulation [-webkit-tap-highlight-color:transparent] transition-[background-color,box-shadow,transform] duration-150 ease-out hover:bg-muted/40 active:bg-muted active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-card focus-visible:bg-muted/40"
           >
             <Truck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />

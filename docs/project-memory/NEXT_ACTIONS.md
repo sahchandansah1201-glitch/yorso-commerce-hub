@@ -2,9 +2,48 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Wait for GitHub `Core Type And Build Gate` on PR #184.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. If GitHub validation passes, mark PR #184 ready and merge it.
+
+3. After PR #184 merges, add the Batch #132 Lovable sync prompt and ask Lovable to confirm sync.
+
+4. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+
+## Batch #132 Local Validation Complete
+
+- Branch: `codex/batch132-public-runtime-ux-a11y-audit`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184` (marked ready for review).
+- Rebase: branch was rebased onto `origin/main` `35317b0` without conflicts after PR creation.
+- Scope: public offer locale/a11y hardening for `/offers` mobile cards and `/offers/:id` commercial summary.
+- Runtime finding:
+  - mobile offer card details and delivery-basis links exposed Russian `aria-label` copy in English UI;
+  - mobile mixed-orientation photo hint used Russian visible/title/aria copy;
+  - offer-detail summary exposed Russian visible/programmatic labels in English UI for inventory, certifications, delivery basis, min lot and locked price/supplier status.
+- Implemented fix:
+  - `MobileOfferCard` uses locale-owned EN/RU/ES copy for details link aria-label, delivery-basis aria-label and mixed-orientation hint copy;
+  - `OfferSummary` localizes stock, inventory, capacity meter, certifications, delivery basis, min lot and locked price/supplier labels;
+  - `translations.ts` contains the new EN/RU/ES keys;
+  - `CatalogOfferRow.locale.test.tsx`, `OfferSummary.locale.test.tsx` and `e2e/public-offer-locale-a11y.spec.ts` guard against Russian label leakage in English UI;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #132 10,000 concurrent-user review.
+- Local validation passed:
+  - `npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx`, 4 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run smoke:e2e:public-offer-locale-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 239 tests.
+- Post-rebase validation passed:
+  - `npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx`, 4 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-offer-locale-a11y`, 2 tests after production build.
+- Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
+- Preserved behavior: buyer-first public narrative, offer data, catalog paging/sorting/filtering, offer routing, access gating, supplier identity redaction, price-lock, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#131.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #131 Lovable Sync Confirmed
 
@@ -13,18 +52,18 @@
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
 - Lovable sync: clean at `6655d11`, no conflicts and no files modified in Lovable.
-- Base: Batch #130 Lovable sync clean on `main` at `1449efa`; Batch #131 was rebased onto `origin/main` `da880e4` before merge.
+- Base: Batch #130 Lovable sync clean on `main` at `1449efa`; Batch #131 was rebased onto `origin/main` `da880e4` before merge, then later `origin/main` `35317b0` removed the visible compact estimate chip.
 - Scope: public Pulse estimate disclosure and reduced-motion behavior on real public runtime surfaces.
 - Runtime finding:
   - homepage Pulse badges looked live but disclosed estimate status only through title text;
   - Pulse ping animations lacked reduced-motion guards;
   - offer-detail `MarketPulse` used a generic labelled div instead of a labelled section.
 - Implemented fix:
-  - `PulseBadge` now shows visible localized estimate copy and includes the same disclosure in `aria-label` and `title` while preserving the new dynamic count drift from `origin/main`;
+  - `PulseBadge` now shows the localized activity count and includes estimate disclosure in `aria-label` and `title` while preserving the new dynamic count drift from `origin/main`;
   - `PulseBadge` and `MarketPulse` ping animations include `motion-reduce:animate-none`;
   - `MarketPulse` now renders as a section labelled by its visible heading;
   - `src/components/PulseBadge.test.tsx` and `e2e/public-pulse-disclosure.spec.ts` guard the behavior.
-- Preserved behavior: deterministic initial pulse values, client-side Pulse drift, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
+- Preserved behavior: deterministic initial pulse values, client-side Pulse drift, compact Pulse badge without visible estimate chip, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
 - Local validation passed:
   - `npx vitest run src/components/PulseBadge.test.tsx`, 3 tests;
   - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-pulse-disclosure.spec.ts --project=chromium`, 2 tests;
@@ -44,7 +83,7 @@
 - GitHub validation passed:
   - `Core Type And Build Gate`, 10m13s.
 - Lovable confirmed:
-  - `PulseBadge` visible `· {t.pulse_estimate}` chip, `aria-label`, `title` and `data-testid`;
+  - `PulseBadge` `aria-label`, `title` and `data-testid`, with no visible compact estimate chip in the current UI;
   - `MarketPulse` labelled section and preserved estimate footer;
   - `motion-reduce:animate-none` on both ping spans;
   - dynamic Pulse seed, 3.5-6s drift, temporary disappearance and refreshed return;

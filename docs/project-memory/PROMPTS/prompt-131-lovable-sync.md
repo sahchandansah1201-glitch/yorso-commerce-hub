@@ -5,6 +5,12 @@ Target: Lovable.dev
 Use this prompt after syncing Lovable with GitHub `main` at commit `8590361`
 or newer.
 
+Supersession note: after `main` later advanced to `35317b0`, the compact
+`PulseBadge` no longer shows a visible estimate chip. The current UI contract is
+visible activity count plus estimate disclosure through `aria-label` and
+`title`; do not use the older visible-chip instructions below as current
+requirements.
+
 ```text
 You are working on the YORSO Commerce Hub project.
 

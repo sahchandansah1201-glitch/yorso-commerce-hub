@@ -3040,7 +3040,8 @@ Database indexing and pagination strategy:
 
 Failure mode and graceful degradation:
 
-- If CSS fails, the estimate disclosure remains visible text in each Pulse badge.
+- If CSS fails, the visible Pulse count remains readable and the estimate
+  disclosure remains available through `aria-label` and `title`.
 - If motion preferences request reduced motion, pulse animation is disabled by
   `motion-reduce:animate-none`.
 - If JavaScript hydration is delayed, Pulse badges degrade to static text and do
@@ -3048,13 +3049,13 @@ Failure mode and graceful degradation:
 
 Observability and load-test plan:
 
-- Browser smoke verifies homepage Pulse badges visibly include the
-  estimate disclosure, expose an estimate accessible label and keep zero
-  horizontal overflow.
+- Browser smoke verifies homepage Pulse badges expose an estimate accessible
+  label/title, do not reintroduce the removed visible estimate chip and keep
+  zero horizontal overflow.
 - Browser smoke verifies the offer-detail market pulse estimate copy remains
   visible and motion-reduction classes are present.
-- Unit coverage verifies the Pulse badge disclosure is visible, localized and
-  protected for reduced-motion users.
+- Unit coverage verifies the Pulse badge disclosure is localized,
+  programmatic-only on the compact badge and protected for reduced-motion users.
 - Existing public smoke continues to verify CTA semantics, offer detail access,
   supplier profile mobile accessibility and route shell behavior.
 
@@ -3071,6 +3072,77 @@ Validation:
 Marker: Batch #131.
 Marker: public pulse estimate disclosure.
 Marker: buyer trust signal honesty.
+Marker: 10,000 concurrent users.
+
+## Batch #132 Public Offer Locale A11y Hardening
+
+Batch #132 removes hardcoded Russian visible and programmatic labels from the
+English public offer decision path. The scoped change covers mobile catalog
+offer cards, delivery-basis links, mixed-orientation photo hints and the public
+offer-detail commercial summary. It preserves buyer-first access gating,
+supplier identity redaction, price-lock behavior, route splitting and the
+existing public CTA semantics.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Catalog and offer-detail routes continue to use the existing mock/API fallback
+  data paths.
+- The runtime changes are localized text lookups, accessible names and
+  regression coverage.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing Vite route chunks and static assets remain browser/CDN cacheable.
+- Translation bundle size increases only by a small set of static strings.
+- No queues, polling, retries, timers, subscriptions or background jobs are
+  introduced.
+- Request volume is unchanged at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- URL-backed catalog sorting, filtering, page-size and pagination behavior are
+  preserved.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, catalog and offer-detail links still
+  expose browser-native navigation targets.
+- If CSS fails, visible offer-detail labels remain readable text.
+- If a translation key is missing during development, TypeScript catches the
+  `TranslationKeys` contract.
+- Access-gated exact price and supplier identity remain masked in anonymous and
+  registered-locked states.
+
+Observability and load-test plan:
+
+- Unit coverage verifies English mobile catalog aria-labels and offer-detail
+  summary labels do not leak Russian copy.
+- Browser smoke verifies `/offers` mobile and `/offers/:id` expose English
+  accessible names for offer details, delivery basis and inventory level.
+- Existing public smoke continues to verify public CTA semantics, route shell,
+  offer-detail mobile tap targets, supplier profile mobile accessibility and
+  route chunk error handling.
+- No new load-test dimension is required because the change is static frontend
+  copy and DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx`;
+- `npm run smoke:e2e:public-offer-locale-a11y`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #132.
+Marker: public offer locale a11y hardening.
+Marker: buyer decision scanability.
 Marker: 10,000 concurrent users.
 
 ## Release Rule
