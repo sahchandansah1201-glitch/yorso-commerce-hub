@@ -20,10 +20,12 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch132-public-runtime-ux-a11y-audit`.
-- Batch #132 public offer locale a11y hardening is implemented, validated and open as ready PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
+- The repository is currently on branch `main`.
+- Batch #132 public offer locale a11y hardening is merged to `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`, via PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
+- Batch #132 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
 - Batch #132 was rebased onto `origin/main` `35317b0` without conflicts after PR #184 opened; post-rebase focused unit, TypeScript, lint, production-scale and dedicated Playwright smoke validation passed.
-- Next step: wait for GitHub gate, mark PR ready and merge if clean; then add the Batch #132 Lovable sync prompt.
+- GitHub `Core Type And Build Gate` passed on PR #184 after the Pulse disclosure e2e contract was aligned with current `main`.
+- Next step: ask Lovable to confirm sync.
 - Batch #132 scoped finding:
   - `/offers` mobile cards exposed Russian programmatic labels in English UI for offer details and delivery basis;
   - the mobile mixed-orientation photo hint used Russian visible/title/aria copy;
@@ -43,6 +45,14 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
   - `npm run lint`;
   - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 239 tests.
+- Batch #132 CI-fix validation passed after `origin/main` removed the compact visible Pulse estimate chip:
+  - `npx vitest run src/components/PulseBadge.test.tsx src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx`, 7 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
   - `npm run smoke:e2e:run`, 239 tests.
 - Batch #132 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
 - Batch #132 preserves offer data, catalog paging/sorting/filtering, offer routing, access gating, supplier identity redaction, price-lock, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#131 public UX/a11y safeguards.

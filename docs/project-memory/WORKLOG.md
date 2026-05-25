@@ -1240,3 +1240,8 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:public-pulse-disclosure` passed, 2 tests after production build.
   - `npm run smoke:e2e:public-offer-locale-a11y:run` passed, 2 tests.
   - `npm run smoke:e2e:run` passed, 239 tests.
+- Amended Batch #132 to `98170a9` and force-with-lease pushed PR #184.
+- Confirmed GitHub `Core Type And Build Gate` passed on PR #184.
+- Squash-merged PR #184 into `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md` for Batch #132 Lovable sync confirmation.
+- Updated project memory to point the next action at Lovable sync for Batch #132.

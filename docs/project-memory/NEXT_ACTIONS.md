@@ -2,18 +2,20 @@
 
 ## Current Next Action
 
-1. Wait for GitHub `Core Type And Build Gate` on PR #184.
+1. Ask Lovable to sync GitHub `main` at `ab46fd3` or newer using
+   `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
 
-2. If GitHub validation passes, mark PR #184 ready and merge it.
+2. Record Lovable's sync report. If conflicts appear, resolve only confirmed
+   file-level conflicts and preserve the buyer-first/access-gating contract.
 
-3. After PR #184 merges, add the Batch #132 Lovable sync prompt and ask Lovable to confirm sync.
+3. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-4. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+## Batch #132 Merged, Lovable Sync Pending
 
-## Batch #132 Local Validation Complete
-
-- Branch: `codex/batch132-public-runtime-ux-a11y-audit`.
-- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184` (marked ready for review).
+- Branch: `main`.
+- Merge commit: `ab46fd3`, `[codex] Batch #132 public offer locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
 - Rebase: branch was rebased onto `origin/main` `35317b0` without conflicts after PR creation.
 - Scope: public offer locale/a11y hardening for `/offers` mobile cards and `/offers/:id` commercial summary.
 - Runtime finding:
@@ -41,6 +43,17 @@
   - `npm run lint`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:public-offer-locale-a11y`, 2 tests after production build.
+- CI-fix validation passed after `origin/main` removed the compact visible Pulse
+  estimate chip:
+  - `npx vitest run src/components/PulseBadge.test.tsx src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx`, 7 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:run`, 239 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate` on PR #184.
 - Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
 - Preserved behavior: buyer-first public narrative, offer data, catalog paging/sorting/filtering, offer routing, access gating, supplier identity redaction, price-lock, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#131.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.

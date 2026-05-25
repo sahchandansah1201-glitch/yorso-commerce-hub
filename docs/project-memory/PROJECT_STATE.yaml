@@ -11,12 +11,11 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch132-public-runtime-ux-a11y-audit"
-  head_commit: "batch_132_branch_head_after_ci_fix"
-  head_summary: "Batch #132 public offer locale a11y hardening plus Pulse disclosure CI contract fix implemented and locally validated"
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Batch #132 CI fix, e2e contract update, production-scale note correction and project-memory updates are pending amend."
+  active_branch: "main"
+  head_commit: "post_batch_132_lovable_sync_prompt"
+  head_summary: "Batch #132 public offer locale a11y hardening merged to main; Lovable sync prompt recorded"
+  dirty_worktree_before_project_memory: false
+  dirty_worktree_reason: []
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,8 +38,8 @@ project_identity:
 active_workstream:
   id: "batch_132_public_offer_locale_a11y_hardening"
   summary: "Remove hardcoded Russian visible/programmatic labels from English public offer catalog and offer-detail decision surfaces."
-  status: "implemented_local_validation_passed_pending_github_gate"
-  branch: "codex/batch132-public-runtime-ux-a11y-audit"
+  status: "merged_to_main_lovable_sync_pending"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
   confirmed_scope:
     - "Runtime audit after Batch #131 Lovable sync found hardcoded Russian visible and programmatic labels on English public offer surfaces."
@@ -51,7 +50,9 @@ active_workstream:
     - "Branch was rebased onto origin/main 35317b0 without conflicts after PR #184 opened."
     - "GitHub Core Type And Build Gate failed after rebase because e2e/public-pulse-disclosure.spec.ts still required visible `estimate` text after origin/main 35317b0 removed the compact visible estimate chip."
     - "Fix the stale Pulse e2e contract to require visible activity count, no visible compact estimate chip, and programmatic estimate disclosure through aria-label/title."
-    - "Next action is amend, force-with-lease push, GitHub gate and merge if clean."
+    - "PR #184 passed GitHub Core Type And Build Gate on head 98170a9 and merged to main as ab46fd3."
+    - "Batch #132 Lovable sync prompt is recorded at docs/project-memory/PROMPTS/prompt-132-lovable-sync.md."
+    - "Next action is ask Lovable to confirm sync."
   confirmed_files:
     - "src/components/catalog/MobileOfferCard.tsx"
     - "src/components/catalog/CatalogOfferRow.locale.test.tsx"
@@ -68,15 +69,16 @@ active_workstream:
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
     - "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
+    - "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
 
 active_batch:
   id: 132
   summary: "Public offer locale a11y hardening: English /offers and /offers/:id no longer expose hardcoded Russian decision labels."
-  status: "implemented_local_validation_passed_pending_github_gate"
-  commit: "batch_132_branch_head_after_ci_fix"
-  branch: "codex/batch132-public-runtime-ux-a11y-audit"
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "ab46fd3"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
-  lovable_sync_prompt: "pending_after_merge"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
   lovable_sync:
     confirmed_at: null
     head: null
@@ -113,6 +115,7 @@ active_batch:
     - "CI fix validation: npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
     - "CI fix validation: npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline."
     - "CI fix validation: npm run smoke:e2e:run, 239 tests."
+    - "GitHub Core Type And Build Gate passed on PR #184 head 98170a9."
   preserved_behavior:
     - "Offer routing, catalog paging/sorting/filtering, access gating, supplier identity redaction, price locks, SEO route ownership and analytics are preserved."
     - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards are preserved."
@@ -121,6 +124,28 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 132
+    summary: "Public offer locale a11y hardening so English /offers and /offers/:id no longer expose hardcoded Russian buyer decision labels."
+    status: "merged_to_main_lovable_sync_pending"
+    commit: "ab46fd3"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
+      confirmed_at: null
+      head: null
+      result: "pending"
+      user_confirmed: []
+    confirmed_files:
+      - "src/components/catalog/MobileOfferCard.tsx"
+      - "src/components/catalog/CatalogOfferRow.locale.test.tsx"
+      - "src/components/offer-detail/OfferSummary.tsx"
+      - "src/components/offer-detail/OfferSummary.locale.test.tsx"
+      - "src/i18n/translations.ts"
+      - "e2e/public-offer-locale-a11y.spec.ts"
+      - "e2e/public-pulse-disclosure.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
   - id: 131
     summary: "Public Pulse estimate disclosure so Pulse activity signals remain transparent estimates while preserving dynamic client-side drift."
     status: "merged_to_main_lovable_sync_clean"
