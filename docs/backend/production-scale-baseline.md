@@ -3360,6 +3360,81 @@ Marker: supplier profile logo locale a11y.
 Marker: supplier trust route scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #136 Offer Detail Supplier Trust Locale A11y
+
+Batch #136 localizes the supplier trust panel on `/offers/:id`. The scoped
+change moves verification status, review disclosure labels, mini-stat labels,
+supplier evidence labels and qualified-buyer CTA text out of hardcoded English
+strings and into the typed EN/RU/ES translation contract. It preserves the
+buyer-first offer detail narrative, supplier identity redaction, exact-price
+lock, access request panel, Market Pulse, CTA semantics and route SEO.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Offer detail data fetching remains unchanged and continues to use the
+  existing offer-detail API/local fallback path.
+- Runtime work is limited to translation lookup, one pluralized years-in-
+  business label and a simple interpolation of the existing verification date.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- Translation bundle growth is static and small. No request volume changes at
+  the 10,000 concurrent-user target.
+- No queues, polling, timers, retries, subscriptions or background jobs are
+  introduced.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Supplier access gating remains controlled by the existing buyer-session and
+  supplier-access state.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, the supplier trust evidence remains
+  readable native content after the route renders.
+- If CSS fails, verification status, supplier stats, certifications and locked
+  contact states remain visible as text and native buttons.
+- If a locale key is missing during development, TypeScript catches the typed
+  translation contract.
+- Locked supplier identity, contact channels and exact commercial data remain
+  hidden until qualified access.
+
+Observability and load-test plan:
+
+- Unit coverage verifies RU/ES supplier trust labels, disclosure text and
+  qualified CTAs do not leak the previous hardcoded English UI labels.
+- Browser smoke verifies `/offers/:id` at 390px exposes localized supplier
+  trust labels in RU/ES, keeps the disclosure target mobile-safe, has no nested
+  interactive controls and has zero horizontal overflow.
+- Existing offer-detail runtime, CTA semantics and mobile accessibility smokes
+  continue to verify access gating, redaction, gallery controls and route
+  behavior.
+- No new load-test dimension is required because the change is static frontend
+  DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`;
+- `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`;
+- `npm run smoke:e2e:offer-detail-mobile-a11y:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #136.
+Marker: offer detail supplier trust locale a11y.
+Marker: buyer trust mechanism scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

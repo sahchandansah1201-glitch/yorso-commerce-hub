@@ -24,6 +24,17 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #136 Offer Detail Supplier Trust Locale A11y
+
+- `src/components/offer-detail/SupplierTrustPanel.tsx`: localized supplier trust status labels, review disclosure labels, mini-stat labels, evidence labels and qualified-buyer CTAs for EN/RU/ES.
+- `src/i18n/translations.ts`: typed EN/RU/ES `offerDetail_*` supplier trust keys, including verified/pending copy, review toggle labels, years-in-business plural templates and CTA labels.
+- `src/lib/supplier-i18n.ts`: interpolation/pluralization helper now documented for public supplier/trust surfaces.
+- `src/pages/OfferDetail.tsx`: route shells use `overflow-x-hidden` to keep expanded trust disclosure content from causing mobile horizontal overflow.
+- `src/components/offer-detail/SupplierTrustPanel.access.test.tsx`: unit guard for RU/ES localized supplier trust labels and qualified CTAs.
+- `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts`: mobile browser guard for RU/ES supplier trust labels, disclosure target height, zero nested controls and zero horizontal overflow.
+- `package.json`: dedicated `smoke:e2e:offer-detail-supplier-trust-locale-a11y` script and full `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #136 10,000 concurrent users capacity review.
+
 ## Batch #134 Supplier Directory Locale A11y
 
 - `src/i18n/translations.ts`: EN/RU/ES supplier-row trust labels and supplier image alt templates.

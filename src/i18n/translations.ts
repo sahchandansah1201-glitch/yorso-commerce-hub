@@ -986,6 +986,24 @@ type TranslationKeys = {
   offerDetail_supplierProfileLocked: string;
   offerDetail_basisCountAvailable: string;
   offerDetail_indicativePrice: string;
+  offerDetail_supplierVerifiedTitle: string;
+  offerDetail_supplierVerifiedBody: string;
+  offerDetail_supplierVerifiedBodyNoDate: string;
+  offerDetail_supplierPendingTitle: string;
+  offerDetail_supplierPendingBody: string;
+  offerDetail_supplierReviewShow: string;
+  offerDetail_supplierReviewHide: string;
+  offerDetail_inBusinessLabel: string;
+  offerDetail_yearsInBusiness_one: string;
+  offerDetail_yearsInBusiness_few: string;
+  offerDetail_yearsInBusiness_many: string;
+  offerDetail_responseLabel: string;
+  offerDetail_supplierCertificationsLabel: string;
+  offerDetail_reviewedDocumentsLabel: string;
+  offerDetail_viewSupplierProfileCta: string;
+  offerDetail_contactSupplierCta: string;
+  offerDetail_saveToShortlistCta: string;
+  offerDetail_compareSimilarOffersCta: string;
 
   // Supplier Profile — breadcrumbs / not found
   supplier_breadcrumb_home: string;
@@ -2826,6 +2844,24 @@ const en: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Unlock supplier profile",
   offerDetail_basisCountAvailable: "{n} delivery bases available",
   offerDetail_indicativePrice: "Indicative range",
+  offerDetail_supplierVerifiedTitle: "Verified supplier",
+  offerDetail_supplierVerifiedBody: "Verified {date}. YORSO reviewed business license, certifications, and trade references.",
+  offerDetail_supplierVerifiedBodyNoDate: "YORSO reviewed business license, certifications, and trade references.",
+  offerDetail_supplierPendingTitle: "Verification in progress",
+  offerDetail_supplierPendingBody: "Basic documents were reviewed. Full verification is still in progress. Check documents before placing a large order.",
+  offerDetail_supplierReviewShow: "What was reviewed?",
+  offerDetail_supplierReviewHide: "Hide details",
+  offerDetail_inBusinessLabel: "In business",
+  offerDetail_yearsInBusiness_one: "{n} year",
+  offerDetail_yearsInBusiness_few: "{n} years",
+  offerDetail_yearsInBusiness_many: "{n} years",
+  offerDetail_responseLabel: "Response",
+  offerDetail_supplierCertificationsLabel: "Certifications",
+  offerDetail_reviewedDocumentsLabel: "Reviewed documents",
+  offerDetail_viewSupplierProfileCta: "View supplier profile",
+  offerDetail_contactSupplierCta: "Contact supplier",
+  offerDetail_saveToShortlistCta: "Save to shortlist",
+  offerDetail_compareSimilarOffersCta: "Compare similar offers",
 
   // Supplier Profile
   supplier_breadcrumb_home: "Home",
@@ -4631,6 +4667,24 @@ const ru: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Открыть профиль поставщика",
   offerDetail_basisCountAvailable: "Доступно базисов поставки: {n}",
   offerDetail_indicativePrice: "Ориентировочный диапазон",
+  offerDetail_supplierVerifiedTitle: "Поставщик проверен",
+  offerDetail_supplierVerifiedBody: "Проверено: {date}. YORSO проверил бизнес-лицензию, сертификаты и торговые рекомендации.",
+  offerDetail_supplierVerifiedBodyNoDate: "YORSO проверил бизнес-лицензию, сертификаты и торговые рекомендации.",
+  offerDetail_supplierPendingTitle: "Проверка продолжается",
+  offerDetail_supplierPendingBody: "Базовые документы проверены. Полная проверка еще идет. Перед крупным заказом запросите документы.",
+  offerDetail_supplierReviewShow: "Что проверено?",
+  offerDetail_supplierReviewHide: "Скрыть детали",
+  offerDetail_inBusinessLabel: "На рынке",
+  offerDetail_yearsInBusiness_one: "{n} год",
+  offerDetail_yearsInBusiness_few: "{n} года",
+  offerDetail_yearsInBusiness_many: "{n} лет",
+  offerDetail_responseLabel: "Ответ",
+  offerDetail_supplierCertificationsLabel: "Сертификаты",
+  offerDetail_reviewedDocumentsLabel: "Проверенные документы",
+  offerDetail_viewSupplierProfileCta: "Открыть профиль поставщика",
+  offerDetail_contactSupplierCta: "Связаться с поставщиком",
+  offerDetail_saveToShortlistCta: "В шортлист",
+  offerDetail_compareSimilarOffersCta: "Сравнить похожие предложения",
 
   // Supplier Profile
   supplier_breadcrumb_home: "Главная",
@@ -6436,6 +6490,24 @@ const es: TranslationKeys = {
   offerDetail_supplierProfileLocked: "Desbloquear perfil del proveedor",
   offerDetail_basisCountAvailable: "Bases de entrega disponibles: {n}",
   offerDetail_indicativePrice: "Rango orientativo",
+  offerDetail_supplierVerifiedTitle: "Proveedor verificado",
+  offerDetail_supplierVerifiedBody: "Verificado: {date}. YORSO revisó la licencia comercial, las certificaciones y las referencias comerciales.",
+  offerDetail_supplierVerifiedBodyNoDate: "YORSO revisó la licencia comercial, las certificaciones y las referencias comerciales.",
+  offerDetail_supplierPendingTitle: "Verificación en curso",
+  offerDetail_supplierPendingBody: "Los documentos básicos fueron revisados. La verificación completa sigue en curso. Pide los documentos antes de un pedido grande.",
+  offerDetail_supplierReviewShow: "¿Qué se revisó?",
+  offerDetail_supplierReviewHide: "Ocultar detalles",
+  offerDetail_inBusinessLabel: "En operación",
+  offerDetail_yearsInBusiness_one: "{n} año",
+  offerDetail_yearsInBusiness_few: "{n} años",
+  offerDetail_yearsInBusiness_many: "{n} años",
+  offerDetail_responseLabel: "Respuesta",
+  offerDetail_supplierCertificationsLabel: "Certificaciones",
+  offerDetail_reviewedDocumentsLabel: "Documentos revisados",
+  offerDetail_viewSupplierProfileCta: "Ver perfil del proveedor",
+  offerDetail_contactSupplierCta: "Contactar proveedor",
+  offerDetail_saveToShortlistCta: "Guardar en lista corta",
+  offerDetail_compareSimilarOffersCta: "Comparar ofertas similares",
 
   // Supplier Profile
   supplier_breadcrumb_home: "Inicio",

@@ -2,21 +2,60 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Publish Batch #136 as a PR from
+   `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
 
-2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
-   accessibility, locale, trust, scanability or SEO-structure issue in code or
-   browser behavior before changing files.
+2. Keep the PR scope fixed: offer detail supplier trust panel locale/a11y
+   hardening plus the mobile overflow fix discovered by the new RU disclosure
+   guard.
 
-3. Keep the same buyer-first review lens: trust, clarity, scanability,
-   conversion, SEO structure, accessibility semantics and supplier evidence as
-   a trust mechanism.
+3. After GitHub validation passes, merge Batch #136, add the Lovable sync
+   prompt and update project memory to point the next action at Lovable sync.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting, Batch #113 route chunk error boundary and Batches #110-#135
    public UX/a11y safeguards.
+
+## Batch #136 In Progress
+
+- Branch: `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
+- Scope: public offer detail supplier trust locale/a11y hardening for
+  `/offers/:id`.
+- Runtime finding:
+  - `SupplierTrustPanel` still exposed hardcoded English trust and CTA labels
+    inside localized RU/ES offer detail UI;
+  - the expanded RU trust disclosure created 15px horizontal overflow at 390px.
+- Implemented fix:
+  - `src/components/offer-detail/SupplierTrustPanel.tsx` uses typed EN/RU/ES
+    `offerDetail_*` supplier trust labels and pluralized years-in-business copy;
+  - `src/pages/OfferDetail.tsx` route shells use `overflow-x-hidden`;
+  - `src/components/offer-detail/SupplierTrustPanel.access.test.tsx` guards
+    RU/ES localized trust labels and qualified CTAs;
+  - `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES trust
+    labels, disclosure target height, nested controls and zero overflow at
+    390px;
+  - `package.json` wires the dedicated and full smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #136
+    10,000 concurrent-user review.
+- Local validation passed:
+  - `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, 4 tests;
+  - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run smoke:e2e:run`, 248 tests.
+- Preserved:
+  - buyer-first offer detail narrative;
+  - access gating, supplier identity redaction and exact-price lock;
+  - supplier access request panel and Market Pulse;
+  - Batch #112 route code splitting;
+  - Batch #113 route chunk error boundary;
+  - Batches #110-#135 public UX/a11y safeguards.
 
 ## Batch #135 Lovable Sync Confirmed
 
