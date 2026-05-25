@@ -2,9 +2,41 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #130 from `codex/batch130-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Push the branch, open a draft PR, wait for GitHub `Core Type And Build Gate`, mark ready and merge.
+
+3. After merge, create the Batch #130 Lovable sync prompt and update project memory again.
+
+4. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+
+## Batch #130 Local Validation Complete
+
+- Branch: `codex/batch130-public-runtime-ux-a11y-audit`.
+- Base head: `2550a29`, `[codex] Add Batch 129 Lovable sync prompt`.
+- Scope: supplier profile mobile accessibility on `/suppliers/:id`, the supplier trust/supply route.
+- Runtime finding:
+  - breadcrumb `Home` and `Suppliers` links could render below the 44px mobile target baseline;
+  - supplier profile trust tabs could render at 36px height on mobile;
+  - unknown supplier fallback directory recovery link could render below the 44px mobile target baseline.
+- Implemented fix:
+  - `SupplierProfile` breadcrumbs use locale-owned `aria_breadcrumb` and mobile-safe Home/Suppliers link targets;
+  - supplier profile `TabsTrigger` controls use `min-h-11` and `data-supplier-profile-mobile-target` markers;
+  - supplier not-found directory recovery link uses a mobile-safe target and marker;
+  - `e2e/supplier-profile-mobile-a11y.spec.ts` covers profile and not-found states, marked 44px targets, zero nested controls and zero horizontal overflow;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #130 10,000 concurrent-user note.
+- Preserved behavior: supplier profile copy, access gating, supplier identity redaction, approval refresh, directory/profile bridge behavior, route behavior, Batch #126 skip-to-main, Batch #125 landmark labels, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts e2e/supplier-profile-detail.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-directory-profile-flow.spec.ts --project=chromium`, 12 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 235 tests.
+- Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip. Large-chunk warning did not return.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #129 Lovable Sync Confirmed
 

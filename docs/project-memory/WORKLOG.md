@@ -1108,3 +1108,27 @@ Keep this file factual and append-only.
   - access gating, supplier identity redaction, price lock and Batch #121 CTA semantics are unchanged;
   - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#128 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #130 on `codex/batch130-public-runtime-ux-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #129 and focused the fix on `/suppliers/:id`, the supplier trust/supply route:
+  - breadcrumb `Home` and `Suppliers` links could render below the 44px mobile target baseline;
+  - supplier profile trust tabs could render at 36px height on mobile;
+  - unknown supplier fallback directory recovery link could render below the 44px mobile target baseline;
+  - no horizontal overflow or nested interactive controls were present before the fix.
+- Implemented Batch #130 supplier profile mobile accessibility:
+  - localized the supplier profile breadcrumb landmark through the existing `aria_breadcrumb` translation;
+  - hardened breadcrumb Home/Suppliers links to mobile-safe 44px target boxes;
+  - hardened supplier profile tab triggers with `min-h-11` and target markers;
+  - hardened unknown supplier fallback directory recovery link with a mobile-safe target and marker;
+  - added `e2e/supplier-profile-mobile-a11y.spec.ts`;
+  - wired `smoke:e2e:supplier-profile-mobile-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #130 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #130 local validation:
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts --project=chromium` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4202 npx playwright test e2e/supplier-profile-mobile-a11y.spec.ts e2e/supplier-profile-detail.spec.ts e2e/supplier-profile-access.spec.ts e2e/supplier-directory-profile-flow.spec.ts --project=chromium` passed, 12 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:supplier-profile-mobile-a11y` passed, 2 tests after production build;
+  - `npm run smoke:e2e:run` passed, 235 tests.
+- Recorded Batch #130 build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; SupplierProfile 60.56 kB / 15.45 kB gzip.
+- Batch #130 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

@@ -2937,6 +2937,74 @@ Marker: offer detail mobile accessibility.
 Marker: buyer decision route scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #130 Supplier Profile Mobile Accessibility
+
+Batch #130 hardens the public supplier profile trust route after Batch #129.
+The supplier detail page now exposes mobile-safe breadcrumb, tab and not-found
+recovery targets while preserving access gating, supplier identity redaction,
+supplier approval behavior, catalog/profile bridge behavior, route behavior and
+buyer-first supplier trust copy.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Supplier profile detail fetching, fallback behavior, supplier access request
+  state, buyer session reads and approval-refresh behavior are unchanged.
+- The runtime changes are markup semantics, target-size classes and localized
+  breadcrumb landmark naming on existing supplier profile controls.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter supplier-profile request volume at the 10,000
+  concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, supplier
+  directory reads, profile reads, supplier pagination, auth persistence, access
+  persistence or account persistence.
+- Supplier profile data remains fetched through the existing access-level-aware
+  directory detail path.
+
+Failure mode and graceful degradation:
+
+- Breadcrumb links, supplier trust tab triggers and not-found recovery remain
+  normal links or Radix tab buttons.
+- If CSS fails, the underlying controls still expose names, destinations and
+  button/link semantics.
+- If JavaScript hydration is delayed, breadcrumb and not-found links remain
+  normal browser navigation targets, while profile tabs wait for the existing
+  Radix handlers.
+
+Observability and load-test plan:
+
+- Regression coverage should assert marked supplier profile mobile controls
+  expose at least 44px by 44px target boxes at 390px.
+- Browser smoke verifies `/suppliers/:id` keeps mobile-safe breadcrumbs and
+  trust tabs, no nested controls and zero horizontal overflow.
+- Browser smoke verifies unknown supplier fallback keeps the supplier-directory
+  recovery link mobile-safe.
+- Existing supplier profile smoke continues to verify access gating, supplier
+  identity redaction, approval refresh, stale identity removal and directory
+  return behavior.
+
+Validation:
+
+- `npm run smoke:e2e:supplier-profile-mobile-a11y`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #130.
+Marker: supplier profile mobile accessibility.
+Marker: supplier trust route scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -236,6 +236,13 @@
 - `docs/backend/production-scale-baseline.md`: Batch #129 10,000 concurrent users capacity review for offer detail mobile accessibility.
 - `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`: sync confirmation prompt for Batch #129 after PR #180 merge; user confirmed clean sync at `2550a29`.
 
+## Batch #130 Supplier Profile Mobile Accessibility
+
+- `src/pages/SupplierProfile.tsx`: supplier profile breadcrumb landmark uses locale-owned copy, breadcrumb links are mobile-safe, trust/profile tabs use 44px-safe triggers and not-found directory recovery link is mobile-safe.
+- `e2e/supplier-profile-mobile-a11y.spec.ts`: mobile browser guard for `/suppliers/:id` and unknown supplier fallback, 44px marked supplier profile targets, zero nested controls and zero horizontal overflow.
+- `package.json`: dedicated supplier profile mobile accessibility smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #130 10,000 concurrent users capacity review for supplier profile mobile accessibility.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.
@@ -493,3 +500,4 @@
 - `docs/project-memory/PROMPTS/prompt-122-lovable-sync.md`: sync confirmation prompt for Batch #122 public CTA semantics; user confirmed clean sync at `98335bd5`.
 - `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`: sync confirmation prompt for Batch #127 public blog mobile tap targets; user confirmed clean sync at `e8d096f`.
 - `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`: sync confirmation prompt for Batch #128 public auth and registration accessibility; user confirmed clean sync at `f1f482b`.
+- `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`: sync confirmation prompt for Batch #129 offer detail mobile accessibility; user confirmed clean sync at `2550a29`.
