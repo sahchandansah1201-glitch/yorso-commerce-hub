@@ -10,6 +10,7 @@ import { formatPriceRange } from "@/lib/format";
 import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
+import PulseBadge from "@/components/PulseBadge";
 
 /**
  * Renders the price unit (e.g. "$/kg", "per kg") with a tooltip explaining
@@ -284,6 +285,11 @@ export const CatalogOfferCard = ({ offer, forceLevel }: Props) => {
         </div>
 
         <CertificationBadges certifications={offer.certifications ?? []} limit={3} className="mt-2" />
+        <PulseBadge
+          offerId={offer.id}
+          variant={level === "anonymous_locked" ? "viewing" : "requests"}
+          className="mt-2 self-start"
+        />
 
         <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">

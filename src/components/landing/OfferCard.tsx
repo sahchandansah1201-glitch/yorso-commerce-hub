@@ -2,6 +2,7 @@ import { Clock, Snowflake, Leaf, Thermometer } from "lucide-react";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { useLanguage } from "@/i18n/LanguageContext";
 import CertificationBadges from "@/components/CertificationBadges";
+import PulseBadge from "@/components/PulseBadge";
 import { formatPriceRange, formatNumber } from "@/lib/format";
 
 interface OfferCardProps {
@@ -85,6 +86,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
           className="mt-1.5"
           interactive={false}
         />
+        <PulseBadge offerId={offer.id} variant="viewing" className="mt-1.5 self-start" />
 
         <div className="mt-auto pt-3">
           <div className="flex items-baseline gap-1.5">

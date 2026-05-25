@@ -118,6 +118,20 @@ type TranslationKeys = {
   activity_footer: string;
   activity_feed: { text: string; time: string }[];
 
+  // Aggregated market stats (counter-strip) + pulse badges + market pulse panel
+  marketStats_title: string;
+  marketStats_subtitle: string;
+  marketStats_items: { label: string; value: string }[];
+  pulse_viewing: string;
+  pulse_requests: string;
+  pulse_estimate: string;
+  marketPulse_title: string;
+  marketPulse_viewing: string;
+  marketPulse_rfqs: string;
+  marketPulse_response: string;
+  marketPulse_priceMoves: string;
+  marketPulse_estimate: string;
+
   // Social Proof
   social_title: string;
   social_subtitle: string;
@@ -1868,6 +1882,24 @@ const en: TranslationKeys = {
     { title: "Due Diligence", desc: "Our team verifies company registration, checks trade references with real buyers, and confirms production capabilities and export history.", unlike: "Unlike directories where suppliers list themselves without any checks." },
     { title: "Verification Badge", desc: "Approved suppliers earn a verified badge visible on all offers. The badge is re-validated annually — it can be revoked if standards slip.", unlike: "Unlike pay-to-play badges that never expire regardless of performance." },
   ],
+
+  marketStats_title: "Marketplace pulse · last 24h",
+  marketStats_subtitle: "Aggregated platform activity — estimate based on internal signals.",
+  marketStats_items: [
+    { label: "Active offers", value: "1,247" },
+    { label: "Verified suppliers online", value: "86" },
+    { label: "Price access requests", value: "312" },
+    { label: "Sourcing countries", value: "48" },
+  ],
+  pulse_viewing: "{n} buyers viewing now",
+  pulse_requests: "{n} access requests in last hour",
+  pulse_estimate: "estimate",
+  marketPulse_title: "Market pulse",
+  marketPulse_viewing: "{n} buyers viewing this offer now",
+  marketPulse_rfqs: "{n} RFQs in this category · 24h",
+  marketPulse_response: "Avg. supplier response: {time}",
+  marketPulse_priceMoves: "{n} price updates · 7d",
+  marketPulse_estimate: "Estimate from platform activity, not live market data.",
   verify_failTitle: "What happens if a supplier fails?",
   verify_failDesc: "Verified badges can be suspended or revoked. If a supplier receives quality complaints, fails annual re-verification, or breaches platform rules, their badge is removed and buyers are notified. We've rejected thousands of applications and suspended dozens of previously-verified suppliers.",
   verify_ctaHint: "Register to see full supplier profiles, certifications, and verification status.",
@@ -3656,6 +3688,25 @@ const ru: TranslationKeys = {
     { text: "Новый верифицированный поставщик: Austral Fisheries (Австралия)", time: "1ч назад" },
   ],
 
+  marketStats_title: "Пульс маркетплейса · за сутки",
+  marketStats_subtitle: "Агрегированная активность платформы — оценка по внутренним сигналам.",
+  marketStats_items: [
+    { label: "Активных офферов", value: "1 247" },
+    { label: "Верифицированных поставщиков онлайн", value: "86" },
+    { label: "Запросов доступа к ценам", value: "312" },
+    { label: "Стран поставки", value: "48" },
+  ],
+  pulse_viewing: "{n} покупателей смотрят сейчас",
+  pulse_requests: "{n} запросов доступа за час",
+  pulse_estimate: "оценка",
+  marketPulse_title: "Пульс рынка",
+  marketPulse_viewing: "{n} покупателей смотрят это предложение",
+  marketPulse_rfqs: "{n} RFQ по категории за 24ч",
+  marketPulse_response: "Среднее время ответа поставщиков: {time}",
+  marketPulse_priceMoves: "{n} изменений цен за 7 дней",
+  marketPulse_estimate: "Оценка по активности платформы, не live-данные рынка.",
+
+
   social_title: "От скептиков к постоянным пользователям",
   social_subtitle: "Реальные истории закупщиков, которые обожглись раньше — и нашли кое-что лучше.",
   social_testimonials: [
@@ -5418,6 +5469,25 @@ const es: TranslationKeys = {
     { text: "Nuevo: Filete de merluza congelado de Chile", time: "52 min" },
     { text: "Proveedor verificado: Austral Fisheries (Australia)", time: "1h" },
   ],
+
+  marketStats_title: "Pulso del mercado · últimas 24h",
+  marketStats_subtitle: "Actividad agregada de la plataforma — estimación basada en señales internas.",
+  marketStats_items: [
+    { label: "Ofertas activas", value: "1.247" },
+    { label: "Proveedores verificados en línea", value: "86" },
+    { label: "Solicitudes de acceso a precio", value: "312" },
+    { label: "Países de origen", value: "48" },
+  ],
+  pulse_viewing: "{n} compradores viendo ahora",
+  pulse_requests: "{n} solicitudes de acceso en la última hora",
+  pulse_estimate: "estimación",
+  marketPulse_title: "Pulso del mercado",
+  marketPulse_viewing: "{n} compradores viendo esta oferta",
+  marketPulse_rfqs: "{n} RFQ en esta categoría · 24h",
+  marketPulse_response: "Respuesta media del proveedor: {time}",
+  marketPulse_priceMoves: "{n} cambios de precio · 7d",
+  marketPulse_estimate: "Estimación según actividad de la plataforma, no datos de mercado en vivo.",
+
 
   social_title: "De escépticos a usuarios habituales",
   social_subtitle: "Historias reales de profesionales que se quemaron antes — y encontraron algo mejor.",

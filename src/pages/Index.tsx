@@ -8,6 +8,7 @@ import ValueSplit from "@/components/landing/ValueSplit";
 import CategoryAcceleration from "@/components/landing/CategoryAcceleration";
 import SupplierVerification from "@/components/landing/SupplierVerification";
 import MarketplaceActivity from "@/components/landing/MarketplaceActivity";
+import MarketActivityStats from "@/components/landing/MarketActivityStats";
 import SocialProof from "@/components/landing/SocialProof";
 import FAQ from "@/components/landing/FAQ";
 import FinalCTA from "@/components/landing/FinalCTA";
@@ -147,6 +148,7 @@ const Index = () => {
           <SupplierVerification />
         </AnimatedSection>
         <AnimatedSection preset="fade-up" delay={0.05}>
+          <MarketActivityStats />
           <MarketplaceActivity />
         </AnimatedSection>
         <AnimatedSection preset="scale">
