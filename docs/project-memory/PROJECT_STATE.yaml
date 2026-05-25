@@ -11,13 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch129-public-runtime-ux-a11y-audit"
-  head_commit: "f1f482b"
-  head_summary: "[codex] Add Batch 128 Lovable sync prompt"
+  active_branch: "main"
+  head_commit: "f81ee18"
+  head_summary: "[codex] Batch #129 offer detail mobile accessibility (#180)"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #129 offer detail mobile accessibility edits are implemented locally and awaiting commit/PR."
-    - "Project-memory is being updated before commit as required by the context-protection protocol."
+    - "Batch #129 is merged to main; only Batch #129 Lovable sync prompt and project-memory checkpoint are being added."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,17 +37,18 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch129_offer_detail_mobile_accessibility"
-  summary: "Batch #129 is the next scoped public runtime UX/UI audit batch, focused on the buyer decision route /offers/:id."
-  status: "local_validation_passed_awaiting_commit_pr"
-  branch: "codex/batch129-public-runtime-ux-a11y-audit"
-  pull_request: null
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #129 is merged; prepare Lovable sync confirmation, then start the next scoped public UX/UI audit batch."
+  status: "merged_to_main_lovable_prompt_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
   confirmed_scope:
     - "Runtime audit after Batch #128 found concrete mobile/accessibility defects on /offers/:id, the buyer decision detail route."
     - "Fix only offer detail mobile target sizes, named gallery controls and disclosure semantics without changing offer data, access gating, supplier redaction, price locks, CTA destinations, copy, route behavior, SEO or analytics."
     - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards."
     - "Add focused e2e coverage for offer detail mobile target sizes, named gallery/lightbox controls, nested-control absence, unnamed-button absence and no horizontal overflow."
     - "Run dedicated production smoke and full smoke:e2e:run before commit."
+    - "Commit, push, open PR, confirm GitHub Core Type And Build Gate, merge to main and prepare the Lovable sync prompt."
   confirmed_files:
     - "src/components/offer-detail/PhotoGallery.tsx"
     - "src/pages/OfferDetail.tsx"
@@ -65,15 +65,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
 
 active_batch:
   id: 129
   summary: "Offer detail mobile accessibility: named gallery/lightbox controls, 44px buyer decision targets and disclosure states on /offers/:id."
-  status: "local_validation_passed_awaiting_commit_pr"
-  commit: null
-  branch: "codex/batch129-public-runtime-ux-a11y-audit"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_prompt_ready"
+  commit: "f81ee18"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "Runtime audit at 390px found unnamed visible offer photo/gallery buttons on /offers/:id."
@@ -97,6 +98,7 @@ active_batch:
     - "npm run smoke:e2e:offer-detail-mobile-a11y, 2 tests after production build."
     - "npm run smoke:e2e:run, 233 tests."
     - "Post-i18n build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip."
+    - "GitHub Core Type And Build Gate passed on PR #180 in 12m46s."
   preserved_behavior:
     - "Offer data, exact-price locking, supplier identity redaction, access gating, sticky CTAs, return-to-catalog behavior and route behavior are preserved."
     - "Buyer-first public narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards are preserved."
@@ -105,6 +107,26 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 129
+    summary: "Offer detail mobile accessibility so /offers/:id exposes named gallery controls, mobile-safe buyer decision targets and accessible disclosure states."
+    status: "merged_to_main_lovable_prompt_ready"
+    commit: "f81ee18"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
+    confirmed_files:
+      - "src/components/offer-detail/PhotoGallery.tsx"
+      - "src/pages/OfferDetail.tsx"
+      - "src/components/offer-detail/OfferSummary.tsx"
+      - "src/components/offer-detail/FullSpecifications.tsx"
+      - "src/components/offer-detail/SupplierTrustPanel.tsx"
+      - "src/i18n/translations.ts"
+      - "e2e/offer-detail-mobile-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-129-lovable-sync.md"
   - id: 128
     summary: "Public auth and registration accessibility so registration routes expose skip/main landmarks, mobile-safe targets, form labels/autocomplete and single semantic CTAs."
     status: "merged_to_main_lovable_sync_clean"

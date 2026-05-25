@@ -2,15 +2,18 @@
 
 ## Current Next Action
 
-1. Finish Batch #129 from branch `codex/batch129-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` after Batch #129.
 
-2. Commit the offer detail mobile accessibility fix, push the branch, open a draft PR, confirm GitHub `Core Type And Build Gate`, then merge and prepare the Batch #129 Lovable sync prompt.
+2. Use `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md` and confirm whether Lovable sync is clean or has concrete conflicts.
 
-3. Keep the same buyer-first review lens for the next audit: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+3. After Lovable sync is confirmed, start the next scoped public UX/UI audit batch with the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #129 Local Validation Ready
+## Batch #129 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch129-public-runtime-ux-a11y-audit`.
+- Branch: `main`.
+- Merge commit: `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
 - Base: Batch #128 Lovable sync clean on `main` at `f1f482b`.
 - Scope: offer detail mobile accessibility on `/offers/:id`, the buyer decision route.
 - Runtime finding:
@@ -37,6 +40,8 @@
   - `npm run smoke:e2e:offer-detail-mobile-a11y`, 2 tests after production build;
   - `npm run smoke:e2e:run`, 233 tests.
 - Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip. Large-chunk warning did not return.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 12m46s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #128 Lovable Sync Confirmed

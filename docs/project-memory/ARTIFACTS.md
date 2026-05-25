@@ -234,6 +234,7 @@
 - `e2e/offer-detail-mobile-a11y.spec.ts`: mobile browser guard for named gallery/lightbox controls, 44px marked offer detail targets, zero unnamed visible buttons, zero nested controls and zero horizontal overflow.
 - `package.json`: dedicated offer detail mobile accessibility smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #129 10,000 concurrent users capacity review for offer detail mobile accessibility.
+- `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`: sync confirmation prompt for Batch #129 after PR #180 merge.
 
 ## Batch #96 Supplier Access Review Console
 

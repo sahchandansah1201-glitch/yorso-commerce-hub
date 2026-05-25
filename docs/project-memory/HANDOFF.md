@@ -20,8 +20,11 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch129-public-runtime-ux-a11y-audit`.
-- Batch #129 offer detail mobile accessibility is implemented locally and awaiting commit/PR.
+- The repository is currently on branch `main`.
+- Batch #129 offer detail mobile accessibility is merged to `main` as `f81ee18`, `[codex] Batch #129 offer detail mobile accessibility (#180)`, via PR #180.
+- PR #180 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/180`.
+- GitHub `Core Type And Build Gate` passed on PR #180 in 12m46s.
+- Batch #129 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
 - Base state: Batch #128 public auth and registration accessibility is merged to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`, and Lovable sync is confirmed clean at `f1f482b`.
 - Batch #129 runtime audit focused on `/offers/:id`, the buyer decision route.
 - Batch #129 findings:
@@ -47,8 +50,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 233 tests.
 - Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip.
 - Batch #129 preserves offer data, access gating, supplier identity redaction, exact-price locking, sticky CTAs, return-to-catalog behavior, route behavior, buyer-first narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards.
-- Next step: run final diff/YAML checks, commit, push, open draft PR, confirm GitHub `Core Type And Build Gate`, merge and prepare the Batch #129 Lovable sync prompt.
-- The latest merged batch remains Batch #128 until Batch #129 is merged.
+- Next step: sync Lovable with GitHub `main` using `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`.
+- The latest merged batch is Batch #129.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - GitHub `Core Type And Build Gate` passed on PR #178 in 12m16s.
