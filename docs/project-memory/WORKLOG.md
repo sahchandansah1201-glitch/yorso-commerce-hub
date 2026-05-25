@@ -977,3 +977,13 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #177 `Core Type And Build Gate` passed in 11m54s.
 - Marked PR #177 ready and merged it to `main` as `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`.
 - Added `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md` for Batch #126 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #126 is clean:
+  - HEAD is `6a27659` on `main`, including Batch #126 `c1ebd76` / PR #177;
+  - `Header.tsx`, `Header.landmarks.test.tsx`, `translations.ts`, `aria-tooltips-localized.ru.test.tsx`, public route shells, `e2e/public-skip-main-target.spec.ts` and package smoke wiring are present;
+  - no conflicts were found and the tree is clean;
+  - each listed public route exposes one hidden-until-focus `Skip to main content` link;
+  - skip-link activation focuses `main#main` and replaces the URL hash with `#main`;
+  - each route has exactly one `main#main`, zero `main:not(#main)` and no 390px horizontal overflow;
+  - Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are intact;
+  - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

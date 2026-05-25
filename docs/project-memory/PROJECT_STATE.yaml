@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-24"
+updated_at: "2026-05-25"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-24"
+  git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "c1ebd76"
-  head_summary: "[codex] Batch #126 public skip-to-main target (#177)"
+  head_commit: "main after Batch #126 Lovable sync record commit"
+  head_summary: "[codex] Record Batch 126 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #126 is merged; only post-merge Lovable sync prompt and project-memory are updated in this checkpoint."
+    - "User confirmed Batch #126 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch126_public_skip_main_target"
-  summary: "Batch #126 is merged to main and Lovable sync prompt is ready."
-  status: "merged_to_main_sync_prompt_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #126 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
   confirmed_scope:
@@ -83,11 +83,15 @@ active_workstream:
 active_batch:
   id: 126
   summary: "Public skip-to-main target and stable main landmarks across public routes."
-  status: "merged_to_main_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "c1ebd76"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "6a27659"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit found the homepage had no main landmark."
     - "Public routes had no working skip-to-main path for keyboard users."
@@ -120,13 +124,32 @@ active_batch:
 latest_merged_batches:
   - id: 126
     summary: "Public skip-to-main target so public routes expose a keyboard skip path and stable main#main landmarks."
-    status: "merged_to_main_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "c1ebd76"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-25"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to 6a27659 on main, including Batch #126 c1ebd76 / PR #177."
+        - "The working tree was clean and no conflicts were found."
+        - "src/components/landing/Header.tsx has showSkipLink, mainId, focus/scroll behavior, history.replaceState to #main and text via t.aria_skipToMain."
+        - "src/components/landing/Header.landmarks.test.tsx covers EN/RU/ES skip link assertions."
+        - "src/i18n/translations.ts includes aria_skipToMain in EN/RU/ES."
+        - "src/i18n/aria-tooltips-localized.ru.test.tsx guards the English skip-link string from leaking into Russian UI."
+        - "Index, Offers, OfferDetail, Suppliers, SupplierProfile, HowItWorks, ForSuppliers, SignIn, ResetPassword, InfoPageLayout, Blog, BlogArticle and NotFound route shells opt into Header showSkipLink and main#main."
+        - "e2e/public-skip-main-target.spec.ts is present."
+        - "package.json includes smoke:e2e:public-skip-main-target, smoke:e2e:public-skip-main-target:run and full smoke:e2e:run wiring."
+        - "Each listed public route exposes exactly one Skip to main content link with hidden-until-focus styling."
+        - "Skip-link activation focuses main#main and replaces the URL hash with #main."
+        - "Each route has exactly one main#main, zero main:not(#main), and no 390px horizontal overflow."
+        - "Batch #125 landmark labels and Batch #113 RouteChunkErrorBoundary are intact."
+        - "Batch #112 code-splitting strategy is unchanged."
+        - "Bundle metrics: CSS 126.51 kB / 20.97 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 314.40 kB / 99.06 kB gzip; Header 49.82 kB / 14.01 kB gzip; Index 35.75 kB / 10.11 kB gzip; OfferDetail 47.03 kB / 12.27 kB gzip; SupplierProfile 59.95 kB / 15.37 kB gzip; Offers 72.52 kB / 18.72 kB gzip; HowItWorks 172.25 kB / 47.11 kB gzip."
+        - "The large-chunk warning remains resolved."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
+        - "Buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125 are preserved."
     confirmed_files:
       - "src/components/landing/Header.tsx"
       - "src/components/landing/Header.landmarks.test.tsx"
@@ -722,10 +745,12 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit, push and open PR for Batch #126 public skip-to-main target."
-  - "Wait for GitHub Core Type And Build Gate; if clean, mark the PR ready, merge, then create the Batch #126 Lovable sync prompt."
+  - "Start the next scoped public UX/UI runtime audit from repository state."
+  - "Prioritize concrete route-level issues that affect buyer trust, scanability, conversion, accessibility or SEO structure."
 
 last_confirmed_checks:
+  - "2026-05-25: User confirmed Lovable sync for Batch #126 is clean with no conflicts at 6a27659."
+  - "2026-05-25: Lovable confirmed Header showSkipLink/mainId behavior, EN/RU/ES aria_skipToMain, RU leak guard, public route shells with Header showSkipLink plus main#main, public-skip-main e2e guard, package smoke wiring, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary, Batch #112 code splitting, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125 are preserved."
   - "2026-05-24: Batch #126 runtime audit found no reliable public skip-to-main path: homepage had no main landmark, skip-to-content was absent, and some public shells/fallback states lacked a stable main#main target."
   - "2026-05-24: Batch #126 implemented opt-in Header skip link, EN/RU/ES aria_skipToMain copy, and exact one main#main targets across audited public routes."
   - "2026-05-24: Batch #126 runtime Playwright pre-check passed on local dev server for public main#main/skip-link presence and homepage skip-link focus."
@@ -933,4 +958,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "Whether GitHub Core Type And Build Gate passes for Batch #126 on first run."
+  - "Next scoped route-level UX/accessibility issue after Batch #126 Lovable sync."

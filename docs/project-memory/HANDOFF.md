@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #126 public skip-to-main target using `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -25,6 +25,7 @@ Sync Lovable with Batch #126 public skip-to-main target using `docs/project-memo
 - PR #177 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
 - GitHub `Core Type And Build Gate` passed on PR #177 in 11m54s.
 - Batch #126 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
+- Batch #126 Lovable sync is confirmed clean at `6a27659`, with no conflicts and no local file modifications in Lovable.
 - Batch #126 fixes a concrete public keyboard scanability/accessibility defect found after Batch #125:
   - homepage `/` had no main landmark;
   - public routes had no reliable keyboard skip-to-main path;
@@ -41,7 +42,8 @@ Sync Lovable with Batch #126 public skip-to-main target using `docs/project-memo
   - `npm run lint`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 219 tests.
-- Next step: sync Lovable with Batch #126 and collect the clean sync report or concrete conflict list.
+- Lovable confirmed `Header` skip-link props and behavior, EN/RU/ES `aria_skipToMain`, RU leak guard, public route shells with `<Header showSkipLink />` and `<main id="main">`, `e2e/public-skip-main-target.spec.ts`, package smoke wiring, preserved Batch #125 landmark labels, preserved Batch #113 RouteChunkErrorBoundary, preserved Batch #112 code splitting, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #125 public landmark labels is merged to `main` as `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`, via PR #176.
 - PR #176 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
 - GitHub `Core Type And Build Gate` passed on PR #176 in 11m52s.

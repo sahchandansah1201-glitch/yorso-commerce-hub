@@ -2,16 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at `c1ebd76` or newer using `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Ask Lovable to return the required clean sync report or concrete conflict list.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #126 Lovable Sync Pending
+## Batch #126 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-126-lovable-sync.md`.
+- Lovable sync: clean at `6a27659`, no conflicts and tree clean.
 - Scope: public skip-to-main target and stable main landmarks.
 - Runtime finding:
   - homepage `/` had no main landmark;
@@ -36,6 +37,14 @@
   - `npm run smoke:e2e:run`, 219 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 11m54s.
+- Lovable confirmed:
+  - `Header` has `showSkipLink?`, `mainId?`, focus/scroll/hash behavior and text through `t.aria_skipToMain`;
+  - EN/RU/ES `aria_skipToMain` and RU leak guard are present;
+  - `Index`, `Offers`, `OfferDetail`, `Suppliers`, `SupplierProfile`, `HowItWorks`, `ForSuppliers`, `SignIn`, `ResetPassword`, `InfoPageLayout`, `Blog`, `BlogArticle` and `NotFound` opt into `<Header showSkipLink />` and expose `<main id="main">`;
+  - `e2e/public-skip-main-target.spec.ts` and package smoke wiring are present;
+  - each listed public route exposes one hidden-until-focus skip link, exactly one `main#main`, zero `main:not(#main)` and no 390px horizontal overflow;
+  - Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are intact;
+  - buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125 are preserved.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #125 Lovable Sync Confirmed
