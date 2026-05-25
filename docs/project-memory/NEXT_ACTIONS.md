@@ -2,13 +2,16 @@
 
 ## Current Next Action
 
-1. Commit Batch #127 public blog mobile tap targets from branch `codex/batch127-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` at `3aed8dd` or newer.
 
-2. Push the branch, open a draft PR, watch GitHub `Core Type And Build Gate`, merge if clean, then create the Batch #127 Lovable sync prompt.
+2. Use `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`, then confirm whether Lovable is clean or has concrete conflicts.
 
-## Batch #127 Local Validation Ready
+## Batch #127 Lovable Sync Ready
 
-- Branch: `codex/batch127-public-runtime-ux-a11y-audit`.
+- Branch: `main`.
+- Merge commit: `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md`.
 - Scope: public blog mobile tap-target scanability on `/blog` and `/blog/:slug`.
 - Runtime finding:
   - no visible unnamed interactives, no focusable `aria-hidden` controls and no missing image alt issues on audited public routes;
@@ -30,6 +33,8 @@
   - `git diff --check`;
   - `npm run smoke:e2e:blog-mobile-tap-targets`, 2 tests after production build;
   - `npm run smoke:e2e:run`, 221 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 12m16s.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #126 Lovable Sync Confirmed

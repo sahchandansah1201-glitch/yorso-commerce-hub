@@ -5,17 +5,17 @@ Updated: 2026-05-25
 ## Current Status
 
 ```yaml
-context_risk: "medium"
+context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "commit, push and open PR for Batch #127 public blog mobile tap targets"
+recommended_action: "sync Lovable with Batch #127 from GitHub main and confirm clean"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch127-public-runtime-ux-a11y-audit"
-head_commit: "local Batch #127 changes validated, not yet committed"
-latest_merged_batch: 126
-active_workstream: "batch127_public_blog_mobile_tap_targets"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
-why_medium: "Batch #127 has local validated code, e2e, package smoke wiring, production-scale notes and pending project-memory updates; PR is not opened yet."
+active_branch: "main"
+head_commit: "main after Batch #127 merge and Lovable sync prompt"
+latest_merged_batch: 127
+active_workstream: "batch127_lovable_sync_ready"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
+why_low: "Batch #127 is merged to main as 3aed8dd via PR #178, GitHub Core Type And Build Gate passed, and Lovable sync prompt is ready."
 ```
 
 ## Risk Levels
@@ -50,9 +50,9 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch127-public-runtime-ux-a11y-audit.
-Current workstream: Batch #127 public blog mobile tap targets are locally validated and ready for commit/PR.
-Latest merged batch: Batch #126 public skip-to-main target is merged to main.
+Current branch: main.
+Current workstream: Batch #127 public blog mobile tap targets are merged to main and Lovable sync prompt is ready.
+Latest merged batch: Batch #127 public blog mobile tap targets is merged to main.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.
@@ -91,7 +91,10 @@ Batch #126 preserves public visual layout, buyer-first copy, CTA destinations, S
 Batch #127 runtime audit found public blog mobile tap-target defects: /blog filter chips, topic chips, read-more links, see-all-updates link and /blog/:slug breadcrumbs/mobile TOC links could render below 44px.
 Batch #127 implementation enlarges mobile-safe target zones on existing Blog and BlogArticle controls, adds data-blog-mobile-target markers, adds e2e/blog-mobile-tap-targets.spec.ts, wires dedicated/full smoke scripts and records the 10,000 concurrent-user baseline note.
 Batch #127 local validation passed: post-fix runtime Playwright target scan for /blog and /blog/atlantic-salmon-q1-price-pressure; E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium, 2 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:blog-mobile-tap-targets, 2 tests; npm run smoke:e2e:run, 221 tests.
+Batch #127 is merged to main as 3aed8dd, [codex] Batch #127 public blog mobile tap targets (#178), via PR #178.
+GitHub Core Type And Build Gate passed on PR #178 in 12m16s.
+Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-127-lovable-sync.md.
 Batch #127 preserves blog copy, routes, SEO, buyer-first narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: commit Batch #127, push codex/batch127-public-runtime-ux-a11y-audit, open draft PR and watch GitHub checks.
+Next step: ask Lovable to sync GitHub main at 3aed8dd or newer using docs/project-memory/PROMPTS/prompt-127-lovable-sync.md.
 ```

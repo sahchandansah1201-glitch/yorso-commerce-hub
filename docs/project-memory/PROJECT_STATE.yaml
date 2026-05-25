@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch127-public-runtime-ux-a11y-audit"
-  head_commit: "local Batch #127 changes validated, not yet committed"
-  head_summary: "[codex] Batch #127 public blog mobile tap targets pending commit"
+  active_branch: "main"
+  head_commit: "main after Batch #127 Lovable sync prompt"
+  head_summary: "[codex] Add Batch 127 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #127 implementation, e2e guard, package smoke wiring, production-scale note and project-memory updates are staged for review but not yet committed."
+    - "Batch #127 is merged; only project-memory and the Lovable sync prompt are updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch127_public_blog_mobile_tap_targets"
-  summary: "Batch #127 fixes undersized mobile tap targets on public blog surfaces."
-  status: "local_validation_passed_ready_for_pr"
-  branch: "codex/batch127-public-runtime-ux-a11y-audit"
-  pull_request: null
+  id: "batch127_lovable_sync_ready"
+  summary: "Batch #127 public blog mobile tap targets is merged and ready for Lovable sync."
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
   confirmed_scope:
     - "Audit public routes after Batch #126 for concrete route-level UX/accessibility defects."
     - "Runtime audit found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on the audited public routes."
@@ -50,6 +50,7 @@ active_workstream:
     - "Add focused mobile e2e coverage for /blog and /blog/atlantic-salmon-q1-price-pressure at 390px."
     - "Run local Batch #127 validation including dedicated production smoke and full smoke:e2e:run."
     - "Commit, push, open PR and confirm GitHub Core Type And Build Gate."
+    - "Merge Batch #127 to main and prepare the Lovable sync prompt."
   confirmed_files:
     - "src/pages/Blog.tsx"
     - "src/pages/BlogArticle.tsx"
@@ -62,16 +63,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/PROMPTS/prompt-126-lovable-sync.md"
+    - "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
 
 active_batch:
   id: 127
   summary: "Public blog mobile tap targets on /blog and blog article pages."
-  status: "local_validation_passed_ready_for_pr"
-  commit: null
-  branch: "codex/batch127-public-runtime-ux-a11y-audit"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  commit: "3aed8dd"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "Runtime audit after Batch #126 found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on audited public routes."
@@ -93,6 +94,7 @@ active_batch:
     - "git diff --check."
     - "npm run smoke:e2e:blog-mobile-tap-targets, 2 tests after production build."
     - "npm run smoke:e2e:run, 221 tests."
+    - "GitHub Core Type And Build Gate passed on PR #178 in 12m16s."
   preserved_behavior:
     - "Blog copy, article content, routes, link destinations, SEO structure and visual hierarchy are preserved."
     - "Buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
@@ -101,6 +103,22 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 127
+    summary: "Public blog mobile tap targets so /blog and blog articles expose 44px mobile-safe controls."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "3aed8dd"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
+    lovable_sync:
+      confirmed_at: null
+      result: "pending_lovable_sync"
+      prompt: "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
+    confirmed_files:
+      - "src/pages/Blog.tsx"
+      - "src/pages/BlogArticle.tsx"
+      - "e2e/blog-mobile-tap-targets.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
   - id: 126
     summary: "Public skip-to-main target so public routes expose a keyboard skip path and stable main#main landmarks."
     status: "merged_to_main_lovable_sync_clean"
@@ -725,12 +743,14 @@ current_ux_audit_status:
     - "Batch #111 covers SPA route-owned metadata and JSON-LD, but the app is still a Vite SPA; server-rendered per-route HTML snippets are not present."
 
 next_actions:
-  - "Commit Batch #127 public blog mobile tap targets."
-  - "Push codex/batch127-public-runtime-ux-a11y-audit and open a draft PR."
-  - "Watch GitHub Core Type And Build Gate, then mark ready and merge if clean."
-  - "After merge, create docs/project-memory/PROMPTS/prompt-127-lovable-sync.md."
+  - "Sync Lovable with GitHub main at 3aed8dd or newer."
+  - "Use docs/project-memory/PROMPTS/prompt-127-lovable-sync.md for the Lovable sync check."
+  - "Confirm no conflicts, no unexpected Lovable edits, and that blog mobile tap-target guards remain present."
 
 last_confirmed_checks:
+  - "2026-05-25: Batch #127 committed as ac0a4fd and merged to main as 3aed8dd via PR #178."
+  - "2026-05-25: PR #178 Core Type And Build Gate passed on GitHub in 12m16s."
+  - "2026-05-25: Batch #127 Lovable sync prompt added at docs/project-memory/PROMPTS/prompt-127-lovable-sync.md."
   - "2026-05-25: Batch #127 runtime audit found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on audited public routes."
   - "2026-05-25: Batch #127 runtime mobile target audit found undersized tap targets on /blog filter chips, topic chips, read links, see-all-updates and breadcrumbs, plus /blog/:slug breadcrumbs/mobile TOC links."
   - "2026-05-25: Batch #127 implemented mobile-safe target zones on Blog and BlogArticle controls without changing copy, routes, SEO, buyer-first narrative, access gating, supplier identity redaction or price-lock."

@@ -1012,3 +1012,9 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:blog-mobile-tap-targets` passed, 2 tests after production build;
   - `npm run smoke:e2e:run` passed, 221 tests.
 - Batch #127 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.
+- Committed Batch #127 as `ac0a4fd`, `[codex] Batch #127 public blog mobile tap targets`.
+- Pushed branch `codex/batch127-public-runtime-ux-a11y-audit` to `origin`.
+- Opened Draft PR #178: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
+- Confirmed GitHub PR #178 `Core Type And Build Gate` passed in 12m16s.
+- Marked PR #178 ready and merged it to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`.
+- Added `docs/project-memory/PROMPTS/prompt-127-lovable-sync.md` for Batch #127 Lovable sync confirmation.
