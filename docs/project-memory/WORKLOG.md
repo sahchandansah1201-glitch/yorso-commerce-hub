@@ -1275,3 +1275,16 @@ Keep this file factual and append-only.
   - `npm run check:production-scale-baseline` passed;
   - `npm run smoke:e2e:run` passed, 242 tests.
 - Batch #133 preserved supplier directory behavior, blog/article routing, SEO route ownership, mobile tap-target hardening, access gating, supplier identity redaction, price-lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#132 public UX/a11y safeguards.
+- Committed Batch #133 as `19832d1`, opened draft PR #185, and pushed branch
+  `codex/batch133-public-runtime-ux-a11y-audit`.
+- GitHub `Core Type And Build Gate` initially failed in the full browser smoke
+  on the existing `e2e/suppliers-directory-paging.spec.ts` test. The new
+  `public-breadcrumb-locale-a11y` spec had already passed in that run.
+- Reran the failed GitHub job without code changes. The same `Core Type And
+  Build Gate` passed, including full browser smoke, API-backed access smoke,
+  frontend-without-Supabase smoke, self-hosted auth/access smoke and admin
+  smoke steps.
+- Marked PR #185 ready and squash-merged it to `main` as `ca1438b`,
+  `[codex] Batch #133 public breadcrumb locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md` and updated
+  project memory to point the next action at Lovable sync for Batch #133.

@@ -11,12 +11,11 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch133-public-runtime-ux-a11y-audit"
-  head_commit: "d1bf472"
-  head_summary: "Batch #133 public breadcrumb locale a11y locally implemented and validated on top of Batch #132 Lovable sync record"
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Batch #133 implementation, tests, production-scale note and project-memory updates are unstaged before commit."
+  active_branch: "main"
+  head_commit: "ca1438b"
+  head_summary: "Batch #133 public breadcrumb locale a11y merged to main; Lovable sync prompt recorded for confirmation"
+  dirty_worktree_before_project_memory: false
+  dirty_worktree_reason: []
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,17 +36,17 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_133_public_breadcrumb_locale_a11y"
-  summary: "Replace hardcoded English breadcrumb accessible names on public directory and insight routes with locale-owned aria_breadcrumb."
-  status: "local_validated_pending_pr"
-  branch: "codex/batch133-public-runtime-ux-a11y-audit"
-  pull_request: "pending"
+  id: "batch_133_lovable_sync"
+  summary: "Sync Lovable after Batch #133 public breadcrumb locale a11y merge."
+  status: "merged_pending_lovable_sync"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185"
   confirmed_scope:
-    - "Runtime audit after Batch #132 Lovable sync found hardcoded English `aria-label=\"Breadcrumb\"` on localized public routes `/suppliers`, `/blog` and `/blog/:slug`."
+    - "Batch #133 runtime audit after Batch #132 Lovable sync found hardcoded English `aria-label=\"Breadcrumb\"` on localized public routes `/suppliers`, `/blog` and `/blog/:slug`."
     - "Fix only breadcrumb navigation accessible names by reusing the existing EN/RU/ES `aria_breadcrumb` translation key."
     - "Preserve supplier directory sorting/filtering/pagination, blog/article routing, SEO, mobile tap-target hardening, access gating, supplier identity redaction, price-lock, route code splitting and route chunk error handling."
     - "Add focused unit and e2e coverage for localized RU breadcrumb labels and no hardcoded English label leakage on the audited routes."
-    - "Run focused unit tests, dedicated production smoke, blog and supplier adjacent smoke, TypeScript, lint, production-scale guard and full smoke:e2e:run before commit."
+    - "Run focused unit tests, dedicated production smoke, blog and supplier adjacent smoke, TypeScript, lint, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate before Lovable sync."
   confirmed_files:
     - "src/pages/Suppliers.tsx"
     - "src/pages/Blog.tsx"
@@ -66,11 +65,11 @@ active_workstream:
 active_batch:
   id: 133
   summary: "Public breadcrumb locale a11y: /suppliers, /blog and /blog/:slug use locale-owned breadcrumb landmark names."
-  status: "local_validated_pending_pr"
-  commit: "pending"
-  branch: "codex/batch133-public-runtime-ux-a11y-audit"
-  pull_request: "pending"
-  lovable_sync_prompt: "pending_after_merge"
+  status: "merged_pending_lovable_sync"
+  commit: "ca1438b"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-133-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "`/suppliers` breadcrumb navigation used hardcoded English `aria-label=\"Breadcrumb\"`."
@@ -92,6 +91,7 @@ active_batch:
     - "npm run lint."
     - "npm run check:production-scale-baseline."
     - "npm run smoke:e2e:run, 242 tests."
+    - "GitHub Core Type And Build Gate passed on PR #185 after one rerun; the first failed run was an existing suppliers-directory-paging flake and passed on rerun without code changes."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; Suppliers 36.34 kB / 9.06 kB gzip; Blog 19.10 kB / 4.84 kB gzip; BlogArticle 20.72 kB / 5.49 kB gzip."
   preserved_behavior:
     - "Supplier directory sorting/filtering/pagination, blog/article routing, SEO route ownership and analytics are preserved."
@@ -101,6 +101,25 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 133
+    summary: "Public breadcrumb locale a11y hardening so /suppliers, /blog and /blog/:slug use locale-owned breadcrumb landmark names."
+    status: "merged_to_main_pending_lovable_sync"
+    commit: "ca1438b"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-133-lovable-sync.md"
+      confirmed_at: null
+      head: null
+      result: "pending"
+    confirmed_files:
+      - "src/pages/Suppliers.tsx"
+      - "src/pages/Blog.tsx"
+      - "src/pages/BlogArticle.tsx"
+      - "src/i18n/aria-tooltips-localized.ru.test.tsx"
+      - "e2e/public-breadcrumb-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-133-lovable-sync.md"
   - id: 132
     summary: "Public offer locale a11y hardening so English /offers and /offers/:id no longer expose hardcoded Russian buyer decision labels."
     status: "merged_to_main_lovable_sync_clean"

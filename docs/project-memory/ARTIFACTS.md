@@ -516,6 +516,7 @@
 - `e2e/public-breadcrumb-locale-a11y.spec.ts`: browser smoke for localized breadcrumb names on `/suppliers`, `/blog` and `/blog/atlantic-salmon-q1-price-pressure`.
 - `package.json`: dedicated `smoke:e2e:public-breadcrumb-locale-a11y` script and full smoke wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #133 10,000 concurrent-user review.
+- `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 after PR #185 merge.
 
 - `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
 - `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.
@@ -538,3 +539,4 @@
 - `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`: sync confirmation prompt for Batch #130 supplier profile mobile accessibility; user confirmed clean sync at `1449efa`.
 - `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 public Pulse estimate disclosure after PR #183 merge; user confirmed clean sync at `6655d11`.
 - `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 public offer locale a11y after PR #184 merge; user confirmed clean sync at `d1bf472`.
+- `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 public breadcrumb locale a11y after PR #185 merge.

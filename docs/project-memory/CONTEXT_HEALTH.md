@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "finish Batch #133 PR and merge, then prepare Lovable sync"
+recommended_action: "sync Lovable with Batch #133, then continue the next scoped public UX/UI audit batch"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch133-public-runtime-ux-a11y-audit"
-head_commit: "d1bf472"
-latest_merged_batch: 132
-active_workstream: "batch_133_public_breadcrumb_locale_a11y"
-pull_request: "pending"
-why_low: "Batch #133 is a scoped public frontend i18n/a11y hardening on /suppliers, /blog and /blog/:slug. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard and full smoke:e2e:run passed locally on branch codex/batch133-public-runtime-ux-a11y-audit."
+active_branch: "main"
+head_commit: "ca1438b"
+latest_merged_batch: 133
+active_workstream: "batch_133_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185"
+why_low: "Batch #133 is merged to main as ca1438b. Focused unit, dedicated Playwright smoke, supplier-directory smoke, tsc, lint, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed. Next action is Lovable sync using prompt-133."
 ```
 
 ## Risk Levels
@@ -50,14 +50,15 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch133-public-runtime-ux-a11y-audit.
-Current workstream: Batch #133 public breadcrumb locale a11y is locally implemented and validated; next step is commit, push, open PR, wait for GitHub Core Type And Build Gate, merge, then prepare Lovable sync.
-Current HEAD: main includes Batch #132 Lovable sync record d1bf472.
-Latest merged batch: Batch #132 public offer locale a11y is merged to main as ab46fd3 via PR #184.
-Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-132-lovable-sync.md.
+Current branch: main.
+Current workstream: Batch #133 public breadcrumb locale a11y is merged; next step is Lovable sync using docs/project-memory/PROMPTS/prompt-133-lovable-sync.md.
+Current HEAD: main includes Batch #133 merge commit ca1438b.
+Latest merged batch: Batch #133 public breadcrumb locale a11y is merged to main as ca1438b via PR #185.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-133-lovable-sync.md.
 Lovable sync for Batch #132 is confirmed clean at d1bf472 with no conflicts and 7 focused tests passed.
-Batch #133 local scope: replace hardcoded English breadcrumb accessible names on /suppliers, /blog and /blog/:slug with the existing locale-owned aria_breadcrumb value while preserving supplier directory behavior, blog/article routing, SEO, mobile tap-target hardening and buyer-first content structure.
+Batch #133 scope: replace hardcoded English breadcrumb accessible names on /suppliers, /blog and /blog/:slug with the existing locale-owned aria_breadcrumb value while preserving supplier directory behavior, blog/article routing, SEO, mobile tap-target hardening and buyer-first content structure.
 Batch #133 local validation passed: npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx, 7 tests; npm run smoke:e2e:public-breadcrumb-locale-a11y, 3 tests after production build; npm run smoke:e2e:public-breadcrumb-locale-a11y:run, 3 tests; npm run smoke:e2e:blog-mobile-tap-targets:run, 2 tests; npm run smoke:e2e:suppliers-directory:run, 5 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 242 tests.
+Batch #133 GitHub validation passed: PR #185 Core Type And Build Gate passed after one rerun; the first failure was an existing suppliers-directory-paging flake and passed on rerun without code changes.
 Batch #133 changed files: src/pages/Suppliers.tsx, src/pages/Blog.tsx, src/pages/BlogArticle.tsx, src/i18n/aria-tooltips-localized.ru.test.tsx, e2e/public-breadcrumb-locale-a11y.spec.ts, package.json, docs/backend/production-scale-baseline.md and project-memory files.
 Batch #133 preserves Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary, Batches #117-#132 public UX/a11y safeguards, access gating, supplier identity redaction, price-lock, SEO route ownership and analytics.
 Batch #132 local scope: remove hardcoded Russian visible/programmatic labels from English public offer catalog cards and offer-detail commercial summary while preserving buyer access gating, supplier identity redaction and price lock.
@@ -147,5 +148,5 @@ Lovable sync for Batch #128 is confirmed clean at f1f482b with no conflicts and 
 Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready, e2e/public-auth-registration-a11y.spec.ts, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, /register/ready Button asChild CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: sync Lovable with GitHub main using docs/project-memory/PROMPTS/prompt-129-lovable-sync.md.
+Next step: sync Lovable with GitHub main using docs/project-memory/PROMPTS/prompt-133-lovable-sync.md.
 ```

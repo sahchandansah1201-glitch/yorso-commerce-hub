@@ -20,8 +20,12 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `codex/batch133-public-runtime-ux-a11y-audit`.
-- Batch #133 public breadcrumb locale a11y is implemented locally and validated; PR is not opened yet.
+- The repository is currently on branch `main`.
+- Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
+  `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185`.
+- Batch #133 Lovable sync prompt is ready:
+  `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`.
 - Batch #133 scoped finding:
   - `/suppliers`, `/blog` and `/blog/:slug` used hardcoded English `aria-label="Breadcrumb"` on the public breadcrumb navigation, so RU/ES users could hear an English landmark name while surrounding UI was localized.
 - Batch #133 implementation:
@@ -40,12 +44,18 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run lint`;
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:run`, 242 tests.
-- Next step: commit Batch #133, push branch, open PR, wait for GitHub `Core Type And Build Gate`, merge, then prepare Lovable sync prompt.
+- Batch #133 GitHub validation passed:
+  - PR #185 `Core Type And Build Gate` passed after one rerun;
+  - the initial failed run was an existing `suppliers-directory-paging` flake
+    and passed on rerun without code changes.
+- Next step: sync Lovable with GitHub `main` using
+  `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`, then record the
+  sync result and continue the next scoped public UX/UI audit batch.
 - Batch #132 public offer locale a11y hardening is merged to `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`, via PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
 - Batch #132 Lovable sync is confirmed clean at `d1bf472`, with no conflicts and 7 focused tests passed.
 - Batch #132 was rebased onto `origin/main` `35317b0` without conflicts after PR #184 opened; post-rebase focused unit, TypeScript, lint, production-scale and dedicated Playwright smoke validation passed.
 - GitHub `Core Type And Build Gate` passed on PR #184 after the Pulse disclosure e2e contract was aligned with current `main`.
-- Next step: start the next scoped public UX/UI audit batch from current `main`.
+- Historical note: Batch #132 is complete and its Lovable sync is confirmed clean.
 - Batch #132 scoped finding:
   - `/offers` mobile cards exposed Russian programmatic labels in English UI for offer details and delivery basis;
   - the mobile mixed-orientation photo hint used Russian visible/title/aria copy;
@@ -131,7 +141,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - Batch #131 preserves deterministic pulse values, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
 - PR #184 GitHub gate initially failed because `e2e/public-pulse-disclosure.spec.ts` still required visible `estimate` text after `origin/main` `35317b0` removed the compact visible estimate chip; the current test contract now requires visible activity count plus estimate disclosure through `aria-label` and `title`.
 - Batch #132 CI-fix validation passed: focused Pulse + offer locale unit tests, `npx tsc -b --noEmit`, `npm run lint`, `npm run check:production-scale-baseline`, `npm run smoke:e2e:public-pulse-disclosure`, `npm run smoke:e2e:public-offer-locale-a11y:run` and `npm run smoke:e2e:run`, 239 tests.
-- Batch #131 is the latest merged production batch.
+- Historical note: Batch #131 is merged and Lovable sync is confirmed clean.
 - Batch #130 supplier profile mobile accessibility is merged to `main` as `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`, via PR #181.
 - PR #181 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
 - GitHub `Core Type And Build Gate` passed on PR #181 in 12m26s.
