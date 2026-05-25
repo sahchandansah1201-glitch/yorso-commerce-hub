@@ -26,6 +26,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185`.
 - Batch #133 Lovable sync prompt is ready:
   `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`.
+- Batch #133 Lovable sync is confirmed clean by the user at `main` @ Batch #133
+  (`ca1438b` or newer), with no conflicts.
 - Batch #133 scoped finding:
   - `/suppliers`, `/blog` and `/blog/:slug` used hardcoded English `aria-label="Breadcrumb"` on the public breadcrumb navigation, so RU/ES users could hear an English landmark name while surrounding UI was localized.
 - Batch #133 implementation:
@@ -48,9 +50,20 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - PR #185 `Core Type And Build Gate` passed after one rerun;
   - the initial failed run was an existing `suppliers-directory-paging` flake
     and passed on rerun without code changes.
-- Next step: sync Lovable with GitHub `main` using
-  `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`, then record the
-  sync result and continue the next scoped public UX/UI audit batch.
+- Lovable confirmed:
+  - `src/pages/Suppliers.tsx`, `src/pages/Blog.tsx`,
+    `src/pages/BlogArticle.tsx`, `src/pages/OfferDetail.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-breadcrumb-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` are aligned;
+  - `/suppliers`, `/blog`, `/blog/:slug` and `/offers/:id` use
+    `aria-label={t.aria_breadcrumb}` and RU resolves to `Хлебные крошки`;
+  - no hardcoded `aria-label="Breadcrumb"` remains on those pages;
+  - supplier directory behavior, blog behavior, access gating, supplier
+    redaction, exact-price lock, analytics, buyer-first copy, Pulse compact
+    contract, Batch #112 code splitting and Batch #113 route chunk error
+    boundary are preserved.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #132 public offer locale a11y hardening is merged to `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`, via PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
 - Batch #132 Lovable sync is confirmed clean at `d1bf472`, with no conflicts and 7 focused tests passed.
 - Batch #132 was rebased onto `origin/main` `35317b0` without conflicts after PR #184 opened; post-rebase focused unit, TypeScript, lint, production-scale and dedicated Playwright smoke validation passed.

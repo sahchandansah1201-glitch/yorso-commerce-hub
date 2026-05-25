@@ -2,11 +2,11 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #133 using
-   `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. After Lovable reports a clean sync, record the sync result and start the next
-   scoped public UX/UI audit batch.
+2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
+   accessibility, locale, trust, scanability or SEO-structure issue in code or
+   browser behavior before changing files.
 
 3. Keep the same buyer-first review lens: trust, clarity, scanability,
    conversion, SEO structure, accessibility semantics and supplier evidence as
@@ -15,12 +15,13 @@
 4. Preserve current known contracts unless the new audit finds a confirmed
    problem in code or runtime.
 
-## Batch #133 Merged, Lovable Sync Pending
+## Batch #133 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `ca1438b`, `[codex] Batch #133 public breadcrumb locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #133 (`ca1438b` or newer), no conflicts.
 - Scope: public breadcrumb locale/a11y hardening for `/suppliers`, `/blog` and
   `/blog/:slug`.
 - Runtime finding:
@@ -50,6 +51,22 @@
   - PR #185 `Core Type And Build Gate` passed after one rerun;
   - the initial failed run was an existing `suppliers-directory-paging` flake
     and passed on rerun without code changes.
+- Lovable confirmed:
+  - `src/pages/Suppliers.tsx`, `src/pages/Blog.tsx`,
+    `src/pages/BlogArticle.tsx`, `src/pages/OfferDetail.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-breadcrumb-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` were checked;
+  - `/suppliers`, `/blog`, `/blog/:slug` and `/offers/:id` use
+    `aria-label={t.aria_breadcrumb}` and RU resolves to `Хлебные крошки`;
+  - hardcoded `aria-label="Breadcrumb"` was not found on those pages;
+  - supplier directory behavior, blog route behavior, access gating, redaction,
+    exact-price lock, analytics, buyer-first copy and Pulse compact contract are
+    preserved;
+  - Batch #112 code splitting and Batch #113 route chunk error boundary are
+    preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
 
 ## Batch #132 Lovable Sync Confirmed
 

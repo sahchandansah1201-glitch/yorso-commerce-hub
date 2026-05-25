@@ -1288,3 +1288,22 @@ Keep this file factual and append-only.
   `[codex] Batch #133 public breadcrumb locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md` and updated
   project memory to point the next action at Lovable sync for Batch #133.
+- User confirmed Lovable sync for Batch #133 is clean:
+  - GitHub commit synced to `main` @ Batch #133, PR #185, `ca1438b` or newer;
+  - checked `src/pages/Suppliers.tsx`, `src/pages/Blog.tsx`,
+    `src/pages/BlogArticle.tsx`, `src/pages/OfferDetail.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-breadcrumb-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found;
+  - public breadcrumb locale/a11y status is OK, including RU
+    `Хлебные крошки` and no hardcoded `aria-label="Breadcrumb"` on the audited
+    pages;
+  - supplier/blog route behavior, access gating, supplier redaction,
+    exact-price lock, analytics, buyer-first copy, Pulse compact contract,
+    Batch #112 code splitting and Batch #113 route chunk error boundary are
+    preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
+- Recorded Batch #133 Lovable sync in project memory and moved next action to
+  the next scoped public UX/UI audit batch.
