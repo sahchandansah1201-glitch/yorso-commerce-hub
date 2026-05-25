@@ -1150,3 +1150,32 @@ Keep this file factual and append-only.
   - no nested interactive controls and no 390px horizontal overflow were found;
   - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#129 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+
+- Started Batch #131 locally on `codex/batch131-public-runtime-ux-a11y-audit`.
+- Audited recent public Pulse additions after Batch #130 Lovable sync and found homepage Pulse badges looked live while estimate disclosure was only title-level, and Pulse ping animations lacked reduced-motion guards.
+- Updated `src/components/PulseBadge.tsx` so estimate disclosure is visible, localized and programmatic through `aria-label` and `title`, with `motion-reduce:animate-none` on the ping animation.
+- Updated `src/components/offer-detail/MarketPulse.tsx` so the panel is a section labelled by its visible heading and the ping animation respects reduced motion.
+- Added `src/components/PulseBadge.test.tsx` for visible/programmatic estimate disclosure, RU localization and reduced-motion class coverage.
+- Added `e2e/public-pulse-disclosure.spec.ts` for homepage Pulse badges and offer-detail MarketPulse at 390px, including zero nested controls and zero horizontal overflow.
+- Wired `smoke:e2e:public-pulse-disclosure` and the full `smoke:e2e:run` guard in `package.json`.
+- Added Batch #131 production-scale notes to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #131 validation:
+  - `npx vitest run src/components/PulseBadge.test.tsx` passed, 3 tests.
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-pulse-disclosure.spec.ts --project=chromium` passed, 2 tests.
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-heading-structure.spec.ts e2e/public-landmark-labels.spec.ts --project=chromium` passed, 47 tests.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run lint` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:e2e:public-pulse-disclosure` passed, 2 tests after production build.
+  - `npm run smoke:e2e:run` passed, 237 tests.
+- Opened draft PR #183 for Batch #131: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
+- PR #183 initially reported a dirty base because `origin/main` advanced to `da880e4`, `Сделал пульсацию динамичной`.
+- Rebasing Batch #131 onto `origin/main` produced one conflict in `src/components/PulseBadge.tsx`.
+- Resolved the conflict by preserving the new dynamic count drift and adding Batch #131 visible/programmatic estimate disclosure plus `motion-reduce:animate-none`.
+- Confirmed post-rebase validation:
+  - `npx vitest run src/components/PulseBadge.test.tsx` passed, 3 tests.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run lint` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:e2e:public-pulse-disclosure` passed, 2 tests after production build.
+  - `npm run smoke:e2e:run` passed, 237 tests.

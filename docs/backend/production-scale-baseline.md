@@ -3005,6 +3005,74 @@ Marker: supplier profile mobile accessibility.
 Marker: supplier trust route scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #131 Public Pulse Estimate Disclosure
+
+Batch #131 hardens the public Pulse trust layer after Lovable added marketplace
+activity badges and market-pulse panels. The change makes offer-card Pulse
+badges visibly disclose their estimate status on mobile and adds reduced-motion
+guards to live-looking pulse animations while preserving deterministic initial
+mock signal generation, client-side drift, buyer-first copy, offer routing,
+access gating, supplier identity redaction and exact-price locking.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Pulse values remain client-side estimates from `pulseInt`, including the
+  deterministic initial render and client-side drift rhythm.
+- No marketplace activity, offer, supplier, auth, access or account API calls are
+  added or changed.
+- The runtime changes are visual disclosure text, accessible labels,
+  reduced-motion classes and regression coverage.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs, subscriptions or live
+  network streams are introduced.
+- The change does not alter request volume at the 10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Pulse estimates remain derived from existing offer IDs in the browser.
+
+Failure mode and graceful degradation:
+
+- If CSS fails, the estimate disclosure remains visible text in each Pulse badge.
+- If motion preferences request reduced motion, pulse animation is disabled by
+  `motion-reduce:animate-none`.
+- If JavaScript hydration is delayed, Pulse badges degrade to static text and do
+  not affect route navigation or access-gated controls.
+
+Observability and load-test plan:
+
+- Browser smoke verifies homepage Pulse badges visibly include the
+  estimate disclosure, expose an estimate accessible label and keep zero
+  horizontal overflow.
+- Browser smoke verifies the offer-detail market pulse estimate copy remains
+  visible and motion-reduction classes are present.
+- Unit coverage verifies the Pulse badge disclosure is visible, localized and
+  protected for reduced-motion users.
+- Existing public smoke continues to verify CTA semantics, offer detail access,
+  supplier profile mobile accessibility and route shell behavior.
+
+Validation:
+
+- `npx vitest run src/components/PulseBadge.test.tsx`;
+- `npm run smoke:e2e:public-pulse-disclosure`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #131.
+Marker: public pulse estimate disclosure.
+Marker: buyer trust signal honesty.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -28,17 +28,20 @@ const MarketPulse = ({ offerId }: Props) => {
   ];
 
   return (
-    <div
+    <section
       className="rounded-xl border border-border bg-card p-4"
       data-testid="offer-market-pulse"
-      aria-label={t.marketPulse_title}
+      aria-labelledby="offer-market-pulse-heading"
     >
       <div className="mb-2 flex items-center gap-2">
         <span className="relative flex h-2 w-2" aria-hidden>
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
         </span>
-        <h4 className="font-heading text-sm font-semibold text-foreground">
+        <h4
+          id="offer-market-pulse-heading"
+          className="font-heading text-sm font-semibold text-foreground"
+        >
           {t.marketPulse_title}
         </h4>
       </div>
@@ -56,7 +59,7 @@ const MarketPulse = ({ offerId }: Props) => {
       <p className="mt-2 text-[10px] italic text-muted-foreground">
         {t.marketPulse_estimate}
       </p>
-    </div>
+    </section>
   );
 };
 

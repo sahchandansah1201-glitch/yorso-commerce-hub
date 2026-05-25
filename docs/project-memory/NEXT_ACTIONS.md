@@ -2,9 +2,44 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Force-with-lease push rebased Batch #131 to `codex/batch131-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Wait for GitHub `Core Type And Build Gate` on PR #183, then mark ready, merge and prepare the Lovable sync prompt.
+
+## Batch #131 Local Validation Passed
+
+- Branch: `codex/batch131-public-runtime-ux-a11y-audit`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
+- Base: Batch #130 Lovable sync clean on `main` at `1449efa`; branch is now rebased onto `origin/main` `da880e4`.
+- Scope: public Pulse estimate disclosure and reduced-motion behavior on real public runtime surfaces.
+- Runtime finding:
+  - homepage Pulse badges looked live but disclosed estimate status only through title text;
+  - Pulse ping animations lacked reduced-motion guards;
+  - offer-detail `MarketPulse` used a generic labelled div instead of a labelled section.
+- Implemented fix:
+  - `PulseBadge` now shows visible localized estimate copy and includes the same disclosure in `aria-label` and `title` while preserving the new dynamic count drift from `origin/main`;
+  - `PulseBadge` and `MarketPulse` ping animations include `motion-reduce:animate-none`;
+  - `MarketPulse` now renders as a section labelled by its visible heading;
+  - `src/components/PulseBadge.test.tsx` and `e2e/public-pulse-disclosure.spec.ts` guard the behavior.
+- Preserved behavior: deterministic initial pulse values, client-side Pulse drift, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
+- Local validation passed:
+  - `npx vitest run src/components/PulseBadge.test.tsx`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-pulse-disclosure.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-heading-structure.spec.ts e2e/public-landmark-labels.spec.ts --project=chromium`, 47 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 237 tests.
+- Post-rebase validation also passed after resolving the `PulseBadge.tsx` conflict with `origin/main` `da880e4`:
+  - `npx vitest run src/components/PulseBadge.test.tsx`, 3 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 237 tests.
+- Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #130 Lovable Sync Confirmed
 

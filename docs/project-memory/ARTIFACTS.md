@@ -244,6 +244,15 @@
 - `docs/backend/production-scale-baseline.md`: Batch #130 10,000 concurrent users capacity review for supplier profile mobile accessibility.
 - `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`: sync confirmation prompt for Batch #130 after PR #181 merge; user confirmed clean sync at `1449efa`.
 
+## Batch #131 Public Pulse Estimate Disclosure
+
+- `src/components/PulseBadge.tsx`: public Pulse badges expose visible localized estimate disclosure, programmatic estimate naming, reduced-motion ping behavior and preserve the dynamic count drift from `origin/main`.
+- `src/components/offer-detail/MarketPulse.tsx`: offer detail market pulse renders as a labelled section and respects reduced-motion preferences.
+- `src/components/PulseBadge.test.tsx`: regression coverage for visible/programmatic estimate disclosure, RU localization and reduced-motion class presence.
+- `e2e/public-pulse-disclosure.spec.ts`: mobile browser guard for homepage Pulse badges and offer-detail MarketPulse disclosure, zero nested controls and zero horizontal overflow.
+- `package.json`: dedicated public Pulse disclosure smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #131 10,000 concurrent users capacity review for public Pulse estimate disclosure.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

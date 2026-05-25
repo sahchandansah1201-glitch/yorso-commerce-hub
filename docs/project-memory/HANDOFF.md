@@ -16,11 +16,45 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Complete Batch #131 and move it through PR/GitHub validation with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch131-public-runtime-ux-a11y-audit`.
+- Batch #131 public Pulse estimate disclosure is locally implemented, rebased onto `origin/main` `da880e4`, committed and validated; next step is force-with-lease push and GitHub validation on PR #183.
+- Batch #131 runtime audit focused on public Pulse activity signals introduced by recent Lovable/user changes: homepage offer Pulse badges and offer-detail MarketPulse.
+- Batch #131 finding:
+  - homepage Pulse badges looked live but disclosed estimate status only through title text, which is weak on mobile and insufficient for buyer trust;
+  - pulse ping animations lacked reduced-motion guards;
+  - offer-detail `MarketPulse` used a generic labelled div instead of a labelled section.
+- Batch #131 implementation:
+  - `PulseBadge` now shows visible localized estimate copy and includes the disclosure in `aria-label` and `title` while preserving the new dynamic count drift from `origin/main`;
+  - `PulseBadge` and `MarketPulse` ping animations now include `motion-reduce:animate-none`;
+  - `MarketPulse` now renders as a labelled section;
+  - `src/components/PulseBadge.test.tsx` covers visible/programmatic estimate disclosure, RU localization and reduced-motion class presence;
+  - `e2e/public-pulse-disclosure.spec.ts` covers homepage pulse badges and offer-detail market pulse at 390px, zero nested controls and zero horizontal overflow;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #131 10,000 concurrent-user note.
+- Batch #131 local validation passed:
+  - `npx vitest run src/components/PulseBadge.test.tsx`, 3 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-pulse-disclosure.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4203 npx playwright test e2e/public-heading-structure.spec.ts e2e/public-landmark-labels.spec.ts --project=chromium`, 47 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 237 tests.
+- Batch #131 was rebased after PR #183 showed a dirty base because `origin/main` advanced to `da880e4` (`Сделал пульсацию динамичной`). The conflict in `PulseBadge.tsx` was resolved by keeping dynamic count drift and adding the visible/programmatic estimate disclosure plus reduced-motion guard.
+- Post-rebase validation also passed:
+  - `npx vitest run src/components/PulseBadge.test.tsx`, 3 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 237 tests.
+- Batch #131 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
+- Batch #131 preserves deterministic pulse values, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
+- Batch #130 remains the latest merged production batch.
 - Batch #130 supplier profile mobile accessibility is merged to `main` as `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`, via PR #181.
 - PR #181 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
 - GitHub `Core Type And Build Gate` passed on PR #181 in 12m26s.

@@ -68,18 +68,24 @@ const PulseBadge = ({ offerId, variant = "viewing", className }: Props) => {
 
   const tpl = variant === "viewing" ? t.pulse_viewing : t.pulse_requests;
   const label = tpl.replace("{n}", String(count));
+  const accessibleLabel = `${label}. ${t.pulse_estimate}`;
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success transition-opacity duration-500 ${className ?? ""}`}
+      aria-label={accessibleLabel}
       data-testid="pulse-badge"
       title={t.pulse_estimate}
     >
       <span className="relative flex h-1.5 w-1.5" aria-hidden>
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
       </span>
       <span>{label}</span>
+      <span className="text-success/80" aria-hidden>
+        ·
+      </span>
+      <span>{t.pulse_estimate}</span>
     </span>
   );
 };
