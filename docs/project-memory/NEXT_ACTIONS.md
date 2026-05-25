@@ -2,18 +2,60 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Open a scoped PR for Batch #134 from
+   `codex/batch-134-supplier-directory-locale-a11y`.
 
-2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
-   accessibility, locale, trust, scanability or SEO-structure issue in code or
-   browser behavior before changing files.
+2. Let GitHub `Core Type And Build Gate` validate the batch. If the existing
+   `suppliers-directory-paging` flake appears, rerun once before changing code.
 
-3. Keep the same buyer-first review lens: trust, clarity, scanability,
-   conversion, SEO structure, accessibility semantics and supplier evidence as
-   a trust mechanism.
+3. After merge, create the Batch #134 Lovable sync prompt and wait for Lovable
+   clean-sync confirmation.
 
-4. Preserve current known contracts unless the new audit finds a confirmed
-   problem in code or runtime.
+4. Preserve current known contracts: buyer-first supplier directory narrative,
+   access gating, supplier identity redaction, price-lock, sorting/filtering,
+   pagination, supplier profile routing, Batch #112 code splitting and Batch
+   #113 route chunk error boundary.
+
+## Batch #134 Local Validation Ready
+
+- Branch: `codex/batch-134-supplier-directory-locale-a11y`.
+- Scope: public supplier directory locale/a11y hardening for `/suppliers`.
+- Runtime finding:
+  - supplier rows and selected supplier panel still exposed hardcoded English
+    programmatic labels and image alt phrases under RU:
+    `Selected supplier`, `Supplier signals`, `Product catalog preview`,
+    `Delivery markets preview`, `reference image for` and
+    `product preview from`.
+- Implemented fix:
+  - `src/i18n/translations.ts` adds EN/RU/ES keys for supplier row trust
+    labels and image alt templates;
+  - `SupplierRow` uses localized accessible names and alt text for trust
+    signals, catalog preview, delivery preview, hero image and product preview
+    images;
+  - `SelectedSupplierPanel` uses the same localized alt templates;
+  - `Suppliers` selected supplier aside uses `t.selectedSupplier_aboutLabel`;
+  - `Suppliers.i18n.test.tsx` guards RU labels and image alt text;
+  - `e2e/suppliers-directory-locale-a11y.spec.ts` covers `/suppliers` at
+    390px with zero horizontal overflow;
+  - `package.json` wires the dedicated and full smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #134
+    10,000 concurrent-user review.
+- Local validation passed:
+  - `npx vitest run src/pages/Suppliers.i18n.test.tsx src/components/suppliers/SupplierRow.test.tsx src/components/suppliers/SupplierRow.snapshot.test.tsx`, 24 tests;
+  - `npm run smoke:e2e:suppliers-directory-locale-a11y`, 1 test after production build;
+  - `npm run smoke:e2e:suppliers-directory:run`, 5 passed with one retry-resolved existing paging flake;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 243 tests.
+- Preserved:
+  - supplier directory search/sort/filter/page-size/pagination;
+  - supplier profile routing and directory/profile approval bridge;
+  - access gating, supplier identity redaction, contact hiding and exact
+    catalog/delivery breadth hiding;
+  - Batch #112 route splitting, Batch #113 route chunk boundary and Batches
+    #117-#133 public UX/a11y safeguards.
 
 ## Batch #133 Lovable Sync Confirmed
 

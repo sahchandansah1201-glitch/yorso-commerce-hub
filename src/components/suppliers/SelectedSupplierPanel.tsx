@@ -117,7 +117,10 @@ export const SelectedSupplierPanel = ({
       <div className="relative h-32 w-full overflow-hidden bg-muted">
         <img
           src={supplier.heroImage}
-          alt={`${supplier.productFocus[0]?.species ?? "Seafood"} reference image for ${displayName}`}
+          alt={interpolate(t.supplierRow_heroImageAlt, {
+            species: supplier.productFocus[0]?.species ?? "Seafood",
+            name: displayName,
+          })}
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-sm">
@@ -287,7 +290,11 @@ export const SelectedSupplierPanel = ({
                 <div className="relative aspect-square w-full overflow-hidden bg-muted">
                   <img
                     src={item.image}
-                    alt={`${item.species} (${item.form}) product preview from ${displayName}`}
+                    alt={interpolate(t.supplierRow_productPreviewAlt, {
+                      species: item.species,
+                      form: item.form,
+                      name: displayName,
+                    })}
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover"
                   />

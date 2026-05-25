@@ -24,6 +24,18 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #134 Supplier Directory Locale A11y
+
+- `src/i18n/translations.ts`: EN/RU/ES supplier-row trust labels and supplier image alt templates.
+- `src/components/suppliers/SupplierRow.tsx`: localized supplier signals, product catalog preview and delivery markets preview accessible names, plus localized supplier row image alt text.
+- `src/components/suppliers/SelectedSupplierPanel.tsx`: localized selected supplier panel image alt text.
+- `src/pages/Suppliers.tsx`: selected supplier aside uses the locale-owned selected supplier label.
+- `src/pages/Suppliers.i18n.test.tsx`: RU regression coverage for supplier directory trust labels and image alt text with English leakage guards.
+- `src/components/suppliers/__snapshots__/SupplierRow.snapshot.test.tsx.snap`: snapshot synced to the current mobile-safe SupplierRow DOM contract.
+- `e2e/suppliers-directory-locale-a11y.spec.ts`: mobile browser guard for `/suppliers` RU locale trust labels, image alt text and zero horizontal overflow.
+- `package.json`: dedicated `smoke:e2e:suppliers-directory-locale-a11y` script and full `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #134 10,000 concurrent users capacity review.
+
 ## Batch #132 Public Offer Locale A11y Hardening
 
 - `src/components/catalog/MobileOfferCard.tsx`: localized mobile offer details aria-label, delivery-basis aria-label and mixed-orientation photo hint copy.

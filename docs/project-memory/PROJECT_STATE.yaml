@@ -11,11 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "main"
-  head_commit: "main_after_batch_133_lovable_sync_record"
-  head_summary: "Batch #133 public breadcrumb locale a11y merged and Lovable sync confirmed clean"
-  dirty_worktree_before_project_memory: false
-  dirty_worktree_reason: []
+  active_branch: "codex/batch-134-supplier-directory-locale-a11y"
+  head_commit: "batch_134_local_validation_passed_pending_commit"
+  head_summary: "Batch #134 supplier directory locale a11y implemented locally and ready for PR"
+  dirty_worktree_before_project_memory: true
+  dirty_worktree_reason:
+    - "Batch #134 source, tests, package wiring, production-scale note and project-memory updates are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
+  id: "batch_134_supplier_directory_locale_a11y"
+  summary: "Localize supplier-directory trust labels and image alt text under RU/ES."
+  status: "implemented_local_validation_passed"
+  branch: "codex/batch-134-supplier-directory-locale-a11y"
   pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
@@ -48,10 +49,12 @@ active_workstream:
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/pages/Suppliers.tsx"
-    - "src/pages/Blog.tsx"
-    - "src/pages/BlogArticle.tsx"
-    - "src/i18n/aria-tooltips-localized.ru.test.tsx"
-    - "e2e/public-breadcrumb-locale-a11y.spec.ts"
+    - "src/pages/Suppliers.i18n.test.tsx"
+    - "src/components/suppliers/SupplierRow.tsx"
+    - "src/components/suppliers/SelectedSupplierPanel.tsx"
+    - "src/components/suppliers/__snapshots__/SupplierRow.snapshot.test.tsx.snap"
+    - "src/i18n/translations.ts"
+    - "e2e/suppliers-directory-locale-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -62,51 +65,39 @@ active_workstream:
     - "docs/project-memory/ARTIFACTS.md"
 
 active_batch:
-  id: 133
-  summary: "Public breadcrumb locale a11y: /suppliers, /blog and /blog/:slug use locale-owned breadcrumb landmark names."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "ca1438b"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/185"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-133-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-25"
-    head: "ca1438b_or_newer"
-    result: "clean_no_conflicts"
-    user_confirmed:
-      - "GitHub commit synced: main @ Batch #133, PR #185, ca1438b or newer."
-      - "Files/routes checked: Suppliers, Blog, BlogArticle, OfferDetail, aria-tooltips-localized.ru.test.tsx, public-breadcrumb-locale-a11y e2e, package.json and production-scale baseline."
-      - "No conflicts found."
-      - "Public breadcrumb locale/a11y status OK: /suppliers, /blog, /blog/:slug and /offers/:id use t.aria_breadcrumb, RU maps to Хлебные крошки, and hardcoded aria-label=\"Breadcrumb\" was not found on these pages."
-      - "Supplier/blog route behavior unchanged: supplier search/sort/pagination, blog filters/article links/anchors/SEO, access gating, redaction, exact-price lock, analytics and buyer-first copy preserved."
-      - "Pulse compact contract preserved: visible count, estimate only in aria-label/title."
-      - "Batch #112 code splitting and Batch #113 route chunk error boundary preserved; no manual vendor chunks added."
-      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
+  id: 134
+  summary: "Supplier directory locale a11y: /suppliers trust labels and image alt text use locale-owned copy."
+  status: "implemented_local_validation_passed"
+  commit: "pending_local_commit"
+  branch: "codex/batch-134-supplier-directory-locale-a11y"
+  pull_request: null
   confirmed_findings:
-    - "`/suppliers` breadcrumb navigation used hardcoded English `aria-label=\"Breadcrumb\"`."
-    - "`/blog` breadcrumb navigation used hardcoded English `aria-label=\"Breadcrumb\"`."
-    - "`/blog/:slug` breadcrumb navigation used hardcoded English `aria-label=\"Breadcrumb\"`."
+    - "`/suppliers` selected supplier aside used hardcoded English `aria-label=\"Selected supplier\"`."
+    - "`SupplierRow` used hardcoded English `aria-label=\"Supplier signals\"`."
+    - "`SupplierRow` used hardcoded English `aria-label=\"Product catalog preview\"`."
+    - "`SupplierRow` used hardcoded English `aria-label=\"Delivery markets preview\"`."
+    - "Supplier row and selected panel images used hardcoded English alt phrases: `reference image for` and `product preview from`."
   confirmed_changes:
-    - "Suppliers, Blog and BlogArticle breadcrumb navs use `t.aria_breadcrumb`."
-    - "aria-tooltips-localized.ru.test.tsx guards Suppliers, Blog and BlogArticle under RU."
-    - "e2e/public-breadcrumb-locale-a11y.spec.ts covers /suppliers, /blog and /blog/atlantic-salmon-q1-price-pressure at 390px."
-    - "Dedicated and full e2e smoke scripts include the public breadcrumb locale a11y guard."
-    - "Batch #133 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "Suppliers selected supplier aside uses `t.selectedSupplier_aboutLabel`."
+    - "SupplierRow uses EN/RU/ES translation keys for supplier signals, product catalog preview and delivery markets preview accessible names."
+    - "SupplierRow and SelectedSupplierPanel use EN/RU/ES translation templates for hero image and product preview alt text."
+    - "Suppliers.i18n.test.tsx guards RU accessible names and image alt text against hardcoded English leakage."
+    - "e2e/suppliers-directory-locale-a11y.spec.ts covers `/suppliers` at 390px."
+    - "Dedicated and full e2e smoke scripts include the supplier directory locale a11y guard."
+    - "Batch #134 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx, 7 tests."
-    - "npm run smoke:e2e:public-breadcrumb-locale-a11y, 3 tests after production build."
-    - "npm run smoke:e2e:public-breadcrumb-locale-a11y:run, 3 tests."
-    - "npm run smoke:e2e:blog-mobile-tap-targets:run, 2 tests."
-    - "npm run smoke:e2e:suppliers-directory:run, 5 tests."
+    - "npx vitest run src/pages/Suppliers.i18n.test.tsx src/components/suppliers/SupplierRow.test.tsx src/components/suppliers/SupplierRow.snapshot.test.tsx, 24 tests."
+    - "npm run smoke:e2e:suppliers-directory-locale-a11y, 1 test after production build."
+    - "npm run smoke:e2e:suppliers-directory:run, 5 tests passed with one retry-resolved existing paging flake."
     - "npx tsc -b --noEmit."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:run, 242 tests."
-    - "GitHub Core Type And Build Gate passed on PR #185 after one rerun; the first failed run was an existing suppliers-directory-paging flake and passed on rerun without code changes."
-    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; Suppliers 36.34 kB / 9.06 kB gzip; Blog 19.10 kB / 4.84 kB gzip; BlogArticle 20.72 kB / 5.49 kB gzip."
+    - "git diff --check."
+    - "npm run smoke:e2e:run, 243 tests."
+    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip."
   preserved_behavior:
-    - "Supplier directory sorting/filtering/pagination, blog/article routing, SEO route ownership and analytics are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, access gating, supplier identity redaction, price locks, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#132 public UX/a11y safeguards are preserved."
+    - "Supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing and directory/profile approval bridge are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, access gating, supplier identity redaction, contact hiding, exact catalog/delivery breadth hiding, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#133 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."

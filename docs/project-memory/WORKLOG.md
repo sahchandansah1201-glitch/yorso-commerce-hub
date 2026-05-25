@@ -1307,3 +1307,29 @@ Keep this file factual and append-only.
     mode and Browserslist data stale.
 - Recorded Batch #133 Lovable sync in project memory and moved next action to
   the next scoped public UX/UI audit batch.
+- Started Batch #134 on `codex/batch-134-supplier-directory-locale-a11y`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens on `/suppliers` and found hardcoded English programmatic supplier trust labels under localized UI:
+  - selected supplier aside used `aria-label="Selected supplier"`;
+  - supplier rows used `Supplier signals`, `Product catalog preview` and `Delivery markets preview`;
+  - supplier row and selected panel images used hardcoded English alt phrases `reference image for` and `product preview from`.
+- Implemented Batch #134 supplier directory locale a11y hardening:
+  - changed the selected supplier aside to use `t.selectedSupplier_aboutLabel`;
+  - added EN/RU/ES supplier-row trust labels and image alt templates in `src/i18n/translations.ts`;
+  - changed `SupplierRow` and `SelectedSupplierPanel` to use locale-owned aria labels and image alt text;
+  - extended `src/pages/Suppliers.i18n.test.tsx` to guard RU supplier trust labels and image alt text against English leakage;
+  - added `e2e/suppliers-directory-locale-a11y.spec.ts` for `/suppliers` at 390px;
+  - wired `smoke:e2e:suppliers-directory-locale-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #134 production-scale notes to `docs/backend/production-scale-baseline.md`.
+- Updated `src/components/suppliers/__snapshots__/SupplierRow.snapshot.test.tsx.snap` with `vitest -u`; the snapshot was stale relative to the current mobile-safe SupplierRow DOM contract and now matches the existing implementation.
+- Confirmed Batch #134 local validation:
+  - `npx vitest run src/pages/Suppliers.i18n.test.tsx src/components/suppliers/SupplierRow.test.tsx src/components/suppliers/SupplierRow.snapshot.test.tsx` passed, 24 tests;
+  - `npm run smoke:e2e:suppliers-directory-locale-a11y` passed, 1 test after production build;
+  - `npm run smoke:e2e:suppliers-directory:run` passed, 5 tests, with one retry-resolved existing supplier paging flake;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 243 tests.
+- Recorded Batch #134 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; Suppliers 36.46 kB / 9.07 kB gzip.
+- Batch #134 preserved supplier directory sorting/filtering/pagination, selected panel behavior, shortlist behavior, supplier profile routing, directory/profile approval bridge, buyer-first narrative, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#133 public UX/a11y safeguards.
+- Batch #134 preserved known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

@@ -13,6 +13,7 @@ import { RegistrationProvider } from "@/contexts/RegistrationContext";
 import Suppliers from "@/pages/Suppliers";
 import { mockSuppliers } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
+import { translations } from "@/i18n/translations";
 
 const renderRu = () => {
   localStorage.setItem("yorso-lang", "ru");
@@ -60,6 +61,30 @@ describe("/suppliers — RU localized supplier data", () => {
     expect(document.body.textContent ?? "").not.toContain(
       mockSuppliers[0].companyName,
     );
+  });
+
+  it("localizes supplier trust aria labels and image alt text in RU", () => {
+    renderRu();
+    const labels = Array.from(
+      document.querySelectorAll<HTMLElement>("[aria-label]"),
+    ).map((el) => el.getAttribute("aria-label") ?? "");
+    const imageAlts = Array.from(document.querySelectorAll<HTMLImageElement>("img"))
+      .map((img) => img.getAttribute("alt") ?? "")
+      .filter(Boolean);
+
+    expect(labels).toContain(translations.ru.selectedSupplier_aboutLabel);
+    expect(labels).toContain(translations.ru.supplierRow_signalsAria);
+    expect(labels).toContain(translations.ru.supplierRow_productCatalogPreviewAria);
+    expect(labels).toContain(translations.ru.supplierRow_deliveryMarketsPreviewAria);
+    expect(labels).not.toContain("Selected supplier");
+    expect(labels).not.toContain("Supplier signals");
+    expect(labels).not.toContain("Product catalog preview");
+    expect(labels).not.toContain("Delivery markets preview");
+
+    expect(imageAlts.some((alt) => alt.includes("Референсное изображение"))).toBe(true);
+    expect(imageAlts.some((alt) => alt.includes("Превью товара"))).toBe(true);
+    expect(imageAlts.some((alt) => alt.includes("reference image for"))).toBe(false);
+    expect(imageAlts.some((alt) => alt.includes("product preview from"))).toBe(false);
   });
 
   it("supplier row mobile action stack uses no fixed width that forces overflow", () => {
