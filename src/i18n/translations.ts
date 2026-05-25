@@ -118,6 +118,20 @@ type TranslationKeys = {
   activity_footer: string;
   activity_feed: { text: string; time: string }[];
 
+  // Aggregated market stats (counter-strip) + pulse badges + market pulse panel
+  marketStats_title: string;
+  marketStats_subtitle: string;
+  marketStats_items: { label: string; value: string }[];
+  pulse_viewing: string;
+  pulse_requests: string;
+  pulse_estimate: string;
+  marketPulse_title: string;
+  marketPulse_viewing: string;
+  marketPulse_rfqs: string;
+  marketPulse_response: string;
+  marketPulse_priceMoves: string;
+  marketPulse_estimate: string;
+
   // Social Proof
   social_title: string;
   social_subtitle: string;
