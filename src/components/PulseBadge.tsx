@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { pulseInt } from "@/lib/pulse-seed";
 
@@ -8,22 +9,69 @@ interface Props {
 }
 
 /**
- * Small "live activity" chip rendered on offer cards. Numbers are deterministic
- * per offer ID (so the same offer always shows the same number within a render)
- * and explicitly marked as estimates — no real backend signal yet.
+ * "Живая" метка активности на карточке оффера. Стартовое число
+ * детерминировано по offerId (стабильный SSR/первичный рендер), а далее
+ * каждые несколько секунд слегка дрейфует ±1 и иногда «гаснет» (зрители
+ * ушли) на короткое время, после чего снова появляется. Это имитация —
+ * метка `title` явно сообщает, что это оценка платформы, не live-сигнал.
  */
 const PulseBadge = ({ offerId, variant = "viewing", className }: Props) => {
   const { t } = useLanguage();
-  const n =
-    variant === "viewing"
-      ? pulseInt(offerId, "view", 2, 9)
-      : pulseInt(offerId, "req", 1, 5);
+
+  const min = variant === "viewing" ? 2 : 1;
+  const max = variant === "viewing" ? 9 : 5;
+  const seedSalt = variant === "viewing" ? "view" : "req";
+
+  const [count, setCount] = useState(() => pulseInt(offerId, seedSalt, min, max));
+  const [visible, setVisible] = useState(true);
+  const tickRef = useRef(0);
+
+  useEffect(() => {
+    // Каждой карточке — свой ритм, чтобы не «дышали» синхронно.
+    const period = 3500 + pulseInt(offerId, "period", 0, 2500);
+
+    const id = window.setInterval(() => {
+      tickRef.current += 1;
+      const tick = tickRef.current;
+
+      // Псевдослучайный шаг на основе offerId + tick.
+      const step = pulseInt(offerId, `tick-${tick}`, 0, 9);
+
+      // ~12% шанс «исчезновения» (зрители ушли) на 1 цикл.
+      if (visible && step === 0) {
+        setVisible(false);
+        return;
+      }
+
+      if (!visible) {
+        // Возвращаемся с обновлённым числом.
+        const fresh = pulseInt(offerId, `return-${tick}`, min, max);
+        setCount(fresh);
+        setVisible(true);
+        return;
+      }
+
+      // Иначе — дрейф ±1 в пределах [min..max].
+      setCount((prev) => {
+        const delta = step < 4 ? -1 : step < 8 ? +1 : 0;
+        const next = prev + delta;
+        if (next < min) return min;
+        if (next > max) return max;
+        return next;
+      });
+    }, period);
+
+    return () => window.clearInterval(id);
+  }, [offerId, min, max, visible]);
+
+  if (!visible) return null;
+
   const tpl = variant === "viewing" ? t.pulse_viewing : t.pulse_requests;
-  const label = tpl.replace("{n}", String(n));
+  const label = tpl.replace("{n}", String(count));
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success ${className ?? ""}`}
+      className={`inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success transition-opacity duration-500 ${className ?? ""}`}
       data-testid="pulse-badge"
       title={t.pulse_estimate}
     >
