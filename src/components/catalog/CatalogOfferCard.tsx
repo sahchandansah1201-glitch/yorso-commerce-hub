@@ -10,6 +10,7 @@ import { formatPriceRange } from "@/lib/format";
 import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
+import PulseBadge from "@/components/PulseBadge";
 
 /**
  * Renders the price unit (e.g. "$/kg", "per kg") with a tooltip explaining
