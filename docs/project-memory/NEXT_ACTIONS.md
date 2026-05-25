@@ -2,24 +2,30 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #135.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Use `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md` as the sync
-   prompt.
+2. Keep the audit scoped: identify one confirmed public runtime UX/UI,
+   accessibility, locale, trust, scanability or SEO-structure issue in code or
+   browser behavior before changing files.
 
-3. Confirm Lovable reports either a clean sync or a concrete conflict list.
+3. Keep the same buyer-first review lens: trust, clarity, scanability,
+   conversion, SEO structure, accessibility semantics and supplier evidence as
+   a trust mechanism.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
-   splitting and Batch #113 route chunk error boundary.
+   splitting, Batch #113 route chunk error boundary and Batches #110-#135
+   public UX/a11y safeguards.
 
-## Batch #135 Merged, Lovable Sync Pending
+## Batch #135 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `eb23d5f`, `[codex] Batch #135 supplier profile logo locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #135 (`eb23d5f` or newer), no
+  conflicts and no file modifications.
 - Scope: public supplier profile logo locale/a11y hardening for `/suppliers/:id`.
 - Runtime finding:
   - `SupplierLogoCard` used hardcoded Russian wrapper aria-label copy:
@@ -51,6 +57,17 @@
   - `npm run smoke:e2e:run`, 246 tests.
 - GitHub validation passed:
   - PR #187 `Core Type And Build Gate`, 12m21s.
+- Lovable confirmed:
+  - `src/pages/SupplierProfile.tsx`, `src/i18n/translations.ts`,
+    `src/pages/__tests__/SupplierProfile.i18n.test.tsx`,
+    `e2e/supplier-profile-logo-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` were checked;
+  - EN/RU/ES supplier logo accessible names and image alt text are localized
+    with no cross-locale leakage;
+  - supplier profile behavior, access gating, identity redaction, approval
+    refresh, profile tabs, directory/profile bridge, route SEO, buyer-first
+    trust copy, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#134 are preserved.
 - Preserved:
   - supplier profile route behavior, access gating, supplier identity redaction,
     approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112

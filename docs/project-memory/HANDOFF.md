@@ -26,6 +26,8 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.
 - Batch #135 Lovable sync prompt is ready:
   `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
+- Batch #135 Lovable sync is confirmed clean by the user at `main` @ Batch #135
+  (`eb23d5f` or newer), with no conflicts and no file modifications.
 - Batch #135 scoped finding:
   - `/suppliers/:id` `SupplierLogoCard` mixed locale-owned UI with hardcoded logo programmatic copy;
   - the wrapper used `aria-label={`Логотип ${nameForLabel}`}` regardless of active locale;
@@ -50,6 +52,17 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 - Batch #135 GitHub validation passed:
   - PR #187 `Core Type And Build Gate` passed in 12m21s.
 - Batch #135 preserves supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge, SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards.
+- Lovable confirmed:
+  - `src/pages/SupplierProfile.tsx`, `src/i18n/translations.ts`,
+    `src/pages/__tests__/SupplierProfile.i18n.test.tsx`,
+    `e2e/supplier-profile-logo-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` are aligned;
+  - EN/RU/ES supplier profile logo accessible names and image alt text are
+    localized with no cross-locale leakage;
+  - supplier profile behavior, access gating, identity redaction, approval
+    refresh, profile tabs, directory/profile bridge, route SEO, buyer-first
+    trust copy, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#134 safeguards are preserved.
 - Batch #134 supplier directory locale a11y is merged to `main` as `6cd21e9`,
   `[codex] Batch #134 supplier directory locale a11y`, via PR #186:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/186`.
@@ -99,8 +112,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
     locks, SEO, analytics, buyer-first copy, Pulse compact contract, Batch #112
     code splitting, Batch #113 route chunk error boundary and Batches #110-#133
     are preserved.
-- Next step: sync Lovable with GitHub `main` using
-  `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Historical baseline:
 - Batch #133 public breadcrumb locale a11y is merged to `main` as `ca1438b`,
   `[codex] Batch #133 public breadcrumb locale a11y`, via PR #185:

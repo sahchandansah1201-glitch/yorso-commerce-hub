@@ -538,7 +538,7 @@
 - `e2e/supplier-profile-logo-locale-a11y.spec.ts`: browser smoke for `/suppliers/sup-no-001` at 390px in EN/RU/ES, including wrong-locale leakage, nested controls and horizontal overflow.
 - `package.json`: dedicated `smoke:e2e:supplier-profile-logo-locale-a11y` script and full smoke wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #135 10,000 concurrent-user review.
-- `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 after PR #187 merge.
+- `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 after PR #187 merge; user confirmed clean sync at `main` @ `eb23d5f` or newer.
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`, `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #135 merge and Lovable sync checkpoint.
 
 - `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
@@ -563,4 +563,4 @@
 - `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 public Pulse estimate disclosure after PR #183 merge; user confirmed clean sync at `6655d11`.
 - `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 public offer locale a11y after PR #184 merge; user confirmed clean sync at `d1bf472`.
 - `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 public breadcrumb locale a11y after PR #185 merge; user confirmed clean sync at `main` @ `ca1438b` or newer.
-- `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 supplier profile logo locale a11y after PR #187 merge.
+- `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 supplier profile logo locale a11y after PR #187 merge; user confirmed clean sync at `main` @ `eb23d5f` or newer.

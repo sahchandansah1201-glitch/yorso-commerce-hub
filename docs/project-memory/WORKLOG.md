@@ -1379,3 +1379,11 @@ Keep this file factual and append-only.
 - GitHub `Core Type And Build Gate` passed on PR #187 in 12m21s.
 - Marked PR #187 ready and squash-merged it to `main` as `eb23d5f`, `[codex] Batch #135 supplier profile logo locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #135.
+- User confirmed Lovable sync for Batch #135 is clean:
+  - GitHub commit synced to `main` @ Batch #135, PR #187, `eb23d5f` or newer;
+  - checked `src/pages/SupplierProfile.tsx`, `src/i18n/translations.ts`, `src/pages/__tests__/SupplierProfile.i18n.test.tsx`, `e2e/supplier-profile-logo-locale-a11y.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no files were modified in Lovable;
+  - EN/RU/ES supplier profile logo accessible names and image alt text are localized with no cross-locale leakage;
+  - supplier profile behavior, access gating, identity redaction, approval refresh, profile tabs, directory/profile bridge, route SEO, buyer-first trust copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#134 are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
+- Recorded Batch #135 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
