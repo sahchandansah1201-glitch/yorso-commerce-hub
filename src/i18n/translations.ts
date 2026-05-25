@@ -5470,6 +5470,25 @@ const es: TranslationKeys = {
     { text: "Proveedor verificado: Austral Fisheries (Australia)", time: "1h" },
   ],
 
+  marketStats_title: "Pulso del mercado · últimas 24h",
+  marketStats_subtitle: "Actividad agregada de la plataforma — estimación basada en señales internas.",
+  marketStats_items: [
+    { label: "Ofertas activas", value: "1.247" },
+    { label: "Proveedores verificados en línea", value: "86" },
+    { label: "Solicitudes de acceso a precio", value: "312" },
+    { label: "Países de origen", value: "48" },
+  ],
+  pulse_viewing: "{n} compradores viendo ahora",
+  pulse_requests: "{n} solicitudes de acceso en la última hora",
+  pulse_estimate: "estimación",
+  marketPulse_title: "Pulso del mercado",
+  marketPulse_viewing: "{n} compradores viendo esta oferta",
+  marketPulse_rfqs: "{n} RFQ en esta categoría · 24h",
+  marketPulse_response: "Respuesta media del proveedor: {time}",
+  marketPulse_priceMoves: "{n} cambios de precio · 7d",
+  marketPulse_estimate: "Estimación según actividad de la plataforma, no datos de mercado en vivo.",
+
+
   social_title: "De escépticos a usuarios habituales",
   social_subtitle: "Historias reales de profesionales que se quemaron antes — y encontraron algo mejor.",
   social_testimonials: [
