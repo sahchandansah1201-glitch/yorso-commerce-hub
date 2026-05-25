@@ -16,11 +16,33 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Finish Batch #127 public blog mobile tap targets: commit the locally validated scoped fix, push the branch, open a PR, watch GitHub checks, merge if clean, then prepare the Lovable sync prompt.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch127-public-runtime-ux-a11y-audit`.
+- Batch #127 public blog mobile tap targets is locally validated and ready for commit/PR.
+- Batch #127 runtime audit after Batch #126 found no visible unnamed interactives, no focusable `aria-hidden` controls and no missing image alt issues on audited public routes.
+- Batch #127 mobile 390px audit found concrete blog-surface target defects:
+  - `/blog` filter chips, popular topic chips, `Read article` links, `See all updates` and some breadcrumbs could render below the 44px target baseline;
+  - `/blog/:slug` breadcrumbs and mobile table-of-contents links could render below the 44px target baseline.
+- Batch #127 implementation:
+  - enlarged mobile-safe target zones on existing `Blog.tsx` breadcrumbs, filter chips, read links, popular topic chips and see-all-updates link;
+  - enlarged mobile-safe target zones on existing `BlogArticle.tsx` breadcrumbs, mobile TOC summary/links, FAQ summaries and back-to-index CTA;
+  - added `e2e/blog-mobile-tap-targets.spec.ts`;
+  - added `smoke:e2e:blog-mobile-tap-targets` and wired the spec into full `smoke:e2e:run`;
+  - added the Batch #127 10,000 concurrent-user note to `docs/backend/production-scale-baseline.md`.
+- Batch #127 local validation passed:
+  - post-fix runtime Playwright scan for `/blog` and `/blog/atlantic-salmon-q1-price-pressure` at 390px found zero marked targets below 44px and zero horizontal overflow;
+  - `E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium`, 2 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:blog-mobile-tap-targets`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 221 tests.
+- Batch #127 preserves blog copy, article content, routes, SEO, buyer-first narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Next step: commit Batch #127, push `codex/batch127-public-runtime-ux-a11y-audit`, open draft PR and watch GitHub `Core Type And Build Gate`.
 - Batch #126 public skip-to-main target is merged to `main` as `c1ebd76`, `[codex] Batch #126 public skip-to-main target (#177)`, via PR #177.
 - PR #177 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177`.
 - GitHub `Core Type And Build Gate` passed on PR #177 in 11m54s.
@@ -43,7 +65,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 219 tests.
 - Lovable confirmed `Header` skip-link props and behavior, EN/RU/ES `aria_skipToMain`, RU leak guard, public route shells with `<Header showSkipLink />` and `<main id="main">`, `e2e/public-skip-main-target.spec.ts`, package smoke wiring, preserved Batch #125 landmark labels, preserved Batch #113 RouteChunkErrorBoundary, preserved Batch #112 code splitting, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125.
-- Next step: start the next scoped public UX/UI audit batch from current `main`.
+- Previous next step after Batch #126 was to start the next scoped public UX/UI audit batch from current `main`; that work is now Batch #127.
 - Batch #125 public landmark labels is merged to `main` as `7196cc8`, `[codex] Batch #125 public landmark labels (#176)`, via PR #176.
 - PR #176 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/176`.
 - GitHub `Core Type And Build Gate` passed on PR #176 in 11m52s.

@@ -75,6 +75,10 @@ const slugify = (s: string) =>
 
 const stripPunct = (s: string) => s.replace(/[.!?]+$/g, "");
 
+const mobileBreadcrumbTargetClass =
+  "-mx-2 inline-flex min-h-11 min-w-11 items-center rounded px-2 md:mx-0 md:min-h-0 md:min-w-0 md:px-0";
+const mobileInlineTargetClass = "inline-flex min-h-11 items-center rounded-md";
+
 const buildAnswerCapsule = (post: BlogPost): string => {
   const first = post.sections[0]?.paragraphs[0] ?? post.excerpt;
   const words = first.split(/\s+/);
@@ -320,11 +324,19 @@ const BlogArticle = () => {
               aria-label="Breadcrumb"
               className="flex items-center gap-1.5 text-xs text-muted-foreground"
             >
-              <Link to="/" className="hover:text-foreground">
+              <Link
+                to="/"
+                className={cn(mobileBreadcrumbTargetClass, "hover:text-foreground")}
+                data-blog-mobile-target="article-breadcrumb-home"
+              >
                 {t.supplier_breadcrumb_home}
               </Link>
               <ChevronRight className="h-3 w-3 shrink-0" aria-hidden />
-              <Link to="/blog" className="hover:text-foreground">
+              <Link
+                to="/blog"
+                className={cn(mobileBreadcrumbTargetClass, "hover:text-foreground")}
+                data-blog-mobile-target="article-breadcrumb-blog"
+              >
                 {t.blog_breadcrumb}
               </Link>
               <ChevronRight className="h-3 w-3 shrink-0" aria-hidden />
@@ -420,7 +432,10 @@ const BlogArticle = () => {
                     data-testid="blog-toc-mobile"
                     className="mt-5 rounded-lg border border-border bg-card p-4 lg:hidden"
                   >
-                    <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground">
+                    <summary
+                      data-blog-mobile-target="mobile-toc-summary"
+                      className="flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-foreground"
+                    >
                       <ListTree className="h-4 w-4 text-primary" aria-hidden />
                       {t.blog_onThisPage}
                     </summary>
@@ -429,7 +444,8 @@ const BlogArticle = () => {
                         <li key={item.id}>
                           <a
                             href={`#${item.id}`}
-                            className="text-muted-foreground hover:text-primary"
+                            data-blog-mobile-target="mobile-toc-link"
+                            className={cn(mobileInlineTargetClass, "text-muted-foreground hover:text-primary")}
                           >
                             {item.heading}
                           </a>
@@ -623,7 +639,7 @@ const BlogArticle = () => {
                     <div className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
                       {faq.map((f, i) => (
                         <details key={i} className="group p-4">
-                          <summary className="flex cursor-pointer items-center justify-between gap-3 text-[15px] font-semibold text-foreground">
+                          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-[15px] font-semibold text-foreground">
                             {f.q}
                             <ChevronRight className="h-4 w-4 text-muted-foreground transition group-open:rotate-90" aria-hidden />
                           </summary>
@@ -671,7 +687,7 @@ const BlogArticle = () => {
                 </div>
 
                 <div className="mt-10">
-                  <Button asChild variant="ghost" size="sm">
+                  <Button asChild variant="ghost" size="sm" className="min-h-11">
                     <Link to="/blog">
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       {t.blog_backToIndex}
@@ -699,7 +715,7 @@ const BlogArticle = () => {
                         <li key={item.id}>
                           <a
                             href={`#${item.id}`}
-                            className="block text-muted-foreground hover:text-primary"
+                            className="block rounded-md py-1.5 text-muted-foreground hover:text-primary"
                           >
                             {item.heading}
                           </a>

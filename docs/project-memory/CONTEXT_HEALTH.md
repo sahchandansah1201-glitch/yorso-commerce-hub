@@ -5,17 +5,17 @@ Updated: 2026-05-25
 ## Current Status
 
 ```yaml
-context_risk: "low"
+context_risk: "medium"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch after Batch #126 Lovable sync"
+recommended_action: "commit, push and open PR for Batch #127 public blog mobile tap targets"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main after Batch #126 Lovable sync record commit"
+active_branch: "codex/batch127-public-runtime-ux-a11y-audit"
+head_commit: "local Batch #127 changes validated, not yet committed"
 latest_merged_batch: 126
-active_workstream: "ready_for_next_public_ux_batch"
+active_workstream: "batch127_public_blog_mobile_tap_targets"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/177"
-why_low: "Batch #126 is merged to main as c1ebd76 via PR #177 and Lovable sync is confirmed clean at 6a27659 with no conflicts or file modifications."
+why_medium: "Batch #127 has local validated code, e2e, package smoke wiring, production-scale notes and pending project-memory updates; PR is not opened yet."
 ```
 
 ## Risk Levels
@@ -50,8 +50,8 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #126 public skip-to-main target is merged to main and Lovable sync is confirmed clean.
+Current branch: codex/batch127-public-runtime-ux-a11y-audit.
+Current workstream: Batch #127 public blog mobile tap targets are locally validated and ready for commit/PR.
 Latest merged batch: Batch #126 public skip-to-main target is merged to main.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
@@ -88,6 +88,10 @@ Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-126-lovable-syn
 Lovable sync for Batch #126 is confirmed clean at 6a27659 with no conflicts and a clean tree.
 Lovable confirmed Header showSkipLink/mainId, EN/RU/ES aria_skipToMain, RU leak guard, public route shells with Header showSkipLink plus main#main, e2e/public-skip-main-target.spec.ts, package smoke wiring, preserved Batch #125 landmark labels, preserved Batch #113 RouteChunkErrorBoundary, preserved Batch #112 code splitting, buyer-first copy, access gating, supplier identity redaction, price-lock and Batches #110-#125.
 Batch #126 preserves public visual layout, buyer-first copy, CTA destinations, SEO route ownership, mobile overflow fixes, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+Batch #127 runtime audit found public blog mobile tap-target defects: /blog filter chips, topic chips, read-more links, see-all-updates link and /blog/:slug breadcrumbs/mobile TOC links could render below 44px.
+Batch #127 implementation enlarges mobile-safe target zones on existing Blog and BlogArticle controls, adds data-blog-mobile-target markers, adds e2e/blog-mobile-tap-targets.spec.ts, wires dedicated/full smoke scripts and records the 10,000 concurrent-user baseline note.
+Batch #127 local validation passed: post-fix runtime Playwright target scan for /blog and /blog/atlantic-salmon-q1-price-pressure; E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium, 2 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:blog-mobile-tap-targets, 2 tests; npm run smoke:e2e:run, 221 tests.
+Batch #127 preserves blog copy, routes, SEO, buyer-first narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: start the next scoped public UX/UI audit batch from current main.
+Next step: commit Batch #127, push codex/batch127-public-runtime-ux-a11y-audit, open draft PR and watch GitHub checks.
 ```
