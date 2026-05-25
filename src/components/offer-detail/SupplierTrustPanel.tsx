@@ -15,6 +15,7 @@ import {
   SupplierAccessRequestPanel,
   SupplierAccessRequestSent,
 } from "@/components/suppliers/SupplierAccessRequestPanel";
+import MarketPulse from "@/components/offer-detail/MarketPulse";
 
 const MiniStat = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-2.5">
@@ -171,6 +172,10 @@ const SupplierTrustPanel = ({
           </Button>
         )}
       </div>
+
+      {/* CTA stack — gated by access */}
+      {/* Market Pulse — offer-scoped activity signals, mock estimate */}
+      <MarketPulse offerId={offer.id} />
 
       {/* CTA stack — gated by access */}
       <div id="offer-supplier-access" className="scroll-mt-24 space-y-2.5">
