@@ -75,12 +75,17 @@ const RegisterEmail = () => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <label htmlFor="register-email" className="sr-only">
+            {t.signin_emailLabel}
+          </label>
           <Input
+            id="register-email"
             type="email"
             placeholder={t.reg_emailPlaceholder}
             value={email}
             onChange={(e) => { setEmail(e.target.value); setError(""); }}
             className="h-14 text-lg px-4 rounded-xl"
+            autoComplete="email"
             autoFocus
             required
             disabled={loading}
@@ -94,9 +99,9 @@ const RegisterEmail = () => {
 
         <p className="text-center text-xs text-muted-foreground leading-relaxed">
           {t.reg_byContAgreeTo}{" "}
-          <a href="/terms" className="underline hover:text-foreground">{t.reg_terms}</a>
+          <a href="/terms" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-1 underline hover:text-foreground" data-registration-mobile-target="email-terms">{t.reg_terms}</a>
           {" "}{t.reg_and}{" "}
-          <a href="/privacy" className="underline hover:text-foreground">{t.reg_privacyPolicy}</a>.
+          <a href="/privacy" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-1 underline hover:text-foreground" data-registration-mobile-target="email-privacy">{t.reg_privacyPolicy}</a>.
         </p>
       </form>
 

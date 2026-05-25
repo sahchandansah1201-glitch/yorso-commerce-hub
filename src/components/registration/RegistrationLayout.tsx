@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import { ArrowLeft, Lock, ShieldCheck, Users } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
@@ -39,27 +39,53 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
   const TrustIcon = TRUST_ICONS[idx];
   const trustText = trustTexts[idx];
 
+  const skipToMain = (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    const target = document.getElementById("main");
+    if (!target) return;
+
+    event.preventDefault();
+    if (!target.hasAttribute("tabindex")) {
+      target.setAttribute("tabindex", "-1");
+    }
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "start" });
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#main`);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="relative z-10 border-b border-border/40">
+        <a
+          href="#main"
+          onClick={skipToMain}
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        >
+          {t.aria_skipToMain}
+        </a>
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             {canGoBack && (
               <button
                 onClick={() => navigate(-1)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 aria-label={t.aria_goBack}
+                data-registration-mobile-target="layout-back"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
             )}
-            <Link to="/" className="font-heading text-2xl font-bold tracking-tight text-foreground">
+            <Link
+              to="/"
+              className="inline-flex min-h-11 items-center rounded px-1 font-heading text-2xl font-bold tracking-tight text-foreground"
+              data-registration-mobile-target="layout-logo"
+            >
               YORSO
             </Link>
           </div>
           <Link
             to="/signin"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors text-right shrink-0"
+            className="inline-flex min-h-11 min-w-11 items-center justify-end rounded px-2 text-right text-sm font-medium text-muted-foreground transition-colors hover:text-foreground shrink-0"
+            data-registration-mobile-target="layout-signin"
           >
             <span className="hidden sm:inline">{t.reg_alreadyHaveAccount} </span><span className="text-primary">{t.reg_signIn}</span>
           </Link>
@@ -76,7 +102,7 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
         )}
       </header>
 
-      <main className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
+      <main id="main" className="flex flex-1 justify-center px-4 pt-8 pb-12 md:pt-16">
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 20 }}
@@ -98,11 +124,11 @@ const RegistrationLayout = ({ children, hideProgress, trustIndex }: Props) => {
             </div>
           )}
           <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground transition-colors">{t.reg_terms}</Link>
+            <Link to="/terms" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-2 transition-colors hover:text-foreground" data-registration-mobile-target="layout-footer-link">{t.reg_terms}</Link>
             <span>·</span>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">{t.reg_privacyPolicy}</Link>
+            <Link to="/privacy" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-2 transition-colors hover:text-foreground" data-registration-mobile-target="layout-footer-link">{t.reg_privacyPolicy}</Link>
             <span>·</span>
-            <Link to="/contact" className="hover:text-foreground transition-colors">{t.reg_help}</Link>
+            <Link to="/contact" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded px-2 transition-colors hover:text-foreground" data-registration-mobile-target="layout-footer-link">{t.reg_help}</Link>
           </div>
         </div>
       </footer>

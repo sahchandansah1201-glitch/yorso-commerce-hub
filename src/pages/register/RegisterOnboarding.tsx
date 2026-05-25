@@ -97,7 +97,8 @@ const RegisterOnboarding = () => {
               const isSelected = selected.includes(cat);
               return (
                 <button key={cat} onClick={() => toggleItem(cat, selected, setSelected)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
+                  className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+                  data-registration-mobile-target="onboarding-chip">
                   {isSelected && <Check className="h-3.5 w-3.5" />}
                   {getCategoryLabel(cat, lang)}
                 </button>
@@ -117,7 +118,8 @@ const RegisterOnboarding = () => {
                 const isSelected = certs.includes(cert);
                 return (
                   <button key={cert} onClick={() => toggleItem(cert, certs, setCerts)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
+                    className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+                    data-registration-mobile-target="onboarding-chip">
                     {isSelected && <Check className="h-3.5 w-3.5" />}
                     {getCertificationLabel(cert, lang)}
                   </button>
@@ -134,7 +136,8 @@ const RegisterOnboarding = () => {
           <div className="grid grid-cols-2 gap-2.5">
             {volumes.map((v) => (
               <button key={v} onClick={() => setVolume(v)}
-                className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${volume === v ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
+                className={`min-h-11 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${volume === v ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+                data-registration-mobile-target="onboarding-volume">
                 {getVolumeLabel(v, lang)}
               </button>
             ))}
@@ -146,7 +149,8 @@ const RegisterOnboarding = () => {
         </Button>
 
         <button onClick={() => { setFields({ onboardingSkipped: true }); analytics.track("registration_onboarding_skipped"); navigate("/register/countries"); }}
-          className="block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+          className="flex min-h-11 w-full items-center justify-center rounded text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+          data-registration-mobile-target="onboarding-skip">
           {t.reg_skipForNow}
         </button>
 

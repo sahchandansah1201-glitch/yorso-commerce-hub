@@ -1025,3 +1025,30 @@ Keep this file factual and append-only.
   - `/blog` and `/blog/:slug` mobile targets are marked, min-h/min-w hardened where needed and covered by the 390px e2e guard;
   - blog copy, routes, in-page anchors, SEO, Batch #126 skip-to-main, Batch #125 landmark labels, Batch #113 RouteChunkErrorBoundary and Batch #112 code splitting are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #128 on `codex/batch128-public-runtime-ux-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #127 and found registration-flow gaps:
+  - `/register`, `/register/email`, `/register/verify`, `/register/details`, `/register/onboarding`, `/register/countries` and `/register/ready` had no stable `main#main` and no skip-to-main link;
+  - registration header/footer/legal/secondary controls could render below the 44px mobile target baseline;
+  - registration OTP inputs were unnamed and lacked `one-time-code` autocomplete;
+  - registration email/details, sign-in and reset-password fields lacked useful browser completion hints;
+  - `/register/ready` had a nested `Link > Button` CTA.
+- Implemented Batch #128 public auth and registration accessibility:
+  - added a hidden-until-focus skip-to-main link and exactly one `main#main` to `RegistrationLayout`;
+  - hardened registration shell, footer, legal and secondary actions to mobile-safe target sizes;
+  - added `inputAutoComplete` support to `CountryPhoneInput`;
+  - added labels and completion hints to registration email, verify, details, sign-in and reset-password fields;
+  - hardened onboarding/countries chip and skip controls;
+  - changed `/register/ready` CTA to the existing `Button asChild` pattern;
+  - added `e2e/public-auth-registration-a11y.spec.ts`;
+  - wired `smoke:e2e:public-auth-registration-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #128 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #128 local validation:
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium` passed, 10 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium` passed, 5 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run lint` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:public-auth-registration-a11y` passed, 10 tests after production build;
+  - `npm run smoke:e2e:run` passed, 231 tests.
+- Batch #128 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

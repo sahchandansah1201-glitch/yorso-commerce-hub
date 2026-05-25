@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "main"
-  head_commit: "main after Batch #127 Lovable sync record commit"
+  active_branch: "codex/batch128-public-runtime-ux-a11y-audit"
+  head_commit: "1f7d2bc plus uncommitted Batch #128 local changes"
   head_summary: "[codex] Record Batch 127 Lovable sync"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "User confirmed Batch #127 Lovable sync clean; only project-memory is updated in this checkpoint."
+    - "Batch #128 public auth and registration accessibility is implemented locally and validated; project-memory is being updated before commit/PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,24 +37,33 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "ready_for_next_public_ux_batch"
-  summary: "Batch #127 Lovable sync is clean; start the next scoped public UX/UI audit batch."
-  status: "ready_for_next_batch"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
+  id: "batch128_public_auth_registration_accessibility"
+  summary: "Public auth and registration accessibility/scanability hardening after Batch #127."
+  status: "local_validation_passed_ready_for_commit_and_pr"
+  branch: "codex/batch128-public-runtime-ux-a11y-audit"
+  pull_request: null
   confirmed_scope:
-    - "Audit public routes after Batch #126 for concrete route-level UX/accessibility defects."
-    - "Runtime audit found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on the audited public routes."
-    - "Runtime mobile target-size audit found concrete blog-surface defects on /blog and /blog/:slug."
-    - "Fix only existing blog/article mobile target zones without changing copy, routes, SEO, blog content or visual hierarchy."
-    - "Add focused mobile e2e coverage for /blog and /blog/atlantic-salmon-q1-price-pressure at 390px."
-    - "Run local Batch #127 validation including dedicated production smoke and full smoke:e2e:run."
+    - "Runtime audit after Batch #127 found registration routes were not covered by previous public skip/main, tap-target and input-accessibility batches."
+    - "Fix only public auth/registration UX semantics and mobile scanability without changing registration business logic, auth runtime, copy, routes, analytics, access gating, supplier redaction or price locks."
+    - "Add stable main#main and skip-to-main behavior to the registration layout."
+    - "Add mobile-safe 44px target coverage to registration shell/action controls."
+    - "Add programmatic labels and browser autocomplete hints to public auth and registration forms."
+    - "Remove the nested interactive CTA on /register/ready using the existing Button asChild pattern."
+    - "Add focused e2e coverage for registration shell landmarks, target size, nested controls, overflow, skip focus and completion hints."
+    - "Run local Batch #128 validation including dedicated production smoke and full smoke:e2e:run."
     - "Commit, push, open PR and confirm GitHub Core Type And Build Gate."
-    - "Merge Batch #127 to main and prepare the Lovable sync prompt."
   confirmed_files:
-    - "src/pages/Blog.tsx"
-    - "src/pages/BlogArticle.tsx"
-    - "e2e/blog-mobile-tap-targets.spec.ts"
+    - "src/components/registration/RegistrationLayout.tsx"
+    - "src/components/registration/CountryPhoneInput.tsx"
+    - "src/pages/SignIn.tsx"
+    - "src/pages/ResetPassword.tsx"
+    - "src/pages/register/RegisterEmail.tsx"
+    - "src/pages/register/RegisterVerify.tsx"
+    - "src/pages/register/RegisterDetails.tsx"
+    - "src/pages/register/RegisterOnboarding.tsx"
+    - "src/pages/register/RegisterCountries.tsx"
+    - "src/pages/register/RegisterReady.tsx"
+    - "e2e/public-auth-registration-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -63,43 +72,42 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
 
 active_batch:
-  id: 127
-  summary: "Public blog mobile tap targets on /blog and blog article pages."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "3aed8dd"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-127-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-25"
-    head: "e8d096f"
-    result: "clean_no_conflicts"
+  id: 128
+  summary: "Public auth and registration accessibility: registration skip/main target, mobile target sizes, form labels/autocomplete and ready CTA semantics."
+  status: "local_validation_passed_ready_for_commit_and_pr"
+  commit: null
+  branch: "codex/batch128-public-runtime-ux-a11y-audit"
+  pull_request: null
+  lovable_sync_prompt: null
+  lovable_sync: null
   confirmed_findings:
-    - "Runtime audit after Batch #126 found no visible unnamed interactives, no focusable aria-hidden controls and no missing image alt issues on audited public routes."
-    - "Mobile 390px runtime audit found /blog filter chips, popular topic chips, read-article links, see-all-updates link and some breadcrumbs below the 44px target baseline."
-    - "Mobile 390px runtime audit found /blog/:slug breadcrumbs and mobile table-of-contents links below the 44px target baseline."
+    - "Runtime audit after Batch #127 found /register, /register/email, /register/verify, /register/details, /register/onboarding, /register/countries and /register/ready had no stable main#main and no skip-to-main link."
+    - "Registration shell/footer/legal/secondary actions could render below the 44px mobile target baseline."
+    - "Registration OTP inputs were unnamed and lacked one-time-code autocomplete."
+    - "Registration details, email, sign-in and reset-password fields lacked useful browser autocomplete hints."
+    - "/register/ready contained a nested Link > Button CTA."
   confirmed_changes:
-    - "Blog breadcrumbs, category filter chips, article read links, popular topic chips and see-all-updates link now expose mobile-safe target zones while preserving the same destinations and copy."
-    - "Blog article breadcrumbs, mobile TOC summary/links, FAQ summaries and back-to-index CTA now expose mobile-safe target zones."
-    - "e2e/blog-mobile-tap-targets.spec.ts checks marked blog controls at 390px for at least 44px width and height, plus no horizontal overflow."
-    - "Dedicated and full e2e smoke scripts include the blog mobile target guard."
-    - "Batch #127 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
+    - "RegistrationLayout now exposes a hidden-until-focus skip-to-main link, exactly one main#main target and mobile-safe shell/footer targets."
+    - "CountryPhoneInput accepts inputAutoComplete and keeps country search autocomplete disabled."
+    - "RegisterEmail, RegisterVerify, RegisterDetails, RegisterOnboarding, RegisterCountries and RegisterReady now expose named fields or mobile-safe targets where the runtime audit found gaps."
+    - "RegisterReady uses Button asChild with React Router Link for the offers CTA, removing nested interactive controls."
+    - "SignIn and ResetPassword now expose browser completion hints for email, phone and password fields without changing submit behavior."
+    - "e2e/public-auth-registration-a11y.spec.ts covers sign-in completion hints, registration shell landmarks, skip focus, target sizes, nested-control absence, overflow absence and registration form labels/autocomplete."
+    - "Dedicated and full e2e smoke scripts include the auth/registration accessibility guard."
+    - "Batch #128 production-scale baseline notes confirm no backend reads/writes, queues, database changes or new runtime volume."
   validation:
-    - "Runtime unnamed-interactive/missing-alt/focusable-aria-hidden audit passed with no issues on audited public routes."
-    - "Post-fix runtime Playwright scan passed for /blog and /blog/atlantic-salmon-q1-price-pressure at 390px: no marked target below 44px and no horizontal overflow."
-    - "E2E_BASE_URL=http://127.0.0.1:4199 npx playwright test e2e/blog-mobile-tap-targets.spec.ts --project=chromium, 2 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium, 10 tests."
+    - "E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium, 5 tests."
     - "npx tsc -b --noEmit."
-    - "npm run lint."
     - "npm run check:production-scale-baseline."
+    - "npm run lint."
     - "git diff --check."
-    - "npm run smoke:e2e:blog-mobile-tap-targets, 2 tests after production build."
-    - "npm run smoke:e2e:run, 221 tests."
-    - "GitHub Core Type And Build Gate passed on PR #178 in 12m16s."
+    - "npm run smoke:e2e:public-auth-registration-a11y, 10 tests after production build."
+    - "npm run smoke:e2e:run, 231 tests."
   preserved_behavior:
-    - "Blog copy, article content, routes, link destinations, SEO structure and visual hierarchy are preserved."
+    - "Registration copy, route flow, analytics hooks, local registration storage behavior and auth runtime behavior are preserved."
     - "Buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."

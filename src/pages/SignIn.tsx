@@ -167,9 +167,9 @@ const SignIn = () => {
                   </label>
                   <div className="h-12">
                     {method === "email" ? (
-                      <Input id="signin-email" className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} required />
+                      <Input id="signin-email" className="h-12 text-base rounded-xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} autoComplete="email" required />
                     ) : (
-                      <CountryPhoneInput inputId="signin-phone" phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} placeholderText={t.signin_phoneLabel} />
+                      <CountryPhoneInput inputId="signin-phone" inputAutoComplete="tel" phone={phoneNumber} onPhoneChange={setPhoneNumber} onCountryChange={setPhoneCountry} countryName={phoneCountry} disabled={false} placeholderText={t.signin_phoneLabel} />
                     )}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ const SignIn = () => {
                       className={`text-xs font-medium text-primary hover:underline transition-opacity ${method === "email" ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                     >{t.signin_forgotPassword}</button>
                   </div>
-                  <Input id="signin-password" className="h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} required />
+                  <Input id="signin-password" className="h-12 text-base rounded-xl" type="password" value={method === "email" ? emailPassword : phonePassword} onChange={(e) => method === "email" ? setEmailPassword(e.target.value) : setPhonePassword(e.target.value)} placeholder={t.signin_passwordPlaceholder} autoComplete="current-password" required />
                 </div>
                 <Button type="submit" disabled={signinLoading} className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_signInBtn} <ArrowRight className="h-5 w-5" /></Button>
               </form>
@@ -230,7 +230,7 @@ const SignIn = () => {
                 <form onSubmit={handleForgotSubmit} className="mt-6 space-y-4">
                   <div>
                     <label htmlFor="signin-forgot-email" className="text-sm font-medium text-foreground">{t.signin_emailLabel}</label>
-                    <Input id="signin-forgot-email" className="mt-1 h-12 text-base rounded-xl" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} required autoFocus />
+                    <Input id="signin-forgot-email" className="mt-1 h-12 text-base rounded-xl" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder={t.signin_emailPlaceholder} autoComplete="email" required autoFocus />
                   </div>
                   <Button type="submit" disabled={forgotLoading} className="w-full h-14 gap-2 font-semibold rounded-xl" size="lg">{t.signin_sendResetLink} <ArrowRight className="h-5 w-5" /></Button>
                 </form>

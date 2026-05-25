@@ -83,7 +83,8 @@ const RegisterCountries = () => {
             const isSelected = selected.includes(country);
             return (
               <button key={country} onClick={() => toggle(country)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}>
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${isSelected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+                data-registration-mobile-target="countries-chip">
                 {isSelected && <Check className="h-3.5 w-3.5" />}
                 {country}
               </button>
@@ -92,7 +93,7 @@ const RegisterCountries = () => {
         </div>
 
         {!showAll && (
-          <button onClick={() => setShowAll(true)} className="text-sm text-primary hover:underline font-medium">
+          <button onClick={() => setShowAll(true)} className="inline-flex min-h-11 items-center rounded px-2 text-sm font-medium text-primary hover:underline" data-registration-mobile-target="countries-show-all">
             {t.reg_showAllCountries.replace("{count}", String(SEAFOOD_COUNTRIES.length))}
           </button>
         )}
@@ -109,7 +110,8 @@ const RegisterCountries = () => {
         </Button>
 
         <button onClick={() => { setFields({ countriesSkipped: true }); analytics.track("registration_countries_skipped"); navigate("/register/ready"); }}
-          className="block w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+          className="flex min-h-11 w-full items-center justify-center rounded text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+          data-registration-mobile-target="countries-skip">
           {t.reg_skipForNow}
         </button>
 

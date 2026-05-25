@@ -301,6 +301,8 @@ const RegisterVerify = () => {
               id={`otp-${i}`}
               type="text"
               inputMode="numeric"
+              autoComplete="one-time-code"
+              aria-label={`${t.reg_smsCode} ${i + 1}`}
               maxLength={1}
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
@@ -321,7 +323,7 @@ const RegisterVerify = () => {
         </Button>
 
         <div className="text-center space-y-2">
-          <button type="button" onClick={handleResend} className="text-sm text-primary hover:underline font-medium" disabled={loading}>
+          <button type="button" onClick={handleResend} className="inline-flex min-h-11 items-center justify-center rounded px-2 text-sm font-medium text-primary hover:underline" disabled={loading} data-registration-mobile-target="verify-resend">
             {t.reg_didntReceive}
           </button>
           {import.meta.env.DEV && (
@@ -339,7 +341,8 @@ const RegisterVerify = () => {
                 });
                 navigate("/register/details");
               }}
-              className="block mx-auto text-xs text-muted-foreground/50 hover:text-muted-foreground underline"
+              className="mx-auto inline-flex min-h-11 items-center justify-center rounded px-2 text-xs text-muted-foreground/50 underline hover:text-muted-foreground"
+              data-registration-mobile-target="verify-dev-skip"
             >
               Skip verification (Dev)
             </button>

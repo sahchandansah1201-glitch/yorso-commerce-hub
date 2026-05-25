@@ -120,26 +120,30 @@ const ResetPassword = () => {
           ) : (
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground">{c.newPassword}</label>
+                <label htmlFor="reset-new-password" className="text-sm font-medium text-foreground">{c.newPassword}</label>
                 <Input
+                  id="reset-new-password"
                   className="mt-1 h-12 text-base rounded-xl"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                   autoFocus
                   minLength={8}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">{c.confirmPassword}</label>
+                <label htmlFor="reset-confirm-password" className="text-sm font-medium text-foreground">{c.confirmPassword}</label>
                 <Input
+                  id="reset-confirm-password"
                   className="mt-1 h-12 text-base rounded-xl"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   required
                   minLength={8}
                 />
