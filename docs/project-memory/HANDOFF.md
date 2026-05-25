@@ -20,40 +20,35 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
-- Batch #128 public auth and registration accessibility is merged to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`, via PR #179.
-- PR #179 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
-- GitHub `Core Type And Build Gate` passed on PR #179 in 11m57s.
-- Batch #128 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
-- Batch #128 Lovable sync is confirmed clean at `f1f482b`, with no conflicts and no local file modifications in Lovable.
-- Lovable confirmed `RegistrationLayout`, `CountryPhoneInput`, `SignIn`, `ResetPassword`, `RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready`, `e2e/public-auth-registration-a11y.spec.ts`, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, `/register/ready` `Button asChild` CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
-- Batch #128 runtime audit after Batch #127 found the registration flow was not covered by previous public skip/main, tap-target and input-accessibility batches:
-  - `/register`, `/register/email`, `/register/verify`, `/register/details`, `/register/onboarding`, `/register/countries` and `/register/ready` had no stable `main#main` and no skip-to-main link;
-  - registration header/footer/legal/secondary actions could render below the 44px mobile target baseline;
-  - registration OTP inputs were unnamed and lacked `one-time-code` autocomplete;
-  - registration email/details, sign-in and reset-password fields lacked useful browser autocomplete hints;
-  - `/register/ready` had a nested `Link > Button` CTA.
-- Batch #128 implementation:
-  - `RegistrationLayout` now exposes a hidden-until-focus skip-to-main link, exactly one `main#main` target and mobile-safe shell/footer targets;
-  - `CountryPhoneInput` accepts `inputAutoComplete` and keeps country search autocomplete disabled;
-  - registration email, verify, details, onboarding and countries screens expose named fields or 44px mobile-safe controls where the audit found gaps;
-  - `/register/ready` uses `Button asChild` with a React Router `Link` for the offers CTA;
-  - `/signin` and `/reset-password` expose browser completion hints without changing submit behavior;
-  - `e2e/public-auth-registration-a11y.spec.ts` covers sign-in completion hints, registration shell landmarks, skip focus, target sizes, nested-control absence, overflow absence and registration form labels/autocomplete;
+- The repository is currently on branch `codex/batch129-public-runtime-ux-a11y-audit`.
+- Batch #129 offer detail mobile accessibility is implemented locally and awaiting commit/PR.
+- Base state: Batch #128 public auth and registration accessibility is merged to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`, and Lovable sync is confirmed clean at `f1f482b`.
+- Batch #129 runtime audit focused on `/offers/:id`, the buyer decision route.
+- Batch #129 findings:
+  - visible gallery/photo controls on offer detail were unnamed;
+  - back-to-catalog, breadcrumbs, delivery-basis chips, supplier verification disclosure and full specifications disclosure could render below the 44px mobile target baseline;
+  - no horizontal overflow or nested interactive controls were present before the fix.
+- Batch #129 implementation:
+  - `PhotoGallery` now exposes locale-owned named previous/next/open-gallery controls, named thumbnails and named lightbox close/previous/next controls with mobile-safe target boxes;
+  - `OfferDetail` back-to-catalog and breadcrumb links meet the mobile target baseline while preserving destinations;
+  - `OfferSummary` delivery-basis options meet the mobile target baseline in locked and unlocked states;
+  - `SupplierTrustPanel` review-scope disclosure and `FullSpecifications` disclosure expose `aria-expanded` and mobile-safe target boxes;
+  - `e2e/offer-detail-mobile-a11y.spec.ts` covers marked mobile targets, named gallery/lightbox controls, no unnamed visible buttons, no nested controls and no horizontal overflow;
   - `package.json` includes dedicated and full smoke wiring;
-  - `docs/backend/production-scale-baseline.md` includes the Batch #128 10,000 concurrent-user note.
-- Batch #128 local validation passed:
-  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium`, 10 tests;
-  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium`, 5 tests;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #129 10,000 concurrent-user note.
+- Batch #129 local validation passed:
+  - focused runtime Playwright scan on `/offers/:id` at 390px found zero horizontal overflow, zero nested controls, zero unnamed visible buttons and zero marked targets below 44px;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-mobile-a11y.spec.ts --project=chromium`, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-cta-semantics.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-detail-mobile-a11y.spec.ts --project=chromium`, 9 tests;
   - `npx tsc -b --noEmit`;
   - `npm run check:production-scale-baseline`;
   - `npm run lint`;
-  - `git diff --check`;
-  - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
-  - `npm run smoke:e2e:run`, 231 tests.
-- Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-- Next step: start the next scoped public UX/UI audit batch from current `main`.
-- The latest merged batch is Batch #128.
+  - `npm run smoke:e2e:offer-detail-mobile-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:run`, 233 tests.
+- Current build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip.
+- Batch #129 preserves offer data, access gating, supplier identity redaction, exact-price locking, sticky CTAs, return-to-catalog behavior, route behavior, buyer-first narrative, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#128 public UX/a11y safeguards.
+- Next step: run final diff/YAML checks, commit, push, open draft PR, confirm GitHub `Core Type And Build Gate`, merge and prepare the Batch #129 Lovable sync prompt.
+- The latest merged batch remains Batch #128 until Batch #129 is merged.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - GitHub `Core Type And Build Gate` passed on PR #178 in 12m16s.

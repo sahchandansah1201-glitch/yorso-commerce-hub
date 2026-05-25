@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "start the next scoped public UX/UI audit batch after Batch #128 Lovable sync"
+recommended_action: "finish Batch #129 commit, PR, GitHub validation, merge and Lovable sync prompt"
 current_project: "yorso-commerce-hub"
-active_branch: "main"
+active_branch: "codex/batch129-public-runtime-ux-a11y-audit"
 head_commit: "f1f482b"
 latest_merged_batch: 128
-active_workstream: "ready_for_next_public_ux_batch"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
-why_low: "Batch #128 is merged to main as 912230c via PR #179 and Lovable sync is confirmed clean at f1f482b with no conflicts or file modifications."
+active_workstream: "batch129_offer_detail_mobile_accessibility"
+pull_request: null
+why_low: "Batch #129 is a scoped offer detail mobile accessibility batch with local validation passed: dedicated e2e, neighboring offer-detail e2e, lint, typecheck, production-scale guard, dedicated production smoke and full smoke:e2e:run."
 ```
 
 ## Risk Levels
@@ -50,9 +50,13 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #128 public auth and registration accessibility is merged to main and Lovable sync is confirmed clean.
+Current branch: codex/batch129-public-runtime-ux-a11y-audit.
+Current workstream: Batch #129 offer detail mobile accessibility is implemented locally and awaiting commit/PR.
 Latest merged batch: Batch #128 public auth and registration accessibility is merged to main.
+Batch #129 runtime audit focused on /offers/:id, the buyer decision route, after Batch #128 Lovable sync.
+Batch #129 findings: unnamed visible gallery/photo controls; undersized mobile targets for back-to-catalog, breadcrumbs, delivery-basis chips, supplier review-scope disclosure and full specifications disclosure.
+Batch #129 implementation: named and mobile-safe PhotoGallery controls/thumbnails/lightbox controls, mobile-safe OfferDetail breadcrumbs/back action, mobile-safe OfferSummary delivery-basis controls, aria-expanded on SupplierTrustPanel and FullSpecifications disclosures, e2e/offer-detail-mobile-a11y.spec.ts, package smoke wiring and Batch #129 production-scale baseline note.
+Batch #129 local validation passed: focused runtime Playwright scan on /offers/:id at 390px; E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-mobile-a11y.spec.ts --project=chromium, 2 tests; E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-cta-semantics.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-detail-mobile-a11y.spec.ts --project=chromium, 9 tests; npx tsc -b --noEmit; npm run check:production-scale-baseline; npm run lint; npm run smoke:e2e:offer-detail-mobile-a11y; npm run smoke:e2e:run, 233 tests.
 Batch #121 is merged to main as 809d35f via PR #172 and Lovable sync is confirmed clean at 9b8f9434.
 Batch #119 Lovable sync is confirmed clean at 851ad960 with no conflicts and no file changes.
 Batch #122 is merged to main as dc2a3ca via PR #173.

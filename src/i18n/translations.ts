@@ -367,6 +367,11 @@ type TranslationKeys = {
   offerDetail_loadError_goCatalog: string;
   offerDetail_recovery_title: string;
   offerDetail_recovery_body: string;
+  offerDetail_gallery_previous: string;
+  offerDetail_gallery_next: string;
+  offerDetail_gallery_open: string;
+  offerDetail_gallery_close: string;
+  offerDetail_gallery_thumbnail: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
@@ -2154,6 +2159,11 @@ const en: TranslationKeys = {
   offerDetail_loadError_goCatalog: "Go to catalog",
   offerDetail_recovery_title: "Showing prototype offer data",
   offerDetail_recovery_body: "The self-hosted catalog API is unavailable. This fallback keeps the page usable while preserving access limits.",
+  offerDetail_gallery_previous: "Previous offer photo",
+  offerDetail_gallery_next: "Next offer photo",
+  offerDetail_gallery_open: "Open offer photo gallery",
+  offerDetail_gallery_close: "Close offer photo gallery",
+  offerDetail_gallery_thumbnail: "View offer photo {current} of {total}",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -3912,6 +3922,11 @@ const ru: TranslationKeys = {
   offerDetail_loadError_goCatalog: "Перейти к каталогу",
   offerDetail_recovery_title: "Показаны данные предложения из прототипа",
   offerDetail_recovery_body: "API self-hosted каталога недоступен. Резервные данные сохраняют страницу рабочей и не раскрывают закрытые поля.",
+  offerDetail_gallery_previous: "Предыдущее фото предложения",
+  offerDetail_gallery_next: "Следующее фото предложения",
+  offerDetail_gallery_open: "Открыть галерею фото предложения",
+  offerDetail_gallery_close: "Закрыть галерею фото предложения",
+  offerDetail_gallery_thumbnail: "Открыть фото предложения {current} из {total}",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -5670,6 +5685,11 @@ const es: TranslationKeys = {
   offerDetail_loadError_goCatalog: "Ir al catálogo",
   offerDetail_recovery_title: "Mostrando datos de oferta del prototipo",
   offerDetail_recovery_body: "La API del catálogo self-hosted no está disponible. Este fallback mantiene la página usable sin revelar datos restringidos.",
+  offerDetail_gallery_previous: "Foto anterior de la oferta",
+  offerDetail_gallery_next: "Foto siguiente de la oferta",
+  offerDetail_gallery_open: "Abrir galería de fotos de la oferta",
+  offerDetail_gallery_close: "Cerrar galería de fotos de la oferta",
+  offerDetail_gallery_thumbnail: "Ver foto de la oferta {current} de {total}",
 
   // 404 / Not Found
   notFound_title: "404",

@@ -1068,3 +1068,27 @@ Keep this file factual and append-only.
   - registration mobile targets meet the 44px baseline at 390px with no horizontal overflow;
   - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets are intact;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #129 on `codex/batch129-public-runtime-ux-a11y-audit`.
+- Ran the next scoped public UX/accessibility runtime audit after Batch #128 and focused the fix on `/offers/:id`, the buyer decision route:
+  - visible gallery/photo controls were unnamed;
+  - back-to-catalog, breadcrumbs, delivery-basis chips, supplier verification disclosure and full specifications disclosure could render below the 44px mobile target baseline;
+  - no horizontal overflow or nested interactive controls were present before the fix.
+- Implemented Batch #129 offer detail mobile accessibility:
+  - named and resized `PhotoGallery` previous/next/open-gallery controls, thumbnails and lightbox controls using locale-owned EN/RU/ES labels;
+  - hardened `OfferDetail` back-to-catalog and breadcrumb links to mobile-safe target sizes;
+  - hardened `OfferSummary` delivery-basis controls in locked and unlocked states;
+  - added `aria-expanded` and mobile-safe target sizes to `SupplierTrustPanel` review-scope disclosure and `FullSpecifications` disclosure;
+  - added `e2e/offer-detail-mobile-a11y.spec.ts`;
+  - wired `smoke:e2e:offer-detail-mobile-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #129 to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #129 local validation:
+  - focused runtime Playwright scan passed on `/offers/:id` at 390px with zero horizontal overflow, zero nested controls, zero unnamed visible buttons and zero marked targets below 44px;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-mobile-a11y.spec.ts --project=chromium` passed, 2 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4201 npx playwright test e2e/offer-detail-cta-semantics.spec.ts e2e/offer-detail-runtime.spec.ts e2e/offer-detail-mobile-a11y.spec.ts --project=chromium` passed, 9 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run lint` passed;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y` passed, 2 tests after production build;
+  - `npm run smoke:e2e:run` passed, 233 tests.
+- Recorded Batch #129 build metrics from dedicated smoke: CSS 126.72 kB / 21.00 kB gzip; entry 355.46 kB / 114.16 kB gzip; i18n-translations 315.30 kB / 99.25 kB gzip; OfferDetail 49.03 kB / 12.56 kB gzip.
+- Batch #129 build preserved the known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. The Vite large-chunk warning stayed resolved.

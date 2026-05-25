@@ -223,6 +223,18 @@
 - `docs/backend/production-scale-baseline.md`: Batch #128 10,000 concurrent users capacity review for public auth and registration accessibility.
 - `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`: sync confirmation prompt for Batch #128 after PR #179 merge; user confirmed clean sync at `f1f482b`.
 
+## Batch #129 Offer Detail Mobile Accessibility
+
+- `src/components/offer-detail/PhotoGallery.tsx`: offer photo gallery controls, thumbnails and lightbox controls expose accessible names and mobile-safe target boxes.
+- `src/pages/OfferDetail.tsx`: back-to-catalog and breadcrumb links expose mobile-safe target boxes while preserving route destinations.
+- `src/components/offer-detail/OfferSummary.tsx`: delivery-basis controls meet the mobile target baseline in locked and unlocked states.
+- `src/components/offer-detail/SupplierTrustPanel.tsx`: supplier verification scope disclosure exposes `aria-expanded` and a mobile-safe target box.
+- `src/components/offer-detail/FullSpecifications.tsx`: full specifications disclosure exposes `aria-expanded` and a mobile-safe target box.
+- `src/i18n/translations.ts`: EN/RU/ES accessible names for offer detail gallery previous, next, open, close and thumbnail controls.
+- `e2e/offer-detail-mobile-a11y.spec.ts`: mobile browser guard for named gallery/lightbox controls, 44px marked offer detail targets, zero unnamed visible buttons, zero nested controls and zero horizontal overflow.
+- `package.json`: dedicated offer detail mobile accessibility smoke script and full e2e smoke script include the new guard.
+- `docs/backend/production-scale-baseline.md`: Batch #129 10,000 concurrent users capacity review for offer detail mobile accessibility.
+
 ## Batch #96 Supplier Access Review Console
 
 - `packages/contracts/src/supplier-access.ts`: review queue DTOs and query/status schemas.

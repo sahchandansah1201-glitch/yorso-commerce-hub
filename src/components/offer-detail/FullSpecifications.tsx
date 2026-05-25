@@ -22,7 +22,13 @@ const FullSpecifications = ({ offer }: { offer: SeafoodOffer }) => {
 
   return (
     <section className="py-10 border-t border-border">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex min-h-11 w-full items-center justify-between rounded-md"
+        aria-expanded={open}
+        data-offer-detail-mobile-target="full-specifications"
+      >
         <h2 className="font-heading text-lg font-bold text-foreground">Full Specifications</h2>
         {open ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
       </button>

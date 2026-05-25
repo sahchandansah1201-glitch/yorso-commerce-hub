@@ -2867,6 +2867,76 @@ Marker: public auth registration accessibility.
 Marker: registration flow mobile scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #129 Offer Detail Mobile Accessibility
+
+Batch #129 hardens the public offer detail decision route after Batch #128.
+The offer detail page now exposes named gallery controls, mobile-safe buyer
+decision targets, accessible verification/specification disclosure states and
+locale-owned gallery control names while preserving offer access gating, supplier identity
+redaction, exact-price locking, CTA destinations, route behavior and buyer-first
+procurement copy.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Offer detail fetching, fallback behavior, supplier access request state,
+  buyer session reads and approval-refresh behavior are unchanged.
+- The runtime changes are markup semantics, target-size classes, aria labels and
+  aria-expanded attributes on existing offer detail controls.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter offer-detail request volume at the 10,000
+  concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier pagination, auth persistence, access persistence or account
+  persistence.
+- Offer detail data remains fetched through the existing access-level-aware
+  data path.
+
+Failure mode and graceful degradation:
+
+- Gallery navigation, thumbnails, breadcrumb links, delivery-basis selection,
+  verification scope disclosure and full-specification disclosure remain normal
+  buttons or links.
+- If CSS fails, the underlying controls still expose names, destinations and
+  button semantics.
+- If JavaScript hydration is delayed, breadcrumb links and sticky CTAs remain
+  normal browser navigation targets, while non-navigation controls wait for the
+  existing React handlers.
+
+Observability and load-test plan:
+
+- Regression coverage should assert marked offer detail mobile controls expose
+  at least 44px by 44px target boxes at 390px.
+- Browser smoke verifies `/offers/:id` keeps named visible gallery buttons, no
+  nested controls, no unnamed visible buttons and zero horizontal overflow.
+- Browser smoke verifies opening the photo gallery keeps the close control
+  named.
+- Existing offer detail smoke continues to verify access gating, supplier
+  redaction, price locks, approval refresh, CTA semantics and catalog/detail
+  return behavior.
+
+Validation:
+
+- `npm run smoke:e2e:offer-detail-mobile-a11y`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #129.
+Marker: offer detail mobile accessibility.
+Marker: buyer decision route scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

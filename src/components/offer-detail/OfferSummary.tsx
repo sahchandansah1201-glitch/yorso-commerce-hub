@@ -202,11 +202,12 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
                         type="button"
                         onClick={() => setSelectedBasis(b)}
                         aria-pressed={active}
-                        className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors text-left ${
+                        className={`min-h-11 rounded-lg border px-3 py-2 text-left text-xs font-medium transition-colors ${
                           active
                             ? "border-primary bg-primary/5 text-primary"
                             : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
                         }`}
+                        data-offer-detail-mobile-target="delivery-basis"
                       >
                         <span className="font-semibold">{b.code}</span>
                         <span className="ml-1 text-[11px] opacity-70">
@@ -308,12 +309,14 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
                   {bases.map((b) => (
                     <button
                       key={b.code + b.shipmentPort}
+                      type="button"
                       onClick={() => setSelectedBasis(b)}
-                      className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                      className={`min-h-11 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
                         selectedBasis.code === b.code && selectedBasis.shipmentPort === b.shipmentPort
                           ? "border-primary bg-primary/5 text-primary"
                           : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
                       }`}
+                      data-offer-detail-mobile-target="delivery-basis"
                     >
                       <span className="font-semibold">{b.code}</span>
                       <span className="ml-1 text-[11px] opacity-70">{b.shipmentPort.split(",")[0]}</span>

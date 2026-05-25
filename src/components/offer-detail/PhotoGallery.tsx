@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Camera, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { GalleryImage } from "@/data/mockOffers";
+import { useLanguage } from "@/i18n/LanguageContext";
 
 interface Props {
   gallery: GalleryImage[];
@@ -16,6 +17,7 @@ const slideVariants = {
 };
 
 const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
+  const { t } = useLanguage();
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(0);
   const [lightbox, setLightbox] = useState(false);
@@ -31,6 +33,11 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
   const imgs = gallery.length > 0
     ? gallery
     : [{ src: "/placeholder.svg", alt: productName, caption: "", sourceLabel: "" }];
+
+  const thumbnailLabel = (index: number) =>
+    t.offerDetail_gallery_thumbnail
+      .replace("{current}", String(index + 1))
+      .replace("{total}", String(imgs.length));
 
   const goPrev = () => { setDirection(-1); setZoom(1); setPan({ x: 0, y: 0 }); setActive((p) => (p === 0 ? imgs.length - 1 : p - 1)); };
   const goNext = () => { setDirection(1); setZoom(1); setPan({ x: 0, y: 0 }); setActive((p) => (p === imgs.length - 1 ? 0 : p + 1)); };
@@ -154,14 +161,20 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
         {imgs.length > 1 && (
           <>
             <button
+              type="button"
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-lg bg-background/80 p-1.5 text-foreground backdrop-blur opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background"
+              className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg bg-background/80 text-foreground opacity-100 backdrop-blur transition-opacity hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:opacity-0 md:group-hover:opacity-100"
+              aria-label={t.offerDetail_gallery_previous}
+              data-offer-detail-mobile-target="gallery-previous"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={(e) => { e.stopPropagation(); goNext(); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-background/80 p-1.5 text-foreground backdrop-blur opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background"
+              className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg bg-background/80 text-foreground opacity-100 backdrop-blur transition-opacity hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:opacity-0 md:group-hover:opacity-100"
+              aria-label={t.offerDetail_gallery_next}
+              data-offer-detail-mobile-target="gallery-next"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -170,8 +183,11 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
 
         {/* Fullscreen button */}
         <button
+          type="button"
           onClick={() => setLightbox(true)}
-          className="absolute top-3 right-3 rounded-lg bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"
+          className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-lg bg-background/80 text-foreground opacity-100 backdrop-blur transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:opacity-0 md:group-hover:opacity-100"
+          aria-label={t.offerDetail_gallery_open}
+          data-offer-detail-mobile-target="gallery-open"
         >
           <Maximize2 className="h-4 w-4" />
         </button>
@@ -196,10 +212,14 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
         <div className="flex gap-2">
           {imgs.map((img, i) => (
             <button
+              type="button"
               key={i}
               onClick={() => goTo(i)}
               className={`overflow-hidden rounded-lg border-2 transition-colors ${i === active ? "border-primary" : "border-border hover:border-muted-foreground/50"}`}
               style={{ width: 60, height: 60 }}
+              aria-label={thumbnailLabel(i)}
+              aria-current={i === active ? "true" : undefined}
+              data-offer-detail-mobile-target="gallery-thumbnail"
             >
               <img
                 src={img.src}
@@ -221,23 +241,39 @@ const PhotoGallery = ({ gallery, productName, photoSourceLabel }: Props) => {
           onTouchMove={onLightboxTouchMove}
           onTouchEnd={onLightboxTouchEnd}
         >
-          <button onClick={(e) => { e.stopPropagation(); setLightbox(false); }} className="absolute top-4 right-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightbox(false); }}
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20"
+            aria-label={t.offerDetail_gallery_close}
+          >
             <X className="h-5 w-5" />
           </button>
           {zoom > 1 && (
             <button
+              type="button"
               onClick={(e) => { e.stopPropagation(); setZoom(1); setPan({ x: 0, y: 0 }); }}
-              className="absolute top-4 left-4 z-10 rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20"
+              className="absolute left-4 top-4 z-10 flex min-h-11 items-center rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white hover:bg-white/20"
             >
               Reset zoom
             </button>
           )}
           {imgs.length > 1 && zoom <= 1 && (
             <>
-              <button onClick={(e) => { e.stopPropagation(); goPrev(); }} className="absolute left-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                className="absolute left-4 z-10 flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20"
+                aria-label={t.offerDetail_gallery_previous}
+              >
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); goNext(); }} className="absolute right-4 z-10 rounded-lg bg-white/10 p-2 text-white hover:bg-white/20">
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                className="absolute right-4 z-10 flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20"
+                aria-label={t.offerDetail_gallery_next}
+              >
                 <ChevronRight className="h-6 w-6" />
               </button>
             </>
