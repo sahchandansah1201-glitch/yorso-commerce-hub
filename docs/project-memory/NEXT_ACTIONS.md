@@ -2,20 +2,22 @@
 
 ## Current Next Action
 
-1. Ask Lovable to sync GitHub `main` at `ab46fd3` or newer using
-   `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Record Lovable's sync report. If conflicts appear, resolve only confirmed
-   file-level conflicts and preserve the buyer-first/access-gating contract.
+2. Keep the same buyer-first review lens: trust, clarity, scanability,
+   conversion, SEO structure, accessibility semantics and supplier evidence as
+   a trust mechanism.
 
-3. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+3. Preserve current known contracts unless the new audit finds a confirmed
+   problem in code or runtime.
 
-## Batch #132 Merged, Lovable Sync Pending
+## Batch #132 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `ab46fd3`, `[codex] Batch #132 public offer locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
+- Lovable sync: clean at `d1bf472`, no conflicts; all 7 focused tests passed.
 - Rebase: branch was rebased onto `origin/main` `35317b0` without conflicts after PR creation.
 - Scope: public offer locale/a11y hardening for `/offers` mobile cards and `/offers/:id` commercial summary.
 - Runtime finding:
@@ -54,6 +56,13 @@
   - `npm run smoke:e2e:run`, 239 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate` on PR #184.
+- Lovable confirmed:
+  - `d1bf472` synced on `main`, including Batch #132 / PR #184 and user commits `0846d5f`, `35317b0`, `6c86b3c`;
+  - `src/components/catalog/MobileOfferCard.tsx`, `src/components/offer-detail/OfferSummary.tsx`, `src/i18n/translations.ts`, `src/components/PulseBadge.tsx`, locale tests, e2e specs and `package.json` were checked;
+  - no conflicts were found;
+  - English public offer labels and aria-labels no longer leak Russian copy;
+  - compact PulseBadge keeps no visible `estimate` chip, keeps `aria-label`/`title` disclosure, keeps `motion-reduce:animate-none` and keeps stable height while hidden;
+  - access gating, price lock, supplier redaction, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved.
 - Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
 - Preserved behavior: buyer-first public narrative, offer data, catalog paging/sorting/filtering, offer routing, access gating, supplier identity redaction, price-lock, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#131.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.

@@ -35,7 +35,7 @@
 - `e2e/public-pulse-disclosure.spec.ts`: compact Pulse badge contract aligned with current `main`: visible activity count, programmatic estimate disclosure, no visible compact estimate chip.
 - `package.json`: dedicated `smoke:e2e:public-offer-locale-a11y` script and full `smoke:e2e:run` wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #132 10,000 concurrent users capacity review.
-- `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 after PR #184 merge.
+- `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 after PR #184 merge; user confirmed clean sync at `d1bf472`.
 
 ## Batch #111 Public Route SEO
 
@@ -527,4 +527,4 @@
 - `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`: sync confirmation prompt for Batch #129 offer detail mobile accessibility; user confirmed clean sync at `2550a29`.
 - `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`: sync confirmation prompt for Batch #130 supplier profile mobile accessibility; user confirmed clean sync at `1449efa`.
 - `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 public Pulse estimate disclosure after PR #183 merge; user confirmed clean sync at `6655d11`.
-- `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 public offer locale a11y after PR #184 merge.
+- `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 public offer locale a11y after PR #184 merge; user confirmed clean sync at `d1bf472`.

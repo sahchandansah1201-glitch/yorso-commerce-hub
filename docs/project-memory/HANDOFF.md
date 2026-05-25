@@ -22,10 +22,10 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 - The repository is currently on branch `main`.
 - Batch #132 public offer locale a11y hardening is merged to `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`, via PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
-- Batch #132 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`.
+- Batch #132 Lovable sync is confirmed clean at `d1bf472`, with no conflicts and 7 focused tests passed.
 - Batch #132 was rebased onto `origin/main` `35317b0` without conflicts after PR #184 opened; post-rebase focused unit, TypeScript, lint, production-scale and dedicated Playwright smoke validation passed.
 - GitHub `Core Type And Build Gate` passed on PR #184 after the Pulse disclosure e2e contract was aligned with current `main`.
-- Next step: ask Lovable to confirm sync.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #132 scoped finding:
   - `/offers` mobile cards exposed Russian programmatic labels in English UI for offer details and delivery basis;
   - the mobile mixed-orientation photo hint used Russian visible/title/aria copy;
@@ -54,6 +54,14 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
   - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
   - `npm run smoke:e2e:run`, 239 tests.
+- Lovable confirmed Batch #132 sync:
+  - GitHub commit synced: `d1bf472` on `main`;
+  - files/routes checked: `MobileOfferCard`, `OfferSummary`, `translations`, `PulseBadge`, locale tests, e2e specs, `package.json`, `/offers`, `/offers/:id` and homepage Pulse;
+  - no conflicts were found;
+  - public offer locale/a11y status is OK with no Russian leakage in English UI labels or aria-labels;
+  - Pulse compact disclosure status is OK: visible estimate chip removed, disclosure via `aria-label`/`title`, reduced-motion guard and hidden-height stability preserved;
+  - Batch #112 code splitting and Batch #113 error boundary are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Batch #132 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
 - Batch #132 preserves offer data, catalog paging/sorting/filtering, offer routing, access gating, supplier identity redaction, price-lock, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#131 public UX/a11y safeguards.
 - Known warnings remain: Supabase generated types out of sync in non-strict mode and Browserslist data stale.

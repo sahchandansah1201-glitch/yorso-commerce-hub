@@ -1245,3 +1245,11 @@ Keep this file factual and append-only.
 - Squash-merged PR #184 into `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md` for Batch #132 Lovable sync confirmation.
 - Updated project memory to point the next action at Lovable sync for Batch #132.
+- User confirmed Lovable sync for Batch #132 is clean:
+  - HEAD synced to `d1bf472` on `main`, including Batch #132 / PR #184 and user commits `0846d5f`, `35317b0`, `6c86b3c`;
+  - checked `MobileOfferCard`, `OfferSummary`, `translations`, `PulseBadge`, locale tests, e2e specs, `package.json`, `/offers`, `/offers/:id` and homepage Pulse;
+  - no conflicts were found;
+  - all 7 focused tests passed;
+  - public offer locale/a11y status is OK with no Russian leakage in English labels or aria-labels;
+  - Pulse compact disclosure contract is preserved: no visible estimate chip, estimate disclosure through `aria-label`/`title`, `motion-reduce:animate-none` and hidden-height stability;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and known warnings are preserved.

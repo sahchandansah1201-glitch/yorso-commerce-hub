@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "post_batch_132_lovable_sync_prompt"
-  head_summary: "Batch #132 public offer locale a11y hardening merged to main; Lovable sync prompt recorded"
+  head_commit: "d1bf472"
+  head_summary: "Batch #132 public offer locale a11y hardening merged to main and Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason: []
 
@@ -38,7 +38,7 @@ project_identity:
 active_workstream:
   id: "batch_132_public_offer_locale_a11y_hardening"
   summary: "Remove hardcoded Russian visible/programmatic labels from English public offer catalog and offer-detail decision surfaces."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
   confirmed_scope:
@@ -52,7 +52,8 @@ active_workstream:
     - "Fix the stale Pulse e2e contract to require visible activity count, no visible compact estimate chip, and programmatic estimate disclosure through aria-label/title."
     - "PR #184 passed GitHub Core Type And Build Gate on head 98170a9 and merged to main as ab46fd3."
     - "Batch #132 Lovable sync prompt is recorded at docs/project-memory/PROMPTS/prompt-132-lovable-sync.md."
-    - "Next action is ask Lovable to confirm sync."
+    - "Lovable sync verified clean at d1bf472 with no conflicts; all 7 focused tests passed."
+    - "Next action is start the next scoped public UX/UI audit batch from current main."
   confirmed_files:
     - "src/components/catalog/MobileOfferCard.tsx"
     - "src/components/catalog/CatalogOfferRow.locale.test.tsx"
@@ -74,16 +75,23 @@ active_workstream:
 active_batch:
   id: 132
   summary: "Public offer locale a11y hardening: English /offers and /offers/:id no longer expose hardcoded Russian decision labels."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "ab46fd3"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
   lovable_sync:
-    confirmed_at: null
-    head: null
-    result: "pending"
-    user_confirmed: []
+    confirmed_at: "2026-05-25"
+    head: "d1bf472"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "Sync verified at d1bf472 on main; includes Batch #132 / PR #184 and user commits 0846d5f, 35317b0, 6c86b3c."
+      - "No conflicts found."
+      - "CatalogOfferRow.locale, OfferSummary.locale and PulseBadge tests passed, 7 tests total."
+      - "MobileOfferCard and OfferSummary use localized EN/RU/ES labels; English UI has no Russian leakage for offer card or offer-detail summary labels."
+      - "PulseBadge compact contract preserved: no visible estimate chip, estimate disclosure through aria-label/title, motion-reduce guard and stable height while hidden."
+      - "Access gating, price lock, supplier redaction, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary are preserved."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "Mobile catalog card details link used Russian aria-label `Открыть карточку: ...` in English UI."
     - "Mobile catalog delivery-basis link used Russian aria-label `Базис поставки ..., срок ...` in English UI."
@@ -126,15 +134,22 @@ active_batch:
 latest_merged_batches:
   - id: 132
     summary: "Public offer locale a11y hardening so English /offers and /offers/:id no longer expose hardcoded Russian buyer decision labels."
-    status: "merged_to_main_lovable_sync_pending"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "ab46fd3"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-132-lovable-sync.md"
-      confirmed_at: null
-      head: null
-      result: "pending"
-      user_confirmed: []
+      confirmed_at: "2026-05-25"
+      head: "d1bf472"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "Sync verified at d1bf472 on main."
+        - "Files/routes checked: MobileOfferCard, OfferSummary, translations, PulseBadge, locale tests, public-offer-locale-a11y e2e, public-pulse-disclosure e2e, package.json, /offers, /offers/:id and homepage Pulse."
+        - "No conflicts found; user PulseBadge/card-size changes are preserved."
+        - "Public offer locale/a11y status OK; English labels and aria-labels no longer leak Russian copy."
+        - "Pulse compact disclosure status OK; visible estimate chip is absent, aria-label/title disclosure remains, motion-reduce guard remains and hidden badge height is stable."
+        - "Bundle/code-splitting unchanged from Batch #112; Batch #113 error boundary remains."
+        - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
     confirmed_files:
       - "src/components/catalog/MobileOfferCard.tsx"
       - "src/components/catalog/CatalogOfferRow.locale.test.tsx"

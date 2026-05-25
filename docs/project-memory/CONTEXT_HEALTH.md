@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "ask Lovable to confirm Batch #132 sync"
+recommended_action: "start next scoped public UX/UI audit batch"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "ab46fd3"
+head_commit: "d1bf472"
 latest_merged_batch: 132
 active_workstream: "batch_132_public_offer_locale_a11y_hardening"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184"
-why_low: "Batch #132 is a scoped public frontend i18n/a11y hardening. Unit tests, tsc, lint, production-scale guard, dedicated Playwright smoke, full smoke:e2e:run and GitHub Core Type And Build Gate passed; PR #184 merged to main as ab46fd3."
+why_low: "Batch #132 is a scoped public frontend i18n/a11y hardening. Unit tests, tsc, lint, production-scale guard, dedicated Playwright smoke, full smoke:e2e:run and GitHub Core Type And Build Gate passed; PR #184 merged to main as ab46fd3; Lovable sync is confirmed clean at d1bf472."
 ```
 
 ## Risk Levels
@@ -51,10 +51,11 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: Batch #132 public offer locale a11y hardening is merged to main as ab46fd3 via PR #184; next step is ask Lovable to confirm sync.
-Current HEAD: main includes Batch #132 merge commit ab46fd3.
+Current workstream: Batch #132 public offer locale a11y hardening is merged to main as ab46fd3 via PR #184 and Lovable sync is confirmed clean at d1bf472; next step is start the next scoped public UX/UI audit batch.
+Current HEAD: main includes Batch #132 Lovable sync record d1bf472.
 Latest merged batch: Batch #132 public offer locale a11y is merged to main as ab46fd3 via PR #184.
 Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-132-lovable-sync.md.
+Lovable sync for Batch #132 is confirmed clean at d1bf472 with no conflicts and 7 focused tests passed.
 Batch #132 local scope: remove hardcoded Russian visible/programmatic labels from English public offer catalog cards and offer-detail commercial summary while preserving buyer access gating, supplier identity redaction and price lock.
 Batch #132 local validation passed: npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx, 4 tests; npx tsc -b --noEmit; npm run smoke:e2e:public-offer-locale-a11y, 2 tests after production build; npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:run, 239 tests.
 Batch #132 was rebased onto origin/main 35317b0 without conflicts; post-rebase validation passed: focused unit tests, npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline and npm run smoke:e2e:public-offer-locale-a11y.
