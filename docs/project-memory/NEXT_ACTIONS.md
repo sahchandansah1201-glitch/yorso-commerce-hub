@@ -2,9 +2,42 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #128 public auth and registration accessibility on `codex/batch128-public-runtime-ux-a11y-audit`.
 
-2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+2. Push the branch, open a draft PR, wait for GitHub `Core Type And Build Gate`, merge when green and then create the Batch #128 Lovable sync prompt.
+
+3. Keep the same buyer-first review lens for the next scoped batch: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
+
+## Batch #128 Local Validation Ready
+
+- Branch: `codex/batch128-public-runtime-ux-a11y-audit`.
+- Scope: public auth and registration accessibility/scanability after Batch #127.
+- Runtime finding:
+  - registration routes lacked stable `main#main` and skip-to-main behavior;
+  - registration shell/footer/legal/secondary actions could render below the 44px mobile target baseline;
+  - OTP inputs were unnamed and lacked `one-time-code` autocomplete;
+  - registration details, email, sign-in and reset-password fields lacked useful browser completion hints;
+  - `/register/ready` had a nested `Link > Button` CTA.
+- Implemented fix:
+  - `RegistrationLayout` exposes a hidden-until-focus skip link, focuses `main#main`, normalizes the URL to `#main` and hardens registration shell/footer target sizes;
+  - registration email, verify, details, onboarding, countries and ready screens expose named fields or mobile-safe controls where needed;
+  - `CountryPhoneInput` supports `inputAutoComplete`;
+  - `/signin` and `/reset-password` expose browser autocomplete hints;
+  - `/register/ready` uses the established `Button asChild` pattern;
+  - `e2e/public-auth-registration-a11y.spec.ts` covers shell landmarks, skip focus, 44px targets, nested-control absence, overflow absence and form labels/autocomplete;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #128 10,000 concurrent-user note.
+- Preserved behavior: registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium`, 10 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium`, 5 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
+  - `npm run smoke:e2e:run`, 231 tests.
+- Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #127 Lovable Sync Confirmed
 

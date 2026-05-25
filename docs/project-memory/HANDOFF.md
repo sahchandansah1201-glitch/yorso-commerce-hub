@@ -16,11 +16,40 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Complete Batch #128 public auth and registration accessibility: commit the validated local changes, push the branch, open PR, wait for GitHub validation, merge when green and prepare the Lovable sync prompt.
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch128-public-runtime-ux-a11y-audit`.
+- Batch #128 public auth and registration accessibility is implemented locally and ready for commit/PR.
+- Batch #128 runtime audit after Batch #127 found the registration flow was not covered by previous public skip/main, tap-target and input-accessibility batches:
+  - `/register`, `/register/email`, `/register/verify`, `/register/details`, `/register/onboarding`, `/register/countries` and `/register/ready` had no stable `main#main` and no skip-to-main link;
+  - registration header/footer/legal/secondary actions could render below the 44px mobile target baseline;
+  - registration OTP inputs were unnamed and lacked `one-time-code` autocomplete;
+  - registration email/details, sign-in and reset-password fields lacked useful browser autocomplete hints;
+  - `/register/ready` had a nested `Link > Button` CTA.
+- Batch #128 implementation:
+  - `RegistrationLayout` now exposes a hidden-until-focus skip-to-main link, exactly one `main#main` target and mobile-safe shell/footer targets;
+  - `CountryPhoneInput` accepts `inputAutoComplete` and keeps country search autocomplete disabled;
+  - registration email, verify, details, onboarding and countries screens expose named fields or 44px mobile-safe controls where the audit found gaps;
+  - `/register/ready` uses `Button asChild` with a React Router `Link` for the offers CTA;
+  - `/signin` and `/reset-password` expose browser completion hints without changing submit behavior;
+  - `e2e/public-auth-registration-a11y.spec.ts` covers sign-in completion hints, registration shell landmarks, skip focus, target sizes, nested-control absence, overflow absence and registration form labels/autocomplete;
+  - `package.json` includes dedicated and full smoke wiring;
+  - `docs/backend/production-scale-baseline.md` includes the Batch #128 10,000 concurrent-user note.
+- Batch #128 local validation passed:
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-auth-registration-a11y.spec.ts --project=chromium`, 10 tests;
+  - `E2E_BASE_URL=http://127.0.0.1:4200 npx playwright test e2e/public-input-a11y.spec.ts e2e/auth-cta-semantics.spec.ts --project=chromium`, 5 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
+  - `npm run smoke:e2e:run`, 231 tests.
+- Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
+- Next step: commit Batch #128, push `codex/batch128-public-runtime-ux-a11y-audit`, open a draft PR, confirm GitHub `Core Type And Build Gate`, merge when green and create `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
+- The latest merged batch remains Batch #127.
+- The repository was previously clean on `main` at Batch #127 Lovable sync record commit before Batch #128 local work.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
 - GitHub `Core Type And Build Gate` passed on PR #178 in 12m16s.

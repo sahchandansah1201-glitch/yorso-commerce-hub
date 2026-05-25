@@ -2795,6 +2795,78 @@ Marker: public blog mobile tap targets.
 Marker: insights route mobile scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #128 Public Auth And Registration Accessibility
+
+Batch #128 hardens the public auth and registration conversion flow after
+Batch #127. Registration routes now expose a stable `main#main` target,
+keyboard skip-to-main link, mobile-safe header/footer/secondary action targets,
+named OTP inputs, explicit browser completion hints and single semantic CTAs
+while preserving registration copy, funnel analytics, route behavior, buyer
+first narrative, supplier trust positioning, access gating, supplier identity
+redaction and price locks.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Registration API calls, sign-in calls, password recovery behavior, buyer
+  session writes and registration session storage contracts are unchanged.
+- The runtime changes are markup semantics, target-size classes and
+  autocomplete/id/label attributes on existing public auth and registration
+  controls.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, retries, timers, background jobs or additional network
+  calls are introduced.
+- The change does not alter public auth or registration request volume at the
+  10,000 concurrent-user target.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier pagination, auth persistence, registration persistence or account
+  persistence.
+- Registration step state continues to use the existing local session-storage
+  context before any self-hosted auth/register API call.
+
+Failure mode and graceful degradation:
+
+- The registration skip link is a normal anchor to `#main`; if JavaScript
+  hydration is delayed, browser in-page navigation still works.
+- Registration legal links, header links, skip actions and final CTAs remain
+  normal links or buttons with the same destinations.
+- If browser autocomplete is unavailable, forms still submit through the same
+  handlers and validation paths.
+
+Observability and load-test plan:
+
+- Regression coverage should assert registration routes expose exactly one
+  `main#main`, one skip link, no nested controls and no horizontal overflow at
+  390px.
+- Browser smoke verifies marked registration mobile targets expose at least
+  44px by 44px target boxes at 390px.
+- Browser smoke verifies sign-in and registration fields keep expected
+  autocomplete attributes and OTP inputs keep programmatic names.
+- Existing public route smoke continues to verify route rendering, mobile
+  overflow, nested-control absence, input accessibility, heading structure,
+  landmark naming, skip-to-main behavior, access gating, supplier redaction,
+  price locks and route chunk recovery.
+
+Validation:
+
+- `npm run smoke:e2e:public-auth-registration-a11y`;
+- `npm run smoke:e2e:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #128.
+Marker: public auth registration accessibility.
+Marker: registration flow mobile scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

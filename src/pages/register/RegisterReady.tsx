@@ -298,12 +298,12 @@ const RegisterReady = () => {
         )}
 
         <motion.div {...anim(0.65)} className="mt-6">
-          <Link to="/offers">
-            <Button size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+          <Button asChild size="lg" className="w-full h-14 text-base font-semibold rounded-xl gap-2">
+            <Link to="/offers">
               {isSupplier ? t.reg_createFirstOffer : t.reg_exploreOffers}
               <ArrowRight className="h-5 w-5" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </motion.div>
 
         <TrustMicroText variant="users" delay={0.75} className="mt-5" />

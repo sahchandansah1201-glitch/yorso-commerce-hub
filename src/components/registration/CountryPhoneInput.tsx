@@ -191,6 +191,7 @@ interface CountryPhoneInputProps {
   disabled?: boolean;
   inputId?: string;
   inputAriaLabel?: string;
+  inputAutoComplete?: string;
   countryButtonAriaLabel?: string;
   countrySearchAriaLabel?: string;
   placeholderText?: string;
@@ -204,6 +205,7 @@ export default function CountryPhoneInput({
   disabled,
   inputId,
   inputAriaLabel,
+  inputAutoComplete,
   countryButtonAriaLabel,
   countrySearchAriaLabel,
   placeholderText,
@@ -295,6 +297,7 @@ export default function CountryPhoneInput({
           onChange={(e) => handlePhoneInput(e.target.value)}
           placeholder={placeholder}
           aria-label={inputId ? undefined : inputAriaLabel ?? placeholderFallback}
+          autoComplete={inputAutoComplete}
           className="h-12 text-base rounded-l-none rounded-r-xl border-l-0 flex-1"
           disabled={disabled}
         />
@@ -328,6 +331,7 @@ export default function CountryPhoneInput({
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={t.country_searchPlaceholder}
                     aria-label={countrySearchAriaLabel ?? t.country_searchPlaceholder}
+                    autoComplete="off"
                     className="h-10 text-sm rounded-lg pl-3 pr-9"
                     autoFocus
                   />
