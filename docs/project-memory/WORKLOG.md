@@ -1410,3 +1410,9 @@ Keep this file factual and append-only.
   - `npm run smoke:e2e:run` passed, 248 tests.
 - Batch #136 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 324.98 kB / 102.16 kB gzip; OfferDetail 51.78 kB / 12.87 kB gzip.
 - Batch #136 preserves buyer-first offer detail narrative, access gating, supplier identity redaction, exact-price lock, supplier access requests, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards.
+- Committed Batch #136 as `288903a`, `[codex] Batch #136 offer detail supplier trust locale a11y`.
+- Pushed branch `codex/batch-136-offer-detail-supplier-trust-locale-a11y` to `origin`.
+- Opened draft PR #188: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
+- GitHub `Core Type And Build Gate` passed on PR #188 in 11m57s.
+- Marked PR #188 ready and squash-merged it to `main` as `3720708`, `[codex] Batch #136 offer detail supplier trust locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #136.

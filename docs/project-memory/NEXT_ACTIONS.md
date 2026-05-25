@@ -2,15 +2,16 @@
 
 ## Current Next Action
 
-1. Publish Batch #136 as a PR from
-   `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
+1. Sync Lovable with GitHub `main` at commit `3720708` or newer using
+   `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
 
-2. Keep the PR scope fixed: offer detail supplier trust panel locale/a11y
-   hardening plus the mobile overflow fix discovered by the new RU disclosure
-   guard.
+2. Ask Lovable to report the seven required sections from the prompt:
+   commit synced, files/routes checked, conflicts, offer detail supplier trust
+   locale/a11y status, offer detail behavior status, bundle/code-splitting
+   status and remaining known warnings.
 
-3. After GitHub validation passes, merge Batch #136, add the Lovable sync
-   prompt and update project memory to point the next action at Lovable sync.
+3. After Lovable confirms clean sync, record the confirmation in project memory
+   and move the next action to the next scoped public UX/UI audit batch.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
@@ -18,9 +19,12 @@
    splitting, Batch #113 route chunk error boundary and Batches #110-#135
    public UX/a11y safeguards.
 
-## Batch #136 In Progress
+## Batch #136 Ready For Lovable Sync
 
-- Branch: `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
+- Branch: `main`.
+- Merge commit: `3720708`, `[codex] Batch #136 offer detail supplier trust locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
 - Scope: public offer detail supplier trust locale/a11y hardening for
   `/offers/:id`.
 - Runtime finding:
@@ -49,6 +53,8 @@
   - `npm run lint`;
   - `npx tsc -b --noEmit`;
   - `npm run smoke:e2e:run`, 248 tests.
+- GitHub validation passed:
+  - PR #188 `Core Type And Build Gate`, 11m57s.
 - Preserved:
   - buyer-first offer detail narrative;
   - access gating, supplier identity redaction and exact-price lock;

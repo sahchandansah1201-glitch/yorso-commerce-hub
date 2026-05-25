@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "publish Batch #136 PR after local validation"
+recommended_action: "sync Lovable with Batch #136 from GitHub main"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-136-offer-detail-supplier-trust-locale-a11y"
-head_commit: "branch_after_batch_136_local_validation"
-latest_merged_batch: 135
-active_workstream: "batch_136_offer_detail_supplier_trust_locale_a11y"
-pull_request: null
-why_low: "Batch #136 is locally validated on branch codex/batch-136-offer-detail-supplier-trust-locale-a11y. It localizes /offers/:id supplier trust panel UI labels and fixes the RU expanded trust disclosure overflow without changing access gating, supplier redaction or price locks. Local focused unit, dedicated Playwright smoke, neighboring offer-detail/mobile/locale smokes, TypeScript, lint, diff check, production-scale guard and full smoke:e2e:run passed."
+active_branch: "main"
+head_commit: "3720708"
+latest_merged_batch: 136
+active_workstream: "batch_136_lovable_sync"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
+why_low: "Batch #136 is merged to main as 3720708 and the Lovable sync prompt is ready at docs/project-memory/PROMPTS/prompt-136-lovable-sync.md. It localizes /offers/:id supplier trust panel UI labels and fixes the RU expanded trust disclosure overflow without changing access gating, supplier redaction or price locks. Local focused unit, dedicated Playwright smoke, neighboring offer-detail/mobile/locale smokes, TypeScript, lint, diff check, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed."
 ```
 
 ## Risk Levels
@@ -50,15 +50,15 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch-136-offer-detail-supplier-trust-locale-a11y.
-Current workstream: Batch #136 offer detail supplier trust locale a11y is locally validated and ready to publish as a PR.
-Current HEAD: branch after Batch #136 local validation.
-Latest merged batch: Batch #135 supplier profile logo locale a11y is merged to main as eb23d5f via PR #187.
+Current branch: main.
+Current workstream: sync Lovable with Batch #136 from GitHub main.
+Current HEAD: 3720708, [codex] Batch #136 offer detail supplier trust locale a11y.
+Latest merged batch: Batch #136 offer detail supplier trust locale a11y is merged to main as 3720708 via PR #188.
 Current Batch #136 scope: localize supplier trust panel UI labels on /offers/:id, keep the supplier trust mechanism buyer-first, and prevent the expanded trust disclosure from creating mobile horizontal overflow.
-Current Batch #136 finding: /offers/:id SupplierTrustPanel still had hardcoded English UI labels and CTAs (`Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist`, `Compare Similar Offers`) inside localized RU/ES offer detail UI. The RU expanded trust disclosure also created 15px horizontal overflow at 390px.
+Current Batch #136 finding: /offers/:id SupplierTrustPanel still had hardcoded English UI labels and CTAs (`Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist`, `Compare Similar Offers`) inside localized RU/ES offer detail UI. The RU expanded trust disclosure also created 15px horizontal overflow at 390px.
 Current Batch #136 implementation: SupplierTrustPanel now uses typed EN/RU/ES offerDetail supplier trust translation keys, pluralized years-in-business copy and a scoped verification test id; OfferDetail route shells use `overflow-x-hidden`; `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES localized supplier trust labels, disclosure target size, nested controls and zero overflow; package smoke wiring and Batch #136 production-scale notes are present.
-Current Batch #136 local validation passed: `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, 4 tests; `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`, 2 tests after production build; `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests; `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests; `npm run check:production-scale-baseline`; `git diff --check`; `npm run lint`; `npx tsc -b --noEmit`; `npm run smoke:e2e:run`, 248 tests.
-Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-135-lovable-sync.md.
+Current Batch #136 validation passed: `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, 4 tests; `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`, 2 tests after production build; `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests; `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests; `npm run check:production-scale-baseline`; `git diff --check`; `npm run lint`; `npx tsc -b --noEmit`; `npm run smoke:e2e:run`, 248 tests; GitHub Core Type And Build Gate passed on PR #188 in 11m57s.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-136-lovable-sync.md.
 Lovable sync for Batch #135 is confirmed clean by the user at main @ Batch #135, eb23d5f or newer, with no conflicts and no file modifications.
 Batch #135 GitHub validation passed: PR #187 Core Type And Build Gate passed in 12m21s.
 Batch #135 changed files: src/pages/SupplierProfile.tsx, src/pages/__tests__/SupplierProfile.i18n.test.tsx, e2e/supplier-profile-logo-locale-a11y.spec.ts, package.json, docs/backend/production-scale-baseline.md and project-memory files.

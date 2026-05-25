@@ -20,17 +20,19 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch
-  `codex/batch-136-offer-detail-supplier-trust-locale-a11y`.
-- Batch #136 offer detail supplier trust locale a11y is locally validated and
-  ready to publish as a PR.
+- The repository is currently on `main` at `3720708`, `[codex] Batch #136
+  offer detail supplier trust locale a11y`.
+- Batch #136 offer detail supplier trust locale a11y is merged to `main` via
+  PR #188: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
+- Batch #136 Lovable sync prompt is ready:
+  `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
 - Batch #136 scoped finding:
   - `/offers/:id` `SupplierTrustPanel` still exposed hardcoded English trust and
     CTA labels inside localized RU/ES offer detail UI;
   - affected labels included `Verified Supplier`, `Pending Full Verification`,
-    `What was reviewed?`, `In business`, `Response`, `Certifications`,
-    `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`,
-    `Save to Shortlist` and `Compare Similar Offers`;
+    `What was reviewed?`, `Hide details`, `In business`, `Response`,
+    `Certifications`, `Reviewed documents`, `View Supplier Profile`,
+    `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`;
   - the expanded RU trust disclosure created 15px horizontal overflow at 390px.
 - Batch #136 implementation:
   - `src/components/offer-detail/SupplierTrustPanel.tsx` now uses typed EN/RU/ES
@@ -46,7 +48,7 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
     smoke script into the full smoke suite;
   - `docs/backend/production-scale-baseline.md` contains the Batch #136
     10,000 concurrent-user note.
-- Batch #136 local validation passed:
+- Batch #136 validation passed:
   - `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, 4 tests;
   - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`, 2 tests after production build;
   - `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests;
@@ -56,11 +58,16 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run lint`;
   - `npx tsc -b --noEmit`;
   - `npm run smoke:e2e:run`, 248 tests.
+- Batch #136 GitHub validation passed:
+  - PR #188 `Core Type And Build Gate`, 11m57s.
 - Batch #136 preserves buyer-first offer detail narrative, supplier trust as a
   supply/trust mechanism, access gating, supplier identity redaction,
   exact-price lock, supplier access request behavior, Market Pulse, route SEO,
   Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches
   #110-#135 public UX/a11y safeguards.
+- Next action: sync Lovable with GitHub `main` at `3720708` or newer using
+  `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`, then record the
+  sync result.
 - Batch #135 supplier profile logo locale a11y is merged to `main` as `eb23d5f`,
   `[codex] Batch #135 supplier profile logo locale a11y`, via PR #187:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.

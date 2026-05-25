@@ -34,6 +34,8 @@
 - `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts`: mobile browser guard for RU/ES supplier trust labels, disclosure target height, zero nested controls and zero horizontal overflow.
 - `package.json`: dedicated `smoke:e2e:offer-detail-supplier-trust-locale-a11y` script and full `smoke:e2e:run` wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #136 10,000 concurrent users capacity review.
+- `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`: sync confirmation prompt for Batch #136 after PR #188 merge.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`, `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #136 merge and Lovable sync checkpoint.
 
 ## Batch #134 Supplier Directory Locale A11y
 

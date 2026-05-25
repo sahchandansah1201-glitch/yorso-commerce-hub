@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch-136-offer-detail-supplier-trust-locale-a11y"
-  head_commit: "branch_after_batch_136_local_validation"
-  head_summary: "Batch #136 offer detail supplier trust locale a11y locally validated and ready for PR"
-  dirty_worktree_before_project_memory: true
+  active_branch: "main"
+  head_commit: "3720708"
+  head_summary: "Batch #136 offer detail supplier trust locale a11y merged to main; Lovable sync prompt ready"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #136 implementation and project-memory updates are intentionally pending commit."
+    - "Only Batch #136 Lovable sync prompt and project-memory checkpoint are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_136_offer_detail_supplier_trust_locale_a11y"
-  summary: "Publish Batch #136 offer detail supplier trust locale/a11y hardening after local validation."
-  status: "ready_for_pr"
-  branch: "codex/batch-136-offer-detail-supplier-trust-locale-a11y"
-  pull_request: null
+  id: "batch_136_lovable_sync"
+  summary: "Sync Lovable with Batch #136 offer detail supplier trust locale/a11y from GitHub main."
+  status: "ready_for_lovable_sync"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -62,19 +62,19 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
 
 active_batch:
   id: 136
   summary: "Offer detail supplier trust locale a11y: /offers/:id supplier trust panel labels and disclosure controls use locale-owned copy, with no 390px RU overflow after disclosure."
-  status: "local_validation_passed_ready_for_pr"
-  commit: null
-  branch: "codex/batch-136-offer-detail-supplier-trust-locale-a11y"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_sync_prompt_ready"
+  commit: "3720708"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
   confirmed_findings:
     - "`/offers/:id` `SupplierTrustPanel` exposed hardcoded English trust and CTA labels inside localized RU/ES offer detail UI."
-    - "Affected labels included `Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`."
+    - "Affected labels included `Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`."
     - "The expanded RU review disclosure created 15px horizontal overflow at 390px."
   confirmed_changes:
     - "`SupplierTrustPanel` now uses typed EN/RU/ES `offerDetail_*` supplier trust labels, a no-date fallback and pluralized years-in-business copy."
@@ -93,6 +93,7 @@ active_batch:
     - "npm run lint."
     - "npx tsc -b --noEmit."
     - "npm run smoke:e2e:run, 248 tests."
+    - "GitHub Core Type And Build Gate passed on PR #188 in 11m57s."
   preserved_behavior:
     - "Buyer-first offer detail narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, supplier access request behavior, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards are preserved."
   known_warnings:
@@ -148,6 +149,26 @@ last_lovable_synced_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 136
+    summary: "Offer detail supplier trust locale a11y hardening so /offers/:id trust labels and disclosure controls use locale-owned copy."
+    status: "merged_to_main_lovable_sync_prompt_ready"
+    commit: "3720708"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
+      confirmed_at: null
+      head: "3720708_or_newer"
+      result: "pending"
+    confirmed_files:
+      - "src/components/offer-detail/SupplierTrustPanel.tsx"
+      - "src/components/offer-detail/SupplierTrustPanel.access.test.tsx"
+      - "src/pages/OfferDetail.tsx"
+      - "src/i18n/translations.ts"
+      - "src/lib/supplier-i18n.ts"
+      - "e2e/offer-detail-supplier-trust-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
   - id: 135
     summary: "Supplier profile logo locale a11y hardening so /suppliers/:id logo accessible names and image alt text use locale-owned copy."
     status: "merged_to_main_lovable_sync_clean"
