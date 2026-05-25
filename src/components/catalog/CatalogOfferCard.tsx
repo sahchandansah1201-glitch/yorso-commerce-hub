@@ -246,7 +246,7 @@ export const CatalogOfferCard = ({ offer, forceLevel }: Props) => {
 
   return (
     <article
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
+      className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
       data-testid="catalog-offer-card"
       data-access-level={level}
     >
@@ -284,12 +284,16 @@ export const CatalogOfferCard = ({ offer, forceLevel }: Props) => {
           <SupplierBlock offer={offer} level={level} />
         </div>
 
-        <CertificationBadges certifications={offer.certifications ?? []} limit={3} className="mt-2" />
-        <PulseBadge
-          offerId={offer.id}
-          variant={level === "anonymous_locked" ? "viewing" : "requests"}
-          className="mt-2 self-start"
-        />
+        <div className="mt-2 min-h-[1.5rem]">
+          <CertificationBadges certifications={offer.certifications ?? []} limit={3} />
+        </div>
+        <div className="mt-2 min-h-[1.375rem]">
+          <PulseBadge
+            offerId={offer.id}
+            variant={level === "anonymous_locked" ? "viewing" : "requests"}
+            className="self-start"
+          />
+        </div>
 
         <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
