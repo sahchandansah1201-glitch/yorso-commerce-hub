@@ -252,6 +252,7 @@
 - `e2e/public-pulse-disclosure.spec.ts`: mobile browser guard for homepage Pulse badges and offer-detail MarketPulse disclosure, zero nested controls and zero horizontal overflow.
 - `package.json`: dedicated public Pulse disclosure smoke script and full e2e smoke script include the new guard.
 - `docs/backend/production-scale-baseline.md`: Batch #131 10,000 concurrent users capacity review for public Pulse estimate disclosure.
+- `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 after PR #183 merge.
 
 ## Batch #96 Supplier Access Review Console
 
@@ -512,3 +513,4 @@
 - `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`: sync confirmation prompt for Batch #128 public auth and registration accessibility; user confirmed clean sync at `f1f482b`.
 - `docs/project-memory/PROMPTS/prompt-129-lovable-sync.md`: sync confirmation prompt for Batch #129 offer detail mobile accessibility; user confirmed clean sync at `2550a29`.
 - `docs/project-memory/PROMPTS/prompt-130-lovable-sync.md`: sync confirmation prompt for Batch #130 supplier profile mobile accessibility; user confirmed clean sync at `1449efa`.
+- `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`: sync confirmation prompt for Batch #131 public Pulse estimate disclosure after PR #183 merge.

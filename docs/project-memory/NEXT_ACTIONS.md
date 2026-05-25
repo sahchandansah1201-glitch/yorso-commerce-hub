@@ -2,15 +2,17 @@
 
 ## Current Next Action
 
-1. Force-with-lease push rebased Batch #131 to `codex/batch131-public-runtime-ux-a11y-audit`.
+1. Sync Lovable with GitHub `main` at `8590361` or newer using `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
 
-2. Wait for GitHub `Core Type And Build Gate` on PR #183, then mark ready, merge and prepare the Lovable sync prompt.
+2. Record the Lovable sync result. If clean, mark Batch #131 Lovable sync confirmed; if not, capture exact conflict files and do not overwrite newer Lovable/user edits.
 
-## Batch #131 Local Validation Passed
+## Batch #131 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch131-public-runtime-ux-a11y-audit`.
+- Branch: `main`.
+- Merge commit: `8590361`, `[codex] Batch #131 public pulse estimate disclosure`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
-- Base: Batch #130 Lovable sync clean on `main` at `1449efa`; branch is now rebased onto `origin/main` `da880e4`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
+- Base: Batch #130 Lovable sync clean on `main` at `1449efa`; Batch #131 was rebased onto `origin/main` `da880e4` before merge.
 - Scope: public Pulse estimate disclosure and reduced-motion behavior on real public runtime surfaces.
 - Runtime finding:
   - homepage Pulse badges looked live but disclosed estimate status only through title text;
@@ -38,6 +40,8 @@
   - `npm run check:production-scale-baseline`;
   - `npm run smoke:e2e:public-pulse-disclosure`, 2 tests after production build;
   - `npm run smoke:e2e:run`, 237 tests.
+- GitHub validation passed:
+  - `Core Type And Build Gate`, 10m13s.
 - Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 

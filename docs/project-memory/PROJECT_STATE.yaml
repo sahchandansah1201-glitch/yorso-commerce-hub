@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
-  active_branch: "codex/batch131-public-runtime-ux-a11y-audit"
-  head_commit: "batch_131_branch_head_pending_pr"
+  active_branch: "main"
+  head_commit: "8590361"
   head_summary: "[codex] Batch #131 public pulse estimate disclosure"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #131 was rebased onto origin/main da880e4 after PR #183 showed a dirty base; project-memory updates are in progress before force-with-lease push."
+    - "Batch #131 is merged; only Lovable sync prompt and project-memory updates are being committed."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_131_public_pulse_estimate_disclosure"
-  summary: "Batch #131 hardens public Pulse estimate disclosure and reduced-motion behavior."
-  status: "rebased_local_validation_passed_ready_for_github_validation"
-  branch: "codex/batch131-public-runtime-ux-a11y-audit"
+  id: "batch_131_lovable_sync_ready"
+  summary: "Batch #131 is merged; sync Lovable and verify public Pulse estimate disclosure."
+  status: "merged_to_main_lovable_sync_pending"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
   confirmed_scope:
     - "Runtime audit after recent Lovable/user Pulse additions found trust-risk copy on public activity signals: estimate status was not visible enough on homepage Pulse badges."
@@ -48,7 +48,7 @@ active_workstream:
     - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards."
     - "Add focused unit and e2e coverage for visible estimate disclosure, localized copy, reduced-motion guard, nested-control absence and mobile overflow absence."
     - "Run focused, neighboring public structure/landmark, type, lint, baseline, dedicated production smoke and full smoke:e2e:run before commit."
-    - "Batch #131 is rebased onto origin/main da880e4, local validation is green and PR #183 exists; next action is force-with-lease push and GitHub validation."
+    - "Batch #131 is merged to main as 8590361 via PR #183; next action is Lovable sync confirmation."
   confirmed_files:
     - "src/components/PulseBadge.tsx"
     - "src/components/offer-detail/MarketPulse.tsx"
@@ -62,14 +62,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
+    - "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
 
 active_batch:
   id: 131
   summary: "Public Pulse estimate disclosure: visible and programmatic estimate status plus reduced-motion guards."
-  status: "rebased_local_validation_passed_ready_for_github_validation"
-  commit: "branch_head_pending_pr"
-  branch: "codex/batch131-public-runtime-ux-a11y-audit"
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "8590361"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
   confirmed_findings:
     - "Homepage offer Pulse badges looked live but disclosed their estimate status only through title text, which is weak on mobile and insufficient for buyer trust."
     - "Pulse ping animations did not include a reduced-motion guard."
@@ -94,6 +96,7 @@ active_batch:
     - "npm run smoke:e2e:public-pulse-disclosure, 2 tests after production build."
     - "npm run smoke:e2e:run, 237 tests before rebase and 237 tests after rebase."
     - "Post-i18n build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip."
+    - "GitHub Core Type And Build Gate passed on PR #183 in 10m13s."
   preserved_behavior:
     - "Deterministic initial pulse values, client-side Pulse drift, Pulse copy localization, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership and analytics are preserved."
     - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards are preserved."
@@ -102,6 +105,22 @@ active_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 131
+    summary: "Public Pulse estimate disclosure so Pulse activity signals remain transparent estimates while preserving dynamic client-side drift."
+    status: "merged_to_main_lovable_sync_pending"
+    commit: "8590361"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
+      status: "pending"
+    confirmed_files:
+      - "src/components/PulseBadge.tsx"
+      - "src/components/offer-detail/MarketPulse.tsx"
+      - "src/components/PulseBadge.test.tsx"
+      - "e2e/public-pulse-disclosure.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
   - id: 130
     summary: "Supplier profile mobile accessibility so /suppliers/:id exposes mobile-safe breadcrumbs, trust tabs and not-found recovery."
     status: "merged_to_main_lovable_sync_clean"
