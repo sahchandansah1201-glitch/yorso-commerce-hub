@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "main_head_after_batch_131_memory_checkpoint"
-  head_summary: "Batch #131 Lovable sync prompt and memory checkpoint"
+  head_commit: "main_head_after_batch_131_lovable_sync_record"
+  head_summary: "Batch #131 Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #131 is merged as 8590361; Lovable sync prompt and memory checkpoint are committed on top."
+    - "User confirmed Batch #131 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_131_lovable_sync_ready"
-  summary: "Batch #131 is merged; sync Lovable and verify public Pulse estimate disclosure."
-  status: "merged_to_main_lovable_sync_pending"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #131 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
   confirmed_scope:
@@ -48,7 +48,8 @@ active_workstream:
     - "Preserve Batch #112 route code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards."
     - "Add focused unit and e2e coverage for visible estimate disclosure, localized copy, reduced-motion guard, nested-control absence and mobile overflow absence."
     - "Run focused, neighboring public structure/landmark, type, lint, baseline, dedicated production smoke and full smoke:e2e:run before commit."
-    - "Batch #131 is merged to main as 8590361 via PR #183; next action is Lovable sync confirmation."
+    - "Batch #131 is merged to main as 8590361 via PR #183 and Lovable sync is confirmed clean at 6655d11 with no conflicts."
+    - "Next action is the next scoped public UX/UI audit batch."
   confirmed_files:
     - "src/components/PulseBadge.tsx"
     - "src/components/offer-detail/MarketPulse.tsx"
@@ -67,11 +68,28 @@ active_workstream:
 active_batch:
   id: 131
   summary: "Public Pulse estimate disclosure: visible and programmatic estimate status plus reduced-motion guards."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "8590361"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "6655d11"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to 6655d11 on main, on top of PR #183 Batch #131 at or newer than 8590361."
+      - "Files checked: PulseBadge, PulseBadge.test, MarketPulse, pulse-seed, public-pulse-disclosure e2e, package wiring and Batch #131 production-scale notes."
+      - "Routes checked: / and /offers/:id."
+      - "No conflicts were found."
+      - "PulseBadge renders visible estimate chip copy, aria-label disclosure, title disclosure and data-testid."
+      - "MarketPulse renders as a labelled section and preserves visible estimate footer."
+      - "Both ping spans carry motion-reduce:animate-none."
+      - "Dynamic Pulse behavior is preserved: deterministic pulseInt seed, 3.5-6s drift, temporary disappearance and refreshed return."
+      - "No new timers beyond existing drift, polling, subscriptions, backend calls or routes were added."
+      - "Batch #112 route splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130 safeguards are intact."
+      - "Bundle metrics match expected PR #183 sizes and the large-chunk warning stays resolved."
+      - "Known warnings remain: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "Homepage offer Pulse badges looked live but disclosed their estimate status only through title text, which is weak on mobile and insufficient for buyer trust."
     - "Pulse ping animations did not include a reduced-motion guard."
@@ -107,12 +125,19 @@ active_batch:
 latest_merged_batches:
   - id: 131
     summary: "Public Pulse estimate disclosure so Pulse activity signals remain transparent estimates while preserving dynamic client-side drift."
-    status: "merged_to_main_lovable_sync_pending"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "8590361"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
-      status: "pending"
+      confirmed_at: "2026-05-25"
+      head: "6655d11"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "Sync clean at 6655d11 on top of PR #183 Batch #131."
+        - "Pulse estimate disclosure, dynamic Pulse behavior, MarketPulse section semantics, package wiring and production-scale notes are aligned."
+        - "No conflicts were found."
+        - "Known warnings preserved: Supabase generated types out of sync and Browserslist data stale."
     confirmed_files:
       - "src/components/PulseBadge.tsx"
       - "src/components/offer-detail/MarketPulse.tsx"

@@ -1185,3 +1185,12 @@ Keep this file factual and append-only.
 - Added `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md` for Batch #131 Lovable sync confirmation.
 - Pushed `main` to `84f71ba`, `[codex] Add Batch 131 Lovable sync prompt`, on top of Batch #131 merge commit `8590361`.
 - Added a follow-up project-memory checkpoint on `main` so recovery instructions point to the Batch #131 Lovable sync prompt without depending on an exact post-checkpoint HEAD hash.
+- User confirmed Lovable sync for Batch #131 is clean:
+  - HEAD synced to `6655d11` on `main`, on top of PR #183 Batch #131 `8590361`;
+  - `src/components/PulseBadge.tsx`, `src/components/PulseBadge.test.tsx`, `src/components/offer-detail/MarketPulse.tsx`, `src/lib/pulse-seed.ts`, `e2e/public-pulse-disclosure.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md` were checked;
+  - no conflicts were found and files were not modified in Lovable;
+  - PulseBadge visible and programmatic estimate disclosure is present;
+  - Dynamic Pulse behavior is preserved;
+  - MarketPulse labelled section and reduced-motion guards are present;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130 are preserved;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

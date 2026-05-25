@@ -8,14 +8,14 @@ Updated: 2026-05-25
 context_risk: "low"
 last_checkpoint: "2026-05-25"
 last_handoff_ready: true
-recommended_action: "sync Lovable with Batch #131 using docs/project-memory/PROMPTS/prompt-131-lovable-sync.md"
+recommended_action: "start the next scoped public UX/UI audit batch after Batch #131 Lovable sync"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "main_head_after_batch_131_memory_checkpoint"
+head_commit: "main_head_after_batch_131_lovable_sync_record"
 latest_merged_batch: 131
-active_workstream: "batch_131_lovable_sync_ready"
+active_workstream: "ready_for_next_public_ux_batch"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183"
-why_low: "main includes the Batch #131 Lovable sync prompt and memory checkpoint; Batch #131 itself is merged as 8590361 via PR #183 and GitHub Core Type And Build Gate passed."
+why_low: "Batch #131 is merged to main as 8590361 via PR #183 and Lovable sync is confirmed clean at 6655d11 with no conflicts."
 ```
 
 ## Risk Levels
@@ -51,11 +51,13 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: Batch #131 public Pulse estimate disclosure is merged and the Lovable sync prompt is committed; next step is Lovable sync using docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
-Current HEAD: main includes the Batch #131 Lovable sync prompt and memory checkpoint.
+Current workstream: Batch #131 Lovable sync is confirmed clean; next step is the next scoped public UX/UI audit batch.
+Current HEAD: main includes the Batch #131 Lovable sync record.
 Latest merged batch: Batch #131 public Pulse estimate disclosure is merged to main as 8590361 via PR #183.
 Lovable sync prompt: docs/project-memory/PROMPTS/prompt-131-lovable-sync.md.
 GitHub Core Type And Build Gate passed on PR #183 in 10m13s.
+Lovable sync for Batch #131 is confirmed clean at 6655d11 with no conflicts and no file modifications.
+Lovable confirmed PulseBadge visible and programmatic estimate disclosure, Dynamic Pulse behavior, MarketPulse labelled section, public-pulse-disclosure e2e guard, package wiring, Batch #131 production-scale notes, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130.
 Batch #131 was rebased onto origin/main da880e4 to preserve dynamic PulseBadge behavior before merge.
 Batch #131 preserves dynamic Pulse count drift, visible estimate disclosure, reduced-motion guards, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
 Batch #130 supplier profile mobile accessibility is merged to main as 1449efa via PR #181 and Lovable sync is confirmed clean.

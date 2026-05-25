@@ -2,17 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at `8590361` or newer using `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Record the Lovable sync result. If clean, mark Batch #131 Lovable sync confirmed; if not, capture exact conflict files and do not overwrite newer Lovable/user edits.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-## Batch #131 Merged, Lovable Sync Pending
+## Batch #131 Lovable Sync Confirmed
 
 - Branch: `main`.
-- Current `main`: includes the Batch #131 Lovable sync prompt and memory checkpoint.
 - Merge commit: `8590361`, `[codex] Batch #131 public pulse estimate disclosure`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
+- Lovable sync: clean at `6655d11`, no conflicts and no files modified in Lovable.
 - Base: Batch #130 Lovable sync clean on `main` at `1449efa`; Batch #131 was rebased onto `origin/main` `da880e4` before merge.
 - Scope: public Pulse estimate disclosure and reduced-motion behavior on real public runtime surfaces.
 - Runtime finding:
@@ -43,6 +43,13 @@
   - `npm run smoke:e2e:run`, 237 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 10m13s.
+- Lovable confirmed:
+  - `PulseBadge` visible `· {t.pulse_estimate}` chip, `aria-label`, `title` and `data-testid`;
+  - `MarketPulse` labelled section and preserved estimate footer;
+  - `motion-reduce:animate-none` on both ping spans;
+  - dynamic Pulse seed, 3.5-6s drift, temporary disappearance and refreshed return;
+  - no new polling, subscriptions, backend calls or routes;
+  - Batch #112 route splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130 public UX/a11y safeguards remain intact.
 - Build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 

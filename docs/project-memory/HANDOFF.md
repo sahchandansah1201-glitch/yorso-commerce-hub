@@ -16,17 +16,20 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #131 and verify the public Pulse estimate disclosure changes with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
 - The repository is currently on branch `main`.
-- Current `main` includes the Batch #131 Lovable sync prompt and memory checkpoint on top of the Batch #131 merge commit.
+- Current `main` includes the Batch #131 Lovable sync record on top of the Batch #131 merge commit.
 - Batch #131 public Pulse estimate disclosure is merged to `main` as `8590361`, `[codex] Batch #131 public pulse estimate disclosure`, via PR #183.
 - PR #183 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
 - GitHub `Core Type And Build Gate` passed on PR #183 in 10m13s.
 - Batch #131 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-131-lovable-sync.md`.
-- Next step: sync Lovable with GitHub `main` at `8590361` or newer and report conflicts, if any.
+- Batch #131 Lovable sync is confirmed clean at `6655d11`, with no conflicts and no file modifications in Lovable.
+- Lovable confirmed `src/components/PulseBadge.tsx`, `src/components/PulseBadge.test.tsx`, `src/components/offer-detail/MarketPulse.tsx`, `src/lib/pulse-seed.ts`, `e2e/public-pulse-disclosure.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md`.
+- Lovable confirmed PulseBadge visible and programmatic estimate disclosure, MarketPulse labelled section, reduced-motion ping guards, dynamic Pulse drift, package smoke wiring, Batch #131 production-scale notes, Batch #112 route splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - Batch #131 runtime audit focused on public Pulse activity signals introduced by recent Lovable/user changes: homepage offer Pulse badges and offer-detail MarketPulse.
 - Batch #131 finding:
   - homepage Pulse badges looked live but disclosed estimate status only through title text, which is weak on mobile and insufficient for buyer trust;
@@ -60,7 +63,7 @@ Sync Lovable with Batch #131 and verify the public Pulse estimate disclosure cha
 - Batch #131 preserves dynamic Pulse count drift, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
 - Batch #131 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 317.70 kB / 100.04 kB gzip; Index 37.69 kB / 10.56 kB gzip; OfferDetail 50.96 kB / 13.01 kB gzip; pulse-seed 0.58 kB / 0.44 kB gzip.
 - Batch #131 preserves deterministic pulse values, offer routing, access gating, supplier identity redaction, price locks, SEO route ownership, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#130 public UX/a11y safeguards.
-- Batch #130 remains the latest merged production batch.
+- Batch #131 is the latest merged production batch.
 - Batch #130 supplier profile mobile accessibility is merged to `main` as `1449efa`, `[codex] Batch #130 supplier profile mobile accessibility (#181)`, via PR #181.
 - PR #181 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/181`.
 - GitHub `Core Type And Build Gate` passed on PR #181 in 12m26s.
