@@ -1058,3 +1058,13 @@ Keep this file factual and append-only.
 - Confirmed GitHub PR #179 `Core Type And Build Gate` passed in 11m57s.
 - Marked PR #179 ready and merged it to `main` as `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`.
 - Added `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md` for Batch #128 Lovable sync confirmation.
+- User confirmed Lovable sync for Batch #128 is clean:
+  - HEAD is `f1f482b` on `main`, including Batch #128 `912230c` / PR #179;
+  - `RegistrationLayout.tsx`, `CountryPhoneInput.tsx`, `SignIn.tsx`, `ResetPassword.tsx`, `RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready`, `e2e/public-auth-registration-a11y.spec.ts`, `package.json` and Batch #128 production-scale notes are present;
+  - no conflicts were found and files were not modified in Lovable;
+  - auth and registration fields expose expected labels and autocomplete hints;
+  - all seven registration routes expose one `main#main` and a skip link through `t.aria_skipToMain`;
+  - nested interactive controls are absent and `/register/ready` final CTA uses `Button asChild` with `Link to="/offers"`;
+  - registration mobile targets meet the 44px baseline at 390px with no horizontal overflow;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets are intact;
+  - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.

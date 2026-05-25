@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-25"
   active_branch: "main"
-  head_commit: "912230c"
-  head_summary: "[codex] Batch #128 public auth registration accessibility (#179)"
+  head_commit: "f1f482b"
+  head_summary: "[codex] Add Batch 128 Lovable sync prompt"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #128 is merged to main; only project-memory Lovable sync prompt/checkpoint files are being updated."
+    - "User confirmed Batch #128 Lovable sync clean; only project-memory is updated in this checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch128_lovable_sync_pending"
-  summary: "Batch #128 is merged to main and ready for Lovable sync confirmation."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  id: "ready_for_next_public_ux_batch"
+  summary: "Batch #128 Lovable sync is clean; start the next scoped public UX/UI audit batch."
+  status: "ready_for_next_batch"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
   confirmed_scope:
@@ -78,12 +78,15 @@ active_workstream:
 active_batch:
   id: 128
   summary: "Public auth and registration accessibility: registration skip/main target, mobile target sizes, form labels/autocomplete and ready CTA semantics."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "912230c"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-25"
+    head: "f1f482b"
+    result: "clean_no_conflicts"
   confirmed_findings:
     - "Runtime audit after Batch #127 found /register, /register/email, /register/verify, /register/details, /register/onboarding, /register/countries and /register/ready had no stable main#main and no skip-to-main link."
     - "Registration shell/footer/legal/secondary actions could render below the 44px mobile target baseline."
@@ -119,13 +122,29 @@ active_batch:
 latest_merged_batches:
   - id: 128
     summary: "Public auth and registration accessibility so registration routes expose skip/main landmarks, mobile-safe targets, form labels/autocomplete and single semantic CTAs."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "912230c"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179"
     lovable_sync:
-      confirmed_at: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-25"
+      result: "clean_no_conflicts"
       prompt: "docs/project-memory/PROMPTS/prompt-128-lovable-sync.md"
+      user_confirmed:
+        - "GitHub commit synced to f1f482b on main, including Batch #128 912230c / PR #179."
+        - "The working tree was clean and no conflicts were found."
+        - "RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose, RegisterEmail, RegisterVerify, RegisterDetails, RegisterOnboarding, RegisterCountries, RegisterReady, e2e/public-auth-registration-a11y.spec.ts, package.json and docs/backend/production-scale-baseline.md were checked."
+        - "SignIn fields expose expected autocomplete values: signin-email email, signin-password current-password, signin-phone tel and signin-forgot-email email."
+        - "ResetPassword fields expose new-password autocomplete."
+        - "RegisterEmail exposes email autocomplete; RegisterVerify exposes six SMS code inputs with one-time-code; RegisterDetails exposes name, organization, country-name, off, tel and new-password completion hints."
+        - "All seven registration routes expose exactly one main#main plus a skip link through t.aria_skipToMain."
+        - "There are no nested interactive controls; /register/ready final CTA uses Button asChild with Link to /offers."
+        - "data-registration-mobile-target controls meet the 44px target baseline at 390px and there is no horizontal overflow."
+        - "e2e/public-auth-registration-a11y.spec.ts is wired into smoke:e2e:public-auth-registration-a11y and smoke:e2e:run."
+        - "Batch #112 code-splitting strategy is unchanged and no manual vendor chunks were added."
+        - "Batch #113 RouteChunkErrorBoundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets are intact."
+        - "Bundle metrics: CSS 126.67 kB / 20.99 kB gzip; entry 355.46 kB / 114.15 kB gzip; i18n-translations 314.40 kB / 99.06 kB gzip; RegisterChoose 3.16 kB / 1.47 kB gzip; RegisterEmail 3.50 kB / 1.59 kB gzip; RegisterVerify 7.50 kB / 2.92 kB gzip; RegisterDetails 11.92 kB / 3.55 kB gzip; RegisterOnboarding 8.03 kB / 3.07 kB gzip; RegisterReady 8.30 kB / 2.94 kB gzip; SignIn 9.29 kB / 2.86 kB gzip; ResetPassword 4.59 kB / 2.05 kB gzip."
+        - "The large-chunk warning did not return."
+        - "Known warnings remain: Supabase generated types out of sync in non-strict mode and stale Browserslist data."
     confirmed_files:
       - "src/components/registration/RegistrationLayout.tsx"
       - "src/components/registration/CountryPhoneInput.tsx"

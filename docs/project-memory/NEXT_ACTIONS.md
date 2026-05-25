@@ -2,18 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at commit `912230c` or newer using `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Confirm a clean sync or report concrete conflicts.
+2. Keep the same buyer-first review lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism.
 
-3. After Lovable confirms Batch #128, start the next scoped public UX/UI audit batch from current `main`.
-
-## Batch #128 Lovable Sync Pending
+## Batch #128 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `912230c`, `[codex] Batch #128 public auth registration accessibility (#179)`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
+- Lovable sync: clean at `f1f482b`, no conflicts and tree clean.
 - Scope: public auth and registration accessibility/scanability after Batch #127.
 - Runtime finding:
   - registration routes lacked stable `main#main` and skip-to-main behavior;
@@ -42,6 +41,13 @@
   - `npm run smoke:e2e:run`, 231 tests.
 - GitHub validation passed:
   - `Core Type And Build Gate`, 11m57s.
+- Lovable confirmed:
+  - `RegistrationLayout.tsx`, `CountryPhoneInput.tsx`, `SignIn.tsx`, `ResetPassword.tsx`, `RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready`, `e2e/public-auth-registration-a11y.spec.ts`, package wiring and Batch #128 production-scale notes are present;
+  - public auth and registration fields expose the expected labels and autocomplete hints;
+  - all seven registration routes expose one `main#main` and one skip link through `t.aria_skipToMain`;
+  - nested interactive controls are absent, and `/register/ready` final CTA is `Button asChild` with `Link to="/offers"`;
+  - registration mobile targets are at least 44px by 44px at 390px and there is no horizontal overflow;
+  - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets are intact.
 - Known warnings preserved: Supabase generated types out of sync in non-strict mode; Browserslist data stale.
 
 ## Batch #127 Lovable Sync Confirmed

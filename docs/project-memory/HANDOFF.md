@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #128 public auth and registration accessibility and confirm clean sync or concrete conflicts.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -25,6 +25,8 @@ Sync Lovable with Batch #128 public auth and registration accessibility and conf
 - PR #179 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/179`.
 - GitHub `Core Type And Build Gate` passed on PR #179 in 11m57s.
 - Batch #128 Lovable sync prompt is ready at `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`.
+- Batch #128 Lovable sync is confirmed clean at `f1f482b`, with no conflicts and no local file modifications in Lovable.
+- Lovable confirmed `RegistrationLayout`, `CountryPhoneInput`, `SignIn`, `ResetPassword`, `RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready`, `e2e/public-auth-registration-a11y.spec.ts`, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, `/register/ready` `Button asChild` CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 - Batch #128 runtime audit after Batch #127 found the registration flow was not covered by previous public skip/main, tap-target and input-accessibility batches:
   - `/register`, `/register/email`, `/register/verify`, `/register/details`, `/register/onboarding`, `/register/countries` and `/register/ready` had no stable `main#main` and no skip-to-main link;
   - registration header/footer/legal/secondary actions could render below the 44px mobile target baseline;
@@ -50,7 +52,7 @@ Sync Lovable with Batch #128 public auth and registration accessibility and conf
   - `npm run smoke:e2e:public-auth-registration-a11y`, 10 tests after production build;
   - `npm run smoke:e2e:run`, 231 tests.
 - Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price-lock, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-- Next step: sync Lovable with GitHub `main` at `912230c` or newer using `docs/project-memory/PROMPTS/prompt-128-lovable-sync.md`, then report clean sync or concrete conflicts.
+- Next step: start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #128.
 - Batch #127 public blog mobile tap targets is merged to `main` as `3aed8dd`, `[codex] Batch #127 public blog mobile tap targets (#178)`, via PR #178.
 - PR #178 is merged: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/178`.
