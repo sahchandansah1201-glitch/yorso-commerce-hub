@@ -82,10 +82,6 @@ const PulseBadge = ({ offerId, variant = "viewing", className }: Props) => {
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
       </span>
       <span>{label}</span>
-      <span className="text-success/80" aria-hidden>
-        ·
-      </span>
-      <span>{t.pulse_estimate}</span>
     </span>
   );
 };
