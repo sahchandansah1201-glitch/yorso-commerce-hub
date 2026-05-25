@@ -1253,3 +1253,25 @@ Keep this file factual and append-only.
   - public offer locale/a11y status is OK with no Russian leakage in English labels or aria-labels;
   - Pulse compact disclosure contract is preserved: no visible estimate chip, estimate disclosure through `aria-label`/`title`, `motion-reduce:animate-none` and hidden-height stability;
   - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and known warnings are preserved.
+- Started Batch #133 on `codex/batch133-public-runtime-ux-a11y-audit`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens and found hardcoded English breadcrumb landmark labels on localized public routes:
+  - `/suppliers` used `aria-label="Breadcrumb"`;
+  - `/blog` used `aria-label="Breadcrumb"`;
+  - `/blog/:slug` used `aria-label="Breadcrumb"`.
+- Implemented Batch #133 public breadcrumb locale a11y hardening:
+  - changed `Suppliers`, `Blog` and `BlogArticle` to use `t.aria_breadcrumb`;
+  - extended `src/i18n/aria-tooltips-localized.ru.test.tsx` to guard Suppliers, Blog and BlogArticle under RU;
+  - added `e2e/public-breadcrumb-locale-a11y.spec.ts` for `/suppliers`, `/blog` and `/blog/atlantic-salmon-q1-price-pressure` at 390px;
+  - wired `smoke:e2e:public-breadcrumb-locale-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #133 production-scale notes to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #133 local validation:
+  - `npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx` passed, 7 tests;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y` passed, 3 tests after production build;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y:run` passed, 3 tests;
+  - `npm run smoke:e2e:blog-mobile-tap-targets:run` passed, 2 tests;
+  - `npm run smoke:e2e:suppliers-directory:run` passed, 5 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:run` passed, 242 tests.
+- Batch #133 preserved supplier directory behavior, blog/article routing, SEO route ownership, mobile tap-target hardening, access gating, supplier identity redaction, price-lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #117-#132 public UX/a11y safeguards.

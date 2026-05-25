@@ -507,6 +507,16 @@
 
 ## Lovable Sync Prompts
 
+## Batch #133 Public Breadcrumb Locale A11y
+
+- `src/pages/Suppliers.tsx`: supplier directory breadcrumb nav uses `t.aria_breadcrumb` instead of a hardcoded English accessible name.
+- `src/pages/Blog.tsx`: blog index breadcrumb nav uses `t.aria_breadcrumb`.
+- `src/pages/BlogArticle.tsx`: blog article breadcrumb nav uses `t.aria_breadcrumb`.
+- `src/i18n/aria-tooltips-localized.ru.test.tsx`: RU regression coverage for Suppliers, Blog and BlogArticle breadcrumb labels.
+- `e2e/public-breadcrumb-locale-a11y.spec.ts`: browser smoke for localized breadcrumb names on `/suppliers`, `/blog` and `/blog/atlantic-salmon-q1-price-pressure`.
+- `package.json`: dedicated `smoke:e2e:public-breadcrumb-locale-a11y` script and full smoke wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #133 10,000 concurrent-user review.
+
 - `docs/project-memory/PROMPTS/prompt-107-lovable-sync.md`: sync confirmation prompt for Batch #107.
 - `docs/project-memory/PROMPTS/prompt-109-lovable-sync.md`: sync confirmation prompt for Batch #109.
 - `docs/project-memory/PROMPTS/prompt-110-lovable-sync.md`: sync confirmation prompt for Batch #110 public UX mobile scan.

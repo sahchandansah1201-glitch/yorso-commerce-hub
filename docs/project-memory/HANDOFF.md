@@ -20,7 +20,27 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on branch `main`.
+- The repository is currently on branch `codex/batch133-public-runtime-ux-a11y-audit`.
+- Batch #133 public breadcrumb locale a11y is implemented locally and validated; PR is not opened yet.
+- Batch #133 scoped finding:
+  - `/suppliers`, `/blog` and `/blog/:slug` used hardcoded English `aria-label="Breadcrumb"` on the public breadcrumb navigation, so RU/ES users could hear an English landmark name while surrounding UI was localized.
+- Batch #133 implementation:
+  - `src/pages/Suppliers.tsx`, `src/pages/Blog.tsx` and `src/pages/BlogArticle.tsx` now use `t.aria_breadcrumb`;
+  - `src/i18n/aria-tooltips-localized.ru.test.tsx` now covers Suppliers, Blog and BlogArticle breadcrumb labels under RU;
+  - `e2e/public-breadcrumb-locale-a11y.spec.ts` covers `/suppliers`, `/blog` and `/blog/atlantic-salmon-q1-price-pressure` at 390px, with localized breadcrumb navigation, no `Breadcrumb` leakage and zero horizontal overflow;
+  - `package.json` wires `smoke:e2e:public-breadcrumb-locale-a11y` into the dedicated and full smoke suites;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #133 10,000 concurrent-user note.
+- Batch #133 local validation passed:
+  - `npx vitest run src/i18n/aria-tooltips-localized.ru.test.tsx`, 7 tests;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y`, 3 tests after production build;
+  - `npm run smoke:e2e:public-breadcrumb-locale-a11y:run`, 3 tests;
+  - `npm run smoke:e2e:blog-mobile-tap-targets:run`, 2 tests;
+  - `npm run smoke:e2e:suppliers-directory:run`, 5 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:run`, 242 tests.
+- Next step: commit Batch #133, push branch, open PR, wait for GitHub `Core Type And Build Gate`, merge, then prepare Lovable sync prompt.
 - Batch #132 public offer locale a11y hardening is merged to `main` as `ab46fd3`, `[codex] Batch #132 public offer locale a11y`, via PR #184: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/184`.
 - Batch #132 Lovable sync is confirmed clean at `d1bf472`, with no conflicts and 7 focused tests passed.
 - Batch #132 was rebased onto `origin/main` `35317b0` without conflicts after PR #184 opened; post-rebase focused unit, TypeScript, lint, production-scale and dedicated Playwright smoke validation passed.
