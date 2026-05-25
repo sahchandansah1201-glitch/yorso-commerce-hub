@@ -36,7 +36,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
   const priceUnitLabel = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
+    <div className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:border-primary/30">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {/* Blurred backdrop fills the frame so vertical and horizontal photos
             both look presentable. The same image is rendered twice: once
@@ -80,13 +80,16 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         </h3>
         <p className="mt-0.5 text-[11px] italic text-muted-foreground">{offer.latinName}</p>
 
-        <CertificationBadges
-          certifications={offer.certifications ?? []}
-          limit={2}
-          className="mt-1.5"
-          interactive={false}
-        />
-        <PulseBadge offerId={offer.id} variant="viewing" className="mt-1.5 self-start" />
+        <div className="mt-1.5 min-h-[1.5rem]">
+          <CertificationBadges
+            certifications={offer.certifications ?? []}
+            limit={2}
+            interactive={false}
+          />
+        </div>
+        <div className="mt-1.5 min-h-[1.375rem]">
+          <PulseBadge offerId={offer.id} variant="viewing" className="self-start" />
+        </div>
 
         <div className="mt-auto pt-3">
           <div className="flex items-baseline gap-1.5">
