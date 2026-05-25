@@ -1153,9 +1153,9 @@ Keep this file factual and append-only.
 
 - Started Batch #131 locally on `codex/batch131-public-runtime-ux-a11y-audit`.
 - Audited recent public Pulse additions after Batch #130 Lovable sync and found homepage Pulse badges looked live while estimate disclosure was only title-level, and Pulse ping animations lacked reduced-motion guards.
-- Updated `src/components/PulseBadge.tsx` so estimate disclosure is visible, localized and programmatic through `aria-label` and `title`, with `motion-reduce:animate-none` on the ping animation.
+- Updated `src/components/PulseBadge.tsx` so estimate disclosure is localized and programmatic through `aria-label` and `title`, with `motion-reduce:animate-none` on the ping animation.
 - Updated `src/components/offer-detail/MarketPulse.tsx` so the panel is a section labelled by its visible heading and the ping animation respects reduced motion.
-- Added `src/components/PulseBadge.test.tsx` for visible/programmatic estimate disclosure, RU localization and reduced-motion class coverage.
+- Added `src/components/PulseBadge.test.tsx` for compact programmatic estimate disclosure, RU localization and reduced-motion class coverage.
 - Added `e2e/public-pulse-disclosure.spec.ts` for homepage Pulse badges and offer-detail MarketPulse at 390px, including zero nested controls and zero horizontal overflow.
 - Wired `smoke:e2e:public-pulse-disclosure` and the full `smoke:e2e:run` guard in `package.json`.
 - Added Batch #131 production-scale notes to `docs/backend/production-scale-baseline.md`.
@@ -1171,7 +1171,7 @@ Keep this file factual and append-only.
 - Opened draft PR #183 for Batch #131: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/183`.
 - PR #183 initially reported a dirty base because `origin/main` advanced to `da880e4`, `Сделал пульсацию динамичной`.
 - Rebasing Batch #131 onto `origin/main` produced one conflict in `src/components/PulseBadge.tsx`.
-- Resolved the conflict by preserving the new dynamic count drift and adding Batch #131 visible/programmatic estimate disclosure plus `motion-reduce:animate-none`.
+- Resolved the conflict by preserving the new dynamic count drift and adding Batch #131 estimate disclosure plus `motion-reduce:animate-none`.
 - Confirmed post-rebase validation:
   - `npx vitest run src/components/PulseBadge.test.tsx` passed, 3 tests.
   - `npx tsc -b --noEmit` passed.
@@ -1189,8 +1189,54 @@ Keep this file factual and append-only.
   - HEAD synced to `6655d11` on `main`, on top of PR #183 Batch #131 `8590361`;
   - `src/components/PulseBadge.tsx`, `src/components/PulseBadge.test.tsx`, `src/components/offer-detail/MarketPulse.tsx`, `src/lib/pulse-seed.ts`, `e2e/public-pulse-disclosure.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md` were checked;
   - no conflicts were found and files were not modified in Lovable;
-  - PulseBadge visible and programmatic estimate disclosure is present;
+  - PulseBadge estimate disclosure is present;
   - Dynamic Pulse behavior is preserved;
   - MarketPulse labelled section and reduced-motion guards are present;
   - Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#130 are preserved;
   - known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
+- Started Batch #132 on `codex/batch132-public-runtime-ux-a11y-audit`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens and found hardcoded Russian visible/programmatic labels on English public offer routes:
+  - `MobileOfferCard` details link aria-label used `Открыть карточку: ...`;
+  - `MobileOfferCard` delivery-basis link aria-label used `Базис поставки ..., срок ...`;
+  - `MobileOfferCard` mixed-orientation photo hint used Russian visible/title/aria copy;
+  - `OfferSummary` used Russian stock, inventory, certification, delivery basis, min lot and locked price/supplier labels in the English offer-detail summary.
+- Implemented Batch #132 public offer locale a11y hardening:
+  - localized `MobileOfferCard` details link aria-label, delivery-basis aria-label and mixed-orientation hint copy through EN/RU/ES `translations.ts` keys;
+  - localized `OfferSummary` stock labels, inventory label, capacity meter aria-label, certification label, delivery-basis label, min-lot label and locked price/supplier status;
+  - extended `CatalogOfferRow.locale.test.tsx` to guard English mobile card aria-labels and no Russian aria leakage;
+  - added `src/components/offer-detail/OfferSummary.locale.test.tsx`;
+  - added `e2e/public-offer-locale-a11y.spec.ts`;
+  - wired `smoke:e2e:public-offer-locale-a11y` and full `smoke:e2e:run` in `package.json`;
+  - added Batch #132 production-scale notes to `docs/backend/production-scale-baseline.md`.
+- Confirmed Batch #132 local validation:
+  - `npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx` passed, 4 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run smoke:e2e:public-offer-locale-a11y` passed, 2 tests after production build;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run` passed, 2 tests;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:run` passed, 239 tests.
+- Recorded Batch #132 build metrics from dedicated smoke: CSS 126.77 kB / 21.01 kB gzip; entry 355.47 kB / 114.18 kB gzip; i18n-translations 320.54 kB / 100.99 kB gzip; MobileOfferCard 42.80 kB / 12.15 kB gzip; OfferDetail 51.27 kB / 12.81 kB gzip.
+- Browser plugin runtime was unavailable for in-app manual inspection; Playwright browser smoke covered the changed real routes `/offers` and `/offers/:id`.
+- Batch #132 preserved known warnings: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale. Vite large-chunk warning stayed resolved.
+- Committed Batch #132 locally as `e5b5633`, opened draft PR #184, then fetched `origin/main` and saw it had advanced to `35317b0`.
+- Rebased Batch #132 onto `origin/main` `35317b0` without conflicts; new branch head before memory amend was `170199c`.
+- Confirmed post-rebase Batch #132 validation:
+  - `npx vitest run src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx` passed, 4 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:public-offer-locale-a11y` passed, 2 tests after production build.
+- Amended Batch #132 after the rebase and force-with-lease pushed the updated branch to PR #184.
+- Marked PR #184 ready for review. GitHub `Core Type And Build Gate` remained queued with no job steps started, so Batch #132 was not merged yet.
+- GitHub `Core Type And Build Gate` failed after PR #184 was rebased onto `origin/main` `35317b0`; root cause was `e2e/public-pulse-disclosure.spec.ts` still requiring visible `estimate` text after `main` intentionally removed the compact visible estimate chip.
+- Updated `e2e/public-pulse-disclosure.spec.ts` to match the current PulseBadge contract: visible activity count, no visible compact estimate chip, estimate disclosure through `aria-label` and `title`.
+- Updated project memory and Batch #131 production-scale notes so future work does not restore the stale visible-chip contract.
+- Confirmed CI-fix validation:
+  - `npx vitest run src/components/PulseBadge.test.tsx src/components/catalog/CatalogOfferRow.locale.test.tsx src/components/offer-detail/OfferSummary.locale.test.tsx` passed, 7 tests.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run lint` passed.
+  - `npm run check:production-scale-baseline` passed.
+  - `npm run smoke:e2e:public-pulse-disclosure` passed, 2 tests after production build.
+  - `npm run smoke:e2e:public-offer-locale-a11y:run` passed, 2 tests.
+  - `npm run smoke:e2e:run` passed, 239 tests.

@@ -386,6 +386,19 @@ type TranslationKeys = {
   offerDetail_gallery_open: string;
   offerDetail_gallery_close: string;
   offerDetail_gallery_thumbnail: string;
+  offerDetail_stock_inStock: string;
+  offerDetail_stock_limited: string;
+  offerDetail_stock_preOrder: string;
+  offerDetail_stock_outOfStock: string;
+  offerDetail_inventoryLabel: string;
+  offerDetail_capacityAria: string;
+  offerDetail_capacity_preOrder: string;
+  offerDetail_capacity_small: string;
+  offerDetail_capacity_limited: string;
+  offerDetail_capacity_medium: string;
+  offerDetail_capacity_large: string;
+  offerDetail_certificationsLabel: string;
+  offerDetail_minLotLabel: string;
 
   // ─── 404 / Not Found ───────────────────────────────────────────
   notFound_title: string;
@@ -924,6 +937,11 @@ type TranslationKeys = {
   catalog_panel_compare_add: string;
   catalog_panel_compare_remove: string;
   catalog_row_viewDetails: string;
+  catalog_mobile_viewDetailsFor: string;
+  catalog_mobile_basisAria: string;
+  catalog_mobile_noCropAria: string;
+  catalog_mobile_noCropTitle: string;
+  catalog_mobile_noCropLabel: string;
   catalog_compare_trayTitle: string;
   catalog_compare_trayHint: string;
   catalog_compare_open: string;
@@ -2196,6 +2214,19 @@ const en: TranslationKeys = {
   offerDetail_gallery_open: "Open offer photo gallery",
   offerDetail_gallery_close: "Close offer photo gallery",
   offerDetail_gallery_thumbnail: "View offer photo {current} of {total}",
+  offerDetail_stock_inStock: "In stock",
+  offerDetail_stock_limited: "Limited",
+  offerDetail_stock_preOrder: "Pre-order",
+  offerDetail_stock_outOfStock: "Out of stock",
+  offerDetail_inventoryLabel: "Inventory level",
+  offerDetail_capacityAria: "Inventory level: {level}",
+  offerDetail_capacity_preOrder: "pre-order",
+  offerDetail_capacity_small: "small volume",
+  offerDetail_capacity_limited: "limited volume",
+  offerDetail_capacity_medium: "medium volume",
+  offerDetail_capacity_large: "large volume",
+  offerDetail_certificationsLabel: "Compliance certifications",
+  offerDetail_minLotLabel: "Min. lot:",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -2743,6 +2774,11 @@ const en: TranslationKeys = {
   catalog_panel_compare_add: "Add to compare",
   catalog_panel_compare_remove: "Remove from compare",
   catalog_row_viewDetails: "View offer details",
+  catalog_mobile_viewDetailsFor: "Open offer details: {product}",
+  catalog_mobile_basisAria: "Delivery basis {code}, {port}, lead time {leadTime}",
+  catalog_mobile_noCropAria: "Photos are shown uncropped because this gallery mixes portrait and landscape images",
+  catalog_mobile_noCropTitle: "Uncropped photos: mixed image orientations",
+  catalog_mobile_noCropLabel: "Uncropped",
   catalog_compare_trayTitle: "Compare offers",
   catalog_compare_trayHint: "Select 2–5 offers to compare side by side.",
   catalog_compare_open: "Open comparison",
@@ -3978,6 +4014,19 @@ const ru: TranslationKeys = {
   offerDetail_gallery_open: "Открыть галерею фото предложения",
   offerDetail_gallery_close: "Закрыть галерею фото предложения",
   offerDetail_gallery_thumbnail: "Открыть фото предложения {current} из {total}",
+  offerDetail_stock_inStock: "В наличии",
+  offerDetail_stock_limited: "Ограниченно",
+  offerDetail_stock_preOrder: "Под заказ",
+  offerDetail_stock_outOfStock: "Нет в наличии",
+  offerDetail_inventoryLabel: "Уровень запасов",
+  offerDetail_capacityAria: "Уровень запасов: {level}",
+  offerDetail_capacity_preOrder: "под заказ",
+  offerDetail_capacity_small: "малый объём",
+  offerDetail_capacity_limited: "ограниченный объём",
+  offerDetail_capacity_medium: "средний объём",
+  offerDetail_capacity_large: "большой объём",
+  offerDetail_certificationsLabel: "Сертификаты соответствия",
+  offerDetail_minLotLabel: "Мин. партия:",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -4525,6 +4574,11 @@ const ru: TranslationKeys = {
   catalog_panel_compare_add: "В сравнение",
   catalog_panel_compare_remove: "Убрать",
   catalog_row_viewDetails: "Открыть детали предложения",
+  catalog_mobile_viewDetailsFor: "Открыть детали предложения: {product}",
+  catalog_mobile_basisAria: "Базис поставки {code}, {port}, срок {leadTime}",
+  catalog_mobile_noCropAria: "Фото показаны полностью, без обрезки: в галерее смешаны вертикальные и горизонтальные кадры",
+  catalog_mobile_noCropTitle: "Без обрезки: смешанные ориентации фото",
+  catalog_mobile_noCropLabel: "Без обрезки",
   catalog_compare_trayTitle: "Сравнение предложений",
   catalog_compare_trayHint: "Выберите 2–5 предложений, чтобы сравнить их рядом.",
   catalog_compare_open: "Открыть сравнение",
@@ -5760,6 +5814,19 @@ const es: TranslationKeys = {
   offerDetail_gallery_open: "Abrir galería de fotos de la oferta",
   offerDetail_gallery_close: "Cerrar galería de fotos de la oferta",
   offerDetail_gallery_thumbnail: "Ver foto de la oferta {current} de {total}",
+  offerDetail_stock_inStock: "En stock",
+  offerDetail_stock_limited: "Limitado",
+  offerDetail_stock_preOrder: "Bajo pedido",
+  offerDetail_stock_outOfStock: "Sin stock",
+  offerDetail_inventoryLabel: "Nivel de inventario",
+  offerDetail_capacityAria: "Nivel de inventario: {level}",
+  offerDetail_capacity_preOrder: "bajo pedido",
+  offerDetail_capacity_small: "volumen bajo",
+  offerDetail_capacity_limited: "volumen limitado",
+  offerDetail_capacity_medium: "volumen medio",
+  offerDetail_capacity_large: "volumen alto",
+  offerDetail_certificationsLabel: "Certificaciones de cumplimiento",
+  offerDetail_minLotLabel: "Lote mín.:",
 
   // 404 / Not Found
   notFound_title: "404",
@@ -6307,6 +6374,11 @@ const es: TranslationKeys = {
   catalog_panel_compare_add: "Añadir a comparar",
   catalog_panel_compare_remove: "Quitar",
   catalog_row_viewDetails: "Ver detalles de la oferta",
+  catalog_mobile_viewDetailsFor: "Abrir detalles de la oferta: {product}",
+  catalog_mobile_basisAria: "Base de entrega {code}, {port}, plazo {leadTime}",
+  catalog_mobile_noCropAria: "Las fotos se muestran sin recorte porque la galería mezcla imágenes verticales y horizontales",
+  catalog_mobile_noCropTitle: "Fotos sin recorte: orientaciones mixtas",
+  catalog_mobile_noCropLabel: "Sin recorte",
   catalog_compare_trayTitle: "Comparar ofertas",
   catalog_compare_trayHint: "Selecciona 2–5 ofertas para compararlas lado a lado.",
   catalog_compare_open: "Abrir comparación",

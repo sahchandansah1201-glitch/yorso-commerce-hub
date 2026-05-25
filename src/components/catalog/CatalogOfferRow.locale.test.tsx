@@ -67,7 +67,24 @@ describe("catalog offer locale hardening", () => {
     expect(trendToggle.getAttribute("aria-label")).toBe("Show price analytics");
     expect(trendToggle.getAttribute("title")).toBe("Show price analytics");
 
+    const detailsLink = screen.getByTestId("catalog-row-view-details");
+    expect(detailsLink.getAttribute("aria-label")).toBe(
+      `Open offer details: ${offer.productName}`,
+    );
+
+    const basisLink = screen.getByTestId("catalog-row-basis");
+    const primaryBasis = offer.deliveryBasisOptions[0];
+    expect(basisLink.getAttribute("aria-label")).toBe(
+      `Delivery basis ${primaryBasis.code}, ${primaryBasis.shipmentPort.split(",")[0]}, lead time ${primaryBasis.leadTime}`,
+    );
+
+    const russianAriaLabels = Array.from(document.querySelectorAll("[aria-label]"))
+      .map((el) => el.getAttribute("aria-label") ?? "")
+      .filter((label) => /[А-Яа-яЁё]/.test(label));
+    expect(russianAriaLabels).toEqual([]);
+
     expect(document.body.textContent).not.toContain("Цена по запросу");
     expect(document.body.textContent).not.toContain("Показать аналитику");
+    expect(document.body.textContent).not.toContain("Без обрезки");
   });
 });

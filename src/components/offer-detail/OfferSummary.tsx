@@ -12,37 +12,40 @@ import CertificationBadges from "@/components/CertificationBadges";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
-const STOCK_LABELS: Record<string, { label: string; cls: string; dot: string }> = {
+const STOCK_LABELS = {
   "In Stock": {
-    label: "В наличии",
+    labelKey: "offerDetail_stock_inStock",
     cls: "bg-success/10 text-success",
     dot: "bg-success",
   },
   Limited: {
-    label: "Ограниченно",
+    labelKey: "offerDetail_stock_limited",
     cls: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
     dot: "bg-orange-500",
   },
   "Pre-order": {
-    label: "Под заказ",
+    labelKey: "offerDetail_stock_preOrder",
     cls: "bg-muted text-muted-foreground",
     dot: "bg-muted-foreground",
   },
   "Out of Stock": {
-    label: "Нет в наличии",
+    labelKey: "offerDetail_stock_outOfStock",
     cls: "bg-destructive/10 text-destructive",
     dot: "bg-destructive",
   },
-};
+} as const;
 
-const StockBadge = ({ status }: { status: string }) => {
-  const meta = STOCK_LABELS[status] || STOCK_LABELS["In Stock"];
+const getStockMeta = (status: string) =>
+  STOCK_LABELS[status as keyof typeof STOCK_LABELS] || STOCK_LABELS["In Stock"];
+
+const StockBadge = ({ status, label }: { status: string; label: string }) => {
+  const meta = getStockMeta(status);
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${meta.cls}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} aria-hidden />
-      {meta.label}
+      {label}
     </span>
   );
 };
@@ -52,27 +55,26 @@ const StockBadge = ({ status }: { status: string }) => {
  * Точные количества — конфиденциальная информация поставщика,
  * поэтому показываем только уровень: low / medium / high.
  */
-const CapacityMeter = ({ status }: { status: string }) => {
-  // Эвристика по статусу/описанию из mock-данных. Шкала 1..5.
-  const level: 1 | 2 | 3 | 4 | 5 =
-    status === "Pre-order"
-      ? 1
-      : /small/i.test(status)
-        ? 2
-        : /limited/i.test(status)
-          ? 3
-          : /high|large/i.test(status)
-            ? 5
-            : 4;
+const getCapacityLevel = (status: string): 1 | 2 | 3 | 4 | 5 =>
+  status === "Pre-order"
+    ? 1
+    : /small/i.test(status)
+      ? 2
+      : /limited/i.test(status)
+        ? 3
+        : /high|large/i.test(status)
+          ? 5
+          : 4;
 
-  const labels = {
-    1: "Под заказ",
-    2: "Малый объём",
-    3: "Ограниченный объём",
-    4: "Средний объём",
-    5: "Большой объём",
-  } as const;
+const CAPACITY_LABEL_KEYS = {
+  1: "offerDetail_capacity_preOrder",
+  2: "offerDetail_capacity_small",
+  3: "offerDetail_capacity_limited",
+  4: "offerDetail_capacity_medium",
+  5: "offerDetail_capacity_large",
+} as const;
 
+const CapacityMeter = ({ level, ariaLabel }: { level: 1 | 2 | 3 | 4 | 5; ariaLabel: string }) => {
   const barColor =
     level <= 2 ? "bg-orange-500" : level === 3 ? "bg-primary" : "bg-success";
 
@@ -80,7 +82,7 @@ const CapacityMeter = ({ status }: { status: string }) => {
     <div
       className="inline-flex items-end gap-1"
       role="img"
-      aria-label={`Уровень запасов: ${labels[level]}`}
+      aria-label={ariaLabel}
     >
       {[1, 2, 3, 4, 5].map((i) => (
         <span
@@ -121,6 +123,13 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
 
   const isAnonymous = accessLevel === "anonymous_locked";
   const isQualified = accessLevel === "qualified_unlocked";
+  const stockMeta = getStockMeta(offer.commercial.stockStatus);
+  const capacityStatus = isQualified
+    ? offer.commercial.availableVolume
+    : offer.commercial.stockStatus;
+  const capacityLevel = getCapacityLevel(capacityStatus);
+  const capacityLabel = t[CAPACITY_LABEL_KEYS[capacityLevel]];
+  const capacityAriaLabel = t.offerDetail_capacityAria.replace("{level}", capacityLabel);
   const handleOpenAccessPanel = () => {
     document
       .getElementById("offer-supplier-access")
@@ -138,7 +147,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" /> {offer.freshness}
           </span>
-          <StockBadge status={offer.commercial.stockStatus} />
+          <StockBadge status={offer.commercial.stockStatus} label={t[stockMeta.labelKey]} />
         </div>
         <h1 className="font-heading text-xl font-bold text-foreground md:text-2xl leading-tight">{offer.productName}</h1>
         <p className="mt-1 text-sm italic text-muted-foreground">{offer.latinName}</p>
@@ -153,15 +162,9 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
         <div className="flex items-start gap-2 py-1">
           <Scale className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
           <div>
-            <p className="text-[11px] text-muted-foreground">Уровень запасов</p>
+            <p className="text-[11px] text-muted-foreground">{t.offerDetail_inventoryLabel}</p>
             <div className="mt-1">
-              <CapacityMeter
-                status={
-                  isQualified
-                    ? offer.commercial.availableVolume
-                    : offer.commercial.stockStatus
-                }
-              />
+              <CapacityMeter level={capacityLevel} ariaLabel={capacityAriaLabel} />
             </div>
           </div>
         </div>
@@ -171,7 +174,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
       {offer.certifications && offer.certifications.length > 0 && (
         <div>
           <p className="text-[11px] font-medium text-muted-foreground mb-1.5 inline-flex items-center gap-1">
-            <FileCheck className="h-3 w-3" /> Сертификаты соответствия
+            <FileCheck className="h-3 w-3" /> {t.offerDetail_certificationsLabel}
           </p>
           <CertificationBadges certifications={offer.certifications} size="sm" />
         </div>
@@ -190,7 +193,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
                 Codes & ports are public; exact per-basis price stays hidden. */}
             {bases.length > 1 && (
               <div>
-                <p className="text-[11px] font-medium text-muted-foreground mb-2">Базис поставки</p>
+                <p className="text-[11px] font-medium text-muted-foreground mb-2">{t.catalog_row_basisLabel}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {bases.map((b) => {
                     const active =
@@ -237,7 +240,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               {offer.volumeBreaks && offer.volumeBreaks.length > 0 && (
                 <>
                   <p className="mt-3 text-sm font-semibold text-foreground">
-                    Мин. партия:{" "}
+                    {t.offerDetail_minLotLabel}{" "}
                     <span className="font-bold">
                       {offer.volumeBreaks[0].minQty}
                       {offer.volumeBreaks.length > 1 && (
@@ -250,7 +253,7 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
                       Это даёт buyer'у понять, что объёмные скидки существуют, но точные значения
                       раскрываются только после получения доступа от поставщика. */}
                   {offer.volumeBreaks.length > 1 && (
-                    <ul className="mt-2 space-y-0.5" aria-label="Объёмные цены (заблокированы)">
+                    <ul className="mt-2 space-y-0.5" aria-label={t.offerDetail_volumeLocked_label}>
                       {offer.volumeBreaks.slice(1).map((vb, i) => (
                         <li
                           key={i}
@@ -274,8 +277,8 @@ const OfferSummary = ({ offer, accessLevel = "qualified_unlocked" }: Props) => {
               <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" aria-hidden />
                 {isAnonymous
-                  ? "Цена и поставщик — после регистрации"
-                  : "Точная цена и поставщик — после получения доступа"}
+                  ? t.catalog_row_priceSupplierLocked_anon
+                  : t.catalog_row_priceSupplierLocked_reg}
               </p>
             </div>
 

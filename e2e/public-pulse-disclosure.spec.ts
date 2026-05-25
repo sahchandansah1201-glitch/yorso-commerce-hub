@@ -1,8 +1,8 @@
 /**
  * E2E · public pulse estimate disclosure.
  *
- * Guards the Pulse trust layer against live-looking activity signals that hide
- * their estimate status from mobile buyers.
+ * Guards the Pulse trust layer against live-looking activity signals that lose
+ * their programmatic estimate status for mobile buyers.
  */
 import { expect, test, type Page } from "@playwright/test";
 
@@ -32,7 +32,7 @@ const expectNoNestedControls = async (page: Page) => {
   await expect(page.locator("a button, button a, a a, button button")).toHaveCount(0);
 };
 
-const expectPulseBadgesDiscloseEstimates = async (page: Page) => {
+const expectPulseBadgesExposeEstimateStatus = async (page: Page) => {
   const badges = page.getByTestId("pulse-badge");
   const count = await badges.count();
   expect(count).toBeGreaterThan(0);
@@ -40,7 +40,7 @@ const expectPulseBadgesDiscloseEstimates = async (page: Page) => {
   for (let i = 0; i < count; i += 1) {
     const badge = badges.nth(i);
     await expect(badge).toBeVisible();
-    await expect(badge).toContainText(/estimate/i);
+    await expect(badge).not.toContainText(/estimate/i);
     await expect(badge).toHaveAttribute("aria-label", /estimate/i);
     await expect(badge).toHaveAttribute("title", "estimate");
   }
@@ -53,11 +53,11 @@ test.describe("public pulse estimate disclosure", () => {
     await installEnglishLocale(page);
   });
 
-  test("homepage offer pulse badges visibly disclose estimates on mobile", async ({ page }) => {
+  test("homepage offer pulse badges expose estimate status programmatically on mobile", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("market-activity-stats")).toBeVisible({ timeout: 15_000 });
 
-    await expectPulseBadgesDiscloseEstimates(page);
+    await expectPulseBadgesExposeEstimateStatus(page);
     await expectNoNestedControls(page);
     await expectNoHorizontalOverflow(page);
   });
