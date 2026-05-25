@@ -18,23 +18,23 @@ describe("PulseBadge", () => {
     sessionStorage.clear();
   });
 
-  it("makes estimate disclosure visible and programmatic", () => {
+  it("exposes estimate disclosure programmatically without visible chip", () => {
     renderPulseBadge("en");
 
     const badge = screen.getByTestId("pulse-badge");
 
     expect(badge).toHaveTextContent(/buyers viewing now/i);
-    expect(badge).toHaveTextContent(/estimate/i);
+    expect(badge).not.toHaveTextContent(/estimate/i);
     expect(badge).toHaveAttribute("aria-label", expect.stringMatching(/estimate/i));
     expect(badge).toHaveAttribute("title", "estimate");
   });
 
-  it("keeps the disclosure localized", () => {
+  it("keeps the programmatic disclosure localized", () => {
     renderPulseBadge("ru");
 
     const badge = screen.getByTestId("pulse-badge");
 
-    expect(badge).toHaveTextContent(/оценка/i);
+    expect(badge).not.toHaveTextContent(/оценка/i);
     expect(badge).toHaveAttribute("aria-label", expect.stringMatching(/оценка/i));
     expect(badge).not.toHaveTextContent(/estimate/i);
   });
