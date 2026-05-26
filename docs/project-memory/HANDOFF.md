@@ -20,12 +20,13 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
 
 ## Current Status
 
-- The repository is currently on `main` at `3720708`, `[codex] Batch #136
-  offer detail supplier trust locale a11y`.
+- The repository is currently on `main` after recording Batch #136 Lovable sync.
 - Batch #136 offer detail supplier trust locale a11y is merged to `main` via
   PR #188: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
 - Batch #136 Lovable sync prompt is ready:
   `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
+- Batch #136 Lovable sync is confirmed clean by the user at `main` @ Batch #136
+  (`3720708` or newer), with no conflicts and no file modifications.
 - Batch #136 scoped finding:
   - `/offers/:id` `SupplierTrustPanel` still exposed hardcoded English trust and
     CTA labels inside localized RU/ES offer detail UI;
@@ -60,14 +61,25 @@ Continue the next scoped public UX/UI audit and remediation work with a buyer-fi
   - `npm run smoke:e2e:run`, 248 tests.
 - Batch #136 GitHub validation passed:
   - PR #188 `Core Type And Build Gate`, 11m57s.
+- Lovable confirmed:
+  - `src/components/offer-detail/SupplierTrustPanel.tsx`,
+    `src/i18n/translations.ts`, `src/pages/OfferDetail.tsx`,
+    `src/components/offer-detail/SupplierTrustPanel.access.test.tsx`,
+    `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` are aligned;
+  - RU and ES supplier trust labels are localized and hardcoded English labels
+    do not leak into RU/ES UI;
+  - offer detail behavior, access gating, supplier identity redaction,
+    exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics,
+    buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#135 safeguards are preserved.
 - Batch #136 preserves buyer-first offer detail narrative, supplier trust as a
   supply/trust mechanism, access gating, supplier identity redaction,
   exact-price lock, supplier access request behavior, Market Pulse, route SEO,
   Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches
   #110-#135 public UX/a11y safeguards.
-- Next action: sync Lovable with GitHub `main` at `3720708` or newer using
-  `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`, then record the
-  sync result.
+- Next action: start the next scoped public UX/UI audit batch from current
+  `main`.
 - Batch #135 supplier profile logo locale a11y is merged to `main` as `eb23d5f`,
   `[codex] Batch #135 supplier profile logo locale a11y`, via PR #187:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187`.

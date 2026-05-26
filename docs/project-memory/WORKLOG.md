@@ -1416,3 +1416,11 @@ Keep this file factual and append-only.
 - GitHub `Core Type And Build Gate` passed on PR #188 in 11m57s.
 - Marked PR #188 ready and squash-merged it to `main` as `3720708`, `[codex] Batch #136 offer detail supplier trust locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #136.
+- User confirmed Lovable sync for Batch #136 is clean:
+  - GitHub commit synced to `main` @ Batch #136, PR #188, `3720708` or newer;
+  - checked `src/components/offer-detail/SupplierTrustPanel.tsx`, `src/i18n/translations.ts`, `src/pages/OfferDetail.tsx`, `src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts`, `package.json` and `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no files were modified in Lovable;
+  - RU and ES supplier trust labels are localized, hardcoded English labels do not leak into RU/ES UI, the disclosure button has `min-h-11` and nested interactive controls are absent;
+  - offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
+- Recorded Batch #136 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.

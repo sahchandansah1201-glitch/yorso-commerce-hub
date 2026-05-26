@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-05-25
+Updated: 2026-05-26
 
 ## Current Status
 
 ```yaml
 context_risk: "low"
-last_checkpoint: "2026-05-25"
+last_checkpoint: "2026-05-26"
 last_handoff_ready: true
-recommended_action: "sync Lovable with Batch #136 from GitHub main"
+recommended_action: "start the next scoped public UX/UI audit batch"
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "3720708"
+head_commit: "main_after_batch_136_lovable_sync"
 latest_merged_batch: 136
-active_workstream: "batch_136_lovable_sync"
+active_workstream: "next_scoped_public_ux_ui_audit"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
-why_low: "Batch #136 is merged to main as 3720708 and the Lovable sync prompt is ready at docs/project-memory/PROMPTS/prompt-136-lovable-sync.md. It localizes /offers/:id supplier trust panel UI labels and fixes the RU expanded trust disclosure overflow without changing access gating, supplier redaction or price locks. Local focused unit, dedicated Playwright smoke, neighboring offer-detail/mobile/locale smokes, TypeScript, lint, diff check, production-scale guard, full smoke:e2e:run and GitHub Core Type And Build Gate passed."
+why_low: "Batch #136 is merged to main as 3720708 via PR #188 and Lovable sync is confirmed clean by the user. It localizes /offers/:id supplier trust panel UI labels and fixes the RU expanded trust disclosure overflow without changing access gating, supplier redaction or price locks. Local validation, GitHub Core Type And Build Gate and Lovable sync confirmation are recorded."
 ```
 
 ## Risk Levels
@@ -51,13 +51,17 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: sync Lovable with Batch #136 from GitHub main.
-Current HEAD: 3720708, [codex] Batch #136 offer detail supplier trust locale a11y.
+Current workstream: start the next scoped public UX/UI audit batch.
+Current HEAD: main after recording Batch #136 Lovable sync.
 Latest merged batch: Batch #136 offer detail supplier trust locale a11y is merged to main as 3720708 via PR #188.
 Current Batch #136 scope: localize supplier trust panel UI labels on /offers/:id, keep the supplier trust mechanism buyer-first, and prevent the expanded trust disclosure from creating mobile horizontal overflow.
 Current Batch #136 finding: /offers/:id SupplierTrustPanel still had hardcoded English UI labels and CTAs (`Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist`, `Compare Similar Offers`) inside localized RU/ES offer detail UI. The RU expanded trust disclosure also created 15px horizontal overflow at 390px.
 Current Batch #136 implementation: SupplierTrustPanel now uses typed EN/RU/ES offerDetail supplier trust translation keys, pluralized years-in-business copy and a scoped verification test id; OfferDetail route shells use `overflow-x-hidden`; `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES localized supplier trust labels, disclosure target size, nested controls and zero overflow; package smoke wiring and Batch #136 production-scale notes are present.
 Current Batch #136 validation passed: `npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx`, 4 tests; `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y`, 2 tests after production build; `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests; `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests; `npm run check:production-scale-baseline`; `git diff --check`; `npm run lint`; `npx tsc -b --noEmit`; `npm run smoke:e2e:run`, 248 tests; GitHub Core Type And Build Gate passed on PR #188 in 11m57s.
+Lovable sync for Batch #136 is confirmed clean by the user at main @ Batch #136, PR #188, 3720708 or newer, with no conflicts and no file modifications.
+Lovable confirmed Batch #136 files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline.
+Lovable confirmed Batch #136 locale/a11y status: RU and ES supplier trust labels are localized, hardcoded English labels do not leak into RU/ES UI, disclosure target is min-h-11 and there are no nested interactive controls.
+Lovable confirmed Batch #136 preserves offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards.
 Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-136-lovable-sync.md.
 Lovable sync for Batch #135 is confirmed clean by the user at main @ Batch #135, eb23d5f or newer, with no conflicts and no file modifications.
 Batch #135 GitHub validation passed: PR #187 Core Type And Build Gate passed in 12m21s.

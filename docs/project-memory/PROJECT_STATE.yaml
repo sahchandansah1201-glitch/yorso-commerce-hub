@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-25"
+updated_at: "2026-05-26"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-25"
+  git_status_confirmed_at: "2026-05-26"
   active_branch: "main"
-  head_commit: "3720708"
-  head_summary: "Batch #136 offer detail supplier trust locale a11y merged to main; Lovable sync prompt ready"
+  head_commit: "main_after_batch_136_lovable_sync_record"
+  head_summary: "Batch #136 Lovable sync confirmed; next scoped public UX/UI audit ready"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Only Batch #136 Lovable sync prompt and project-memory checkpoint are pending commit."
+    - "Only Batch #136 Lovable sync confirmation memory checkpoint is pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,15 +37,15 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_136_lovable_sync"
-  summary: "Sync Lovable with Batch #136 offer detail supplier trust locale/a11y from GitHub main."
-  status: "ready_for_lovable_sync"
+  id: "next_scoped_public_ux_ui_audit"
+  summary: "Start the next scoped public UX/UI audit batch from current main."
+  status: "ready"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
+  pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#135 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Preserve Batch #110-#136 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/components/offer-detail/SupplierTrustPanel.tsx"
@@ -67,11 +67,23 @@ active_workstream:
 active_batch:
   id: 136
   summary: "Offer detail supplier trust locale a11y: /offers/:id supplier trust panel labels and disclosure controls use locale-owned copy, with no 390px RU overflow after disclosure."
-  status: "merged_to_main_lovable_sync_prompt_ready"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "3720708"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-26"
+    head: "3720708_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #136, PR #188, 3720708 or newer."
+      - "Files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline."
+      - "No conflicts found; no files were modified in Lovable."
+      - "RU and ES supplier trust labels are localized and hardcoded English labels do not leak into RU/ES UI."
+      - "Disclosure target uses min-h-11 and nested interactive controls are absent."
+      - "Offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards are preserved."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "`/offers/:id` `SupplierTrustPanel` exposed hardcoded English trust and CTA labels inside localized RU/ES offer detail UI."
     - "Affected labels included `Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`."
@@ -101,49 +113,49 @@ active_batch:
     - "Browserslist data is stale."
 
 last_lovable_synced_batch:
-  id: 135
-  summary: "Supplier profile logo locale a11y: /suppliers/:id supplier logo accessible name and image alt text use locale-owned copy."
+  id: 136
+  summary: "Offer detail supplier trust locale a11y: /offers/:id supplier trust panel labels and disclosure controls use locale-owned copy."
   status: "merged_to_main_lovable_sync_clean"
-  commit: "eb23d5f"
+  commit: "3720708"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/187"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-135-lovable-sync.md"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
   lovable_sync:
-    confirmed_at: "2026-05-25"
-    head: "eb23d5f_or_newer"
+    confirmed_at: "2026-05-26"
+    head: "3720708_or_newer"
     result: "clean_no_conflicts"
     user_confirmed:
-      - "GitHub commit synced to main @ Batch #135, PR #187, eb23d5f or newer."
-      - "Files/routes checked: SupplierProfile, supplier_logo_aria translations, SupplierProfile.i18n.test.tsx, supplier-profile-logo-locale-a11y e2e, package.json and production-scale baseline."
+      - "GitHub commit synced to main @ Batch #136, PR #188, 3720708 or newer."
+      - "Files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline."
       - "No conflicts found; no files were modified in Lovable."
-      - "Supplier profile logo locale/a11y status OK: EN/RU/ES logo accessible names and alt text are localized with no cross-locale leakage."
-      - "Supplier profile behavior unchanged: access gating, identity redaction, approval refresh, profile tabs, directory/profile bridge, route SEO and buyer-first trust copy are preserved."
+      - "Offer detail supplier trust locale/a11y status OK: RU and ES labels are localized, with no hardcoded English leakage."
+      - "Offer detail behavior unchanged: access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics and buyer-first copy are preserved."
       - "Batch #112 code splitting and Batch #113 route chunk error boundary preserved; no manual vendor chunks added."
       - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
-    - "`/suppliers/:id` `SupplierLogoCard` used a hardcoded Russian wrapper aria-label template: `Логотип {name}`."
-    - "`/suppliers/:id` supplier logo image alt text used a hardcoded English suffix: `{name} logo`."
+    - "`/offers/:id` `SupplierTrustPanel` exposed hardcoded English trust and CTA labels inside localized RU/ES offer detail UI."
+    - "The expanded RU review disclosure created 15px horizontal overflow at 390px."
   confirmed_changes:
-    - "SupplierProfile derives the logo wrapper `aria-label` and image `alt` from the existing `supplier_logo_aria` EN/RU/ES translation template."
-    - "SupplierProfile.i18n.test.tsx guards EN/RU/ES logo accessible names and image alt text."
-    - "e2e/supplier-profile-logo-locale-a11y.spec.ts covers `/suppliers/sup-no-001` at 390px in EN/RU/ES."
-    - "Dedicated and full e2e smoke scripts include the supplier profile logo locale a11y guard."
-    - "Batch #135 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "SupplierTrustPanel uses typed EN/RU/ES `offerDetail_*` supplier trust labels and pluralized years-in-business copy."
+    - "OfferDetail route shells use `overflow-x-hidden`."
+    - "SupplierTrustPanel.access.test.tsx and e2e/offer-detail-supplier-trust-locale-a11y.spec.ts guard the locale/a11y contract."
+    - "Dedicated and full e2e smoke scripts include the offer detail supplier trust locale a11y guard."
+    - "Batch #136 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/pages/__tests__/SupplierProfile.i18n.test.tsx, 24 tests."
-    - "npm run smoke:e2e:supplier-profile-logo-locale-a11y, 3 tests after production build."
-    - "npm run smoke:e2e:supplier-profile-mobile-a11y:run, 2 tests."
-    - "npm run smoke:e2e:supplier-profile-detail:run, 4 tests."
+    - "npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx, 4 tests."
+    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y, 2 tests after production build."
+    - "npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests."
+    - "npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
     - "npx tsc -b --noEmit."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 246 tests."
-    - "GitHub Core Type And Build Gate passed on PR #187 in 12m21s."
-    - "Build metrics from PR #187: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.16 kB gzip; i18n-translations 321.51 kB / 101.25 kB gzip; SupplierProfile 60.58 kB / 15.43 kB gzip."
+    - "npm run smoke:e2e:run, 248 tests."
+    - "GitHub Core Type And Build Gate passed on PR #188 in 11m57s."
+    - "Build metrics from PR #188: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 324.98 kB / 102.16 kB gzip; OfferDetail 51.78 kB / 12.87 kB gzip."
   preserved_behavior:
-    - "Supplier profile route behavior, access gating, supplier identity redaction, approval refresh, profile tabs, directory/profile bridge and route SEO are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#134 public UX/a11y safeguards are preserved."
+    - "Offer detail access gating, supplier identity redaction, exact-price lock, supplier access request panel, MarketPulse, route SEO, analytics and buyer-first copy are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
@@ -151,14 +163,20 @@ last_lovable_synced_batch:
 latest_merged_batches:
   - id: 136
     summary: "Offer detail supplier trust locale a11y hardening so /offers/:id trust labels and disclosure controls use locale-owned copy."
-    status: "merged_to_main_lovable_sync_prompt_ready"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "3720708"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
-      confirmed_at: null
+      confirmed_at: "2026-05-26"
       head: "3720708_or_newer"
-      result: "pending"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #136, PR #188, 3720708 or newer."
+        - "Files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline."
+        - "No conflicts found; no files were modified in Lovable."
+        - "RU/ES supplier trust labels are localized and hardcoded English labels do not leak."
+        - "Offer detail behavior, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards are preserved."
     confirmed_files:
       - "src/components/offer-detail/SupplierTrustPanel.tsx"
       - "src/components/offer-detail/SupplierTrustPanel.access.test.tsx"

@@ -2,29 +2,29 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at commit `3720708` or newer using
-   `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Ask Lovable to report the seven required sections from the prompt:
-   commit synced, files/routes checked, conflicts, offer detail supplier trust
-   locale/a11y status, offer detail behavior status, bundle/code-splitting
-   status and remaining known warnings.
+2. Keep the audit scoped and public-route focused: buyer-first narrative, trust
+   evidence, scanability, conversion clarity, SEO structure, locale/a11y
+   semantics and mobile behavior.
 
-3. After Lovable confirms clean sync, record the confirmation in project memory
-   and move the next action to the next scoped public UX/UI audit batch.
+3. Preserve Batch #110-#136 safeguards unless a new runtime finding requires a
+   narrow fix.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
-   splitting, Batch #113 route chunk error boundary and Batches #110-#135
+   splitting, Batch #113 route chunk error boundary and Batches #110-#136
    public UX/a11y safeguards.
 
-## Batch #136 Ready For Lovable Sync
+## Batch #136 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `3720708`, `[codex] Batch #136 offer detail supplier trust locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-136-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #136 (`3720708` or newer), no
+  conflicts and no file modifications.
 - Scope: public offer detail supplier trust locale/a11y hardening for
   `/offers/:id`.
 - Runtime finding:
@@ -55,6 +55,16 @@
   - `npm run smoke:e2e:run`, 248 tests.
 - GitHub validation passed:
   - PR #188 `Core Type And Build Gate`, 11m57s.
+- Lovable confirmed:
+  - `src/components/offer-detail/SupplierTrustPanel.tsx`,
+    `src/i18n/translations.ts`, `src/pages/OfferDetail.tsx`,
+    `src/components/offer-detail/SupplierTrustPanel.access.test.tsx`,
+    `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md` were checked;
+  - RU and ES supplier trust labels are localized and hardcoded English labels
+    do not leak into RU/ES UI;
+  - disclosure target uses `min-h-11`, nested interactive controls are absent,
+    and bundle/code-splitting remains unchanged.
 - Preserved:
   - buyer-first offer detail narrative;
   - access gating, supplier identity redaction and exact-price lock;
