@@ -14,8 +14,8 @@ head_commit: "7eea5ce_or_newer"
 latest_merged_batch: 138
 active_workstream: "batch_138_public_info_route_seo"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
-recommended_action: "sync Lovable with Batch #138 using docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
-why_low: "Batch #138 is merged to main as 7eea5ce via PR #190, with GitHub Core Type And Build Gate passed and all local smoke validation complete. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards. Lovable sync is next."
+recommended_action: "start the next scoped public UX/UI audit batch from current main"
+why_low: "Batch #138 is merged to main as 7eea5ce via PR #190 and Lovable sync is confirmed clean with no conflicts or file modifications. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards."
 ```
 
 ## Risk Levels
@@ -62,8 +62,12 @@ Current Batch #138 validation passed: npx vitest run src/pages/InfoPageSeo.test.
 Current Batch #138 PR status: PR #190 passed GitHub Core Type And Build Gate in 12m42s and was squash-merged to main as 7eea5ce.
 Current Batch #138 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip; info page chunks 1.19-1.80 kB minified.
 Lovable sync prompt for Batch #138 is ready: docs/project-memory/PROMPTS/prompt-138-lovable-sync.md.
+Lovable sync for Batch #138 is confirmed clean by the user at main @ Batch #138, PR #190, 7eea5ce or newer, with no conflicts and no file modifications.
+Lovable confirmed Batch #138 files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline.
+Lovable confirmed Batch #138 route SEO: localized `{title} | YORSO`, canonical paths, localized descriptions, OG/Twitter metadata, one info-page JSON-LD script, AboutPage/ContactPage/WebPage schema split and RU direct entry on /anti-fraud with localized RU metadata and og:locale=ru_RU.
+Lovable confirmed Batch #138 mobile/CTA status: Back to homepage remains a single direct link, nested controls are absent, 390px overflow is absent, Header/footer/skip link/landmarks/route structure are unchanged and Batches #110-#137 plus Batch #113 are preserved.
 Latest merged batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190.
-Latest Lovable-synced batch: Batch #137 offer detail decision support locale a11y is merged to main as 15fc5f8 via PR #189 and Lovable sync is confirmed clean.
+Latest Lovable-synced batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190 and Lovable sync is confirmed clean.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
 Current Batch #137 implementation: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ now use typed EN/RU/ES offerDetail decision-support keys; OfferDetail passes renderAccessLevel into lower trust/recommendation blocks; similar offer/product cards show exact prices only for qualified_unlocked buyers; related insight cards are real React Router links; FAQ disclosures expose aria-expanded, aria-controls and mobile-safe targets; e2e/offer-detail-decision-support-locale-a11y.spec.ts and DecisionSupport.locale.test.tsx guard the contract.

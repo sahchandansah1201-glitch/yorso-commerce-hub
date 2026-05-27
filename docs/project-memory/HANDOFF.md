@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #138 public info route SEO using the prepared prompt.
+Start the next scoped public UX/UI audit batch from current `main`.
 
 ## Current Status
 
@@ -29,6 +29,8 @@ Sync Lovable with Batch #138 public info route SEO using the prepared prompt.
   `7eea5ce`, `[codex] Batch #138 public info route SEO`.
 - Batch #138 Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
+- Batch #138 Lovable sync is confirmed clean by the user at `main` @ Batch #138
+  (`7eea5ce` or newer), with no conflicts and no file modifications.
 - Batch #138 scope:
   - make shared public info/legal trust routes route-owned SEO surfaces;
   - preserve visible copy, shared back CTA, skip-link/main landmark, CTA
@@ -68,10 +70,24 @@ Sync Lovable with Batch #138 public info route SEO using the prepared prompt.
 - GitHub validation passed:
   - PR #190 `Core Type And Build Gate`, 12m42s.
 - Next action:
-  - sync Lovable with `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`
-    and record the result.
+  - start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #138 on `main` at `7eea5ce`.
-- The latest Lovable-synced batch is still Batch #137 on `main` at `15fc5f8`.
+- The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
+- Lovable confirmed Batch #138:
+  - checked `src/components/InfoPageLayout.tsx`, all 10 info/legal pages,
+    `src/pages/InfoPageSeo.test.tsx`,
+    `src/i18n/locale-document-meta-ru.test.tsx`,
+    `e2e/public-info-route-seo.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - route-owned SEO sets localized `{title} | YORSO`, canonical URLs,
+    localized descriptions, OG/Twitter metadata and one JSON-LD script;
+  - `/about` uses `AboutPage`, `/contact` uses `ContactPage`, and the other
+    info/legal routes use `WebPage`;
+  - RU direct entry on `/anti-fraud` uses localized RU route metadata and
+    `og:locale=ru_RU`;
+  - `Back to homepage` remains a single direct link, nested controls are absent,
+    390px overflow is absent, route structure is unchanged and Batches
+    #110-#137 plus Batch #113 are preserved.
 - Batch #137 Lovable sync is recorded clean.
 - Batch #137 is merged to `main` via PR #189:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.

@@ -13,7 +13,7 @@ repository:
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
   head_commit: "7eea5ce_or_newer"
-  head_summary: "Batch #138 merged to main; Lovable sync prompt ready"
+  head_summary: "Batch #138 merged to main; Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason: []
 
@@ -38,7 +38,7 @@ project_identity:
 active_workstream:
   id: "batch_138_public_info_route_seo"
   summary: "Public info/legal trust routes own localized route SEO metadata."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
   confirmed_scope:
@@ -92,12 +92,24 @@ active_workstream:
 active_batch:
   id: 138
   summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "7eea5ce"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-27"
+    head: "7eea5ce_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #138, PR #190, 7eea5ce or newer."
+      - "Files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline."
+      - "No conflicts found; no files were modified in Lovable."
+      - "Route SEO sets localized titles, canonical paths, localized descriptions, OG/Twitter metadata and one info-page JSON-LD script."
+      - "About uses AboutPage, Contact uses ContactPage, other info/legal routes use WebPage."
+      - "RU direct entry on /anti-fraud uses localized RU route metadata and og:locale=ru_RU."
+      - "Back to homepage remains a single direct link; nested controls and 390px overflow are absent."
+      - "Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#137 safeguards are preserved."
   confirmed_findings:
     - "Public info/legal trust routes used generic global site metadata instead of route-owned metadata."
     - "Affected routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press and /partners."
@@ -133,52 +145,49 @@ active_batch:
     - "Codex in-app browser connection was attempted but browser-client/browser MCP connection was unavailable; Playwright covered mobile/runtime verification at 390px."
 
 last_lovable_synced_batch:
-  id: 137
-  summary: "Offer detail decision support locale a11y: lower /offers/:id decision-support blocks use locale-owned copy and locked recommendation prices stay gated."
+  id: 138
+  summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
   status: "merged_to_main_lovable_sync_clean"
-  commit: "15fc5f8"
+  commit: "7eea5ce"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
   lovable_sync:
     confirmed_at: "2026-05-27"
-    head: "15fc5f8_or_newer"
+    head: "7eea5ce_or_newer"
     result: "clean_no_conflicts"
     user_confirmed:
-      - "GitHub commit synced to main @ Batch #137, PR #189, 15fc5f8 or newer."
-      - "Files/routes checked: OfferDetail, TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles, DecisionFAQ, translations, DecisionSupport.locale.test.tsx, offer-detail-decision-support-locale-a11y e2e, package.json and production-scale baseline."
+      - "GitHub commit synced to main @ Batch #138, PR #190, 7eea5ce or newer."
+      - "Files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline."
       - "No conflicts found; no files were modified in Lovable."
-      - "Offer detail decision-support locale/a11y status OK: RU/ES labels are localized and hardcoded English labels are removed."
-      - "Locked-buyer behavior OK: SimilarOffers/SimilarProducts show localized locked-price labels, Lower price reason is skipped, and exact price remains gated."
-      - "Offer detail behavior unchanged: access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA and buyer-first copy are preserved."
-      - "Batch #112 code splitting and Batch #113 route chunk error boundary preserved; no manual vendor chunks added."
+      - "Route SEO sets localized titles, canonical paths, localized descriptions, OG/Twitter metadata and one info-page JSON-LD script."
+      - "About uses AboutPage, Contact uses ContactPage and other info/legal routes use WebPage."
+      - "RU direct entry on /anti-fraud uses localized RU route metadata and og:locale=ru_RU."
+      - "Back to homepage remains a single direct link; nested controls and 390px overflow are absent."
+      - "Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#137 safeguards are preserved."
       - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
-    - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
-    - "SimilarOffers and SimilarProducts rendered raw mock price ranges for locked buyers."
+    - "Public info/legal trust routes used generic global site metadata instead of route-owned metadata."
   confirmed_changes:
-    - "Lower decision-support sections use typed EN/RU/ES offerDetail translations."
-    - "OfferDetail passes effective renderAccessLevel into lower trust/recommendation blocks."
-    - "Similar offer/product cards show exact prices only for qualified_unlocked buyers."
-    - "Related insight cards are real links to /blog/:slug."
-    - "DecisionSupport.locale.test.tsx and offer-detail-decision-support-locale-a11y.spec.ts guard the locale/a11y and locked-price contract."
-    - "Batch #137 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "InfoPageLayout applies route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD."
+    - "All 10 info/legal pages pass localized intro copy and canonical paths through the shared layout."
+    - "InfoPageSeo.test.tsx and public-info-route-seo.spec.ts guard the metadata, mobile CTA semantics, nested controls and overflow contract."
+    - "Batch #138 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
+    - "npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx, 14 tests."
     - "npx tsc -b --noEmit."
-    - "npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx, 2 tests."
-    - "npm run smoke:e2e:offer-detail-decision-support-locale-a11y, 2 tests after production build."
-    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run, 2 tests."
-    - "npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests."
-    - "npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
+    - "npm run smoke:e2e:public-info-route-seo, 11 tests after production build."
+    - "npm run smoke:e2e:public-cta-semantics:run, 12 tests."
+    - "npm run smoke:e2e:public-landmark-labels:run, 39 tests."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 250 tests."
-    - "GitHub Core Type And Build Gate passed on PR #189 in 12m23s."
-    - "Build metrics from PR #189: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; OfferDetail 51.80 kB / 12.06 kB gzip."
+    - "npm run smoke:e2e:run, 261 tests."
+    - "GitHub Core Type And Build Gate passed on PR #190 in 12m42s."
+    - "Build metrics from PR #190: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip; info pages 1.19-1.80 kB."
   preserved_behavior:
-    - "Offer detail access gating, supplier identity redaction, exact-price lock, supplier access request panel, Market Pulse, route SEO, sticky mobile CTA and buyer-first copy are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards are preserved."
+    - "Info/legal visible page copy, Back to homepage CTA, header/footer, skip links, landmarks and route structure are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#137 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
@@ -186,14 +195,19 @@ last_lovable_synced_batch:
 latest_merged_batches:
   - id: 138
     summary: "Public info/legal route SEO hardening so shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
-    status: "merged_to_main_lovable_sync_pending"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "7eea5ce"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
-      confirmed_at: null
-      head: null
-      result: "pending"
+      confirmed_at: "2026-05-27"
+      head: "7eea5ce_or_newer"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #138, PR #190, 7eea5ce or newer."
+        - "Files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline."
+        - "No conflicts found; no files were modified in Lovable."
+        - "Route SEO, mobile CTA semantics, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#137 safeguards are preserved."
     confirmed_files:
       - "src/components/InfoPageLayout.tsx"
       - "src/pages/About.tsx"

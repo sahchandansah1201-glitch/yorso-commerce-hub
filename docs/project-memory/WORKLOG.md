@@ -1498,3 +1498,25 @@ Keep this file factual and append-only.
   `[codex] Batch #138 public info route SEO`.
 - Added `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md` and updated
   project memory to point the next action at Lovable sync for Batch #138.
+- User confirmed Lovable sync for Batch #138 is clean:
+  - GitHub commit synced to `main` @ Batch #138, PR #190, `7eea5ce` or newer;
+  - checked `src/components/InfoPageLayout.tsx`, all 10 info/legal pages,
+    `src/pages/InfoPageSeo.test.tsx`,
+    `src/i18n/locale-document-meta-ru.test.tsx`,
+    `e2e/public-info-route-seo.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no files were modified in Lovable;
+  - route-owned SEO sets localized `{title} | YORSO`, canonical paths,
+    localized descriptions, OG/Twitter metadata and one info-page JSON-LD
+    script;
+  - `/about` uses `AboutPage`, `/contact` uses `ContactPage`, and the other
+    info/legal routes use `WebPage`;
+  - RU direct entry on `/anti-fraud` uses localized RU route metadata and
+    `og:locale=ru_RU`;
+  - `Back to homepage` remains a single direct link, nested controls are absent,
+    390px overflow is absent, Batch #112 code splitting, Batch #113 route chunk
+    error boundary and Batches #110-#137 safeguards are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
+- Recorded Batch #138 Lovable sync in project memory and moved next action to
+  the next scoped public UX/UI audit batch.

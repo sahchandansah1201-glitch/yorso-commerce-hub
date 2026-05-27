@@ -2,22 +2,17 @@
 
 ## Current Next Action
 
-1. Sync Lovable with Batch #138 using:
-   `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Record the Lovable sync result after Lovable reports the checked files,
-   conflicts, route SEO status, mobile/CTA semantics status and remaining
-   warnings.
-
-3. Preserve current known contracts: supplier profile route behavior, access
+2. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
-   splitting, Batch #113 route chunk error boundary and Batches #110-#137
+   splitting, Batch #113 route chunk error boundary and Batches #110-#138
    public UX/a11y safeguards.
 
-## Batch #138 Merged, Lovable Sync Pending
+## Batch #138 Lovable Sync Confirmed
 
-- Branch: `codex/batch-138-public-info-route-seo`.
+- Branch: `main`.
 - Local implementation commit: `2e302df`,
   `[codex] Batch #138 public info route SEO`.
 - Merge commit: `7eea5ce`,
@@ -25,6 +20,8 @@
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
 - Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #138 (`7eea5ce` or newer), no
+  conflicts and no file modifications.
 - Scope: route-owned SEO for public info/legal trust routes:
   `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`,
   `/anti-fraud`, `/careers`, `/press`, `/partners`.
@@ -62,6 +59,19 @@
 - GitHub validation:
   - PR #190 `Core Type And Build Gate` passed in 12m42s.
   - PR #190 was marked ready and squash-merged to `main` as `7eea5ce`.
+- Lovable confirmed:
+  - `InfoPageLayout`, all 10 info/legal pages, `InfoPageSeo.test.tsx`,
+    `locale-document-meta-ru.test.tsx`, `public-info-route-seo.spec.ts`,
+    `package.json` and `production-scale-baseline.md` are aligned;
+  - route SEO sets localized `{title} | YORSO`, canonical paths, localized
+    descriptions, OG/Twitter metadata and one info-page JSON-LD script;
+  - `/about` uses `AboutPage`, `/contact` uses `ContactPage`, other routes
+    use `WebPage`;
+  - RU direct entry on `/anti-fraud` uses localized RU route metadata and
+    `og:locale=ru_RU`;
+  - `Back to homepage` remains a single direct link, nested controls are absent,
+    390px overflow is absent, and Batch #110-#137 safeguards plus Batch #113
+    route chunk error boundary are preserved.
 
 ## Batch #137 Lovable Sync Confirmed
 
