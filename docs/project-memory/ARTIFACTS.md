@@ -43,11 +43,11 @@
 - `docs/backend/production-scale-baseline.md`: Batch #141 10,000 concurrent
   users capacity review.
 - `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`: sync prompt for
-  Batch #141 after PR #193 merge; next action is Lovable sync at `main`
-  `5eafcb7` or newer.
+  Batch #141 after PR #193 merge; user confirmed clean Lovable sync at `main`
+  @ Batch #141, `5eafcb7` or newer.
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
-  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #141 merge and
-  Lovable sync prompt checkpoint.
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #141 merge and clean
+  Lovable sync checkpoint.
 
 ## Batch #138 Public Info Route SEO
 

@@ -1730,3 +1730,26 @@ Keep this file factual and append-only.
   `[codex] Batch #141 public sheet close locale a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md` and updated
   project memory to make Lovable sync the next action.
+- User confirmed Lovable sync for Batch #141 is clean:
+  - GitHub commit synced to `main` @ Batch #141, PR #193, `5eafcb7` or newer;
+  - checked `src/components/ui/sheet.tsx`,
+    `src/components/catalog/CompareTray.tsx`,
+    `src/components/catalog/IntelligenceRail.tsx`,
+    `src/components/catalog/SheetCloseLocale.test.tsx`,
+    `e2e/public-sheet-close-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no local changes were present;
+  - `SheetContent` accepts optional `closeLabel` with default `Close`;
+  - `CompareTray` and `IntelligenceRail` pass `t.aria_close`;
+  - RU/ES unit and e2e guards verify `Закрыть` / `Cerrar`, no English `Close`
+    leakage, locked access state, zero nested controls and zero horizontal
+    overflow;
+  - visible `/offers` layout, compare tray behavior, signal drawer toggles,
+    analytics, supplier identity redaction, access gating, exact-price locks,
+    public SEO, route structure, language selector, `yorso-lang`, Batch #112
+    code splitting, Batch #113 route chunk error boundary and Batches #110-#140
+    safeguards are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
+- Recorded Batch #141 Lovable sync in project memory and moved next action to
+  the next scoped public UX/UI audit batch.

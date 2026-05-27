@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "main_after_batch_141_lovable_sync_prompt"
+head_commit: "main_after_batch_141_lovable_sync_record"
 latest_merged_batch: 141
-active_workstream: "lovable_sync_batch_141"
+active_workstream: "next_scoped_public_ux_ui_audit_batch"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
-recommended_action: "sync Lovable with Batch #141 using docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
-why_low: "Batch #141 is merged to main as 5eafcb7, GitHub Core Type And Build Gate passed, and the Lovable sync prompt is ready. The change is a scoped catalog a11y hardening: optional SheetContent closeLabel plus existing t.aria_close passed from public catalog drawer usages."
+recommended_action: "start next scoped public UX/UI audit batch"
+why_low: "Batch #141 is merged to main as 5eafcb7 and Lovable sync is confirmed clean with no conflicts. It localizes public catalog sheet close controls while preserving visible drawer behavior, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: lovable_sync_batch_141.
-Current HEAD baseline: main after Batch #141 merge; Batch #141 merge commit 5eafcb7; Lovable sync prompt is ready in docs/project-memory/PROMPTS/prompt-141-lovable-sync.md.
+Current workstream: next_scoped_public_ux_ui_audit_batch.
+Current HEAD baseline: main after Batch #141 Lovable sync record; Batch #141 merge commit 5eafcb7.
 Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193 (merged).
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
@@ -61,7 +61,11 @@ Current Batch #141 validation passed: npx vitest run src/components/catalog/Shee
 Current Batch #141 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip.
 Current Batch #141 PR status: PR #193 passed GitHub Core Type And Build Gate in 13m19s and was squash-merged to main as 5eafcb7.
 Lovable sync prompt for Batch #141 is ready: docs/project-memory/PROMPTS/prompt-141-lovable-sync.md.
-Current Batch #141 next step: sync Lovable with GitHub main at 5eafcb7 or newer using prompt-141-lovable-sync.md.
+Lovable sync for Batch #141 is confirmed clean by the user at main @ Batch #141, PR #193, 5eafcb7 or newer, with no conflicts and no local changes.
+Lovable confirmed Batch #141 files/routes checked: sheet.tsx, CompareTray, IntelligenceRail, SheetCloseLocale.test.tsx, public-sheet-close-locale-a11y e2e, package.json and production-scale baseline.
+Lovable confirmed Batch #141 sheet close a11y: SheetContent accepts optional closeLabel with Close fallback, CompareTray and IntelligenceRail pass t.aria_close, RU/ES unit and e2e guards are present, Close does not leak into RU/ES drawer states.
+Lovable confirmed Batch #141 catalog drawer behavior: visible /offers layout, compare tray open/clear/remove, signal drawer toggles, analytics, supplier identity redaction, access gating, exact-price locks, public SEO, route structure, language selector, localStorage yorso-lang, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards are preserved.
+Current Batch #141 next step: start the next scoped public UX/UI audit batch from current main.
 Current Batch #140 scope: make signed-in public header account controls explicit to assistive tech without changing visible header layout, account destinations, session storage, routes, access behavior or SEO.
 Current Batch #140 finding: the desktop signed-in account chip exposed only the buyer display name/email without a localized menu purpose; the dropdown was not associated through aria-controls and did not expose a named group; the mobile account panel did not expose localized account-menu context.
 Current Batch #140 implementation: Header adds localized account menu/current account labels, aria-haspopup/aria-controls on the desktop account chip, role=group around desktop dropdown and mobile account panel, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-account-menu-a11y.spec.ts and package smoke wiring.

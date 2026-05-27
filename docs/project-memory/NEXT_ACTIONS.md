@@ -2,26 +2,26 @@
 
 ## Current Next Action
 
-1. Sync Lovable with Batch #141 using
-   `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
 2. Preserve current known contracts: public sheet close locale a11y, public
    account menu a11y, public language selector a11y, public SEO, access gating,
-   supplier identity redaction,
-   exact-price lock, buyer-first trust narrative, Batch #112 code splitting,
-   Batch #113 route chunk error boundary and Batches #110-#140 public UX/a11y
-   safeguards.
+   supplier identity redaction, exact-price lock, buyer-first trust narrative,
+   Batch #112 code splitting, Batch #113 route chunk error boundary and
+   Batches #110-#141 public UX/a11y safeguards.
 
 3. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
 
-## Batch #141 Lovable Sync Pending
+## Batch #141 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193`.
 - Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #141 (`5eafcb7` or newer), no
+  conflicts and no local changes.
 - Scope: public catalog sheet close-control localization.
 - Finding:
   - shared `SheetContent` hardcoded the default close accessible name as
@@ -62,11 +62,19 @@
     #110-#140 safeguards.
 - GitHub validation:
   - `Core Type And Build Gate` passed on PR #193 in 13m19s.
+- Lovable confirmed:
+  - `SheetContent` accepts optional `closeLabel?: React.ReactNode` with default
+    `Close` fallback;
+  - `CompareTray` and `IntelligenceRail` pass `closeLabel={t.aria_close}`;
+  - RU/ES unit and e2e guards are present and prevent English `Close` leakage;
+  - `/offers` visual layout, compare behavior, signal drawer toggles,
+    analytics, supplier identity redaction, access gating, exact-price locks,
+    public SEO, route structure, language selector and `yorso-lang` storage are
+    unchanged;
+  - Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#140 safeguards are preserved.
 - Next:
-  - ask Lovable to sync GitHub `main` at `5eafcb7` or newer using
-    `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`;
-  - after sync, record the Lovable sync report and move next action to the next
-    scoped public UX/UI audit batch.
+  - start the next scoped public UX/UI audit batch from current `main`.
 
 ## Batch #140 Lovable Sync Confirmed
 

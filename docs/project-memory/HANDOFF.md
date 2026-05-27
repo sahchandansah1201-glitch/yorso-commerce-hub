@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #141 using `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
+Start the next scoped public UX/UI audit batch from current `main`.
 
 ## Current Status
 
@@ -28,6 +28,9 @@ Sync Lovable with Batch #141 using `docs/project-memory/PROMPTS/prompt-141-lovab
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193` (merged).
 - Batch #141 Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
+- Batch #141 Lovable sync:
+  clean at `main` @ Batch #141 (`5eafcb7` or newer), no conflicts and no local
+  changes.
 - Batch #141 scope:
   - localize shared public catalog sheet close controls for RU/ES;
   - preserve visible catalog drawer layout, compare behavior, route structure,
@@ -70,8 +73,22 @@ Sync Lovable with Batch #141 using `docs/project-memory/PROMPTS/prompt-141-lovab
 - Batch #141 GitHub validation:
   - `Core Type And Build Gate` passed on PR #193 in 13m19s.
 - Batch #141 next action:
-  - sync Lovable with GitHub `main` at `5eafcb7` or newer using
-    `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
+  - start the next scoped public UX/UI audit batch from current `main`.
+- Batch #141 Lovable confirmed:
+  - files/routes checked: `src/components/ui/sheet.tsx`,
+    `src/components/catalog/CompareTray.tsx`,
+    `src/components/catalog/IntelligenceRail.tsx`,
+    `src/components/catalog/SheetCloseLocale.test.tsx`,
+    `e2e/public-sheet-close-locale-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - `SheetContent` accepts optional `closeLabel` with default `Close`;
+  - `CompareTray` and `IntelligenceRail` pass `t.aria_close`;
+  - RU/ES unit and e2e guards prevent English `Close` leakage;
+  - visible `/offers` layout, compare behavior, signal drawer toggles,
+    analytics, supplier identity redaction, access gating, exact-price locks,
+    public SEO, route structure, language selector, `yorso-lang`, Batch #112
+    code splitting, Batch #113 route chunk error boundary and Batches #110-#140
+    safeguards are preserved.
 - Batch #140 is implemented, validated and merged.
 - Batch #140 commit:
   `8ad19a6`, `[codex] Batch #140 public account menu a11y`.

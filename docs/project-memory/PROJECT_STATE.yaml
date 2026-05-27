@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
-  head_commit: "main_after_batch_141_lovable_sync_prompt"
-  head_summary: "Batch #141 public sheet close locale a11y merged and Lovable sync prompt ready"
+  head_commit: "main_after_batch_141_lovable_sync_record"
+  head_summary: "Batch #141 public sheet close locale a11y merged and Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #141 Lovable sync prompt and project-memory updates are intentionally unstaged before commit."
+    - "Batch #141 Lovable sync report is being recorded in project memory before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,15 +37,15 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "lovable_sync_batch_141"
-  summary: "Sync Lovable with Batch #141 public sheet close locale a11y."
-  status: "prompt_ready"
+  id: "next_scoped_public_ux_ui_audit_batch"
+  summary: "Start the next scoped public UX/UI audit batch from current main."
+  status: "ready"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
+  pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#140 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/components/landing/Header.tsx"
@@ -67,11 +67,22 @@ active_workstream:
 active_batch:
   id: 141
   summary: "Public sheet close locale a11y: shared catalog sheet close controls use localized close labels in RU/ES."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "5eafcb7"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
+  lovable_sync:
+    confirmed_at: "2026-05-27"
+    head: "5eafcb7_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #141, PR #193, 5eafcb7 or newer."
+      - "Files/routes checked: sheet.tsx, CompareTray, IntelligenceRail, SheetCloseLocale.test.tsx, public-sheet-close-locale-a11y e2e, package.json and production-scale baseline."
+      - "No conflicts found and no local changes."
+      - "SheetContent closeLabel, CompareTray and IntelligenceRail localized close labels, RU/ES unit and e2e guards are present."
+      - "Catalog drawer behavior, supplier identity redaction, access gating, exact-price locks, public SEO, route structure, language selector, analytics hooks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards are preserved."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "Shared `SheetContent` hardcoded the default Radix close control accessible name as `Close`."
     - "Public catalog drawer usages in `CompareTray` and `IntelligenceRail` did not pass a localized close label, so RU/ES sheet states could expose English programmatic copy."
@@ -160,53 +171,76 @@ previous_batch_140:
     - "Codex in-app browser connection was attempted but browser-client/browser MCP connection was unavailable; Playwright covered mobile/runtime verification at 390px."
 
 last_lovable_synced_batch:
-  id: 140
-  summary: "Public account menu a11y: signed-in header account controls expose localized purpose and current-account context."
+  id: 141
+  summary: "Public sheet close locale a11y: shared catalog sheet close controls use localized close labels in RU/ES."
   status: "merged_to_main_lovable_sync_clean"
-  commit: "8ad19a6"
+  commit: "5eafcb7"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-140-lovable-sync.md"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
   lovable_sync:
     confirmed_at: "2026-05-27"
-    head: "8ad19a6_or_newer"
+    head: "5eafcb7_or_newer"
     result: "clean_no_conflicts"
     user_confirmed:
-      - "GitHub commit synced to main @ Batch #140, PR #192, 8ad19a6 or newer."
-      - "Files/routes checked: Header.tsx, translations.ts, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-account-menu-a11y.spec.ts, package.json and production-scale baseline."
+      - "GitHub commit synced to main @ Batch #141, PR #193, 5eafcb7 or newer."
+      - "Files/routes checked: sheet.tsx, CompareTray, IntelligenceRail, SheetCloseLocale.test.tsx, public-sheet-close-locale-a11y e2e, package.json and production-scale baseline."
       - "No conflicts found; no local changes."
-      - "Public account menu a11y, mobile/header behavior, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#139 safeguards are preserved."
+      - "Public sheet close locale a11y, catalog drawer behavior, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards are preserved."
       - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
-    - "Desktop signed-in public header account chip exposed only the buyer display name/email as its accessible name, without localized menu purpose."
-    - "Desktop account dropdown was not associated with the trigger through aria-controls and did not expose a named group."
-    - "Mobile signed-in account panel did not expose localized account-menu context as a named group."
+    - "Shared `SheetContent` hardcoded the default Radix close control accessible name as `Close`."
+    - "Public catalog drawer usages in `CompareTray` and `IntelligenceRail` did not pass a localized close label, so RU/ES sheet states could expose English programmatic copy."
   confirmed_changes:
-    - "Header adds localized EN/RU/ES account-menu/current-account labels."
-    - "Desktop account chip exposes aria-label, aria-expanded, aria-controls and aria-haspopup."
-    - "Desktop account dropdown and mobile signed-in account panel expose named groups."
-    - "Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx and public-account-menu-a11y.spec.ts guard the contract."
-    - "Batch #140 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "SheetContent accepts optional closeLabel while preserving the English fallback."
+    - "CompareTray and IntelligenceRail pass active-locale t.aria_close."
+    - "SheetCloseLocale.test.tsx and public-sheet-close-locale-a11y.spec.ts guard RU/ES close labels and no English Close leakage."
+    - "Batch #141 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 17 tests."
+    - "npx vitest run src/components/catalog/SheetCloseLocale.test.tsx, 4 tests."
     - "npx tsc -b --noEmit."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:public-account-menu-a11y, 9 tests after production build."
+    - "npm run smoke:e2e:public-sheet-close-locale-a11y, 2 tests after production build."
+    - "npm run smoke:e2e:public-account-menu-a11y:run, 9 tests."
     - "npm run smoke:e2e:public-language-selector-a11y:run, 10 tests."
     - "npm run smoke:e2e:public-landmark-labels:run, 39 tests."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 280 tests."
-    - "GitHub Core Type And Build Gate passed on PR #192 in 12m54s."
-    - "Build metrics from PR #192: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.17 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Header 50.54 kB / 14.20 kB gzip."
+    - "npm run smoke:e2e:run, 282 tests."
+    - "GitHub Core Type And Build Gate passed on PR #193 in 13m19s."
+    - "Build metrics from PR #193: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip."
   preserved_behavior:
-    - "Visible header layout, account destinations, session storage contract, route structure, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#139 public UX/a11y safeguards are preserved."
+    - "Visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#140 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 141
+    summary: "Public sheet close locale a11y hardening so shared catalog sheet close controls use localized RU/ES names."
+    status: "merged_to_main_lovable_sync_clean"
+    commit: "5eafcb7"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
+      confirmed_at: "2026-05-27"
+      head: "5eafcb7_or_newer"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #141, PR #193, 5eafcb7 or newer."
+        - "Files/routes checked: sheet.tsx, CompareTray, IntelligenceRail, SheetCloseLocale.test.tsx, public-sheet-close-locale-a11y e2e, package.json and production-scale baseline."
+        - "No conflicts found; no local changes."
+        - "Public sheet close locale a11y, catalog drawer behavior, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards are preserved."
+    confirmed_files:
+      - "src/components/ui/sheet.tsx"
+      - "src/components/catalog/CompareTray.tsx"
+      - "src/components/catalog/IntelligenceRail.tsx"
+      - "src/components/catalog/SheetCloseLocale.test.tsx"
+      - "e2e/public-sheet-close-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
   - id: 140
     summary: "Public account menu a11y hardening so signed-in header account controls expose localized purpose and current-account context."
     status: "merged_to_main_lovable_sync_clean"
