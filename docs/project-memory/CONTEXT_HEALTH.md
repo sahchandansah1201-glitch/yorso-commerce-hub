@@ -9,13 +9,13 @@ context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-139-public-language-selector-a11y"
-head_commit: "current_branch_head"
-latest_merged_batch: 138
-active_workstream: "batch_139_public_language_selector_a11y"
+active_branch: "main"
+head_commit: "6721b65"
+latest_merged_batch: 139
+active_workstream: "batch_139_lovable_sync"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
-recommended_action: "monitor Batch #139 GitHub validation"
-why_low: "Batch #139 is locally implemented, validated, committed on the Batch #139 branch and opened as draft PR #191. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
+recommended_action: "sync Lovable with Batch #139"
+why_low: "Batch #139 is merged to main as 6721b65 and Lovable sync prompt #139 is ready. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
 ```
 
 ## Risk Levels
@@ -50,16 +50,17 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch-139-public-language-selector-a11y.
-Current workstream: Batch #139 public language selector a11y.
-Current HEAD: current branch head, [codex] Batch #139 public language selector a11y.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191 (draft).
+Current branch: main.
+Current workstream: Batch #139 Lovable sync.
+Current HEAD: 6721b65, [codex] Batch #139 public language selector a11y.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191 (merged).
 Current Batch #139 scope: make the public header language selector explicit to assistive tech without changing visible header layout, language storage, routes, access behavior or SEO.
 Current Batch #139 finding: the desktop language toggle exposed only abbreviated visible text like EN/RU/ES without a localized purpose, and mobile language chips did not expose selected state.
 Current Batch #139 implementation: Header adds localized language selector/current/select labels, aria-expanded/aria-controls on the desktop selector, role=group around desktop and mobile language controls, aria-pressed on each language option, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-language-selector-a11y.spec.ts and package smoke wiring.
 Current Batch #139 validation passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 13 tests; npm run check:production-scale-baseline; npm run smoke:e2e:public-language-selector-a11y, 10 tests after production build; npm run smoke:e2e:public-landmark-labels:run, 39 tests; npx tsc -b --noEmit; npm run lint; git diff --check; npm run smoke:e2e:run, 271 tests.
 Current Batch #139 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip.
-Current Batch #139 PR status: draft PR #191 opened; GitHub Core Type And Build Gate pending.
+Current Batch #139 PR status: PR #191 passed GitHub Core Type And Build Gate in 12m27s and was squash-merged to main as 6721b65.
+Lovable sync prompt for Batch #139 is ready: docs/project-memory/PROMPTS/prompt-139-lovable-sync.md.
 Current Batch #138 scope: make public info/legal routes route-owned SEO surfaces without changing visible page copy or offer/supplier/access behavior.
 Current Batch #138 routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press, /partners.
 Current Batch #138 finding: shared info/legal pages used global site metadata even though they are trust/legal decision-support pages for buyers, partners and suppliers.
@@ -72,7 +73,7 @@ Lovable sync for Batch #138 is confirmed clean by the user at main @ Batch #138,
 Lovable confirmed Batch #138 files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline.
 Lovable confirmed Batch #138 route SEO: localized `{title} | YORSO`, canonical paths, localized descriptions, OG/Twitter metadata, one info-page JSON-LD script, AboutPage/ContactPage/WebPage schema split and RU direct entry on /anti-fraud with localized RU metadata and og:locale=ru_RU.
 Lovable confirmed Batch #138 mobile/CTA status: Back to homepage remains a single direct link, nested controls are absent, 390px overflow is absent, Header/footer/skip link/landmarks/route structure are unchanged and Batches #110-#137 plus Batch #113 are preserved.
-Latest merged batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190.
+Latest merged batch: Batch #139 public language selector a11y is merged to main as 6721b65 via PR #191.
 Latest Lovable-synced batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190 and Lovable sync is confirmed clean.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
@@ -94,7 +95,7 @@ Lovable sync for Batch #136 is confirmed clean by the user at main @ Batch #136,
 Lovable confirmed Batch #136 files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline.
 Lovable confirmed Batch #136 locale/a11y status: RU and ES supplier trust labels are localized, hardcoded English labels do not leak into RU/ES UI, disclosure target is min-h-11 and there are no nested interactive controls.
 Lovable confirmed Batch #136 preserves offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards.
-Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-136-lovable-sync.md.
+Lovable sync prompt for the latest merged batch: docs/project-memory/PROMPTS/prompt-139-lovable-sync.md.
 Lovable sync for Batch #135 is confirmed clean by the user at main @ Batch #135, eb23d5f or newer, with no conflicts and no file modifications.
 Batch #135 GitHub validation passed: PR #187 Core Type And Build Gate passed in 12m21s.
 Batch #135 changed files: src/pages/SupplierProfile.tsx, src/pages/__tests__/SupplierProfile.i18n.test.tsx, e2e/supplier-profile-logo-locale-a11y.spec.ts, package.json, docs/backend/production-scale-baseline.md and project-memory files.

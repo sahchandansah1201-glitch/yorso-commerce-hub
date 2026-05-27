@@ -2,10 +2,11 @@
 
 ## Current Next Action
 
-1. Monitor Batch #139 draft PR #191 GitHub validation:
-   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+1. Sync Lovable with GitHub `main` after Batch #139:
+   `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
 
-2. If GitHub `Core Type And Build Gate` passes, mark PR #191 ready and merge.
+2. After Lovable confirms a clean sync, record the Batch #139 sync report in
+   project memory.
 
 3. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
@@ -13,11 +14,12 @@
    splitting, Batch #113 route chunk error boundary and Batches #110-#138
    public UX/a11y safeguards.
 
-## Batch #139 Local Validation Complete
+## Batch #139 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch-139-public-language-selector-a11y`.
-- Commit: current branch head, `[codex] Batch #139 public language selector a11y`.
-- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- Branch: `main`.
+- Merge commit: `6721b65`, `[codex] Batch #139 public language selector a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
 - Scope: public header language selector accessibility.
 - Finding:
   - desktop language selector exposed abbreviated visible text like `EN` without
@@ -55,7 +57,8 @@
   - Supabase generated types out of sync in non-strict mode;
   - Browserslist data stale.
 - GitHub validation:
-  - pending on draft PR #191.
+  - PR #191 `Core Type And Build Gate` passed in 12m27s.
+  - PR #191 was marked ready and squash-merged to `main` as `6721b65`.
 
 ## Batch #138 Lovable Sync Confirmed
 

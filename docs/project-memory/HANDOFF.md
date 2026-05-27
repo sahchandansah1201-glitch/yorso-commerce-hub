@@ -16,16 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Open and monitor Batch #139 public language selector a11y PR.
+Sync Lovable after Batch #139 public language selector a11y merge.
 
 ## Current Status
 
-- The repository is currently on `codex/batch-139-public-language-selector-a11y`.
-- Batch #139 is locally implemented and validated.
-- Batch #139 commit:
-  current branch head, `[codex] Batch #139 public language selector a11y`.
-- Batch #139 draft PR:
+- The repository is currently on `main`.
+- Batch #139 is implemented, validated and merged.
+- Batch #139 merge commit:
+  `6721b65`, `[codex] Batch #139 public language selector a11y`.
+- Batch #139 PR:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- Batch #139 Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
 - Batch #139 scope:
   - make the public header language selector explicit for assistive tech;
   - preserve visible header layout, language storage, routes, access behavior,
@@ -62,9 +64,13 @@ Open and monitor Batch #139 public language selector a11y PR.
   - entry 355.53 kB / 114.16 kB gzip;
   - i18n-translations 340.69 kB / 106.86 kB gzip;
   - Header 50.30 kB / 14.14 kB gzip.
+- GitHub validation:
+  - PR #191 `Core Type And Build Gate` passed in 12m27s.
+  - PR #191 was marked ready and squash-merged to `main` as `6721b65`.
 - Next action:
-  - monitor GitHub Core Type And Build Gate on draft PR #191.
-- The latest merged batch is Batch #138 on `main` at `7eea5ce`.
+  - sync Lovable with Batch #139 using
+    `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
+- The latest merged batch is Batch #139 on `main` at `6721b65`.
 - The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
 - Known warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
@@ -120,9 +126,9 @@ Open and monitor Batch #139 public language selector a11y PR.
   - InfoPageLayout 2.13 kB / 1.13 kB gzip.
 - GitHub validation passed:
   - PR #190 `Core Type And Build Gate`, 12m42s.
-- Next action:
-  - start the next scoped public UX/UI audit batch from current `main`.
-- The latest merged batch is Batch #138 on `main` at `7eea5ce`.
+- Batch #138 next action was completed by Batch #139.
+- The latest merged batch after the current work is Batch #139 on `main` at
+  `6721b65`.
 - The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
 - Lovable confirmed Batch #138:
   - checked `src/components/InfoPageLayout.tsx`, all 10 info/legal pages,

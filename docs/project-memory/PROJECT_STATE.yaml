@@ -11,9 +11,9 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "codex/batch-139-public-language-selector-a11y"
-  head_commit: "current_branch_head"
-  head_summary: "Batch #139 public language selector a11y opened as draft PR #191"
+  active_branch: "main"
+  head_commit: "6721b65"
+  head_summary: "Batch #139 public language selector a11y merged; Lovable sync prompt ready"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
     - "Batch #139 code, tests, package wiring, production-scale note and project-memory checkpoint are committed on the Batch #139 branch."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_139_public_language_selector_a11y"
-  summary: "Public header language selector exposes localized purpose and selected-language state."
-  status: "draft_pr_open_github_validation_pending"
-  branch: "codex/batch-139-public-language-selector-a11y"
+  id: "batch_139_lovable_sync"
+  summary: "Sync Lovable after public header language selector a11y hardening."
+  status: "lovable_sync_prompt_ready"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
@@ -65,11 +65,11 @@ active_workstream:
 active_batch:
   id: 139
   summary: "Public language selector a11y: header language controls expose localized purpose and selected state."
-  status: "draft_pr_open_github_validation_pending"
-  commit: "current_branch_head"
-  branch: "codex/batch-139-public-language-selector-a11y"
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "6721b65"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
-  lovable_sync_prompt: null
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "Desktop public header language selector exposed abbreviated visible text like EN/RU/ES without a localized programmatic purpose."
@@ -92,7 +92,8 @@ active_batch:
     - "git diff --check."
     - "npm run smoke:e2e:run, 271 tests."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip."
-    - "Draft PR #191 opened; GitHub Core Type And Build Gate pending."
+    - "GitHub Core Type And Build Gate passed on PR #191 in 12m27s."
+    - "PR #191 was marked ready and squash-merged to main as 6721b65."
   preserved_behavior:
     - "Visible header layout, route structure, yorso-lang storage contract, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
     - "Buyer-first public narrative, supplier trust as supply/trust mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#138 public UX/a11y safeguards are preserved."
@@ -151,6 +152,25 @@ last_lovable_synced_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 139
+    summary: "Public language selector a11y hardening so header language controls expose localized purpose and selected-language state."
+    status: "merged_to_main_lovable_sync_pending"
+    commit: "6721b65"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
+      confirmed_at: null
+      head: null
+      result: "pending_lovable_sync"
+    confirmed_files:
+      - "src/components/landing/Header.tsx"
+      - "src/components/landing/Header.landmarks.test.tsx"
+      - "src/i18n/translations.ts"
+      - "src/i18n/aria-tooltips-localized.ru.test.tsx"
+      - "e2e/public-language-selector-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
   - id: 138
     summary: "Public info/legal route SEO hardening so shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
     status: "merged_to_main_lovable_sync_clean"

@@ -1566,3 +1566,8 @@ Keep this file factual and append-only.
 - Pushed branch `codex/batch-139-public-language-selector-a11y` to `origin`.
 - Opened draft PR #191:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- GitHub `Core Type And Build Gate` passed on PR #191 in 12m27s.
+- Marked PR #191 ready and squash-merged it to `main` as `6721b65`,
+  `[codex] Batch #139 public language selector a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md` and updated
+  project memory to point the next action at Lovable sync for Batch #139.
