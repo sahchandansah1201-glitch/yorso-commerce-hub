@@ -664,4 +664,4 @@
 - `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 public breadcrumb locale a11y after PR #185 merge; user confirmed clean sync at `main` @ `ca1438b` or newer.
 - `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 supplier profile logo locale a11y after PR #187 merge; user confirmed clean sync at `main` @ `eb23d5f` or newer.
 - `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`: sync confirmation prompt for Batch #138 public info route SEO after PR #190 merge; user confirmed clean sync at `main` @ `7eea5ce` or newer.
-- `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`: sync confirmation prompt for Batch #139 public language selector a11y after PR #191 merge.
+- `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`: sync confirmation prompt for Batch #139 public language selector a11y after PR #191 merge; user confirmed clean sync at `main` @ `6721b65` or newer.

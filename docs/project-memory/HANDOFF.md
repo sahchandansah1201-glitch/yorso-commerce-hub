@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable after Batch #139 public language selector a11y merge.
+Start the next scoped public UX/UI audit batch from current `main`.
 
 ## Current Status
 
@@ -28,6 +28,8 @@ Sync Lovable after Batch #139 public language selector a11y merge.
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
 - Batch #139 Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
+- Batch #139 Lovable sync is confirmed clean by the user at `main` @ Batch
+  #139 (`6721b65` or newer), with no conflicts and no file modifications.
 - Batch #139 scope:
   - make the public header language selector explicit for assistive tech;
   - preserve visible header layout, language storage, routes, access behavior,
@@ -67,11 +69,29 @@ Sync Lovable after Batch #139 public language selector a11y merge.
 - GitHub validation:
   - PR #191 `Core Type And Build Gate` passed in 12m27s.
   - PR #191 was marked ready and squash-merged to `main` as `6721b65`.
+- Lovable confirmed:
+  - checked `src/components/landing/Header.tsx`,
+    `src/i18n/translations.ts`,
+    `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-language-selector-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - EN/RU/ES selector/current/select labels are present;
+  - desktop selector exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup`, `aria-controls`, and its dropdown/options expose group
+    naming plus `aria-pressed`;
+  - mobile language chips expose localized group naming and `aria-pressed`;
+  - visible header layout, navigation destinations and
+    `localStorage["yorso-lang"]` are unchanged;
+  - public routes keep zero nested interactive controls and zero 390px
+    horizontal overflow across the checked routes;
+  - public SEO, access gating, supplier identity redaction, exact-price locks,
+    Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#138 safeguards are preserved.
 - Next action:
-  - sync Lovable with Batch #139 using
-    `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
+  - start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #139 on `main` at `6721b65`.
-- The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
+- The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
 - Known warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
   - Browserslist data stale.
@@ -129,7 +149,8 @@ Sync Lovable after Batch #139 public language selector a11y merge.
 - Batch #138 next action was completed by Batch #139.
 - The latest merged batch after the current work is Batch #139 on `main` at
   `6721b65`.
-- The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
+- The latest Lovable-synced batch after the current work is Batch #139 on
+  `main` at `6721b65`.
 - Lovable confirmed Batch #138:
   - checked `src/components/InfoPageLayout.tsx`, all 10 info/legal pages,
     `src/pages/InfoPageSeo.test.tsx`,

@@ -1571,3 +1571,28 @@ Keep this file factual and append-only.
   `[codex] Batch #139 public language selector a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md` and updated
   project memory to point the next action at Lovable sync for Batch #139.
+- User confirmed Lovable sync for Batch #139 is clean:
+  - GitHub commit synced to `main` @ Batch #139, PR #191, `6721b65` or newer;
+  - checked `src/components/landing/Header.tsx`,
+    `src/i18n/translations.ts`,
+    `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-language-selector-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no files were modified in Lovable;
+  - EN/RU/ES selector/current/select labels are present;
+  - desktop selector exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup`, `aria-controls`, and desktop dropdown/options expose group
+    naming plus `aria-pressed`;
+  - mobile language chips expose localized group naming and `aria-pressed`;
+  - visible header layout, navigation destinations and
+    `localStorage["yorso-lang"]` are unchanged;
+  - public routes keep zero nested controls and zero 390px overflow across the
+    checked routes;
+  - public SEO, access gating, supplier identity redaction, exact-price locks,
+    Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#138 safeguards are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
+- Recorded Batch #139 Lovable sync in project memory and moved next action to
+  the next scoped public UX/UI audit batch.

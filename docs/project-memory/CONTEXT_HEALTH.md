@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "6721b65"
+head_commit: "main_after_batch_139_lovable_sync_record"
 latest_merged_batch: 139
-active_workstream: "batch_139_lovable_sync"
+active_workstream: "next_scoped_public_ux_ui_audit_batch"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
-recommended_action: "sync Lovable with Batch #139"
-why_low: "Batch #139 is merged to main as 6721b65 and Lovable sync prompt #139 is ready. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
+recommended_action: "start next scoped public UX/UI audit batch"
+why_low: "Batch #139 is merged to main as 6721b65 and Lovable sync is confirmed clean. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
 ```
 
 ## Risk Levels
@@ -51,7 +51,7 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: Batch #139 Lovable sync.
+Current workstream: next scoped public UX/UI audit batch.
 Current HEAD: 6721b65, [codex] Batch #139 public language selector a11y.
 Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191 (merged).
 Current Batch #139 scope: make the public header language selector explicit to assistive tech without changing visible header layout, language storage, routes, access behavior or SEO.
@@ -61,6 +61,10 @@ Current Batch #139 validation passed: npx vitest run src/components/landing/Head
 Current Batch #139 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip.
 Current Batch #139 PR status: PR #191 passed GitHub Core Type And Build Gate in 12m27s and was squash-merged to main as 6721b65.
 Lovable sync prompt for Batch #139 is ready: docs/project-memory/PROMPTS/prompt-139-lovable-sync.md.
+Lovable sync for Batch #139 is confirmed clean by the user at main @ Batch #139, PR #191, 6721b65 or newer, with no conflicts and no file modifications.
+Lovable confirmed Batch #139 files/routes checked: Header, translations, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-language-selector-a11y e2e, package.json and production-scale baseline.
+Lovable confirmed Batch #139 language selector a11y: EN/RU/ES selector/current/select labels are present; desktop selector exposes localized aria-label, aria-expanded, aria-haspopup and aria-controls; desktop dropdown/options expose group naming and aria-pressed; mobile chips expose localized group naming and aria-pressed.
+Lovable confirmed Batch #139 mobile/header behavior: visible header layout, navigation destinations and yorso-lang persistence are unchanged; checked public routes keep zero nested controls and zero 390px overflow; public SEO, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards are preserved.
 Current Batch #138 scope: make public info/legal routes route-owned SEO surfaces without changing visible page copy or offer/supplier/access behavior.
 Current Batch #138 routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press, /partners.
 Current Batch #138 finding: shared info/legal pages used global site metadata even though they are trust/legal decision-support pages for buyers, partners and suppliers.
@@ -74,7 +78,7 @@ Lovable confirmed Batch #138 files/routes checked: InfoPageLayout, all 10 info/l
 Lovable confirmed Batch #138 route SEO: localized `{title} | YORSO`, canonical paths, localized descriptions, OG/Twitter metadata, one info-page JSON-LD script, AboutPage/ContactPage/WebPage schema split and RU direct entry on /anti-fraud with localized RU metadata and og:locale=ru_RU.
 Lovable confirmed Batch #138 mobile/CTA status: Back to homepage remains a single direct link, nested controls are absent, 390px overflow is absent, Header/footer/skip link/landmarks/route structure are unchanged and Batches #110-#137 plus Batch #113 are preserved.
 Latest merged batch: Batch #139 public language selector a11y is merged to main as 6721b65 via PR #191.
-Latest Lovable-synced batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190 and Lovable sync is confirmed clean.
+Latest Lovable-synced batch: Batch #139 public language selector a11y is merged to main as 6721b65 via PR #191 and Lovable sync is confirmed clean.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
 Current Batch #137 implementation: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ now use typed EN/RU/ES offerDetail decision-support keys; OfferDetail passes renderAccessLevel into lower trust/recommendation blocks; similar offer/product cards show exact prices only for qualified_unlocked buyers; related insight cards are real React Router links; FAQ disclosures expose aria-expanded, aria-controls and mobile-safe targets; e2e/offer-detail-decision-support-locale-a11y.spec.ts and DecisionSupport.locale.test.tsx guard the contract.

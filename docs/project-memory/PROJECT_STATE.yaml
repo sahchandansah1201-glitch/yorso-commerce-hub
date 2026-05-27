@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
-  head_commit: "6721b65"
-  head_summary: "Batch #139 public language selector a11y merged; Lovable sync prompt ready"
+  head_commit: "main_after_batch_139_lovable_sync_record"
+  head_summary: "Batch #139 public language selector a11y merged and Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
     - "Batch #139 code, tests, package wiring, production-scale note and project-memory checkpoint are committed on the Batch #139 branch."
@@ -37,9 +37,9 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_139_lovable_sync"
-  summary: "Sync Lovable after public header language selector a11y hardening."
-  status: "lovable_sync_prompt_ready"
+  id: "next_scoped_public_ux_ui_audit_batch"
+  summary: "Start the next scoped public UX/UI audit batch from current main."
+  status: "ready"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
   confirmed_scope:
@@ -65,12 +65,26 @@ active_workstream:
 active_batch:
   id: 139
   summary: "Public language selector a11y: header language controls expose localized purpose and selected state."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "6721b65"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-27"
+    head: "6721b65_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #139, PR #191, 6721b65 or newer."
+      - "Files/routes checked: Header, translations, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-language-selector-a11y e2e, package.json and production-scale baseline."
+      - "No conflicts found; no files were modified in Lovable."
+      - "EN/RU/ES language selector, current-language and select-language labels are present."
+      - "Desktop selector exposes localized aria-label, aria-expanded, aria-haspopup and aria-controls; desktop dropdown is a named group; options expose localized aria-label and aria-pressed."
+      - "Mobile language chips sit inside a named group and expose localized aria-label and aria-pressed."
+      - "Header layout, navigation destinations and yorso-lang persistence are unchanged."
+      - "Public routes keep zero nested controls and zero 390px horizontal overflow across the checked mobile routes."
+      - "Public SEO, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards are preserved."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "Desktop public header language selector exposed abbreviated visible text like EN/RU/ES without a localized programmatic purpose."
     - "Mobile language chips did not expose selected-language state."
@@ -104,49 +118,47 @@ active_batch:
     - "Codex in-app browser connection was attempted but browser-client/browser MCP connection was unavailable; Playwright covered mobile/runtime verification at 390px."
 
 last_lovable_synced_batch:
-  id: 138
-  summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
+  id: 139
+  summary: "Public language selector a11y: header language controls expose localized purpose and selected state."
   status: "merged_to_main_lovable_sync_clean"
-  commit: "7eea5ce"
+  commit: "6721b65"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
   lovable_sync:
     confirmed_at: "2026-05-27"
-    head: "7eea5ce_or_newer"
+    head: "6721b65_or_newer"
     result: "clean_no_conflicts"
     user_confirmed:
-      - "GitHub commit synced to main @ Batch #138, PR #190, 7eea5ce or newer."
-      - "Files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline."
+      - "GitHub commit synced to main @ Batch #139, PR #191, 6721b65 or newer."
+      - "Files/routes checked: Header, translations, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-language-selector-a11y e2e, package.json and production-scale baseline."
       - "No conflicts found; no files were modified in Lovable."
-      - "Route SEO sets localized titles, canonical paths, localized descriptions, OG/Twitter metadata and one info-page JSON-LD script."
-      - "About uses AboutPage, Contact uses ContactPage and other info/legal routes use WebPage."
-      - "RU direct entry on /anti-fraud uses localized RU route metadata and og:locale=ru_RU."
-      - "Back to homepage remains a single direct link; nested controls and 390px overflow are absent."
-      - "Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#137 safeguards are preserved."
+      - "Language selector a11y labels and selected state are present in EN/RU/ES."
+      - "Header layout, navigation destinations, yorso-lang persistence, public SEO, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards are preserved."
       - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
-    - "Public info/legal trust routes used generic global site metadata instead of route-owned metadata."
+    - "Desktop public header language selector exposed abbreviated visible text like EN/RU/ES without a localized programmatic purpose."
+    - "Mobile language chips did not expose selected-language state."
   confirmed_changes:
-    - "InfoPageLayout applies route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD."
-    - "All 10 info/legal pages pass localized intro copy and canonical paths through the shared layout."
-    - "InfoPageSeo.test.tsx and public-info-route-seo.spec.ts guard the metadata, mobile CTA semantics, nested controls and overflow contract."
-    - "Batch #138 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "Header adds localized EN/RU/ES language selector/current/select labels."
+    - "Desktop selector exposes aria-label, aria-expanded, aria-controls and aria-haspopup."
+    - "Desktop and mobile language options sit inside named groups and expose aria-pressed selected state."
+    - "Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx and public-language-selector-a11y.spec.ts guard the contract."
+    - "Batch #139 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx, 14 tests."
+    - "npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 13 tests."
     - "npx tsc -b --noEmit."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:public-info-route-seo, 11 tests after production build."
-    - "npm run smoke:e2e:public-cta-semantics:run, 12 tests."
+    - "npm run smoke:e2e:public-language-selector-a11y, 10 tests after production build."
     - "npm run smoke:e2e:public-landmark-labels:run, 39 tests."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 261 tests."
-    - "GitHub Core Type And Build Gate passed on PR #190 in 12m42s."
-    - "Build metrics from PR #190: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip; info pages 1.19-1.80 kB."
+    - "npm run smoke:e2e:run, 271 tests."
+    - "GitHub Core Type And Build Gate passed on PR #191 in 12m27s."
+    - "Build metrics from PR #191: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip."
   preserved_behavior:
-    - "Info/legal visible page copy, Back to homepage CTA, header/footer, skip links, landmarks and route structure are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#137 public UX/a11y safeguards are preserved."
+    - "Visible header layout, route structure, yorso-lang storage contract, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#138 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
@@ -154,14 +166,19 @@ last_lovable_synced_batch:
 latest_merged_batches:
   - id: 139
     summary: "Public language selector a11y hardening so header language controls expose localized purpose and selected-language state."
-    status: "merged_to_main_lovable_sync_pending"
+    status: "merged_to_main_lovable_sync_clean"
     commit: "6721b65"
     pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
     lovable_sync:
       prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
-      confirmed_at: null
-      head: null
-      result: "pending_lovable_sync"
+      confirmed_at: "2026-05-27"
+      head: "6721b65_or_newer"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #139, PR #191, 6721b65 or newer."
+        - "Files/routes checked: Header, translations, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-language-selector-a11y e2e, package.json and production-scale baseline."
+        - "No conflicts found; no files were modified in Lovable."
+        - "Public language selector a11y, mobile/header behavior, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards are preserved."
     confirmed_files:
       - "src/components/landing/Header.tsx"
       - "src/components/landing/Header.landmarks.test.tsx"

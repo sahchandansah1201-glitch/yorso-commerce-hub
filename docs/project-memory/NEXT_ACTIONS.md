@@ -2,24 +2,24 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #139:
-   `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. After Lovable confirms a clean sync, record the Batch #139 sync report in
-   project memory.
+2. Preserve current known contracts: public language selector a11y, public SEO,
+   access gating, supplier identity redaction, exact-price lock, buyer-first
+   trust narrative, Batch #112 code splitting, Batch #113 route chunk error
+   boundary and Batches #110-#139 public UX/a11y safeguards.
 
-3. Preserve current known contracts: supplier profile route behavior, access
-   gating, supplier identity redaction, approval refresh, profile tabs,
-   directory/profile bridge, buyer-first trust narrative, Batch #112 code
-   splitting, Batch #113 route chunk error boundary and Batches #110-#138
-   public UX/a11y safeguards.
+3. If a production-facing frontend behavior changes, include the 10,000
+   concurrent-user baseline note and validation.
 
-## Batch #139 Merged, Lovable Sync Pending
+## Batch #139 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `6721b65`, `[codex] Batch #139 public language selector a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #139 (`6721b65` or newer), no
+  conflicts and no file modifications.
 - Scope: public header language selector accessibility.
 - Finding:
   - desktop language selector exposed abbreviated visible text like `EN` without
@@ -59,6 +59,25 @@
 - GitHub validation:
   - PR #191 `Core Type And Build Gate` passed in 12m27s.
   - PR #191 was marked ready and squash-merged to `main` as `6721b65`.
+- Lovable confirmed:
+  - checked `src/components/landing/Header.tsx`,
+    `src/i18n/translations.ts`,
+    `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-language-selector-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - EN/RU/ES selector/current/select labels are present;
+  - desktop selector exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup`, `aria-controls`, and its dropdown/options expose group
+    naming plus `aria-pressed`;
+  - mobile language chips expose localized group naming and `aria-pressed`;
+  - visible header layout, navigation destinations and
+    `localStorage["yorso-lang"]` are unchanged;
+  - public routes keep zero nested interactive controls and zero 390px
+    horizontal overflow across the checked routes;
+  - public SEO, access gating, supplier identity redaction, exact-price locks,
+    Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#138 safeguards are preserved.
 
 ## Batch #138 Lovable Sync Confirmed
 
