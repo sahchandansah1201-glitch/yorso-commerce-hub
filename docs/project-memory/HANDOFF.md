@@ -16,11 +16,64 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start the next scoped public UX/UI audit batch from current `main`.
+Open Batch #140 public account menu a11y PR.
 
 ## Current Status
 
-- The repository is currently on `main`.
+- The repository is currently on `codex/batch-140-public-account-menu-a11y`.
+- Batch #140 is locally implemented and validated.
+- Batch #140 commit:
+  pending.
+- Batch #140 draft PR:
+  pending.
+- Batch #140 scope:
+  - make signed-in public header account controls explicit for assistive tech;
+  - preserve visible header layout, account destinations, session storage,
+    routes, access behavior, SEO, Batch #112 code splitting, Batch #113 route
+    chunk error boundary and Batches #110-#139 safeguards.
+- Batch #140 finding:
+  - desktop signed-in account chip exposed only the buyer display name/email
+    without a localized menu purpose;
+  - desktop account dropdown was not associated with the trigger through
+    `aria-controls` and did not expose a named group;
+  - mobile signed-in account panel did not expose localized account-menu
+    context as a named group.
+- Batch #140 implementation:
+  - `src/components/landing/Header.tsx` adds localized account-menu and
+    current-account names;
+  - desktop account chip exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup` and `aria-controls`;
+  - desktop dropdown and mobile signed-in account panel expose named groups;
+  - `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx` and
+    `e2e/public-account-menu-a11y.spec.ts` guard the contract;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #140
+    10,000 concurrent-user note.
+- Batch #140 validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 17 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-account-menu-a11y`, 9 tests after production build;
+  - `npm run smoke:e2e:public-language-selector-a11y:run`, 10 tests;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 280 tests.
+- Batch #140 build metrics from dedicated smoke:
+  - CSS 126.84 kB / 21.02 kB gzip;
+  - entry 355.53 kB / 114.17 kB gzip;
+  - i18n-translations 340.92 kB / 106.94 kB gzip;
+  - Header 50.54 kB / 14.20 kB gzip.
+- Next action:
+  - commit, push and open draft PR for Batch #140.
+- The latest merged batch is Batch #139 on `main` at `6721b65`.
+- The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
+- Known warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale.
+- Batch #139 status follows for recovery context.
+- The repository was previously on `main` after Batch #139.
 - Batch #139 is implemented, validated and merged.
 - Batch #139 merge commit:
   `6721b65`, `[codex] Batch #139 public language selector a11y`.
@@ -88,8 +141,6 @@ Start the next scoped public UX/UI audit batch from current `main`.
   - public SEO, access gating, supplier identity redaction, exact-price locks,
     Batch #112 code splitting, Batch #113 route chunk error boundary and
     Batches #110-#138 safeguards are preserved.
-- Next action:
-  - start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #139 on `main` at `6721b65`.
 - The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
 - Known warnings preserved:

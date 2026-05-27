@@ -8,6 +8,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
+import { BUYER_SESSION_STORAGE_KEY } from "@/lib/buyer-session";
 import { translations } from "@/i18n/translations";
 
 import Header from "@/components/landing/Header";
@@ -39,18 +41,33 @@ const seedRegistration = () => {
   );
 };
 
+const seedBuyerSession = () => {
+  sessionStorage.setItem(
+    BUYER_SESSION_STORAGE_KEY,
+    JSON.stringify({
+      id: "b_ru_header",
+      identifier: "buyer@example.com",
+      method: "email",
+      signedInAt: new Date("2026-05-27T00:00:00.000Z").toISOString(),
+      displayName: "Покупатель",
+    }),
+  );
+};
+
 const renderRu = (path: string, element: React.ReactNode) => {
   localStorage.setItem("yorso-lang", "ru");
   return render(
     <MemoryRouter initialEntries={[path]}>
       <LanguageProvider>
-        <TooltipProvider>
-          <RegistrationProvider>
-            <Routes>
-              <Route path={path} element={element} />
-            </Routes>
-          </RegistrationProvider>
-        </TooltipProvider>
+        <BuyerSessionProvider>
+          <TooltipProvider>
+            <RegistrationProvider>
+              <Routes>
+                <Route path={path} element={element} />
+              </Routes>
+            </RegistrationProvider>
+          </TooltipProvider>
+        </BuyerSessionProvider>
       </LanguageProvider>
     </MemoryRouter>,
   );
@@ -81,6 +98,8 @@ const EN_TOOLTIP_MARKERS = [
   "Language selector",
   "Current language",
   "Select language",
+  "Account menu",
+  "Current account",
   "Go back",
   "Breadcrumb",
   "Country or code",
@@ -103,6 +122,19 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
     expect(labels).toContain(translations.ru.aria_toggleMenu);
     expect(labels).toContain(
       `${translations.ru.aria_languageSelector}. ${translations.ru.aria_currentLanguage}: Русский`,
+    );
+    const all = [...labels, ...placeholders, ...titles];
+    for (const m of EN_TOOLTIP_MARKERS) {
+      expect(all.some((v) => v.includes(m))).toBe(false);
+    }
+  });
+
+  it("Header: signed-in account menu aria-label uses Russian and no English markers leak", () => {
+    seedBuyerSession();
+    renderRu("/", <Header />);
+    const { labels, placeholders, titles } = collectAttrs();
+    expect(labels).toContain(
+      `${translations.ru.aria_accountMenu}. ${translations.ru.aria_currentAccount}: Покупатель`,
     );
     const all = [...labels, ...placeholders, ...titles];
     for (const m of EN_TOOLTIP_MARKERS) {

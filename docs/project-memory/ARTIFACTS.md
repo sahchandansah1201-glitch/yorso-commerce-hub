@@ -665,3 +665,5 @@
 - `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 supplier profile logo locale a11y after PR #187 merge; user confirmed clean sync at `main` @ `eb23d5f` or newer.
 - `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`: sync confirmation prompt for Batch #138 public info route SEO after PR #190 merge; user confirmed clean sync at `main` @ `7eea5ce` or newer.
 - `docs/project-memory/PROMPTS/prompt-139-lovable-sync.md`: sync confirmation prompt for Batch #139 public language selector a11y after PR #191 merge; user confirmed clean sync at `main` @ `6721b65` or newer.
+- `e2e/public-account-menu-a11y.spec.ts`: Batch #140 browser smoke for signed-in public header account menu labels, dropdown association, mobile account panel, nested controls and 390px overflow.
+- `docs/backend/production-scale-baseline.md`: Batch #140 10,000 concurrent-user review for public account menu a11y.

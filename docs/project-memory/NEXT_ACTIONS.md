@@ -2,15 +2,58 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Open a draft PR for Batch #140 from
+   `codex/batch-140-public-account-menu-a11y`.
 
-2. Preserve current known contracts: public language selector a11y, public SEO,
-   access gating, supplier identity redaction, exact-price lock, buyer-first
-   trust narrative, Batch #112 code splitting, Batch #113 route chunk error
-   boundary and Batches #110-#139 public UX/a11y safeguards.
+2. Monitor GitHub `Core Type And Build Gate`.
 
-3. If a production-facing frontend behavior changes, include the 10,000
-   concurrent-user baseline note and validation.
+3. If GitHub validation passes, mark the PR ready and merge.
+
+## Batch #140 Local Validation Complete
+
+- Branch: `codex/batch-140-public-account-menu-a11y`.
+- Commit: pending.
+- Draft PR: pending.
+- Scope: signed-in public header account menu accessibility.
+- Finding:
+  - desktop signed-in account chip exposed only the buyer display name/email
+    without a localized menu purpose;
+  - desktop account dropdown was not associated with the trigger through
+    `aria-controls` and did not expose a named group;
+  - mobile signed-in account panel did not expose localized account-menu
+    context as a named group.
+- Implemented fix:
+  - `Header` adds localized account-menu/current-account labels;
+  - desktop account chip exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup` and `aria-controls`;
+  - desktop account dropdown and mobile signed-in account panel expose named
+    groups;
+  - EN/RU/ES translation keys cover account-menu purpose and current-account
+    context;
+  - `Header.landmarks.test.tsx`,
+    `aria-tooltips-localized.ru.test.tsx` and
+    `e2e/public-account-menu-a11y.spec.ts` guard the contract;
+  - `package.json` wires the dedicated smoke into the full e2e smoke suite;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #140
+    10,000 concurrent-user note.
+- Local validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 17 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-account-menu-a11y`, 9 tests after production build;
+  - `npm run smoke:e2e:public-language-selector-a11y:run`, 10 tests;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 280 tests.
+- Preserved:
+  - visible header layout, account destinations, session storage contract,
+    route structure, public SEO, access gating, supplier identity redaction,
+    exact-price lock, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#139 safeguards.
+- Known warnings:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale.
 
 ## Batch #139 Lovable Sync Confirmed
 

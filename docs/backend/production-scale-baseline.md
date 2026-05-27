@@ -3663,6 +3663,82 @@ Marker: public language selector a11y.
 Marker: multilingual buyer trust.
 Marker: 10,000 concurrent users.
 
+## Batch #140 Public Account Menu A11y
+
+Batch #140 hardens the signed-in public header account menu. The scoped change
+gives the desktop account chip a localized menu purpose, current-account
+context, `aria-haspopup` and `aria-controls`, and gives the desktop dropdown
+and mobile signed-in account panel named groups. This supports signed-in buyer
+navigation from public routes without changing visible header layout, account
+destinations, auth/session storage, offer/supplier access behavior or SEO.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Runtime work is limited to static header DOM attributes and existing buyer
+  session state from `sessionStorage`.
+- No new session writes are added; sign-out behavior remains the existing
+  `signOutCurrentAuthSession()` path.
+- No offer, supplier, auth API, access, account, admin or database contracts are
+  changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, timers, retries, subscriptions, background jobs or new
+  network calls are introduced.
+- Account-menu attributes are computed in the already-rendered header and do
+  not change request volume at the 10,000 concurrent-user target.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Buyer session state remains local prototype browser state under the existing
+  storage contract.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, signed-in account content remains visible
+  once hydrated through the existing header session branch.
+- If CSS fails, the account menu remains ordinary buttons and links.
+- If session storage is unavailable, the existing signed-out header branch
+  remains the fallback.
+- Screen readers now receive explicit localized account-menu purpose and
+  current-account context instead of relying on a bare buyer name/email.
+
+Observability and load-test plan:
+
+- Unit coverage verifies EN/RU/ES desktop and mobile account-menu labels,
+  `aria-expanded`, `aria-haspopup`, `aria-controls` and named groups.
+- Browser smoke verifies desktop and mobile signed-in account menu behavior,
+  absence of nested interactive controls and zero 390px horizontal overflow
+  across representative public routes.
+- Existing public language selector, landmark, skip-link, route SEO, CTA
+  semantics and mobile overflow smokes continue to guard the public header
+  shell.
+- No new load-test dimension is required because the change is static frontend
+  semantics only.
+
+Validation:
+
+- `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`;
+- `npm run smoke:e2e:public-account-menu-a11y`;
+- `npm run smoke:e2e:public-language-selector-a11y:run`;
+- `npm run smoke:e2e:public-landmark-labels:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #140.
+Marker: public account menu a11y.
+Marker: signed-in buyer trust.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
