@@ -197,6 +197,9 @@ type TranslationKeys = {
   aria_mainNavigation: string;
   aria_mobileNavigation: string;
   aria_skipToMain: string;
+  aria_languageSelector: string;
+  aria_currentLanguage: string;
+  aria_selectLanguage: string;
   aria_goBack: string;
   aria_breadcrumb: string;
   aria_catalogResults: string;
@@ -2106,6 +2109,9 @@ const en: TranslationKeys = {
   aria_mainNavigation: "Main navigation",
   aria_mobileNavigation: "Mobile navigation",
   aria_skipToMain: "Skip to main content",
+  aria_languageSelector: "Language selector",
+  aria_currentLanguage: "Current language",
+  aria_selectLanguage: "Select language",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
   aria_catalogResults: "Catalog results",
@@ -4008,6 +4014,9 @@ const ru: TranslationKeys = {
   aria_mainNavigation: "Основная навигация",
   aria_mobileNavigation: "Мобильная навигация",
   aria_skipToMain: "Перейти к основному содержимому",
+  aria_languageSelector: "Выбор языка",
+  aria_currentLanguage: "Текущий язык",
+  aria_selectLanguage: "Выбрать язык",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
   aria_catalogResults: "Результаты каталога",
@@ -5910,6 +5919,9 @@ const es: TranslationKeys = {
   aria_mainNavigation: "Navegación principal",
   aria_mobileNavigation: "Navegación móvil",
   aria_skipToMain: "Saltar al contenido principal",
+  aria_languageSelector: "Selector de idioma",
+  aria_currentLanguage: "Idioma actual",
+  aria_selectLanguage: "Seleccionar idioma",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
   aria_catalogResults: "Resultados del catálogo",

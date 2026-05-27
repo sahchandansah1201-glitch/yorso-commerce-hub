@@ -50,6 +50,28 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #138 merge and clean
   Lovable sync checkpoint.
 
+## Batch #139 Public Language Selector A11y
+
+- `src/components/landing/Header.tsx`: public header language selector now has
+  localized programmatic purpose, current-language labels, named desktop/mobile
+  language groups and `aria-pressed` selected-state on language options.
+- `src/i18n/translations.ts`: EN/RU/ES keys for language selector purpose,
+  current-language label and select-language label.
+- `src/components/landing/Header.landmarks.test.tsx`: EN/RU/ES regression
+  coverage for desktop and mobile language selector names and selected state.
+- `src/i18n/aria-tooltips-localized.ru.test.tsx`: RU regression guard against
+  English language-selector label leakage.
+- `e2e/public-language-selector-a11y.spec.ts`: browser smoke for desktop and
+  mobile language selector state, persistence, nested controls and 390px
+  overflow across representative public routes.
+- `package.json`: dedicated `smoke:e2e:public-language-selector-a11y` script
+  and full `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #139 10,000 concurrent
+  users capacity review.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #139 draft PR
+  checkpoint for PR #191.
+
 ## Batch #137 Offer Detail Decision Support Locale A11y
 
 - `src/components/offer-detail/TrustSection.tsx`: localized lower trust

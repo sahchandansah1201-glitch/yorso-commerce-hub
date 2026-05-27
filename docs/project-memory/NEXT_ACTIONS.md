@@ -2,13 +2,60 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Monitor Batch #139 draft PR #191 GitHub validation:
+   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
 
-2. Preserve current known contracts: supplier profile route behavior, access
+2. If GitHub `Core Type And Build Gate` passes, mark PR #191 ready and merge.
+
+3. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting, Batch #113 route chunk error boundary and Batches #110-#138
    public UX/a11y safeguards.
+
+## Batch #139 Local Validation Complete
+
+- Branch: `codex/batch-139-public-language-selector-a11y`.
+- Commit: current branch head, `[codex] Batch #139 public language selector a11y`.
+- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- Scope: public header language selector accessibility.
+- Finding:
+  - desktop language selector exposed abbreviated visible text like `EN` without
+    a localized programmatic purpose;
+  - mobile language chips did not expose selected-language state.
+- Implemented fix:
+  - `Header` adds localized language selector/current/select labels;
+  - desktop selector exposes `aria-label`, `aria-expanded`, `aria-controls` and
+    `aria-haspopup`;
+  - desktop and mobile language options sit inside named groups and expose
+    `aria-pressed`;
+  - EN/RU/ES translation keys cover selector purpose and selected/current
+    language labels;
+  - `Header.landmarks.test.tsx`,
+    `aria-tooltips-localized.ru.test.tsx` and
+    `e2e/public-language-selector-a11y.spec.ts` guard the contract;
+  - `package.json` wires the dedicated smoke into the full e2e smoke suite;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #139
+    10,000 concurrent-user note.
+- Local validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 13 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-language-selector-a11y`, 10 tests after production build;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 271 tests.
+- Preserved:
+  - visible header layout, route structure, `yorso-lang` storage key, public
+    SEO, access gating, supplier identity redaction, exact-price lock, Batch
+    #112 code splitting, Batch #113 route chunk error boundary and Batches
+    #110-#138 safeguards.
+- Known warnings:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale.
+- GitHub validation:
+  - pending on draft PR #191.
 
 ## Batch #138 Lovable Sync Confirmed
 

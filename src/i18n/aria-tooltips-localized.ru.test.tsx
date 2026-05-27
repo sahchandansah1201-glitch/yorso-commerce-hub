@@ -78,6 +78,9 @@ const EN_TOOLTIP_MARKERS = [
   "Main navigation",
   "Mobile navigation",
   "Skip to main content",
+  "Language selector",
+  "Current language",
+  "Select language",
   "Go back",
   "Breadcrumb",
   "Country or code",
@@ -98,6 +101,9 @@ describe("ARIA / placeholders / tooltips are localized under ru", () => {
     renderRu("/", <Header />);
     const { labels, placeholders, titles } = collectAttrs();
     expect(labels).toContain(translations.ru.aria_toggleMenu);
+    expect(labels).toContain(
+      `${translations.ru.aria_languageSelector}. ${translations.ru.aria_currentLanguage}: Русский`,
+    );
     const all = [...labels, ...placeholders, ...titles];
     for (const m of EN_TOOLTIP_MARKERS) {
       expect(all.some((v) => v.includes(m))).toBe(false);

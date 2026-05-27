@@ -16,12 +16,63 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start the next scoped public UX/UI audit batch from current `main`.
+Open and monitor Batch #139 public language selector a11y PR.
 
 ## Current Status
 
-- The repository is currently on `main`.
-- Batch #138 is implemented, validated, merged and ready for Lovable sync:
+- The repository is currently on `codex/batch-139-public-language-selector-a11y`.
+- Batch #139 is locally implemented and validated.
+- Batch #139 commit:
+  current branch head, `[codex] Batch #139 public language selector a11y`.
+- Batch #139 draft PR:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.
+- Batch #139 scope:
+  - make the public header language selector explicit for assistive tech;
+  - preserve visible header layout, language storage, routes, access behavior,
+    SEO, Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#138 safeguards.
+- Batch #139 finding:
+  - desktop language selector exposed abbreviated visible text like `EN`
+    without a localized programmatic purpose;
+  - mobile language chips did not expose selected-language state.
+- Batch #139 implementation:
+  - `src/components/landing/Header.tsx` adds localized language selector,
+    current-language and select-language names;
+  - desktop selector exposes `aria-label`, `aria-expanded`, `aria-controls` and
+    `aria-haspopup`;
+  - desktop and mobile language options are in named groups and expose
+    `aria-pressed`;
+  - `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx` and
+    `e2e/public-language-selector-a11y.spec.ts` guard the contract;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #139
+    10,000 concurrent-user note.
+- Batch #139 validation passed:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx`, 13 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-language-selector-a11y`, 10 tests after production build;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 271 tests.
+- Batch #139 build metrics from dedicated smoke:
+  - CSS 126.84 kB / 21.02 kB gzip;
+  - entry 355.53 kB / 114.16 kB gzip;
+  - i18n-translations 340.69 kB / 106.86 kB gzip;
+  - Header 50.30 kB / 14.14 kB gzip.
+- Next action:
+  - monitor GitHub Core Type And Build Gate on draft PR #191.
+- The latest merged batch is Batch #138 on `main` at `7eea5ce`.
+- The latest Lovable-synced batch is Batch #138 on `main` at `7eea5ce`.
+- Known warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale.
+- Batch #138 status follows for recovery context.
+- Batch #138 is merged and Lovable-synced clean:
+- The repository was previously on `main` after Batch #138.
+- Batch #138 is implemented, validated, merged and Lovable-synced clean:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
 - Batch #138 local implementation commit:
   `2e302df`, `[codex] Batch #138 public info route SEO`.
