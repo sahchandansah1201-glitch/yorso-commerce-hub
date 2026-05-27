@@ -9,13 +9,13 @@ context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "7eea5ce_or_newer"
+active_branch: "codex/batch-139-public-language-selector-a11y"
+head_commit: "current_branch_head"
 latest_merged_batch: 138
-active_workstream: "batch_138_public_info_route_seo"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
-recommended_action: "start the next scoped public UX/UI audit batch from current main"
-why_low: "Batch #138 is merged to main as 7eea5ce via PR #190 and Lovable sync is confirmed clean with no conflicts or file modifications. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards."
+active_workstream: "batch_139_public_language_selector_a11y"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
+recommended_action: "monitor Batch #139 GitHub validation"
+why_low: "Batch #139 is locally implemented, validated, committed on the Batch #139 branch and opened as draft PR #191. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
 ```
 
 ## Risk Levels
@@ -50,10 +50,16 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: Batch #138 public info route SEO.
-Current HEAD: main at 7eea5ce or newer, with the Batch #138 Lovable sync prompt checkpoint.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190 (merged).
+Current branch: codex/batch-139-public-language-selector-a11y.
+Current workstream: Batch #139 public language selector a11y.
+Current HEAD: current branch head, [codex] Batch #139 public language selector a11y.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191 (draft).
+Current Batch #139 scope: make the public header language selector explicit to assistive tech without changing visible header layout, language storage, routes, access behavior or SEO.
+Current Batch #139 finding: the desktop language toggle exposed only abbreviated visible text like EN/RU/ES without a localized purpose, and mobile language chips did not expose selected state.
+Current Batch #139 implementation: Header adds localized language selector/current/select labels, aria-expanded/aria-controls on the desktop selector, role=group around desktop and mobile language controls, aria-pressed on each language option, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-language-selector-a11y.spec.ts and package smoke wiring.
+Current Batch #139 validation passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 13 tests; npm run check:production-scale-baseline; npm run smoke:e2e:public-language-selector-a11y, 10 tests after production build; npm run smoke:e2e:public-landmark-labels:run, 39 tests; npx tsc -b --noEmit; npm run lint; git diff --check; npm run smoke:e2e:run, 271 tests.
+Current Batch #139 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip.
+Current Batch #139 PR status: draft PR #191 opened; GitHub Core Type And Build Gate pending.
 Current Batch #138 scope: make public info/legal routes route-owned SEO surfaces without changing visible page copy or offer/supplier/access behavior.
 Current Batch #138 routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press, /partners.
 Current Batch #138 finding: shared info/legal pages used global site metadata even though they are trust/legal decision-support pages for buyers, partners and suppliers.

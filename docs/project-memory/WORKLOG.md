@@ -1520,3 +1520,49 @@ Keep this file factual and append-only.
     mode and Browserslist data stale.
 - Recorded Batch #138 Lovable sync in project memory and moved next action to
   the next scoped public UX/UI audit batch.
+- Started Batch #139 on `codex/batch-139-public-language-selector-a11y`.
+- Ran scoped public UX/UI audit with buyer-first multilingual lens on the public
+  header language selector.
+- Found language selector a11y gaps:
+  - desktop selector exposed abbreviated visible text like `EN` without a
+    localized programmatic purpose;
+  - mobile language chips did not expose selected-language state.
+- Implemented Batch #139 public language selector a11y hardening:
+  - `src/components/landing/Header.tsx` adds localized language selector,
+    current-language and select-language names;
+  - desktop selector exposes `aria-label`, `aria-expanded`, `aria-controls` and
+    `aria-haspopup`;
+  - desktop and mobile language option groups are named and each option exposes
+    `aria-pressed`;
+  - `src/i18n/translations.ts` adds EN/RU/ES selector/current/select labels;
+  - `src/components/landing/Header.landmarks.test.tsx` covers EN/RU/ES desktop
+    and mobile language selector labels;
+  - `src/i18n/aria-tooltips-localized.ru.test.tsx` guards RU header labels
+    against English leakage;
+  - `e2e/public-language-selector-a11y.spec.ts` covers desktop and mobile
+    selector behavior, localStorage persistence, nested controls and 390px
+    overflow;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #139
+    10,000 concurrent-user note.
+- Confirmed Batch #139 local validation:
+  - `npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx` passed, 13 tests;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:public-language-selector-a11y` passed, 10 tests after production build;
+  - `npm run smoke:e2e:public-landmark-labels:run` passed, 39 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 271 tests.
+- Batch #139 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB
+  gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB /
+  106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip.
+- Batch #139 preserves visible header layout, route structure,
+  `localStorage["yorso-lang"]`, public route SEO, access gating, supplier
+  identity redaction, exact-price lock, Batch #112 code splitting, Batch #113
+  route chunk error boundary and Batches #110-#138 public UX/a11y safeguards.
+- Committed Batch #139 on the branch as
+  `[codex] Batch #139 public language selector a11y`.
+- Pushed branch `codex/batch-139-public-language-selector-a11y` to `origin`.
+- Opened draft PR #191:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191`.

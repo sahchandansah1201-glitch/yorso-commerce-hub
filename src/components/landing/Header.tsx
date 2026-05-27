@@ -30,6 +30,10 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
   const { unreadCount } = useSignalAlerts();
   const { session, isSignedIn } = useBuyerSession();
   const initial = (session?.displayName || session?.identifier || "?").trim().charAt(0).toUpperCase();
+  const languageMenuId = "header-language-menu";
+  const languageOptionLabel = (option: Language) =>
+    `${option === lang ? t.aria_currentLanguage : t.aria_selectLanguage}: ${languageNames[option]}`;
+  const languageSelectorLabel = `${t.aria_languageSelector}. ${t.aria_currentLanguage}: ${languageNames[lang]}`;
 
   const endWorkspaceSession = () => {
     analytics.track("workspace_session_ended");
@@ -119,7 +123,12 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
         <div className="hidden items-center gap-3 md:flex">
           <div className="relative">
             <button
+              type="button"
               onClick={() => setLangOpen(!langOpen)}
+              aria-label={languageSelectorLabel}
+              aria-expanded={langOpen}
+              aria-haspopup="true"
+              aria-controls={langOpen ? languageMenuId : undefined}
               className="flex min-h-11 items-center gap-1.5 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:min-h-0 sm:py-1.5"
             >
               <Globe className="h-4 w-4" />
@@ -127,11 +136,19 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
               <ChevronDown className="h-3 w-3" />
             </button>
             {langOpen && (
-              <div className="absolute right-0 top-full mt-1 min-w-[140px] rounded-lg border border-border bg-card p-1 shadow-lg">
+              <div
+                id={languageMenuId}
+                role="group"
+                aria-label={t.aria_languageSelector}
+                className="absolute right-0 top-full mt-1 min-w-[140px] rounded-lg border border-border bg-card p-1 shadow-lg"
+              >
                 {langs.map((l) => (
                   <button
                     key={l}
+                    type="button"
                     onClick={() => { setLang(l); setLangOpen(false); }}
+                    aria-label={languageOptionLabel(l)}
+                    aria-pressed={lang === l}
                     className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted ${lang === l ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                   >
                     <span>{languageFlags[l]}</span>
@@ -246,11 +263,14 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
             <Link to="/blog" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_blog}</Link>
             <a href="/#faq" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_faq}</a>
           </nav>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex gap-2" role="group" aria-label={t.aria_languageSelector}>
             {langs.map((l) => (
               <button
                 key={l}
+                type="button"
                 onClick={() => setLang(l)}
+                aria-label={languageOptionLabel(l)}
+                aria-pressed={lang === l}
                 className={`flex min-h-11 items-center gap-1 rounded-md px-3 py-2 text-xs transition-colors ${lang === l ? "bg-primary font-semibold text-primary-foreground" : "bg-muted text-muted-foreground"}`}
               >
                 {languageFlags[l]} {l.toUpperCase()}

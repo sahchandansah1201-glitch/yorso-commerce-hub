@@ -3590,6 +3590,79 @@ Marker: public info route SEO.
 Marker: buyer trust and legal surface.
 Marker: 10,000 concurrent users.
 
+## Batch #139 Public Language Selector A11y
+
+Batch #139 hardens the public header language selector. The scoped change gives
+desktop and mobile language controls localized programmatic names and exposes
+the selected language with `aria-pressed`. This supports multilingual buyer,
+supplier and partner review without changing the visible header layout, route
+structure, localization storage key, offer/supplier access behavior or SEO.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Runtime work is limited to static header DOM attributes and existing
+  `LanguageProvider` state updates.
+- The existing `localStorage["yorso-lang"]` write remains the only persistence
+  path for language selection.
+- No offer, supplier, auth, access, account, admin or API contracts are
+  changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, timers, retries, subscriptions, background jobs or new
+  network calls are introduced.
+- Language selector attributes are computed in the already-rendered header and
+  do not change request volume at the 10,000 concurrent-user target.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Language state remains local browser state under the existing storage
+  contract.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, the visible language text remains present
+  in the header once hydrated.
+- If CSS fails, the language selector remains visible as ordinary buttons.
+- If `localStorage` is unavailable, the existing language fallback behavior
+  remains in place.
+- Screen readers now receive explicit localized language-selector purpose and
+  selected-state information instead of relying on abbreviated visible labels.
+
+Observability and load-test plan:
+
+- Unit coverage verifies EN/RU/ES desktop and mobile language selector labels
+  and selected-state attributes.
+- Browser smoke verifies desktop and mobile selector behavior, language
+  persistence, absence of nested interactive controls and zero 390px horizontal
+  overflow across representative public routes.
+- Existing public landmark, skip-link, route SEO, CTA semantics and mobile
+  overflow smokes continue to guard the header shell.
+- No new load-test dimension is required because the change is static frontend
+  semantics only.
+
+Validation:
+
+- `npx vitest run src/components/landing/Header.landmarks.test.tsx`;
+- `npm run smoke:e2e:public-language-selector-a11y`;
+- `npm run smoke:e2e:public-landmark-labels:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #139.
+Marker: public language selector a11y.
+Marker: multilingual buyer trust.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
