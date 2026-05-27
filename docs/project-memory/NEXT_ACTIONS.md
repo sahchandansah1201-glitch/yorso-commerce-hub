@@ -2,20 +2,58 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #138 on `codex/batch-138-public-info-route-seo`.
 
-2. Keep the audit scoped and public-route focused: buyer-first narrative, trust
-   evidence, scanability, conversion clarity, SEO structure, locale/a11y
-   semantics and mobile behavior.
+2. Push the branch and open a draft PR for Batch #138.
 
-3. Preserve Batch #110-#137 safeguards unless a new runtime finding requires a
-   narrow fix.
+3. Monitor GitHub Core Type And Build Gate.
 
-4. Preserve current known contracts: supplier profile route behavior, access
+4. After merge, create the Batch #138 Lovable sync prompt and record Lovable
+   sync result.
+
+5. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting, Batch #113 route chunk error boundary and Batches #110-#137
    public UX/a11y safeguards.
+
+## Batch #138 Local Validation Complete
+
+- Branch: `codex/batch-138-public-info-route-seo`.
+- Scope: route-owned SEO for public info/legal trust routes:
+  `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`,
+  `/anti-fraud`, `/careers`, `/press`, `/partners`.
+- Finding:
+  - shared info/legal pages still used generic global metadata even though they
+    support buyer trust, legal review, partner diligence and conversion
+    reassurance.
+- Implemented fix:
+  - `InfoPageLayout` applies localized route-owned title, description,
+    canonical URL, OG/Twitter metadata and WebPage JSON-LD;
+  - info/legal pages pass existing localized intro copy as description and
+    their canonical path through the shared layout;
+  - About and Contact use more specific schema types;
+  - old global RU metadata test now covers only routes without route-owned SEO;
+  - `InfoPageSeo.test.tsx` and `public-info-route-seo.spec.ts` guard the
+    contract.
+- Local validation passed:
+  - `npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx`, 14 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-info-route-seo`, 11 tests after production build;
+  - `npm run smoke:e2e:public-cta-semantics:run`, 12 tests;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 261 tests.
+- Preserved:
+  - shared back-to-home CTA semantics;
+  - skip-to-main and exactly one `main#main`;
+  - named landmarks;
+  - zero nested controls and zero 390px horizontal overflow on info routes;
+  - buyer-first public narrative, supplier trust mechanism, access gating,
+    supplier identity redaction, exact-price lock, Batch #112 code splitting,
+    Batch #113 route chunk error boundary and Batches #110-#137 safeguards.
 
 ## Batch #137 Lovable Sync Confirmed
 

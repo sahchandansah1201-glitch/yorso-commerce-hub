@@ -4,7 +4,11 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Partners = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_partners_title}>
+    <InfoPageLayout
+      title={t.info_partners_title}
+      description={t.info_partners_intro}
+      canonicalPath="/partners"
+    >
       <p>{t.info_partners_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_partners_types}</h2>
       <ul className="list-disc pl-5 space-y-1">

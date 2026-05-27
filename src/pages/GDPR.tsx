@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const GDPR = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_gdpr_title} updated={t.info_updated_january2026}>
+    <InfoPageLayout
+      title={t.info_gdpr_title}
+      description={t.info_gdpr_intro}
+      canonicalPath="/gdpr"
+      updated={t.info_updated_january2026}
+    >
       <p>{t.info_gdpr_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_gdpr_commitment}</h2>
       <ul className="list-disc pl-5 space-y-1">

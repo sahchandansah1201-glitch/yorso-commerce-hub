@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const AntiFraud = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_antifraud_title} updated={t.info_updated_january2026}>
+    <InfoPageLayout
+      title={t.info_antifraud_title}
+      description={t.info_antifraud_intro}
+      canonicalPath="/anti-fraud"
+      updated={t.info_updated_january2026}
+    >
       <p>{t.info_antifraud_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_antifraud_supplierVerification}</h2>
       <p>{t.info_antifraud_supplierVerificationBody}</p>

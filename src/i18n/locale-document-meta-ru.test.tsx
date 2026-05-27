@@ -6,8 +6,8 @@
  *   - <meta name="description"> === translations.ru.meta_siteDescription
  *   - английский meta_siteTitle/Description не должен попадать в документ.
  *
- * Маршруты: главная, регистрационные шаги, signin и info-страницы
- * без собственного route SEO. Между переходами лангметаданные не должны
+ * Маршруты: главная, регистрационные шаги и signin без собственного route SEO.
+ * Между переходами лангметаданные не должны
  * переключаться на en.
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
@@ -22,16 +22,6 @@ import Index from "@/pages/Index";
 import RegisterChoose from "@/pages/register/RegisterChoose";
 import SignIn from "@/pages/SignIn";
 import Offers from "@/pages/Offers";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import Terms from "@/pages/Terms";
-import Privacy from "@/pages/Privacy";
-import Cookies from "@/pages/Cookies";
-import GDPR from "@/pages/GDPR";
-import AntiFraud from "@/pages/AntiFraud";
-import Careers from "@/pages/Careers";
-import Press from "@/pages/Press";
-import Partners from "@/pages/Partners";
 
 const STORAGE_KEY = "yorso-lang";
 
@@ -64,16 +54,6 @@ const renderApp = (onReady: (api: Api) => void, initialPath = "/") =>
               <Route path="/register" element={<RegisterChoose />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/offers" element={<Offers />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/cookies" element={<Cookies />} />
-              <Route path="/gdpr" element={<GDPR />} />
-              <Route path="/anti-fraud" element={<AntiFraud />} />
-              <Route path="/careers" element={<Careers />} />
-              <Route path="/press" element={<Press />} />
-              <Route path="/partners" element={<Partners />} />
             </Routes>
           </RegistrationProvider>
         </TooltipProvider>
@@ -85,16 +65,6 @@ const GLOBAL_META_ROUTES = [
   "/",
   "/register",
   "/signin",
-  "/about",
-  "/contact",
-  "/terms",
-  "/privacy",
-  "/cookies",
-  "/gdpr",
-  "/anti-fraud",
-  "/careers",
-  "/press",
-  "/partners",
 ];
 
 const getMetaDescription = (): string =>
@@ -173,19 +143,19 @@ describe("Public-страницы: метаданные документа на 
     }
   });
 
-  it("Прямой вход на public-маршрут с предустановленной ru-локалью сразу даёт ru-метаданные", () => {
+  it("Прямой вход на global-meta public-маршрут с предустановленной ru-локалью сразу даёт ru-метаданные", () => {
     localStorage.setItem(STORAGE_KEY, "ru");
 
     let api!: Api;
-    renderApp((a) => (api = a), "/about");
+    renderApp((a) => (api = a), "/");
 
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(document.documentElement.getAttribute("lang")).toBe("ru");
     expect(document.title).toBe(translations.ru.meta_siteTitle);
     expect(getMetaDescription()).toBe(translations.ru.meta_siteDescription);
 
-    // Дополнительно: переход на ещё один маршрут не сбрасывает.
-    act(() => api.navigateTo("/contact"));
+    // Дополнительно: переход на ещё один global-meta маршрут не сбрасывает.
+    act(() => api.navigateTo("/signin"));
     expect(document.documentElement.getAttribute("lang")).toBe("ru");
     expect(document.title).toBe(translations.ru.meta_siteTitle);
     expect(getMetaDescription()).toBe(translations.ru.meta_siteDescription);

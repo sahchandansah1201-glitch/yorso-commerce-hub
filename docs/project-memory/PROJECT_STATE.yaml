@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "main"
-  head_commit: "main_after_batch_137_lovable_sync_record"
-  head_summary: "Batch #137 Lovable sync confirmed; next scoped public UX/UI audit ready"
-  dirty_worktree_before_project_memory: false
+  active_branch: "codex/batch-138-public-info-route-seo"
+  head_commit: "batch_138_local_validated_pending_commit"
+  head_summary: "Batch #138 public info route SEO locally validated; PR pending"
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Only Batch #137 Lovable sync confirmation memory checkpoint is pending commit."
+    - "Batch #138 code, tests, package wiring, production-scale note and project-memory checkpoint are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
+  id: "batch_138_public_info_route_seo"
+  summary: "Public info/legal trust routes own localized route SEO metadata."
+  status: "local_validation_passed_pr_pending"
+  branch: "codex/batch-138-public-info-route-seo"
   pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
@@ -48,6 +48,22 @@ active_workstream:
     - "Preserve Batch #110-#137 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
+    - "src/components/InfoPageLayout.tsx"
+    - "src/pages/About.tsx"
+    - "src/pages/Contact.tsx"
+    - "src/pages/Terms.tsx"
+    - "src/pages/Privacy.tsx"
+    - "src/pages/Cookies.tsx"
+    - "src/pages/GDPR.tsx"
+    - "src/pages/AntiFraud.tsx"
+    - "src/pages/Careers.tsx"
+    - "src/pages/Press.tsx"
+    - "src/pages/Partners.tsx"
+    - "src/pages/InfoPageSeo.test.tsx"
+    - "src/i18n/locale-document-meta-ru.test.tsx"
+    - "e2e/public-info-route-seo.spec.ts"
+    - "package.json"
+    - "docs/backend/production-scale-baseline.md"
     - "src/components/offer-detail/DecisionFAQ.tsx"
     - "src/components/offer-detail/FullSpecifications.tsx"
     - "src/components/offer-detail/RelatedArticles.tsx"
@@ -75,53 +91,40 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
 
 active_batch:
-  id: 137
-  summary: "Offer detail decision support locale a11y: lower /offers/:id buyer decision-support blocks use locale-owned copy and keep similar recommendation prices locked for non-qualified buyers."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "15fc5f8"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-27"
-    head: "15fc5f8_or_newer"
-    result: "clean_no_conflicts"
-    user_confirmed:
-      - "GitHub commit synced to main @ Batch #137, PR #189, 15fc5f8 or newer."
-      - "Files/routes checked: OfferDetail, TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles, DecisionFAQ, translations, DecisionSupport.locale.test.tsx, offer-detail-decision-support-locale-a11y e2e, package.json and production-scale baseline."
-      - "No conflicts found; no files were modified in Lovable."
-      - "RU/ES lower decision-support labels are localized and hardcoded English labels do not leak."
-      - "FAQ and Full Specs expose aria-expanded/aria-controls, related insights are links, nested controls are absent and 390px overflow is absent."
-      - "Locked buyers see localized locked-price labels in SimilarOffers/SimilarProducts and the Lower price reason is skipped for locked buyers."
-      - "Access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#136 safeguards are preserved."
-      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
+  id: 138
+  summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
+  status: "local_validation_passed_pr_pending"
+  commit: null
+  branch: "codex/batch-138-public-info-route-seo"
+  pull_request: null
+  lovable_sync_prompt: null
+  lovable_sync: null
   confirmed_findings:
-    - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
-    - "Affected sections: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ."
-    - "SimilarOffers and SimilarProducts rendered raw mock `priceRange` values for locked buyers instead of the localized locked-price label."
+    - "Public info/legal trust routes used generic global site metadata instead of route-owned metadata."
+    - "Affected routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press and /partners."
+    - "These pages support buyer trust, legal review, partner diligence and conversion reassurance, so generic metadata weakened SEO structure and external sharing clarity."
   confirmed_changes:
-    - "TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ use typed EN/RU/ES decision-support translations."
-    - "OfferDetail passes effective renderAccessLevel into lower trust and recommendation blocks."
-    - "Similar offer/product cards show exact prices only for qualified_unlocked buyers."
-    - "Related insight cards are real links to /blog/:slug with localized accessible names."
-    - "DecisionFAQ uses localized FAQ items with aria-expanded, aria-controls and mobile-safe decision target markers."
-    - "DecisionSupport.locale.test.tsx and offer-detail-decision-support-locale-a11y.spec.ts guard the contract."
+    - "InfoPageLayout applies localized route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD."
+    - "Info/legal pages pass existing localized intro copy as description and canonicalPath through the shared layout."
+    - "About and Contact use specific AboutPage/ContactPage schema types."
+    - "InfoPageSeo.test.tsx guards all 10 route SEO contracts and RU direct-entry metadata."
+    - "e2e/public-info-route-seo.spec.ts covers all 10 routes at 390px plus RU direct entry."
     - "package.json wires the dedicated smoke script into the full e2e smoke suite."
-    - "docs/backend/production-scale-baseline.md contains the Batch #137 10,000 concurrent-user note."
+    - "docs/backend/production-scale-baseline.md contains the Batch #138 10,000 concurrent-user note."
   validation:
+    - "npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx, 14 tests."
     - "npx tsc -b --noEmit."
-    - "npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx, 2 tests."
-    - "npm run smoke:e2e:offer-detail-decision-support-locale-a11y, 2 tests after production build."
-    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run, 2 tests."
-    - "npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests."
-    - "npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
-    - "npm run check:production-scale-baseline."
     - "npm run lint."
+    - "npm run check:production-scale-baseline."
+    - "npm run smoke:e2e:public-info-route-seo, 11 tests after production build."
+    - "npm run smoke:e2e:public-cta-semantics:run, 12 tests."
+    - "npm run smoke:e2e:public-landmark-labels:run, 39 tests."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 250 tests."
-    - "GitHub Core Type And Build Gate passed on PR #189 in 12m23s."
+    - "npm run smoke:e2e:run, 261 tests."
+    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip."
   preserved_behavior:
-    - "Buyer-first offer detail narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, supplier access request behavior, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards are preserved."
+    - "Shared back-to-home CTA semantics, skip-to-main behavior, exactly one main#main, named landmarks, zero nested controls and zero 390px overflow on info routes are preserved."
+    - "Buyer-first public narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#137 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."

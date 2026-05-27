@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Contact = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_contact_title}>
+    <InfoPageLayout
+      title={t.info_contact_title}
+      description={t.info_contact_intro}
+      canonicalPath="/contact"
+      schemaType="ContactPage"
+    >
       <p>{t.info_contact_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_contact_general}</h2>
       <p>{t.info_contact_emailLabel}: <a href="mailto:info@yorso.com" className="text-primary hover:underline">info@yorso.com</a></p>

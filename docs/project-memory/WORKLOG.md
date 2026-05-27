@@ -1470,3 +1470,23 @@ Keep this file factual and append-only.
   - Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#136 are preserved;
   - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Recorded Batch #137 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
+- Started Batch #138 public info route SEO on `codex/batch-138-public-info-route-seo`.
+- Audited public info/legal trust routes and found they still used generic global site metadata instead of route-owned SEO despite serving buyer trust, legal and partner-diligence jobs.
+- Implemented Batch #138:
+  - `InfoPageLayout` now applies localized route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD;
+  - `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`, `/anti-fraud`, `/careers`, `/press` and `/partners` pass existing localized intro copy and canonical paths through the shared layout;
+  - `src/pages/InfoPageSeo.test.tsx` guards route-owned metadata and JSON-LD;
+  - `e2e/public-info-route-seo.spec.ts` covers all 10 routes at 390px plus RU direct entry;
+  - `package.json` wires the dedicated and full smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #138 10,000 concurrent-user capacity note.
+- Confirmed Batch #138 local validation:
+  - `npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx` passed, 14 tests;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run smoke:e2e:public-info-route-seo` passed, 11 tests after production build;
+  - `npm run smoke:e2e:public-cta-semantics:run` passed, 12 tests;
+  - `npm run smoke:e2e:public-landmark-labels:run` passed, 39 tests;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 261 tests.
+- Batch #138 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip.

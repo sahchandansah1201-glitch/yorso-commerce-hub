@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Terms = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_terms_title} updated={t.info_updated_january2026}>
+    <InfoPageLayout
+      title={t.info_terms_title}
+      description={t.info_terms_intro}
+      canonicalPath="/terms"
+      updated={t.info_updated_january2026}
+    >
       <p>{t.info_terms_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">1. {t.info_terms_h1}</h2>
       <p>{t.info_terms_p1}</p>

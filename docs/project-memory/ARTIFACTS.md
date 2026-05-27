@@ -24,6 +24,26 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #138 Public Info Route SEO
+
+- `src/components/InfoPageLayout.tsx`: shared info/legal layout now applies
+  localized route-owned title, description, canonical URL, OG/Twitter metadata
+  and WebPage JSON-LD.
+- `src/pages/About.tsx`, `Contact.tsx`, `Terms.tsx`, `Privacy.tsx`,
+  `Cookies.tsx`, `GDPR.tsx`, `AntiFraud.tsx`, `Careers.tsx`, `Press.tsx`,
+  `Partners.tsx`: pass existing localized intro copy and canonical path through
+  the shared layout.
+- `src/pages/InfoPageSeo.test.tsx`: unit guard for all 10 info/legal route SEO
+  contracts and RU direct-entry metadata.
+- `src/i18n/locale-document-meta-ru.test.tsx`: global metadata regression
+  adjusted so info/legal routes can own route SEO.
+- `e2e/public-info-route-seo.spec.ts`: 390px browser guard for localized
+  info/legal route SEO, JSON-LD, direct back CTA, nested controls and overflow.
+- `package.json`: dedicated `smoke:e2e:public-info-route-seo` script and full
+  `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #138 10,000 concurrent
+  users capacity review.
+
 ## Batch #137 Offer Detail Decision Support Locale A11y
 
 - `src/components/offer-detail/TrustSection.tsx`: localized lower trust
