@@ -55,9 +55,11 @@
   `smoke:e2e:run` wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #137 10,000 concurrent
   users capacity review.
+- `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`: sync prompt for
+  Batch #137 after PR #189 merge.
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
-  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #137 local
-  validation checkpoint.
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #137 merge and
+  Lovable sync checkpoint.
 
 ## Batch #136 Offer Detail Supplier Trust Locale A11y
 

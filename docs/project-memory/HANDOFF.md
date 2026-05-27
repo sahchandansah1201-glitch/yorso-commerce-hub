@@ -16,14 +16,15 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Publish Batch #137, then wait for GitHub validation, merge if green and prepare Lovable sync.
+Sync Lovable with GitHub `main` after Batch #137.
 
 ## Current Status
 
-- The repository is currently on branch
-  `codex/batch-137-offer-detail-decision-support-locale-a11y`.
-- Batch #137 is implemented locally and validation passed. It has not yet been
-  committed, pushed or opened as a PR at this checkpoint.
+- The repository is currently on `main` at `15fc5f8`.
+- Batch #137 is merged to `main` via PR #189:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
+- Batch #137 Lovable sync prompt is ready:
+  `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
 - Batch #137 scope:
   - localize lower `/offers/:id` buyer decision-support blocks;
   - preserve buyer-first narrative and supplier trust as a supply/trust
@@ -60,6 +61,8 @@ Publish Batch #137, then wait for GitHub validation, merge if green and prepare 
   - `npm run lint`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 250 tests.
+- Batch #137 GitHub validation passed:
+  - PR #189 `Core Type And Build Gate`, 12m23s.
 - Browser note:
   - Codex in-app browser connection was attempted but unavailable; mobile
     runtime verification was completed by Playwright at 390px.

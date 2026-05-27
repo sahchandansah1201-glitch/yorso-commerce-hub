@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
-  head_commit: "local_batch_137_validation_passed_uncommitted"
-  head_summary: "Batch #137 offer detail decision support locale a11y implemented locally; validation passed; PR not yet opened"
+  active_branch: "main"
+  head_commit: "15fc5f8"
+  head_summary: "Batch #137 merged to main; Lovable sync prompt ready"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #137 implementation, tests, production-scale notes and project-memory checkpoint are pending commit."
+    - "Only Batch #137 Lovable sync prompt and post-merge project-memory checkpoint are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,10 +38,10 @@ project_identity:
 
 active_workstream:
   id: "batch_137_offer_detail_decision_support_locale_a11y"
-  summary: "Publish Batch #137 offer detail decision support locale/a11y hardening, wait for GitHub validation, then merge and prepare Lovable sync."
-  status: "local_validation_passed_pr_pending"
-  branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
-  pull_request: null
+  summary: "Sync Lovable with Batch #137 from GitHub main."
+  status: "merged_to_main_lovable_sync_pending"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -77,11 +77,11 @@ active_workstream:
 active_batch:
   id: 137
   summary: "Offer detail decision support locale a11y: lower /offers/:id buyer decision-support blocks use locale-owned copy and keep similar recommendation prices locked for non-qualified buyers."
-  status: "local_validation_passed_pr_pending"
-  commit: null
-  branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "15fc5f8"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
@@ -107,6 +107,7 @@ active_batch:
     - "npm run lint."
     - "git diff --check."
     - "npm run smoke:e2e:run, 250 tests."
+    - "GitHub Core Type And Build Gate passed on PR #189 in 12m23s."
   preserved_behavior:
     - "Buyer-first offer detail narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, supplier access request behavior, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards are preserved."
   known_warnings:

@@ -1455,3 +1455,9 @@ Keep this file factual and append-only.
 - Batch #137 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; OfferDetail 51.80 kB / 12.06 kB gzip.
 - Attempted Codex in-app browser preview verification, but browser-client/browser MCP connection was unavailable. Mobile runtime verification was covered by Playwright at 390px.
 - Batch #137 preserves buyer-first offer detail narrative, access gating, supplier identity redaction, exact-price lock, supplier access requests, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards.
+- Committed Batch #137 as `9171da4`, `[codex] Batch #137 offer detail decision support locale a11y`.
+- Pushed branch `codex/batch-137-offer-detail-decision-support-locale-a11y` to `origin`.
+- Opened draft PR #189: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
+- GitHub `Core Type And Build Gate` passed on PR #189 in 12m23s.
+- Marked PR #189 ready and squash-merged it to `main` as `15fc5f8`, `[codex] Batch #137 offer detail decision support locale a11y`.
+- Added `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md` and updated project memory to point the next action at Lovable sync for Batch #137.

@@ -2,13 +2,12 @@
 
 ## Current Next Action
 
-1. Publish Batch #137 from
-   `codex/batch-137-offer-detail-decision-support-locale-a11y`.
+1. Sync Lovable with GitHub `main` at Batch #137.
 
-2. Wait for GitHub validation on the Batch #137 PR, then merge if green.
+2. Use `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
 
-3. After merge, add the Batch #137 Lovable sync prompt and move next action to
-   Lovable sync confirmation.
+3. After Lovable reports a clean sync or a concrete conflict list, record the
+   result in project memory.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
@@ -16,10 +15,14 @@
    splitting, Batch #113 route chunk error boundary and Batches #110-#136
    public UX/a11y safeguards.
 
-## Batch #137 In Progress
+## Batch #137 Merged, Lovable Sync Pending
 
-- Branch:
-  `codex/batch-137-offer-detail-decision-support-locale-a11y`.
+- Branch: `main`.
+- Merge commit: `15fc5f8`,
+  `[codex] Batch #137 offer detail decision support locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
+- Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
 - Scope: public offer detail decision-support locale/a11y hardening for
   `/offers/:id`.
 - Runtime finding:
@@ -54,6 +57,8 @@
   - `npm run smoke:e2e:run`, 250 tests.
 - Browser note: in-app browser connection was attempted but unavailable; mobile
   runtime verification was covered by Playwright at 390px.
+- GitHub validation passed:
+  - PR #189 `Core Type And Build Gate`, 12m23s.
 
 ## Batch #136 Lovable Sync Confirmed
 

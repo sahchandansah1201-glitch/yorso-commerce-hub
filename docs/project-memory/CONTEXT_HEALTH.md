@@ -8,14 +8,14 @@ Updated: 2026-05-27
 context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
-recommended_action: "publish Batch #137 pull request, wait for GitHub validation, then merge and prepare Lovable sync"
+recommended_action: "sync Lovable with Batch #137"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
-head_commit: "local_batch_137_validation_passed_uncommitted"
-latest_merged_batch: 136
+active_branch: "main"
+head_commit: "15fc5f8"
+latest_merged_batch: 137
 active_workstream: "batch_137_offer_detail_decision_support_locale_a11y"
-pull_request: null
-why_low: "Batch #137 has local implementation and validation complete on a scoped branch. It localizes lower /offers/:id buyer decision-support blocks, keeps similar-offer/product exact prices locked for non-qualified buyers, converts related insight cards to real links and preserves prior access/redaction safeguards. Local TypeScript, lint, build, dedicated e2e, adjacent offer-detail e2e and full smoke:e2e:run passed."
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
+why_low: "Batch #137 is merged to main as 15fc5f8 via PR #189 and Lovable sync prompt #137 is ready. It localizes lower /offers/:id buyer decision-support blocks, keeps similar-offer/product exact prices locked for non-qualified buyers, converts related insight cards to real links and preserves prior access/redaction safeguards. Local validation and GitHub Core Type And Build Gate are recorded."
 ```
 
 ## Risk Levels
@@ -51,15 +51,17 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current active branch for the in-progress batch: codex/batch-137-offer-detail-decision-support-locale-a11y.
-Current workstream: Batch #137 offer detail decision support locale a11y.
-Current HEAD state: local Batch #137 implementation validated, not yet committed or pushed at this checkpoint.
-Latest merged batch: Batch #136 offer detail supplier trust locale a11y is merged to main as 3720708 via PR #188.
+Current workstream: sync Lovable with Batch #137.
+Current HEAD: 15fc5f8, [codex] Batch #137 offer detail decision support locale a11y.
+Latest merged batch: Batch #137 offer detail decision support locale a11y is merged to main as 15fc5f8 via PR #189.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
 Current Batch #137 implementation: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ now use typed EN/RU/ES offerDetail decision-support keys; OfferDetail passes renderAccessLevel into lower trust/recommendation blocks; similar offer/product cards show exact prices only for qualified_unlocked buyers; related insight cards are real React Router links; FAQ disclosures expose aria-expanded, aria-controls and mobile-safe targets; e2e/offer-detail-decision-support-locale-a11y.spec.ts and DecisionSupport.locale.test.tsx guard the contract.
 Current Batch #137 validation passed: npx tsc -b --noEmit; npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx, 2 tests; npm run smoke:e2e:offer-detail-decision-support-locale-a11y, 2 tests after production build; npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run, 2 tests; npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests; npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests; npm run check:production-scale-baseline; npm run lint; git diff --check; npm run smoke:e2e:run, 250 tests.
+GitHub Core Type And Build Gate passed on PR #189 in 12m23s.
+Lovable sync prompt for Batch #137 is ready: docs/project-memory/PROMPTS/prompt-137-lovable-sync.md.
 Browser note: Codex in-app browser runtime was attempted for local preview but the browser-client pipe was unavailable; mobile/runtime verification was completed with Playwright at 390px.
+Latest previous merged batch: Batch #136 offer detail supplier trust locale a11y is merged to main as 3720708 via PR #188.
 Current Batch #136 scope: localize supplier trust panel UI labels on /offers/:id, keep the supplier trust mechanism buyer-first, and prevent the expanded trust disclosure from creating mobile horizontal overflow.
 Current Batch #136 finding: /offers/:id SupplierTrustPanel still had hardcoded English UI labels and CTAs (`Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist`, `Compare Similar Offers`) inside localized RU/ES offer detail UI. The RU expanded trust disclosure also created 15px horizontal overflow at 390px.
 Current Batch #136 implementation: SupplierTrustPanel now uses typed EN/RU/ES offerDetail supplier trust translation keys, pluralized years-in-business copy and a scoped verification test id; OfferDetail route shells use `overflow-x-hidden`; `e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES localized supplier trust labels, disclosure target size, nested controls and zero overflow; package smoke wiring and Batch #136 production-scale notes are present.
