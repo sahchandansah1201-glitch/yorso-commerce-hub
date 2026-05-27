@@ -2,25 +2,29 @@
 
 ## Current Next Action
 
-1. Monitor Batch #138 draft PR #190 GitHub validation:
-   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
+1. Sync Lovable with Batch #138 using:
+   `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
 
-2. If GitHub Core Type And Build Gate passes, mark PR #190 ready and merge.
+2. Record the Lovable sync result after Lovable reports the checked files,
+   conflicts, route SEO status, mobile/CTA semantics status and remaining
+   warnings.
 
-3. After merge, create the Batch #138 Lovable sync prompt and record Lovable
-   sync result.
-
-5. Preserve current known contracts: supplier profile route behavior, access
+3. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting, Batch #113 route chunk error boundary and Batches #110-#137
    public UX/a11y safeguards.
 
-## Batch #138 Local Validation Complete
+## Batch #138 Merged, Lovable Sync Pending
 
 - Branch: `codex/batch-138-public-info-route-seo`.
-- Commit: `2e302df`, `[codex] Batch #138 public info route SEO`.
-- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
+- Local implementation commit: `2e302df`,
+  `[codex] Batch #138 public info route SEO`.
+- Merge commit: `7eea5ce`,
+  `[codex] Batch #138 public info route SEO`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
+- Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
 - Scope: route-owned SEO for public info/legal trust routes:
   `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`,
   `/anti-fraud`, `/careers`, `/press`, `/partners`.
@@ -56,7 +60,8 @@
     supplier identity redaction, exact-price lock, Batch #112 code splitting,
     Batch #113 route chunk error boundary and Batches #110-#137 safeguards.
 - GitHub validation:
-  - pending on draft PR #190.
+  - PR #190 `Core Type And Build Gate` passed in 12m42s.
+  - PR #190 was marked ready and squash-merged to `main` as `7eea5ce`.
 
 ## Batch #137 Lovable Sync Confirmed
 

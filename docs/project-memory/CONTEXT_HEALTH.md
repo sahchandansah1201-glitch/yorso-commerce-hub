@@ -8,14 +8,14 @@ Updated: 2026-05-27
 context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
-recommended_action: "monitor Batch #138 GitHub validation"
 current_project: "yorso-commerce-hub"
-active_branch: "codex/batch-138-public-info-route-seo"
-head_commit: "2e302df"
-latest_merged_batch: 137
+active_branch: "main"
+head_commit: "7eea5ce_or_newer"
+latest_merged_batch: 138
 active_workstream: "batch_138_public_info_route_seo"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
-why_low: "Batch #138 is locally implemented, validated, committed as 2e302df and opened as draft PR #190. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards. GitHub validation monitoring is next."
+recommended_action: "sync Lovable with Batch #138 using docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
+why_low: "Batch #138 is merged to main as 7eea5ce via PR #190, with GitHub Core Type And Build Gate passed and all local smoke validation complete. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards. Lovable sync is next."
 ```
 
 ## Risk Levels
@@ -50,18 +50,20 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: codex/batch-138-public-info-route-seo.
+Current branch: main.
 Current workstream: Batch #138 public info route SEO.
-Current HEAD: 2e302df, [codex] Batch #138 public info route SEO.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190 (draft).
+Current HEAD: main at 7eea5ce or newer, with the Batch #138 Lovable sync prompt checkpoint.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190 (merged).
 Current Batch #138 scope: make public info/legal routes route-owned SEO surfaces without changing visible page copy or offer/supplier/access behavior.
 Current Batch #138 routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press, /partners.
 Current Batch #138 finding: shared info/legal pages used global site metadata even though they are trust/legal decision-support pages for buyers, partners and suppliers.
 Current Batch #138 implementation: InfoPageLayout now applies localized route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD; info/legal pages pass existing localized intro copy as description and canonicalPath; InfoPageSeo.test.tsx and e2e/public-info-route-seo.spec.ts guard EN/RU metadata, mobile CTA semantics, nested controls and overflow.
 Current Batch #138 validation passed: npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx, 14 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:public-info-route-seo, 11 tests after production build; npm run smoke:e2e:public-cta-semantics:run, 12 tests; npm run smoke:e2e:public-landmark-labels:run, 39 tests; git diff --check; npm run smoke:e2e:run, 261 tests.
-Current Batch #138 PR status: draft PR #190 opened; GitHub Core Type And Build Gate pending.
+Current Batch #138 PR status: PR #190 passed GitHub Core Type And Build Gate in 12m42s and was squash-merged to main as 7eea5ce.
 Current Batch #138 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip; info page chunks 1.19-1.80 kB minified.
-Latest merged batch: Batch #137 offer detail decision support locale a11y is merged to main as 15fc5f8 via PR #189.
+Lovable sync prompt for Batch #138 is ready: docs/project-memory/PROMPTS/prompt-138-lovable-sync.md.
+Latest merged batch: Batch #138 public info route SEO is merged to main as 7eea5ce via PR #190.
+Latest Lovable-synced batch: Batch #137 offer detail decision support locale a11y is merged to main as 15fc5f8 via PR #189 and Lovable sync is confirmed clean.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
 Current Batch #137 implementation: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ now use typed EN/RU/ES offerDetail decision-support keys; OfferDetail passes renderAccessLevel into lower trust/recommendation blocks; similar offer/product cards show exact prices only for qualified_unlocked buyers; related insight cards are real React Router links; FAQ disclosures expose aria-expanded, aria-controls and mobile-safe targets; e2e/offer-detail-decision-support-locale-a11y.spec.ts and DecisionSupport.locale.test.tsx guard the contract.

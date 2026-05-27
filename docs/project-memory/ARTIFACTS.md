@@ -43,6 +43,11 @@
   `smoke:e2e:run` wiring.
 - `docs/backend/production-scale-baseline.md`: Batch #138 10,000 concurrent
   users capacity review.
+- `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`: sync prompt for
+  Batch #138 after PR #190 merge; Lovable sync is pending.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #138 merge and
+  Lovable sync-pending checkpoint.
 
 ## Batch #137 Offer Detail Decision Support Locale A11y
 
@@ -635,3 +640,4 @@
 - `docs/project-memory/PROMPTS/prompt-132-lovable-sync.md`: sync confirmation prompt for Batch #132 public offer locale a11y after PR #184 merge; user confirmed clean sync at `d1bf472`.
 - `docs/project-memory/PROMPTS/prompt-133-lovable-sync.md`: sync confirmation prompt for Batch #133 public breadcrumb locale a11y after PR #185 merge; user confirmed clean sync at `main` @ `ca1438b` or newer.
 - `docs/project-memory/PROMPTS/prompt-135-lovable-sync.md`: sync confirmation prompt for Batch #135 supplier profile logo locale a11y after PR #187 merge; user confirmed clean sync at `main` @ `eb23d5f` or newer.
+- `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`: sync confirmation prompt for Batch #138 public info route SEO after PR #190 merge; Lovable sync pending.

@@ -11,12 +11,11 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "codex/batch-138-public-info-route-seo"
-  head_commit: "2e302df"
-  head_summary: "Batch #138 public info route SEO opened as draft PR #190"
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Batch #138 code, tests, package wiring, production-scale note and project-memory checkpoint are pending commit."
+  active_branch: "main"
+  head_commit: "7eea5ce_or_newer"
+  head_summary: "Batch #138 merged to main; Lovable sync prompt ready"
+  dirty_worktree_before_project_memory: false
+  dirty_worktree_reason: []
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,8 +38,8 @@ project_identity:
 active_workstream:
   id: "batch_138_public_info_route_seo"
   summary: "Public info/legal trust routes own localized route SEO metadata."
-  status: "draft_pr_open_github_validation_pending"
-  branch: "codex/batch-138-public-info-route-seo"
+  status: "merged_to_main_lovable_sync_pending"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
@@ -93,11 +92,11 @@ active_workstream:
 active_batch:
   id: 138
   summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
-  status: "draft_pr_open_github_validation_pending"
-  commit: "2e302df"
-  branch: "codex/batch-138-public-info-route-seo"
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "7eea5ce"
+  branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
-  lovable_sync_prompt: null
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
   lovable_sync: null
   confirmed_findings:
     - "Public info/legal trust routes used generic global site metadata instead of route-owned metadata."
@@ -122,7 +121,8 @@ active_batch:
     - "git diff --check."
     - "npm run smoke:e2e:run, 261 tests."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip."
-    - "Draft PR #190 opened; GitHub Core Type And Build Gate pending."
+    - "PR #190 Core Type And Build Gate passed in 12m42s."
+    - "PR #190 was marked ready and squash-merged to main as 7eea5ce."
   preserved_behavior:
     - "Shared back-to-home CTA semantics, skip-to-main behavior, exactly one main#main, named landmarks, zero nested controls and zero 390px overflow on info routes are preserved."
     - "Buyer-first public narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#137 public UX/a11y safeguards are preserved."
@@ -184,6 +184,34 @@ last_lovable_synced_batch:
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 138
+    summary: "Public info/legal route SEO hardening so shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
+    status: "merged_to_main_lovable_sync_pending"
+    commit: "7eea5ce"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
+      confirmed_at: null
+      head: null
+      result: "pending"
+    confirmed_files:
+      - "src/components/InfoPageLayout.tsx"
+      - "src/pages/About.tsx"
+      - "src/pages/Contact.tsx"
+      - "src/pages/Terms.tsx"
+      - "src/pages/Privacy.tsx"
+      - "src/pages/Cookies.tsx"
+      - "src/pages/GDPR.tsx"
+      - "src/pages/AntiFraud.tsx"
+      - "src/pages/Careers.tsx"
+      - "src/pages/Press.tsx"
+      - "src/pages/Partners.tsx"
+      - "src/pages/InfoPageSeo.test.tsx"
+      - "src/i18n/locale-document-meta-ru.test.tsx"
+      - "e2e/public-info-route-seo.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-138-lovable-sync.md"
   - id: 137
     summary: "Offer detail decision support locale a11y hardening so lower /offers/:id buyer decision-support blocks use locale-owned copy and locked recommendation prices stay gated."
     status: "merged_to_main_lovable_sync_clean"

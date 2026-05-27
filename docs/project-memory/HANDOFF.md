@@ -16,15 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue Batch #138 public info route SEO from the validated branch and open/monitor the PR.
+Sync Lovable with Batch #138 public info route SEO using the prepared prompt.
 
 ## Current Status
 
-- The repository is currently on `codex/batch-138-public-info-route-seo`.
-- Batch #138 is locally implemented, validated and opened as draft PR #190:
+- The repository is currently on `main`.
+- Batch #138 is implemented, validated, merged and ready for Lovable sync:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
-- Batch #138 commit:
+- Batch #138 local implementation commit:
   `2e302df`, `[codex] Batch #138 public info route SEO`.
+- Batch #138 merge commit:
+  `7eea5ce`, `[codex] Batch #138 public info route SEO`.
+- Batch #138 Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`.
 - Batch #138 scope:
   - make shared public info/legal trust routes route-owned SEO surfaces;
   - preserve visible copy, shared back CTA, skip-link/main landmark, CTA
@@ -61,9 +65,13 @@ Continue Batch #138 public info route SEO from the validated branch and open/mon
   - entry 355.53 kB / 114.18 kB gzip;
   - i18n-translations 340.35 kB / 106.73 kB gzip;
   - InfoPageLayout 2.13 kB / 1.13 kB gzip.
+- GitHub validation passed:
+  - PR #190 `Core Type And Build Gate`, 12m42s.
 - Next action:
-  - monitor GitHub Core Type And Build Gate on draft PR #190.
-- The latest merged batch is still Batch #137 on `main` at `15fc5f8`.
+  - sync Lovable with `docs/project-memory/PROMPTS/prompt-138-lovable-sync.md`
+    and record the result.
+- The latest merged batch is Batch #138 on `main` at `7eea5ce`.
+- The latest Lovable-synced batch is still Batch #137 on `main` at `15fc5f8`.
 - Batch #137 Lovable sync is recorded clean.
 - Batch #137 is merged to `main` via PR #189:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
