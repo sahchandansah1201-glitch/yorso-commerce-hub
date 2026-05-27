@@ -16,12 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Commit Batch #141, push the branch, open a PR and monitor GitHub validation.
+Sync Lovable with Batch #141 using `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
 
 ## Current Status
 
-- The repository is currently on `codex/batch-141-public-sheet-close-a11y`.
-- Batch #141 is implemented and locally validated; PR is pending.
+- The repository is currently on `main`.
+- Batch #141 is implemented, validated and merged.
+- Batch #141 commit:
+  `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.
+- Batch #141 PR:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193` (merged).
+- Batch #141 Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
 - Batch #141 scope:
   - localize shared public catalog sheet close controls for RU/ES;
   - preserve visible catalog drawer layout, compare behavior, route structure,
@@ -61,8 +67,11 @@ Commit Batch #141, push the branch, open a PR and monitor GitHub validation.
   - entry 355.53 kB / 114.15 kB gzip;
   - i18n-translations 340.92 kB / 106.94 kB gzip;
   - Offers 72.56 kB / 18.74 kB gzip.
+- Batch #141 GitHub validation:
+  - `Core Type And Build Gate` passed on PR #193 in 13m19s.
 - Batch #141 next action:
-  - commit, push, open PR and monitor GitHub `Core Type And Build Gate`.
+  - sync Lovable with GitHub `main` at `5eafcb7` or newer using
+    `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
 - Batch #140 is implemented, validated and merged.
 - Batch #140 commit:
   `8ad19a6`, `[codex] Batch #140 public account menu a11y`.

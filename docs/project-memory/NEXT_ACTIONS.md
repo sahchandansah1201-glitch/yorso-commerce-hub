@@ -2,12 +2,12 @@
 
 ## Current Next Action
 
-1. Commit Batch #141, push `codex/batch-141-public-sheet-close-a11y`, open a PR
-   and monitor GitHub `Core Type And Build Gate`.
+1. Sync Lovable with Batch #141 using
+   `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
 
 2. Preserve current known contracts: public sheet close locale a11y, public
-   account menu a11y, public language
-   selector a11y, public SEO, access gating, supplier identity redaction,
+   account menu a11y, public language selector a11y, public SEO, access gating,
+   supplier identity redaction,
    exact-price lock, buyer-first trust narrative, Batch #112 code splitting,
    Batch #113 route chunk error boundary and Batches #110-#140 public UX/a11y
    safeguards.
@@ -15,9 +15,13 @@
 3. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
 
-## Batch #141 Local Validation Complete
+## Batch #141 Lovable Sync Pending
 
-- Branch: `codex/batch-141-public-sheet-close-a11y`.
+- Branch: `main`.
+- Merge commit: `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193`.
+- Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`.
 - Scope: public catalog sheet close-control localization.
 - Finding:
   - shared `SheetContent` hardcoded the default close accessible name as
@@ -56,11 +60,13 @@
     SEO, access gating, supplier identity redaction, exact-price lock, Batch
     #112 code splitting, Batch #113 route chunk error boundary and Batches
     #110-#140 safeguards.
+- GitHub validation:
+  - `Core Type And Build Gate` passed on PR #193 in 13m19s.
 - Next:
-  - commit and push the branch;
-  - open PR;
-  - monitor GitHub validation;
-  - after merge, prepare `prompt-141-lovable-sync.md` and ask Lovable to sync.
+  - ask Lovable to sync GitHub `main` at `5eafcb7` or newer using
+    `docs/project-memory/PROMPTS/prompt-141-lovable-sync.md`;
+  - after sync, record the Lovable sync report and move next action to the next
+    scoped public UX/UI audit batch.
 
 ## Batch #140 Lovable Sync Confirmed
 

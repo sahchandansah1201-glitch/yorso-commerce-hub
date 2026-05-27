@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "codex/batch-141-public-sheet-close-a11y"
-  head_commit: "0dada09_plus_batch_141_local_changes"
-  head_summary: "Batch #141 public sheet close locale a11y implemented and locally validated; PR pending"
+  active_branch: "main"
+  head_commit: "main_after_batch_141_lovable_sync_prompt"
+  head_summary: "Batch #141 public sheet close locale a11y merged and Lovable sync prompt ready"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #141 local implementation and project-memory updates are intentionally unstaged before commit."
+    - "Batch #141 Lovable sync prompt and project-memory updates are intentionally unstaged before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,11 +37,11 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_141_public_sheet_close_locale_a11y"
-  summary: "Localize shared public catalog sheet close controls in RU/ES without visual or behavior changes."
-  status: "validated_locally_pr_pending"
-  branch: "codex/batch-141-public-sheet-close-a11y"
-  pull_request: null
+  id: "lovable_sync_batch_141"
+  summary: "Sync Lovable with Batch #141 public sheet close locale a11y."
+  status: "prompt_ready"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -62,16 +62,16 @@ active_workstream:
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/PROMPTS/prompt-140-lovable-sync.md"
+    - "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
 
 active_batch:
   id: 141
   summary: "Public sheet close locale a11y: shared catalog sheet close controls use localized close labels in RU/ES."
-  status: "validated_locally_pr_pending"
-  commit: null
-  branch: "codex/batch-141-public-sheet-close-a11y"
-  pull_request: null
-  lovable_sync_prompt: null
+  status: "merged_to_main_lovable_sync_pending"
+  commit: "5eafcb7"
+  branch: "main"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
   confirmed_findings:
     - "Shared `SheetContent` hardcoded the default Radix close control accessible name as `Close`."
     - "Public catalog drawer usages in `CompareTray` and `IntelligenceRail` did not pass a localized close label, so RU/ES sheet states could expose English programmatic copy."
@@ -93,6 +93,8 @@ active_batch:
     - "npm run smoke:e2e:public-language-selector-a11y:run, 10 tests."
     - "npm run smoke:e2e:run, 282 tests."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip."
+    - "GitHub Core Type And Build Gate passed on PR #193 in 13m19s."
+    - "PR #193 was squash-merged to main as 5eafcb7."
   preserved_behavior:
     - "Visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
     - "Buyer-first public narrative, supplier trust as supply/trust mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#140 public UX/a11y safeguards are preserved."
