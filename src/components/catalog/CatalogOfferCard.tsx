@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import { formatPriceRange } from "@/lib/format";
+import { formatPrice, formatPriceRange } from "@/lib/format";
 import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import CertificationBadges from "@/components/CertificationBadges";
@@ -131,11 +131,11 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   );
 
   if (level === "qualified_unlocked" && hasNumeric) {
-    const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
+    const exact = formatPrice((offer.priceMin! + offer.priceMax!) / 2, lang, offer.currency ?? "USD");
     return (
       <div data-testid="catalog-card-price">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-heading text-base font-bold text-foreground">{offer.currency ?? "USD"} {exact}</span>
+          <span className="font-heading text-base font-bold text-foreground">{exact}</span>
           <PriceUnit unit={unit} className="text-xs text-muted-foreground" />
         </div>
         {MoqLine}

@@ -4,7 +4,7 @@ import { buildCatalogReturnState } from "@/lib/return-to-catalog";
 import { Truck, TrendingUp, TrendingDown, Minus, Lock, ArrowRight, Check, Maximize2, BarChart3, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import { formatPriceRange } from "@/lib/format";
+import { formatPrice, formatPriceRange } from "@/lib/format";
 import { resolveCatalogPriceRangeLabel } from "@/lib/catalog-display-labels";
 import type { SeafoodOffer } from "@/data/mockOffers";
 import { getPriceTrend } from "@/data/mockIntelligence";
@@ -374,7 +374,7 @@ const MobileOfferCard = ({
     : resolveCatalogPriceRangeLabel(offer.priceRange, t.catalog_card_priceLocked);
   const unit = offer.priceUnitKey ? t[offer.priceUnitKey] : t.card_perKg;
   const exact = unlocked && hasNumeric
-    ? `${offer.currency ?? "USD"} ${((offer.priceMin! + offer.priceMax!) / 2).toFixed(2)}`
+    ? formatPrice((offer.priceMin! + offer.priceMax!) / 2, lang, offer.currency ?? "USD")
     : null;
 
   const basisOptions = offer.deliveryBasisOptions ?? [];

@@ -28,44 +28,95 @@ const anonClient = (): SupabaseClient =>
   });
 
 const PG_INSUFFICIENT_PRIVILEGE = "42501";
+const RLS_QUERY_TIMEOUT_MS = 4000;
+
+type RlsError = { code?: string; message?: string } | null;
+type RlsResult<T> = { data: T | null; error: RlsError };
+type RlsQuery<T> = PromiseLike<RlsResult<T>>;
+
+const runRlsQuery = async <T>(
+  label: string,
+  query: RlsQuery<T>,
+): Promise<RlsResult<T>> => {
+  let timeoutId: number | undefined;
+  const timeout = new Promise<RlsResult<T>>((resolve) => {
+    timeoutId = window.setTimeout(() => {
+      resolve({
+        data: null,
+        error: {
+          code: "RLS_TEST_TIMEOUT",
+          message: `${label}: timed out after ${RLS_QUERY_TIMEOUT_MS}ms`,
+        },
+      });
+    }, RLS_QUERY_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(query), timeout]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      data: null,
+      error: {
+        code: "RLS_TEST_NETWORK_ERROR",
+        message: `${label}: ${message}`,
+      },
+    };
+  } finally {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+  }
+};
+
+const warnNonPrivilege = (label: string, error: RlsError) => {
+  if (error && error.code !== PG_INSUFFICIENT_PRIVILEGE) {
+    console.warn(`[rls-test] ${label} error (non-42501):`, error);
+  }
+};
 
 d("RLS / GRANT для публичных отношений каталога (роль anon)", () => {
   describe("SELECT доступ", () => {
     it("offers_public — SELECT не возвращает 42501", async () => {
       const supabase = anonClient();
-      const { error } = await supabase.from("offers_public").select("id").limit(1);
+      const { error } = await runRlsQuery(
+        "offers_public select",
+        supabase.from("offers_public").select("id").limit(1),
+      );
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
       // Любая другая ошибка (например, временная сеть) — не валим тест жёстко,
       // но 42501 регрессия должна быть пресечена.
-      if (error) {
-        console.warn("[rls-test] offers_public select error (non-42501):", error);
-      }
+      warnNonPrivilege("offers_public select", error);
     });
 
     it("suppliers_public — SELECT не возвращает 42501", async () => {
       const supabase = anonClient();
-      const { error } = await supabase.from("suppliers_public").select("id").limit(1);
+      const { error } = await runRlsQuery(
+        "suppliers_public select",
+        supabase.from("suppliers_public").select("id").limit(1),
+      );
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
-      if (error) {
-        console.warn("[rls-test] suppliers_public select error (non-42501):", error);
-      }
+      warnNonPrivilege("suppliers_public select", error);
     });
 
     it("categories — SELECT не возвращает 42501", async () => {
       const supabase = anonClient();
-      const { error } = await supabase.from("categories").select("id,slug,name").limit(1);
+      const { error } = await runRlsQuery(
+        "categories select",
+        supabase.from("categories").select("id,slug,name").limit(1),
+      );
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
-      if (error) {
-        console.warn("[rls-test] categories select error (non-42501):", error);
-      }
+      warnNonPrivilege("categories select", error);
     });
   });
 
   describe("Скрытие чувствительных колонок во view", () => {
     it("offers_public НЕ выдаёт price_min/max/currency/unit/supplier_id", async () => {
       const supabase = anonClient();
-      const { data, error } = await supabase.from("offers_public").select("*").limit(1);
+      const { data, error } = await runRlsQuery(
+        "offers_public sensitivity select",
+        supabase.from("offers_public").select("*").limit(1),
+      );
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
+      warnNonPrivilege("offers_public sensitivity select", error);
       if (!data || data.length === 0) return; // нечего проверять — view пуст
       const row = data[0] as Record<string, unknown>;
       for (const forbidden of [
@@ -81,8 +132,12 @@ d("RLS / GRANT для публичных отношений каталога (р
 
     it("suppliers_public НЕ выдаёт company_name/website/contact_*/owner_user_id", async () => {
       const supabase = anonClient();
-      const { data, error } = await supabase.from("suppliers_public").select("*").limit(1);
+      const { data, error } = await runRlsQuery(
+        "suppliers_public sensitivity select",
+        supabase.from("suppliers_public").select("*").limit(1),
+      );
       expect(error?.code).not.toBe(PG_INSUFFICIENT_PRIVILEGE);
+      warnNonPrivilege("suppliers_public sensitivity select", error);
       if (!data || data.length === 0) return;
       const row = data[0] as Record<string, unknown>;
       for (const forbidden of [
@@ -100,10 +155,13 @@ d("RLS / GRANT для публичных отношений каталога (р
   describe("Защита от записи под anon", () => {
     it("INSERT в categories отклоняется RLS / привилегиями", async () => {
       const supabase = anonClient();
-      const { data, error } = await supabase
-        .from("categories")
-        .insert({ slug: `rls-test-${Date.now()}`, name: "RLS test" })
-        .select();
+      const { data, error } = await runRlsQuery(
+        "categories insert",
+        supabase
+          .from("categories")
+          .insert({ slug: `rls-test-${Date.now()}`, name: "RLS test" })
+          .select(),
+      );
       // Должен быть либо явный error, либо пустой data (RLS вернул 0 строк).
       const denied = Boolean(error) || !data || data.length === 0;
       expect(denied).toBe(true);

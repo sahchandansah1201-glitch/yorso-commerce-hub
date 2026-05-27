@@ -98,6 +98,12 @@ const ANCHOR_TO_SECTION: Record<string, { sectionId: string; titleKey: keyof typ
   "#faq": { sectionId: "faq", titleKey: "faq_title" },
 };
 
+const hrefHash = (href: string) => {
+  if (href.startsWith("#")) return href;
+  if (href.startsWith("/#")) return href.slice(1);
+  return null;
+};
+
 const allFooterLinks = () => [
   ...translations.ru.footer_links.platform,
   ...translations.ru.footer_links.company,
@@ -140,11 +146,12 @@ describe("Footer links (ru): все href ведут на существующи�
     renderApp((a) => (api = a), "/");
     act(() => api.setLang("ru"));
 
-    const anchors = allFooterLinks().filter((l) => l.href.startsWith("#"));
+    const anchors = allFooterLinks().filter((l) => hrefHash(l.href));
     expect(anchors.length).toBeGreaterThan(0);
 
     for (const link of anchors) {
-      const meta = ANCHOR_TO_SECTION[link.href];
+      const hash = hrefHash(link.href)!;
+      const meta = ANCHOR_TO_SECTION[hash];
       expect(meta, `неизвестный якорь в footer_links: ${link.href}`).toBeDefined();
       if (!meta) continue;
 

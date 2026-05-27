@@ -17,7 +17,7 @@
  *   - НЕТ en/es варианта того же ключа (не произошло редиректа на
  *     английскую версию)
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -97,11 +97,15 @@ describe("После sign-in с ru-локалью все основные экр
     sessionStorage.clear();
     document.body.innerHTML = "";
     setBrowserLanguages("en-US", ["en-US", "en"]);
+    vi.stubEnv("VITE_YORSO_API_URL", "");
+    vi.stubEnv("VITE_SUPABASE_URL", "");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
   });
 
   afterEach(() => {
     if (originalLanguage) Object.defineProperty(window.navigator, "language", originalLanguage);
     if (originalLanguages) Object.defineProperty(window.navigator, "languages", originalLanguages);
+    vi.unstubAllEnvs();
   });
 
   it("ru сохраняется на /offers, /offers/:id, / и /register после успешного входа", async () => {
@@ -124,13 +128,13 @@ describe("После sign-in с ru-локалью все основные экр
     // 3) Ждём редирект на /offers — ключевой пост-логин экран.
     await waitFor(
       () => {
-        expect(document.body.textContent ?? "").toContain(translations.ru.offersPage_title);
+        expect(document.body.textContent ?? "").toContain(translations.ru.catalog_pageTitle);
       },
       { timeout: 5000 },
     );
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    expectRuAbsentOthers("offersPage_title");
+    expectRuAbsentOthers("catalog_pageTitle");
 
     // 4) Переход на карточку оффера — /offers/:id.
     const firstOfferId = mockOffers[0]?.id;

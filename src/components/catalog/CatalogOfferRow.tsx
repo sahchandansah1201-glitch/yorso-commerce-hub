@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useAccessLevel, type AccessLevel } from "@/lib/access-level";
-import { formatPriceRange } from "@/lib/format";
+import { formatPrice, formatPriceRange } from "@/lib/format";
 import { resolveCatalogPriceRangeLabel } from "@/lib/catalog-display-labels";
 import { normalizeMoq, summarizeMoqRange } from "@/lib/moq";
 import type { SeafoodOffer } from "@/data/mockOffers";
@@ -471,7 +471,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
   );
 
   if (level === "qualified_unlocked" && hasNumeric) {
-    const exact = ((offer.priceMin! + offer.priceMax!) / 2).toFixed(2);
+    const exact = formatPrice((offer.priceMin! + offer.priceMax!) / 2, lang, offer.currency ?? "USD");
     return (
       <div
         data-testid="catalog-row-price-block"
@@ -480,7 +480,7 @@ const PriceBlock = ({ offer, level }: { offer: SeafoodOffer; level: AccessLevel 
       >
         <div data-testid="catalog-row-price" className="flex items-baseline gap-1.5">
           <span className="font-heading text-[17px] font-bold text-foreground">
-            {offer.currency ?? "USD"} {exact}
+            {exact}
           </span>
           {" "}
           <PriceUnit unit={unit} />

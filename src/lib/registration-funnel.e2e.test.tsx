@@ -21,6 +21,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RegistrationProvider } from "@/contexts/RegistrationContext";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { setProvider, type AnalyticsProvider } from "./analytics-provider";
 import type { AnalyticsEnvelope } from "./analytics";
 
@@ -68,17 +69,19 @@ function renderFunnel(initialPath: string) {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <LanguageProvider>
-        <RegistrationProvider>
-          <Routes>
-            <Route path="/register" element={<RegisterChoose />} />
-            <Route path="/register/email" element={<RegisterEmail />} />
-            <Route path="/register/verify" element={<RegisterVerify />} />
-            <Route path="/register/details" element={<RegisterDetails />} />
-            <Route path="/register/onboarding" element={<RegisterOnboarding />} />
-            <Route path="/register/countries" element={<RegisterCountries />} />
-            <Route path="/register/ready" element={<RegisterReady />} />
-          </Routes>
-        </RegistrationProvider>
+        <BuyerSessionProvider>
+          <RegistrationProvider>
+            <Routes>
+              <Route path="/register" element={<RegisterChoose />} />
+              <Route path="/register/email" element={<RegisterEmail />} />
+              <Route path="/register/verify" element={<RegisterVerify />} />
+              <Route path="/register/details" element={<RegisterDetails />} />
+              <Route path="/register/onboarding" element={<RegisterOnboarding />} />
+              <Route path="/register/countries" element={<RegisterCountries />} />
+              <Route path="/register/ready" element={<RegisterReady />} />
+            </Routes>
+          </RegistrationProvider>
+        </BuyerSessionProvider>
       </LanguageProvider>
     </MemoryRouter>,
   );

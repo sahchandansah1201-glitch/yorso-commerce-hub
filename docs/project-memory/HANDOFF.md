@@ -16,13 +16,13 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Remediate the documented Backend Phase 0 known test failures, then start
-Backend Phase 1: Account Source Of Truth.
+Start Backend Phase 1: Account Source Of Truth from the remediated Phase 0
+baseline.
 
 ## Current Status
 
 - The repository is currently on `main`.
-- Backend Phase 0 closure audit is complete with documented exceptions.
+- Backend Phase 0 closure audit and remediation are complete.
 - Phase 0 closure audit document:
   `docs/backend/phase-0-closure-audit.md`.
 - Phase 0 contract document:
@@ -32,13 +32,21 @@ Backend Phase 1: Account Source Of Truth.
   - `npm run build` passed with known non-blocking Supabase generated type and
     Browserslist warnings;
   - `npm run contracts:build` passed;
-  - `npm test` failed and is documented as known failures: 18 failed tests,
-    1250 passed, 2 skipped.
+  - `npm test` passed: 184 files passed, 1268 tests passed, 2 skipped.
+- Phase 0 remediation resolved the previously documented stale test contracts
+  and runtime test harness gaps:
+  - RU/i18n tests now match current `/offers`, homepage-card, footer-anchor,
+    NotFound and semantic CTA contracts;
+  - sign-in locale tests are pinned to local auth behavior during unit renders;
+  - registration funnel coverage mounts `BuyerSessionProvider`;
+  - qualified catalog exact prices render through active-locale `formatPrice`;
+  - category filter labels are localized while preserving filter values;
+  - Supabase-backed public access smoke remains strict for `42501` but bounded
+    for transient Supabase network failures.
 - Route-to-data-source contract now covers current `src/App.tsx` public,
   info/legal, account, dashboard, admin, redirect, dev and `*` routes.
 - Current next action:
-  - run a focused remediation pass for the documented Phase 0 known failures;
-  - after that, start Backend Phase 1: Account Source Of Truth.
+  - start Backend Phase 1: Account Source Of Truth.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

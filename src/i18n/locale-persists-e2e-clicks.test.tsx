@@ -13,7 +13,7 @@
  *       Проверка: язык ru, SignIn рендерит русские заголовки.
  *   5.  Клик по «← Back» на SignIn → /.
  *       Клик по «View all offers» (Link to="/offers") в LiveOffers → /offers.
- *       Проверка: язык ru, Offers рендерит русский `offersPage_title`.
+ *       Проверка: язык ru, Offers рендерит русский `catalog_pageTitle`.
  *
  * На каждом шаге утверждается:
  *   - context lang === "ru"
@@ -140,7 +140,7 @@ describe("E2E: language switch on /register persists across click-driven navigat
     // 3) Header CTA "Register free" → теперь по-русски (`nav_registerFree`).
     //    Кликаем по нему как по реальной ссылке.
     act(() => {
-      clickByText(translations.ru.nav_registerFree, "button");
+      clickByText(translations.ru.nav_registerFree, "a");
     });
 
     // На /register
@@ -163,7 +163,7 @@ describe("E2E: language switch on /register persists across click-driven navigat
 
     // 5a) "← Назад" → /.
     act(() => {
-      clickByText(translations.ru.signin_back, "button");
+      clickByText(translations.ru.signin_back, "a");
     });
     expect(currentLang).toBe("ru");
 
@@ -175,6 +175,6 @@ describe("E2E: language switch on /register persists across click-driven navigat
 
     expect(currentLang).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");
-    expectRuOnPage("offersPage_title");
+    expectRuOnPage("catalog_pageTitle");
   });
 });

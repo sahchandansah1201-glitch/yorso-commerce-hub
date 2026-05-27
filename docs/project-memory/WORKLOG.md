@@ -1773,3 +1773,31 @@ Keep this file factual and append-only.
     1250 passed, 2 skipped.
 - Moved next action from another public UX/UI audit batch to focused Phase 0
   remediation before Backend Phase 1 Account Source Of Truth.
+
+## 2026-05-27
+
+- Completed the focused Backend Phase 0 remediation pass.
+- Updated stale RU/i18n tests for current homepage offer cards, `/offers`
+  catalog copy, footer anchors, NotFound title contract, semantic registration
+  links and locked/qualified catalog states.
+- Pinned sign-in locale persistence tests to the local auth contract by stubbing
+  self-hosted/Supabase auth env values during those unit renders.
+- Wrapped registration funnel e2e coverage in `BuyerSessionProvider`.
+- Localized qualified catalog exact-price rendering through active-locale
+  `formatPrice` in row, desktop card and mobile card surfaces.
+- Localized catalog category filter labels while preserving the same filter
+  values and URL contract.
+- Bounded Supabase-backed public access smoke handling so transient Supabase
+  network failures are warnings, while `42501` insufficient privilege remains a
+  hard failure.
+- Confirmed Phase 0 remediation validation:
+  - focused remediation Vitest suite passed: 12 files, 67 tests;
+  - `src/test/offer-detail-access.test.ts` plus
+    `src/test/rls-public-access.test.ts` passed: 11 tests;
+  - `npm test` passed: 184 files, 1268 tests, 2 skipped;
+  - `npm run lint` passed;
+  - `npm run contracts:build` passed;
+  - `npm run build` passed with known non-blocking Supabase generated type and
+    Browserslist warnings.
+- Updated Phase 0 status to closed with green gates and moved next action to
+  Backend Phase 1: Account Source Of Truth.

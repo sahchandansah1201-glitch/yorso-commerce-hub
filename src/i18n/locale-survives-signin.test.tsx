@@ -14,12 +14,12 @@
  *   3. После редиректа:
  *        - lang всё ещё "ru"
  *        - localStorage["yorso-lang"] === "ru"
- *        - страница /offers рендерит русский заголовок (`offersPage_title`)
+ *        - страница /offers рендерит русский заголовок (`catalog_pageTitle`)
  *          и НЕ рендерит en/es-варианты этого ключа
- *        - локализованное Intl-форматирование тоже работает (на первой
- *          числовой карточке цена в ru-RU формате, например "8,50").
+ *        - locked-buyer contract stays localized: exact prices remain locked
+ *          and the visible price/unit copy is Russian.
  */
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -85,11 +85,15 @@ describe("ru locale survives sign-in and post-login navigation", () => {
     sessionStorage.clear();
     document.body.innerHTML = "";
     setBrowserLanguages("en-US", ["en-US", "en"]);
+    vi.stubEnv("VITE_YORSO_API_URL", "");
+    vi.stubEnv("VITE_SUPABASE_URL", "");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
   });
 
   afterEach(() => {
     if (originalLanguage) Object.defineProperty(window.navigator, "language", originalLanguage);
     if (originalLanguages) Object.defineProperty(window.navigator, "languages", originalLanguages);
+    vi.unstubAllEnvs();
   });
 
   it("setLang('ru') → submit valid creds on /signin → redirect to /offers, lang stays ru", async () => {
@@ -117,10 +121,10 @@ describe("ru locale survives sign-in and post-login navigation", () => {
     expect(form).not.toBeNull();
     fireEvent.submit(form!);
 
-    // 3) Дожидаемся редиректа на /offers — заголовок Offers ещё на русском.
+    // 3) Дожидаемся редиректа на /offers — заголовок каталога ещё на русском.
     await waitFor(
       () => {
-        expect(document.body.textContent ?? "").toContain(translations.ru.offersPage_title);
+        expect(document.body.textContent ?? "").toContain(translations.ru.catalog_pageTitle);
       },
       { timeout: 5000 },
     );
@@ -132,27 +136,26 @@ describe("ru locale survives sign-in and post-login navigation", () => {
     // 5) En/Es-варианты ключа отсутствуют на странице.
     const body = document.body.textContent ?? "";
     for (const other of otherLangs("ru")) {
-      const otherTitle = translations[other].offersPage_title;
-      if (otherTitle && otherTitle !== translations.ru.offersPage_title) {
+      const otherTitle = translations[other].catalog_pageTitle;
+      if (otherTitle && otherTitle !== translations.ru.catalog_pageTitle) {
         expect(body).not.toContain(otherTitle);
       }
     }
 
-    // 6) Intl-форматирование цены тоже на ru-RU: первая карточка с числовой
-    //    ценой содержит "8,50" (запятая-десятичный) и не содержит "$8.50".
-    const numericPrices = Array.from(
-      document.querySelectorAll<HTMLElement>('[data-testid="offer-price"]'),
+    // 6) После sign-in buyer ещё registered_locked: точная цена скрыта,
+    //    но locked-price copy и единица измерения локализованы на русский.
+    const prices = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-testid="catalog-row-price"]'),
     )
       .map((n) => norm(n.textContent ?? ""))
-      .filter((t) => /\d/.test(t));
-    expect(numericPrices.length).toBeGreaterThan(0);
-    const firstNumeric = numericPrices[0];
-    expect(firstNumeric).toContain("8,50");
-    expect(firstNumeric).not.toContain("$8.50");
+      .filter(Boolean);
+    expect(prices.length).toBeGreaterThan(0);
+    expect(prices.some((price) => price.includes("Точная цена скрыта"))).toBe(true);
+    expect(prices.join(" ")).not.toContain("$8.50");
 
     // 7) Локализованная единица измерения тоже на русском.
     const unit = norm(
-      document.querySelector('[data-testid="offer-price-unit"]')?.textContent ?? "",
+      document.querySelector('[data-testid="catalog-row-price-block"] button[aria-label]')?.textContent ?? "",
     );
     expect(unit).toBe(translations.ru.offers_priceUnit_perKg);
   });
@@ -181,7 +184,7 @@ describe("ru locale survives sign-in and post-login navigation", () => {
     );
 
     // /offers НЕ загрузился.
-    expect(document.body.textContent ?? "").not.toContain(translations.ru.offersPage_title);
+    expect(document.body.textContent ?? "").not.toContain(translations.ru.catalog_pageTitle);
     // Локаль ru.
     expect(screen.getByTestId("lang").textContent).toBe("ru");
     expect(localStorage.getItem(STORAGE_KEY)).toBe("ru");

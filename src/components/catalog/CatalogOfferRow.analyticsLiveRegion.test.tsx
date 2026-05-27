@@ -23,6 +23,7 @@ import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
 import { mockOffers } from "@/data/mockOffers";
 
 const renderRow = ({ open = true } = {}) => {
+  localStorage.setItem("yorso-lang", "ru");
   const offer = mockOffers[0];
   render(
     <MemoryRouter>

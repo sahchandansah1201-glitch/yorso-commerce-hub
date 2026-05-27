@@ -27,12 +27,43 @@
 ## Backend Phase 0 Closure Audit
 
 - `docs/backend/phase-0-closure-audit.md`: Phase 0 closure audit, exit
-  criteria status, gate results and documented full-suite known failures.
+  criteria status, gate results and remediation result.
 - `docs/backend/frontend-backend-contract.md`: route-to-data-source contract
   updated to cover current `src/App.tsx` public, account, info/legal, dashboard,
   admin, redirect, dev and `*` routes.
 - `.tmp/phase0-vitest.json`: local transient Vitest JSON report used to extract
   the known failure list; not a source artifact and not intended for commit.
+
+## Backend Phase 0 Remediation
+
+- `src/i18n/homepage-cards-faq-ru.test.tsx`: updated homepage offer-card RU
+  coverage to the current clickable-card contract.
+- `src/i18n/no-english-leak.ru.test.tsx`,
+  `src/i18n/locale-all-routes-ru.test.tsx`,
+  `src/i18n/locale-persists-across-routes.test.tsx`,
+  `src/i18n/locale-footer-links-ru.test.tsx`,
+  `src/i18n/locale-notfound-testid-ru.test.tsx` and
+  `src/i18n/locale-persists-e2e-clicks.test.tsx`: aligned stale RU route,
+  footer, NotFound and semantic CTA expectations with the current public UI.
+- `src/i18n/locale-post-signin-account-screens-ru.test.tsx` and
+  `src/i18n/locale-survives-signin.test.tsx`: pin auth locale persistence
+  renders to the local auth contract.
+- `src/i18n/offers-numeric-format-ru.test.tsx`: covers qualified catalog
+  numeric formatting through stable catalog row test ids.
+- `src/components/catalog/CatalogOfferRow.tsx`,
+  `src/components/catalog/CatalogOfferCard.tsx` and
+  `src/components/catalog/MobileOfferCard.tsx`: exact prices for qualified
+  buyers now use active-locale `formatPrice`.
+- `src/components/catalog/CatalogFilters.tsx`: category option and active-chip
+  labels are localized while filter values remain unchanged.
+- `src/components/catalog/CatalogOfferRow.analyticsLiveRegion.test.tsx`: RU
+  live-region coverage now initializes the active locale.
+- `src/lib/registration-funnel.e2e.test.tsx`: registration funnel coverage
+  mounts the required buyer-session provider.
+- `src/test/offer-detail-access.test.ts`: Supabase-backed list/detail access
+  smoke is bounded and still hard-fails on `42501` privilege regressions.
+- `src/test/rls-public-access.test.ts`: RLS public access smoke is bounded and
+  still hard-fails on `42501` insufficient privilege.
 
 ## Batch #141 Public Sheet Close Locale A11y
 

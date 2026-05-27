@@ -7,7 +7,7 @@
  *   - /          (Index → Hero, hero_title1)
  *   - /register  (RegisterChoose → reg_chooseSubtitle)
  *   - /signin    (SignIn → signin_title)
- *   - /offers    (Offers → offersPage_title)
+ *   - /offers    (Offers → catalog_pageTitle)
  *
  * Информационные страницы (/about, /contact, /terms, /privacy и т.д.)
  * сейчас не локализованы (статический английский контент) и осознанно
@@ -99,7 +99,7 @@ const LOCALIZED_ROUTES: LocalizedRoute[] = [
   { path: "/", key: "hero_title1" },
   { path: "/register", key: "reg_chooseSubtitle" },
   { path: "/signin", key: "signin_title" },
-  { path: "/offers", key: "offersPage_title" },
+  { path: "/offers", key: "catalog_pageTitle" },
 ];
 
 const STATIC_INFO_ROUTES = [

@@ -63,6 +63,7 @@ const Select = ({
   options,
   onChange,
   anyLabel,
+  getOptionLabel = (opt: string) => opt,
   testId,
 }: {
   label: string;
@@ -70,6 +71,7 @@ const Select = ({
   options: string[];
   onChange: (v: string | null) => void;
   anyLabel: string;
+  getOptionLabel?: (option: string) => string;
   testId?: string;
 }) => (
   <label className="flex min-w-0 flex-col gap-1">
@@ -83,7 +85,7 @@ const Select = ({
       <option value="">{anyLabel}</option>
       {options.map((opt) => (
         <option key={opt} value={opt}>
-          {opt}
+          {getOptionLabel(opt)}
         </option>
       ))}
     </select>
@@ -98,7 +100,12 @@ export const CatalogFilters = ({ value, onChange, options, layout = "stacked" }:
   const activeChips: { key: keyof CatalogFilterState; label: string }[] = [];
   (Object.keys(value) as (keyof CatalogFilterState)[]).forEach((k) => {
     const v = value[k];
-    if (typeof v === "string" && v) activeChips.push({ key: k, label: v });
+    if (typeof v === "string" && v) {
+      activeChips.push({
+        key: k,
+        label: k === "category" ? t.cat_names[v] ?? v : v,
+      });
+    }
   });
 
   // Primary controls always visible. Advanced controls collapse.
@@ -157,6 +164,7 @@ export const CatalogFilters = ({ value, onChange, options, layout = "stacked" }:
           options={options.categories}
           onChange={(v) => update({ category: v })}
           anyLabel={t.catalog_filters_all}
+          getOptionLabel={(opt) => t.cat_names[opt] ?? opt}
         />
         <Select
           label={t.catalog_filters_origin}

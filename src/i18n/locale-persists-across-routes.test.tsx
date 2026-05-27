@@ -105,7 +105,7 @@ describe("Selected locale persists across client-side route changes", () => {
     const routes: Array<{ path: string; expectedRu: string }> = [
       { path: "/register", expectedRu: translations.ru.reg_chooseSubtitle },
       { path: "/signin", expectedRu: translations.ru.signin_title },
-      { path: "/offers", expectedRu: translations.ru.offersPage_title },
+      { path: "/offers", expectedRu: translations.ru.catalog_pageTitle },
       { path: "/", expectedRu: translations.ru.hero_title1 },
     ];
 
@@ -142,7 +142,7 @@ describe("Selected locale persists across client-side route changes", () => {
     // И навигация после reload тоже сохраняет es.
     act(() => api2.navigateTo("/offers"));
     expect(screen.getByTestId("lang").textContent).toBe("es");
-    expect(document.body.textContent ?? "").toContain(translations.es.offersPage_title);
+    expect(document.body.textContent ?? "").toContain(translations.es.catalog_pageTitle);
   });
 
   it("Многократное переключение ru → en → es через UI отражается в localStorage и переживает навигацию", () => {

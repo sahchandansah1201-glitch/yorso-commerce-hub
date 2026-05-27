@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
-  head_commit: "main_after_backend_phase_0_closure_audit_docs"
-  head_summary: "Backend Phase 0 closure audit recorded; Batch #141 merged and Lovable sync confirmed clean"
-  dirty_worktree_before_project_memory: true
+  head_commit: "current_phase_0_remediation_commit"
+  head_summary: "Backend Phase 0 remediation complete; all Phase 0 gates green"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Backend Phase 0 closure audit docs and project memory are being updated before commit."
+    - "No expected dirty state after the Phase 0 remediation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,22 +37,30 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_0_remediation_before_phase_1"
-  summary: "Backend Phase 0 closure audit is complete with documented exceptions; remediate known test failures before Phase 1."
-  status: "phase_0_closed_with_documented_exceptions"
+  id: "backend_phase_1_account_source_of_truth_ready"
+  summary: "Backend Phase 0 known test failures have been remediated; Phase 1 Account Source Of Truth is ready to start."
+  status: "phase_0_closed_with_green_gates"
   branch: "main"
   pull_request: null
   confirmed_scope:
-    - "Backend Phase 0 closure audit is recorded in docs/backend/phase-0-closure-audit.md."
+    - "Backend Phase 0 closure audit and remediation status are recorded in docs/backend/phase-0-closure-audit.md."
     - "docs/backend/frontend-backend-contract.md now maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and wildcard routes to data sources or explicit no-data-source routes."
-    - "npm run lint, npm run build and npm run contracts:build passed during closure audit."
-    - "npm test is not green: 18 failed tests, 1250 passed, 2 skipped; known failures are documented and must be remediated or intentionally re-contracted before claiming a fully green repository."
+    - "npm run lint, npm run build, npm run contracts:build and npm test passed after the remediation pass."
+    - "Full Vitest suite is green: 184 files passed, 1268 tests passed, 2 skipped."
+    - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "After remediation, start Backend Phase 1: Account Source Of Truth."
+    - "Next planned workstream: Backend Phase 1 Account Source Of Truth."
   confirmed_files:
     - "docs/backend/phase-0-closure-audit.md"
     - "docs/backend/frontend-backend-contract.md"
+    - "src/components/catalog/CatalogFilters.tsx"
+    - "src/components/catalog/CatalogOfferCard.tsx"
+    - "src/components/catalog/CatalogOfferRow.tsx"
+    - "src/components/catalog/MobileOfferCard.tsx"
+    - "src/test/offer-detail-access.test.ts"
+    - "src/test/rls-public-access.test.ts"
+    - "src/lib/registration-funnel.e2e.test.tsx"
     - "src/components/landing/Header.tsx"
     - "src/components/ui/sheet.tsx"
     - "src/components/catalog/CompareTray.tsx"

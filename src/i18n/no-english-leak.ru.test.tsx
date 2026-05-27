@@ -320,20 +320,20 @@ describe("Catalog & offer cards render Russian UI under ru locale", () => {
     const ru = translations.ru;
 
     // Заголовок и подзаголовок
-    expect(document.body.textContent).toContain(ru.offersPage_title);
+    expect(document.body.textContent).toContain(ru.catalog_pageTitle);
     expect(
       document.body.textContent ?? "",
-    ).toContain(ru.offersPage_subtitle.replace("{count}", String(mockOffers.length)));
+    ).toContain(ru.catalog_resultCount.replace("{count}", String(mockOffers.length)));
 
     // Поле поиска c русским placeholder
     const placeholders = Array.from(
       document.querySelectorAll<HTMLInputElement>("input[placeholder]"),
     ).map((i) => i.getAttribute("placeholder") ?? "");
-    expect(placeholders).toContain(ru.offersPage_searchPlaceholder);
-    expect(placeholders).not.toContain("Search offers");
+    expect(placeholders).toContain(ru.catalog_filters_searchPlaceholder);
+    expect(placeholders).not.toContain(translations.en.catalog_filters_searchPlaceholder);
 
-    // Кнопка "назад на главную"
-    expect(document.body.textContent).toContain(ru.offersPage_backToHome);
+    // Breadcrumb homepage link is localized under the current catalog shell.
+    expect(document.body.textContent).toContain(ru.catalog_breadcrumbHome);
 
     // Хотя бы одна локализованная категория из cat_names присутствует
     const catNames = Object.values(ru.cat_names);
@@ -355,7 +355,6 @@ describe("Catalog & offer cards render Russian UI under ru locale", () => {
     const text = document.body.textContent ?? "";
 
     expect(text).toContain(ru.card_perKg);
-    expect(text).toContain(ru.card_viewOffer);
     expect(text).not.toContain("per kg");
     expect(text).not.toContain("View Offer");
 
@@ -376,17 +375,17 @@ describe("Catalog & offer cards render Russian UI under ru locale", () => {
     expect(text).toContain(ru.offers_subtitle);
     expect(text).not.toContain("Live Marketplace");
 
-    // CTA "Смотреть" / "за кг" приходят из карточек
-    expect(text).toContain(ru.card_viewOffer);
+    // "за кг" приходит из карточек; переход на карточку теперь задан
+    // aria-label на ссылке-карточке, а не видимым CTA "Смотреть".
     expect(text).toContain(ru.card_perKg);
 
     // Aria-label секции/списка — локализованы
     const labels = Array.from(document.querySelectorAll("[aria-label]")).map(
       (e) => e.getAttribute("aria-label") ?? "",
     );
+    expect(labels.some((l) => l.includes("Открыть предложение"))).toBe(true);
     // Для секции/списка должно быть хоть одно нелатинское aria-label
     const hasCyrillic = labels.some((l) => /[А-Яа-яЁё]/.test(l));
     expect(hasCyrillic).toBe(true);
   });
 });
-

@@ -2,8 +2,8 @@
 
 ## Current Next Action
 
-1. Run a focused Phase 0 remediation pass for the documented full-suite test
-   failures, then start Backend Phase 1: Account Source Of Truth.
+1. Start Backend Phase 1: Account Source Of Truth from the green Phase 0
+   baseline.
 
 2. Preserve current known contracts: Phase 0 route-to-data-source contract,
    public sheet close locale a11y, public
@@ -12,10 +12,9 @@
    Batch #112 code splitting, Batch #113 route chunk error boundary and
    Batches #110-#141 public UX/a11y safeguards.
 
-3. Treat Backend Phase 0 as closed with documented exceptions, not as a fully
-   green test-suite state. Do not start Phase 1 production implementation while
-   claiming full-suite green until the known failures are fixed or the stale
-   test contracts are intentionally replaced.
+3. Treat Backend Phase 0 as closed with green gates. The previous documented
+   failures were remediated; do not reintroduce stale test contracts that check
+   retired public UI copy or pre-safeguard CTA semantics.
 
 4. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
@@ -27,11 +26,20 @@
 - Updated contract:
   `docs/backend/frontend-backend-contract.md`.
 - Status:
-  - Backend Phase 0 closure audit is complete;
-  - closure status is `closed with documented exceptions`;
+  - Backend Phase 0 closure audit and remediation are complete;
+  - closure status is `closed with green gates`;
   - `npm run lint`, `npm run build` and `npm run contracts:build` passed;
-  - `npm test` failed and is explicitly documented as known failures: 18
-    failed tests, 1250 passed, 2 skipped.
+  - `npm test` passed: 184 files passed, 1268 tests passed, 2 skipped.
+- Remediation result:
+  - stale RU/i18n route tests were aligned with current `/offers`, homepage
+    card, footer-anchor, NotFound and semantic CTA contracts;
+  - sign-in locale tests are pinned to the local auth contract instead of
+    leaking self-hosted/Supabase env behavior into unit renders;
+  - registration funnel coverage mounts the required buyer-session provider;
+  - qualified catalog exact prices now use active-locale `formatPrice`;
+  - catalog category filter labels are localized while preserving filter values;
+  - Supabase-backed public access smoke tests are bounded and still hard-fail
+    on `42501`.
 - Known warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
   - Browserslist data stale.
@@ -39,8 +47,7 @@
   - active `src/App.tsx` public, account, dashboard, admin, redirect, dev and
     `*` routes are now represented in `frontend-backend-contract.md`.
 - Next:
-  - remediate or intentionally re-contract the documented i18n/locale test
-    failures before calling the repository fully green.
+  - start Backend Phase 1: Account Source Of Truth.
 
 ## Batch #141 Lovable Sync Confirmed
 
