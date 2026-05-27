@@ -16,11 +16,29 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start the next scoped public UX/UI audit batch from current `main`.
+Remediate the documented Backend Phase 0 known test failures, then start
+Backend Phase 1: Account Source Of Truth.
 
 ## Current Status
 
 - The repository is currently on `main`.
+- Backend Phase 0 closure audit is complete with documented exceptions.
+- Phase 0 closure audit document:
+  `docs/backend/phase-0-closure-audit.md`.
+- Phase 0 contract document:
+  `docs/backend/frontend-backend-contract.md`.
+- Phase 0 gate results:
+  - `npm run lint` passed;
+  - `npm run build` passed with known non-blocking Supabase generated type and
+    Browserslist warnings;
+  - `npm run contracts:build` passed;
+  - `npm test` failed and is documented as known failures: 18 failed tests,
+    1250 passed, 2 skipped.
+- Route-to-data-source contract now covers current `src/App.tsx` public,
+  info/legal, account, dashboard, admin, redirect, dev and `*` routes.
+- Current next action:
+  - run a focused remediation pass for the documented Phase 0 known failures;
+  - after that, start Backend Phase 1: Account Source Of Truth.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

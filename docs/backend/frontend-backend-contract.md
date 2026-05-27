@@ -1,6 +1,6 @@
 # YORSO Frontend-Backend Contract
 
-Status: draft contract
+Status: Phase 0 closure-audited contract
 Frontend source: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Purpose
@@ -57,6 +57,10 @@ Required data views:
 
 ## Route Contract
 
+This table maps the active `src/App.tsx` routes audited during Backend Phase 0
+closure. Development-only routes are called out separately so they are not
+mistaken for production data surfaces.
+
 | Route | Current frontend role | Current data source | Backend target | Priority |
 |---|---|---|---|---|
 | `/` | Public entry, trust, live offers | landing components, `mockOffers`, partial catalog fetch | public catalog preview, marketplace stats, homepage CMS blocks | P1 |
@@ -67,18 +71,43 @@ Required data views:
 | `/offers/:id` | Offer decision page | mock offer detail plus partial catalog | offer detail API, documents, supplier trust, related offers | P1 |
 | `/suppliers` | Supplier directory | `mockSuppliers`, i18n patches, session shortlist | supplier directory API, public/qualified views, shortlist API | P0 |
 | `/suppliers/:supplierId` | Supplier dossier | `mockSuppliers`, `getOffersForSupplier`, local access request | supplier profile API, supplier offers API, access workflow | P0 |
+| `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
+| `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
+| `/terms` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
+| `/privacy` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
+| `/cookies` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
+| `/gdpr` | Legal/compliance page | static legal copy, route-owned SEO | versioned compliance document source | P3 |
+| `/anti-fraud` | Trust/compliance page | static legal copy, route-owned SEO | versioned trust/compliance content source | P3 |
+| `/careers` | Public hiring page | static info page content, route-owned SEO | CMS-ready static page or hiring source later | P3 |
+| `/press` | Public press page | static info page content, route-owned SEO | CMS-ready press/media content source later | P3 |
+| `/partners` | Public partner page | static info page content, route-owned SEO | CMS-ready partner content and conversion events later | P3 |
+| `/how-it-works` | Product education | static content | CMS-ready static page | P3 |
+| `/for-suppliers` | Supplier acquisition landing | static content | CMS-ready static page, conversion events | P3 |
+| `/blog` | SEO/content index | static `blogPosts` and i18n patches | content source, SEO metadata, sitemap/RSS later | P2 |
+| `/blog/:slug` | Article page | static `blogPosts` | content source, article metadata, structured data | P2 |
 | `/account/personal` | User profile | `mockAccount`, localStorage | user profile API | P0 |
 | `/account/company` | Company profile and media | `mockAccount`, localStorage, local file URLs | company profile API, self-hosted object storage, publication status | P0 |
 | `/account/branches` | Branch list | read-only `mockAccount` | branch CRUD API | P1 |
 | `/account/products` | Product matrix | read-only `mockAccount` | company product CRUD API | P1 |
 | `/account/meta-regions` | Logistics grouping | read-only `mockAccount` | meta-region CRUD API | P1 |
 | `/account/notifications` | Notification preferences | read-only `mockAccount` | notification preference API | P1 |
-| `/blog` | SEO/content index | static `blogPosts` and i18n patches | content source, SEO metadata, sitemap/RSS later | P2 |
-| `/blog/:slug` | Article page | static `blogPosts` | content source, article metadata, structured data | P2 |
-| `/for-suppliers` | Supplier acquisition landing | static content | CMS-ready static page, conversion events | P3 |
-| `/how-it-works` | Product education | static content | CMS-ready static page | P3 |
+| `/account` | Account legacy/current entry | client redirect to `/account/personal` | redirect only; no data source | P0 |
+| `/profile` and `/profile/*` | Legacy profile aliases | client redirects to account sections | redirect compatibility only; no data source | P0 |
 | `/dashboard/registration-funnel` | Analytics demo | deterministic mock | analytics warehouse or event aggregates | P3 |
 | `/dashboard/registration-resend` | Analytics demo | deterministic mock | analytics aggregates | P3 |
+| `/admin` | Admin/operator hub | self-hosted admin operations API adapter | admin operations overview API | P0 |
+| `/admin/access-requests` | Access review queue | self-hosted admin access review API adapter | access review queue API and audit | P0 |
+| `/admin/access-grants` | Access grant console | self-hosted admin access grants API adapter | grant list/revoke API and audit | P0 |
+| `/admin/runtime` | Runtime status page | self-hosted admin runtime API adapter | runtime health/readiness/capacity API | P0 |
+| `/admin/audit` | Audit events page | self-hosted admin audit API adapter | audit event query/export API | P0 |
+| `/admin/incidents` | Incident queue page | self-hosted admin incidents API adapter | incident queue/workflow API | P0 |
+| `/admin/incidents/:incidentId` | Incident detail page | self-hosted admin incident detail API adapter | incident detail/workflow/handoff API | P0 |
+| `/admin/incident-execution` | Incident execution queue | self-hosted admin incident execution API adapter | execution queue/update API | P0 |
+| `/admin/incident-workload` | Incident workload page | self-hosted admin incident workload API adapter | workload/correlation/forecast API | P0 |
+| `/admin/incident-trends` | Incident trend analytics | self-hosted admin incident trends API adapter | trend analytics/export/action API | P0 |
+| `/admin/incident-trend-actions` | Incident trend action queue | self-hosted admin incident trend action queue API adapter | trend action queue/export/bulk API | P0 |
+| `/dev/typography` | Development typography audit | local dev-only UI | no production backend target | dev-only |
+| `*` | Not found route | localized static fallback | no backend data source | P3 |
 
 ## Data Source Replacement Map
 

@@ -1753,3 +1753,23 @@ Keep this file factual and append-only.
     mode and Browserslist data stale.
 - Recorded Batch #141 Lovable sync in project memory and moved next action to
   the next scoped public UX/UI audit batch.
+
+## 2026-05-27
+
+- Closed Backend Phase 0 as a documented closure audit, not as a fully green
+  suite.
+- Added `docs/backend/phase-0-closure-audit.md` with Phase 0 exit criteria,
+  gate results, route-contract status and explicit known test failures.
+- Updated `docs/backend/frontend-backend-contract.md` from draft status to a
+  Phase 0 closure-audited contract and expanded the active route map to cover
+  current `src/App.tsx` public, info/legal, account, dashboard, admin, redirect,
+  dev and `*` routes.
+- Phase 0 validation run:
+  - `npm run lint` passed;
+  - `npm run build` passed with known non-blocking Supabase generated type and
+    Browserslist warnings;
+  - `npm run contracts:build` passed;
+  - `npm test` failed and was documented as known failures: 18 failed tests,
+    1250 passed, 2 skipped.
+- Moved next action from another public UX/UI audit batch to focused Phase 0
+  remediation before Backend Phase 1 Account Source Of Truth.

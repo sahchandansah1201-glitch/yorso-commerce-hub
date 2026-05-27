@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
-  head_commit: "main_after_batch_141_lovable_sync_record"
-  head_summary: "Batch #141 public sheet close locale a11y merged and Lovable sync confirmed clean"
+  head_commit: "main_after_backend_phase_0_closure_audit_docs"
+  head_summary: "Backend Phase 0 closure audit recorded; Batch #141 merged and Lovable sync confirmed clean"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #141 Lovable sync report is being recorded in project memory before commit."
+    - "Backend Phase 0 closure audit docs and project memory are being updated before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,17 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit_batch"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
+  id: "backend_phase_0_remediation_before_phase_1"
+  summary: "Backend Phase 0 closure audit is complete with documented exceptions; remediate known test failures before Phase 1."
+  status: "phase_0_closed_with_documented_exceptions"
   branch: "main"
   pull_request: null
   confirmed_scope:
-    - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
+    - "Backend Phase 0 closure audit is recorded in docs/backend/phase-0-closure-audit.md."
+    - "docs/backend/frontend-backend-contract.md now maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and wildcard routes to data sources or explicit no-data-source routes."
+    - "npm run lint, npm run build and npm run contracts:build passed during closure audit."
+    - "npm test is not green: 18 failed tests, 1250 passed, 2 skipped; known failures are documented and must be remediated or intentionally re-contracted before claiming a fully green repository."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
+    - "After remediation, start Backend Phase 1: Account Source Of Truth."
   confirmed_files:
+    - "docs/backend/phase-0-closure-audit.md"
+    - "docs/backend/frontend-backend-contract.md"
     - "src/components/landing/Header.tsx"
     - "src/components/ui/sheet.tsx"
     - "src/components/catalog/CompareTray.tsx"

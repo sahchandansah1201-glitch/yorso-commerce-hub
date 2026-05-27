@@ -24,6 +24,16 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Backend Phase 0 Closure Audit
+
+- `docs/backend/phase-0-closure-audit.md`: Phase 0 closure audit, exit
+  criteria status, gate results and documented full-suite known failures.
+- `docs/backend/frontend-backend-contract.md`: route-to-data-source contract
+  updated to cover current `src/App.tsx` public, account, info/legal, dashboard,
+  admin, redirect, dev and `*` routes.
+- `.tmp/phase0-vitest.json`: local transient Vitest JSON report used to extract
+  the known failure list; not a source artifact and not intended for commit.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

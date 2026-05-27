@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "main_after_batch_141_lovable_sync_record"
+head_commit: "main_after_backend_phase_0_closure_audit_docs"
 latest_merged_batch: 141
-active_workstream: "next_scoped_public_ux_ui_audit_batch"
+active_workstream: "backend_phase_0_remediation_before_phase_1"
 pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
-recommended_action: "start next scoped public UX/UI audit batch"
-why_low: "Batch #141 is merged to main as 5eafcb7 and Lovable sync is confirmed clean with no conflicts. It localizes public catalog sheet close controls while preserving visible drawer behavior, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards."
+recommended_action: "remediate documented Phase 0 known test failures, then start Backend Phase 1 Account Source Of Truth"
+why_low: "Backend Phase 0 closure audit is recorded in docs/backend/phase-0-closure-audit.md and frontend-backend-contract.md now maps the active App.tsx route surface. Lint, production build and contracts build passed; full npm test is not green and its known failures are explicitly documented."
 ```
 
 ## Risk Levels
@@ -51,9 +51,13 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: next_scoped_public_ux_ui_audit_batch.
-Current HEAD baseline: main after Batch #141 Lovable sync record; Batch #141 merge commit 5eafcb7.
+Current workstream: backend_phase_0_remediation_before_phase_1.
+Current HEAD baseline: main after Backend Phase 0 closure audit docs; Batch #141 merge commit 5eafcb7.
 Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193 (merged).
+Backend Phase 0 closure audit is complete with documented exceptions. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
+Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test failed with 18 failed tests, 1250 passed and 2 skipped.
+docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and * routes to data sources or explicit no-data-source redirects.
+Current recommended action: run a focused remediation pass for the documented Phase 0 known test failures, then start Backend Phase 1 Account Source Of Truth.
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
 Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.
