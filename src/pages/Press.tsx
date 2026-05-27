@@ -4,7 +4,11 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Press = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_press_title}>
+    <InfoPageLayout
+      title={t.info_press_title}
+      description={t.info_press_intro}
+      canonicalPath="/press"
+    >
       <p>{t.info_press_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_press_contact}</h2>
       <p>{t.info_press_emailLabel}: <a href="mailto:press@yorso.com" className="text-primary hover:underline">press@yorso.com</a></p>

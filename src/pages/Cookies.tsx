@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Cookies = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_cookies_title} updated={t.info_updated_january2026}>
+    <InfoPageLayout
+      title={t.info_cookies_title}
+      description={t.info_cookies_intro}
+      canonicalPath="/cookies"
+      updated={t.info_updated_january2026}
+    >
       <p>{t.info_cookies_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_cookies_essential}</h2>
       <p>{t.info_cookies_essentialBody}</p>

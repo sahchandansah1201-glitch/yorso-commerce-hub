@@ -3514,6 +3514,82 @@ Marker: offer detail decision support locale a11y.
 Marker: buyer decision support scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #138 Public Info Route SEO
+
+Batch #138 gives shared public info/legal routes route-owned SEO metadata. The
+scoped change covers `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`,
+`/gdpr`, `/anti-fraud`, `/careers`, `/press` and `/partners` through
+`InfoPageLayout`. Each page now owns localized title, description, canonical
+URL, social metadata and WebPage JSON-LD while preserving the shared
+back-to-home CTA, header skip link, mobile overflow safeguards and existing
+localized page copy. The change strengthens the buyer trust/legal surface
+without changing offer, supplier, auth, access or account behavior.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Runtime work is limited to client-side document head updates and JSON-LD
+  insertion for already-rendered static public pages.
+- No offer, supplier, auth, access, account, admin or API contracts are
+  changed.
+- No new user-generated data, persistence, files or external integrations are
+  introduced.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, timers, retries, subscriptions, background jobs or new
+  network calls are introduced.
+- Metadata updates run once per route/language render and do not change request
+  volume at the 10,000 concurrent-user target.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Static info/legal pages continue to render from localized frontend content.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, visible page content and the back-to-home
+  link remain readable once hydrated.
+- If CSS fails, pages retain semantic headings, links and text content.
+- If metadata updates fail, the page still renders localized visible content
+  and the global metadata fallback remains available.
+- Route cleanup restores global metadata and previous canonical state when the
+  shared info layout unmounts.
+
+Observability and load-test plan:
+
+- Unit coverage verifies all 10 info/legal routes set route-owned localized
+  title, description, canonical URL, social metadata and JSON-LD.
+- Browser smoke verifies all 10 routes at 390px expose route-owned SEO,
+  preserve the direct back-to-home link, have no nested interactive controls
+  and have zero horizontal overflow.
+- RU direct-entry smoke verifies localized info-route metadata does not fall
+  back to the generic global site metadata.
+- No new load-test dimension is required because the change is static frontend
+  document metadata only.
+
+Validation:
+
+- `npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx`;
+- `npm run smoke:e2e:public-info-route-seo`;
+- `npm run smoke:e2e:public-cta-semantics:run`;
+- `npm run smoke:e2e:public-landmark-labels:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #138.
+Marker: public info route SEO.
+Marker: buyer trust and legal surface.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

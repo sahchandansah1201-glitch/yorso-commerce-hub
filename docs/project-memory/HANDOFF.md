@@ -16,11 +16,55 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Continue Batch #138 public info route SEO from the validated branch and open/monitor the PR.
 
 ## Current Status
 
-- The repository is currently on `main` at `15fc5f8`.
+- The repository is currently on `codex/batch-138-public-info-route-seo`.
+- Batch #138 is locally implemented, validated and opened as draft PR #190:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
+- Batch #138 commit:
+  `2e302df`, `[codex] Batch #138 public info route SEO`.
+- Batch #138 scope:
+  - make shared public info/legal trust routes route-owned SEO surfaces;
+  - preserve visible copy, shared back CTA, skip-link/main landmark, CTA
+    semantics, mobile overflow and Batches #110-#137 safeguards.
+- Batch #138 routes:
+  - `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`,
+    `/anti-fraud`, `/careers`, `/press`, `/partners`.
+- Batch #138 finding:
+  - info/legal trust routes still used generic global site metadata even though
+    they support buyer trust, legal review, partner diligence and conversion
+    reassurance.
+- Batch #138 implementation:
+  - `src/components/InfoPageLayout.tsx` applies localized route-owned title,
+    description, canonical URL, OG/Twitter metadata and WebPage JSON-LD;
+  - all 10 info/legal pages pass existing localized intro copy and canonical
+    paths through the shared layout;
+  - `src/pages/InfoPageSeo.test.tsx` and
+    `e2e/public-info-route-seo.spec.ts` guard the contract;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #138
+    10,000 concurrent-user note.
+- Batch #138 validation passed:
+  - `npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx`, 14 tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:public-info-route-seo`, 11 tests after production build;
+  - `npm run smoke:e2e:public-cta-semantics:run`, 12 tests;
+  - `npm run smoke:e2e:public-landmark-labels:run`, 39 tests;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 261 tests.
+- Batch #138 build metrics from dedicated smoke:
+  - CSS 126.84 kB / 21.02 kB gzip;
+  - entry 355.53 kB / 114.18 kB gzip;
+  - i18n-translations 340.35 kB / 106.73 kB gzip;
+  - InfoPageLayout 2.13 kB / 1.13 kB gzip.
+- Next action:
+  - monitor GitHub Core Type And Build Gate on draft PR #190.
+- The latest merged batch is still Batch #137 on `main` at `15fc5f8`.
+- Batch #137 Lovable sync is recorded clean.
 - Batch #137 is merged to `main` via PR #189:
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
 - Batch #137 Lovable sync prompt is ready:

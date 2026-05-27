@@ -4,7 +4,11 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const Careers = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_careers_title}>
+    <InfoPageLayout
+      title={t.info_careers_title}
+      description={t.info_careers_intro}
+      canonicalPath="/careers"
+    >
       <p>{t.info_careers_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_careers_why}</h2>
       <ul className="list-disc pl-5 space-y-1">

@@ -4,7 +4,12 @@ import { useLanguage } from "@/i18n/LanguageContext";
 const About = () => {
   const { t } = useLanguage();
   return (
-    <InfoPageLayout title={t.info_about_title}>
+    <InfoPageLayout
+      title={t.info_about_title}
+      description={t.info_about_intro}
+      canonicalPath="/about"
+      schemaType="AboutPage"
+    >
       <p>{t.info_about_intro}</p>
       <h2 className="font-heading text-xl font-bold text-foreground mt-8">{t.info_about_mission}</h2>
       <p>{t.info_about_missionBody}</p>
