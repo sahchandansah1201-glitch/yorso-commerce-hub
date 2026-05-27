@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "codex/batch-140-public-account-menu-a11y"
-  head_commit: "pending_batch_140_commit"
-  head_summary: "Batch #140 public account menu a11y local validation complete"
-  dirty_worktree_before_project_memory: true
+  head_commit: "batch_140_branch_head_after_pr_metadata"
+  head_summary: "Batch #140 public account menu a11y draft PR opened"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #140 code, tests, package wiring, production-scale note and project-memory checkpoint are pending commit."
+    - "Batch #140 implementation commit ea0880d has been pushed; PR #192 is open; this checkpoint records PR metadata."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,9 +39,9 @@ project_identity:
 active_workstream:
   id: "batch_140_public_account_menu_a11y"
   summary: "Signed-in public header account menu exposes localized purpose and current-account context."
-  status: "local_validation_complete_pr_pending"
+  status: "draft_pr_open_github_validation_pending"
   branch: "codex/batch-140-public-account-menu-a11y"
-  pull_request: null
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -65,10 +65,10 @@ active_workstream:
 active_batch:
   id: 140
   summary: "Public account menu a11y: signed-in header account controls expose localized purpose and current-account context."
-  status: "local_validation_complete_pr_pending"
-  commit: null
+  status: "draft_pr_open_github_validation_pending"
+  commit: "ea0880d"
   branch: "codex/batch-140-public-account-menu-a11y"
-  pull_request: null
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
   lovable_sync_prompt: null
   lovable_sync: null
   confirmed_findings:

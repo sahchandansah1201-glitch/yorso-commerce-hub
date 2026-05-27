@@ -2,18 +2,19 @@
 
 ## Current Next Action
 
-1. Open a draft PR for Batch #140 from
-   `codex/batch-140-public-account-menu-a11y`.
+1. Monitor GitHub `Core Type And Build Gate` on Batch #140 draft PR:
+   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
 
-2. Monitor GitHub `Core Type And Build Gate`.
+2. If GitHub validation passes, mark the PR ready and merge.
 
-3. If GitHub validation passes, mark the PR ready and merge.
+3. After merge, pull `main`, add the Batch #140 Lovable sync prompt and
+   update project memory.
 
 ## Batch #140 Local Validation Complete
 
 - Branch: `codex/batch-140-public-account-menu-a11y`.
-- Commit: pending.
-- Draft PR: pending.
+- Implementation commit: `ea0880d`.
+- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
 - Scope: signed-in public header account menu accessibility.
 - Finding:
   - desktop signed-in account chip exposed only the buyer display name/email

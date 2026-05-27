@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "codex/batch-140-public-account-menu-a11y"
-head_commit: "pending_batch_140_commit"
+head_commit: "batch_140_branch_head_after_pr_metadata"
 latest_merged_batch: 139
 active_workstream: "batch_140_public_account_menu_a11y"
-pull_request: null
-recommended_action: "open Batch #140 PR"
-why_low: "Batch #140 is locally implemented and validated on codex/batch-140-public-account-menu-a11y. It gives the signed-in public header account menu localized programmatic purpose and current-account context while preserving visible header layout, account destinations, session storage, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#139 safeguards."
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
+recommended_action: "monitor Batch #140 GitHub validation"
+why_low: "Batch #140 is locally implemented, validated, pushed and opened as draft PR #192 from codex/batch-140-public-account-menu-a11y. It gives the signed-in public header account menu localized programmatic purpose and current-account context while preserving visible header layout, account destinations, session storage, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#139 safeguards."
 ```
 
 ## Risk Levels
@@ -52,8 +52,8 @@ Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project r
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: codex/batch-140-public-account-menu-a11y.
 Current workstream: Batch #140 public account menu a11y.
-Current HEAD: pending Batch #140 commit.
-Current PR: not opened yet.
+Current HEAD: Batch #140 branch head after PR metadata checkpoint; implementation commit ea0880d.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192 (draft).
 Current Batch #140 scope: make signed-in public header account controls explicit to assistive tech without changing visible header layout, account destinations, session storage, routes, access behavior or SEO.
 Current Batch #140 finding: the desktop signed-in account chip exposed only the buyer display name/email without a localized menu purpose; the dropdown was not associated through aria-controls and did not expose a named group; the mobile account panel did not expose localized account-menu context.
 Current Batch #140 implementation: Header adds localized account menu/current account labels, aria-haspopup/aria-controls on the desktop account chip, role=group around desktop dropdown and mobile account panel, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-account-menu-a11y.spec.ts and package smoke wiring.

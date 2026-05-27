@@ -16,16 +16,16 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Open Batch #140 public account menu a11y PR.
+Monitor Batch #140 public account menu a11y PR.
 
 ## Current Status
 
 - The repository is currently on `codex/batch-140-public-account-menu-a11y`.
 - Batch #140 is locally implemented and validated.
 - Batch #140 commit:
-  pending.
+  `ea0880d`, `[codex] Batch #140 public account menu a11y`.
 - Batch #140 draft PR:
-  pending.
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
 - Batch #140 scope:
   - make signed-in public header account controls explicit for assistive tech;
   - preserve visible header layout, account destinations, session storage,
@@ -66,7 +66,10 @@ Open Batch #140 public account menu a11y PR.
   - i18n-translations 340.92 kB / 106.94 kB gzip;
   - Header 50.54 kB / 14.20 kB gzip.
 - Next action:
-  - commit, push and open draft PR for Batch #140.
+  - monitor GitHub `Core Type And Build Gate` on PR #192;
+  - if green, mark the PR ready and merge;
+  - after merge, pull `main`, add the Batch #140 Lovable sync prompt and
+    update project memory.
 - The latest merged batch is Batch #139 on `main` at `6721b65`.
 - The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
 - Known warnings preserved:
