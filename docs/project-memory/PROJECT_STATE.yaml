@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-26"
+updated_at: "2026-05-27"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-26"
-  active_branch: "main"
-  head_commit: "main_after_batch_136_lovable_sync_record"
-  head_summary: "Batch #136 Lovable sync confirmed; next scoped public UX/UI audit ready"
-  dirty_worktree_before_project_memory: false
+  git_status_confirmed_at: "2026-05-27"
+  active_branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
+  head_commit: "local_batch_137_validation_passed_uncommitted"
+  head_summary: "Batch #137 offer detail decision support locale a11y implemented locally; validation passed; PR not yet opened"
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Only Batch #136 Lovable sync confirmation memory checkpoint is pending commit."
+    - "Batch #137 implementation, tests, production-scale notes and project-memory checkpoint are pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,10 +37,10 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
+  id: "batch_137_offer_detail_decision_support_locale_a11y"
+  summary: "Publish Batch #137 offer detail decision support locale/a11y hardening, wait for GitHub validation, then merge and prepare Lovable sync."
+  status: "local_validation_passed_pr_pending"
+  branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
   pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
@@ -48,9 +48,19 @@ active_workstream:
     - "Preserve Batch #110-#136 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
+    - "src/components/offer-detail/DecisionFAQ.tsx"
+    - "src/components/offer-detail/FullSpecifications.tsx"
+    - "src/components/offer-detail/RelatedArticles.tsx"
+    - "src/components/offer-detail/SimilarOffers.tsx"
+    - "src/components/offer-detail/SimilarProducts.tsx"
+    - "src/components/offer-detail/TrustSection.tsx"
+    - "src/components/offer-detail/DecisionSupport.locale.test.tsx"
+    - "src/pages/OfferDetail.tsx"
+    - "e2e/offer-detail-decision-support-locale-a11y.spec.ts"
+    - "package.json"
+    - "docs/backend/production-scale-baseline.md"
     - "src/components/offer-detail/SupplierTrustPanel.tsx"
     - "src/components/offer-detail/SupplierTrustPanel.access.test.tsx"
-    - "src/pages/OfferDetail.tsx"
     - "src/i18n/translations.ts"
     - "src/lib/supplier-i18n.ts"
     - "e2e/offer-detail-supplier-trust-locale-a11y.spec.ts"
@@ -65,52 +75,45 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
 
 active_batch:
-  id: 136
-  summary: "Offer detail supplier trust locale a11y: /offers/:id supplier trust panel labels and disclosure controls use locale-owned copy, with no 390px RU overflow after disclosure."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "3720708"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-26"
-    head: "3720708_or_newer"
-    result: "clean_no_conflicts"
-    user_confirmed:
-      - "GitHub commit synced to main @ Batch #136, PR #188, 3720708 or newer."
-      - "Files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline."
-      - "No conflicts found; no files were modified in Lovable."
-      - "RU and ES supplier trust labels are localized and hardcoded English labels do not leak into RU/ES UI."
-      - "Disclosure target uses min-h-11 and nested interactive controls are absent."
-      - "Offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards are preserved."
-      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
+  id: 137
+  summary: "Offer detail decision support locale a11y: lower /offers/:id buyer decision-support blocks use locale-owned copy and keep similar recommendation prices locked for non-qualified buyers."
+  status: "local_validation_passed_pr_pending"
+  commit: null
+  branch: "codex/batch-137-offer-detail-decision-support-locale-a11y"
+  pull_request: null
+  lovable_sync_prompt: null
+  lovable_sync: null
   confirmed_findings:
-    - "`/offers/:id` `SupplierTrustPanel` exposed hardcoded English trust and CTA labels inside localized RU/ES offer detail UI."
-    - "Affected labels included `Verified Supplier`, `Pending Full Verification`, `What was reviewed?`, `Hide details`, `In business`, `Response`, `Certifications`, `Reviewed documents`, `View Supplier Profile`, `Contact Supplier`, `Save to Shortlist` and `Compare Similar Offers`."
-    - "The expanded RU review disclosure created 15px horizontal overflow at 390px."
+    - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
+    - "Affected sections: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ."
+    - "SimilarOffers and SimilarProducts rendered raw mock `priceRange` values for locked buyers instead of the localized locked-price label."
   confirmed_changes:
-    - "`SupplierTrustPanel` now uses typed EN/RU/ES `offerDetail_*` supplier trust labels, a no-date fallback and pluralized years-in-business copy."
-    - "`OfferDetail` route shells use `overflow-x-hidden` to preserve 390px scanability when trust details are expanded."
-    - "`SupplierTrustPanel.access.test.tsx` guards RU/ES trust labels and qualified CTAs."
-    - "`e2e/offer-detail-supplier-trust-locale-a11y.spec.ts` covers RU/ES trust labels, disclosure target height, nested controls and zero horizontal overflow."
-    - "`package.json` wires the dedicated offer-detail supplier trust locale a11y smoke script into the full smoke suite."
-    - "`docs/backend/production-scale-baseline.md` contains the Batch #136 10,000 concurrent-user note."
+    - "TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ use typed EN/RU/ES decision-support translations."
+    - "OfferDetail passes effective renderAccessLevel into lower trust and recommendation blocks."
+    - "Similar offer/product cards show exact prices only for qualified_unlocked buyers."
+    - "Related insight cards are real links to /blog/:slug with localized accessible names."
+    - "DecisionFAQ uses localized FAQ items with aria-expanded, aria-controls and mobile-safe decision target markers."
+    - "DecisionSupport.locale.test.tsx and offer-detail-decision-support-locale-a11y.spec.ts guard the contract."
+    - "package.json wires the dedicated smoke script into the full e2e smoke suite."
+    - "docs/backend/production-scale-baseline.md contains the Batch #137 10,000 concurrent-user note."
   validation:
-    - "npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx, 4 tests."
-    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y, 2 tests after production build."
+    - "npx tsc -b --noEmit."
+    - "npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx, 2 tests."
+    - "npm run smoke:e2e:offer-detail-decision-support-locale-a11y, 2 tests after production build."
+    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run, 2 tests."
     - "npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests."
     - "npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
     - "npm run check:production-scale-baseline."
-    - "git diff --check."
     - "npm run lint."
-    - "npx tsc -b --noEmit."
-    - "npm run smoke:e2e:run, 248 tests."
-    - "GitHub Core Type And Build Gate passed on PR #188 in 11m57s."
+    - "git diff --check."
+    - "npm run smoke:e2e:run, 250 tests."
   preserved_behavior:
-    - "Buyer-first offer detail narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, supplier access request behavior, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards are preserved."
+    - "Buyer-first offer detail narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, supplier access request behavior, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
+  browser_note:
+    - "Codex in-app browser connection was attempted but browser-client/browser MCP connection was unavailable; Playwright covered mobile/runtime verification at 390px."
 
 last_lovable_synced_batch:
   id: 136

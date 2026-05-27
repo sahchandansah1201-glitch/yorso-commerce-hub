@@ -1004,6 +1004,60 @@ type TranslationKeys = {
   offerDetail_contactSupplierCta: string;
   offerDetail_saveToShortlistCta: string;
   offerDetail_compareSimilarOffersCta: string;
+  offerDetail_trustSectionTitle: string;
+  offerDetail_trustVerifiedDesc: string;
+  offerDetail_trustVerifiedDescNoDocuments: string;
+  offerDetail_trustPendingDesc: string;
+  offerDetail_exportComplianceTitle: string;
+  offerDetail_exportComplianceFrozen: string;
+  offerDetail_exportComplianceTemperature: string;
+  offerDetail_traceabilityTitle: string;
+  offerDetail_traceabilityFallback: string;
+  offerDetail_directRelationshipTitle: string;
+  offerDetail_directRelationshipUnlocked: string;
+  offerDetail_directRelationshipLocked: string;
+  offerDetail_specsTitle: string;
+  offerDetail_specCatchingMethod: string;
+  offerDetail_specFreezingProcess: string;
+  offerDetail_specGlazing: string;
+  offerDetail_specStorageTemperature: string;
+  offerDetail_specFishingArea: string;
+  offerDetail_specIngredients: string;
+  offerDetail_specCalories: string;
+  offerDetail_specProtein: string;
+  offerDetail_specFat: string;
+  offerDetail_specCarbohydrates: string;
+  offerDetail_specPackingWeight: string;
+  offerDetail_specShelfLife: string;
+  offerDetail_similarOffersTitle: string;
+  offerDetail_similarOffersSubtitle: string;
+  offerDetail_similarProductsTitle: string;
+  offerDetail_similarProductsSubtitle: string;
+  offerDetail_similarReasonLowerMoq: string;
+  offerDetail_similarReasonLowerPrice: string;
+  offerDetail_similarReasonDifferentOrigin: string;
+  offerDetail_similarReasonSameSpeciesOrigin: string;
+  offerDetail_similarReasonSameCategory: string;
+  offerDetail_similarReasonAlsoFormat: string;
+  offerDetail_similarReasonVerifiedSupplier: string;
+  offerDetail_similarReasonMoreCertifications: string;
+  offerDetail_similarReasonAlternativeOption: string;
+  offerDetail_similarReasonRelatedProduct: string;
+  offerDetail_offerImageAlt: string;
+  offerDetail_openOfferDetails: string;
+  offerDetail_relatedInsightsTitle: string;
+  offerDetail_relatedInsightsSubtitle: string;
+  offerDetail_relatedCategoryBuyingGuide: string;
+  offerDetail_relatedCategoryLogistics: string;
+  offerDetail_relatedCategoryMarketAnalysis: string;
+  offerDetail_relatedLabel: string;
+  offerDetail_relatedReasonSameSpecies: string;
+  offerDetail_relatedReasonSameSpeciesGroup: string;
+  offerDetail_relatedReasonDeliveryBasis: string;
+  offerDetail_relatedReasonSameOrigin: string;
+  offerDetail_openMarketInsight: string;
+  offerDetail_decisionFaqTitle: string;
+  offerDetail_decisionFaqItems: { question: string; answer: string }[];
 
   // Supplier Profile — breadcrumbs / not found
   supplier_breadcrumb_home: string;
@@ -2862,6 +2916,85 @@ const en: TranslationKeys = {
   offerDetail_contactSupplierCta: "Contact supplier",
   offerDetail_saveToShortlistCta: "Save to shortlist",
   offerDetail_compareSimilarOffersCta: "Compare similar offers",
+  offerDetail_trustSectionTitle: "Why this offer is safe",
+  offerDetail_trustVerifiedDesc: "YORSO reviewed this supplier in {date}. Documents checked: {documents}.",
+  offerDetail_trustVerifiedDescNoDocuments: "YORSO reviewed business registration, certifications, and trade references for this supplier.",
+  offerDetail_trustPendingDesc: "Basic documents were submitted. Facility audit and trade references are still in progress, so request documents before a large order.",
+  offerDetail_exportComplianceTitle: "Export and compliance",
+  offerDetail_exportComplianceFrozen: "This product ships from {port}. Cold-chain documents and health certificates are available on request.",
+  offerDetail_exportComplianceTemperature: "This product ships from {port}. Temperature-controlled shipping and health certificates are available on request.",
+  offerDetail_traceabilityTitle: "Traceability",
+  offerDetail_traceabilityFallback: "Origin, fishing area, catching method, and processing facility are recorded: {origin}, {area}, {method}.",
+  offerDetail_directRelationshipTitle: "Direct supplier relationship",
+  offerDetail_directRelationshipUnlocked: "You communicate directly with {supplier} ({country}, est. {year}). Average response time: {response}.",
+  offerDetail_directRelationshipLocked: "Supplier contact opens after buyer approval. YORSO keeps the supplier identity locked until access is granted.",
+  offerDetail_specsTitle: "Full specifications",
+  offerDetail_specCatchingMethod: "Catching method",
+  offerDetail_specFreezingProcess: "Freezing process",
+  offerDetail_specGlazing: "Glazing",
+  offerDetail_specStorageTemperature: "Storage temperature",
+  offerDetail_specFishingArea: "Fishing area",
+  offerDetail_specIngredients: "Ingredients",
+  offerDetail_specCalories: "Calories",
+  offerDetail_specProtein: "Protein",
+  offerDetail_specFat: "Fat",
+  offerDetail_specCarbohydrates: "Carbohydrates",
+  offerDetail_specPackingWeight: "Packing weight",
+  offerDetail_specShelfLife: "Shelf life",
+  offerDetail_similarOffersTitle: "Compare alternatives",
+  offerDetail_similarOffersSubtitle: "Backup sourcing options to evaluate alongside this offer",
+  offerDetail_similarProductsTitle: "Explore similar products",
+  offerDetail_similarProductsSubtitle: "Continue browsing related seafood products",
+  offerDetail_similarReasonLowerMoq: "Lower MOQ",
+  offerDetail_similarReasonLowerPrice: "Lower price",
+  offerDetail_similarReasonDifferentOrigin: "Different origin",
+  offerDetail_similarReasonSameSpeciesOrigin: "Same species and origin",
+  offerDetail_similarReasonSameCategory: "Same category",
+  offerDetail_similarReasonAlsoFormat: "Also {format}",
+  offerDetail_similarReasonVerifiedSupplier: "Verified supplier",
+  offerDetail_similarReasonMoreCertifications: "More certifications",
+  offerDetail_similarReasonAlternativeOption: "Alternative option",
+  offerDetail_similarReasonRelatedProduct: "Related product",
+  offerDetail_offerImageAlt: "Offer photo: {product}",
+  offerDetail_openOfferDetails: "Open offer details: {product}",
+  offerDetail_relatedInsightsTitle: "Related market insights",
+  offerDetail_relatedInsightsSubtitle: "Context-relevant articles to support your sourcing decision",
+  offerDetail_relatedCategoryBuyingGuide: "Buying guide",
+  offerDetail_relatedCategoryLogistics: "Logistics",
+  offerDetail_relatedCategoryMarketAnalysis: "Market analysis",
+  offerDetail_relatedLabel: "Related:",
+  offerDetail_relatedReasonSameSpecies: "Same species",
+  offerDetail_relatedReasonSameSpeciesGroup: "Same species group",
+  offerDetail_relatedReasonDeliveryBasis: "Delivery basis",
+  offerDetail_relatedReasonSameOrigin: "Same origin",
+  offerDetail_openMarketInsight: "Open market insight: {title}",
+  offerDetail_decisionFaqTitle: "Frequently asked questions",
+  offerDetail_decisionFaqItems: [
+    {
+      question: "How do I contact this supplier?",
+      answer: "Create a free YORSO account, then request access from this offer page. Once approved, you can contact the supplier directly without intermediaries or commission.",
+    },
+    {
+      question: "What documents can I request after registration?",
+      answer: "Registered buyers can request product specifications, certificates of analysis, catch certificates, health certificates, packing lists, and import compliance documents.",
+    },
+    {
+      question: "Can I request a sample or inspection?",
+      answer: "Yes. You can request commercial samples and arrange third-party pre-shipment inspection directly with the supplier. Sample cost and logistics are agreed with the supplier.",
+    },
+    {
+      question: "How does YORSO verification work?",
+      answer: "YORSO reviews business registration, export licenses, facility certifications, and trade references. Verification is evidence-based, not a paid badge.",
+    },
+    {
+      question: "What if product specs differ from the listing?",
+      answer: "Request a certificate of analysis and confirm specifications before the first order. If a delivered product materially differs, YORSO can assist with dispute resolution.",
+    },
+    {
+      question: "Can I compare before contacting suppliers?",
+      answer: "Yes. You can browse and compare offers first. Registration is needed when you want supplier contact, exact pricing, or access to locked documents.",
+    },
+  ],
 
   // Supplier Profile
   supplier_breadcrumb_home: "Home",
@@ -4685,6 +4818,85 @@ const ru: TranslationKeys = {
   offerDetail_contactSupplierCta: "Связаться с поставщиком",
   offerDetail_saveToShortlistCta: "В шортлист",
   offerDetail_compareSimilarOffersCta: "Сравнить похожие предложения",
+  offerDetail_trustSectionTitle: "Почему это предложение безопаснее проверять",
+  offerDetail_trustVerifiedDesc: "YORSO проверил этого поставщика: {date}. Проверенные документы: {documents}.",
+  offerDetail_trustVerifiedDescNoDocuments: "YORSO проверил регистрацию бизнеса, сертификаты и торговые рекомендации поставщика.",
+  offerDetail_trustPendingDesc: "Базовые документы переданы. Аудит площадки и торговые рекомендации еще проверяются, поэтому перед крупным заказом запросите документы.",
+  offerDetail_exportComplianceTitle: "Экспорт и соответствие",
+  offerDetail_exportComplianceFrozen: "Продукт отгружается из {port}. Документы холодовой цепи и ветеринарные сертификаты доступны по запросу.",
+  offerDetail_exportComplianceTemperature: "Продукт отгружается из {port}. Температурный режим и ветеринарные сертификаты доступны по запросу.",
+  offerDetail_traceabilityTitle: "Прослеживаемость",
+  offerDetail_traceabilityFallback: "Происхождение, район вылова, метод добычи и переработка зафиксированы: {origin}, {area}, {method}.",
+  offerDetail_directRelationshipTitle: "Прямой контакт с поставщиком",
+  offerDetail_directRelationshipUnlocked: "Вы общаетесь напрямую с {supplier} ({country}, с {year} года). Среднее время ответа: {response}.",
+  offerDetail_directRelationshipLocked: "Контакт поставщика открывается после одобрения покупателя. До выдачи доступа YORSO скрывает идентичность поставщика.",
+  offerDetail_specsTitle: "Полная спецификация",
+  offerDetail_specCatchingMethod: "Метод добычи",
+  offerDetail_specFreezingProcess: "Процесс заморозки",
+  offerDetail_specGlazing: "Глазурь",
+  offerDetail_specStorageTemperature: "Температура хранения",
+  offerDetail_specFishingArea: "Район вылова",
+  offerDetail_specIngredients: "Состав",
+  offerDetail_specCalories: "Калории",
+  offerDetail_specProtein: "Белок",
+  offerDetail_specFat: "Жир",
+  offerDetail_specCarbohydrates: "Углеводы",
+  offerDetail_specPackingWeight: "Вес упаковки",
+  offerDetail_specShelfLife: "Срок годности",
+  offerDetail_similarOffersTitle: "Сравнить альтернативы",
+  offerDetail_similarOffersSubtitle: "Резервные варианты закупки для проверки рядом с этим предложением",
+  offerDetail_similarProductsTitle: "Похожие продукты",
+  offerDetail_similarProductsSubtitle: "Продолжайте смотреть близкие позиции в каталоге",
+  offerDetail_similarReasonLowerMoq: "Меньше MOQ",
+  offerDetail_similarReasonLowerPrice: "Ниже цена",
+  offerDetail_similarReasonDifferentOrigin: "Другое происхождение",
+  offerDetail_similarReasonSameSpeciesOrigin: "Тот же вид и происхождение",
+  offerDetail_similarReasonSameCategory: "Та же категория",
+  offerDetail_similarReasonAlsoFormat: "Тоже {format}",
+  offerDetail_similarReasonVerifiedSupplier: "Проверенный поставщик",
+  offerDetail_similarReasonMoreCertifications: "Больше сертификатов",
+  offerDetail_similarReasonAlternativeOption: "Альтернативный вариант",
+  offerDetail_similarReasonRelatedProduct: "Похожий продукт",
+  offerDetail_offerImageAlt: "Фото предложения: {product}",
+  offerDetail_openOfferDetails: "Открыть карточку предложения: {product}",
+  offerDetail_relatedInsightsTitle: "Связанная рыночная аналитика",
+  offerDetail_relatedInsightsSubtitle: "Материалы по контексту предложения для обоснования закупочного решения",
+  offerDetail_relatedCategoryBuyingGuide: "Гид покупателя",
+  offerDetail_relatedCategoryLogistics: "Логистика",
+  offerDetail_relatedCategoryMarketAnalysis: "Рыночная аналитика",
+  offerDetail_relatedLabel: "Связано:",
+  offerDetail_relatedReasonSameSpecies: "Тот же вид",
+  offerDetail_relatedReasonSameSpeciesGroup: "Та же группа видов",
+  offerDetail_relatedReasonDeliveryBasis: "Базис поставки",
+  offerDetail_relatedReasonSameOrigin: "То же происхождение",
+  offerDetail_openMarketInsight: "Открыть рыночный материал: {title}",
+  offerDetail_decisionFaqTitle: "Вопросы перед запросом доступа",
+  offerDetail_decisionFaqItems: [
+    {
+      question: "Как связаться с этим поставщиком?",
+      answer: "Создайте бесплатный аккаунт YORSO и запросите доступ со страницы предложения. После одобрения вы сможете связаться с поставщиком напрямую, без посредников и комиссии.",
+    },
+    {
+      question: "Какие документы можно запросить после регистрации?",
+      answer: "Покупатель может запросить спецификацию продукта, сертификат анализа, сертификат вылова, ветеринарный сертификат, упаковочный лист и документы для импортного контроля.",
+    },
+    {
+      question: "Можно запросить образец или инспекцию?",
+      answer: "Да. Коммерческий образец и стороннюю предзагрузочную инспекцию можно согласовать напрямую с поставщиком. Стоимость образца и логистика обсуждаются с поставщиком.",
+    },
+    {
+      question: "Как работает проверка YORSO?",
+      answer: "YORSO проверяет регистрацию бизнеса, экспортные лицензии, сертификаты площадки и торговые рекомендации. Проверка основана на документах, а не на платном бейдже.",
+    },
+    {
+      question: "Что делать, если спецификация отличается от карточки?",
+      answer: "Перед первым заказом запросите сертификат анализа и подтвердите спецификацию. Если поставка существенно отличается от карточки, YORSO помогает с разбором спора.",
+    },
+    {
+      question: "Можно сравнить варианты до контакта с поставщиками?",
+      answer: "Да. Сначала можно просмотреть и сравнить предложения. Регистрация нужна, когда вы хотите открыть контакт поставщика, точную цену или закрытые документы.",
+    },
+  ],
 
   // Supplier Profile
   supplier_breadcrumb_home: "Главная",
@@ -6508,6 +6720,85 @@ const es: TranslationKeys = {
   offerDetail_contactSupplierCta: "Contactar proveedor",
   offerDetail_saveToShortlistCta: "Guardar en lista corta",
   offerDetail_compareSimilarOffersCta: "Comparar ofertas similares",
+  offerDetail_trustSectionTitle: "Por qué esta oferta es segura para revisar",
+  offerDetail_trustVerifiedDesc: "YORSO revisó este proveedor en {date}. Documentos revisados: {documents}.",
+  offerDetail_trustVerifiedDescNoDocuments: "YORSO revisó el registro comercial, las certificaciones y las referencias comerciales del proveedor.",
+  offerDetail_trustPendingDesc: "Los documentos básicos fueron enviados. La auditoría de planta y las referencias comerciales siguen en revisión, así que pide documentos antes de un pedido grande.",
+  offerDetail_exportComplianceTitle: "Exportación y cumplimiento",
+  offerDetail_exportComplianceFrozen: "El producto se embarca desde {port}. La documentación de cadena de frío y los certificados sanitarios están disponibles bajo solicitud.",
+  offerDetail_exportComplianceTemperature: "El producto se embarca desde {port}. El transporte con temperatura controlada y los certificados sanitarios están disponibles bajo solicitud.",
+  offerDetail_traceabilityTitle: "Trazabilidad",
+  offerDetail_traceabilityFallback: "Origen, zona de pesca, método de captura y planta de proceso están registrados: {origin}, {area}, {method}.",
+  offerDetail_directRelationshipTitle: "Relación directa con el proveedor",
+  offerDetail_directRelationshipUnlocked: "Te comunicas directamente con {supplier} ({country}, desde {year}). Tiempo medio de respuesta: {response}.",
+  offerDetail_directRelationshipLocked: "El contacto del proveedor se abre tras la aprobación del comprador. YORSO mantiene la identidad bloqueada hasta conceder el acceso.",
+  offerDetail_specsTitle: "Especificación completa",
+  offerDetail_specCatchingMethod: "Método de captura",
+  offerDetail_specFreezingProcess: "Proceso de congelación",
+  offerDetail_specGlazing: "Glaseado",
+  offerDetail_specStorageTemperature: "Temperatura de almacenamiento",
+  offerDetail_specFishingArea: "Zona de pesca",
+  offerDetail_specIngredients: "Ingredientes",
+  offerDetail_specCalories: "Calorías",
+  offerDetail_specProtein: "Proteína",
+  offerDetail_specFat: "Grasa",
+  offerDetail_specCarbohydrates: "Carbohidratos",
+  offerDetail_specPackingWeight: "Peso del empaque",
+  offerDetail_specShelfLife: "Vida útil",
+  offerDetail_similarOffersTitle: "Comparar alternativas",
+  offerDetail_similarOffersSubtitle: "Opciones de suministro de respaldo para evaluar junto a esta oferta",
+  offerDetail_similarProductsTitle: "Productos similares",
+  offerDetail_similarProductsSubtitle: "Continúa revisando productos del mar relacionados",
+  offerDetail_similarReasonLowerMoq: "MOQ menor",
+  offerDetail_similarReasonLowerPrice: "Precio menor",
+  offerDetail_similarReasonDifferentOrigin: "Origen diferente",
+  offerDetail_similarReasonSameSpeciesOrigin: "Misma especie y origen",
+  offerDetail_similarReasonSameCategory: "Misma categoría",
+  offerDetail_similarReasonAlsoFormat: "También {format}",
+  offerDetail_similarReasonVerifiedSupplier: "Proveedor verificado",
+  offerDetail_similarReasonMoreCertifications: "Más certificaciones",
+  offerDetail_similarReasonAlternativeOption: "Opción alternativa",
+  offerDetail_similarReasonRelatedProduct: "Producto relacionado",
+  offerDetail_offerImageAlt: "Foto de la oferta: {product}",
+  offerDetail_openOfferDetails: "Abrir detalle de la oferta: {product}",
+  offerDetail_relatedInsightsTitle: "Análisis de mercado relacionado",
+  offerDetail_relatedInsightsSubtitle: "Artículos de contexto para respaldar tu decisión de compra",
+  offerDetail_relatedCategoryBuyingGuide: "Guía de compra",
+  offerDetail_relatedCategoryLogistics: "Logística",
+  offerDetail_relatedCategoryMarketAnalysis: "Análisis de mercado",
+  offerDetail_relatedLabel: "Relacionado:",
+  offerDetail_relatedReasonSameSpecies: "Misma especie",
+  offerDetail_relatedReasonSameSpeciesGroup: "Mismo grupo de especies",
+  offerDetail_relatedReasonDeliveryBasis: "Base de entrega",
+  offerDetail_relatedReasonSameOrigin: "Mismo origen",
+  offerDetail_openMarketInsight: "Abrir análisis de mercado: {title}",
+  offerDetail_decisionFaqTitle: "Preguntas antes de solicitar acceso",
+  offerDetail_decisionFaqItems: [
+    {
+      question: "¿Cómo contacto a este proveedor?",
+      answer: "Crea una cuenta gratuita en YORSO y solicita acceso desde esta oferta. Tras la aprobación podrás contactar al proveedor directamente, sin intermediarios ni comisión.",
+    },
+    {
+      question: "¿Qué documentos puedo pedir después de registrarme?",
+      answer: "Puedes solicitar especificaciones del producto, certificados de análisis, certificados de captura, certificados sanitarios, listas de empaque y documentos de cumplimiento para importación.",
+    },
+    {
+      question: "¿Puedo pedir una muestra o una inspección?",
+      answer: "Sí. Puedes solicitar muestras comerciales y organizar una inspección previa al embarque con un tercero directamente con el proveedor. El costo y la logística se acuerdan con el proveedor.",
+    },
+    {
+      question: "¿Cómo funciona la verificación de YORSO?",
+      answer: "YORSO revisa registro comercial, licencias de exportación, certificaciones de planta y referencias comerciales. La verificación se basa en evidencia, no en un distintivo pagado.",
+    },
+    {
+      question: "¿Qué pasa si la especificación difiere de la ficha?",
+      answer: "Antes del primer pedido, solicita un certificado de análisis y confirma la especificación. Si el producto entregado difiere de forma material, YORSO puede ayudar con la resolución del caso.",
+    },
+    {
+      question: "¿Puedo comparar antes de contactar proveedores?",
+      answer: "Sí. Puedes revisar y comparar ofertas primero. El registro es necesario cuando quieres abrir el contacto del proveedor, el precio exacto o documentos bloqueados.",
+    },
+  ],
 
   // Supplier Profile
   supplier_breadcrumb_home: "Inicio",

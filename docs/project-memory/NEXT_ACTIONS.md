@@ -2,20 +2,58 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Publish Batch #137 from
+   `codex/batch-137-offer-detail-decision-support-locale-a11y`.
 
-2. Keep the audit scoped and public-route focused: buyer-first narrative, trust
-   evidence, scanability, conversion clarity, SEO structure, locale/a11y
-   semantics and mobile behavior.
+2. Wait for GitHub validation on the Batch #137 PR, then merge if green.
 
-3. Preserve Batch #110-#136 safeguards unless a new runtime finding requires a
-   narrow fix.
+3. After merge, add the Batch #137 Lovable sync prompt and move next action to
+   Lovable sync confirmation.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
    splitting, Batch #113 route chunk error boundary and Batches #110-#136
    public UX/a11y safeguards.
+
+## Batch #137 In Progress
+
+- Branch:
+  `codex/batch-137-offer-detail-decision-support-locale-a11y`.
+- Scope: public offer detail decision-support locale/a11y hardening for
+  `/offers/:id`.
+- Runtime finding:
+  - lower offer-detail buyer decision-support blocks still exposed hardcoded
+    English labels in localized RU/ES UI;
+  - affected surfaces: `TrustSection`, `FullSpecifications`, `SimilarOffers`,
+    `SimilarProducts`, `RelatedArticles` and `DecisionFAQ`;
+  - similar offer/product recommendations rendered raw mock `priceRange` values
+    for locked buyers.
+- Implemented fix:
+  - lower decision-support sections now use typed EN/RU/ES `offerDetail_*`
+    translations;
+  - `OfferDetail` passes the effective `renderAccessLevel` into trust and
+    recommendation blocks;
+  - similar offer/product cards show exact prices only for
+    `qualified_unlocked`; locked buyers see the localized locked-price label;
+  - related insight cards are real links to `/blog/:slug`;
+  - FAQ disclosures expose `aria-expanded`, `aria-controls` and mobile-safe
+    target markers;
+  - dedicated unit and e2e guards are present and wired into the full smoke
+    suite.
+- Local validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx`, 2 tests;
+  - `npm run smoke:e2e:offer-detail-decision-support-locale-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 250 tests.
+- Browser note: in-app browser connection was attempted but unavailable; mobile
+  runtime verification was covered by Playwright at 390px.
 
 ## Batch #136 Lovable Sync Confirmed
 

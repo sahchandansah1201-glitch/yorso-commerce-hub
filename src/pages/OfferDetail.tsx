@@ -309,10 +309,10 @@ const OfferDetail = () => {
           </div>
         </div>
 
-        <TrustSection offer={offer} />
+        <TrustSection offer={offer} accessLevel={renderAccessLevel} />
         <FullSpecifications offer={offer} />
-        <SimilarOffers current={offer} />
-        <SimilarProducts current={offer} />
+        <SimilarOffers current={offer} accessLevel={renderAccessLevel} />
+        <SimilarProducts current={offer} accessLevel={renderAccessLevel} />
         <RelatedArticles articles={offer.relatedArticles} />
         <DecisionFAQ />
       </main>

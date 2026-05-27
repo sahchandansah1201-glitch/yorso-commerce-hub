@@ -24,6 +24,41 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #137 Offer Detail Decision Support Locale A11y
+
+- `src/components/offer-detail/TrustSection.tsx`: localized lower trust
+  explanation copy and locked/qualified direct supplier relationship text.
+- `src/components/offer-detail/FullSpecifications.tsx`: localized disclosure
+  title and specification row labels with `aria-controls`.
+- `src/components/offer-detail/SimilarOffers.tsx`: localized recommendation
+  headings/reasons, locked-price rendering for non-qualified buyers and
+  localized link/image accessible names.
+- `src/components/offer-detail/SimilarProducts.tsx`: localized product
+  recommendation headings/reasons and locked-price rendering for non-qualified
+  buyers.
+- `src/components/offer-detail/RelatedArticles.tsx`: related insight cards are
+  real links with localized labels, category/relevance text and accessible
+  names.
+- `src/components/offer-detail/DecisionFAQ.tsx`: localized FAQ items with
+  `aria-expanded`, `aria-controls` and mobile-safe decision targets.
+- `src/pages/OfferDetail.tsx`: passes effective `renderAccessLevel` into lower
+  trust/recommendation blocks.
+- `src/i18n/translations.ts`: typed EN/RU/ES decision-support translation
+  contract for lower offer-detail sections.
+- `src/components/offer-detail/DecisionSupport.locale.test.tsx`: unit guard for
+  RU/ES decision-support locale, link and locked-price behavior.
+- `e2e/offer-detail-decision-support-locale-a11y.spec.ts`: 390px browser guard
+  for localized decision support, locked recommendation prices, FAQ target
+  height, related links, nested controls and horizontal overflow.
+- `package.json`: dedicated
+  `smoke:e2e:offer-detail-decision-support-locale-a11y` script and full
+  `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #137 10,000 concurrent
+  users capacity review.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #137 local
+  validation checkpoint.
+
 ## Batch #136 Offer Detail Supplier Trust Locale A11y
 
 - `src/components/offer-detail/SupplierTrustPanel.tsx`: localized supplier trust status labels, review disclosure labels, mini-stat labels, evidence labels and qualified-buyer CTAs for EN/RU/ES.
