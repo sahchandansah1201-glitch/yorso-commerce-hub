@@ -2,19 +2,20 @@
 
 ## Current Next Action
 
-1. Monitor GitHub `Core Type And Build Gate` on Batch #140 draft PR:
-   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
+1. Sync Lovable with GitHub `main` after Batch #140 using:
+   `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
 
-2. If GitHub validation passes, mark the PR ready and merge.
+2. Ask Lovable to report the exact sync sections requested in the prompt.
 
-3. After merge, pull `main`, add the Batch #140 Lovable sync prompt and
-   update project memory.
+3. After Lovable reports clean sync or conflicts, record the result in project
+   memory before starting Batch #141.
 
-## Batch #140 Local Validation Complete
+## Batch #140 Merged, Lovable Sync Pending
 
-- Branch: `codex/batch-140-public-account-menu-a11y`.
-- Implementation commit: `ea0880d`.
-- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
+- Branch: `main`.
+- Merge commit: `8ad19a6`, `[codex] Batch #140 public account menu a11y`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
+- Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
 - Scope: signed-in public header account menu accessibility.
 - Finding:
   - desktop signed-in account chip exposed only the buyer display name/email
@@ -47,6 +48,8 @@
   - `npm run lint`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 280 tests.
+- GitHub validation:
+  - `Core Type And Build Gate` passed on PR #192 in 12m54s.
 - Preserved:
   - visible header layout, account destinations, session storage contract,
     route structure, public SEO, access gating, supplier identity redaction,

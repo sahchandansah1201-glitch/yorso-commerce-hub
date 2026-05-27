@@ -16,16 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Monitor Batch #140 public account menu a11y PR.
+Sync Lovable with Batch #140 public account menu a11y.
 
 ## Current Status
 
-- The repository is currently on `codex/batch-140-public-account-menu-a11y`.
-- Batch #140 is locally implemented and validated.
+- The repository is currently on `main`.
+- Batch #140 is implemented, validated and merged.
 - Batch #140 commit:
-  `ea0880d`, `[codex] Batch #140 public account menu a11y`.
-- Batch #140 draft PR:
-  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
+  `8ad19a6`, `[codex] Batch #140 public account menu a11y`.
+- Batch #140 PR:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192` (merged).
+- Batch #140 Lovable sync prompt:
+  `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
 - Batch #140 scope:
   - make signed-in public header account controls explicit for assistive tech;
   - preserve visible header layout, account destinations, session storage,
@@ -60,17 +62,18 @@ Monitor Batch #140 public account menu a11y PR.
   - `npm run lint`;
   - `git diff --check`;
   - `npm run smoke:e2e:run`, 280 tests.
+- Batch #140 GitHub validation:
+  - `Core Type And Build Gate` passed on PR #192 in 12m54s.
 - Batch #140 build metrics from dedicated smoke:
   - CSS 126.84 kB / 21.02 kB gzip;
   - entry 355.53 kB / 114.17 kB gzip;
   - i18n-translations 340.92 kB / 106.94 kB gzip;
   - Header 50.54 kB / 14.20 kB gzip.
 - Next action:
-  - monitor GitHub `Core Type And Build Gate` on PR #192;
-  - if green, mark the PR ready and merge;
-  - after merge, pull `main`, add the Batch #140 Lovable sync prompt and
-    update project memory.
-- The latest merged batch is Batch #139 on `main` at `6721b65`.
+  - sync Lovable with GitHub `main` after Batch #140 using
+    `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`;
+  - record the Lovable result before starting Batch #141.
+- The latest merged batch is Batch #140 on `main` at `8ad19a6`.
 - The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
 - Known warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
