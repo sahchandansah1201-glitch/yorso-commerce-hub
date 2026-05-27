@@ -200,6 +200,8 @@ type TranslationKeys = {
   aria_languageSelector: string;
   aria_currentLanguage: string;
   aria_selectLanguage: string;
+  aria_accountMenu: string;
+  aria_currentAccount: string;
   aria_goBack: string;
   aria_breadcrumb: string;
   aria_catalogResults: string;
@@ -2112,6 +2114,8 @@ const en: TranslationKeys = {
   aria_languageSelector: "Language selector",
   aria_currentLanguage: "Current language",
   aria_selectLanguage: "Select language",
+  aria_accountMenu: "Account menu",
+  aria_currentAccount: "Current account",
   aria_goBack: "Go back",
   aria_breadcrumb: "Breadcrumb",
   aria_catalogResults: "Catalog results",
@@ -4017,6 +4021,8 @@ const ru: TranslationKeys = {
   aria_languageSelector: "Выбор языка",
   aria_currentLanguage: "Текущий язык",
   aria_selectLanguage: "Выбрать язык",
+  aria_accountMenu: "Меню учётной записи",
+  aria_currentAccount: "Текущая учётная запись",
   aria_goBack: "Назад",
   aria_breadcrumb: "Хлебные крошки",
   aria_catalogResults: "Результаты каталога",
@@ -5922,6 +5928,8 @@ const es: TranslationKeys = {
   aria_languageSelector: "Selector de idioma",
   aria_currentLanguage: "Idioma actual",
   aria_selectLanguage: "Seleccionar idioma",
+  aria_accountMenu: "Menú de cuenta",
+  aria_currentAccount: "Cuenta actual",
   aria_goBack: "Atrás",
   aria_breadcrumb: "Ruta de navegación",
   aria_catalogResults: "Resultados del catálogo",

@@ -9,13 +9,13 @@ context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main_after_batch_139_lovable_sync_record"
+active_branch: "codex/batch-140-public-account-menu-a11y"
+head_commit: "batch_140_branch_head_after_pr_metadata"
 latest_merged_batch: 139
-active_workstream: "next_scoped_public_ux_ui_audit_batch"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
-recommended_action: "start next scoped public UX/UI audit batch"
-why_low: "Batch #139 is merged to main as 6721b65 and Lovable sync is confirmed clean. It gives the public header language selector localized programmatic names and selected-language state while preserving visible header layout, the yorso-lang storage contract, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards."
+active_workstream: "batch_140_public_account_menu_a11y"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
+recommended_action: "monitor Batch #140 GitHub validation"
+why_low: "Batch #140 is locally implemented, validated, pushed and opened as draft PR #192 from codex/batch-140-public-account-menu-a11y. It gives the signed-in public header account menu localized programmatic purpose and current-account context while preserving visible header layout, account destinations, session storage, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#139 safeguards."
 ```
 
 ## Risk Levels
@@ -50,10 +50,15 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: next scoped public UX/UI audit batch.
-Current HEAD: 6721b65, [codex] Batch #139 public language selector a11y.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191 (merged).
+Current branch: codex/batch-140-public-account-menu-a11y.
+Current workstream: Batch #140 public account menu a11y.
+Current HEAD: Batch #140 branch head after PR metadata checkpoint; implementation commit ea0880d.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192 (draft).
+Current Batch #140 scope: make signed-in public header account controls explicit to assistive tech without changing visible header layout, account destinations, session storage, routes, access behavior or SEO.
+Current Batch #140 finding: the desktop signed-in account chip exposed only the buyer display name/email without a localized menu purpose; the dropdown was not associated through aria-controls and did not expose a named group; the mobile account panel did not expose localized account-menu context.
+Current Batch #140 implementation: Header adds localized account menu/current account labels, aria-haspopup/aria-controls on the desktop account chip, role=group around desktop dropdown and mobile account panel, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-account-menu-a11y.spec.ts and package smoke wiring.
+Current Batch #140 validation passed: npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 17 tests; npm run check:production-scale-baseline; npm run smoke:e2e:public-account-menu-a11y, 9 tests after production build; npm run smoke:e2e:public-language-selector-a11y:run, 10 tests; npm run smoke:e2e:public-landmark-labels:run, 39 tests; npx tsc -b --noEmit; npm run lint; git diff --check; npm run smoke:e2e:run, 280 tests.
+Current Batch #140 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.17 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Header 50.54 kB / 14.20 kB gzip.
 Current Batch #139 scope: make the public header language selector explicit to assistive tech without changing visible header layout, language storage, routes, access behavior or SEO.
 Current Batch #139 finding: the desktop language toggle exposed only abbreviated visible text like EN/RU/ES without a localized purpose, and mobile language chips did not expose selected state.
 Current Batch #139 implementation: Header adds localized language selector/current/select labels, aria-expanded/aria-controls on the desktop selector, role=group around desktop and mobile language controls, aria-pressed on each language option, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-language-selector-a11y.spec.ts and package smoke wiring.

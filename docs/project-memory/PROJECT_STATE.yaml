@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "main"
-  head_commit: "main_after_batch_139_lovable_sync_record"
-  head_summary: "Batch #139 public language selector a11y merged and Lovable sync confirmed clean"
+  active_branch: "codex/batch-140-public-account-menu-a11y"
+  head_commit: "batch_140_branch_head_after_pr_metadata"
+  head_summary: "Batch #140 public account menu a11y draft PR opened"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Batch #139 code, tests, package wiring, production-scale note and project-memory checkpoint are committed on the Batch #139 branch."
+    - "Batch #140 implementation commit ea0880d has been pushed; PR #192 is open; this checkpoint records PR metadata."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,22 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit_batch"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
+  id: "batch_140_public_account_menu_a11y"
+  summary: "Signed-in public header account menu exposes localized purpose and current-account context."
+  status: "draft_pr_open_github_validation_pending"
+  branch: "codex/batch-140-public-account-menu-a11y"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#138 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Preserve Batch #110-#139 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/components/landing/Header.tsx"
     - "src/components/landing/Header.landmarks.test.tsx"
     - "src/i18n/translations.ts"
     - "src/i18n/aria-tooltips-localized.ru.test.tsx"
-    - "e2e/public-language-selector-a11y.spec.ts"
+    - "e2e/public-account-menu-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -63,54 +63,40 @@ active_workstream:
     - "docs/project-memory/ARTIFACTS.md"
 
 active_batch:
-  id: 139
-  summary: "Public language selector a11y: header language controls expose localized purpose and selected state."
-  status: "merged_to_main_lovable_sync_clean"
-  commit: "6721b65"
-  branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/191"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-139-lovable-sync.md"
-  lovable_sync:
-    confirmed_at: "2026-05-27"
-    head: "6721b65_or_newer"
-    result: "clean_no_conflicts"
-    user_confirmed:
-      - "GitHub commit synced to main @ Batch #139, PR #191, 6721b65 or newer."
-      - "Files/routes checked: Header, translations, Header.landmarks.test.tsx, aria-tooltips-localized.ru.test.tsx, public-language-selector-a11y e2e, package.json and production-scale baseline."
-      - "No conflicts found; no files were modified in Lovable."
-      - "EN/RU/ES language selector, current-language and select-language labels are present."
-      - "Desktop selector exposes localized aria-label, aria-expanded, aria-haspopup and aria-controls; desktop dropdown is a named group; options expose localized aria-label and aria-pressed."
-      - "Mobile language chips sit inside a named group and expose localized aria-label and aria-pressed."
-      - "Header layout, navigation destinations and yorso-lang persistence are unchanged."
-      - "Public routes keep zero nested controls and zero 390px horizontal overflow across the checked mobile routes."
-      - "Public SEO, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#138 safeguards are preserved."
-      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
+  id: 140
+  summary: "Public account menu a11y: signed-in header account controls expose localized purpose and current-account context."
+  status: "draft_pr_open_github_validation_pending"
+  commit: "ea0880d"
+  branch: "codex/batch-140-public-account-menu-a11y"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192"
+  lovable_sync_prompt: null
+  lovable_sync: null
   confirmed_findings:
-    - "Desktop public header language selector exposed abbreviated visible text like EN/RU/ES without a localized programmatic purpose."
-    - "Mobile language chips did not expose selected-language state."
+    - "Desktop signed-in public header account chip exposed only the buyer display name/email as its accessible name, without localized menu purpose."
+    - "Desktop account dropdown was not associated with the trigger through aria-controls and did not expose a named group."
+    - "Mobile signed-in account panel did not expose localized account-menu context as a named group."
   confirmed_changes:
-    - "Header adds localized EN/RU/ES language selector/current/select labels."
-    - "Desktop selector exposes aria-label, aria-expanded, aria-controls and aria-haspopup."
-    - "Desktop and mobile language options sit inside named groups and expose aria-pressed selected state."
+    - "Header adds localized EN/RU/ES account-menu/current-account labels."
+    - "Desktop account chip exposes localized aria-label, aria-expanded, aria-haspopup and aria-controls."
+    - "Desktop account dropdown and mobile signed-in account panel expose named groups."
     - "Header.landmarks.test.tsx and aria-tooltips-localized.ru.test.tsx guard EN/RU/ES and RU leak behavior."
-    - "e2e/public-language-selector-a11y.spec.ts covers desktop and mobile behavior, localStorage persistence, nested controls and 390px overflow."
+    - "e2e/public-account-menu-a11y.spec.ts covers desktop and mobile signed-in account menu behavior, nested controls and 390px overflow."
     - "package.json wires the dedicated smoke script into the full e2e smoke suite."
-    - "docs/backend/production-scale-baseline.md contains the Batch #139 10,000 concurrent-user note."
+    - "docs/backend/production-scale-baseline.md contains the Batch #140 10,000 concurrent-user note."
   validation:
-    - "npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 13 tests."
+    - "npx vitest run src/components/landing/Header.landmarks.test.tsx src/i18n/aria-tooltips-localized.ru.test.tsx, 17 tests."
     - "npm run check:production-scale-baseline."
-    - "npm run smoke:e2e:public-language-selector-a11y, 10 tests after production build."
+    - "npm run smoke:e2e:public-account-menu-a11y, 9 tests after production build."
+    - "npm run smoke:e2e:public-language-selector-a11y:run, 10 tests."
     - "npm run smoke:e2e:public-landmark-labels:run, 39 tests."
     - "npx tsc -b --noEmit."
     - "npm run lint."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 271 tests."
-    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.16 kB gzip; i18n-translations 340.69 kB / 106.86 kB gzip; Header 50.30 kB / 14.14 kB gzip."
-    - "GitHub Core Type And Build Gate passed on PR #191 in 12m27s."
-    - "PR #191 was marked ready and squash-merged to main as 6721b65."
+    - "npm run smoke:e2e:run, 280 tests."
+    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.17 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Header 50.54 kB / 14.20 kB gzip."
   preserved_behavior:
-    - "Visible header layout, route structure, yorso-lang storage contract, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
-    - "Buyer-first public narrative, supplier trust as supply/trust mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#138 public UX/a11y safeguards are preserved."
+    - "Visible header layout, account destinations, session storage contract, route structure, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
+    - "Buyer-first public narrative, supplier trust as supply/trust mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#139 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."

@@ -31,9 +31,12 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
   const { session, isSignedIn } = useBuyerSession();
   const initial = (session?.displayName || session?.identifier || "?").trim().charAt(0).toUpperCase();
   const languageMenuId = "header-language-menu";
+  const accountMenuId = "header-account-menu";
+  const accountName = session?.displayName || session?.identifier || t.nav_myAccount;
   const languageOptionLabel = (option: Language) =>
     `${option === lang ? t.aria_currentLanguage : t.aria_selectLanguage}: ${languageNames[option]}`;
   const languageSelectorLabel = `${t.aria_languageSelector}. ${t.aria_currentLanguage}: ${languageNames[lang]}`;
+  const accountMenuLabel = `${t.aria_accountMenu}. ${t.aria_currentAccount}: ${accountName}`;
 
   const endWorkspaceSession = () => {
     analytics.track("workspace_session_ended");
@@ -193,7 +196,9 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
                 type="button"
                 onClick={() => setAccountOpen((v) => !v)}
                 aria-expanded={accountOpen}
-                aria-label={session?.displayName || session?.identifier || ""}
+                aria-label={accountMenuLabel}
+                aria-haspopup="true"
+                aria-controls={accountOpen ? accountMenuId : undefined}
                 data-testid="header-account-chip"
                 className="flex min-h-11 items-center gap-2 rounded-full border border-border bg-card py-2 pl-1 pr-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-0 sm:py-1"
               >
@@ -204,7 +209,12 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
                 <ChevronDown className="h-3 w-3 text-muted-foreground" />
               </button>
               {accountOpen && (
-                <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-card p-1 shadow-lg">
+                <div
+                  id={accountMenuId}
+                  role="group"
+                  aria-label={t.aria_accountMenu}
+                  className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-card p-1 shadow-lg"
+                >
                   <div className="px-3 py-2 border-b border-border">
                     <p className="text-xs text-muted-foreground">{t.signin_signedIn}</p>
                     <p className="text-sm font-medium text-foreground truncate">{session?.identifier}</p>
@@ -279,7 +289,7 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
           </div>
           <div className="mt-4 flex flex-col gap-3">
             {isSignedIn ? (
-              <div className="rounded-lg border border-border bg-card p-3">
+              <div role="group" aria-label={accountMenuLabel} className="rounded-lg border border-border bg-card p-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
                     {initial}
