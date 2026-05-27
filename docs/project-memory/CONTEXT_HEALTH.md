@@ -8,14 +8,14 @@ Updated: 2026-05-27
 context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
-recommended_action: "open Batch #138 PR and monitor GitHub validation"
+recommended_action: "monitor Batch #138 GitHub validation"
 current_project: "yorso-commerce-hub"
 active_branch: "codex/batch-138-public-info-route-seo"
-head_commit: "batch_138_local_validated_pending_commit"
+head_commit: "2e302df"
 latest_merged_batch: 137
 active_workstream: "batch_138_public_info_route_seo"
-pull_request: null
-why_low: "Batch #138 is locally implemented and validated on codex/batch-138-public-info-route-seo. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards. Local validation is recorded; PR creation is next."
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
+why_low: "Batch #138 is locally implemented, validated, committed as 2e302df and opened as draft PR #190. It gives shared public info/legal trust routes route-owned localized SEO metadata, canonical links, social metadata and WebPage JSON-LD while preserving the shared back CTA, skip-link/main landmark, mobile overflow, landmark labels and Batches #110-#137 safeguards. GitHub validation monitoring is next."
 ```
 
 ## Risk Levels
@@ -52,12 +52,14 @@ Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project r
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: codex/batch-138-public-info-route-seo.
 Current workstream: Batch #138 public info route SEO.
-Current HEAD: local Batch #138 changes validated, pending commit/PR.
+Current HEAD: 2e302df, [codex] Batch #138 public info route SEO.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190 (draft).
 Current Batch #138 scope: make public info/legal routes route-owned SEO surfaces without changing visible page copy or offer/supplier/access behavior.
 Current Batch #138 routes: /about, /contact, /terms, /privacy, /cookies, /gdpr, /anti-fraud, /careers, /press, /partners.
 Current Batch #138 finding: shared info/legal pages used global site metadata even though they are trust/legal decision-support pages for buyers, partners and suppliers.
 Current Batch #138 implementation: InfoPageLayout now applies localized route-owned title, description, canonical URL, OG/Twitter metadata and WebPage JSON-LD; info/legal pages pass existing localized intro copy as description and canonicalPath; InfoPageSeo.test.tsx and e2e/public-info-route-seo.spec.ts guard EN/RU metadata, mobile CTA semantics, nested controls and overflow.
 Current Batch #138 validation passed: npx vitest run src/pages/InfoPageSeo.test.tsx src/i18n/locale-document-meta-ru.test.tsx, 14 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; npm run smoke:e2e:public-info-route-seo, 11 tests after production build; npm run smoke:e2e:public-cta-semantics:run, 12 tests; npm run smoke:e2e:public-landmark-labels:run, 39 tests; git diff --check; npm run smoke:e2e:run, 261 tests.
+Current Batch #138 PR status: draft PR #190 opened; GitHub Core Type And Build Gate pending.
 Current Batch #138 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip; info page chunks 1.19-1.80 kB minified.
 Latest merged batch: Batch #137 offer detail decision support locale a11y is merged to main as 15fc5f8 via PR #189.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.

@@ -21,7 +21,10 @@ Continue Batch #138 public info route SEO from the validated branch and open/mon
 ## Current Status
 
 - The repository is currently on `codex/batch-138-public-info-route-seo`.
-- Batch #138 is locally implemented and validated; commit/PR are next.
+- Batch #138 is locally implemented, validated and opened as draft PR #190:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
+- Batch #138 commit:
+  `2e302df`, `[codex] Batch #138 public info route SEO`.
 - Batch #138 scope:
   - make shared public info/legal trust routes route-owned SEO surfaces;
   - preserve visible copy, shared back CTA, skip-link/main landmark, CTA
@@ -59,8 +62,7 @@ Continue Batch #138 public info route SEO from the validated branch and open/mon
   - i18n-translations 340.35 kB / 106.73 kB gzip;
   - InfoPageLayout 2.13 kB / 1.13 kB gzip.
 - Next action:
-  - commit Batch #138, push branch, open draft PR and monitor GitHub Core Type
-    And Build Gate.
+  - monitor GitHub Core Type And Build Gate on draft PR #190.
 - The latest merged batch is still Batch #137 on `main` at `15fc5f8`.
 - Batch #137 Lovable sync is recorded clean.
 - Batch #137 is merged to `main` via PR #189:

@@ -2,13 +2,12 @@
 
 ## Current Next Action
 
-1. Commit Batch #138 on `codex/batch-138-public-info-route-seo`.
+1. Monitor Batch #138 draft PR #190 GitHub validation:
+   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
 
-2. Push the branch and open a draft PR for Batch #138.
+2. If GitHub Core Type And Build Gate passes, mark PR #190 ready and merge.
 
-3. Monitor GitHub Core Type And Build Gate.
-
-4. After merge, create the Batch #138 Lovable sync prompt and record Lovable
+3. After merge, create the Batch #138 Lovable sync prompt and record Lovable
    sync result.
 
 5. Preserve current known contracts: supplier profile route behavior, access
@@ -20,6 +19,8 @@
 ## Batch #138 Local Validation Complete
 
 - Branch: `codex/batch-138-public-info-route-seo`.
+- Commit: `2e302df`, `[codex] Batch #138 public info route SEO`.
+- Draft PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190`.
 - Scope: route-owned SEO for public info/legal trust routes:
   `/about`, `/contact`, `/terms`, `/privacy`, `/cookies`, `/gdpr`,
   `/anti-fraud`, `/careers`, `/press`, `/partners`.
@@ -54,6 +55,8 @@
   - buyer-first public narrative, supplier trust mechanism, access gating,
     supplier identity redaction, exact-price lock, Batch #112 code splitting,
     Batch #113 route chunk error boundary and Batches #110-#137 safeguards.
+- GitHub validation:
+  - pending on draft PR #190.
 
 ## Batch #137 Lovable Sync Confirmed
 

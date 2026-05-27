@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "codex/batch-138-public-info-route-seo"
-  head_commit: "batch_138_local_validated_pending_commit"
-  head_summary: "Batch #138 public info route SEO locally validated; PR pending"
+  head_commit: "2e302df"
+  head_summary: "Batch #138 public info route SEO opened as draft PR #190"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
     - "Batch #138 code, tests, package wiring, production-scale note and project-memory checkpoint are pending commit."
@@ -39,9 +39,9 @@ project_identity:
 active_workstream:
   id: "batch_138_public_info_route_seo"
   summary: "Public info/legal trust routes own localized route SEO metadata."
-  status: "local_validation_passed_pr_pending"
+  status: "draft_pr_open_github_validation_pending"
   branch: "codex/batch-138-public-info-route-seo"
-  pull_request: null
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
@@ -93,10 +93,10 @@ active_workstream:
 active_batch:
   id: 138
   summary: "Public info/legal route SEO: shared trust pages own localized title, description, canonical, social metadata and JSON-LD."
-  status: "local_validation_passed_pr_pending"
-  commit: null
+  status: "draft_pr_open_github_validation_pending"
+  commit: "2e302df"
   branch: "codex/batch-138-public-info-route-seo"
-  pull_request: null
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/190"
   lovable_sync_prompt: null
   lovable_sync: null
   confirmed_findings:
@@ -122,6 +122,7 @@ active_batch:
     - "git diff --check."
     - "npm run smoke:e2e:run, 261 tests."
     - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.18 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; InfoPageLayout 2.13 kB / 1.13 kB gzip."
+    - "Draft PR #190 opened; GitHub Core Type And Build Gate pending."
   preserved_behavior:
     - "Shared back-to-home CTA semantics, skip-to-main behavior, exactly one main#main, named landmarks, zero nested controls and zero 390px overflow on info routes are preserved."
     - "Buyer-first public narrative, supplier trust as supply/trust mechanism, access gating, supplier identity redaction, exact-price lock, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#137 public UX/a11y safeguards are preserved."
