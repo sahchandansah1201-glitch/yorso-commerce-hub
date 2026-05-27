@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
   active_branch: "main"
-  head_commit: "15fc5f8"
-  head_summary: "Batch #137 merged to main; Lovable sync prompt ready"
-  dirty_worktree_before_project_memory: true
+  head_commit: "main_after_batch_137_lovable_sync_record"
+  head_summary: "Batch #137 Lovable sync confirmed; next scoped public UX/UI audit ready"
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Only Batch #137 Lovable sync prompt and post-merge project-memory checkpoint are pending commit."
+    - "Only Batch #137 Lovable sync confirmation memory checkpoint is pending commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,15 +37,15 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "batch_137_offer_detail_decision_support_locale_a11y"
-  summary: "Sync Lovable with Batch #137 from GitHub main."
-  status: "merged_to_main_lovable_sync_pending"
+  id: "next_scoped_public_ux_ui_audit"
+  summary: "Start the next scoped public UX/UI audit batch from current main."
+  status: "ready"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
+  pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#136 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Preserve Batch #110-#137 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/components/offer-detail/DecisionFAQ.tsx"
@@ -77,12 +77,24 @@ active_workstream:
 active_batch:
   id: 137
   summary: "Offer detail decision support locale a11y: lower /offers/:id buyer decision-support blocks use locale-owned copy and keep similar recommendation prices locked for non-qualified buyers."
-  status: "merged_to_main_lovable_sync_pending"
+  status: "merged_to_main_lovable_sync_clean"
   commit: "15fc5f8"
   branch: "main"
   pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
   lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
-  lovable_sync: null
+  lovable_sync:
+    confirmed_at: "2026-05-27"
+    head: "15fc5f8_or_newer"
+    result: "clean_no_conflicts"
+    user_confirmed:
+      - "GitHub commit synced to main @ Batch #137, PR #189, 15fc5f8 or newer."
+      - "Files/routes checked: OfferDetail, TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles, DecisionFAQ, translations, DecisionSupport.locale.test.tsx, offer-detail-decision-support-locale-a11y e2e, package.json and production-scale baseline."
+      - "No conflicts found; no files were modified in Lovable."
+      - "RU/ES lower decision-support labels are localized and hardcoded English labels do not leak."
+      - "FAQ and Full Specs expose aria-expanded/aria-controls, related insights are links, nested controls are absent and 390px overflow is absent."
+      - "Locked buyers see localized locked-price labels in SimilarOffers/SimilarProducts and the Lower price reason is skipped for locked buyers."
+      - "Access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#136 safeguards are preserved."
+      - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
     - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
     - "Affected sections: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ."
@@ -117,54 +129,88 @@ active_batch:
     - "Codex in-app browser connection was attempted but browser-client/browser MCP connection was unavailable; Playwright covered mobile/runtime verification at 390px."
 
 last_lovable_synced_batch:
-  id: 136
-  summary: "Offer detail supplier trust locale a11y: /offers/:id supplier trust panel labels and disclosure controls use locale-owned copy."
+  id: 137
+  summary: "Offer detail decision support locale a11y: lower /offers/:id decision-support blocks use locale-owned copy and locked recommendation prices stay gated."
   status: "merged_to_main_lovable_sync_clean"
-  commit: "3720708"
+  commit: "15fc5f8"
   branch: "main"
-  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188"
-  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-136-lovable-sync.md"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
+  lovable_sync_prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
   lovable_sync:
-    confirmed_at: "2026-05-26"
-    head: "3720708_or_newer"
+    confirmed_at: "2026-05-27"
+    head: "15fc5f8_or_newer"
     result: "clean_no_conflicts"
     user_confirmed:
-      - "GitHub commit synced to main @ Batch #136, PR #188, 3720708 or newer."
-      - "Files/routes checked: SupplierTrustPanel, translations, OfferDetail, SupplierTrustPanel.access.test.tsx, offer-detail-supplier-trust-locale-a11y e2e, package.json and production-scale baseline."
+      - "GitHub commit synced to main @ Batch #137, PR #189, 15fc5f8 or newer."
+      - "Files/routes checked: OfferDetail, TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles, DecisionFAQ, translations, DecisionSupport.locale.test.tsx, offer-detail-decision-support-locale-a11y e2e, package.json and production-scale baseline."
       - "No conflicts found; no files were modified in Lovable."
-      - "Offer detail supplier trust locale/a11y status OK: RU and ES labels are localized, with no hardcoded English leakage."
-      - "Offer detail behavior unchanged: access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics and buyer-first copy are preserved."
+      - "Offer detail decision-support locale/a11y status OK: RU/ES labels are localized and hardcoded English labels are removed."
+      - "Locked-buyer behavior OK: SimilarOffers/SimilarProducts show localized locked-price labels, Lower price reason is skipped, and exact price remains gated."
+      - "Offer detail behavior unchanged: access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA and buyer-first copy are preserved."
       - "Batch #112 code splitting and Batch #113 route chunk error boundary preserved; no manual vendor chunks added."
       - "Known warnings preserved: Supabase generated types out of sync in non-strict mode and Browserslist data stale."
   confirmed_findings:
-    - "`/offers/:id` `SupplierTrustPanel` exposed hardcoded English trust and CTA labels inside localized RU/ES offer detail UI."
-    - "The expanded RU review disclosure created 15px horizontal overflow at 390px."
+    - "`/offers/:id` lower decision-support sections exposed hardcoded English UI labels inside localized RU/ES offer detail UI."
+    - "SimilarOffers and SimilarProducts rendered raw mock price ranges for locked buyers."
   confirmed_changes:
-    - "SupplierTrustPanel uses typed EN/RU/ES `offerDetail_*` supplier trust labels and pluralized years-in-business copy."
-    - "OfferDetail route shells use `overflow-x-hidden`."
-    - "SupplierTrustPanel.access.test.tsx and e2e/offer-detail-supplier-trust-locale-a11y.spec.ts guard the locale/a11y contract."
-    - "Dedicated and full e2e smoke scripts include the offer detail supplier trust locale a11y guard."
-    - "Batch #136 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
+    - "Lower decision-support sections use typed EN/RU/ES offerDetail translations."
+    - "OfferDetail passes effective renderAccessLevel into lower trust/recommendation blocks."
+    - "Similar offer/product cards show exact prices only for qualified_unlocked buyers."
+    - "Related insight cards are real links to /blog/:slug."
+    - "DecisionSupport.locale.test.tsx and offer-detail-decision-support-locale-a11y.spec.ts guard the locale/a11y and locked-price contract."
+    - "Batch #137 production-scale baseline notes confirm no backend reads/writes, queues, polling, database changes or new runtime volume."
   validation:
-    - "npx vitest run src/components/offer-detail/SupplierTrustPanel.access.test.tsx, 4 tests."
-    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y, 2 tests after production build."
+    - "npx tsc -b --noEmit."
+    - "npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx, 2 tests."
+    - "npm run smoke:e2e:offer-detail-decision-support-locale-a11y, 2 tests after production build."
+    - "npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run, 2 tests."
     - "npm run smoke:e2e:offer-detail-mobile-a11y:run, 2 tests."
     - "npm run smoke:e2e:public-offer-locale-a11y:run, 2 tests."
-    - "npx tsc -b --noEmit."
     - "npm run lint."
     - "npm run check:production-scale-baseline."
     - "git diff --check."
-    - "npm run smoke:e2e:run, 248 tests."
-    - "GitHub Core Type And Build Gate passed on PR #188 in 11m57s."
-    - "Build metrics from PR #188: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 324.98 kB / 102.16 kB gzip; OfferDetail 51.78 kB / 12.87 kB gzip."
+    - "npm run smoke:e2e:run, 250 tests."
+    - "GitHub Core Type And Build Gate passed on PR #189 in 12m23s."
+    - "Build metrics from PR #189: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; OfferDetail 51.80 kB / 12.06 kB gzip."
   preserved_behavior:
-    - "Offer detail access gating, supplier identity redaction, exact-price lock, supplier access request panel, MarketPulse, route SEO, analytics and buyer-first copy are preserved."
-    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#135 public UX/a11y safeguards are preserved."
+    - "Offer detail access gating, supplier identity redaction, exact-price lock, supplier access request panel, Market Pulse, route SEO, sticky mobile CTA and buyer-first copy are preserved."
+    - "Buyer-first public narrative, supplier content as trust/supply mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards are preserved."
   known_warnings:
     - "Supabase generated types are out of sync in non-strict mode."
     - "Browserslist data is stale."
 
 latest_merged_batches:
+  - id: 137
+    summary: "Offer detail decision support locale a11y hardening so lower /offers/:id buyer decision-support blocks use locale-owned copy and locked recommendation prices stay gated."
+    status: "merged_to_main_lovable_sync_clean"
+    commit: "15fc5f8"
+    pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189"
+    lovable_sync:
+      prompt: "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
+      confirmed_at: "2026-05-27"
+      head: "15fc5f8_or_newer"
+      result: "clean_no_conflicts"
+      user_confirmed:
+        - "GitHub commit synced to main @ Batch #137, PR #189, 15fc5f8 or newer."
+        - "Files/routes checked: OfferDetail, TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles, DecisionFAQ, translations, DecisionSupport.locale.test.tsx, offer-detail-decision-support-locale-a11y e2e, package.json and production-scale baseline."
+        - "No conflicts found; no files were modified in Lovable."
+        - "RU/ES lower decision-support labels are localized and hardcoded English labels do not leak."
+        - "Locked buyers see localized locked-price labels and Lower price reason is skipped."
+        - "Access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#136 safeguards are preserved."
+    confirmed_files:
+      - "src/pages/OfferDetail.tsx"
+      - "src/components/offer-detail/TrustSection.tsx"
+      - "src/components/offer-detail/FullSpecifications.tsx"
+      - "src/components/offer-detail/SimilarOffers.tsx"
+      - "src/components/offer-detail/SimilarProducts.tsx"
+      - "src/components/offer-detail/RelatedArticles.tsx"
+      - "src/components/offer-detail/DecisionFAQ.tsx"
+      - "src/components/offer-detail/DecisionSupport.locale.test.tsx"
+      - "src/i18n/translations.ts"
+      - "e2e/offer-detail-decision-support-locale-a11y.spec.ts"
+      - "package.json"
+      - "docs/backend/production-scale-baseline.md"
+      - "docs/project-memory/PROMPTS/prompt-137-lovable-sync.md"
   - id: 136
     summary: "Offer detail supplier trust locale a11y hardening so /offers/:id trust labels and disclosure controls use locale-owned copy."
     status: "merged_to_main_lovable_sync_clean"

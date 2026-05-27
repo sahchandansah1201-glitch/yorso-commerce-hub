@@ -2,20 +2,22 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` at Batch #137.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Use `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
+2. Keep the audit scoped and public-route focused: buyer-first narrative, trust
+   evidence, scanability, conversion clarity, SEO structure, locale/a11y
+   semantics and mobile behavior.
 
-3. After Lovable reports a clean sync or a concrete conflict list, record the
-   result in project memory.
+3. Preserve Batch #110-#137 safeguards unless a new runtime finding requires a
+   narrow fix.
 
 4. Preserve current known contracts: supplier profile route behavior, access
    gating, supplier identity redaction, approval refresh, profile tabs,
    directory/profile bridge, buyer-first trust narrative, Batch #112 code
-   splitting, Batch #113 route chunk error boundary and Batches #110-#136
+   splitting, Batch #113 route chunk error boundary and Batches #110-#137
    public UX/a11y safeguards.
 
-## Batch #137 Merged, Lovable Sync Pending
+## Batch #137 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `15fc5f8`,
@@ -23,6 +25,8 @@
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
 - Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #137 (`15fc5f8` or newer), no
+  conflicts and no file modifications.
 - Scope: public offer detail decision-support locale/a11y hardening for
   `/offers/:id`.
 - Runtime finding:
@@ -59,6 +63,23 @@
   runtime verification was covered by Playwright at 390px.
 - GitHub validation passed:
   - PR #189 `Core Type And Build Gate`, 12m23s.
+- Lovable confirmed:
+  - checked `src/pages/OfferDetail.tsx`, `TrustSection.tsx`,
+    `FullSpecifications.tsx`, `SimilarOffers.tsx`, `SimilarProducts.tsx`,
+    `RelatedArticles.tsx`, `DecisionFAQ.tsx`, `src/i18n/translations.ts`,
+    `DecisionSupport.locale.test.tsx`,
+    `e2e/offer-detail-decision-support-locale-a11y.spec.ts`, `package.json`
+    and `docs/backend/production-scale-baseline.md`;
+  - RU/ES lower decision-support labels are localized and hardcoded English
+    labels are removed;
+  - FAQ/Full Specs expose `aria-expanded`/`aria-controls`, related insights are
+    links, nested interactive controls are absent and 390px overflow is absent;
+  - locked buyers see localized locked-price labels in similar offer/product
+    sections and do not see the `Lower price` reason;
+  - access gating, supplier identity redaction, exact-price lock,
+    SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA,
+    buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#136 are preserved.
 
 ## Batch #136 Lovable Sync Confirmed
 

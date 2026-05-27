@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with GitHub `main` after Batch #137.
+Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
 
 ## Current Status
 
@@ -25,6 +25,8 @@ Sync Lovable with GitHub `main` after Batch #137.
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/189`.
 - Batch #137 Lovable sync prompt is ready:
   `docs/project-memory/PROMPTS/prompt-137-lovable-sync.md`.
+- Batch #137 Lovable sync is confirmed clean by the user at `main` @ Batch #137
+  (`15fc5f8` or newer), with no conflicts and no file modifications.
 - Batch #137 scope:
   - localize lower `/offers/:id` buyer decision-support blocks;
   - preserve buyer-first narrative and supplier trust as a supply/trust
@@ -63,6 +65,23 @@ Sync Lovable with GitHub `main` after Batch #137.
   - `npm run smoke:e2e:run`, 250 tests.
 - Batch #137 GitHub validation passed:
   - PR #189 `Core Type And Build Gate`, 12m23s.
+- Lovable confirmed:
+  - `src/pages/OfferDetail.tsx`, `TrustSection.tsx`,
+    `FullSpecifications.tsx`, `SimilarOffers.tsx`, `SimilarProducts.tsx`,
+    `RelatedArticles.tsx`, `DecisionFAQ.tsx`, `src/i18n/translations.ts`,
+    `DecisionSupport.locale.test.tsx`,
+    `e2e/offer-detail-decision-support-locale-a11y.spec.ts`, `package.json`
+    and `docs/backend/production-scale-baseline.md` are aligned;
+  - RU/ES lower decision-support labels are localized and hardcoded English
+    labels are removed;
+  - locked buyers see localized locked-price labels in similar offer/product
+    sections and do not see the `Lower price` reason;
+  - access gating, supplier identity redaction, exact-price lock,
+    SupplierAccessRequestPanel, Market Pulse, SEO, sticky mobile CTA,
+    buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error
+    boundary and Batches #110-#136 are preserved.
+- Next action: start the next scoped public UX/UI audit batch from current
+  `main`.
 - Browser note:
   - Codex in-app browser connection was attempted but unavailable; mobile
     runtime verification was completed by Playwright at 390px.
