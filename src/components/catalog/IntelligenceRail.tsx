@@ -341,7 +341,7 @@ export const IntelligenceRail = ({ category }: Props) => {
       )}
 
       <Sheet open={openSignal !== null} onOpenChange={(o) => !o && setOpenSignal(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" closeLabel={t.aria_close} className="w-full sm:max-w-md overflow-y-auto">
           {openSignal && (
             <>
               <SheetHeader className="text-left">

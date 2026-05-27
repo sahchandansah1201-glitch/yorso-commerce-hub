@@ -11,12 +11,12 @@ source_policy:
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-27"
-  active_branch: "main"
-  head_commit: "main_after_batch_140_lovable_sync_record"
-  head_summary: "Batch #140 public account menu a11y merged and Lovable sync confirmed clean"
-  dirty_worktree_before_project_memory: false
+  active_branch: "codex/batch-141-public-sheet-close-a11y"
+  head_commit: "0dada09_plus_batch_141_local_changes"
+  head_summary: "Batch #141 public sheet close locale a11y implemented and locally validated; PR pending"
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #140 was squash-merged to main as 8ad19a6 and Lovable sync is confirmed clean; this checkpoint records the sync report."
+    - "Batch #141 local implementation and project-memory updates are intentionally unstaged before commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,22 +37,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit_batch"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
+  id: "batch_141_public_sheet_close_locale_a11y"
+  summary: "Localize shared public catalog sheet close controls in RU/ES without visual or behavior changes."
+  status: "validated_locally_pr_pending"
+  branch: "codex/batch-141-public-sheet-close-a11y"
   pull_request: null
   confirmed_scope:
     - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
     - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#139 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
+    - "Preserve Batch #110-#140 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
   confirmed_files:
     - "src/components/landing/Header.tsx"
-    - "src/components/landing/Header.landmarks.test.tsx"
-    - "src/i18n/translations.ts"
-    - "src/i18n/aria-tooltips-localized.ru.test.tsx"
-    - "e2e/public-account-menu-a11y.spec.ts"
+    - "src/components/ui/sheet.tsx"
+    - "src/components/catalog/CompareTray.tsx"
+    - "src/components/catalog/IntelligenceRail.tsx"
+    - "src/components/catalog/SheetCloseLocale.test.tsx"
+    - "e2e/public-sheet-close-locale-a11y.spec.ts"
     - "package.json"
     - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
@@ -64,6 +65,42 @@ active_workstream:
     - "docs/project-memory/PROMPTS/prompt-140-lovable-sync.md"
 
 active_batch:
+  id: 141
+  summary: "Public sheet close locale a11y: shared catalog sheet close controls use localized close labels in RU/ES."
+  status: "validated_locally_pr_pending"
+  commit: null
+  branch: "codex/batch-141-public-sheet-close-a11y"
+  pull_request: null
+  lovable_sync_prompt: null
+  confirmed_findings:
+    - "Shared `SheetContent` hardcoded the default Radix close control accessible name as `Close`."
+    - "Public catalog drawer usages in `CompareTray` and `IntelligenceRail` did not pass a localized close label, so RU/ES sheet states could expose English programmatic copy."
+  confirmed_changes:
+    - "`SheetContent` now accepts an optional `closeLabel` prop while preserving the previous English fallback."
+    - "`CompareTray` and `IntelligenceRail` pass active-locale `t.aria_close` into `SheetContent`."
+    - "`src/components/catalog/SheetCloseLocale.test.tsx` covers RU/ES CompareTray and IntelligenceRail close labels and guards against default English `Close` leakage."
+    - "`e2e/public-sheet-close-locale-a11y.spec.ts` opens the real `/offers` comparison drawer in RU/ES, verifies localized close names, locked-buyer state, no nested controls and no horizontal overflow."
+    - "`package.json` wires the dedicated smoke into the full browser smoke suite."
+    - "`docs/backend/production-scale-baseline.md` contains the Batch #141 10,000 concurrent-user note."
+  validation:
+    - "npx vitest run src/components/catalog/SheetCloseLocale.test.tsx, 4 tests."
+    - "npm run smoke:e2e:public-sheet-close-locale-a11y, 2 tests after production build."
+    - "npm run check:production-scale-baseline."
+    - "npx tsc -b --noEmit."
+    - "npm run lint."
+    - "git diff --check."
+    - "npm run smoke:e2e:public-account-menu-a11y:run, 9 tests."
+    - "npm run smoke:e2e:public-language-selector-a11y:run, 10 tests."
+    - "npm run smoke:e2e:run, 282 tests."
+    - "Build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip."
+  preserved_behavior:
+    - "Visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction and exact-price lock are preserved."
+    - "Buyer-first public narrative, supplier trust as supply/trust mechanism, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#140 public UX/a11y safeguards are preserved."
+  known_warnings:
+    - "Supabase generated types are out of sync in non-strict mode."
+    - "Browserslist data is stale."
+
+previous_batch_140:
   id: 140
   summary: "Public account menu a11y: signed-in header account controls expose localized purpose and current-account context."
   status: "merged_to_main_lovable_sync_clean"

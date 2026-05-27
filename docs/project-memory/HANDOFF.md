@@ -16,11 +16,53 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start the next scoped public UX/UI audit batch from current `main`.
+Commit Batch #141, push the branch, open a PR and monitor GitHub validation.
 
 ## Current Status
 
-- The repository is currently on `main`.
+- The repository is currently on `codex/batch-141-public-sheet-close-a11y`.
+- Batch #141 is implemented and locally validated; PR is pending.
+- Batch #141 scope:
+  - localize shared public catalog sheet close controls for RU/ES;
+  - preserve visible catalog drawer layout, compare behavior, route structure,
+    public SEO, access gating, supplier identity redaction, exact-price locks,
+    Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#140 safeguards.
+- Batch #141 finding:
+  - shared `SheetContent` hardcoded the default close accessible name as
+    `Close`;
+  - public catalog drawer usages in `CompareTray` and `IntelligenceRail` did
+    not pass a localized close label.
+- Batch #141 implementation:
+  - `src/components/ui/sheet.tsx` adds optional `closeLabel` while preserving
+    the existing English fallback;
+  - `src/components/catalog/CompareTray.tsx` and
+    `src/components/catalog/IntelligenceRail.tsx` pass `t.aria_close`;
+  - `src/components/catalog/SheetCloseLocale.test.tsx` covers RU/ES
+    CompareTray and IntelligenceRail sheet close labels;
+  - `e2e/public-sheet-close-locale-a11y.spec.ts` opens the real `/offers`
+    comparison drawer in RU/ES and checks localized close names, locked-buyer
+    state, no nested controls and no horizontal overflow;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #141
+    10,000 concurrent-user note.
+- Batch #141 validation passed:
+  - `npx vitest run src/components/catalog/SheetCloseLocale.test.tsx`, 4 tests;
+  - `npm run smoke:e2e:public-sheet-close-locale-a11y`, 2 tests after production build;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:public-account-menu-a11y:run`, 9 tests;
+  - `npm run smoke:e2e:public-language-selector-a11y:run`, 10 tests;
+  - `npm run smoke:e2e:run`, 282 tests.
+- Batch #141 build metrics from dedicated smoke:
+  - CSS 126.84 kB / 21.02 kB gzip;
+  - entry 355.53 kB / 114.15 kB gzip;
+  - i18n-translations 340.92 kB / 106.94 kB gzip;
+  - Offers 72.56 kB / 18.74 kB gzip.
+- Batch #141 next action:
+  - commit, push, open PR and monitor GitHub `Core Type And Build Gate`.
 - Batch #140 is implemented, validated and merged.
 - Batch #140 commit:
   `8ad19a6`, `[codex] Batch #140 public account menu a11y`.

@@ -24,6 +24,28 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Batch #141 Public Sheet Close Locale A11y
+
+- `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional
+  `closeLabel` while preserving the previous English fallback.
+- `src/components/catalog/CompareTray.tsx`: comparison bottom sheet passes the
+  active locale's `t.aria_close` to the shared sheet close control.
+- `src/components/catalog/IntelligenceRail.tsx`: signal detail drawer passes
+  the active locale's `t.aria_close` to the shared sheet close control.
+- `src/components/catalog/SheetCloseLocale.test.tsx`: unit guard for RU/ES
+  CompareTray and IntelligenceRail close labels, including no default English
+  `Close` leakage.
+- `e2e/public-sheet-close-locale-a11y.spec.ts`: browser smoke for real
+  `/offers` RU/ES comparison drawer close labels, locked-buyer state, nested
+  controls and horizontal overflow.
+- `package.json`: dedicated `smoke:e2e:public-sheet-close-locale-a11y` script
+  and full `smoke:e2e:run` wiring.
+- `docs/backend/production-scale-baseline.md`: Batch #141 10,000 concurrent
+  users capacity review.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Batch #141 local validation
+  checkpoint.
+
 ## Batch #138 Public Info Route SEO
 
 - `src/components/InfoPageLayout.tsx`: shared info/legal layout now applies
