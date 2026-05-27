@@ -1653,3 +1653,32 @@ Keep this file factual and append-only.
   `[codex] Batch #140 public account menu a11y`.
 - Added `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md` and updated
   project memory to make Lovable sync the next action.
+- User confirmed Lovable sync for Batch #140 is clean:
+  - GitHub commit synced to `main` @ Batch #140, PR #192, `8ad19a6` or newer;
+  - checked `src/components/landing/Header.tsx`,
+    `src/i18n/translations.ts`,
+    `src/components/landing/Header.landmarks.test.tsx`,
+    `src/i18n/aria-tooltips-localized.ru.test.tsx`,
+    `e2e/public-account-menu-a11y.spec.ts`, `package.json` and
+    `docs/backend/production-scale-baseline.md`;
+  - no conflicts were found and no local changes were present;
+  - EN/RU/ES account-menu/current-account labels are present;
+  - desktop account chip exposes localized `aria-label`, `aria-expanded`,
+    `aria-haspopup` and `aria-controls`;
+  - desktop dropdown exposes stable `id`, `role="group"` and localized
+    `aria-label`;
+  - mobile signed-in panel exposes `role="group"` with localized account
+    context;
+  - account link `/account`, sign-out behavior, visible layout, destinations
+    and storage are unchanged;
+  - E2E covers desktop chip naming/expanded/aria-controls/group naming/account
+    link/sign-out, EN/RU/ES mobile panel and signed-in mobile stability on `/`,
+    `/offers`, `/suppliers`, `/about`, `/blog`;
+  - zero nested controls and zero 390px overflow are preserved;
+  - public SEO, access gating, supplier identity redaction, exact-price locks,
+    Batch #112 code splitting, Batch #113 route chunk error boundary and
+    Batches #110-#139 safeguards are preserved;
+  - known warnings remain Supabase generated types out of sync in non-strict
+    mode and Browserslist data stale.
+- Recorded Batch #140 Lovable sync in project memory and moved next action to
+  the next scoped public UX/UI audit batch.

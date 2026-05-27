@@ -2,20 +2,25 @@
 
 ## Current Next Action
 
-1. Sync Lovable with GitHub `main` after Batch #140 using:
-   `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
+1. Start the next scoped public UX/UI audit batch from current `main`.
 
-2. Ask Lovable to report the exact sync sections requested in the prompt.
+2. Preserve current known contracts: public account menu a11y, public language
+   selector a11y, public SEO, access gating, supplier identity redaction,
+   exact-price lock, buyer-first trust narrative, Batch #112 code splitting,
+   Batch #113 route chunk error boundary and Batches #110-#140 public UX/a11y
+   safeguards.
 
-3. After Lovable reports clean sync or conflicts, record the result in project
-   memory before starting Batch #141.
+3. If a production-facing frontend behavior changes, include the 10,000
+   concurrent-user baseline note and validation.
 
-## Batch #140 Merged, Lovable Sync Pending
+## Batch #140 Lovable Sync Confirmed
 
 - Branch: `main`.
 - Merge commit: `8ad19a6`, `[codex] Batch #140 public account menu a11y`.
 - PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192`.
 - Lovable sync prompt: `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
+- Lovable sync: clean at `main` @ Batch #140 (`8ad19a6` or newer), no
+  conflicts and no local changes.
 - Scope: signed-in public header account menu accessibility.
 - Finding:
   - desktop signed-in account chip exposed only the buyer display name/email

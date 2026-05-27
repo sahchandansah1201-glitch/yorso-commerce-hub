@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Sync Lovable with Batch #140 public account menu a11y.
+Start the next scoped public UX/UI audit batch from current `main`.
 
 ## Current Status
 
@@ -28,6 +28,9 @@ Sync Lovable with Batch #140 public account menu a11y.
   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192` (merged).
 - Batch #140 Lovable sync prompt:
   `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`.
+- Batch #140 Lovable sync:
+  clean at `main` @ Batch #140 (`8ad19a6` or newer), no conflicts and no local
+  changes.
 - Batch #140 scope:
   - make signed-in public header account controls explicit for assistive tech;
   - preserve visible header layout, account destinations, session storage,
@@ -70,11 +73,9 @@ Sync Lovable with Batch #140 public account menu a11y.
   - i18n-translations 340.92 kB / 106.94 kB gzip;
   - Header 50.54 kB / 14.20 kB gzip.
 - Next action:
-  - sync Lovable with GitHub `main` after Batch #140 using
-    `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`;
-  - record the Lovable result before starting Batch #141.
+  - start the next scoped public UX/UI audit batch from current `main`.
 - The latest merged batch is Batch #140 on `main` at `8ad19a6`.
-- The latest Lovable-synced batch is Batch #139 on `main` at `6721b65`.
+- The latest Lovable-synced batch is Batch #140 on `main` at `8ad19a6`.
 - Known warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
   - Browserslist data stale.
