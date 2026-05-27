@@ -3435,6 +3435,85 @@ Marker: offer detail supplier trust locale a11y.
 Marker: buyer trust mechanism scanability.
 Marker: 10,000 concurrent users.
 
+## Batch #137 Offer Detail Decision Support Locale A11y
+
+Batch #137 localizes the lower buyer decision-support blocks on `/offers/:id`.
+The scoped change moves trust explanation, full specifications, similar
+offers/products, related market insights and decision FAQ labels into the typed
+EN/RU/ES translation contract. It also keeps similar offer/product prices
+locked for anonymous and registered-locked buyers, and converts related insight
+cards into real links. Buyer-first copy, supplier trust as a supply mechanism,
+access gating, supplier identity redaction, exact-price lock, Market Pulse,
+route SEO and CTA semantics are preserved.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Offer detail data fetching remains unchanged and continues through the
+  existing offer-detail API/local fallback path.
+- Runtime work is limited to translation lookup, interpolation and static
+  filtering of already-rendered mock related items.
+- No offer, supplier, auth, access, account or admin API contracts are changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- Translation bundle growth is static. No request volume changes at the
+  10,000 concurrent-user target.
+- No queues, polling, timers, retries, subscriptions, background jobs or new
+  network calls are introduced.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Similar-offer and related-insight rendering continues to use existing offer
+  detail data in the client route.
+
+Failure mode and graceful degradation:
+
+- If JavaScript hydration is delayed, the offer detail route still renders
+  native links, buttons and readable content once hydrated.
+- If CSS fails, decision FAQ controls remain native buttons and related
+  insights remain native links.
+- If a locale key is missing during development, TypeScript catches the typed
+  translation contract.
+- Locked supplier identity, contact channels and exact prices in similar
+  offer/product recommendations remain hidden until qualified access.
+
+Observability and load-test plan:
+
+- Unit coverage verifies RU/ES decision-support labels, related insight links,
+  FAQ disclosure state and locked-price copy without hardcoded English leakage.
+- Browser smoke verifies `/offers/:id` at 390px exposes localized decision
+  support in RU/ES, keeps related insights linkable, keeps FAQ targets at least
+  44px tall, has no nested interactive controls and has zero horizontal
+  overflow.
+- Existing offer-detail supplier trust, mobile accessibility, runtime and CTA
+  semantics smokes continue to guard access gating, redaction and route
+  behavior.
+- No new load-test dimension is required because the change is static frontend
+  DOM semantics only.
+
+Validation:
+
+- `npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx`;
+- `npm run smoke:e2e:offer-detail-decision-support-locale-a11y`;
+- `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run`;
+- `npm run smoke:e2e:offer-detail-mobile-a11y:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #137.
+Marker: offer detail decision support locale a11y.
+Marker: buyer decision support scanability.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

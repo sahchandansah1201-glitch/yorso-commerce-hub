@@ -16,11 +16,53 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Continue the next scoped public UX/UI audit and remediation work with a buyer-first B2B procurement lens: trust, clarity, scanability, conversion, SEO structure and supplier evidence as a trust mechanism.
+Publish Batch #137, then wait for GitHub validation, merge if green and prepare Lovable sync.
 
 ## Current Status
 
-- The repository is currently on `main` after recording Batch #136 Lovable sync.
+- The repository is currently on branch
+  `codex/batch-137-offer-detail-decision-support-locale-a11y`.
+- Batch #137 is implemented locally and validation passed. It has not yet been
+  committed, pushed or opened as a PR at this checkpoint.
+- Batch #137 scope:
+  - localize lower `/offers/:id` buyer decision-support blocks;
+  - preserve buyer-first narrative and supplier trust as a supply/trust
+    mechanism;
+  - keep similar offer/product recommendation prices locked for non-qualified
+    buyers.
+- Batch #137 finding:
+  - `TrustSection`, `FullSpecifications`, `SimilarOffers`, `SimilarProducts`,
+    `RelatedArticles` and `DecisionFAQ` still exposed hardcoded English labels
+    in localized RU/ES offer detail UI;
+  - similar offer/product recommendations rendered raw mock `priceRange` values
+    for locked buyers.
+- Batch #137 implementation:
+  - lower decision-support sections use typed EN/RU/ES `offerDetail_*`
+    translations;
+  - `OfferDetail` passes effective `renderAccessLevel` into lower trust and
+    recommendation blocks;
+  - similar offer/product cards show exact prices only for
+    `qualified_unlocked` buyers;
+  - related insight cards are real React Router links to `/blog/:slug`;
+  - FAQ disclosures expose `aria-expanded`, `aria-controls` and mobile-safe
+    target markers;
+  - dedicated unit and e2e guards are present and wired into the full smoke
+    suite;
+  - Batch #137 production-scale notes are present.
+- Batch #137 validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx`, 2 tests;
+  - `npm run smoke:e2e:offer-detail-decision-support-locale-a11y`, 2 tests after production build;
+  - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y:run`, 2 tests;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run`, 2 tests;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:run`, 250 tests.
+- Browser note:
+  - Codex in-app browser connection was attempted but unavailable; mobile
+    runtime verification was completed by Playwright at 390px.
 - Batch #136 offer detail supplier trust locale a11y is merged to `main` via
   PR #188: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/188`.
 - Batch #136 Lovable sync prompt is ready:

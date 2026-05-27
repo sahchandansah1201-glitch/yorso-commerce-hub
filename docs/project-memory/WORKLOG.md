@@ -1424,3 +1424,34 @@ Keep this file factual and append-only.
   - offer detail behavior, access gating, supplier identity redaction, exact-price lock, SupplierAccessRequestPanel, MarketPulse, SEO, analytics, buyer-first copy, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#135 safeguards are preserved;
   - known warnings remain Supabase generated types out of sync in non-strict mode and Browserslist data stale.
 - Recorded Batch #136 Lovable sync in project memory and moved next action to the next scoped public UX/UI audit batch.
+
+## 2026-05-27
+
+- Started Batch #137 on `codex/batch-137-offer-detail-decision-support-locale-a11y`.
+- Ran scoped public UX/UI audit with buyer-first B2B lens on `/offers/:id` lower decision-support sections.
+- Found hardcoded English UI labels in `TrustSection`, `FullSpecifications`, `SimilarOffers`, `SimilarProducts`, `RelatedArticles` and `DecisionFAQ` inside localized RU/ES offer detail UI.
+- Found locked-buyer leakage risk in similar offer/product recommendations: those sections rendered raw mock `priceRange` values instead of the localized locked-price label.
+- Implemented Batch #137 offer detail decision-support locale/a11y hardening:
+  - lower decision-support sections now use typed EN/RU/ES `offerDetail_*` translation keys;
+  - `OfferDetail` passes effective `renderAccessLevel` into lower trust/recommendation blocks;
+  - similar offer/product cards show exact prices only for `qualified_unlocked` buyers;
+  - related insight cards are real links to `/blog/:slug`;
+  - FAQ disclosures expose `aria-expanded`, `aria-controls` and mobile-safe target markers;
+  - `src/components/offer-detail/DecisionSupport.locale.test.tsx` guards RU/ES locale behavior;
+  - `e2e/offer-detail-decision-support-locale-a11y.spec.ts` covers 390px locale, locked-price, link, FAQ and overflow behavior;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #137 10,000 concurrent-user capacity note.
+- Confirmed Batch #137 local validation:
+  - `npx tsc -b --noEmit` passed;
+  - `npx vitest run src/components/offer-detail/DecisionSupport.locale.test.tsx` passed, 2 tests;
+  - `npm run smoke:e2e:offer-detail-decision-support-locale-a11y` passed, 2 tests after production build;
+  - `npm run smoke:e2e:offer-detail-supplier-trust-locale-a11y:run` passed, 2 tests;
+  - `npm run smoke:e2e:offer-detail-mobile-a11y:run` passed, 2 tests;
+  - `npm run smoke:e2e:public-offer-locale-a11y:run` passed, 2 tests;
+  - `npm run check:production-scale-baseline` passed;
+  - `npm run lint` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:run` passed, 250 tests.
+- Batch #137 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.47 kB / 114.17 kB gzip; i18n-translations 340.35 kB / 106.73 kB gzip; OfferDetail 51.80 kB / 12.06 kB gzip.
+- Attempted Codex in-app browser preview verification, but browser-client/browser MCP connection was unavailable. Mobile runtime verification was covered by Playwright at 390px.
+- Batch #137 preserves buyer-first offer detail narrative, access gating, supplier identity redaction, exact-price lock, supplier access requests, Market Pulse, route SEO, Batch #112 code splitting, Batch #113 RouteChunkErrorBoundary and Batches #110-#136 public UX/a11y safeguards.

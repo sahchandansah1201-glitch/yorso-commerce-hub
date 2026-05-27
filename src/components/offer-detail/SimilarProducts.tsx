@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
 import { Snowflake, Leaf, Thermometer } from "lucide-react";
 import { mockOffers, type SeafoodOffer } from "@/data/mockOffers";
+import { useLanguage } from "@/i18n/LanguageContext";
+import { interpolate } from "@/lib/supplier-i18n";
 
 const formatIcon = { Frozen: Snowflake, Fresh: Leaf, Chilled: Thermometer };
 
-const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
+const SimilarProducts = ({
+  current,
+  accessLevel = current.accessLevel,
+}: {
+  current: SeafoodOffer;
+  accessLevel?: SeafoodOffer["accessLevel"];
+}) => {
+  const { t } = useLanguage();
+  const isQualified = accessLevel === "qualified_unlocked";
   // Primary: same category or species. Fallback: same format, then any.
   let products = mockOffers
     .filter(
@@ -27,35 +37,37 @@ const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-10 border-t border-border">
+    <section className="py-10 border-t border-border" data-testid="offer-similar-products">
       <h2 className="font-heading text-lg font-bold text-foreground">
-        Explore Similar Products
+        {t.offerDetail_similarProductsTitle}
       </h2>
       <p className="text-sm text-muted-foreground mt-1 mb-5">
-        Continue browsing related seafood products
+        {t.offerDetail_similarProductsSubtitle}
       </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((o) => {
           const FIcon = formatIcon[o.format];
           const relevance =
             o.species === current.species && o.origin !== current.origin
-              ? `Same species, ${o.origin} origin`
+              ? t.offerDetail_similarReasonDifferentOrigin
               : o.category === current.category
-              ? `${o.category} category`
+              ? t.offerDetail_similarReasonSameCategory
               : o.format === current.format
-              ? `Also ${o.format.toLowerCase()}`
-              : "Related product";
+              ? interpolate(t.offerDetail_similarReasonAlsoFormat, { format: o.format.toLowerCase() })
+              : t.offerDetail_similarReasonRelatedProduct;
 
           return (
             <Link
               key={o.id}
               to={`/offers/${o.id}`}
               className="group rounded-xl border border-border bg-card overflow-hidden transition-shadow hover:shadow-md"
+              aria-label={interpolate(t.offerDetail_openOfferDetails, { product: o.productName })}
+              data-offer-detail-decision-target="similar-product"
             >
               <div className="overflow-hidden bg-muted/20">
                 <img
                   src={o.image}
-                  alt={o.productName}
+                  alt={interpolate(t.offerDetail_offerImageAlt, { product: o.productName })}
                   className="aspect-[16/10] w-full object-cover transition-transform group-hover:scale-[1.02]"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
@@ -73,8 +85,8 @@ const SimilarProducts = ({ current }: { current: SeafoodOffer }) => {
                   <FIcon className="h-3 w-3" /> {o.format} · {o.originFlag} {o.origin}
                 </div>
                 <p className="font-heading text-sm font-bold text-foreground">
-                  {o.priceRange}{" "}
-                  <span className="font-normal text-muted-foreground">{o.priceUnit}</span>
+                  {isQualified ? o.priceRange : t.offerDetail_priceLocked_label}
+                  {isQualified && <span className="font-normal text-muted-foreground"> {o.priceUnit}</span>}
                 </p>
               </div>
             </Link>
