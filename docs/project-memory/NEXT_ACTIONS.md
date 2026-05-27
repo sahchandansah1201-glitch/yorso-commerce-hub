@@ -2,9 +2,11 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Commit Batch #141, push `codex/batch-141-public-sheet-close-a11y`, open a PR
+   and monitor GitHub `Core Type And Build Gate`.
 
-2. Preserve current known contracts: public account menu a11y, public language
+2. Preserve current known contracts: public sheet close locale a11y, public
+   account menu a11y, public language
    selector a11y, public SEO, access gating, supplier identity redaction,
    exact-price lock, buyer-first trust narrative, Batch #112 code splitting,
    Batch #113 route chunk error boundary and Batches #110-#140 public UX/a11y
@@ -12,6 +14,53 @@
 
 3. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
+
+## Batch #141 Local Validation Complete
+
+- Branch: `codex/batch-141-public-sheet-close-a11y`.
+- Scope: public catalog sheet close-control localization.
+- Finding:
+  - shared `SheetContent` hardcoded the default close accessible name as
+    `Close`;
+  - public catalog drawer usages in `CompareTray` and `IntelligenceRail` did
+    not pass a localized close label.
+- Implemented fix:
+  - `SheetContent` accepts optional `closeLabel` and keeps the existing English
+    fallback for compatibility;
+  - `CompareTray` and `IntelligenceRail` pass active-locale `t.aria_close`;
+  - `SheetCloseLocale.test.tsx` guards RU/ES CompareTray and IntelligenceRail
+    labels and prevents default English `Close` leakage;
+  - `public-sheet-close-locale-a11y.spec.ts` opens the real `/offers` compare
+    drawer in RU/ES and checks localized close names, locked-buyer state, no
+    nested controls and no horizontal overflow;
+  - `package.json` wires the dedicated smoke into the full e2e smoke suite;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #141
+    10,000 concurrent-user note.
+- Local validation passed:
+  - `npx vitest run src/components/catalog/SheetCloseLocale.test.tsx`, 4 tests;
+  - `npm run smoke:e2e:public-sheet-close-locale-a11y`, 2 tests after production build;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `git diff --check`;
+  - `npm run smoke:e2e:public-account-menu-a11y:run`, 9 tests;
+  - `npm run smoke:e2e:public-language-selector-a11y:run`, 10 tests;
+  - `npm run smoke:e2e:run`, 282 tests.
+- Build metrics from dedicated smoke:
+  - CSS 126.84 kB / 21.02 kB gzip;
+  - entry 355.53 kB / 114.15 kB gzip;
+  - i18n-translations 340.92 kB / 106.94 kB gzip;
+  - Offers 72.56 kB / 18.74 kB gzip.
+- Preserved:
+  - visible catalog drawer layout, compare behavior, route structure, public
+    SEO, access gating, supplier identity redaction, exact-price lock, Batch
+    #112 code splitting, Batch #113 route chunk error boundary and Batches
+    #110-#140 safeguards.
+- Next:
+  - commit and push the branch;
+  - open PR;
+  - monitor GitHub validation;
+  - after merge, prepare `prompt-141-lovable-sync.md` and ask Lovable to sync.
 
 ## Batch #140 Lovable Sync Confirmed
 

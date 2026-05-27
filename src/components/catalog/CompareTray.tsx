@@ -95,7 +95,7 @@ export const CompareTray = ({ offers, onRemove, onClear, max = 5 }: Props) => {
                 {t.catalog_compare_open}
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+            <SheetContent side="bottom" closeLabel={t.aria_close} className="h-[80vh] overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>{t.catalog_compare_dialogTitle}</SheetTitle>
               </SheetHeader>

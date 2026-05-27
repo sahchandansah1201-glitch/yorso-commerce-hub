@@ -9,13 +9,13 @@ context_risk: "low"
 last_checkpoint: "2026-05-27"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main_after_batch_140_lovable_sync_record"
+active_branch: "codex/batch-141-public-sheet-close-a11y"
+head_commit: "0dada09_plus_batch_141_local_changes"
 latest_merged_batch: 140
-active_workstream: "next_scoped_public_ux_ui_audit_batch"
+active_workstream: "batch_141_public_sheet_close_locale_a11y"
 pull_request: null
-recommended_action: "start next scoped public UX/UI audit batch"
-why_low: "Batch #140 is merged to main as 8ad19a6 and Lovable sync is confirmed clean with no conflicts. It gives the signed-in public header account menu localized programmatic purpose and current-account context while preserving visible header layout, account destinations, session storage, route structure, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#139 safeguards."
+recommended_action: "commit Batch #141, push branch, open PR and monitor GitHub validation"
+why_low: "Batch #141 is a scoped public catalog a11y hardening. It only adds an optional SheetContent closeLabel prop and passes existing t.aria_close from public catalog drawer usages. Local validation passed, including the full browser smoke suite with 282 tests. Batch #140 remains the latest merged and Lovable-synced batch on main."
 ```
 
 ## Risk Levels
@@ -50,10 +50,17 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: next scoped public UX/UI audit batch.
-Current HEAD: main after Batch #140 Lovable sync record; Batch #140 merge commit 8ad19a6.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/192 (merged).
+Current stable main baseline: Batch #140 Lovable sync record.
+Current active branch for Batch #141: codex/batch-141-public-sheet-close-a11y.
+Current workstream: batch_141_public_sheet_close_locale_a11y.
+Current HEAD baseline: main after Batch #140 Lovable sync record; Batch #140 merge commit 8ad19a6; Batch #141 local changes are validated and PR is pending.
+Current PR: none yet for Batch #141. Previous PR #192 is merged.
+Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
+Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
+Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.
+Current Batch #141 validation passed: npx vitest run src/components/catalog/SheetCloseLocale.test.tsx, 4 tests; npm run smoke:e2e:public-sheet-close-locale-a11y, 2 tests after production build; npm run check:production-scale-baseline; npx tsc -b --noEmit; npm run lint; git diff --check; npm run smoke:e2e:public-account-menu-a11y:run, 9 tests; npm run smoke:e2e:public-language-selector-a11y:run, 10 tests; npm run smoke:e2e:run, 282 tests.
+Current Batch #141 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB / 106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip.
+Current Batch #141 next step: commit, push, open PR and monitor GitHub Core Type And Build Gate.
 Current Batch #140 scope: make signed-in public header account controls explicit to assistive tech without changing visible header layout, account destinations, session storage, routes, access behavior or SEO.
 Current Batch #140 finding: the desktop signed-in account chip exposed only the buyer display name/email without a localized menu purpose; the dropdown was not associated through aria-controls and did not expose a named group; the mobile account panel did not expose localized account-menu context.
 Current Batch #140 implementation: Header adds localized account menu/current account labels, aria-haspopup/aria-controls on the desktop account chip, role=group around desktop dropdown and mobile account panel, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-account-menu-a11y.spec.ts and package smoke wiring.

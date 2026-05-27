@@ -3739,6 +3739,82 @@ Marker: public account menu a11y.
 Marker: signed-in buyer trust.
 Marker: 10,000 concurrent users.
 
+## Batch #141 Public Sheet Close Locale A11y
+
+Batch #141 hardens shared catalog sheet close controls. `SheetContent` now
+accepts a `closeLabel` prop while preserving the existing English default, and
+public catalog drawers that use the shared Radix sheet pass the active locale's
+`t.aria_close`. This removes the default English `Close` programmatic label
+from RU/ES buyer catalog drawer states without changing visible layout, drawer
+behavior, offer comparison logic, access gating, supplier redaction, exact-price
+locks, SEO or route structure.
+
+Expected read/write profile:
+
+- No backend reads or writes are introduced.
+- Runtime work is limited to a static accessible-name prop on already-rendered
+  sheet close controls.
+- No new localStorage/sessionStorage writes are added.
+- No offer, supplier, auth API, access, account, admin or database contracts are
+  changed.
+
+Cache, queue and backpressure strategy:
+
+- Existing route chunks and static assets remain browser/CDN cacheable.
+- No queues, polling, timers, retries, subscriptions, background jobs or new
+  network calls are introduced.
+- Sheet close labels are computed from the existing i18n context and do not
+  change request volume at the 10,000 concurrent-user target.
+- Existing Vite route code-splitting and the route chunk error boundary remain
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- Unchanged. This batch does not touch database tables, indexes, offer reads,
+  supplier reads, pagination, auth persistence, access persistence or account
+  persistence.
+- Catalog compare state remains the existing client-side selection state.
+
+Failure mode and graceful degradation:
+
+- If a future sheet does not pass `closeLabel`, the shared component keeps the
+  previous English fallback `Close` to preserve behavior.
+- Public catalog drawer usages now pass `t.aria_close`, so RU/ES assistive
+  technology receives `Закрыть` / `Cerrar` instead of an English default.
+- If CSS fails, the Radix close button remains an ordinary button.
+- If JavaScript hydration is delayed, drawer behavior remains governed by the
+  existing Radix sheet state once hydrated.
+
+Observability and load-test plan:
+
+- Unit coverage verifies RU/ES CompareTray and IntelligenceRail sheet close
+  controls expose localized close labels and do not expose the default English
+  `Close`.
+- Browser smoke verifies `/offers` comparison drawer localization in RU/ES,
+  locked-buyer access state, absence of nested interactive controls and no
+  horizontal overflow.
+- Existing public account menu, language selector, landmark, skip-link, route
+  SEO, CTA semantics and mobile overflow smokes continue to guard the public
+  shell.
+- No new load-test dimension is required because the change is static frontend
+  semantics only.
+
+Validation:
+
+- `npx vitest run src/components/catalog/SheetCloseLocale.test.tsx`;
+- `npm run smoke:e2e:public-sheet-close-locale-a11y`;
+- `npm run smoke:e2e:public-account-menu-a11y:run`;
+- `npm run smoke:e2e:public-language-selector-a11y:run`;
+- `npm run lint`;
+- `npx tsc -b --noEmit`;
+- `npm run check:production-scale-baseline`;
+- `npm run build`.
+
+Marker: Batch #141.
+Marker: public sheet close locale a11y.
+Marker: catalog drawer trust.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

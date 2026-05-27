@@ -1682,3 +1682,41 @@ Keep this file factual and append-only.
     mode and Browserslist data stale.
 - Recorded Batch #140 Lovable sync in project memory and moved next action to
   the next scoped public UX/UI audit batch.
+- Started Batch #141 on `codex/batch-141-public-sheet-close-a11y`.
+- Ran scoped public UX/UI audit with shared catalog drawer a11y lens.
+- Found shared sheet close locale gap:
+  - `src/components/ui/sheet.tsx` hardcoded the default close accessible name
+    as `Close`;
+  - public catalog drawer usages in `CompareTray` and `IntelligenceRail` did
+    not pass a localized close label, so RU/ES sheet states could expose
+    English programmatic copy.
+- Implemented Batch #141 public sheet close locale a11y hardening:
+  - `SheetContent` now accepts optional `closeLabel` while preserving the
+    existing English fallback;
+  - `CompareTray` and `IntelligenceRail` pass active-locale `t.aria_close`;
+  - `src/components/catalog/SheetCloseLocale.test.tsx` covers RU/ES CompareTray
+    and IntelligenceRail sheet close labels and no default English `Close`
+    leakage;
+  - `e2e/public-sheet-close-locale-a11y.spec.ts` opens the real `/offers`
+    comparison drawer in RU/ES and checks localized close names, locked-buyer
+    state, no nested controls and no horizontal overflow;
+  - `package.json` wires the dedicated and full e2e smoke scripts;
+  - `docs/backend/production-scale-baseline.md` contains the Batch #141
+    10,000 concurrent-user note.
+- Confirmed Batch #141 local validation:
+  - `npx vitest run src/components/catalog/SheetCloseLocale.test.tsx` passed, 4 tests;
+  - `npm run smoke:e2e:public-sheet-close-locale-a11y` passed, 2 tests after production build;
+  - `npm run check:production-scale-baseline` passed;
+  - `npx tsc -b --noEmit` passed;
+  - `npm run lint` passed;
+  - `git diff --check` passed;
+  - `npm run smoke:e2e:public-account-menu-a11y:run` passed, 9 tests;
+  - `npm run smoke:e2e:public-language-selector-a11y:run` passed, 10 tests;
+  - `npm run smoke:e2e:run` passed, 282 tests.
+- Batch #141 build metrics from dedicated smoke: CSS 126.84 kB / 21.02 kB
+  gzip; entry 355.53 kB / 114.15 kB gzip; i18n-translations 340.92 kB /
+  106.94 kB gzip; Offers 72.56 kB / 18.74 kB gzip.
+- Batch #141 preserves visible catalog drawer layout, compare behavior, route
+  structure, public SEO, access gating, supplier identity redaction, exact-price
+  lock, Batch #112 code splitting, Batch #113 route chunk error boundary and
+  Batches #110-#140 public UX/a11y safeguards.
