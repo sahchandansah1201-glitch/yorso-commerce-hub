@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1g_account_storage_transaction_boundary_checkpoint"
-  head_summary: "Backend Phase 1G Account Storage Transaction Boundary implemented locally with full release validation passed."
+  head_commit: "phase_1h_account_workspace_replace_transaction_boundary_checkpoint"
+  head_summary: "Backend Phase 1H Account Workspace Replace Transaction Boundary implemented locally with full release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
     - "No expected dirty worktree after the Phase 1F checkpoint commit."
@@ -37,12 +37,18 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1g_account_storage_transaction_boundary"
-  summary: "Account document metadata is written atomically and storage uploads use cleanup compensation instead of introducing an outbox before async processing exists."
+  id: "backend_phase_1h_account_workspace_replace_transaction_boundary"
+  summary: "Bulk account workspace collection replacement endpoints now use one atomic PostgreSQL CTE statement per collection."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1H implementation is recorded in docs/backend/phase-1-account-workspace-replace-transaction-boundary.md."
+    - "PostgresAccountRepository replaceBranches, replaceProducts, replaceMetaRegions and replaceNotifications now use one CTE statement with input/deleted/touched/insert returning."
+    - "Bulk replacement rows are returned from the write statement instead of delete plus per-row insert plus reread."
+    - "Phase 1H targeted validation passed: account repository tests, server/account/storage API tests and npx tsc -b --noEmit."
+    - "Phase 1H full release validation passed: npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build."
+    - "Phase 1H production build Account route chunk: Account-BesZRqle.js 112.88 kB / 25.69 kB gzip."
     - "Phase 1G implementation is recorded in docs/backend/phase-1-account-storage-transaction-boundary.md."
     - "apps/api/src/modules/storage/postgres-repository.ts adds createCompanyDocumentWithFileAsset, writing yorso_file_assets and yorso_company_documents in one atomic SQL CTE statement."
     - "apps/api/src/modules/storage/service.ts deletes object bytes if metadata persistence fails after object write."

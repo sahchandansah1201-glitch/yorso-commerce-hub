@@ -4382,6 +4382,82 @@ Marker: account storage transaction boundary.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1H Account Workspace Replace Transaction Boundary
+
+Phase 1H closes the remaining backend collection-write risk from the Phase 1
+source-of-truth audit. Bulk account workspace replacement endpoints still exist,
+but PostgreSQL now applies each collection replacement as one atomic CTE
+statement instead of delete + per-row insert + parent touch as separate calls.
+
+Expected read/write profile:
+
+- No public traffic is added.
+- Normal `/account/*` UI edits remain Phase 1B row-level/section-scoped writes.
+- Legacy/bulk branch, product, meta-region and notification replacements now
+  reduce N+2 SQL statements per collection to one bounded write statement after
+  the existing company lookup where needed.
+- Replacement rows are returned from the write statement, so no extra reread is
+  required after replacement.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling, subscription or retry loop is introduced.
+- Existing auth/session cache and account-version precondition remain the
+  account authority boundary.
+- Request-size/schema validation and bounded account list payloads remain the
+  backpressure boundary.
+- If branches/products grow beyond small account-management lists, add
+  pagination instead of accepting unbounded replacement arrays.
+
+Database indexing and pagination strategy:
+
+- No schema migration, new index or pagination surface is introduced.
+- Replacement statements remain scoped by one company id or user id.
+- Existing indexes remain the bounded paths:
+  `idx_yorso_company_branches_company_id`,
+  `idx_yorso_company_products_company_id`,
+  `idx_yorso_company_meta_regions_company_id` and
+  `idx_yorso_notification_preferences_user_id`.
+
+Failure mode and graceful degradation:
+
+- If an inserted row violates enum/check/foreign-key constraints, PostgreSQL
+  rejects the full statement. The previous rows are not independently deleted
+  before a later failed insert.
+- Account version strict/stale behavior from Phase 1C/1D is unchanged.
+- API-disabled local prototype mode remains unchanged.
+
+Observability and load-test plan:
+
+- Track collection replacement p95/p99 latency by route.
+- Track replacement row counts and validation/constraint failures.
+- Load-test 10,000 concurrent users with row-level account edits, bounded bulk
+  replacements, invalid-row replacement and stale-header writes.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
+- 1 file passed;
+- 17 tests passed.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- 3 files passed;
+- 86 tests passed.
+- `npx tsc -b --noEmit`.
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run api:build`;
+- `npm run build`.
+
+Production build metric:
+
+- Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+Marker: Backend Phase 1H.
+Marker: account workspace replace transaction boundary.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

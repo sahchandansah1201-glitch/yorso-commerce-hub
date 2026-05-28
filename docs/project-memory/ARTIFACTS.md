@@ -231,6 +231,22 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1G
   checkpoint with full release validation passed.
 
+## Backend Phase 1H Account Workspace Replace Transaction Boundary
+
+- `docs/backend/phase-1-account-workspace-replace-transaction-boundary.md`:
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  baseline for bulk account workspace collection replacement.
+- `apps/api/src/modules/account/postgres-repository.ts`: branch, product,
+  meta-region and notification replacement methods now run one atomic
+  PostgreSQL CTE statement per collection.
+- `apps/api/src/modules/account/__tests__/repository.test.ts`: fake
+  PostgreSQL client and repository assertions now cover the CTE replacement
+  shape.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1H capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1H
+  checkpoint with full release validation passed.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

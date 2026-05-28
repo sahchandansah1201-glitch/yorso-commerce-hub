@@ -1926,6 +1926,39 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Implemented Backend Phase 1H: Account Workspace Replace Transaction
+  Boundary.
+- Added `docs/backend/phase-1-account-workspace-replace-transaction-boundary.md`
+  with a Russian plan/fact table and 10,000 concurrent-user review.
+- Updated `PostgresAccountRepository.replaceBranches`,
+  `replaceProducts`, `replaceMetaRegions` and `replaceNotifications` so each
+  bulk replacement runs as one atomic PostgreSQL CTE statement with `input`,
+  `deleted`, `touched` and `insert ... returning`.
+- Preserved route paths, request payloads and response contracts.
+- Updated repository test fake PostgreSQL client to support CTE replacements.
+- Added repository assertions that all four bulk replacement paths use the CTE
+  shape with `deleted` and `touched`.
+- Added the Phase 1H 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
+  - 1 file passed;
+  - 17 tests passed;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - 3 files passed;
+  - 86 tests passed;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+## 2026-05-28
+
 - Implemented Backend Phase 1D: Account Strict Precondition Policy.
 - Added API config flag `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required`.
 - Kept local/dev/test default as `optional` for compatibility.

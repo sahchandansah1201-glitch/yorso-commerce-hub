@@ -348,6 +348,82 @@ class FakeAccountPgClient implements AccountQueryClient {
       return { rows: [] };
     }
 
+    if (normalized.startsWith("with input as") && normalized.includes("insert into yorso_company_branches")) {
+      const companyId = params[0] as string;
+      const items = JSON.parse(params[1] as string) as Array<Record<string, unknown>>;
+      this.branches = items.map((item) => ({
+        id: item.id as string,
+        company_id: companyId,
+        name: item.name as string,
+        type: item.type as FakeBranchRow["type"],
+        country: item.country as string,
+        region: item.region as string,
+        city: item.city as string,
+        address_line: item.address_line as string,
+        default_incoterms: item.default_incoterms as string,
+        port_or_pickup_point: item.port_or_pickup_point as string,
+        notes: item.notes as string,
+        position: item.position as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
+      }));
+      return { rows: this.branches as unknown as Row[] };
+    }
+
+    if (normalized.startsWith("with input as") && normalized.includes("insert into yorso_company_products")) {
+      const companyId = params[0] as string;
+      const items = JSON.parse(params[1] as string) as Array<Record<string, unknown>>;
+      this.products = items.map((item) => ({
+        id: item.id as string,
+        company_id: companyId,
+        commercial_name: item.commercial_name as string,
+        latin_name: item.latin_name as string,
+        category: item.category as string,
+        state: item.state as FakeProductRow["state"],
+        format: item.format as string,
+        role: item.role as FakeProductRow["role"],
+        monthly_volume: item.monthly_volume as string,
+        certificates: item.certificates as string[],
+        target_countries: item.target_countries as string[],
+        position: item.position as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
+      }));
+      return { rows: this.products as unknown as Row[] };
+    }
+
+    if (normalized.startsWith("with input as") && normalized.includes("insert into yorso_company_meta_regions")) {
+      const companyId = params[0] as string;
+      const items = JSON.parse(params[1] as string) as Array<Record<string, unknown>>;
+      this.metaRegions = items.map((item) => ({
+        id: item.id as string,
+        company_id: companyId,
+        name: item.name as string,
+        countries: item.countries as string[],
+        logistics_reason: item.logistics_reason as FakeMetaRegionRow["logistics_reason"],
+        default_currency: item.default_currency as string,
+        notes: item.notes as string,
+        used_for: item.used_for as FakeMetaRegionRow["used_for"],
+        position: item.position as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
+      }));
+      return { rows: this.metaRegions as unknown as Row[] };
+    }
+
+    if (normalized.startsWith("with input as") && normalized.includes("insert into yorso_notification_preferences")) {
+      const userId = params[0] as string;
+      const items = JSON.parse(params[1] as string) as Array<Record<string, unknown>>;
+      this.notifications = items.map((item) => ({
+        id: item.id as string,
+        user_id: userId,
+        channel: item.channel as FakeNotificationRow["channel"],
+        enabled: item.enabled as boolean,
+        events: item.events as FakeNotificationRow["events"],
+        frequency: item.frequency as FakeNotificationRow["frequency"],
+        position: item.position as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
+      }));
+      return { rows: this.notifications as unknown as Row[] };
+    }
+
     if (normalized.includes("from yorso_company_branches") && !normalized.startsWith("delete from")) {
       return {
         rows: this.company && params[0] === this.company.owner_user_id
@@ -819,6 +895,12 @@ describe("account repositories", () => {
     expect(notifications).toEqual([expect.objectContaining({ id: "n_pg", frequency: "weekly" })]);
     expect(client.calls.some((call) => call.sql.includes("delete from yorso_company_products"))).toBe(true);
     expect(client.calls.some((call) => call.sql.includes("insert into yorso_notification_preferences"))).toBe(true);
+    const replacementStatements = client.calls.filter((call) => call.sql.trim().startsWith("with input as"));
+    expect(replacementStatements).toHaveLength(4);
+    for (const call of replacementStatements) {
+      expect(call.sql).toContain("deleted as");
+      expect(call.sql).toContain("touched as");
+    }
   });
 
   it("postgres repository supports row-level workspace CRUD through owner-scoped lists", async () => {

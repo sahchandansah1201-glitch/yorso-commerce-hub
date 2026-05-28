@@ -16,8 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1G account storage transaction boundary is implemented locally
-with full release validation green. Next step: choose the next backend
+Backend Phase 1H account workspace replace transaction boundary is implemented
+locally with full release validation green. Next step: choose the next backend
 implementation from the plan.
 
 ## Current Status
@@ -38,6 +38,30 @@ implementation from the plan.
   with full release validation green.
 - Phase 1G Account Storage Transaction Boundary is implemented locally with
   full release validation green.
+- Phase 1H Account Workspace Replace Transaction Boundary is implemented
+  locally with full release validation green.
+- Phase 1H implementation document:
+  `docs/backend/phase-1-account-workspace-replace-transaction-boundary.md`.
+- Phase 1H implementation:
+  - `replaceBranches`, `replaceProducts`, `replaceMetaRegions` and
+    `replaceNotifications` now run one atomic PostgreSQL CTE statement per
+    collection;
+  - each statement includes `input`, `deleted`, `touched` and
+    `insert ... returning`;
+  - replacement rows return from the write statement, so no extra post-write
+    reread is needed;
+  - route payloads and responses stay unchanged.
+- Phase 1H targeted validation passed:
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts`
+  with 1 file passed and 17 tests passed;
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
+  with 3 files passed and 86 tests passed;
+  `npx tsc -b --noEmit`.
+- Phase 1H full validation passed:
+  `npm run lint`, `npm run check:production-scale-baseline`,
+  `git diff --check`, `npm run api:build`, `npm run build`.
+- Phase 1H production build metric:
+  Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
 - Phase 1G implementation document:
   `docs/backend/phase-1-account-storage-transaction-boundary.md`.
 - Phase 1G implementation:

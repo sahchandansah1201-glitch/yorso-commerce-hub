@@ -485,36 +485,72 @@ export class PostgresAccountRepository implements AccountRepository {
 
   async replaceBranches(userId: string, branches: AccountBranchesUpdate): Promise<CompanyBranch[]> {
     const companyId = await this.getCompanyIdForUser(userId);
-    await this.client.query("delete from yorso_company_branches where company_id = $1", [companyId]);
-
-    for (const [index, branch] of branches.entries()) {
-      await this.client.query(
-        `
-          insert into yorso_company_branches (
-            id, company_id, name, type, country, region, city, address_line,
-            default_incoterms, port_or_pickup_point, notes, position, updated_at
+    const result = await this.client.query<BranchRow>(
+      `
+        with input as (
+          select *
+          from jsonb_to_recordset($2::jsonb) as item(
+            id text,
+            name text,
+            type yorso_branch_type,
+            country text,
+            region text,
+            city text,
+            address_line text,
+            default_incoterms text,
+            port_or_pickup_point text,
+            notes text,
+            position integer
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
-        `,
-        [
-          branch.id,
-          companyId,
-          branch.name,
-          branch.type,
-          branch.country,
-          branch.region,
-          branch.city,
-          branch.addressLine,
-          branch.defaultIncoterms,
-          branch.portOrPickupPoint,
-          branch.notes,
-          index,
-        ],
-      );
-    }
+        ),
+        deleted as (
+          delete from yorso_company_branches where company_id = $1
+        ),
+        touched as (
+          update yorso_companies set updated_at = now() where id = $1
+        )
+        insert into yorso_company_branches (
+          id, company_id, name, type, country, region, city, address_line,
+          default_incoterms, port_or_pickup_point, notes, position, updated_at
+        )
+        select
+          input.id,
+          $1,
+          input.name,
+          input.type,
+          input.country,
+          input.region,
+          input.city,
+          input.address_line,
+          input.default_incoterms,
+          input.port_or_pickup_point,
+          input.notes,
+          input.position,
+          now()
+        from input
+        order by input.position asc
+        returning id, name, type, country, region, city, address_line,
+          default_incoterms, port_or_pickup_point, notes
+      `,
+      [
+        companyId,
+        JSON.stringify(branches.map((branch, index) => ({
+          id: branch.id,
+          name: branch.name,
+          type: branch.type,
+          country: branch.country,
+          region: branch.region,
+          city: branch.city,
+          address_line: branch.addressLine,
+          default_incoterms: branch.defaultIncoterms,
+          port_or_pickup_point: branch.portOrPickupPoint,
+          notes: branch.notes,
+          position: index,
+        }))),
+      ],
+    );
 
-    await this.touchCompany(companyId);
-    return this.getBranches(userId);
+    return result.rows.map(mapBranch);
   }
 
   async createBranch(userId: string, itemId: string, branch: CompanyBranchCreate): Promise<CompanyBranch> {
@@ -555,36 +591,72 @@ export class PostgresAccountRepository implements AccountRepository {
 
   async replaceProducts(userId: string, products: AccountProductsUpdate): Promise<CompanyProduct[]> {
     const companyId = await this.getCompanyIdForUser(userId);
-    await this.client.query("delete from yorso_company_products where company_id = $1", [companyId]);
-
-    for (const [index, product] of products.entries()) {
-      await this.client.query(
-        `
-          insert into yorso_company_products (
-            id, company_id, commercial_name, latin_name, category, state, format,
-            role, monthly_volume, certificates, target_countries, position, updated_at
+    const result = await this.client.query<ProductRow>(
+      `
+        with input as (
+          select *
+          from jsonb_to_recordset($2::jsonb) as item(
+            id text,
+            commercial_name text,
+            latin_name text,
+            category text,
+            state yorso_product_state,
+            format text,
+            role yorso_product_role,
+            monthly_volume text,
+            certificates text[],
+            target_countries text[],
+            position integer
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
-        `,
-        [
-          product.id,
-          companyId,
-          product.commercialName,
-          product.latinName,
-          product.category,
-          product.state,
-          product.format,
-          product.role,
-          product.monthlyVolume,
-          product.certificates,
-          product.targetCountries,
-          index,
-        ],
-      );
-    }
+        ),
+        deleted as (
+          delete from yorso_company_products where company_id = $1
+        ),
+        touched as (
+          update yorso_companies set updated_at = now() where id = $1
+        )
+        insert into yorso_company_products (
+          id, company_id, commercial_name, latin_name, category, state, format,
+          role, monthly_volume, certificates, target_countries, position, updated_at
+        )
+        select
+          input.id,
+          $1,
+          input.commercial_name,
+          input.latin_name,
+          input.category,
+          input.state,
+          input.format,
+          input.role,
+          input.monthly_volume,
+          input.certificates,
+          input.target_countries,
+          input.position,
+          now()
+        from input
+        order by input.position asc
+        returning id, commercial_name, latin_name, category, state, format,
+          role, monthly_volume, certificates, target_countries
+      `,
+      [
+        companyId,
+        JSON.stringify(products.map((product, index) => ({
+          id: product.id,
+          commercial_name: product.commercialName,
+          latin_name: product.latinName,
+          category: product.category,
+          state: product.state,
+          format: product.format,
+          role: product.role,
+          monthly_volume: product.monthlyVolume,
+          certificates: product.certificates,
+          target_countries: product.targetCountries,
+          position: index,
+        }))),
+      ],
+    );
 
-    await this.touchCompany(companyId);
-    return this.getProducts(userId);
+    return result.rows.map(mapProduct);
   }
 
   async createProduct(userId: string, itemId: string, product: CompanyProductCreate): Promise<CompanyProduct> {
@@ -624,33 +696,62 @@ export class PostgresAccountRepository implements AccountRepository {
 
   async replaceMetaRegions(userId: string, metaRegions: AccountMetaRegionsUpdate): Promise<MetaRegion[]> {
     const companyId = await this.getCompanyIdForUser(userId);
-    await this.client.query("delete from yorso_company_meta_regions where company_id = $1", [companyId]);
-
-    for (const [index, metaRegion] of metaRegions.entries()) {
-      await this.client.query(
-        `
-          insert into yorso_company_meta_regions (
-            id, company_id, name, countries, logistics_reason, default_currency,
-            notes, used_for, position, updated_at
+    const result = await this.client.query<MetaRegionRow>(
+      `
+        with input as (
+          select *
+          from jsonb_to_recordset($2::jsonb) as item(
+            id text,
+            name text,
+            countries text[],
+            logistics_reason yorso_meta_region_logistics_reason,
+            default_currency text,
+            notes text,
+            used_for yorso_meta_region_used_for[],
+            position integer
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8::yorso_meta_region_used_for[], $9, now())
-        `,
-        [
-          metaRegion.id,
-          companyId,
-          metaRegion.name,
-          metaRegion.countries,
-          metaRegion.logisticsReason,
-          metaRegion.defaultCurrency,
-          metaRegion.notes,
-          metaRegion.usedFor,
-          index,
-        ],
-      );
-    }
+        ),
+        deleted as (
+          delete from yorso_company_meta_regions where company_id = $1
+        ),
+        touched as (
+          update yorso_companies set updated_at = now() where id = $1
+        )
+        insert into yorso_company_meta_regions (
+          id, company_id, name, countries, logistics_reason, default_currency,
+          notes, used_for, position, updated_at
+        )
+        select
+          input.id,
+          $1,
+          input.name,
+          input.countries,
+          input.logistics_reason,
+          input.default_currency,
+          input.notes,
+          input.used_for,
+          input.position,
+          now()
+        from input
+        order by input.position asc
+        returning id, name, countries, logistics_reason, default_currency, notes, used_for
+      `,
+      [
+        companyId,
+        JSON.stringify(metaRegions.map((metaRegion, index) => ({
+          id: metaRegion.id,
+          name: metaRegion.name,
+          countries: metaRegion.countries,
+          logistics_reason: metaRegion.logisticsReason,
+          default_currency: metaRegion.defaultCurrency,
+          notes: metaRegion.notes,
+          used_for: metaRegion.usedFor,
+          position: index,
+        }))),
+      ],
+    );
 
-    await this.touchCompany(companyId);
-    return this.getMetaRegions(userId);
+    return result.rows.map(mapMetaRegion);
   }
 
   async createMetaRegion(userId: string, itemId: string, metaRegion: MetaRegionCreate): Promise<MetaRegion> {
@@ -688,30 +789,55 @@ export class PostgresAccountRepository implements AccountRepository {
   }
 
   async replaceNotifications(userId: string, notifications: AccountNotificationsUpdate): Promise<NotificationPreference[]> {
-    await this.client.query("delete from yorso_notification_preferences where user_id = $1", [userId]);
-
-    for (const [index, notification] of notifications.entries()) {
-      await this.client.query(
-        `
-          insert into yorso_notification_preferences (
-            id, user_id, channel, enabled, events, frequency, position, updated_at
+    const result = await this.client.query<NotificationRow>(
+      `
+        with input as (
+          select *
+          from jsonb_to_recordset($2::jsonb) as item(
+            id text,
+            channel yorso_notification_channel,
+            enabled boolean,
+            events yorso_notification_event[],
+            frequency yorso_notification_frequency,
+            position integer
           )
-          values ($1, $2, $3, $4, $5::yorso_notification_event[], $6, $7, now())
-        `,
-        [
-          notification.id,
-          userId,
-          notification.channel,
-          notification.enabled,
-          notification.events,
-          notification.frequency,
-          index,
-        ],
-      );
-    }
+        ),
+        deleted as (
+          delete from yorso_notification_preferences where user_id = $1
+        ),
+        touched as (
+          update yorso_users set updated_at = now() where id = $1
+        )
+        insert into yorso_notification_preferences (
+          id, user_id, channel, enabled, events, frequency, position, updated_at
+        )
+        select
+          input.id,
+          $1,
+          input.channel,
+          input.enabled,
+          input.events,
+          input.frequency,
+          input.position,
+          now()
+        from input
+        order by input.position asc
+        returning id, channel, enabled, events, frequency
+      `,
+      [
+        userId,
+        JSON.stringify(notifications.map((notification, index) => ({
+          id: notification.id,
+          channel: notification.channel,
+          enabled: notification.enabled,
+          events: notification.events,
+          frequency: notification.frequency,
+          position: index,
+        }))),
+      ],
+    );
 
-    await this.touchUser(userId);
-    return this.getNotifications(userId);
+    return result.rows.map(mapNotification);
   }
 
   async createNotification(

@@ -116,3 +116,10 @@
     metadata persistence failure, and compensates media uploads if company media
     profile update fails after asset creation. Outbox is deferred until async
     storage processing exists.
+
+- Risk: Bulk backend account workspace collection replacement could delete old
+  rows and then fail during a later per-row insert, leaving partial account
+  workspace state.
+  Resolution: Backend Phase 1H replaces branch, product, meta-region and
+    notification collection replacement with one atomic PostgreSQL CTE statement
+    per collection, including delete, parent touch and insert returning.
