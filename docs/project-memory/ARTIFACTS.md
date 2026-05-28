@@ -186,6 +186,27 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1E checkpoint with
   full release validation passed.
 
+## Backend Phase 1F Account Storage Client Authority Boundary
+
+- `docs/backend/phase-1-account-storage-client-authority-boundary.md`:
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  baseline for account storage client authority.
+- `src/lib/account-api.ts`: enabled self-hosted account API clients fail with
+  `account_api_session_required` before fetch when no explicit/session/configured
+  user id exists.
+- `src/components/account/CompanyDocumentsCard.tsx`: accepts an optional
+  account API client instead of always creating an implicit enabled client.
+- `src/pages/account/Account.tsx`: passes the validated session-bound account
+  client into company documents.
+- `src/lib/account-api.test.ts`: guards no demo fallback in enabled mode and
+  updates file URL expectations with session id.
+- `src/pages/account/Account.editable.test.tsx`: guards document list headers in
+  self-hosted account mode.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1F capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1F checkpoint with
+  full release validation passed.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

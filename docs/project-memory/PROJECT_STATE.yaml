@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1e_account_media_document_version_boundary_checkpoint"
-  head_summary: "Backend Phase 1E Account Media/Document Version Boundary implemented and full release validation passed."
+  head_commit: "phase_1f_account_storage_client_authority_boundary_checkpoint"
+  head_summary: "Backend Phase 1F Account Storage Client Authority Boundary implemented locally and full release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 1E checkpoint commit."
+    - "No expected dirty worktree after the Phase 1F checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,20 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1e_account_media_document_version_boundary"
-  summary: "Account-owned media and document routes participate in accountVersion and strict precondition handling."
+  id: "backend_phase_1f_account_storage_client_authority_boundary"
+  summary: "Account-owned storage UI uses the validated session-bound account client and enabled account API mode no longer falls back to the deterministic demo user id."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1F implementation is recorded in docs/backend/phase-1-account-storage-client-authority-boundary.md."
+    - "src/lib/account-api.ts now resolves account user id lazily and fails enabled clients with account_api_session_required when no explicit/session/configured user exists."
+    - "src/components/account/CompanyDocumentsCard.tsx accepts an accountApiClient prop; src/pages/account/Account.tsx passes the validated session-bound client into /account/company documents."
+    - "src/lib/account-api.test.ts confirms enabled self-hosted clients without a session user do not fetch under DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID."
+    - "src/pages/account/Account.editable.test.tsx confirms /v1/account/documents uses x-yorso-user-id=user-api-1 and x-yorso-session-id=session-api-1."
+    - "Phase 1F targeted validation passed: npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx, 3 files, 52 tests."
+    - "Phase 1F full release validation passed: npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; git diff --check; npm run build."
+    - "Phase 1F production build Account route chunk: Account-BesZRqle.js 112.88 kB / 25.69 kB gzip."
     - "Phase 1E implementation is recorded in docs/backend/phase-1-account-media-document-version-boundary.md."
     - "apps/api/src/modules/account/version-precondition.ts centralizes x-yorso-account-version precondition reading for account and storage routes."
     - "apps/api/src/modules/storage/routes.ts now returns accountVersion on document list/create and company media upload responses."

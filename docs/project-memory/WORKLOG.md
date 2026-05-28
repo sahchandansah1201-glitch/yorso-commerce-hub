@@ -1926,6 +1926,41 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Implemented Backend Phase 1F: Account Storage Client Authority Boundary.
+- Updated `src/lib/account-api.ts` so enabled self-hosted account API calls no
+  longer use `DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID` when no explicit,
+  buyer-session or configured account user id exists.
+- Added fail-closed behavior:
+  - missing account user in enabled mode throws `account_api_session_required`
+    before fetch;
+  - disabled local prototype mode keeps the previous local fallback behavior.
+- Updated `CompanyDocumentsCard` to accept an account API client from its parent.
+- Updated `/account/company` to pass the validated session-bound client into
+  company documents, keeping document list/create on the same account authority
+  as company profile and media writes.
+- Added `docs/backend/phase-1-account-storage-client-authority-boundary.md`.
+- Added the Phase 1F 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
+  - 3 files passed;
+  - 52 tests passed.
+- Full release validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale;
+  - React Router v7 future flag warnings;
+  - existing `act(...)` warnings in account editable tests.
+
+## 2026-05-28
+
 - Implemented Backend Phase 1E: Account Media/Document Version Boundary.
 - Added shared `apps/api/src/modules/account/version-precondition.ts` for
   `x-yorso-account-version` parsing and strict missing-header enforcement.

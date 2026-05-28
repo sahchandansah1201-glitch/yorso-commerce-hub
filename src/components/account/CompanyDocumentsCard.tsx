@@ -18,6 +18,7 @@ import type { CompanyProfile } from "@/data/mockAccount";
 
 type DocumentType = CompanyDocument["documentType"];
 type DocumentVisibility = CompanyDocument["visibility"];
+type AccountApiClient = ReturnType<typeof createAccountApiClient>;
 
 const DOCUMENT_TYPES: DocumentType[] = [
   "business_license",
@@ -70,9 +71,16 @@ const statusLabel = (status: CompanyDocument["status"], t: ReturnType<typeof use
   expired: t.account_company_doc_status_expired,
 }[status]);
 
-export const CompanyDocumentsCard = ({ company }: { company: CompanyProfile }) => {
+export const CompanyDocumentsCard = ({
+  accountApiClient,
+  company,
+}: {
+  accountApiClient?: AccountApiClient;
+  company: CompanyProfile;
+}) => {
   const { t } = useLanguage();
-  const client = useMemo(() => createAccountApiClient(), []);
+  const fallbackClient = useMemo(() => createAccountApiClient(), []);
+  const client = accountApiClient ?? fallbackClient;
   const [documents, setDocuments] = useState<CompanyDocument[]>(() => listLocalCompanyDocuments());
   const [title, setTitle] = useState("");
   const [documentType, setDocumentType] = useState<DocumentType>("haccp");

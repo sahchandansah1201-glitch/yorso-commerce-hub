@@ -100,3 +100,10 @@
     upload routes, returns refreshed `accountVersion` from document/media JSON
     responses and includes file/document timestamps in the account snapshot
     version.
+
+- Risk: Enabled account storage clients could use the deterministic demo account
+  id when no validated account session user was available.
+  Resolution: Backend Phase 1F makes enabled account API calls fail before fetch
+    with `account_api_session_required` unless an explicit, buyer-session or
+    configured account user id is present, and `/account/company` passes the
+    validated session-bound client into company documents.

@@ -125,6 +125,9 @@ const accountApiBody = (url: string) => {
   if (url.endsWith("/v1/account/notifications")) {
     return { notifications: [], ok: true, requestId: "req-account-notifications" };
   }
+  if (url.endsWith("/v1/account/documents")) {
+    return { accountVersion: "account-v1", documents: [], ok: true, requestId: "req-account-documents" };
+  }
   return null;
 };
 

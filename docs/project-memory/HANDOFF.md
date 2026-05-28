@@ -16,7 +16,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1E account media/document version boundary is implemented
+Backend Phase 1F account storage client authority boundary is implemented
 locally with full release validation green. Next step: choose the next backend
 implementation from the plan.
 
@@ -34,6 +34,29 @@ implementation from the plan.
   release validation green.
 - Phase 1E Account Media/Document Version Boundary is implemented locally with
   full release validation green.
+- Phase 1F Account Storage Client Authority Boundary is implemented locally
+  with full release validation green.
+- Phase 1F implementation document:
+  `docs/backend/phase-1-account-storage-client-authority-boundary.md`.
+- Phase 1F implementation:
+  - enabled `createAccountApiClient` fails before fetch with
+    `account_api_session_required` when no explicit/session/configured user id
+    exists;
+  - the deterministic demo account id remains only for disabled/local prototype
+    mode and explicit fixtures;
+  - `CompanyDocumentsCard` accepts the session-bound account client;
+  - `/account/company` passes its validated account client to company documents,
+    so document list/create uses `x-yorso-user-id=user-api-1` and
+    `x-yorso-session-id=session-api-1` in self-hosted account mode.
+- Phase 1F targeted validation passed:
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`
+  with 3 files passed and 52 tests passed.
+- Phase 1F full validation passed:
+  `npx tsc -b --noEmit`, `npm run lint`,
+  `npm run check:production-scale-baseline`, `git diff --check`,
+  `npm run build`.
+- Phase 1F production build metric:
+  Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
 - Phase 1E implementation document:
   `docs/backend/phase-1-account-media-document-version-boundary.md`.
 - Phase 1E implementation:

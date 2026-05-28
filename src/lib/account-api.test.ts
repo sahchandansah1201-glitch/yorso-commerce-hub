@@ -138,6 +138,14 @@ describe("account API adapter", () => {
     vi.restoreAllMocks();
   });
 
+  const createAuthenticatedAccountClient = (fetchImpl: typeof fetch) =>
+    createAccountApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl,
+      sessionId: "session-account-test",
+      userId: DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID,
+    });
+
   it("merges backend account data into the existing frontend profile without losing local sections", () => {
     const merged = mergeBackendAccountProfile(mockAccountProfile, backendUser, backendCompany);
 
@@ -194,7 +202,7 @@ describe("account API adapter", () => {
 
   it("loads all account workspace sections from the configured self-hosted API", async () => {
     const fetchImpl = mockLoadResponses();
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     const profile = await client.load(mockAccountProfile);
     const [, firstRequest] = fetchImpl.mock.calls[0] as [string, RequestInit];
@@ -212,6 +220,14 @@ describe("account API adapter", () => {
     expect(profile.products[0].commercialName).toBe("Backend Cod");
     expect(profile.metaRegions[0].name).toBe("Backend Region");
     expect(profile.notifications[0].frequency).toBe("weekly");
+  });
+
+  it("does not use the deterministic demo account id for an enabled self-hosted account client without a session user", async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    await expect(client.load(mockAccountProfile)).rejects.toThrow("account_api_session_required");
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("sends the latest account version precondition after loading account data", async () => {
@@ -235,7 +251,7 @@ describe("account API adapter", () => {
         accountVersion: "account-v3",
         requestId: "r8",
       }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
     await client.load(mockAccountProfile);
 
     await syncAccountProfileSectionToApi(
@@ -273,7 +289,7 @@ describe("account API adapter", () => {
         },
       }, 409),
     );
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     await expect(
       syncAccountProfileSectionToApi(
@@ -294,7 +310,7 @@ describe("account API adapter", () => {
 
   it("saves all account workspace sections to the self-hosted API", async () => {
     const fetchImpl = mockLoadResponses();
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     await client.save(mockAccountProfile);
 
@@ -356,7 +372,7 @@ describe("account API adapter", () => {
         requestId: "r-user-section",
         user: { ...backendUser, firstName: "Alicia" },
       }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
     const nextProfile = {
       ...mockAccountProfile,
       user: { ...mockAccountProfile.user, firstName: "Alicia" },
@@ -392,7 +408,7 @@ describe("account API adapter", () => {
         requestId: "r-company-section",
         company: { ...backendCompany, tradeName: nextCompany.tradeName },
       }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
     const nextProfile = {
       ...mockAccountProfile,
       company: nextCompany,
@@ -435,7 +451,7 @@ describe("account API adapter", () => {
       .mockResolvedValueOnce(jsonResponse({ ok: true, branch: deletedBranch, deletedId: deletedBranch.id, requestId: "r-delete" }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, branch: changedBranch, requestId: "r-update" }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, branch: newBranch, requestId: "r-create" }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
     const previousProfile = {
       ...mockAccountProfile,
       branches: [existingBranch, deletedBranch],
@@ -508,18 +524,9 @@ describe("account API adapter", () => {
         requestId: "r-notification",
       }));
 
-    const productClient = createAccountApiClient({
-      baseUrl: "http://localhost:3000",
-      fetchImpl: productFetch,
-    });
-    const metaClient = createAccountApiClient({
-      baseUrl: "http://localhost:3000",
-      fetchImpl: metaFetch,
-    });
-    const notificationClient = createAccountApiClient({
-      baseUrl: "http://localhost:3000",
-      fetchImpl: notificationFetch,
-    });
+    const productClient = createAuthenticatedAccountClient(productFetch);
+    const metaClient = createAuthenticatedAccountClient(metaFetch);
+    const notificationClient = createAuthenticatedAccountClient(notificationFetch);
 
     await syncAccountProfileSectionToApi(
       { ...mockAccountProfile, products: [changedProduct] },
@@ -626,7 +633,7 @@ describe("account API adapter", () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ ok: true, documents: [backendDocument], accountVersion: "account-v1", requestId: "r-docs" }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, document: backendDocument, accountVersion: "account-v2", requestId: "r-doc" }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     await expect(client.listCompanyDocuments()).resolves.toEqual([backendDocument]);
     await expect(
@@ -655,10 +662,10 @@ describe("account API adapter", () => {
     const [, createRequest] = fetchImpl.mock.calls[1] as [string, RequestInit];
     expect(new Headers(createRequest.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v1");
     expect(client.fileUrl(backendAsset.id)).toBe(
-      "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222?accountUserId=00000000-0000-4000-8000-000000000001",
+      "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222?accountUserId=00000000-0000-4000-8000-000000000001&accountSessionId=session-account-test",
     );
     expect(client.fileUrlForObjectKey(backendAsset.objectKey)).toBe(
-      "http://localhost:3000/v1/account/files/by-object-key?objectKey=companies%2F111%2Fcompany_logo%2Flogo.svg&accountUserId=00000000-0000-4000-8000-000000000001",
+      "http://localhost:3000/v1/account/files/by-object-key?objectKey=companies%2F111%2Fcompany_logo%2Flogo.svg&accountUserId=00000000-0000-4000-8000-000000000001&accountSessionId=session-account-test",
     );
     expect(client.resolveStoredFileUrl("https://cdn.example.com/logo.webp")).toBe(
       "https://cdn.example.com/logo.webp",
@@ -672,7 +679,7 @@ describe("account API adapter", () => {
       .mockResolvedValueOnce(jsonResponse({ ok: true, product: { ...backendProducts[0], monthlyVolume: "44 t" }, requestId: "r-product" }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegion: { ...backendMetaRegions[0], defaultCurrency: "EUR" }, requestId: "r-meta" }))
       .mockResolvedValueOnce(jsonResponse({ ok: true, notification: { ...backendNotifications[0], enabled: false }, requestId: "r-notification" }));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     await expect(client.createBranch("br_row", {
       name: "Backend Branch",
@@ -744,7 +751,7 @@ describe("account API adapter", () => {
 
   it("records failed API sync without throwing into the UI flow", async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ ok: false }, 500));
-    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const client = createAuthenticatedAccountClient(fetchImpl);
 
     const synced = await syncAccountProfileToApi(mockAccountProfile, client);
 

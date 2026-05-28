@@ -248,6 +248,17 @@ export const getConfiguredAccountUserId = () =>
   (import.meta.env.VITE_YORSO_ACCOUNT_USER_ID as string | undefined)?.trim() ||
   DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID;
 
+const resolveAccountUserId = (baseUrl: string, explicitUserId?: string) => {
+  const userId =
+    explicitUserId?.trim() ||
+    buyerSession.getSession()?.userId?.trim() ||
+    (import.meta.env.VITE_YORSO_ACCOUNT_USER_ID as string | undefined)?.trim();
+
+  if (userId) return userId;
+  if (baseUrl) throw new Error("account_api_session_required");
+  return DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID;
+};
+
 const isDirectAssetUrl = (value: string) => /^(https?:|data:|blob:)/i.test(value.trim());
 
 const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
@@ -560,13 +571,13 @@ const syncWorkspaceCollection = async <T extends { id: string }>({
 export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? getConfiguredAccountApiBaseUrl());
   const fetchImpl = options.fetchImpl ?? fetch;
-  const accountUserId = options.userId?.trim() || getConfiguredAccountUserId();
   const sessionId = options.sessionId?.trim() || buyerSession.getSession()?.id || "";
   let accountVersion = "";
 
   const fileUrlForObjectKey = (objectKey: string): string => {
     if (!baseUrl || !objectKey.trim()) return "";
     if (isDirectAssetUrl(objectKey)) return objectKey;
+    const accountUserId = resolveAccountUserId(baseUrl, options.userId);
     const params = new URLSearchParams({ objectKey, accountUserId });
     if (sessionId) params.set("accountSessionId", sessionId);
     return `${baseUrl}/v1/account/files/by-object-key?${params.toString()}`;
@@ -574,6 +585,7 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
 
   const accountHeaders = (headers?: HeadersInit) => {
     const next = jsonHeaders(headers);
+    const accountUserId = resolveAccountUserId(baseUrl, options.userId);
     next.set(ACCOUNT_USER_ID_HEADER, accountUserId);
     if (sessionId) next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
     if (accountVersion) next.set(ACCOUNT_VERSION_HEADER, accountVersion);
@@ -811,6 +823,7 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
     },
     fileUrl(assetId: string): string {
       if (!baseUrl) return "";
+      const accountUserId = resolveAccountUserId(baseUrl, options.userId);
       const params = new URLSearchParams({ accountUserId });
       if (sessionId) params.set("accountSessionId", sessionId);
       return `${baseUrl}/v1/account/files/${encodeURIComponent(assetId)}?${params.toString()}`;

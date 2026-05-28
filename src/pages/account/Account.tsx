@@ -642,7 +642,7 @@ const CompanySection = ({
         onUploadFile={accountApiClient.enabled ? uploadCompanyMediaFile : undefined}
       />
 
-      <CompanyDocumentsCard company={c} />
+      <CompanyDocumentsCard accountApiClient={accountApiClient} company={c} />
 
       <EditableCard<CompanyProfile>
         title={t.account_company_identity_title}

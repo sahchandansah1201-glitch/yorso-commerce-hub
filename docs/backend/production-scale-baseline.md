@@ -4239,6 +4239,70 @@ Marker: account media document version boundary.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1F Account Storage Client Authority Boundary
+
+Phase 1F closes a frontend/account authority gap for account-owned storage
+clients. The enabled account API adapter no longer silently falls back to
+`DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID` when no session user, buyer-session user or
+configured account user id exists. `/account/company` also passes its
+session-bound account client into `CompanyDocumentsCard`, so document list/create
+uses the same `x-yorso-user-id`, `x-yorso-session-id` and account-version state
+as company profile/media writes.
+
+Expected read/write profile:
+
+- No public traffic is added.
+- Account document list/create request volume is unchanged.
+- Missing frontend session-user state fails before network I/O instead of
+  sending a request under the deterministic demo account id.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling, subscription or retry loop is introduced.
+- Existing auth/session cache remains the account authority boundary.
+- Existing upload size and JSON body limits remain unchanged.
+
+Database indexing and pagination strategy:
+
+- No schema, migration, index or pagination change is introduced.
+- Existing Phase 1E account/file/document indexes remain sufficient.
+
+Failure mode and graceful degradation:
+
+- Enabled account API client calls without a session/configured user fail closed
+  with `account_api_session_required` before fetch.
+- API-disabled local prototype mode remains available for Lovable/offline
+  review.
+- Public catalog/supplier routes, supplier identity redaction and exact-price
+  locks are unchanged.
+
+Observability and load-test plan:
+
+- Track frontend `account_api_session_required` sync failures separately from
+  backend account/session/version errors.
+- Keep the Phase 1E document list/create load-test scenario and add a negative
+  case for missing frontend session user at 10,000 concurrent users.
+
+Validation:
+
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
+- 3 files passed;
+- 52 tests passed.
+- `npx tsc -b --noEmit`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run build`.
+
+Production build metric:
+
+- Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+Marker: Backend Phase 1F.
+Marker: account storage client authority boundary.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

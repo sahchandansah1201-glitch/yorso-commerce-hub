@@ -155,6 +155,9 @@ const accountApiBody = (url: string, init?: RequestInit) => {
   if (url.endsWith("/v1/account/notifications")) {
     return { notifications: [], ok: true, requestId: "req-account-notifications" };
   }
+  if (url.endsWith("/v1/account/documents")) {
+    return { accountVersion: "account-v1", documents: [], ok: true, requestId: "req-account-documents" };
+  }
   return null;
 };
 
@@ -310,6 +313,31 @@ describe("Account editability", () => {
         .map(([input]) => String(input).replace("https://api.yorso.test", "")),
     ).toEqual(["/v1/account/me"]);
     expect(localStorage.getItem(ACCOUNT_STORAGE_KEY) ?? "").not.toContain("Alicia");
+  });
+
+  it("self-hosted account mode loads company documents through the validated account session", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    const fetchMock = mockAccountFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderAt("/account/company");
+    await screen.findByTestId("account-company-documents");
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.yorso.test/v1/account/documents",
+        expect.objectContaining({
+          headers: expect.any(Headers),
+        }),
+      ),
+    );
+    const documentsCall = fetchMock.mock.calls.find(([input]) =>
+      String(input).endsWith("/v1/account/documents"),
+    );
+    const headers = documentsCall?.[1]?.headers as Headers | undefined;
+    expect(headers?.get("x-yorso-session-id")).toBe("session-api-1");
+    expect(headers?.get("x-yorso-user-id")).toBe("user-api-1");
   });
 
   it("self-hosted account mode shows a reloadable conflict state when account data is stale", async () => {
