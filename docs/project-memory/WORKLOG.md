@@ -1804,6 +1804,16 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Added `docs/project-memory/LOVABLE_PROGRESS.md` as the Russian-language
+  plan/fact tracker for every Lovable prompt and Lovable sync response.
+- Established the required future batch summary table:
+  `План`, `Факт / проверено`, `Будет реализовано`, `Статус точности`.
+- Added the first tracker row for Batch #141 using the user-provided Lovable
+  sync report and local file checks; runtime/e2e pass counts are explicitly
+  marked as previous validation/Lovable-reported, not newly rerun.
+
+## 2026-05-28
+
 - Completed Backend Phase 1 Account Source Of Truth discovery/audit.
 - Added `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`.
 - Confirmed backend strengths:

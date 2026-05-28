@@ -10,6 +10,8 @@
 - `docs/project-memory/NEXT_ACTIONS.md`: next safe actions.
 - `docs/project-memory/WORKLOG.md`: factual work log.
 - `docs/project-memory/RISKS.md`: active risks and mitigations.
+- `docs/project-memory/LOVABLE_PROGRESS.md`: русскоязычный план/факт tracker
+  для prompt-ов и ответов Lovable по batch.
 - `docs/project-memory/PROMPTS/new-chat-recovery-prompt.md`: prompt for recovery in a new chat.
 - `docs/project-memory/templates/`: reusable templates.
 
