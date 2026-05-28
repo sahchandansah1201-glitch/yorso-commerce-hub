@@ -1804,6 +1804,14 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Recorded the user-provided Lovable sync report for Phase 0 Remediation commit
+  `dc5ab55` in `docs/project-memory/LOVABLE_PROGRESS.md`.
+- Locally checked the commit history and Phase 0 audit docs; did not rerun the
+  full Phase 0 gate commands, so the tracker marks those results as previous
+  validation/documented status rather than a fresh local run.
+
+## 2026-05-28
+
 - Added `docs/project-memory/LOVABLE_PROGRESS.md` as the Russian-language
   plan/fact tracker for every Lovable prompt and Lovable sync response.
 - Established the required future batch summary table:
