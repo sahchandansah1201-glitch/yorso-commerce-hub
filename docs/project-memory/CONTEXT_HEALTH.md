@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-05-27
+Updated: 2026-05-28
 
 ## Current Status
 
 ```yaml
 context_risk: "low"
-last_checkpoint: "2026-05-27"
+last_checkpoint: "2026-05-28"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "current_phase_0_remediation_commit"
+head_commit: "phase_1_discovery_audit_commit"
 latest_merged_batch: 141
-active_workstream: "backend_phase_1_account_source_of_truth_ready"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
-recommended_action: "start Backend Phase 1 Account Source Of Truth"
-why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. frontend-backend-contract.md maps the active App.tsx route surface. Lint, production build, contracts build and full npm test are green; known non-blocking Supabase generated type and Browserslist warnings remain."
+active_workstream: "backend_phase_1_account_source_of_truth_discovery_complete"
+pull_request: null
+recommended_action: "start Backend Phase 1A Account Session Authority Gate"
+why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Lint, production build, contracts build and full npm test were green at Phase 0 remediation; current audit is docs/project-memory only."
 ```
 
 ## Risk Levels
@@ -51,14 +51,17 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_1_account_source_of_truth_ready.
-Current HEAD baseline: current Backend Phase 0 closure audit remediation commit; Batch #141 merge commit 5eafcb7 is preserved.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193 (merged).
+Current workstream: backend_phase_1_account_source_of_truth_discovery_complete.
+Current HEAD baseline: Phase 1 discovery/audit checkpoint after Backend Phase 0 remediation; Batch #141 merge commit 5eafcb7 is preserved.
+Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
 docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and * routes to data sources or explicit no-data-source redirects.
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
-Current recommended action: start Backend Phase 1 Account Source Of Truth.
+Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
+Current recommended action: start Backend Phase 1A Account Session Authority Gate.
+Phase 1 audit finding: backend auth/account authority exists, but /account/* remains local-first through localStorage/mock profile hydration and browser sessionStorage gating.
+Phase 1A target: API-enabled /account/* must validate /v1/auth/session before rendering editable account data, hydrate account state from the self-hosted API as authority, constrain deterministic demo user fallback to dev/test, and expose explicit backend-unavailable/save-failed states.
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
 Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.

@@ -16,13 +16,28 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start Backend Phase 1: Account Source Of Truth from the remediated Phase 0
-baseline.
+Start Backend Phase 1A: Account Session Authority Gate from the completed
+Phase 1 Account Source Of Truth discovery/audit.
 
 ## Current Status
 
 - The repository is currently on `main`.
 - Backend Phase 0 closure audit and remediation are complete.
+- Phase 1 Account Source Of Truth discovery/audit is complete.
+- Phase 1 discovery/audit document:
+  `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`.
+- Phase 1 audit decision:
+  - backend auth/account authority exists and is protected by self-hosted
+    session validation;
+  - `/account/*` is still local-first: it initializes from
+    `localStorage["yorso_account_profile_v1"]`/`mockAccount`, hydrates from API
+    after local render, saves localStorage before remote sync and gates the UI
+    through `sessionStorage["yorso_buyer_session"]`;
+  - the next implementation should be narrow: validate `/v1/auth/session`
+    before rendering editable account data in API-enabled mode, hydrate account
+    state from the self-hosted API as authority, constrain deterministic demo
+    user fallback to dev/test and expose explicit backend-unavailable/save
+    failure states.
 - Phase 0 closure audit document:
   `docs/backend/phase-0-closure-audit.md`.
 - Phase 0 contract document:
@@ -46,7 +61,7 @@ baseline.
 - Route-to-data-source contract now covers current `src/App.tsx` public,
   info/legal, account, dashboard, admin, redirect, dev and `*` routes.
 - Current next action:
-  - start Backend Phase 1: Account Source Of Truth.
+  - start Backend Phase 1A: Account Session Authority Gate.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

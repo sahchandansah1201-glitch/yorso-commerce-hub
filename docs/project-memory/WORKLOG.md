@@ -1801,3 +1801,27 @@ Keep this file factual and append-only.
     Browserslist warnings.
 - Updated Phase 0 status to closed with green gates and moved next action to
   Backend Phase 1: Account Source Of Truth.
+
+## 2026-05-28
+
+- Completed Backend Phase 1 Account Source Of Truth discovery/audit.
+- Added `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`.
+- Confirmed backend strengths:
+  - self-hosted auth/session endpoints exist;
+  - protected account routes validate `x-yorso-session-id` through the auth
+    service before trusting `x-yorso-user-id`;
+  - account/company/workspace contracts exist in `packages/contracts`;
+  - PostgreSQL migrations cover users, companies, workspace collections,
+    files/documents, auth sessions and auth security events;
+  - production config requires PostgreSQL, Redis auth backpressure, Redis
+    session cache, fail-closed auth/session modes and observability.
+- Confirmed Phase 1 gap:
+  - `/account/*` still initializes from localStorage/mock account profile;
+  - API hydration runs after local render;
+  - account edits save localStorage before remote sync;
+  - account shell access is gated by sessionStorage buyer session rather than
+    required `/v1/auth/session` validation.
+- Defined next implementation scope as Backend Phase 1A: Account Session
+  Authority Gate.
+- Updated project memory so the next action is Phase 1A, not another public
+  UX/UI batch.

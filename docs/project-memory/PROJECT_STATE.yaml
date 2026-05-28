@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-27"
+updated_at: "2026-05-28"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-27"
+  git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "current_phase_0_remediation_commit"
-  head_summary: "Backend Phase 0 remediation complete; all Phase 0 gates green"
+  head_commit: "phase_1_discovery_audit_commit"
+  head_summary: "Backend Phase 1 Account Source Of Truth discovery/audit complete"
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty state after the Phase 0 remediation commit."
+    - "No expected dirty state after the Phase 1 discovery audit checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,17 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1_account_source_of_truth_ready"
-  summary: "Backend Phase 0 known test failures have been remediated; Phase 1 Account Source Of Truth is ready to start."
-  status: "phase_0_closed_with_green_gates"
+  id: "backend_phase_1_account_source_of_truth_discovery_complete"
+  summary: "Phase 1 Account Source Of Truth discovery/audit is complete; next implementation scope is Account Session Authority Gate."
+  status: "phase_1_discovery_audit_complete"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md."
+    - "Backend auth/account authority exists: self-hosted auth/session routes, protected account routes, shared contracts, PostgreSQL migrations and production fail-closed config are present."
+    - "/account/* remains local-first today: it initializes from localStorage/mock account state, hydrates from API after render, saves localStorage before remote sync and gates UI through sessionStorage buyer session."
+    - "Recommended next implementation: Backend Phase 1A Account Session Authority Gate."
+    - "Phase 1A should validate /v1/auth/session before rendering editable account data in API-enabled mode, hydrate account state from the self-hosted API as authority, constrain deterministic demo user fallback to dev/test and expose explicit unavailable/save-failed states."
     - "Backend Phase 0 closure audit and remediation status are recorded in docs/backend/phase-0-closure-audit.md."
     - "docs/backend/frontend-backend-contract.md now maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and wildcard routes to data sources or explicit no-data-source routes."
     - "npm run lint, npm run build, npm run contracts:build and npm test passed after the remediation pass."
@@ -50,8 +55,9 @@ active_workstream:
     - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "Next planned workstream: Backend Phase 1 Account Source Of Truth."
+    - "Next planned workstream: Backend Phase 1A Account Session Authority Gate."
   confirmed_files:
+    - "docs/backend/phase-1-account-source-of-truth-discovery-audit.md"
     - "docs/backend/phase-0-closure-audit.md"
     - "docs/backend/frontend-backend-contract.md"
     - "src/components/catalog/CatalogFilters.tsx"

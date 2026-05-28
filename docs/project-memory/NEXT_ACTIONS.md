@@ -2,8 +2,8 @@
 
 ## Current Next Action
 
-1. Start Backend Phase 1: Account Source Of Truth from the green Phase 0
-   baseline.
+1. Start Backend Phase 1A: Account Session Authority Gate from the completed
+   Phase 1 Account Source Of Truth discovery/audit.
 
 2. Preserve current known contracts: Phase 0 route-to-data-source contract,
    public sheet close locale a11y, public
@@ -12,12 +12,48 @@
    Batch #112 code splitting, Batch #113 route chunk error boundary and
    Batches #110-#141 public UX/a11y safeguards.
 
-3. Treat Backend Phase 0 as closed with green gates. The previous documented
-   failures were remediated; do not reintroduce stale test contracts that check
-   retired public UI copy or pre-safeguard CTA semantics.
+3. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
+   complete. The previous documented failures were remediated; do not
+   reintroduce stale test contracts that check retired public UI copy or
+   pre-safeguard CTA semantics.
 
 4. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
+
+## Backend Phase 1 Discovery Audit
+
+- Discovery audit document:
+  `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`.
+- Status:
+  - complete;
+  - docs-only audit;
+  - no runtime behavior changed.
+- Confirmed strengths:
+  - self-hosted auth/session endpoints exist;
+  - protected account routes validate `x-yorso-session-id` through the auth
+    service before accepting `x-yorso-user-id`;
+  - account/user/company/workspace schemas exist in `packages/contracts`;
+  - PostgreSQL migrations cover users, companies, workspace collections,
+    files/documents, auth sessions and auth security events;
+  - production config already requires PostgreSQL, Redis rate limiting, Redis
+    session cache, fail-closed auth/session modes and observability.
+- Confirmed gap:
+  - `/account/*` still initializes from `localStorage["yorso_account_profile_v1"]`
+    or `mockAccount`;
+  - API hydration runs after local render;
+  - account edits write localStorage before remote sync;
+  - account shell access is gated by `sessionStorage["yorso_buyer_session"]`
+    rather than a required `/v1/auth/session` validation.
+- Next implementation:
+  - Backend Phase 1A: Account Session Authority Gate.
+- Phase 1A target:
+  - API-enabled `/account/*` validates the self-hosted session before rendering
+    editable private account data;
+  - valid sessions hydrate account state from the self-hosted API as authority;
+  - missing/invalid sessions clear local session state and redirect to sign-in;
+  - deterministic demo user fallback is constrained to explicit dev/test mode;
+  - account backend-unavailable and save-failed states are visible instead of
+    silently becoming local source of truth.
 
 ## Backend Phase 0 Closure Audit
 
@@ -47,7 +83,7 @@
   - active `src/App.tsx` public, account, dashboard, admin, redirect, dev and
     `*` routes are now represented in `frontend-backend-contract.md`.
 - Next:
-  - start Backend Phase 1: Account Source Of Truth.
+  - start Backend Phase 1A: Account Session Authority Gate.
 
 ## Batch #141 Lovable Sync Confirmed
 

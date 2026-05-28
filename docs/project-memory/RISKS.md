@@ -30,6 +30,18 @@
   Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
   Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.
 
+- Risk: `/account/*` remains local-first while self-hosted account APIs already exist.
+  Impact: A signed-in user can see and edit account data sourced from localStorage/mock state while backend hydration or save has failed, creating a mismatch between UI trust and backend source of truth.
+  Mitigation: Phase 1 discovery audit is recorded in `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`; next implementation must start with Backend Phase 1A Account Session Authority Gate.
+
+- Risk: Browser sessionStorage currently gates account UI before backend session validation.
+  Impact: Stale or fabricated local buyer session state can open the account shell even though protected API routes later fail closed.
+  Mitigation: Phase 1A must require `/v1/auth/session` validation before rendering editable account data in API-enabled mode, clear invalid local sessions and redirect to sign-in.
+
+- Risk: Account workspace saves are broad local-first syncs.
+  Impact: One account edit can write localStorage and then issue multiple remote PATCH requests; backend collection replacement can partially fail without a transaction-safe workspace save boundary.
+  Mitigation: Phase 1A should stop silent local-success/backend-failure states; Phase 1B should make writes section-scoped and transaction-safe before production signoff.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.

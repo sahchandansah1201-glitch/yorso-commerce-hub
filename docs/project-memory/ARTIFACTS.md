@@ -65,6 +65,32 @@
 - `src/test/rls-public-access.test.ts`: RLS public access smoke is bounded and
   still hard-fails on `42501` insufficient privilege.
 
+## Backend Phase 1 Account Source Of Truth Discovery Audit
+
+- `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`: discovery
+  audit for Phase 1 Account Source Of Truth, including source-of-truth map,
+  confirmed backend strengths, local-first frontend gaps, Phase 1 exit
+  criteria, Phase 1A recommended scope and 10,000 concurrent-user baseline.
+- `src/lib/buyer-session.ts`, `src/lib/auth-runtime.ts`,
+  `src/lib/account-store.ts`, `src/lib/account-api.ts`,
+  `src/pages/account/Account.tsx` and
+  `src/components/account/AccountShell.tsx`: audited frontend session/account
+  files showing the current local-first account workspace behavior.
+- `apps/api/src/modules/auth/*`, `apps/api/src/modules/account/*`,
+  `packages/contracts/src/auth.ts`,
+  `packages/contracts/src/account-session.ts` and
+  `packages/contracts/src/account-company.ts`: audited self-hosted backend and
+  shared contract files showing existing account/session authority.
+- `packages/db/migrations/0001_account_company_baseline.sql`,
+  `0002_account_workspace_sections.sql`,
+  `0003_account_files_and_documents.sql`, `0011_auth_sessions.sql` and
+  `0012_auth_security_events.sql`: audited account/company/workspace/file/auth
+  persistence baseline.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md` and `RISKS.md`: project
+  memory checkpoint moving next action to Backend Phase 1A Account Session
+  Authority Gate.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional
