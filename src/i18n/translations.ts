@@ -1537,6 +1537,10 @@ type TranslationKeys = {
   account_unavailable_body: string;
   account_unavailable_retry: string;
   account_remoteSaveFailed: string;
+  account_conflict_title: string;
+  account_conflict_body: string;
+  account_conflict_reload: string;
+  account_conflict_saveFailed: string;
   account_signinRequired_title: string;
   account_signinRequired_body: string;
   account_signinRequired_cta: string;
@@ -3463,6 +3467,10 @@ const en: TranslationKeys = {
   account_unavailable_body: "We could not load your profile from the YORSO backend. Editable account sections stay closed until the backend responds.",
   account_unavailable_retry: "Try again",
   account_remoteSaveFailed: "We could not save this change to the YORSO backend. Please try again.",
+  account_conflict_title: "Account data changed",
+  account_conflict_body: "Another session saved newer account data. Reload the profile before editing this section again.",
+  account_conflict_reload: "Reload account data",
+  account_conflict_saveFailed: "Account data changed. Reload the profile and try again.",
   account_signinRequired_title: "Sign in to open your account",
   account_signinRequired_body: "Your company operating profile is available to signed in users only.",
   account_signinRequired_cta: "Sign in",
@@ -5377,6 +5385,10 @@ const ru: TranslationKeys = {
   account_unavailable_body: "Не удалось загрузить профиль из backend YORSO. Редактируемые разделы остаются закрытыми, пока backend не ответит.",
   account_unavailable_retry: "Повторить",
   account_remoteSaveFailed: "Не удалось сохранить изменение в backend YORSO. Попробуйте ещё раз.",
+  account_conflict_title: "Данные учётной записи изменились",
+  account_conflict_body: "Другая сессия сохранила более свежие данные. Перезагрузите профиль перед повторным редактированием раздела.",
+  account_conflict_reload: "Перезагрузить данные",
+  account_conflict_saveFailed: "Данные учётной записи изменились. Перезагрузите профиль и попробуйте снова.",
   account_signinRequired_title: "Войдите, чтобы открыть учётную запись",
   account_signinRequired_body: "Ваш операционный профиль доступен только после входа.",
   account_signinRequired_cta: "Войти",
@@ -7290,6 +7302,10 @@ const es: TranslationKeys = {
   account_unavailable_body: "No pudimos cargar tu perfil desde el backend de YORSO. Las secciones editables permanecen cerradas hasta que el backend responda.",
   account_unavailable_retry: "Intentar de nuevo",
   account_remoteSaveFailed: "No pudimos guardar este cambio en el backend de YORSO. Inténtalo de nuevo.",
+  account_conflict_title: "Los datos de la cuenta cambiaron",
+  account_conflict_body: "Otra sesión guardó datos más recientes. Vuelve a cargar el perfil antes de editar esta sección de nuevo.",
+  account_conflict_reload: "Recargar datos de la cuenta",
+  account_conflict_saveFailed: "Los datos de la cuenta cambiaron. Recarga el perfil e inténtalo de nuevo.",
   account_signinRequired_title: "Inicia sesión para abrir tu cuenta",
   account_signinRequired_body: "Tu perfil operativo está disponible para usuarios con sesión iniciada.",
   account_signinRequired_cta: "Iniciar sesión",

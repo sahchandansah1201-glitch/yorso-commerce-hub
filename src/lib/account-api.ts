@@ -64,64 +64,68 @@ interface BackendCompanyProfile {
   updatedAt: string;
 }
 
-interface BackendUserResponse {
+interface BackendAccountVersionResponse {
+  accountVersion?: string;
+}
+
+interface BackendUserResponse extends BackendAccountVersionResponse {
   ok: true;
   user: BackendUserProfile;
   requestId: string;
 }
 
-interface BackendCompanyResponse {
+interface BackendCompanyResponse extends BackendAccountVersionResponse {
   ok: true;
   company: BackendCompanyProfile;
   requestId: string;
 }
 
-interface BackendBranchesResponse {
+interface BackendBranchesResponse extends BackendAccountVersionResponse {
   ok: true;
   branches: CompanyBranch[];
   requestId: string;
 }
 
-interface BackendProductsResponse {
+interface BackendProductsResponse extends BackendAccountVersionResponse {
   ok: true;
   products: CompanyProduct[];
   requestId: string;
 }
 
-interface BackendMetaRegionsResponse {
+interface BackendMetaRegionsResponse extends BackendAccountVersionResponse {
   ok: true;
   metaRegions: MetaRegion[];
   requestId: string;
 }
 
-interface BackendNotificationsResponse {
+interface BackendNotificationsResponse extends BackendAccountVersionResponse {
   ok: true;
   notifications: NotificationPreference[];
   requestId: string;
 }
 
-interface BackendBranchResponse {
+interface BackendBranchResponse extends BackendAccountVersionResponse {
   ok: true;
   branch: CompanyBranch;
   deletedId?: string;
   requestId: string;
 }
 
-interface BackendProductResponse {
+interface BackendProductResponse extends BackendAccountVersionResponse {
   ok: true;
   product: CompanyProduct;
   deletedId?: string;
   requestId: string;
 }
 
-interface BackendMetaRegionResponse {
+interface BackendMetaRegionResponse extends BackendAccountVersionResponse {
   ok: true;
   metaRegion: MetaRegion;
   deletedId?: string;
   requestId: string;
 }
 
-interface BackendNotificationResponse {
+interface BackendNotificationResponse extends BackendAccountVersionResponse {
   ok: true;
   notification: NotificationPreference;
   deletedId?: string;
@@ -200,6 +204,7 @@ export type AccountApiSyncState = "disabled" | "synced" | "failed";
 export const ACCOUNT_API_SYNC_STORAGE_KEY = "yorso_account_api_sync_v1";
 export const ACCOUNT_USER_ID_HEADER = "x-yorso-user-id";
 export const ACCOUNT_SESSION_ID_HEADER = "x-yorso-session-id";
+export const ACCOUNT_VERSION_HEADER = "x-yorso-account-version";
 export const DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID = "00000000-0000-4000-8000-000000000001";
 
 const COUNTRY_CODE_TO_NAME: Record<string, string> = {
@@ -481,8 +486,29 @@ const jsonHeaders = (headers?: HeadersInit) => {
   return next;
 };
 
+export class AccountApiConflictError extends Error {
+  constructor(message = "account_snapshot_conflict") {
+    super(message);
+    this.name = "AccountApiConflictError";
+    Object.setPrototypeOf(this, AccountApiConflictError.prototype);
+  }
+}
+
+export const isAccountApiConflictError = (error: unknown): error is AccountApiConflictError =>
+  error instanceof AccountApiConflictError ||
+  (error instanceof Error && error.name === "AccountApiConflictError");
+
 const readJson = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) throw new Error(`account_api_http_${response.status}`);
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as
+      | { error?: { code?: string; message?: string } }
+      | null;
+    const code = body?.error?.code;
+    if (response.status === 409 && code === "account_snapshot_conflict") {
+      throw new AccountApiConflictError(body?.error?.message ?? code);
+    }
+    throw new Error(code ? `account_api_${code}` : `account_api_http_${response.status}`);
+  }
   return (await response.json()) as T;
 };
 
@@ -511,20 +537,24 @@ const syncWorkspaceCollection = async <T extends { id: string }>({
   const previousById = new Map(previous.map((item) => [item.id, item]));
   const nextById = new Map(next.map((item) => [item.id, item]));
 
-  await Promise.all(
-    previous
-      .filter((item) => !nextById.has(item.id))
-      .map((item) => remove(item.id)),
-  );
+  for (const item of previous.filter((previousItem) => !nextById.has(previousItem.id))) {
+    await remove(item.id);
+  }
 
-  return Promise.all(
-    next.map((item) => {
-      const previousItem = previousById.get(item.id);
-      if (!previousItem) return create(item);
-      if (isSameWorkspaceItem(previousItem, item)) return Promise.resolve(item);
-      return update(item);
-    }),
-  );
+  const synced: T[] = [];
+  for (const item of next) {
+    const previousItem = previousById.get(item.id);
+    if (!previousItem) {
+      synced.push(await create(item));
+      continue;
+    }
+    if (isSameWorkspaceItem(previousItem, item)) {
+      synced.push(item);
+      continue;
+    }
+    synced.push(await update(item));
+  }
+  return synced;
 };
 
 export function createAccountApiClient(options: AccountApiClientOptions = {}) {
@@ -532,6 +562,7 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   const fetchImpl = options.fetchImpl ?? fetch;
   const accountUserId = options.userId?.trim() || getConfiguredAccountUserId();
   const sessionId = options.sessionId?.trim() || buyerSession.getSession()?.id || "";
+  let accountVersion = "";
 
   const fileUrlForObjectKey = (objectKey: string): string => {
     if (!baseUrl || !objectKey.trim()) return "";
@@ -545,16 +576,33 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
     const next = jsonHeaders(headers);
     next.set(ACCOUNT_USER_ID_HEADER, accountUserId);
     if (sessionId) next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+    if (accountVersion) next.set(ACCOUNT_VERSION_HEADER, accountVersion);
     return next;
   };
 
-  const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const rememberAccountVersion = (body: BackendAccountVersionResponse) => {
+    if (body.accountVersion?.trim()) accountVersion = body.accountVersion.trim();
+  };
+
+  const rememberLoadedAccountVersion = (responses: BackendAccountVersionResponse[]) => {
+    const versions = responses
+      .map((response) => response.accountVersion?.trim() ?? "")
+      .filter(Boolean);
+    if (!versions.length) return;
+    const uniqueVersions = new Set(versions);
+    if (uniqueVersions.size > 1) throw new Error("account_snapshot_changed_during_load");
+    accountVersion = versions[0];
+  };
+
+  const request = async <T extends object>(path: string, init?: RequestInit): Promise<T> => {
     if (!baseUrl) throw new Error("account_api_disabled");
     const response = await fetchImpl(`${baseUrl}${path}`, {
       ...init,
       headers: accountHeaders(init?.headers),
     });
-    return readJson<T>(response);
+    const body = await readJson<T>(response);
+    rememberAccountVersion(body as BackendAccountVersionResponse);
+    return body;
   };
 
   return {
@@ -575,6 +623,14 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
         request<BackendMetaRegionsResponse>("/v1/account/meta-regions"),
         request<BackendNotificationsResponse>("/v1/account/notifications"),
       ]);
+      rememberLoadedAccountVersion([
+        userResponse,
+        companyResponse,
+        branchesResponse,
+        productsResponse,
+        metaRegionsResponse,
+        notificationsResponse,
+      ]);
       return mergeBackendAccountProfile(localProfile, userResponse.user, companyResponse.company, {
         branches: branchesResponse.branches,
         products: productsResponse.products,
@@ -583,39 +639,30 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
       });
     },
     async save(profile: AccountProfile): Promise<AccountProfile> {
-      const [
-        userResponse,
-        companyResponse,
-        branchesResponse,
-        productsResponse,
-        metaRegionsResponse,
-        notificationsResponse,
-      ] = await Promise.all([
-        request<BackendUserResponse>("/v1/account/me", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendUserUpdate(profile.user)),
-        }),
-        request<BackendCompanyResponse>("/v1/account/company", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendCompanyUpdate(profile.company)),
-        }),
-        request<BackendBranchesResponse>("/v1/account/branches", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendBranchesUpdate(profile.branches)),
-        }),
-        request<BackendProductsResponse>("/v1/account/products", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendProductsUpdate(profile.products)),
-        }),
-        request<BackendMetaRegionsResponse>("/v1/account/meta-regions", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendMetaRegionsUpdate(profile.metaRegions)),
-        }),
-        request<BackendNotificationsResponse>("/v1/account/notifications", {
-          method: "PATCH",
-          body: JSON.stringify(mapFrontendNotificationsUpdate(profile.notifications)),
-        }),
-      ]);
+      const userResponse = await request<BackendUserResponse>("/v1/account/me", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendUserUpdate(profile.user)),
+      });
+      const companyResponse = await request<BackendCompanyResponse>("/v1/account/company", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendCompanyUpdate(profile.company)),
+      });
+      const branchesResponse = await request<BackendBranchesResponse>("/v1/account/branches", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendBranchesUpdate(profile.branches)),
+      });
+      const productsResponse = await request<BackendProductsResponse>("/v1/account/products", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendProductsUpdate(profile.products)),
+      });
+      const metaRegionsResponse = await request<BackendMetaRegionsResponse>("/v1/account/meta-regions", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendMetaRegionsUpdate(profile.metaRegions)),
+      });
+      const notificationsResponse = await request<BackendNotificationsResponse>("/v1/account/notifications", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendNotificationsUpdate(profile.notifications)),
+      });
       return mergeBackendAccountProfile(profile, userResponse.user, companyResponse.company, {
         branches: branchesResponse.branches,
         products: productsResponse.products,
@@ -794,6 +841,7 @@ export const hydrateAccountProfileFromApi = async (
     return profile;
   } catch (error) {
     recordSyncState("failed", error instanceof Error ? error.message : "unknown_error");
+    if (isAccountApiConflictError(error)) throw error;
     return null;
   }
 };
@@ -813,6 +861,7 @@ export const syncAccountProfileToApi = async (
     return next;
   } catch (error) {
     recordSyncState("failed", error instanceof Error ? error.message : "unknown_error");
+    if (isAccountApiConflictError(error)) throw error;
     return null;
   }
 };
@@ -890,6 +939,7 @@ export const syncAccountProfileSectionToApi = async (
     return { ...profile, notifications };
   } catch (error) {
     recordSyncState("failed", error instanceof Error ? error.message : "unknown_error");
+    if (isAccountApiConflictError(error)) throw error;
     return null;
   }
 };

@@ -130,6 +130,10 @@ interface NotificationRow extends Record<string, unknown> {
   frequency: NotificationFrequency;
 }
 
+interface AccountVersionRow extends Record<string, unknown> {
+  account_version: Date | string;
+}
+
 const companySelectSql = `
   select
     c.id,
@@ -336,6 +340,49 @@ export class PostgresAccountRepository implements AccountRepository {
     if (this.ownsClient) await this.client.end?.();
   }
 
+  async getAccountVersion(userId: string): Promise<string> {
+    const result = await this.client.query<AccountVersionRow>(
+      `
+        with account_company as (
+          select id
+          from yorso_companies
+          where owner_user_id = $1
+          limit 1
+        ),
+        versions as (
+          select updated_at from yorso_users where id = $1
+          union all
+          select updated_at from yorso_companies where owner_user_id = $1
+          union all
+          select m.updated_at
+          from yorso_company_media m
+          join account_company c on c.id = m.company_id
+          union all
+          select b.updated_at
+          from yorso_company_branches b
+          join account_company c on c.id = b.company_id
+          union all
+          select p.updated_at
+          from yorso_company_products p
+          join account_company c on c.id = p.company_id
+          union all
+          select r.updated_at
+          from yorso_company_meta_regions r
+          join account_company c on c.id = r.company_id
+          union all
+          select n.updated_at
+          from yorso_notification_preferences n
+          where n.user_id = $1
+        )
+        select coalesce(max(updated_at), now()) as account_version
+        from versions
+      `,
+      [userId],
+    );
+
+    return ensureIso(result.rows[0]?.account_version ?? new Date());
+  }
+
   async getUserProfile(userId: string): Promise<UserProfile | null> {
     const result = await this.client.query<UserRow>(
       `
@@ -453,6 +500,7 @@ export class PostgresAccountRepository implements AccountRepository {
       );
     }
 
+    await this.touchCompany(companyId);
     return this.getBranches(userId);
   }
 
@@ -522,6 +570,7 @@ export class PostgresAccountRepository implements AccountRepository {
       );
     }
 
+    await this.touchCompany(companyId);
     return this.getProducts(userId);
   }
 
@@ -587,6 +636,7 @@ export class PostgresAccountRepository implements AccountRepository {
       );
     }
 
+    await this.touchCompany(companyId);
     return this.getMetaRegions(userId);
   }
 
@@ -647,6 +697,7 @@ export class PostgresAccountRepository implements AccountRepository {
       );
     }
 
+    await this.touchUser(userId);
     return this.getNotifications(userId);
   }
 
@@ -683,6 +734,14 @@ export class PostgresAccountRepository implements AccountRepository {
     const company = await this.getCompanyProfile(userId);
     if (!company) throw new Error("company_not_found");
     return company.id;
+  }
+
+  private async touchCompany(companyId: string) {
+    await this.client.query("update yorso_companies set updated_at = now() where id = $1", [companyId]);
+  }
+
+  private async touchUser(userId: string) {
+    await this.client.query("update yorso_users set updated_at = now() where id = $1", [userId]);
   }
 
   private async updateCompanyScalars(companyId: string, update: CompanyProfileUpdate) {

@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1b_account_section_scoped_mutations"
-  head_summary: "Backend Phase 1B Account Section-Scoped Mutations validated; next planned workstream is Phase 1C account conflict/version handling."
+  head_commit: "phase_1c_account_conflict_version_handling"
+  head_summary: "Backend Phase 1C Account Conflict Version Handling implemented locally and full release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No intentional dirty worktree should remain after the Phase 1B commit."
+    - "No intentional dirty worktree should remain after the Phase 1C checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1b_account_section_scoped_mutations"
-  summary: "API-enabled /account/* normal edits write only the edited account section or row endpoint instead of broad full-profile saves."
-  status: "implemented_locally_validation_passed"
+  id: "backend_phase_1c_account_conflict_version_handling"
+  summary: "API-enabled /account/* sends account snapshot versions on mutations and shows reloadable conflict recovery for stale saves."
+  status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1C implementation is recorded in docs/backend/phase-1-account-conflict-version-handling.md."
+    - "Backend account routes now include accountVersion in account responses and reject stale mutations with 409 account_snapshot_conflict when x-yorso-account-version is present and stale."
+    - "MemoryAccountRepository stores a monotonic account version and bumps it on user, company and workspace mutations."
+    - "PostgresAccountRepository computes account version from max updated_at across user, company, media, workspace and notification tables; collection replacements touch parent company/user rows so deletes advance the version."
+    - "src/lib/account-api.ts remembers accountVersion after load/mutations, sends x-yorso-account-version on subsequent writes, runs full save and row-level collection sync sequentially to avoid self-conflicts, and rethrows AccountApiConflictError."
+    - "src/pages/account/Account.tsx shows account-save-conflict with reload action and keeps the edited card open when account_snapshot_conflict occurs."
+    - "Phase 1C targeted validation passed: npm run contracts:build plus api Vitest with repository/server tests, 2 files, 77 tests."
+    - "Phase 1C frontend targeted validation passed: npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx, 2 files, 37 tests."
+    - "Phase 1C typecheck passed: npx tsc -b --noEmit."
+    - "Phase 1C full release validation passed: npm run lint, npm run check:production-scale-baseline, git diff --check, npm run api:build and npm run build."
+    - "Phase 1C production build Account route chunk: Account-qLSbC0qo.js 112.83 kB / 25.65 kB gzip."
     - "Phase 1B implementation is recorded in docs/backend/phase-1-account-section-scoped-mutations.md."
     - "src/lib/account-api.ts now exposes syncAccountProfileSectionToApi with section keys for personal, company, branches, products, meta-regions and notifications."
     - "API-mode personal edits call only PATCH /v1/account/me."
@@ -75,8 +86,9 @@ active_workstream:
     - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "Next planned workstream after commit: Backend Phase 1C account conflict/version handling."
+    - "Next planned workstream after Phase 1C checkpoint: Backend Phase 1D strict account precondition decision or the next item from the backend implementation plan."
   confirmed_files:
+    - "docs/backend/phase-1-account-conflict-version-handling.md"
     - "docs/backend/phase-1-account-section-scoped-mutations.md"
     - "docs/backend/phase-1-account-session-authority-gate.md"
     - "docs/backend/phase-1-account-source-of-truth-discovery-audit.md"

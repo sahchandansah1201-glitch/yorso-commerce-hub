@@ -806,3 +806,16 @@
 - `e2e/public-account-menu-a11y.spec.ts`: Batch #140 browser smoke for signed-in public header account menu labels, dropdown association, mobile account panel, nested controls and 390px overflow.
 - `docs/backend/production-scale-baseline.md`: Batch #140 10,000 concurrent-user review for public account menu a11y.
 - `docs/project-memory/PROMPTS/prompt-140-lovable-sync.md`: Lovable sync prompt for Batch #140 after merge commit `8ad19a6`; user confirmed clean sync at `main` @ `8ad19a6` or newer.
+
+## Backend Phase 1C Account Conflict Version Handling
+
+- `docs/backend/phase-1-account-conflict-version-handling.md`: implementation, plan/fact, compatibility boundary, UI recovery behavior, validation and 10,000 concurrent-user review for stale account save protection.
+- `apps/api/src/modules/account/routes.ts`: account responses include `accountVersion`; mutations reject stale `x-yorso-account-version` with `409 account_snapshot_conflict`.
+- `apps/api/src/modules/account/service.ts`: account version read/assert helpers.
+- `apps/api/src/modules/account/repository.ts`: memory account version storage and mutation bumps.
+- `apps/api/src/modules/account/postgres-repository.ts`: account version aggregate across user/company/media/workspace/notification `updated_at` values plus parent-row touch on collection replacements.
+- `src/lib/account-api.ts`: account version propagation, `AccountApiConflictError`, sequential account save/collection sync.
+- `src/pages/account/Account.tsx`: reloadable `account-save-conflict` banner and conflict-aware save error path.
+- `src/i18n/translations.ts`: EN/RU/ES account conflict copy.
+- `src/lib/account-api.test.ts`, `src/pages/account/Account.editable.test.tsx`, `apps/api/src/modules/account/__tests__/repository.test.ts`, `apps/api/src/server.test.ts`: regression coverage for version header propagation, stale-save rejection and visible conflict recovery.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1C 10,000 concurrent-user review.

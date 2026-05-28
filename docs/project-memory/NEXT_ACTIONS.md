@@ -2,9 +2,38 @@
 
 ## Current Next Action
 
-1. Start Backend Phase 1C: account conflict/version handling.
+1. Choose the next backend implementation from the plan after the Phase 1C
+   checkpoint.
 
-2. Phase 1B implemented locally:
+2. Phase 1C implemented locally:
+   - backend account responses include `accountVersion`;
+   - account mutations compare `x-yorso-account-version` when the header is
+     present;
+   - stale current-frontend mutations return `409 account_snapshot_conflict`;
+   - frontend account API remembers the latest version and sends it on
+     subsequent writes;
+   - row-level collection sync is sequential so a section save does not
+     self-conflict;
+   - `/account/*` keeps the edit form open and shows `account-save-conflict`
+     with reload action on stale-save conflict.
+
+3. Phase 1C validation already passed:
+   - `npm run contracts:build`;
+   - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+   - 2 API files passed, 77 tests passed;
+   - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+   - 2 frontend files passed, 37 tests passed;
+   - `npx tsc -b --noEmit`.
+
+4. Phase 1C full validation passed before commit:
+   - `npm run lint`;
+   - `npm run check:production-scale-baseline`;
+   - `git diff --check`;
+   - `npm run api:build`;
+   - `npm run build`.
+   - Account build chunk: `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
+
+5. Phase 1B implemented and committed:
    - API-enabled personal edits call only `PATCH /v1/account/me`;
    - API-enabled company edits call only `PATCH /v1/account/company`;
    - branch, product, meta-region and notification edits use existing
@@ -14,25 +43,61 @@
      `account_remoteSaveFailed` inline on remote failure;
    - API-disabled local preview keeps the existing localStorage/mock fallback.
 
-3. Preserve current known contracts: Phase 0 route-to-data-source contract,
+6. Preserve current known contracts: Phase 0 route-to-data-source contract,
    public sheet close locale a11y, public
    account menu a11y, public language selector a11y, public SEO, access gating,
    supplier identity redaction, exact-price lock, buyer-first trust narrative,
    Batch #112 code splitting, Batch #113 route chunk error boundary and
    Batches #110-#141 public UX/a11y safeguards.
 
-4. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
+7. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
    complete. The previous documented failures were remediated; do not
    reintroduce stale test contracts that check retired public UI copy or
    pre-safeguard CTA semantics.
 
-5. If a production-facing frontend behavior changes, include the 10,000
+8. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
 
-6. After Phase 1B is committed, the next concrete implementation is Backend
-   Phase 1C: account conflict/version handling. That means adding a visible
-   stale-snapshot/save-conflict path for API-mode account saves so concurrent
-   edits do not silently overwrite newer backend data.
+9. After Phase 1C is committed, choose the next implementation from the backend
+   plan. Candidate: strict account precondition-required decision and/or the
+   next Phase 1 account production-hardening item.
+
+## Backend Phase 1C Account Conflict Version Handling
+
+- Implementation doc:
+  `docs/backend/phase-1-account-conflict-version-handling.md`.
+- Status:
+  - implemented locally;
+  - targeted API/frontend validation passed;
+  - full release validation passed;
+  - ready as the current checkpoint.
+- Concrete files changed:
+  - `apps/api/src/modules/account/routes.ts`;
+  - `apps/api/src/modules/account/service.ts`;
+  - `apps/api/src/modules/account/repository.ts`;
+  - `apps/api/src/modules/account/postgres-repository.ts`;
+  - `apps/api/src/modules/account/__tests__/repository.test.ts`;
+  - `apps/api/src/server.test.ts`;
+  - `src/lib/account-api.ts`;
+  - `src/lib/account-api.test.ts`;
+  - `src/pages/account/Account.tsx`;
+  - `src/pages/account/Account.editable.test.tsx`;
+  - `src/i18n/translations.ts`;
+  - `docs/backend/phase-1-account-conflict-version-handling.md`;
+  - `docs/backend/production-scale-baseline.md`;
+  - project-memory files.
+- Targeted validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+  - 2 API files passed, 77 tests passed;
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+  - 2 frontend files passed, 37 tests passed;
+  - `npx tsc -b --noEmit`.
+- Known non-blocking warnings:
+  - existing React Router v7 future flag warnings;
+  - existing `act(...)` warnings in account editable tests.
+- Production build metric:
+  - Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 
 ## Backend Phase 1B Account Section-Scoped Mutations
 
@@ -73,9 +138,9 @@
 - Implementation doc:
   `docs/backend/phase-1-account-session-authority-gate.md`.
 - Status:
-  - implemented locally;
+  - implemented and committed;
   - targeted account/auth/API tests passed;
-  - full validation and commit pending.
+  - full validation passed.
 - Concrete files changed:
   - `src/pages/account/Account.tsx`;
   - `src/components/account/AccountShell.tsx`;

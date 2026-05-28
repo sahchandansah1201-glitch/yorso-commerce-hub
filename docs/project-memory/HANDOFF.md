@@ -16,8 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start Backend Phase 1C: account conflict/version handling after the Phase 1B
-checkpoint.
+Backend Phase 1C account conflict/version handling is complete. Next step:
+choose the next backend implementation from the plan.
 
 ## Current Status
 
@@ -25,8 +25,48 @@ checkpoint.
 - Backend Phase 0 closure audit and remediation are complete.
 - Phase 1 Account Source Of Truth discovery/audit is complete.
 - Phase 1A Account Session Authority Gate is committed and validation is green.
-- Phase 1B Account Section-Scoped Mutations is implemented locally and full
-  local validation is green.
+- Phase 1B Account Section-Scoped Mutations is committed and validation is
+  green.
+- Phase 1C Account Conflict Version Handling is implemented locally with full
+  release validation green.
+- Phase 1C implementation document:
+  `docs/backend/phase-1-account-conflict-version-handling.md`.
+- Phase 1C implementation:
+  - account responses include `accountVersion`;
+  - account mutations compare `x-yorso-account-version` when present;
+  - stale current-frontend writes return `409 account_snapshot_conflict`;
+  - frontend account API remembers the latest account version and sends it on
+    later writes;
+  - row-level collection sync runs sequentially to avoid self-conflict inside a
+    single section save;
+  - `/account/*` keeps the edited card open and shows `account-save-conflict`
+    with reload action on stale-save conflict.
+- Phase 1C changed files:
+  `apps/api/src/modules/account/routes.ts`,
+  `apps/api/src/modules/account/service.ts`,
+  `apps/api/src/modules/account/repository.ts`,
+  `apps/api/src/modules/account/postgres-repository.ts`,
+  `apps/api/src/modules/account/__tests__/repository.test.ts`,
+  `apps/api/src/server.test.ts`,
+  `src/lib/account-api.ts`,
+  `src/lib/account-api.test.ts`,
+  `src/pages/account/Account.tsx`,
+  `src/pages/account/Account.editable.test.tsx`,
+  `src/i18n/translations.ts`,
+  `docs/backend/phase-1-account-conflict-version-handling.md`,
+  `docs/backend/production-scale-baseline.md` and project-memory files.
+- Phase 1C targeted validation passed:
+  `npm run contracts:build`;
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`
+  with 2 files passed and 77 tests passed;
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`
+  with 2 files passed and 37 tests passed;
+  `npx tsc -b --noEmit`.
+- Phase 1C full validation passed:
+  `npm run lint`, `npm run check:production-scale-baseline`,
+  `git diff --check`, `npm run api:build`, `npm run build`.
+- Phase 1C production build metric:
+  Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 - Phase 1B implementation document:
   `docs/backend/phase-1-account-section-scoped-mutations.md`.
 - Phase 1B implementation:
@@ -58,7 +98,7 @@ checkpoint.
   `npm run build`.
 - Phase 1B production build metric:
   Account route chunk `Account-4Y7df4zk.js` 111.70 kB / 25.36 kB gzip.
-- Phase 1B is ready for the local checkpoint commit.
+- Phase 1B checkpoint commit exists: `709121e5`, `[codex] Phase 1B account section-scoped mutations`.
 - Phase 1A implementation document:
   `docs/backend/phase-1-account-session-authority-gate.md`.
 - Phase 1A implementation:
@@ -129,11 +169,12 @@ checkpoint.
 - Route-to-data-source contract now covers current `src/App.tsx` public,
   info/legal, account, dashboard, admin, redirect, dev and `*` routes.
 - Current next action:
-  - start Backend Phase 1C account conflict/version handling after the Phase 1B
-    checkpoint commit.
-- Next concrete implementation after Phase 1B:
-  - Backend Phase 1C account conflict/version handling for stale backend
-    snapshots and concurrent account edits.
+  - choose the next backend implementation from the plan after the Phase 1C
+    checkpoint.
+- Next concrete implementation after Phase 1C:
+  - choose from backend implementation plan; candidate is strict account
+    precondition-required decision and/or next Phase 1 account production
+    hardening item.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

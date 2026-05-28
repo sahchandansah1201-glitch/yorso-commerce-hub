@@ -3887,6 +3887,7 @@ Validation:
 - `npm run lint`;
 - `npm run check:production-scale-baseline`;
 - `git diff --check`;
+- `npm run api:build`;
 - `npm run build`.
 
 Marker: Backend Phase 1A.
@@ -3968,6 +3969,97 @@ Validated locally on 2026-05-28:
 
 Marker: Backend Phase 1B.
 Marker: account section-scoped mutations.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
+## Backend Phase 1C Account Conflict Version Handling
+
+Phase 1C adds account snapshot versioning to the self-hosted `/account/*`
+source-of-truth path. Current YORSO account clients receive an opaque
+`accountVersion` from account responses and send it back as
+`x-yorso-account-version` on account mutations. If the version is stale, the
+backend returns `409 account_snapshot_conflict` and the account UI shows a
+reloadable conflict state instead of silently overwriting newer backend data.
+
+Expected read/write profile:
+
+- Account route mount remains Phase 1A behavior: one session validation plus
+  bounded account snapshot reads.
+- Each account GET adds one account-version lookup scoped to the signed-in
+  account owner.
+- Each account mutation adds one precondition version lookup and one post-save
+  response version lookup.
+- Normal writes remain Phase 1B scoped writes:
+  - personal edits: `PATCH /v1/account/me`;
+  - company edits: `PATCH /v1/account/company`;
+  - branch/product/meta-region/notification edits: one row-level
+    `POST`, `PATCH` or `DELETE`.
+- No public catalog traffic, polling, subscriptions or background sync are
+  added.
+
+Cache, queue and backpressure strategy:
+
+- No new queue is introduced.
+- The existing self-hosted auth/session cache remains the session authority
+  boundary.
+- Account version is derived from backend `updated_at` values and held only in
+  the current frontend account API client instance.
+- On `account_snapshot_conflict`, the browser does not retry automatically; it
+  stops the write path and asks the user to reload the account snapshot.
+
+Database indexing and pagination strategy:
+
+- No new list or pagination surface is introduced.
+- The version query is bounded to one account owner and one company scope.
+- Required production indexes are the existing ownership indexes:
+  `yorso_companies.owner_user_id`, workspace `company_id` columns, and
+  `yorso_notification_preferences.user_id`.
+- Collection replacement paths touch the parent company/user row so deletions
+  and empty replacements still advance the account snapshot version.
+
+Failure mode and graceful degradation:
+
+- Current frontend writes with a stale version fail with
+  `409 account_snapshot_conflict`.
+- `/account/*` keeps the edited card open, shows an inline save error and a
+  page-level `account-save-conflict` banner with reload action.
+- API-enabled mode does not fall back to localStorage after a conflict.
+- Missing version headers remain accepted for backward compatibility until a
+  later strict precondition-required decision.
+- API-disabled local preview remains localStorage/mock only and does not use
+  backend versioning.
+
+Observability and load-test plan:
+
+- Track `409 account_snapshot_conflict` count/rate by account route, user and
+  session.
+- Track account-version lookup latency and account mutation p95/p99 latency.
+- Load-test 10,000 concurrent users with account route load, personal/company
+  edits, row-level collection edits and deliberate stale-tab saves.
+- Watch DB CPU, row lock waits, session-cache misses, conflict rate and
+  frontend reload-banner rate.
+
+Validation:
+
+- `npm run contracts:build`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+- `npx tsc -b --noEmit`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run build`.
+
+Validated locally on 2026-05-28:
+
+- API repository/server tests passed: 2 files, 77 tests;
+- frontend account conflict/version tests passed: 2 files, 37 tests;
+- production build passed with Account chunk
+  `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip;
+- known Supabase generated type and Browserslist warnings were preserved.
+
+Marker: Backend Phase 1C.
+Marker: account conflict version handling.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 

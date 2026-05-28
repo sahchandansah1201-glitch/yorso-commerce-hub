@@ -30,14 +30,6 @@
   Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
   Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.
 
-- Risk: Account API-mode saves still need explicit conflict/version handling.
-  Impact: A user can edit from a stale backend snapshot and overwrite a newer
-  backend value without a visible conflict path.
-  Mitigation: Phase 1A made backend session/profile authoritative before
-  render. Phase 1B narrows writes to the edited section/row and keeps UI state
-  remote-first. Phase 1C should add account snapshot versioning or updated-at
-  preconditions plus visible stale-save recovery.
-
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.
@@ -84,3 +76,11 @@
     endpoints; branch, product, meta-region and notification saves use existing
     row-level endpoints; collection forms wait for backend success before
     closing.
+
+- Risk: Account API-mode saves had no explicit conflict/version handling.
+  Resolution: Backend Phase 1C adds account snapshot versioning through
+    `accountVersion` responses and the `x-yorso-account-version` mutation
+    precondition. Stale current-frontend saves now fail with
+    `409 account_snapshot_conflict`, keep the edit form open and show a
+    reloadable `account-save-conflict` banner instead of silently overwriting
+    newer backend data.

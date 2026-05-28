@@ -4,6 +4,8 @@ import {
   ACCOUNT_API_SYNC_STORAGE_KEY,
   ACCOUNT_SESSION_ID_HEADER,
   ACCOUNT_USER_ID_HEADER,
+  ACCOUNT_VERSION_HEADER,
+  AccountApiConflictError,
   DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID,
   createAccountApiClient,
   fileToAccountUploadPayload,
@@ -210,6 +212,84 @@ describe("account API adapter", () => {
     expect(profile.products[0].commercialName).toBe("Backend Cod");
     expect(profile.metaRegions[0].name).toBe("Backend Region");
     expect(profile.notifications[0].frequency).toBe("weekly");
+  });
+
+  it("sends the latest account version precondition after loading account data", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, accountVersion: "account-v1", requestId: "r1" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, company: backendCompany, accountVersion: "account-v1", requestId: "r2" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, branches: backendBranches, accountVersion: "account-v1", requestId: "r3" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, products: backendProducts, accountVersion: "account-v1", requestId: "r4" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegions: backendMetaRegions, accountVersion: "account-v1", requestId: "r5" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, notifications: backendNotifications, accountVersion: "account-v1", requestId: "r6" }))
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        user: { ...backendUser, firstName: "Versioned" },
+        accountVersion: "account-v2",
+        requestId: "r7",
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        company: { ...backendCompany, tradeName: "Versioned Company" },
+        accountVersion: "account-v3",
+        requestId: "r8",
+      }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    await client.load(mockAccountProfile);
+
+    await syncAccountProfileSectionToApi(
+      {
+        ...mockAccountProfile,
+        user: { ...mockAccountProfile.user, firstName: "Versioned" },
+      },
+      mockAccountProfile,
+      "personal",
+      client,
+    );
+    await syncAccountProfileSectionToApi(
+      {
+        ...mockAccountProfile,
+        company: { ...mockAccountProfile.company, tradeName: "Versioned Company" },
+      },
+      mockAccountProfile,
+      "company",
+      client,
+    );
+
+    const [, userPatch] = fetchImpl.mock.calls[6] as [string, RequestInit];
+    const [, companyPatch] = fetchImpl.mock.calls[7] as [string, RequestInit];
+    expect(new Headers(userPatch.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v1");
+    expect(new Headers(companyPatch.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v2");
+  });
+
+  it("rethrows stale account snapshot conflicts for account section saves", async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValueOnce(
+      jsonResponse({
+        ok: false,
+        error: {
+          code: "account_snapshot_conflict",
+          message: "Account data changed since it was loaded.",
+        },
+      }, 409),
+    );
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    await expect(
+      syncAccountProfileSectionToApi(
+        {
+          ...mockAccountProfile,
+          user: { ...mockAccountProfile.user, firstName: "Stale" },
+        },
+        mockAccountProfile,
+        "personal",
+        client,
+      ),
+    ).rejects.toBeInstanceOf(AccountApiConflictError);
+    expect(JSON.parse(localStorage.getItem(ACCOUNT_API_SYNC_STORAGE_KEY) ?? "{}")).toMatchObject({
+      state: "failed",
+      detail: "Account data changed since it was loaded.",
+    });
   });
 
   it("saves all account workspace sections to the self-hosted API", async () => {

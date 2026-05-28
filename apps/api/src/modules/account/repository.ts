@@ -22,6 +22,7 @@ import type {
 } from "../../../../../packages/contracts/dist/index.js";
 
 export interface AccountRepository {
+  getAccountVersion(userId: string): Promise<string>;
   getUserProfile(userId: string): Promise<UserProfile | null>;
   updateUserProfile(userId: string, update: UserProfileUpdate): Promise<UserProfile>;
   getCompanyProfile(userId: string): Promise<CompanyProfile | null>;
@@ -49,6 +50,9 @@ export interface AccountRepository {
 }
 
 const demoUserId = "00000000-0000-4000-8000-000000000001";
+let accountVersionCounter = 0;
+
+const nextAccountVersion = () => `${new Date().toISOString()}#${++accountVersionCounter}`;
 
 const demoUser: UserProfile = {
   id: demoUserId,
@@ -219,6 +223,7 @@ export class MemoryAccountRepository implements AccountRepository {
   private readonly products = new Map<string, CompanyProduct[]>();
   private readonly metaRegions = new Map<string, MetaRegion[]>();
   private readonly notifications = new Map<string, NotificationPreference[]>();
+  private readonly accountVersions = new Map<string, string>();
 
   constructor(seed: {
     user?: UserProfile;
@@ -235,6 +240,19 @@ export class MemoryAccountRepository implements AccountRepository {
     this.products.set(userId, cloneList(seed.products ?? demoProducts));
     this.metaRegions.set(userId, cloneList(seed.metaRegions ?? demoMetaRegions));
     this.notifications.set(userId, cloneList(seed.notifications ?? demoNotifications));
+    this.accountVersions.set(userId, nextAccountVersion());
+  }
+
+  async getAccountVersion(userId: string) {
+    const version = this.accountVersions.get(userId);
+    if (version) return version;
+    const current = nextAccountVersion();
+    this.accountVersions.set(userId, current);
+    return current;
+  }
+
+  private bumpAccountVersion(userId: string) {
+    this.accountVersions.set(userId, nextAccountVersion());
   }
 
   async getUserProfile(userId: string) {
@@ -251,6 +269,7 @@ export class MemoryAccountRepository implements AccountRepository {
       updatedAt: new Date().toISOString(),
     };
     this.users.set(userId, next);
+    this.bumpAccountVersion(userId);
     return next;
   }
 
@@ -264,6 +283,7 @@ export class MemoryAccountRepository implements AccountRepository {
 
     const next = mergeCompanyProfile(current, update);
     this.companies.set(userId, next);
+    this.bumpAccountVersion(userId);
     return next;
   }
 
@@ -273,6 +293,7 @@ export class MemoryAccountRepository implements AccountRepository {
 
   async replaceBranches(userId: string, branches: AccountBranchesUpdate) {
     this.branches.set(userId, cloneList(branches));
+    this.bumpAccountVersion(userId);
     return this.getBranches(userId);
   }
 
@@ -280,6 +301,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.branches.get(userId) ?? [];
     const created = createWorkspaceItem(items, itemId, branch);
     this.branches.set(userId, items);
+    this.bumpAccountVersion(userId);
     return created;
   }
 
@@ -287,6 +309,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.branches.get(userId) ?? [];
     const updated = updateWorkspaceItem(items, itemId, update);
     this.branches.set(userId, items);
+    this.bumpAccountVersion(userId);
     return updated;
   }
 
@@ -294,6 +317,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.branches.get(userId) ?? [];
     const deleted = deleteWorkspaceItem(items, itemId);
     this.branches.set(userId, items);
+    this.bumpAccountVersion(userId);
     return deleted;
   }
 
@@ -303,6 +327,7 @@ export class MemoryAccountRepository implements AccountRepository {
 
   async replaceProducts(userId: string, products: AccountProductsUpdate) {
     this.products.set(userId, cloneList(products));
+    this.bumpAccountVersion(userId);
     return this.getProducts(userId);
   }
 
@@ -310,6 +335,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.products.get(userId) ?? [];
     const created = createWorkspaceItem(items, itemId, product);
     this.products.set(userId, items);
+    this.bumpAccountVersion(userId);
     return created;
   }
 
@@ -317,6 +343,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.products.get(userId) ?? [];
     const updated = updateWorkspaceItem(items, itemId, update);
     this.products.set(userId, items);
+    this.bumpAccountVersion(userId);
     return updated;
   }
 
@@ -324,6 +351,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.products.get(userId) ?? [];
     const deleted = deleteWorkspaceItem(items, itemId);
     this.products.set(userId, items);
+    this.bumpAccountVersion(userId);
     return deleted;
   }
 
@@ -333,6 +361,7 @@ export class MemoryAccountRepository implements AccountRepository {
 
   async replaceMetaRegions(userId: string, metaRegions: AccountMetaRegionsUpdate) {
     this.metaRegions.set(userId, cloneList(metaRegions));
+    this.bumpAccountVersion(userId);
     return this.getMetaRegions(userId);
   }
 
@@ -340,6 +369,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.metaRegions.get(userId) ?? [];
     const created = createWorkspaceItem(items, itemId, metaRegion);
     this.metaRegions.set(userId, items);
+    this.bumpAccountVersion(userId);
     return created;
   }
 
@@ -347,6 +377,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.metaRegions.get(userId) ?? [];
     const updated = updateWorkspaceItem(items, itemId, update);
     this.metaRegions.set(userId, items);
+    this.bumpAccountVersion(userId);
     return updated;
   }
 
@@ -354,6 +385,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.metaRegions.get(userId) ?? [];
     const deleted = deleteWorkspaceItem(items, itemId);
     this.metaRegions.set(userId, items);
+    this.bumpAccountVersion(userId);
     return deleted;
   }
 
@@ -363,6 +395,7 @@ export class MemoryAccountRepository implements AccountRepository {
 
   async replaceNotifications(userId: string, notifications: AccountNotificationsUpdate) {
     this.notifications.set(userId, cloneList(notifications));
+    this.bumpAccountVersion(userId);
     return this.getNotifications(userId);
   }
 
@@ -370,6 +403,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.notifications.get(userId) ?? [];
     const created = createWorkspaceItem(items, itemId, notification);
     this.notifications.set(userId, items);
+    this.bumpAccountVersion(userId);
     return created;
   }
 
@@ -377,6 +411,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.notifications.get(userId) ?? [];
     const updated = updateWorkspaceItem(items, itemId, update);
     this.notifications.set(userId, items);
+    this.bumpAccountVersion(userId);
     return updated;
   }
 
@@ -384,6 +419,7 @@ export class MemoryAccountRepository implements AccountRepository {
     const items = this.notifications.get(userId) ?? [];
     const deleted = deleteWorkspaceItem(items, itemId);
     this.notifications.set(userId, items);
+    this.bumpAccountVersion(userId);
     return deleted;
   }
 }

@@ -30,6 +30,7 @@ import {
   createAccountApiClient,
   fileToAccountUploadPayload,
   hydrateAccountProfileFromApi,
+  isAccountApiConflictError,
   syncAccountProfileSectionToApi,
   syncAccountProfileToApi,
   type AccountProfileSectionSyncTarget,
@@ -81,6 +82,11 @@ type AccountBootStatus = "loading" | "ready" | "auth_required" | "unavailable";
 type AccountApiClient = ReturnType<typeof createAccountApiClient>;
 
 const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
+
+const accountSaveErrorMessage = (
+  error: unknown,
+  t: ReturnType<typeof useLanguage>["t"],
+) => (error instanceof Error && error.message.trim() ? error.message : t.account_remoteSaveFailed);
 
 const Field = ({ label, value, badge }: { label: string; value: string; badge?: ReactNode }) => {
   const { t } = useLanguage();
@@ -1174,8 +1180,8 @@ const BranchesSection = ({
       await onChange({ ...profile, branches: nextBranches });
       setSelectedBranchId(normalized.id);
       cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -1185,8 +1191,8 @@ const BranchesSection = ({
       await onChange({ ...profile, branches: profile.branches.filter((b) => b.id !== branchId) });
       if (selectedBranchId === branchId) setSelectedBranchId(null);
       if (editingId === branchId) cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -1959,8 +1965,8 @@ const ProductsSection = ({
       await onChange({ ...profile, products: nextProducts });
       setSelectedProductId(normalized.id);
       cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -1970,8 +1976,8 @@ const ProductsSection = ({
       await onChange({ ...profile, products: profile.products.filter((p) => p.id !== productId) });
       if (selectedProductId === productId) setSelectedProductId(null);
       if (editingId === productId) cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -2632,8 +2638,8 @@ const MetaRegionsSection = ({
     try {
       await onChange({ ...profile, metaRegions: nextRegions });
       cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -2642,8 +2648,8 @@ const MetaRegionsSection = ({
     try {
       await onChange({ ...profile, metaRegions: profile.metaRegions.filter((m) => m.id !== regionId) });
       if (editingId === regionId) cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -2939,8 +2945,8 @@ const NotificationsSection = ({
     try {
       await onChange({ ...profile, notifications: nextNotifications });
       cancelEdit();
-    } catch {
-      setSaveError(t.account_remoteSaveFailed);
+    } catch (error) {
+      setSaveError(accountSaveErrorMessage(error, t));
     }
   };
 
@@ -3161,6 +3167,38 @@ const AccountStatusScreen = ({
   );
 };
 
+const AccountConflictBanner = ({ onReload }: { onReload: () => void }) => {
+  const { t } = useLanguage();
+
+  return (
+    <section
+      className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-950 shadow-sm"
+      role="alert"
+      data-testid="account-save-conflict"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 gap-3">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold">{t.account_conflict_title}</h2>
+            <p className="mt-1 text-sm leading-6 text-amber-900">{t.account_conflict_body}</p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 border-amber-300 bg-background text-amber-950 hover:bg-amber-100"
+          onClick={onReload}
+          data-testid="account-save-conflict-reload"
+        >
+          <RefreshCcw className="mr-2 h-4 w-4" aria-hidden />
+          {t.account_conflict_reload}
+        </Button>
+      </div>
+    </section>
+  );
+};
+
 const Account = () => {
   const { t } = useLanguage();
   const { section } = useParams<{ section?: string }>();
@@ -3178,6 +3216,7 @@ const Account = () => {
     apiEnabled ? "loading" : "ready",
   );
   const [bootRetry, setBootRetry] = useState(0);
+  const [saveConflict, setSaveConflict] = useState(false);
   const [authSession, setAuthSession] = useState<AuthRuntimeSession | null>(null);
   const syncVersionRef = useRef(0);
   const accountApiClient = useMemo(
@@ -3196,10 +3235,11 @@ const Account = () => {
     const localProfile = getAccountProfile();
     const hydrationVersion = syncVersionRef.current;
 
-    if (!apiEnabled) {
-      setAuthSession(null);
-      setProfile(localProfile);
-      setBootStatus("ready");
+      if (!apiEnabled) {
+        setAuthSession(null);
+        setProfile(localProfile);
+        setSaveConflict(false);
+        setBootStatus("ready");
       return () => {
         isMounted = false;
       };
@@ -3218,11 +3258,13 @@ const Account = () => {
         if (code !== "auth_session_required" && code !== "auth_session_invalid") {
           setAuthSession(null);
           setProfile(null);
+          setSaveConflict(false);
           setBootStatus("unavailable");
           return;
         }
         buyerSession.signOut();
         setAuthSession(null);
+        setSaveConflict(false);
         setBootStatus("auth_required");
         return;
       }
@@ -3237,17 +3279,20 @@ const Account = () => {
       if (!remoteProfile) {
         setAuthSession(authResult.session);
         setProfile(null);
+        setSaveConflict(false);
         setBootStatus("unavailable");
         return;
       }
 
       setAuthSession(authResult.session);
       setProfile(remoteProfile);
+      setSaveConflict(false);
       setBootStatus("ready");
     })().catch(() => {
       if (!isMounted) return;
       setAuthSession(null);
       setProfile(null);
+      setSaveConflict(false);
       setBootStatus("unavailable");
     });
 
@@ -3267,26 +3312,43 @@ const Account = () => {
       }
 
       if (!authSession || !options.section) throw new Error(t.account_remoteSaveFailed);
-      const remoteProfile = await syncAccountProfileSectionToApi(
-        next,
-        profile,
-        options.section,
-        accountApiClient,
-      );
+      let remoteProfile: AccountProfile | null;
+      try {
+        remoteProfile = await syncAccountProfileSectionToApi(
+          next,
+          profile,
+          options.section,
+          accountApiClient,
+        );
+      } catch (error) {
+        if (isAccountApiConflictError(error)) {
+          setSaveConflict(true);
+          throw new Error(t.account_conflict_saveFailed);
+        }
+        throw error;
+      }
       if (!remoteProfile) throw new Error(t.account_remoteSaveFailed);
       if (syncVersion !== syncVersionRef.current) return;
       setProfile(remoteProfile);
+      setSaveConflict(false);
       return;
     }
 
     setProfile(next);
+    setSaveConflict(false);
     saveAccountProfile(next);
     if (options.syncRemote === false) return;
     void syncAccountProfileToApi(next).then((remoteProfile) => {
       if (!remoteProfile || syncVersion !== syncVersionRef.current) return;
       setProfile(remoteProfile);
+      setSaveConflict(false);
       saveAccountProfile(remoteProfile);
     });
+  };
+
+  const reloadAccountData = () => {
+    setSaveConflict(false);
+    setBootRetry((value) => value + 1);
   };
 
   if (!active) return <Navigate to="/account/personal" replace />;
@@ -3331,6 +3393,7 @@ const Account = () => {
 
   return (
     <AccountShell active={active} profile={profile} sourceMode={sourceMode}>
+      {saveConflict ? <AccountConflictBanner onReload={reloadAccountData} /> : null}
       {content}
     </AccountShell>
   );

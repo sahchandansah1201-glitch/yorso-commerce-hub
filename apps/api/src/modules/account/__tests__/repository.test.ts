@@ -64,6 +64,7 @@ type FakeBranchRow = {
   port_or_pickup_point: string;
   notes: string;
   position: number;
+  updated_at: Date;
 };
 
 type FakeProductRow = {
@@ -79,6 +80,7 @@ type FakeProductRow = {
   certificates: string[];
   target_countries: string[];
   position: number;
+  updated_at: Date;
 };
 
 type FakeMetaRegionRow = {
@@ -91,6 +93,7 @@ type FakeMetaRegionRow = {
   notes: string;
   used_for: Array<"notifications" | "price_access" | "campaigns" | "landed_cost" | "supplier_matching">;
   position: number;
+  updated_at: Date;
 };
 
 type FakeNotificationRow = {
@@ -109,6 +112,7 @@ type FakeNotificationRow = {
   >;
   frequency: "instant" | "daily" | "weekly";
   position: number;
+  updated_at: Date;
 };
 
 class FakeAccountPgClient implements AccountQueryClient {
@@ -164,6 +168,7 @@ class FakeAccountPgClient implements AccountQueryClient {
       port_or_pickup_point: "Vigo HQ",
       notes: "Legal seat.",
       position: 0,
+      updated_at: new Date("2026-05-13T08:00:00.000Z"),
     },
   ];
   products: FakeProductRow[] = [
@@ -180,6 +185,7 @@ class FakeAccountPgClient implements AccountQueryClient {
       certificates: ["MSC"],
       target_countries: ["Spain"],
       position: 0,
+      updated_at: new Date("2026-05-13T08:00:00.000Z"),
     },
   ];
   metaRegions: FakeMetaRegionRow[] = [
@@ -193,6 +199,7 @@ class FakeAccountPgClient implements AccountQueryClient {
       notes: "Shared buyers.",
       used_for: ["notifications"],
       position: 0,
+      updated_at: new Date("2026-05-13T08:00:00.000Z"),
     },
   ];
   notifications: FakeNotificationRow[] = [
@@ -204,12 +211,26 @@ class FakeAccountPgClient implements AccountQueryClient {
       events: ["price_access_approved"],
       frequency: "instant",
       position: 0,
+      updated_at: new Date("2026-05-13T08:00:00.000Z"),
     },
   ];
 
   async query<Row extends Record<string, unknown> = Record<string, unknown>>(sql: string, params: readonly unknown[] = []) {
     this.calls.push({ sql, params });
     const normalized = sql.replace(/\s+/g, " ").trim().toLowerCase();
+
+    if (normalized.startsWith("with account_company as")) {
+      const allVersions = [
+        this.user.updated_at,
+        this.company?.updated_at,
+        ...this.branches.map((branch) => branch.updated_at),
+        ...this.products.map((product) => product.updated_at),
+        ...this.metaRegions.map((metaRegion) => metaRegion.updated_at),
+        ...this.notifications.map((notification) => notification.updated_at),
+      ].filter(Boolean) as Date[];
+      const accountVersion = new Date(Math.max(...allVersions.map((date) => date.getTime())));
+      return { rows: [{ account_version: accountVersion } as unknown as Row] };
+    }
 
     if (normalized.includes("from yorso_users")) {
       return { rows: params[0] === this.user.id ? ([this.user] as unknown as Row[]) : [] };
@@ -218,6 +239,13 @@ class FakeAccountPgClient implements AccountQueryClient {
     if (normalized.startsWith("update yorso_users")) {
       const userId = params[params.length - 1];
       if (userId !== this.user.id) return { rows: [] };
+
+      if (normalized.includes("updated_at = now()")) {
+        this.user = {
+          ...this.user,
+          updated_at: new Date("2026-05-13T09:00:00.000Z"),
+        };
+      }
 
       const assignments = [
         ["first_name", "first_name"],
@@ -251,6 +279,13 @@ class FakeAccountPgClient implements AccountQueryClient {
 
       const companyId = params[params.length - 1];
       if (companyId !== this.company.id) return { rows: [] };
+
+      if (normalized.includes("updated_at = now()")) {
+        this.company = {
+          ...this.company,
+          updated_at: new Date("2026-05-13T09:00:00.000Z"),
+        };
+      }
 
       const assignments = [
         ["legal_name", "legal_name"],
@@ -340,6 +375,7 @@ class FakeAccountPgClient implements AccountQueryClient {
         port_or_pickup_point: params[9] as string,
         notes: params[10] as string,
         position: params[11] as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
       });
       return { rows: [] };
     }
@@ -371,6 +407,7 @@ class FakeAccountPgClient implements AccountQueryClient {
         certificates: params[9] as string[],
         target_countries: params[10] as string[],
         position: params[11] as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
       });
       return { rows: [] };
     }
@@ -399,6 +436,7 @@ class FakeAccountPgClient implements AccountQueryClient {
         notes: params[6] as string,
         used_for: params[7] as FakeMetaRegionRow["used_for"],
         position: params[8] as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
       });
       return { rows: [] };
     }
@@ -423,6 +461,7 @@ class FakeAccountPgClient implements AccountQueryClient {
         events: params[4] as FakeNotificationRow["events"],
         frequency: params[5] as FakeNotificationRow["frequency"],
         position: params[6] as number,
+        updated_at: new Date("2026-05-13T09:00:00.000Z"),
       });
       return { rows: [] };
     }
@@ -550,6 +589,19 @@ describe("account repositories", () => {
     await expect(repository.deleteMetaRegion(demoUserId, "mr_1")).rejects.toThrow("workspace_item_not_found");
   });
 
+  it("memory repository bumps the account version after workspace mutations", async () => {
+    const repository = new MemoryAccountRepository();
+
+    const before = await repository.getAccountVersion(demoUserId);
+    await repository.updateUserProfile(demoUserId, { firstName: "Versioned" });
+    const afterUserUpdate = await repository.getAccountVersion(demoUserId);
+    await repository.deleteBranch(demoUserId, "br_1");
+    const afterBranchDelete = await repository.getAccountVersion(demoUserId);
+
+    expect(afterUserUpdate).not.toBe(before);
+    expect(afterBranchDelete).not.toBe(afterUserUpdate);
+  });
+
   it("factory selects memory repository by default", () => {
     const config = loadApiConfig({ NODE_ENV: "test" }, { allowLocalDefaults: true });
     const repository = createAccountRepository(config);
@@ -616,6 +668,18 @@ describe("account repositories", () => {
       preferredLanguage: "ru",
     });
     expect(client.calls.some((call) => call.sql.includes("update yorso_users"))).toBe(true);
+  });
+
+  it("postgres repository computes a single account version across profile and workspace tables", async () => {
+    const { client, repository } = createPostgresRepository();
+
+    const before = await repository.getAccountVersion(demoUserId);
+    await repository.updateUserProfile(demoUserId, { firstName: "Versioned" });
+    const afterUserUpdate = await repository.getAccountVersion(demoUserId);
+
+    expect(before).toBe("2026-05-13T08:00:00.000Z");
+    expect(afterUserUpdate).toBe("2026-05-13T09:00:00.000Z");
+    expect(client.calls.some((call) => call.sql.includes("with account_company as"))).toBe(true);
   });
 
   it("postgres repository maps company and media rows to the account contract", async () => {

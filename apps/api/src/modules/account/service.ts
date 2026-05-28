@@ -26,6 +26,18 @@ import type { AccountRepository } from "./repository.js";
 export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
 
+  async getAccountVersion(userId: string) {
+    return this.repository.getAccountVersion(userId);
+  }
+
+  async assertAccountVersion(userId: string, expectedVersion?: string) {
+    const expected = expectedVersion?.trim();
+    if (!expected) return;
+
+    const current = await this.repository.getAccountVersion(userId);
+    if (current !== expected) throw new Error("account_snapshot_conflict");
+  }
+
   async getCurrentUserProfile(userId: string) {
     const profile = await this.repository.getUserProfile(userId);
     if (!profile) throw new Error("user_not_found");

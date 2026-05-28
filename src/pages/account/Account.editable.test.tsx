@@ -312,6 +312,54 @@ describe("Account editability", () => {
     expect(localStorage.getItem(ACCOUNT_STORAGE_KEY) ?? "").not.toContain("Alicia");
   });
 
+  it("self-hosted account mode shows a reloadable conflict state when account data is stale", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/v1/account/me") && init?.method === "PATCH") {
+        return okJson({
+          ok: false,
+          error: {
+            code: "account_snapshot_conflict",
+            message: "Account data changed since it was loaded.",
+          },
+        }, 409);
+      }
+      const body = accountApiBody(url, init);
+      if (!body) return okJson({ error: { code: "not_found" }, ok: false }, 404);
+      return okJson({ ...body, accountVersion: "account-v1" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderAt("/account/personal");
+    const card = await screen.findByTestId("account-card-personal-basic");
+
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-edit"));
+    });
+    await act(async () => {
+      fireEvent.change(within(card).getByTestId("account-input-firstName"), {
+        target: { value: "Stale" },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-save"));
+    });
+
+    expect(await screen.findByTestId("account-save-conflict")).toBeInTheDocument();
+    expect(within(card).getByText("Account data changed. Reload the profile and try again.")).toBeInTheDocument();
+    expect(card.getAttribute("data-editing")).toBe("true");
+
+    const callsBeforeReload = fetchMock.mock.calls.length;
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("account-save-conflict-reload"));
+    });
+
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThan(callsBeforeReload));
+    await waitFor(() => expect(screen.queryByTestId("account-save-conflict")).not.toBeInTheDocument());
+  });
+
   it("self-hosted account mode adds a branch through only the row-level branch endpoint", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
     signInSelfHosted();

@@ -1877,12 +1877,55 @@ Keep this file factual and append-only.
   - `npm run lint`;
   - `npm run check:production-scale-baseline`;
   - `git diff --check`;
+  - `npm run api:build`;
   - `npm run build`.
 - Production build metric:
   - Account route chunk `Account-CSSVMLIT.js` 109.62 kB / 25.11 kB gzip.
 - Known non-blocking warnings preserved:
   - React Router v7 future flag warnings in existing test harness;
   - existing `act(...)` warnings in legacy account editable tests.
+
+## 2026-05-28
+
+- Implemented Backend Phase 1C: Account Conflict Version Handling.
+- Added account snapshot version support to account repositories:
+  - `MemoryAccountRepository` keeps a monotonic account version and bumps it on
+    user, company and workspace mutations;
+  - `PostgresAccountRepository` computes account version from max `updated_at`
+    across user, company, media, workspace collection and notification tables;
+  - PostgreSQL collection replacements touch the parent company/user row so
+    deletes and empty replacements advance the version.
+- Updated account routes so account responses include `accountVersion`.
+- Added stale mutation protection: when a current frontend write sends stale
+  `x-yorso-account-version`, backend returns `409 account_snapshot_conflict`.
+- Kept missing version headers accepted for backward compatibility with legacy
+  clients until a later strict precondition-required decision.
+- Updated `src/lib/account-api.ts` so the frontend remembers
+  `accountVersion`, sends `x-yorso-account-version` on writes, runs full save
+  and row-level collection sync sequentially, and rethrows
+  `AccountApiConflictError`.
+- Updated `/account/*` UI so stale saves keep the edited card open, show inline
+  conflict copy and render a reloadable `account-save-conflict` banner.
+- Added EN/RU/ES conflict copy to `src/i18n/translations.ts`.
+- Added `docs/backend/phase-1-account-conflict-version-handling.md`.
+- Added the Phase 1C 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+  - 2 API files passed;
+  - 77 tests passed;
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+  - 2 frontend files passed;
+  - 37 tests passed;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 
 ## 2026-05-28
 

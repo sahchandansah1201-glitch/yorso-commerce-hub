@@ -13,6 +13,8 @@ import type { AccountService } from "./service.js";
 type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
 type AccountItemName = "branch" | "product" | "metaRegion" | "notification";
 
+const ACCOUNT_VERSION_HEADER = "x-yorso-account-version";
+
 const accountCollections = {
   "/v1/account/branches": {
     key: "branches",
@@ -107,6 +109,18 @@ function matchCollectionItem(pathname: string) {
   return null;
 }
 
+function readAccountVersionHeader(request: IncomingMessage) {
+  const value = request.headers[ACCOUNT_VERSION_HEADER];
+  if (Array.isArray(value)) return value[0]?.trim() ?? "";
+  return typeof value === "string" ? value.trim() : "";
+}
+
+async function accountVersionPayload(service: AccountService, userId: string) {
+  return {
+    accountVersion: await service.getAccountVersion(userId),
+  };
+}
+
 export async function handleAccountRoute(
   request: IncomingMessage,
   response: ServerResponse,
@@ -126,6 +140,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           user: profile,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -133,6 +148,7 @@ export async function handleAccountRoute(
 
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const profile = await service.updateCurrentUserProfile(userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: "account.user.update",
@@ -146,6 +162,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           user: profile,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -163,6 +180,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           company,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -170,6 +188,7 @@ export async function handleAccountRoute(
 
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const company = await service.updateCompanyProfile(userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: "account.company.update",
@@ -183,6 +202,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           company,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -201,6 +221,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           [collection.key]: items,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -208,6 +229,7 @@ export async function handleAccountRoute(
 
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const items = await collection.replace(service, userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.replace`,
@@ -221,6 +243,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           [collection.key]: items,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -241,6 +264,7 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           [collection.key]: item,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -248,6 +272,7 @@ export async function handleAccountRoute(
 
       if (request.method === "POST") {
         const payload = await readJsonBody(request, jsonBodyOptions);
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const item = await collection.create(service, userId, itemId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.create`,
@@ -261,6 +286,7 @@ export async function handleAccountRoute(
         sendJson(response, 201, {
           ok: true,
           [collection.key]: item,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -268,6 +294,7 @@ export async function handleAccountRoute(
 
       if (request.method === "PATCH") {
         const payload = await readJsonBody(request, jsonBodyOptions);
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const item = await collection.update(service, userId, itemId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.update`,
@@ -281,12 +308,14 @@ export async function handleAccountRoute(
         sendJson(response, 200, {
           ok: true,
           [collection.key]: item,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
       }
 
       if (request.method === "DELETE") {
+        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
         const item = await collection.remove(service, userId, itemId);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.delete`,
@@ -301,6 +330,7 @@ export async function handleAccountRoute(
           ok: true,
           deletedId: itemId,
           [collection.key]: item,
+          ...(await accountVersionPayload(service, userId)),
           requestId: context.requestId,
         });
         return true;
@@ -347,6 +377,17 @@ export async function handleAccountRoute(
 
     if (error instanceof Error && error.message === "workspace_item_conflict") {
       sendError(response, 409, error.message, "Workspace item already exists for this account.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "account_snapshot_conflict") {
+      sendError(
+        response,
+        409,
+        error.message,
+        "Account data changed since it was loaded. Reload account data and try again.",
+        context,
+      );
       return true;
     }
 

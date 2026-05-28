@@ -2167,6 +2167,47 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("rejects stale account mutations when the account version precondition is stale", async () => {
+    const fetchApi = await startTestServer();
+
+    const accountRead = await fetchApi("/v1/account/me");
+    const accountReadBody = (await accountRead.json()) as JsonBody;
+    expect(accountRead.status).toBe(200);
+    const initialVersion = String(accountReadBody.accountVersion);
+    expect(initialVersion).toBeTruthy();
+
+    const firstUpdate = await fetchApi("/v1/account/me", {
+      method: "PATCH",
+      headers: { "x-yorso-account-version": initialVersion },
+      body: JSON.stringify({ firstName: "Versioned" }),
+    });
+    const firstUpdateBody = (await firstUpdate.json()) as JsonBody;
+    expect(firstUpdate.status).toBe(200);
+    const freshVersion = String(firstUpdateBody.accountVersion);
+    expect(freshVersion).toBeTruthy();
+    expect(freshVersion).not.toBe(initialVersion);
+
+    const staleUpdate = await fetchApi("/v1/account/company", {
+      method: "PATCH",
+      headers: { "x-yorso-account-version": initialVersion },
+      body: JSON.stringify({ tradeName: "Stale Company" }),
+    });
+    expect(staleUpdate.status).toBe(409);
+    await expect(staleUpdate.json()).resolves.toMatchObject({
+      error: { code: "account_snapshot_conflict" },
+    });
+
+    const freshUpdate = await fetchApi("/v1/account/company", {
+      method: "PATCH",
+      headers: { "x-yorso-account-version": freshVersion },
+      body: JSON.stringify({ tradeName: "Fresh Company" }),
+    });
+    const freshUpdateBody = (await freshUpdate.json()) as JsonBody;
+    expect(freshUpdate.status).toBe(200);
+    expect(freshUpdateBody.company).toMatchObject({ tradeName: "Fresh Company" });
+    expect(String(freshUpdateBody.accountVersion)).not.toBe(freshVersion);
+  });
+
   it("uploads company logo media through the self-hosted file route and updates company media", async () => {
     const fetchApi = await startTestServer();
     const response = await fetchApi("/v1/account/company/media/logo", {
